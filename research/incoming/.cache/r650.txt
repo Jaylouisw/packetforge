@@ -1,0 +1,109 @@
+# Your Dell.com Carts
+* Products
+* Solutions
+* Services
+* Support
++ Back
++ Support
++ Support Home
++ Support Library
++ Support Videos
++ Support Services & Warranty
++ [Drivers & Downloads](https://www.dell.com/support/home/en-us?app=drivers)
++ [Manuals & Documentation](https://www.dell.com/support/home/en-us?app=manuals)
++ PC Diagnostics
++ Self-Repair & Parts
++ Service Requests & Dispatch Status
++ Order Support
+
+...
+
+# Dell PowerEdge R650 Technical Specifications
+Hide Table of Contents
+* [Notes, cautions, and warnings](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/notes-cautions-and-warnings?guid=guid-5b8de7b7-879f-45a4-88e0-732155904029&lang=en-us)
+* [Technical specifications](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/technical-specifications?guid=guid-e10877c2-c0bb-43af-9abf-a850478152d6&lang=en-us)
+
+...
+
++ [Processor specifications](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/processor-specifications?guid=guid-7830abee-2f71-4629-8cff-59cd1239f6f5&lang=en-us)
++ [PSU specifications](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/psu-specifications?guid=guid-fed189cc-03ba-4878-8c43-f6e724cb8a0a&lang=en-us)
++ [Supported operating systems](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/supported-operating-systems?guid=guid-e4041b49-e543-4cc0-ada7-8784178bb3f6&lang=en-us)
++ [Cooling specifications](https://www.dell.com/support/manuals/en-us/poweredge-r650/per650_ts_pub_ism/cooling-specifications?guid=guid-18b7d3b6-e361-466c-9d55-801aa16dcdbf&lang=en-us)
+
+...
+
+Hide Table of Contents Show Table of Contents
+Show Table of Contents
+Print [PDF](https://dl.dell.com/content/manual46646525-dell-poweredge-r650-technical-specifications.pdf?language=en-us " Dell PowerEdge R650  Technical Specifications  PDF")
+
+...
+
+## NIC port specifications
+### Rate this content
+All fields are required unless marked otherwise.
+Accurate
+not accurate
+somewhat accurate
+mostly accurate
+accurate
+very accurate
+Useful
+not useful
+somewhat useful
+mostly useful
+useful
+very useful
+Easy to understand
+not easy
+somewhat easy
+mostly easy
+easy
+very-easy
+Was this article helpful?
+Yes
+No
+Send us feedback (Optional)
+0 /3000 characters
+Comments cannot contain these special characters: <>()\
+Send Feedback
+Sorry, our feedback system is currently down. Please try again later.
+Thank you for your feedback.
+Please provide ratings (1-5 stars).
+Please provide ratings (1-5 stars).
+Please provide ratings (1-5 stars).
+Please select whether the article was helpful or not.
+Comments cannot contain these special characters: <>()\
+US/EN
+Site Map
+Account Account
+* My Account
+* Order Status
+* Profile Settings
+* My Products
+* Make a Payment
+* Dell Rewards Balance
+Support Support
+* Support Home
+* [Contact Technical Support](https://www.dell.com/support/incidents-online/en-us/contactus/dynamic?spestate)
+* Returns
+
+...
+
+* Who We Are
+* Careers
+* Dell Technologies Capital
+* Investors
+* Newsroom
+* Recycling
+* Corporate Impact
+* Customer Stories
+Our Partners Our Partners
+* Find a Partner
+* Find a Reseller
+* OEM Solutions
+* Partner Program
+Resources Resources
+
+...
+
+* [Anti-Slavery, Human Trafficking & Child Labor](https://www.delltechnologies.com/asset/en-us/solutions/business-solutions/legal-pricing/statement-against-modern-slavery-human-trafficking-and-child-labor.pdf)

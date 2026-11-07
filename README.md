@@ -144,6 +144,20 @@ Contributions are welcome — especially new hardware models. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide and
 [docs/DEVICE_REGISTRY.md](docs/DEVICE_REGISTRY.md) for the device schema.
 
+### Want a device added?
+
+[**Open a hardware request →**](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)
+
+Every device is one JSON file, so a good request is mostly a good datasheet link.
+Anything internet-connected is in scope: routers, switches, firewalls, APs and
+point-to-point radios, OLTs and ONTs, cable and DSL modems, powerline and MoCA
+adapters, servers, NAS, laptops, phones, printers, IP cameras, NVRs and IoT gear.
+
+Requests are triaged with `node scripts/request-queue.js`, which checks each one
+against the catalog and for a usable datasheet before any time is spent on it.
+The full process — what we need, what happens, and what we will not do (invent
+port counts) — is in [docs/REQUESTING-HARDWARE.md](docs/REQUESTING-HARDWARE.md).
+
 Please report security issues privately — see [SECURITY.md](SECURITY.md).
 
 ## License

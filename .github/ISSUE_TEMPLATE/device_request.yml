@@ -1,38 +1,114 @@
-name: Device / hardware request
-description: Request a hardware model to be added to the catalog
+name: Hardware request
+description: Ask for a device model to be added to the catalog
 title: "[Device]: "
-labels: [device, enhancement]
+labels: ["device-request", "device", "enhancement"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        PacketForge grows by **one JSON file per device**, so a good request is mostly a good datasheet link.
+
+        You do not need to write the JSON yourself — but if you want to, see
+        [docs/DEVICE_REGISTRY.md](https://github.com/Jaylouisw/packetforge/blob/main/docs/DEVICE_REGISTRY.md).
+        Requests with a real manufacturer datasheet get implemented; requests without one usually
+        stall, because we will not invent port counts.
+
   - type: input
     id: vendor
     attributes:
       label: Vendor
-      placeholder: "e.g. MikroTik, Ubiquiti, Cisco"
+      placeholder: "MikroTik, Ubiquiti, Cisco, Hikvision, Synology, Apple…"
     validations:
       required: true
+
   - type: input
     id: model
     attributes:
-      label: Model
-      placeholder: "e.g. CRS328-24P-4S+RM"
+      label: Exact model name
+      description: As printed on the device or the datasheet, not a family name.
+      placeholder: "CRS328-24P-4S+RM"
     validations:
       required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Router
+        - Switch (L2)
+        - Switch (L3)
+        - Firewall
+        - Wireless AP
+        - Point-to-point radio
+        - OLT (PON headend)
+        - ONT / ONU
+        - Cable modem (DOCSIS)
+        - DSL modem / media converter
+        - Powerline / MoCA adapter
+        - Server
+        - NAS
+        - Desktop
+        - Laptop
+        - Phone / tablet
+        - Printer
+        - IP camera
+        - NVR / DVR
+        - IoT / smart home
+        - End host (generic)
+        - Other / not sure
+    validations:
+      required: true
+
   - type: textarea
     id: ports
     attributes:
-      label: Ports / interfaces
-      description: List every RJ45, SFP/SFP+, and wireless interface with its speed, straight from the datasheet.
+      label: Ports and interfaces
+      description: |
+        Every physical port with its speed. Say which are optical. Copy from the datasheet if you
+        can — this is the field that decides whether the device behaves correctly in a lab.
       placeholder: |
-        24x 1G RJ45
+        24x 1G RJ45 (PoE+ on all)
         4x 10G SFP+
+        1x 1G RJ45 management
     validations:
       required: true
+
+  - type: input
+    id: poe
+    attributes:
+      label: PoE budget (watts)
+      description: Only if it sources Power over Ethernet. Leave blank if it does not.
+      placeholder: "370"
+
+  - type: input
+    id: datasheet
+    attributes:
+      label: Datasheet or product page URL
+      description: A link we can check the port count against. The single most useful thing you can provide.
+      placeholder: "https://mikrotik.com/product/crs328_24p_4s_rm"
+    validations:
+      required: true
+
+  - type: input
+    id: usecase
+    attributes:
+      label: What do you want to model with it?
+      description: Optional, but it tells us whether the device needs full L2/L3 features or only its physical ports.
+      placeholder: "A GPON access lab with a 1:32 split ratio"
+
   - type: textarea
     id: capabilities
     attributes:
       label: Capabilities
-      description: Routing, switching, PoE, wireless, NAT, DHCP, etc.
-  - type: input
-    id: datasheet
+      description: Routing, switching, PoE, wireless, NAT, DHCP, etc. Optional — most are inferred from the category.
+
+  - type: checkboxes
+    id: checks
     attributes:
-      label: Datasheet / product page URL
+      label: Before submitting
+      options:
+        - label: I searched the catalog and existing issues, and this model is not there yet.
+          required: true
+        - label: The port list above comes from a datasheet, not from memory or another wiki.
+          required: true
