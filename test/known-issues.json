@@ -7,12 +7,6 @@
     "fortinet/FortiGate 200G",
     "kemp/LoadMaster LM-4000",
     "radware/Alteon 5208",
-    "adtran/Total Access 1148V",
-    "calix/C7",
-    "calix/E3-48C",
-    "huawei/MA5616",
-    "nokia/7302 ISAM",
-    "nokia/7330 ISAM FTTN",
     "truenas/R50"
   ]
 }
