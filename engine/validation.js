@@ -506,6 +506,49 @@ function validateConnection(input) {
   if (speed === undefined) speed = null;
   verdict.speedMbps = speed;
 
+  // -- E_OPTICAL_BUDGET -----------------------------------------------------
+  // A PON link is not just a cable. The passive splitter and the fibre both eat
+  // the class budget, and once the total passes it no amount of configuration
+  // will make the branch work - so say so at cabling time rather than leaving a
+  // link that silently never passes traffic. Checked in BOTH directions: the
+  // upstream runs at 1310 nm, which is lossier than the 1490 nm downstream, so
+  // the reverse direction is usually the one that fails.
+  const isPonCage = function (c) { return c === 'sc-apc' || c === 'sc-upc'; };
+  if (isPonCage(portA.cage) && isPonCage(portB.cage)) {
+    const optical = require('./optical');
+    const ratios = [];
+    for (const d of [devA, devB]) {
+      const spec = d && d.spec;
+      if (spec && spec.category === 'splitter' && spec.splitRatio) {
+        // splitRatio may be written as 8 or as "1:8" depending on who authored it.
+        const r = String(spec.splitRatio);
+        ratios.push(r.indexOf(':') === -1 ? '1:' + r : r);
+      }
+    }
+    const ponClass = (devA && devA.spec && devA.spec.ponClass) ||
+      (devB && devB.spec && devB.spec.ponClass) || 'B+';
+    const lengthM = (inp.lengthM === undefined || inp.lengthM === null) ? 0 : Number(inp.lengthM);
+    const down = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1490, splitters: ratios, ponClass: ponClass });
+    const up = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1310, splitters: ratios, ponClass: ponClass });
+    const bad = !down.ok ? down : (!up.ok ? up : null);
+    if (bad) {
+      const dir = !down.ok ? 'downstream at 1490 nm' : 'upstream at 1310 nm';
+      errors.push({
+        code: 'E_OPTICAL_BUDGET',
+        message: lblA + ' <-> ' + lblB + ': ' + dir + ' ' + bad.message
+      });
+    } else {
+      const spare = Math.min(down.headroomDb, up.headroomDb);
+      if (spare < 3) {
+        warnings.push({
+          code: 'W_OPTICAL_HEADROOM',
+          message: lblA + ' <-> ' + lblB + ' leaves only ' + spare + ' dB of the ' +
+            ponClass + ' budget. Any extra splice or a dirtier connector will put it over.'
+        });
+      }
+    }
+  }
+
   // -- E_POE_BUDGET ---------------------------------------------------------
   const connecting = [];
   if (ifaceA) connecting.push(ifaceA);

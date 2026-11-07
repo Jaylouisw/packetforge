@@ -1,0 +1,910 @@
+[
+  {
+    "vendor": "huawei",
+    "model": "MA5800-X7",
+    "label": "MA5800-X7 OLT",
+    "category": "olt",
+    "description": "Huawei SmartAX MA5800-X7 next-generation OLT, 6U chassis with 7 service slots (slots 1-7), 2 control-board slots (8-9) and a universal slot 0; scales to 112 GPON or 56 XGS-PON ports. This spec models one fully populated slot: a 16-port H901GPHF GPON card (gpon1/1-16) plus the 4x 10GE SFP+ uplinks carried on a single MPLA control board and 1 ETH management port = 21 ports. MPLG/MPLH control boards add 2x/4x 100GE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xge0/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://e.huawei.com/hk/products/optical-access/ma5800"
+  },
+  {
+    "vendor": "huawei",
+    "model": "MA5800-X2",
+    "label": "MA5800-X2 OLT",
+    "category": "olt",
+    "description": "Huawei SmartAX MA5800-X2 compact OLT, 1U DC/AC chassis with 2 service slots and 2 control-board slots (MPSA/MPSG/MPSD), max 32 GPON ports. This spec models one 16-port H901GPHF GPON card (gpon1/1-16) + 4x 10GE/GE SFP+ uplinks on the MPSA control board + 1 ETH management port = 21 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xge0/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://e.huawei.com/hk/products/optical-access/ma5800"
+  },
+  {
+    "vendor": "huawei",
+    "model": "MA5608T",
+    "label": "MA5608T OLT",
+    "category": "olt",
+    "description": "Huawei SmartAX MA5608T mini OLT, 2U chassis with 2 service slots and 2 control-board slots, max 32 GPON ports (2x 16-port GPFD). This spec models a GPBD 8-port GPON card (gpon1/1-8) + an MCUD1 control board providing 2x GE SFP and 2x 10GE SFP+ uplinks + 1 ETH management port = 13 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 8,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "ge0/1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "ge0/2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "xge0/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge0/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.thunder-link.com/huawei-ma5608t_p565.html"
+  },
+  {
+    "vendor": "zte",
+    "model": "ZXA10 C320",
+    "label": "ZXA10 C320 OLT",
+    "category": "olt",
+    "description": "ZTE ZXA10 C320 compact OLT, 2U 19-inch chassis with 2 service-card slots and 2 main-control switching slots (SMXA, GPON/P2P/XG-PON1). This spec models one GTGH 16-port GPON card in service slot 2 (gpon2/1-16) + 2x 10GE SFP+ uplinks (one per SMXA when both control cards are fitted) + 1 out-of-band management FE port = 19 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "portTemplate": {
+      "prefix": "gpon2/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xge2/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge2/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://fiberm.pl/zasoby/import/z/zxa10_c320_product_introduction-@0000000834.pdf"
+  },
+  {
+    "vendor": "zte",
+    "model": "ZXA10 C300",
+    "label": "ZXA10 C300 OLT",
+    "category": "olt",
+    "description": "ZTE ZXA10 C300 carrier OLT, 10U vertical-slot chassis: 14 service slots in the 19-inch (21-slot) shelf, 16 in the 21-inch (23-slot) shelf, 2 control/switch slots (SCXN 480G or SCTM 2.56T) and 2 uplink-card slots, up to 16384 GPON users. This spec models one GTGH 16-port GPON card (gpon2/1-16) + one XUTQ 4x 10GE SFP+ uplink card + 1 out-of-band management port = 21 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "portTemplate": {
+      "prefix": "gpon2/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xge19/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge19/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge19/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge19/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "http://ztegpon.cz/pdf/ZXA10_C300_Product_Introduction.pdf"
+  },
+  {
+    "vendor": "nokia",
+    "model": "7360 ISAM FX-8",
+    "label": "7360 ISAM FX-8 OLT",
+    "category": "olt",
+    "description": "Nokia 7360 ISAM FX-8 access node/OLT, 8RU shelf with 8 line-termination (LT) slots and 2 NT controller slots on a 2x 100G/slot backplane; 128 GPON ports at 16 ports/slot. This spec models one 16-port GPON LT card in slot 1 (1/1/1-16) + the four configurable 10G/1G SFP+ network links on the FANT-F controller = 20 ports. No dedicated management port; management is in-band via 5520 AMS.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "1/9/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/9/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/9/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/9/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://onestore.nokia.com/asset/i/185352"
+  },
+  {
+    "vendor": "nokia",
+    "model": "7360 ISAM FX-16",
+    "label": "7360 ISAM FX-16 OLT",
+    "category": "olt",
+    "description": "Nokia 7360 ISAM FX-16 large access node/OLT, ~14RU shelf with 16 LT slots, 256 GPON ports per shelf (16 ports x 16 slots), 10 Tb/s system capacity. This spec models one 16-port GPON LT card in slot 1 (1/1/1-16) + 4x 10G/1G SFP+ links on the FANT-F controller + the optional FNIO-A NTIO card adding 8x 10G/1G SFP+ = 28 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "1/17/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/17/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/17/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/17/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18/8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://onestore.nokia.com/asset/i/185352"
+  },
+  {
+    "vendor": "calix",
+    "model": "E9-2",
+    "label": "AXOS E9-2 Intelligent Access Appliance",
+    "category": "olt",
+    "description": "Calix AXOS E9-2 modular access appliance/OLT that scales to 16 PON line cards in one managed system. This spec models one GP1612 line card in slot 1: 16 SFP GPON ports (gpon1/1-16) + its 2x QSFP-28 40/100G uplinks = 18 ports. The CLX3001 control card separately adds 2x QSFP-28, 8x SFP+ and 2x SFP for aggregation.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "qsfp1/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "qsfp1/2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.calix.com/products/platform/intelligent-access/systems/axos-e9-2.html"
+  },
+  {
+    "vendor": "adtran",
+    "model": "SDX 6320",
+    "label": "SDX 6320 10G Combo PON OLT",
+    "category": "olt",
+    "description": "Adtran SDX 6320-16 disaggregated 10G Combo PON OLT, 1.5RU fixed-configuration box (no card slots): 16 combo PON ports that carry GPON and XGS-PON simultaneously, 4x 100GbE QSFP28 and 4x 10GbE SFP+ uplinks, 1 out-of-band management port = 25 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "pon",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        2488,
+        9953
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "qsfp1/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "qsfp1/2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "qsfp1/3",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "qsfp1/4",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "xge1/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge1/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge1/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge1/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.adtran.com/en/products-and-services/sdx-6000-series"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-OLT",
+    "label": "UFiber OLT 8",
+    "category": "olt",
+    "description": "Ubiquiti UFiber UF-OLT GPON OLT, 1U fixed box (no card slots): 8 GPON SFP ports (2.488G down / 1.244G up, 128 ONUs per port, 1024 clients), 2x 10G SFP+ uplinks, 1 Ethernet out-of-band management port and 1 in-band Ethernet port = 12 ports. Layer-2 GPON core with 4062 VLANs.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "gpon",
+      "start": 1,
+      "count": 8,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://store.ui.com/us/en/products/uf-olt"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-OLT-4",
+    "label": "UFiber OLT 4",
+    "category": "olt",
+    "description": "Ubiquiti UFiber UF-OLT-4 compact GPON OLT: 4 GPON SFP ports (128 ONUs each, 512 clients), 1x 10G SFP+ uplink and 1 Ethernet out-of-band management port = 6 ports. Fanless 1U half-width Layer-2 PON headend for small FTTH builds.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "gpon",
+      "start": 1,
+      "count": 4,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://store.ui.com/us/en/products/uf-olt-4"
+  },
+  {
+    "vendor": "fiberhome",
+    "model": "AN5516-01",
+    "label": "AN5516-01 OLT",
+    "category": "olt",
+    "description": "Fiberhome AN5516-01 large-capacity OLT, 11U 19-inch chassis with 16 service slots and a 3.2 Tbit/s backplane, up to 256 GPON ports. This spec models one GCOB 16-port GPON card (gpon1/1-16) plus one HU2A uplink card: 2x 10GE SFP+ and 2 combo GE optical/electrical positions (each counted as an RJ45 + SFP pair) = 22 ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xge1/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge1/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ge1/1",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "ge1/1-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "ge1/1-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "ge1/1",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "ge1/2",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "ge1/2-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "ge1/2-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "ge1/2",
+        "comboRole": "sfp"
+      }
+    ],
+    "sourceUrl": "https://www.thunder-link.com/tl-content/uploads/2026/07/Fiberhome-AN5516-01-OLT-Carrier-Grade-Routing-Solution-Brief-Deploying-High-Density-Optical-Aggregation.pdf"
+  }
+]

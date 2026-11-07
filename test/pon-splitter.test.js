@@ -129,6 +129,25 @@ console.log('\nThe loss budget decides reach:');
   ok(higher.ok, 'or moving to class C+ (' + higher.lossDb + ' of ' + higher.budgetDb + ' dB)');
 }
 
+console.log('\nAn over-budget branch is refused at cabling time, not left silently dead:');
+{
+  function cable(ratio, km) {
+    const t = new Topology();
+    const olt = t.addDevice(oltSpec);
+    const sp = t.addDevice(catalog.find(function (s) { return s.model === 'PON Splitter ' + ratio; }));
+    return t.validateLink(olt.id, 'gpon0/1', sp.id, 'uplink', { lengthM: km * 1000 });
+  }
+  const ok5 = cable('1:8', 5);
+  ok(ok5.ok === true, 'a 1:8 split over 5 km is accepted');
+  const bad = cable('1:64', 20);
+  ok(bad.ok === false, 'a 1:64 split over 20 km is refused');
+  const codes = (bad.errors || []).map(function (e) { return e.code; });
+  ok(codes.indexOf('E_OPTICAL_BUDGET') !== -1, 'and the verdict is E_OPTICAL_BUDGET (' + codes.join(',') + ')');
+  const msgE = (bad.errors || []).filter(function (e) { return e.code === 'E_OPTICAL_BUDGET'; })[0].message;
+  ok(/upstream at 1310 nm|downstream at 1490 nm/.test(msgE), 'the refusal names the direction that fails');
+  ok(/budget/.test(msgE), 'and the budget it broke');
+}
+
 console.log('\nCascaded splitters accumulate, and bad input is rejected:');
 {
   const cascaded = optical.ponBudget({ lengthM: 1000, wavelengthNm: 1490, splitters: ['1:4', '1:8'], ponClass: 'B+' });

@@ -194,8 +194,14 @@ console.log('\nEvery device can be plugged into a copy of itself:');
 {
   // If no two ports on identical hardware can mate, the device is an island -
   // it could never take part in a lab, so the spec is useless even if valid.
+  // A passive optical splitter is exempt: two of them cabled together is a
+  // cascaded split, and beyond 1:8 that genuinely busts the PON power budget, so
+  // refusing the link is CORRECT rather than a defect in the spec. What a
+  // splitter must be able to do is take an ONT on one of its legs, which is
+  // asserted separately below.
   const islands = [];
   for (const x of all) {
+    if (x.spec.category === 'splitter') continue;
     if (x.ifaces.length === 0) { islands.push(x.spec.model + ' (no ports)'); continue; }
     const t = new Topology();
     const a = t.addDevice(x.spec);
@@ -212,6 +218,26 @@ console.log('\nEvery device can be plugged into a copy of itself:');
   }
   ok(islands.length === 0, 'all ' + catalog.length + ' devices can be cabled to themselves' +
     (islands.length ? ' (' + islands.slice(0, 5).join(', ') + ')' : ''));
+
+  // Every splitter must be able to take an ONT on a leg - otherwise the part is
+  // decorative and a PON branch cannot be built with it at all.
+  const splitterDeadEnds = [];
+  const anyOnt = catalog.find(function (s) { return s.spec ? false : s.category === 'ont'; });
+  for (const x of all) {
+    if (x.spec.category !== 'splitter') continue;
+    if (!anyOnt) break;
+    const t = new Topology();
+    const sp = t.addDevice(x.spec);
+    const ont = t.addDevice(anyOnt);
+    const leg = [...sp.interfaces.keys()].filter(function (n) { return n !== 'uplink'; })[0];
+    const v = t.validateLink(sp.id, leg, ont.id, 'pon', {});
+    if (!v || !v.ok) {
+      splitterDeadEnds.push(x.spec.model + ' leg ' + leg + ' refuses an ONT' +
+        (v && v.errors && v.errors.length ? ' (' + v.errors[0].code + ')' : ''));
+    }
+  }
+  ok(splitterDeadEnds.length === 0, 'every PON splitter leg can accept an ONT' +
+    (splitterDeadEnds.length ? ' (' + splitterDeadEnds.slice(0, 3).join('; ') + ')' : ''));
 }
 
 console.log('\nVendor and model identity is unique:');

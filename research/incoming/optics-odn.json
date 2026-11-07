@@ -1,0 +1,308 @@
+[
+  {
+    "kind": "splitter",
+    "model": "Gigalight 1xN rack-mount PLC (GPB series), SC/APC",
+    "ratio": "1:2",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 3.8,
+      "max": 4.1
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "Bare-fibre 1x2 is 3.8 dB (P) / 4.0 dB (S); connectorised rack-mount is 4.1 / 4.3 dB"
+  },
+  {
+    "kind": "splitter",
+    "model": "Gigalight 1xN rack-mount PLC (GPB series), SC/APC",
+    "ratio": "1:4",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 7.1,
+      "max": 7.4
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "7.1 dB bare fibre (P grade) up to 7.4 dB with connectors"
+  },
+  {
+    "kind": "splitter",
+    "model": "FLG-PLC1x8LGX1SCA / Gigalight 1x8 rack-mount PLC, SC/APC",
+    "ratio": "1:8",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 10.2,
+      "max": 10.5
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "10.2 dB bare fibre (P grade) / 10.5 dB connectorised; FS datasheet also states <=10.5 dB"
+  },
+  {
+    "kind": "splitter",
+    "model": "Gigalight 1xN rack-mount PLC (GPB series), SC/APC",
+    "ratio": "1:16",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 13.5,
+      "max": 13.8
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "13.5 dB max without connectors (P grade), 13.8 dB with connectors; S grade 14.0/14.7 dB"
+  },
+  {
+    "kind": "splitter",
+    "model": "Gigalight 1x32 rack-mount PLC, SC/APC",
+    "ratio": "1:32",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 16.5,
+      "max": 17.2
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "16.5 dB P grade bare fibre; 16.8 dB with connectors; 17.2 dB S grade (fibermall quotes 16.5 typ / 17.2 max)"
+  },
+  {
+    "kind": "splitter",
+    "model": "S0164-1ULU1-SU-00 1x64 1RU PLC (Precision OT), LC/UPC",
+    "ratio": "1:64",
+    "connector": "lc",
+    "insertionLossDb": {
+      "min": 20.2,
+      "max": 20.5
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.precisionot.com/wp-content/uploads/PLC-Splitter-Datasheet-100424.pdf",
+    "note": "Precision OT 1x64 <20.5 dB, 2x64 <21.0 dB; bare-fibre grade 20.2 dB max"
+  },
+  {
+    "kind": "splitter",
+    "model": "Gigalight 1x64 rack-mount PLC, SC/APC",
+    "ratio": "1:64",
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 20.5,
+      "max": 21.3
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.gigalight.com/datasheets/plc-splitter.pdf",
+    "note": "20.5 dB P grade / 21.3 dB S grade - this is the figure used for GPON 1:64 budgets"
+  },
+  {
+    "kind": "splitter",
+    "model": "FS ABS-module FBT coupler 1x2 50/50 (dual window)",
+    "ratio": "1:2",
+    "connector": "sc-upc",
+    "insertionLossDb": {
+      "min": 3.4,
+      "max": 3.9
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "FBT",
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/single-mode-abs-module-fbt-couplers-splitters-datasheet.pdf",
+    "note": "Fused biconical taper: 3.4 dB single-window / 3.6 dB dual-window 50/50; add 0.3 dB if connectorised, RL drops 5 dB"
+  },
+  {
+    "kind": "splitter",
+    "model": "FHD-PLC1x81LCA 1x8 PLC cassette, LC/APC",
+    "ratio": "1:8",
+    "connector": "lc",
+    "insertionLossDb": {
+      "min": 10.2,
+      "max": 10.5
+    },
+    "returnLossDb": 55,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550,
+      1577
+    ],
+    "technology": "PLC",
+    "sourceUrl": "https://www.fs.com/products/121405.html",
+    "note": "Cassette/POL form factor, 1260-1650 nm, PDL <=0.2 dB"
+  },
+  {
+    "kind": "budget",
+    "model": "GPON ODN class B+ (ITU-T G.984.2 / G.984.5 Table IV.1)",
+    "ratio": null,
+    "connector": null,
+    "insertionLossDb": {
+      "min": 13.0,
+      "max": 28.0
+    },
+    "returnLossDb": null,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490
+    ],
+    "technology": null,
+    "sourceUrl": "https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-G.984.5-202010-S!Amd2!PDF-E&type=items",
+    "contributors": {
+      "fibreDbPerKm": 0.25,
+      "fibreRefWavelengthNm": 1490,
+      "spliceDbEach": 0.1,
+      "connectorDbPerMatedPair": 0.3,
+      "splitterRefDb": {
+        "1:32": 16.5,
+        "1:64": 20.5
+      },
+      "opticalPathPenaltyDb": 1.0
+    },
+    "note": "Class B+ OPL window 13-28 dB; 28 dB is the max path loss the OLT/ONT pair must close. Fibre 0.25 dB/km at 1490 nm and 0.35 dB/km at 1310 nm (upstream), splice 0.1 dB, connector 0.3 dB per mated pair (Langzhi FTTH design guide)"
+  },
+  {
+    "kind": "budget",
+    "model": "GPON ODN class C+ (ITU-T G.984.2 / G.984.5 Table IV.1, G.9805 Amd.1)",
+    "ratio": null,
+    "connector": null,
+    "insertionLossDb": {
+      "min": 17.0,
+      "max": 32.0
+    },
+    "returnLossDb": null,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490
+    ],
+    "technology": null,
+    "sourceUrl": "https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-G.9805-202306-I!Amd1!PDF-E&type=items",
+    "contributors": {
+      "fibreDbPerKm": 0.25,
+      "fibreRefWavelengthNm": 1490,
+      "spliceDbEach": 0.1,
+      "connectorDbPerMatedPair": 0.3,
+      "splitterRefDb": {
+        "1:32": 16.5,
+        "1:64": 20.5
+      },
+      "opticalPathPenaltyDb": 1.0
+    },
+    "note": "Class C+ OPL window 17-32 dB (same class boundaries apply to XGS-PON). Same contributor model: 0.25 dB/km @1490, 0.1 dB/splice, 0.3 dB/mated pair"
+  },
+  {
+    "kind": "odf",
+    "model": "FHD Fiber Adapter Panel, 12F OS2, 6x SC/APC duplex (FAP)",
+    "ratio": null,
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 0.1,
+      "max": 0.2
+    },
+    "returnLossDb": 60,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1260,
+      1650
+    ],
+    "technology": "ceramic-sleeve adapter panel",
+    "sourceUrl": "https://www.fs.com/eu-en/products/41986.html",
+    "note": "Adapter panel only (no pigtail): 0.2 dB insertion loss, zirconia ceramic sleeve, >=60 dB RL on APC"
+  },
+  {
+    "kind": "odf",
+    "model": "FHD MTP-12 to 6x LC duplex cassette (ODF cassette)",
+    "ratio": null,
+    "connector": "lc",
+    "insertionLossDb": {
+      "min": 0.35,
+      "max": 0.95
+    },
+    "returnLossDb": 50,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1260,
+      1650
+    ],
+    "technology": "MTP rear + LC front cassette",
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/fhd-mtp-mpo-lc-sc-cassette-datasheet.pdf",
+    "note": "Front LC adapter <=0.2 dB (UPC) plus rear MTP <=0.35 dB elite / <=0.75 dB standard = 0.35-0.95 dB per path"
+  },
+  {
+    "kind": "odf",
+    "model": "19in 1U slide-out ODF, splice tray + SC/APC pigtails",
+    "ratio": null,
+    "connector": "sc-apc",
+    "insertionLossDb": {
+      "min": 0.1,
+      "max": 0.3
+    },
+    "returnLossDb": 60,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1260,
+      1650
+    ],
+    "technology": "splice tray + pigtail + adapter",
+    "sourceUrl": "https://www.fs.com/products/168839.html",
+    "note": "Fusion splice ~0.1 dB plus SC/APC adapter 0.2 dB; use 0.3 dB per ODF pass-through in loss budgets"
+  }
+]

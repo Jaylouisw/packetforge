@@ -1,0 +1,698 @@
+[
+  {
+    "vendor": "huawei",
+    "model": "HG8010H",
+    "label": "HG8010H GPON ONT",
+    "category": "ont",
+    "description": "Single-port GPON bridge ONT (ITU-T G.984.2 Class B+) with one 10/100/1000Base-T LAN port and one SC/APC PON port; no WiFi, no voice, purely Layer 2 bridging for FTTH.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://support.huawei.com/enterprise/en/optical-access/echolife-hg8010h-pid-8380489"
+  },
+  {
+    "vendor": "huawei",
+    "model": "HG8245H",
+    "label": "EchoLife HG8245H GPON ONT",
+    "category": "ont",
+    "description": "GPON routing-type home gateway ONT (Class B+) with 4 GE LAN ports, 2 POTS voice ports, 1 USB 2.0 and a 2x2 802.11b/g/n 2.4 GHz radio; SC/APC optical port.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.hi-network.com/web/pdf/huawei-echolife-hg8245h-brochure-datasheet.pdf"
+  },
+  {
+    "vendor": "huawei",
+    "model": "HG8245Q2",
+    "label": "EchoLife HG8245Q2 GPON ONT",
+    "category": "ont",
+    "description": "GPON routing-type ONT (Class B+) with 4 GE LAN ports, 2 POTS ports, 2 USB and concurrent dual-band WiFi (3x3 802.11n 2.4 GHz at 450 Mbit/s plus 3x3 802.11ac 5 GHz at 1300 Mbit/s); SC/APC PON port.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "450M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "1300M"
+      }
+    ],
+    "sourceUrl": "https://www.router-switch.com/hg8245q2.html"
+  },
+  {
+    "vendor": "huawei",
+    "model": "HG8546M",
+    "label": "EchoLife HG8546M GPON ONT",
+    "category": "ont",
+    "description": "GPON routing-type ONT (Class B+) with one GE plus three FE LAN ports, 1 POTS port, 1 USB 2.0 and a 2.4 GHz 802.11b/g/n radio (300 Mbit/s); SC/UPC optical connector on this variant.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-upc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.router-switch.com/hg8546m.html"
+  },
+  {
+    "vendor": "huawei",
+    "model": "HN8255Ws",
+    "label": "OptiXstar HN8255Ws XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON routing-type ONT (optical class N1/N2, 10 Gbit/s symmetric via a pluggable SFP+ PON module) with 4 GE LAN ports, one 10GE LAN port, 2 POTS ports, USB 2.0/3.0 and concurrent 2.4 GHz (450 Mbit/s) plus 5 GHz (1733 Mbit/s) WiFi.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-upc",
+        "speedCaps": [
+          9953
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "450M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "1733M"
+      }
+    ],
+    "sourceUrl": "https://www.router-switch.com/hn8255ws.html"
+  },
+  {
+    "vendor": "zte",
+    "model": "F601",
+    "label": "ZXHN F601 GPON ONT",
+    "category": "ont",
+    "description": "Single-port GPON bridge ONT (ITU-T G.984.x / G.988) delivering 2.488 Gbit/s downstream and 1.244 Gbit/s upstream with one GE RJ-45 LAN port and an SC/UPC PON connector; no WiFi or voice.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-upc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.zte.com.cn/global/home_and_enterprise/campus_network/zxhn_f601.html"
+  },
+  {
+    "vendor": "zte",
+    "model": "F660",
+    "label": "ZXHN F660 GPON ONT",
+    "category": "ont",
+    "description": "GPON home gateway ONT with four auto-adapting LAN ports (1 GE + 3 FE), two POTS voice ports, one USB and a 2x2 802.11b/g/n 2.4 GHz radio (N300); SC/APC PON port.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f660/zxhn-f660.html"
+  },
+  {
+    "vendor": "zte",
+    "model": "F670L",
+    "label": "ZXHN F670L GPON Gateway",
+    "category": "ont",
+    "description": "AC1200 dual-band GPON triple-play gateway with 4 GE LAN ports, 1 FXS phone port, USB 2.0 and concurrent 2x2 802.11n 2.4 GHz plus 2x2 802.11ac 5 GHz WiFi (1200 Mbit/s class); SC/APC GPON connector.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://ycict.net/wp-content/uploads/2024/05/ZXHN-F670L-Datasheet.pdf"
+  },
+  {
+    "vendor": "nokia",
+    "model": "G-140W-C",
+    "label": "7368 ISAM ONT G-140W-C",
+    "category": "ont",
+    "description": "GPON residential gateway ONT (G.984.2 Class B+) with 4 Gigabit Ethernet LAN ports, 1 POTS port, 2 USB 2.0 and concurrent 2.4 GHz 802.11b/g/n plus 5 GHz 802.11ac WiFi; SC/APC optical connector.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://onestore.nokia.com/asset/i/202072"
+  },
+  {
+    "vendor": "nokia",
+    "model": "G-2425G-A",
+    "label": "Nokia ONT G-2425G-A",
+    "category": "ont",
+    "description": "GPON indoor residential gateway ONT (2.488/1.244 Gbit/s) with four RJ-45 Gigabit Ethernet ports, two POTS ports, two USB 2.0 ports and dual-band WiFi 5 (2x2 802.11n 2.4 GHz plus 2x2 802.11ac 5 GHz) with EasyMesh; SC/APC BOSA optical port.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://onestore.nokia.com/asset/f/207430/"
+  },
+  {
+    "vendor": "calix",
+    "model": "844G",
+    "label": "Calix GigaCenter 844G",
+    "category": "ont",
+    "description": "GPON GigaCenter (2.5G GPON, 2.488/1.244 Gbit/s) residential service delivery gateway with four Gigabit Ethernet LAN ports, two FXS voice lines, one USB 2.0 port and carrier-class dual-band WiFi (2x2 802.11n 2.4 GHz plus 4x4 802.11ac MU-MIMO 5 GHz); SC/APC fiber connector.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan5",
+        "type": "wireless",
+        "speed": "1733M"
+      }
+    ],
+    "sourceUrl": "https://pctelcom.coop/wp-content/uploads/2017/12/844G_854G_GC_ANSI.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-WIFI",
+    "label": "UFiber WiFi (UF-WIFI)",
+    "category": "ont",
+    "description": "GPON CPE ONU/ONT (ITU-G.984, 2.5 Gbit/s down / 1.2 Gbit/s up) with four GbE RJ45 LAN ports, one SC/APC GPON WAN port and a single 2.4 GHz 802.11n 2x2 radio (300 Mbit/s, 20 dBm); Layer 2/3 switch with NAT and firewall, managed from UISP.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "firewall",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2.4",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/ufiber-wifi"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-LOCO",
+    "label": "UFiber loco (UF-LOCO)",
+    "category": "ont",
+    "description": "Compact GPON CPE ONU (2.488 Gbit/s downstream / 1.244 Gbit/s upstream over SC/APC) with exactly one GbE RJ-45 LAN port, no WiFi, powered by 24V passive PoE or Micro-USB; supports bridging, routing/NAT and firewall features.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "firewall",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/uf-loco"
+  },
+  {
+    "vendor": "adtran",
+    "model": "411",
+    "label": "ADTRAN 411 Micro ONT",
+    "category": "ont",
+    "description": "ADTRAN 411 Micro SFU ONT (GPON, ITU-T G.984, TX 1310 nm / RX 1490 nm, -27 dBm receive sensitivity) in a compact wall/desk housing with one 10/100/1000Base-T Ethernet port and one POTS port, SC/APC fiber connector; bridge only, no WiFi.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/ff/af/4b/62/624bafff06de6ea8aa834968/texts/b7/d2/5a/62/625ad2b72b5b5696fc385d33/AdTran-411-Micro-ONT-1287787F1-Datasheet.pdf"
+  }
+]
