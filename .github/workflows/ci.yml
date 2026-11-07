@@ -40,10 +40,20 @@ jobs:
       - name: Start server and probe API
         run: |
           PORT=8123 node server/index.js > server.log 2>&1 &
+          ready=0
           for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:8123/api/catalog >/dev/null 2>&1 && break
+            if curl -fsS http://127.0.0.1:8123/api/catalog >/dev/null 2>&1; then
+              echo "server ready after $i attempt(s)"
+              ready=1
+              break
+            fi
             sleep 0.5
           done
+          if [ "$ready" -ne 1 ]; then
+            echo "server never became ready; log follows"
+            cat server.log
+            exit 1
+          fi
           curl -fsS http://127.0.0.1:8123/api/catalog | grep -q '"specs"'
           curl -fsS http://127.0.0.1:8123/api/media | grep -q '"media"'
           curl -fsS http://127.0.0.1:8123/ | grep -qi 'PacketForge'

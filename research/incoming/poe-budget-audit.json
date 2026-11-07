@@ -1,0 +1,46 @@
+{
+  "poe": [
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.arubanetworks.com/en-in/access/6000-series/",
+      "note": "R8N87A. Datasheet: PoE capability 370W Class 4 PoE/PoE+; official spec lists 'POE power 370W of Class 4: R8N85A, R8N87A'. Max power 32.7W w/o PoE, 455W w/ PoE, so 370W is the PD allocation, not the PSU."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.arubanetworks.com/en-in/access/6000-series/",
+      "note": "R8N85A. Datasheet: PoE capability 370W Class 4 PoE/PoE+; 'POE power 370W of Class 4: R8N85A'. Max power 45W w/o PoE, 480W w/ PoE."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-24-250W",
+      "poeBudgetW": 250,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-250w",
+      "note": "Published 'Total PoE available 250W'. Caveat: 250W is also the PSU rating and non-PoE draw is 30W, so usable PD headroom is ~220W; the catalogue figure matches the manufacturer's own PoE figure."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-24-500W",
+      "poeBudgetW": null,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-500w",
+      "note": "No published PoE budget. Datasheet gives only 'Power supply AC/DC internal 500W' and 'Max power consumption: includes PoE output 500W / excludes PoE output 30W', so 500W is the PSU rating, not a PoE allocation; implied PD headroom is ~470W. Sibling models do publish 'Total PoE available' equal to their model wattage, so 500W is plausible but unconfirmed."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-48-500W",
+      "poeBudgetW": 500,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-48-500w",
+      "note": "Published 'Total PoE available 500W'. PSU is also 500W and non-PoE draw is 64W; 500W is Ubiquiti's own PoE figure and matches the catalogue."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "USW-Pro-48-PoE",
+      "poeBudgetW": 600,
+      "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-48-poe",
+      "note": "Datasheet: 'Total PoE Availability 600W'. Catalogue declared no budget (engine fell back to 0W, so all 52 PSE ports source nothing and the UI shows 'budget not modelled'). Data gap, not a wrong number."
+    }
+  ]
+}
