@@ -3,22 +3,26 @@
   "model": "Xperia 1 V",
   "label": "Xperia 1 V smartphone",
   "category": "phone",
-  "description": "Sony Xperia 1 V — 6.5-inch 4K flagship, Wi-Fi 6E (2.4/5/6 GHz) and 5G sub-6/mmWave; USB-C 3.2 with Ethernet over adapter.",
+  "description": "Sony flagship with a Snapdragon 8 Gen 2 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
   "sourceUrl": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-v-256gb/specifications",

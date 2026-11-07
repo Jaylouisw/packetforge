@@ -14,9 +14,11 @@
     {
       "name": "enp1s0f0",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "10G",
+      "connector": "sfp+",
       "speedCaps": [
+        10000,
+        25000,
         40000,
         100000
       ]
@@ -24,9 +26,11 @@
     {
       "name": "enp1s0f1",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "10G",
+      "connector": "sfp+",
       "speedCaps": [
+        10000,
+        25000,
         40000,
         100000
       ]
@@ -34,11 +38,8 @@
     {
       "name": "oobm",
       "type": "ethernet",
-      "speed": "1G",
-      "connector": "rj45",
-      "speedCaps": [
-        1000
-      ]
+      "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.truenas.com/r-series/"
 }

@@ -3,24 +3,28 @@
   "model": "Pixel 8a",
   "label": "Pixel 8a smartphone",
   "category": "phone",
-  "description": "Google Pixel 8a — 6.1-inch mid-range Tensor G3 phone, Wi-Fi 6E and 5G sub-6 GHz only; USB-C 3.2 with Ethernet adapter support.",
+  "description": "Mid-range Tensor G3 phone with a 5G sub-6 GHz / mmWave modem and Wi-Fi 6E (802.11ax, HE80) on 2.4, 5 and 6 GHz, 2x2 MIMO, so peak PHY is about 1.2 Gbps.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://store.google.com/us/product/pixel_8a_specs?hl=en-US",
+  "sourceUrl": "https://support.google.com/pixelphone/answer/7158570",
   "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz) — no Wi-Fi 7 despite the Pixel 8 nameplate. Cellular: 5G sub-6 GHz only, no mmWave. USB-C 3.2 Gen 2 with Ethernet adapter support (usb0). Useful as the 'same family, lesser radio' counterpart to Pixel 8."
 }

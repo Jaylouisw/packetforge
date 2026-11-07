@@ -3,24 +3,28 @@
   "model": "Pixel 8",
   "label": "Pixel 8 smartphone",
   "category": "phone",
-  "description": "Google Pixel 8 — 6.2-inch Tensor G3 phone with Wi-Fi 7 (802.11be, 2x2) and 5G sub-6/mmWave on US models; USB-C 3.2 with Ethernet support.",
+  "description": "Tensor G3 phone with a 5G sub-6 GHz / mmWave modem and Wi-Fi 7 (802.11be) on 2.4, 5 and 6 GHz, 2x2 MIMO; Japan units are Wi-Fi 6E and TW/SG/IN units dual-band Wi-Fi 6.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://store.google.com/us/product/pixel_8_specs?hl=en-US",
+  "sourceUrl": "https://support.google.com/pixelphone/answer/7158570",
   "notes": "Wi-Fi 7 (802.11be, 2x2 + 2x2, 2.4/5/6 GHz, 320 MHz, MLO) — one of the few phones here that can use multi-link operation, so it must not be modelled as a single-link 802.11ax client. Cellular: 5G sub-6 GHz plus mmWave (US models). USB-C 3.2 Gen 2 supports Ethernet adapters (usb0). Requires a Wi-Fi 7 AP to show any difference versus Pixel 7."
 }

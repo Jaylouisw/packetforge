@@ -133,5 +133,33 @@ ok(fibre.every(function (k) { return tints[k] !== tints[copper[0]]; }),
   'the fibre cage is a different colour from copper (' + tints[fibre[0]] + ' vs ' + tints[copper[0]] + ')');
 ok(!!tints['10g-sfp'], 'the fibre port is tinted');
 
+console.log('\nA radio association is not drawn as a cable:');
+{
+  const t2 = new Topology();
+  const ap = t2.addDevice(catalog.find(function (s) { return s.model === 'AP-515'; })); ap.name = 'AP1';
+  const ph = t2.addDevice(catalog.find(function (s) { return s.model === 'iPhone 16'; })); ph.name = 'PHONE';
+  t2.connect(ph.id, 'wlan0', ap.id, 'radio0');
+  PFCanvas.render(JSON.parse(JSON.stringify(t2.serialize())));
+
+  const lines = [];
+  walk(roots.world, function (n) {
+    if (n.tag === 'line' && String(n.attrs.class || '').indexOf('link') !== -1 &&
+        String(n.attrs.class || '').indexOf('link-hit') === -1) lines.push(n);
+  });
+  ok(lines.length === 1, 'the association is drawn (' + lines.length + ' line)');
+  ok(/link-wireless/.test(String(lines[0] && lines[0].attrs.class)),
+    'and carries the wireless class, so it renders dashed instead of as a cable');
+
+  // A cable must NOT pick up the wireless class, or the distinction means nothing.
+  PFCanvas.render(JSON.parse(JSON.stringify(t.serialize())));
+  const wired = [];
+  walk(roots.world, function (n) {
+    if (n.tag === 'line' && String(n.attrs.class || '').indexOf('link') !== -1 &&
+        String(n.attrs.class || '').indexOf('link-hit') === -1) wired.push(n);
+  });
+  ok(wired.length === 1 && !/link-wireless/.test(String(wired[0].attrs.class)),
+    'a copper cable is still drawn as a cable');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

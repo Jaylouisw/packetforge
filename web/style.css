@@ -349,6 +349,10 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 /* ---------- canvas link selection ---------- */
 .link-hit { stroke: transparent; stroke-width: 16; fill: none; pointer-events: stroke; cursor: pointer; }
 .link.selected { stroke: var(--accent); stroke-width: 3.5; filter: url(#glow); }
+/* A radio association is not a cable: dashes say "this hop is over the air". */
+.link.link-wireless { stroke: #7aa2f7; stroke-dasharray: 5 5; }
+.link.link-wireless:hover { stroke: var(--red); }
+.link.link-wireless.selected { stroke: var(--accent); }
 
 /* ---- port identity on the canvas (folded in from the orphan styles.css) ---- */
 

@@ -3,24 +3,23 @@
   "model": "Phone (2)",
   "label": "Nothing Phone (2) smartphone",
   "category": "phone",
-  "description": "Nothing Phone (2) — 6.7-inch glyph-interface phone, Wi-Fi 6 (2x2) and 5G sub-6 GHz; USB-C 2.0 with Ethernet over adapter.",
+  "description": "Snapdragon 8+ Gen 1 phone with a 5G modem and dual-band Wi-Fi 6 only (802.11ax, 2.4 and 5 GHz, 2x2 MIMO); it has no 6 GHz radio, so no Wi-Fi 6E or 7.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "1G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://nothing.tech/products/phone-2",
+  "sourceUrl": "https://checkout-eu.nothing.tech/pages/phone-2",
   "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E/7 despite the Snapdragon 8+ Gen 1 platform. Cellular: 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C is USB 2.0 with Ethernet adapter support (usb0) but real throughput is ~100M. Near-AOSP Nothing OS is handy for reproducible Wi-Fi client behaviour."
 }

@@ -141,8 +141,12 @@
           const sel = state.selectedLink === link.id;
           // wide invisible hit target so a 2px line is actually clickable
           el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
+          // A radio association is not a cable. Drawing it as one made a wireless lab
+          // look wired, and hid the fact that the link is a band rather than a run of
+          // copper or glass.
+          const isWireless = String(link.mediaId || link.media || '').indexOf('wireless') === 0;
           el('line', {
-            class: 'link' + (sel ? ' selected' : ''),
+            class: 'link' + (isWireless ? ' link-wireless' : '') + (sel ? ' selected' : ''),
             x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id
           }, world);
         } catch (e) { skip('link', link && link.id, e); }

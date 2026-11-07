@@ -144,7 +144,9 @@ const MEDIA = {
   // ---- wireless ----
   'wireless-2.4': { name: '2.4 GHz radio', family: 'wireless', connector: 'antenna', speedMbps: 600, maxRangeM: null, band: '2.4' },
   'wireless-5': { name: '5 GHz radio', family: 'wireless', connector: 'antenna', speedMbps: 1000, maxRangeM: null, band: '5' },
-  'wireless-60': { name: '60 GHz radio', family: 'wireless', connector: 'antenna', speedMbps: 5000, maxRangeM: null, band: '60' }
+  'wireless-6': { name: '6 GHz radio (Wi-Fi 6E)', family: 'wireless', connector: 'antenna', speedMbps: 2400, maxRangeM: null, band: '6' },
+  'wireless-7': { name: '6 GHz radio (Wi-Fi 7)', family: 'wireless', connector: 'antenna', speedMbps: 5760, maxRangeM: null, band: '6' },
+  'wireless-60': { name: '60 GHz radio (802.11ad)', family: 'wireless', connector: 'antenna', speedMbps: 5000, maxRangeM: null, band: '60' }
 };
 
 function mediaById(id) { return MEDIA[id] || null; }
@@ -359,7 +361,7 @@ const CAGE_MEDIA = {
   },
   console: function () { return ['console-rs232']; },
   usb: function () { return ['usb-console']; },
-  antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-60']; }
+  antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-6', 'wireless-7', 'wireless-60']; }
 };
 
 const CAGE_SPEEDS = {
@@ -477,6 +479,42 @@ function inferCage(ifaceSpec, maxMbps) {
 }
 
 // Derive a complete port-hardware descriptor from a terse interface spec.
+// The bands a radio supports.
+//
+// A datasheet states the bands or the generation; a lab spec usually states the rate. The
+// generation follows from the rate (n / ac / ax / be), and the generation fixes the band
+// set, so a Wi-Fi 5 radio is 2.4+5 rather than one or the other. A spec may say exactly
+// which bands it has with `bands: ["2.4","5","6"]`, which always wins.
+const WIRELESS_GENERATIONS = [
+  { maxMbps: 600, label: '802.11n', media: ['wireless-2.4'] },
+  { maxMbps: 1000, label: '802.11ac', media: ['wireless-2.4', 'wireless-5'] },
+  { maxMbps: 2500, label: '802.11ax', media: ['wireless-2.4', 'wireless-5', 'wireless-6'] },
+  { maxMbps: Infinity, label: '802.11be', media: ['wireless-2.4', 'wireless-5', 'wireless-6', 'wireless-7'] }
+];
+
+function bandMediaId(band) {
+  const b = String(band).trim();
+  if (b === '60' || /^60\s*ghz$/i.test(b)) return 'wireless-60';
+  if (b === '6' || /^6\s*ghz$/i.test(b)) return 'wireless-6';
+  return 'wireless-' + b;
+}
+
+function wirelessBands(spec, maxMbps, dev) {
+  const s = spec || {};
+  if (Array.isArray(s.bands) && s.bands.length) return s.bands.map(bandMediaId);
+  if (s.band !== undefined && s.band !== null) return [bandMediaId(s.band)];
+
+  // 60 GHz gear is a different radio, not a faster one: a WiGig bridge and a Wi-Fi 7
+  // phone both say "5G" but share nothing. Recognise it from what the device says it is.
+  const hay = String((dev && dev.model) || '') + ' ' + String((dev && dev.description) || '');
+  if (/60\s*ghz|802\.11ad|wigig/i.test(hay)) return ['wireless-60'];
+
+  for (const g of WIRELESS_GENERATIONS) {
+    if (maxMbps <= g.maxMbps) return g.media.slice();
+  }
+  return WIRELESS_GENERATIONS[WIRELESS_GENERATIONS.length - 1].media.slice();
+}
+
 function derivePortHardware(ifaceSpec, deviceSpec) {
   const spec = ifaceSpec || {};
   const dev = deviceSpec || {};
@@ -515,11 +553,17 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     return m.speedMbps <= maxMbps;
   });
 
-  // A wireless radio only carries its own band.
-  if (cage === 'antenna') {
-    const band = maxMbps >= 5000 ? 'wireless-60' : (maxMbps >= 1000 ? 'wireless-5' : 'wireless-2.4');
-    media = [band];
-  }
+  // A radio carries the bands of its generation.
+  //
+  // This used to assign exactly ONE band from the port's declared rate, so a dual-band
+  // phone became ["wireless-5"] only and a 2.4 GHz AP radio became ["wireless-2.4"] only,
+  // and an AP and a phone shared no medium at all: every wireless device in the catalogue
+  // was unconnectable (issue #28). Real hardware associates across bands; what a radio
+  // cannot do is exceed its own generation, so the generation bounds the band set.
+  //
+  // The old line also read `maxMbps >= 5000 -> wireless-60`, which modelled a Wi-Fi 7
+  // phone as millimetre-wave 802.11ad.
+  if (cage === 'antenna') media = wirelessBands(spec, maxMbps, dev);
 
   // Explicit overrides.
   if (Array.isArray(spec.media)) media = spec.media.slice();
@@ -619,6 +663,32 @@ function commonMediaBridged(pa, pb) {
 
 // Highest speed both ports support (ethernet auto-negotiation), or null.
 function negotiateSpeed(pa, pb) {
+  // A radio association is not a line-rate handshake.
+  //
+  // Two wired ports must agree on an exact rate: there is no such thing as a 1000 Mbps
+  // link that runs at 574 because one end felt like it. A radio pair works the other way
+  // round - the client takes the best rate the AP and the client and the band can all
+  // sustain, so a 2.5 Gbps phone on a 574 Mbps 2.4 GHz radio associates at 574 instead of
+  // refusing to connect. Requiring an exact intersection here is what made every wireless
+  // pair in the catalogue unconnectable even once they shared a band (issue #28).
+  if (pa && pb && pa.cage === 'antenna' && pb.cage === 'antenna') {
+    const bandCap = Math.min.apply(null, [pa.maxSpeedMbps || 0, pb.maxSpeedMbps || 0].filter(Boolean));
+    const mediaIds = commonMedia(pa, pb);
+    // The BEST shared band sets the ceiling, not the worst: an association lands on the
+    // fastest band both sides support, which is why a phone joins 5 GHz rather than
+    // sitting on 2.4 at 600 Mbps because that band also happens to be available.
+    let mediaCap = 0;
+    for (const id of mediaIds) {
+      const m = MEDIA[id];
+      if (m && m.speedMbps) mediaCap = Math.max(mediaCap, m.speedMbps);
+    }
+    // The band is the ceiling: a 2.4 GHz association cannot exceed what 2.4 GHz carries
+    // in this model, however fast the radios are.
+    const rates = [bandCap, mediaCap || bandCap].filter(function (v) { return v > 0; });
+    if (!rates.length) return null;
+    return Math.round(Math.min.apply(null, rates));
+  }
+
   const setB = {};
   for (const s of pb.speedCaps) setB[s] = true;
   const shared = pa.speedCaps.filter(function (s) { return setB[s]; });

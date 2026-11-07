@@ -3,24 +3,28 @@
   "model": "Galaxy Tab S9",
   "label": "Galaxy Tab S9 tablet",
   "category": "tablet",
-  "description": "Samsung Galaxy Tab S9 — 11-inch AMOLED tablet, Wi-Fi 6E (2.4/5/6 GHz, HE160) and 5G sub-6 GHz on cellular models; USB-C 3.2 with DeX and dock Ethernet.",
+  "description": "Android tablet with an optional 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, HE160, 1024-QAM) on 2.4, 5 and 6 GHz, 2x2 MIMO at up to 2.4 Gbps.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://www.samsung.com/in/tablets/galaxy-tab-s/galaxy-tab-s9-wi-fi-beige-128gb-sm-x710nzeainu/",
+  "sourceUrl": "https://www.samsung.com/hk_en/tablets/galaxy-tab-s/galaxy-tab-s9-wi-fi-beige-128gb-sm-x710nzeatgy/",
   "notes": "Wi-Fi 6E — Samsung lists 802.11a/b/g/n/ac/ax on 2.4/5/6 GHz, HE160, MIMO, 1024-QAM. Cellular (5G SKU SM-X716B): 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C 3.2 Gen 1 with full DeX, so a dock gives a wired interface (usb0) alongside Wi-Fi — the canonical 'tablet docked on a desk while still on Wi-Fi' model."
 }

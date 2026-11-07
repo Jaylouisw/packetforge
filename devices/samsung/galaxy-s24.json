@@ -3,24 +3,28 @@
   "model": "Galaxy S24",
   "label": "Galaxy S24 smartphone",
   "category": "phone",
-  "description": "Samsung Galaxy S24 — 6.2-inch flagship, Wi-Fi 6E and 5G sub-6/mmWave; USB-C 3.2 with DeX and Ethernet over a dock.",
+  "description": "Compact Samsung flagship with a 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, HE160, 1024-QAM) on 2.4, 5 and 6 GHz, 2x2 MIMO; Wi-Fi 7 is disabled on the base S24.",
   "capabilities": [
+    "host",
     "wireless"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G",
-      "connector": "antenna"
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M",
-      "connector": "antenna"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://www.samsung.com/us/smartphones/galaxy-s24/specs/",
+  "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-s24/specs/",
   "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160) — note the S24 and S24+ ship 6E; only the S24 Ultra carries Wi-Fi 7, so do not treat the whole S24 family as 802.11be. Cellular: 5G sub-6 GHz + mmWave (US). USB-C 3.2 Gen 2, DeX, dock Ethernet present (usb0)."
 }
