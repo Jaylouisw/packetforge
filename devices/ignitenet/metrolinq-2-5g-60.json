@@ -1,0 +1,32 @@
+{
+  "vendor": "ignitenet",
+  "model": "MetroLinq 2.5G 60",
+  "label": "IgniteNet MetroLinq 2.5G 60",
+  "category": "ptp",
+  "description": "IgniteNet MetroLinq 2.5G 60 - 60 GHz point-to-point radio with 5 GHz failover, 2.5 Gbps aggregate; 1x 2.5G RJ45 (PoE in) plus an SFP cage.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#22c55e"
+}

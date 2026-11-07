@@ -1,0 +1,83 @@
+{
+  "vendor": "juniper",
+  "model": "MX10003",
+  "label": "MX10003 Router",
+  "category": "router",
+  "description": "Juniper MX10003 - 3U edge router, 2.4 Tbps: 24x 100G QSFP28, 12 per MPC (et-0/1/0-11 and et-1/1/0-11).",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "et-0/1/",
+    "start": 0,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "100G"
+  },
+  "interfaces": [
+    {
+      "name": "et-1/1/0",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-1/1/11",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "router",
+  "color": "#84cc16"
+}

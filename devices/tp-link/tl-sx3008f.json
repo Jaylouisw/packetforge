@@ -1,0 +1,56 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SX3008F",
+  "label": "TP-Link TL-SX3008F",
+  "category": "l3-switch",
+  "description": "TP-Link Omada TL-SX3008F - full-fiber 8x 10G SFP+ L2+ managed aggregation switch, 160 Gbps, fanless; no RJ45 data ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+8",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#22c55e"
+}

@@ -1,0 +1,1071 @@
+[
+  {
+    "vendor": "cisco",
+    "model": "ISR4331",
+    "label": "ISR 4331",
+    "category": "router",
+    "description": "Cisco ISR 4331 branch router - 3x 1G onboard GE (2 NIM + 1 SM slot), IOS XE, SD-WAN capable.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "ISR4451-X",
+    "label": "ISR 4451-X",
+    "category": "router",
+    "description": "Cisco ISR 4451-X - 4x 1G onboard GE, 2 NIM + 2 SM slots, up to 1 Gbps IMIX forwarding.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/3",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1111-8P",
+    "label": "ISR 1111-8P",
+    "category": "router",
+    "description": "Cisco ISR 1100 8P - 8x 1G LAN (PoE-capable switch ports), 1x 1G WAN, 1x GE/SFP combo WAN.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/1/",
+      "start": 0,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "ASR1001-X",
+    "label": "ASR 1001-X",
+    "category": "router",
+    "description": "Cisco ASR 1001-X - 6x 1G SFP + 2x 10G SFP+ built in, 1 RU, 2.5 Gbps ESP (up to 20 Gbps licensed).",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Te0/0/0",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Te0/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "ASR1002-X",
+    "label": "ASR 1002-X",
+    "category": "router",
+    "description": "Cisco ASR 1002-X - 2 RU chassis, 6x 1G SFP built in plus 3 SIP/SPA slots for I/O expansion.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/0/5",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C8000V",
+    "label": "Catalyst 8000V Edge",
+    "category": "router",
+    "description": "Cisco Catalyst 8000V edge router - virtual IOS XE instance, 4 vNIC data interfaces, SD-WAN/security virtual edge.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9200L-24P-4G",
+    "label": "Catalyst 9200L-24P-4G",
+    "category": "switch",
+    "description": "Cisco Catalyst 9200L - 24x 1G PoE+ (370 W budget) downlinks, 4x 1G SFP fixed uplinks, StackWise-80.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9300-24T",
+    "label": "Catalyst 9300-24T",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 9300 - 24x 1G data ports, one network module slot (C9300-NM-8X: 8x 10G SFP+ shown), StackWise-480.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/1/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/8",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9300-48P",
+    "label": "Catalyst 9300-48P",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 9300 - 48x 1G PoE+ (437 W budget) data ports, network module slot populated with C9300-NM-8X 8x 10G SFP+.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/1/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/8",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9300-24UX",
+    "label": "Catalyst 9300-24UX",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 9300 - 24x Multigigabit 100M/1G/2.5G/5G/10G copper (UPOE 90 W), network module slot with 8x 10G SFP+.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/1/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi1/1/8",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9500-24Y4C",
+    "label": "Catalyst 9500-24Y4C",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 9500 high-performance - 24x 1/10/25G SFP28 downlinks plus 4x 40/100G QSFP28 fixed uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Twe1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "interfaces": [
+      {
+        "name": "Hu1/0/1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Hu1/0/2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Hu1/0/3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Hu1/0/4",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N9K-C93180YC-FX",
+    "label": "Nexus 93180YC-FX",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 93180YC-FX - 1RU leaf: 48x 1/10/25G SFP28 downlinks and 6x 40/100G QSFP28 uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Eth1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "interfaces": [
+      {
+        "name": "Eth1/49",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/50",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/51",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/52",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/54",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#6366f1"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N9K-C92348GC-X",
+    "label": "Nexus 92348GC-X",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 92348GC-X - 48x 1G RJ45 downlinks, 4x 1/10/25G SFP28 and 2x 40/100G QSFP28 uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Eth1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Eth1/49",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Eth1/50",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Eth1/51",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Eth1/52",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Eth1/53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Eth1/54",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#6366f1"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N3K-C3048TP-1GE",
+    "label": "Nexus 3048TP-1GE",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 3048 - 48x 1G RJ45 downlinks plus 4x 10G SFP+ uplinks, low-latency 1RU ToR.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Eth1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Eth1/49",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Eth1/50",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Eth1/51",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Eth1/52",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#6366f1"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N3K-C3064PQ-10GE",
+    "label": "Nexus 3064PQ-10GE",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 3064 - 48x 1/10G SFP+ downlinks plus 4x 40G QSFP+ uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Eth1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "Eth1/49",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "Eth1/50",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "Eth1/51",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "Eth1/52",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#6366f1"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C2960X-24TS-L",
+    "label": "Catalyst 2960X-24TS-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 2960-X - 24x 1G non-PoE downlinks, 4x 1G SFP fixed uplinks, LAN Base, stackable to 8 units.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0d9488"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C2960X-48FPS-L",
+    "label": "Catalyst 2960X-48FPS-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 2960-X full PoE+ - 48x 1G PoE+ downlinks (740 W budget), 4x 1G SFP fixed uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/49",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/50",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/51",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/52",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0d9488"
+  },
+  {
+    "vendor": "cisco",
+    "model": "WS-C3560G-24TS-S",
+    "label": "Catalyst 3560G-24TS-S",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 3560G - 24x 1G downlinks and 4x 1G SFP uplinks, multilayer (routing) fixed-configuration switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi0/25",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/26",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/27",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi0/28",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0d9488"
+  },
+  {
+    "vendor": "cisco",
+    "model": "WS-C3560CX-8PC-S",
+    "label": "Catalyst 3560CX-8PC-S",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 3560-CX compact L3 switch - 8x 1G PoE+ (240 W), 2x 1G SFP and 2x 1G copper uplinks, fanless.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/9",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/10",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/11",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/12",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0d9488"
+  },
+  {
+    "vendor": "cisco",
+    "model": "WS-C3750G-24TS-S",
+    "label": "Catalyst 3750G-24TS-S",
+    "category": "l3-switch",
+    "description": "Cisco Catalyst 3750G - 24x 1G downlinks, 4x 1G SFP uplinks, StackWise stacking with multilayer routing.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0d9488"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9800-L-F-K9",
+    "label": "Catalyst 9800-L-F Controller",
+    "category": "wireless",
+    "description": "Cisco Catalyst 9800-L wireless controller (fiber uplinks) - 4x 1/2.5G Multigigabit RJ45 + 2x 1/10G SFP+ data ports, up to 500 APs.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi1/0/1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Gi1/0/2",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Gi1/0/3",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Gi1/0/4",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Te1/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Te1/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#f59e0b"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9800-40-K9",
+    "label": "Catalyst 9800-40 Controller",
+    "category": "wireless",
+    "description": "Cisco Catalyst 9800-40 appliance - 4x 1/10G SFP+ data ports plus 1x 1G RJ45 service port, up to 2000 APs / 32,000 clients.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Te1/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Te1/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Te1/0/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Te1/0/4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Gi0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#f59e0b"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9120AXI",
+    "label": "Catalyst 9120AXI AP",
+    "category": "wireless",
+    "description": "Cisco Catalyst 9120AXI Wi-Fi 6 AP - internal antennas, 4x4:4 MIMO, 1x 100M/1G/2.5G Multigigabit uplink with PoE-in.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#f59e0b"
+  },
+  {
+    "vendor": "cisco",
+    "model": "C9130AXI",
+    "label": "Catalyst 9130AXI AP",
+    "category": "wireless",
+    "description": "Cisco Catalyst 9130AXI Wi-Fi 6 AP - internal antennas, 8x8:8 MIMO, 1x 100M/1G/2.5G/5G Multigigabit uplink with PoE-in.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Gi0",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#f59e0b"
+  }
+]

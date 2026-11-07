@@ -1,0 +1,44 @@
+{
+  "vendor": "huawei",
+  "model": "S5731-H24T4XC",
+  "label": "S5731-H24T4XC",
+  "category": "l3-switch",
+  "description": "Huawei CloudEngine S5731-H24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot, dual pluggable power.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "XGigabitEthernet0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626"
+}

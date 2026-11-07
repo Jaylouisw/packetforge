@@ -9,6 +9,7 @@ const vlanLib = require('./vlan');
 const lagLib = require('./lag');
 const stpLib = require('./stp');
 const aclLib = require('./acl');
+const ospfLib = require('./ospf');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -83,6 +84,8 @@ class Simulator {
     this.reset();
     // Recompute spanning tree before the run so blocked ports are honoured.
     this.computeStp();
+    // Recompute OSPF so learned routes are present before the first packet.
+    this.computeOspf();
     const src = this.topo.getDevice(srcId);
     if (!src) throw new Error('Unknown device: ' + srcId);
 
@@ -198,6 +201,121 @@ class Simulator {
     }
     this._stpDirty = false;
     return res;
+  }
+
+  // ---------------------------------------------------------------------
+  // OSPF route installation
+  // ---------------------------------------------------------------------
+
+  // Default OSPF interface cost from the link rate (reference bandwidth 100 Mbps).
+  _ospfCost(iface) {
+    const s = String(iface && iface.speed || '').toUpperCase();
+    if (s === '100M') return 100;
+    if (s === '1G') return 10;
+    if (s === '2.5G') return 4;
+    if (s === '5G') return 2;
+    if (s === '10G' || s === '25G' || s === '40G' || s === '100G') return 1;
+    return ospfLib.DEFAULT_COST;
+  }
+
+  // Run OSPF over the live topology and install the resulting routes on each
+  // router as dev.ospfRoutes, which Device.routeTo() consults.
+  computeOspf() {
+    const routers = [];
+    const byId = Object.create(null);
+
+    for (const dev of this.topo.devices.values()) {
+      dev.ospfRoutes = [];
+      const cfg = dev.config && dev.config.ospf;
+      if (!cfg || !cfg.routerId) continue;
+
+      const ifaces = [];
+      for (const i of dev.interfaces.values()) {
+        if (!i.enabled || !i.ip || !i.mask) continue;
+        let ov = null;
+        for (const x of (cfg.interfaces || [])) { if (x.name === i.name) { ov = x; break; } }
+        if (ov && ov.passive) continue;      // advertised but no adjacency
+        ifaces.push({
+          name: i.name,
+          ip: i.ip,
+          mask: i.mask,
+          cost: (ov && ov.cost) || this._ospfCost(i),
+          area: (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0)
+        });
+      }
+      if (!ifaces.length) continue;
+
+      const entry = { id: dev.id, routerId: cfg.routerId, areaId: cfg.areaId || 0, interfaces: ifaces };
+      routers.push(entry);
+      byId[dev.id] = { dev: dev, entry: entry };
+    }
+
+    if (routers.length < 2) { this.ospfResult = null; return null; }
+
+    // Adjacencies: a link between two OSPF speakers that both address it.
+    const links = [];
+    for (const l of this.topo.links.values()) {
+      const a = byId[l.a.deviceId];
+      const b = byId[l.b.deviceId];
+      if (!a || !b) continue;
+      const ai = a.entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
+      const bi = b.entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
+      if (!ai || !bi) continue;
+      links.push({
+        a: { router: l.a.deviceId, iface: l.a.iface },
+        b: { router: l.b.deviceId, iface: l.b.iface },
+        cost: 10
+      });
+    }
+
+    const graph = ospfLib.buildGraph(routers, links);
+    const result = Object.create(null);
+
+    for (const r of routers) {
+      // Directly connected peers, so a next hop can be turned into a real IP.
+      const nbr = Object.create(null);
+      for (const l of links) {
+        if (l.a.router === r.id) {
+          const peer = byId[l.b.router].entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
+          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface };
+        } else if (l.b.router === r.id) {
+          const peer = byId[l.a.router].entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
+          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface };
+        }
+      }
+
+      const spt = ospfLib.spf(graph, r.id);
+      const routes = [];
+      const seen = Object.create(null);
+
+      for (const [destId, info] of spt.entries()) {
+        if (destId === r.id) continue;
+        const hopId = (info.path && info.path.length > 1) ? info.path[1] : info.nextHopRouterId;
+        const hop = nbr[hopId];
+        const dest = byId[destId];
+        if (!hop || !dest) continue;         // not reachable over a real adjacency
+        for (const di of dest.entry.interfaces) {
+          const netAddr = net.intToIp(net.networkOf(di.ip, di.mask));
+          const key = netAddr + '/' + di.mask;
+          if (seen[key]) continue;
+          seen[key] = 1;
+          routes.push({
+            dest: netAddr,
+            mask: di.mask,
+            nextHop: hop.ip,
+            iface: hop.iface,
+            cost: info.cost,
+            learnedFrom: hopId
+          });
+        }
+      }
+
+      byId[r.id].dev.ospfRoutes = routes;
+      result[r.id] = routes;
+    }
+
+    this.ospfResult = result;
+    return result;
   }
 
   _isBlocked(dev, ifaceName) {

@@ -1,0 +1,30 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 40F",
+  "label": "FortiGate 40F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 40F - 5x GE RJ45 (1x WAN, 1x FortiLink, 3x internal), fanless desktop; no SFP cages.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "engenius",
+  "model": "EnStationAC",
+  "label": "EnGenius EnStationAC",
+  "category": "ptp",
+  "description": "EnGenius EnStationAC - 5 GHz 802.11ac Wave 2 outdoor bridge, 867 Mbps PHY with 19 dBi panel; 2x 1G RJ45 with 802.3af/at PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#eab308"
+}

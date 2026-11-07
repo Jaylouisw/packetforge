@@ -1,0 +1,31 @@
+{
+  "vendor": "netgear",
+  "model": "WAX610",
+  "label": "Netgear WAX610",
+  "category": "wireless",
+  "description": "Netgear WAX610 - AX1800 dual-band WiFi 6 Insight-managed access point with a single 2.5G PoE+ uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#64748b"
+}

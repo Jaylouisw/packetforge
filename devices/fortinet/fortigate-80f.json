@@ -1,0 +1,55 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 80F",
+  "label": "FortiGate 80F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 80F - 10x GE RJ45 (2x WAN, 6x internal, 2x FortiLink) plus 2x GE SFP shared with WAN1/WAN2.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 6,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "fortilink1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "fortilink2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

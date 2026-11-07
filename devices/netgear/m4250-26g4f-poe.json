@@ -1,0 +1,43 @@
+{
+  "vendor": "netgear",
+  "model": "M4250-26G4F-PoE+",
+  "label": "Netgear M4250-26G4F-PoE+",
+  "category": "l3-switch",
+  "description": "Netgear AV Line M4250-26G4F-PoE+ (GSM4230P) - 24x 1G PoE+ (300 W) + 2x 1G RJ45 + 4x 1G SFP, fully managed AV switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 26,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

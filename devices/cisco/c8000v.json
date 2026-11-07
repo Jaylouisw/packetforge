@@ -1,0 +1,39 @@
+{
+  "vendor": "cisco",
+  "model": "C8000V",
+  "label": "Catalyst 8000V Edge",
+  "category": "router",
+  "description": "Cisco Catalyst 8000V edge router - virtual IOS XE instance, 4 vNIC data interfaces, SD-WAN/security virtual edge.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

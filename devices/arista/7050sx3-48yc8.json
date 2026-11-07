@@ -1,0 +1,63 @@
+{
+  "vendor": "arista",
+  "model": "7050SX3-48YC8",
+  "label": "7050SX3-48YC8",
+  "category": "l3-switch",
+  "description": "Arista 7050SX3-48YC8 - 1RU 10/25G leaf: 48x 25G SFP28 downlinks (Ethernet1-48) plus 8x 100G QSFP28 uplinks (Ethernet49-56), 4 Tbps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet55",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet56",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

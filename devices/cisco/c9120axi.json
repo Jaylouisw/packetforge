@@ -1,0 +1,26 @@
+{
+  "vendor": "cisco",
+  "model": "C9120AXI",
+  "label": "Catalyst 9120AXI AP",
+  "category": "wireless",
+  "description": "Cisco Catalyst 9120AXI Wi-Fi 6 AP - internal antennas, 4x4:4 MIMO, 1x 100M/1G/2.5G Multigigabit uplink with PoE-in.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

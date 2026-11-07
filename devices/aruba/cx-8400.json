@@ -1,0 +1,53 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8400",
+  "label": "Aruba CX 8400 (8-slot chassis, 32Y + 6p 40/100G modules)",
+  "category": "l3-switch",
+  "description": "Aruba CX 8400 - 8-slot modular core chassis. Modelled with one JL687A 8400X-32Y module in slot 1 (32x 1/10/25G SFP28) and one JL366A 6-port 40/100G QSFP28 module in slot 2.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/2/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/2/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/2/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/2/6",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

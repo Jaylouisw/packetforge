@@ -1,0 +1,96 @@
+{
+  "vendor": "huawei",
+  "model": "AR6300",
+  "label": "NetEngine AR6300",
+  "category": "router",
+  "description": "Huawei NetEngine AR6300 modular aggregation router with SRU-400H: 14x 10GE SFP+ (GE-capable) plus 10x GE RJ45, all ports configurable as WAN or LAN; 4 SIC slots.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "XGigabitEthernet0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#f43f5e"
+}

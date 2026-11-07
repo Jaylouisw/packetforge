@@ -1,0 +1,32 @@
+{
+  "vendor": "siklu",
+  "model": "EtherHaul 1200FX",
+  "label": "Siklu EtherHaul 1200FX",
+  "category": "ptp",
+  "description": "Siklu EtherHaul 1200FX - 71-86 GHz E-band radio, 1 Gbps full duplex; 2x 1G RJ45 copper ports with PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#06b6d4"
+}

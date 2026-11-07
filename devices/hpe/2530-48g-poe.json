@@ -1,0 +1,276 @@
+{
+  "vendor": "hpe",
+  "model": "2530-48G-PoE+",
+  "label": "HPE 2530-48G-PoE+",
+  "category": "switch",
+  "description": "HP ProCurve/HPE 2530-48G-PoE+ - 48x 1G PoE+ RJ45 plus 4x 1G SFP uplinks. L2 access switch (ArubaOS-Switch).",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "48",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "49",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "50",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "51",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "52",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f97316"
+}

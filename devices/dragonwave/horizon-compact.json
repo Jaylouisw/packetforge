@@ -1,0 +1,32 @@
+{
+  "vendor": "dragonwave",
+  "model": "Horizon Compact+",
+  "label": "DragonWave Horizon Compact+",
+  "category": "ptp",
+  "description": "DragonWave Horizon Compact+ - all-outdoor 6-38 GHz packet microwave, 1-2 Gbps with Bandwidth Accelerator and XPIC; 2x 1G RJ45 (or 4x 100M).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#a855f7"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP670",
+  "label": "TP-Link Omada EAP670",
+  "category": "wireless",
+  "description": "TP-Link Omada EAP670 - AX5400 dual-band WiFi 6 ceiling AP (574 Mbps 2.4 GHz + 4804 Mbps 5 GHz) with one 2.5G PoE+ uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#22c55e"
+}

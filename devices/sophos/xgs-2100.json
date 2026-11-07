@@ -1,0 +1,40 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 2100",
+  "label": "Sophos XGS 2100",
+  "category": "firewall",
+  "description": "Sophos XGS 2100 - 8x 1G RJ45 (Port1-Port8, 1 bypass pair) + 2x 1G SFP (PortF1-PortF2) + 1x 1G MGMT; 1U, 1 expansion bay.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PortF2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "MGMT",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

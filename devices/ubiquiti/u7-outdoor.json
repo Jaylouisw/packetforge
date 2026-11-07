@@ -1,0 +1,27 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Outdoor",
+  "label": "UniFi U7 Outdoor",
+  "category": "wireless",
+  "description": "Ubiquiti U7-Outdoor - Wi-Fi 7 outdoor AP (IPX6): 2x2 5GHz (4.3 Gbps, 240MHz) + 2x2 2.4GHz, 2.5GbE RJ45 PoE+ uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6"
+}

@@ -1,0 +1,43 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+  "label": "Aruba CX 6000 24G Class4 PoE 4SFP 370W (R8N87A)",
+  "category": "switch",
+  "description": "Aruba CX 6000 24G Class 4 PoE 4SFP 370W - 24x 1G PoE+ RJ45 (370 W budget) plus 4x 1G SFP uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1/1/26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1/1/27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1/1/28",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

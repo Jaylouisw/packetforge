@@ -1,0 +1,23 @@
+{
+  "vendor": "juniper",
+  "model": "SRX345",
+  "label": "SRX345 Firewall",
+  "category": "firewall",
+  "description": "Juniper SRX345 - branch firewall: 16x 1G (8x RJ45 + 8x SFP, ge-0/0/0-15), 4x mini-PIM slots.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "icon": "firewall",
+  "color": "#84cc16"
+}

@@ -1,0 +1,41 @@
+{
+  "vendor": "mikrotik",
+  "model": "wAPG-5HaxD2HaxD",
+  "label": "wAP ax",
+  "category": "wireless",
+  "description": "MikroTik wAP ax - outdoor IP54 Wi-Fi 6 dual-band 2x2 AP with 2x 1G RJ45, PoE-in and DC jack.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "wireless",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6"
+}

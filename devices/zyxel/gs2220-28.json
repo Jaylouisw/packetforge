@@ -1,0 +1,42 @@
+{
+  "vendor": "zyxel",
+  "model": "GS2220-28",
+  "label": "Zyxel GS2220-28",
+  "category": "switch",
+  "description": "Zyxel GS2220-28 - 24x 1G RJ45 plus 4x 1G combo ports (RJ45 or SFP), L2+ managed NebulaFlex switch, 56 Gbps.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f97316"
+}

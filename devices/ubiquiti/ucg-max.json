@@ -1,0 +1,45 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UCG-Max",
+  "label": "UniFi Cloud Gateway Max",
+  "category": "router",
+  "description": "Ubiquiti UCG-Max - compact fanless 2.5G cloud gateway with NVR: 5x 2.5GbE RJ45 (1 WAN + 4 LAN), no SFP cages.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "WAN",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

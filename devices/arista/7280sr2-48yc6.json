@@ -1,0 +1,53 @@
+{
+  "vendor": "arista",
+  "model": "7280SR2-48YC6",
+  "label": "7280SR2-48YC6",
+  "category": "l3-switch",
+  "description": "Arista 7280SR2-48YC6 - 1RU deep-buffer router/switch (7280R2): 48x 1/10/25G SFP (Ethernet1-48) plus 6x 100G QSFP28 (Ethernet49-54).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

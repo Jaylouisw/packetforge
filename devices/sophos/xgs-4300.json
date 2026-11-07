@@ -1,0 +1,70 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 4300",
+  "label": "Sophos XGS 4300",
+  "category": "firewall",
+  "description": "Sophos XGS 4300 - 4x 1G RJ45 (Port1-Port4) + 4x 2.5G RJ45 (Port5-Port8) + 4x 10G SFP+ (PortF1-PortF4) + 1x 1G MGMT; 1U, 2 expansion bays.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Port5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "PortF2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "PortF3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "PortF4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "MGMT",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

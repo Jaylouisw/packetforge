@@ -1,0 +1,47 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR2116-12G-4S+",
+  "label": "CCR2116-12G-4S+",
+  "category": "router",
+  "description": "MikroTik CCR2116-12G-4S+ - 16-core ARM cloud core router: 13x 1G RJ45 (12 data + 1 management) and 4x 10G SFP+ cages, L3 hardware offload.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 13,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

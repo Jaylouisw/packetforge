@@ -1,0 +1,56 @@
+{
+  "vendor": "mikrotik",
+  "model": "C53UiG+5HPaxD2HPaxD",
+  "label": "hAP ax3",
+  "category": "wireless",
+  "description": "MikroTik hAP ax3 - Wi-Fi 6 dual-band AP/router: 1x 2.5G RJ45, 4x 1G RJ45, USB 3.0, quad-core ARM.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "wireless",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6"
+}

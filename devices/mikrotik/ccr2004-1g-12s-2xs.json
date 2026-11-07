@@ -1,0 +1,42 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR2004-1G-12S+2XS",
+  "label": "CCR2004-1G-12S+2XS",
+  "category": "router",
+  "description": "MikroTik CCR2004-1G-12S+2XS - cloud core router: 1x 1G RJ45, 12x 10G SFP+ cages and 2x 25G SFP28 cages, quad-core ARM AL32400.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "sfp-sfpplus",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp28-1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp28-2",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

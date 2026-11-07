@@ -1,0 +1,32 @@
+{
+  "vendor": "radwin",
+  "model": "RADWIN 5000 JET",
+  "label": "RADWIN 5000 JET",
+  "category": "ptp",
+  "description": "RADWIN 5000 JET - 5 GHz PtP/PtMP base station radio with smart beamforming, 250 Mbps per link (750 Mbps with dual carriers); 2x 1G RJ45, optional 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

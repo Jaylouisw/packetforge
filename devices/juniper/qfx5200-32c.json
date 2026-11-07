@@ -1,0 +1,21 @@
+{
+  "vendor": "juniper",
+  "model": "QFX5200-32C",
+  "label": "QFX5200-32C Switch",
+  "category": "l3-switch",
+  "description": "Juniper QFX5200-32C - 32x 40G/100G QSFP+/QSFP28 spine switch, 6.4 Tbps (et-0/0/0-31).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "et-0/0/",
+    "start": 0,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G"
+  },
+  "icon": "switch",
+  "color": "#84cc16"
+}

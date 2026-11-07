@@ -1,0 +1,41 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP690E HD",
+  "label": "TP-Link Omada EAP690E HD",
+  "category": "wireless",
+  "description": "TP-Link Omada EAP690E HD - AXE11000 quad-band WiFi 6E ceiling AP with a single 10G PoE++ (802.3bt) uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio3",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#22c55e"
+}

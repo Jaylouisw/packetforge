@@ -1,0 +1,42 @@
+{
+  "vendor": "juniper",
+  "model": "EX2300-48T",
+  "label": "EX2300-48T Switch",
+  "category": "switch",
+  "description": "Juniper EX2300-48T - 48x 1G RJ45 access plus 4x 1G/10G SFP+ uplinks (xe-0/1/0-3).",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "xe-0/1/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#84cc16"
+}

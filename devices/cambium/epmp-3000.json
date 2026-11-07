@@ -1,0 +1,32 @@
+{
+  "vendor": "cambium",
+  "model": "ePMP 3000",
+  "label": "Cambium ePMP 3000",
+  "category": "ptp",
+  "description": "Cambium ePMP 3000 - 5 GHz 4x4 MU-MIMO sector access point (also used for PtP links), ~1 Gbps sector capacity; 1x 1G RJ45 (802.3at) plus aux SFP.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

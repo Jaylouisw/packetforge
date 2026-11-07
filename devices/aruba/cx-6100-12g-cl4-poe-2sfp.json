@@ -1,0 +1,34 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6100 12G CL4 PoE 2SFP+",
+  "label": "Aruba CX 6100 12G Class4 PoE 2G/2SFP+ 139W (JL679A)",
+  "category": "l3-switch",
+  "description": "Aruba CX 6100 12G Class 4 PoE 2G/2SFP+ 139W - 12x 1G PoE+ RJ45 plus 2x 10G SFP+ uplinks, fanless.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/14",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "aruba",
+  "model": "AP-555",
+  "label": "Aruba AP-555",
+  "category": "wireless",
+  "description": "Aruba AP-555 - Wi-Fi 6 8x8 (5 GHz) / 4x4 (2.4 GHz) flagship AP with two 5G SmartRate Ethernet ports (E0/E1).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "E1",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

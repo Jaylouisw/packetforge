@@ -1,0 +1,21 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8360-12C",
+  "label": "Aruba CX 8360-12C",
+  "category": "l3-switch",
+  "description": "Aruba CX 8360-12C - 12x 40/100G QSFP28 ports. High-density 100G aggregation/core switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "100G"
+  },
+  "icon": "switch",
+  "color": "#f59e0b"
+}

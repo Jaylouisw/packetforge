@@ -1,0 +1,37 @@
+{
+  "vendor": "cambium",
+  "model": "PTP 670",
+  "label": "Cambium PTP 670",
+  "category": "ptp",
+  "description": "Cambium PTP 670 - 4.9-6 GHz point-to-point bridge, 450 Mbps aggregate, transparent L2; 2x 1G RJ45 plus 1x 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

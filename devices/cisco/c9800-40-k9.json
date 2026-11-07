@@ -1,0 +1,41 @@
+{
+  "vendor": "cisco",
+  "model": "C9800-40-K9",
+  "label": "Catalyst 9800-40 Controller",
+  "category": "wireless",
+  "description": "Cisco Catalyst 9800-40 appliance - 4x 1/10G SFP+ data ports plus 1x 1G RJ45 service port, up to 2000 APs / 32,000 clients.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Te1/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Te1/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Te1/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Te1/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

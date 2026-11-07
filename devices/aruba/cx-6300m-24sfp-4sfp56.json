@@ -1,0 +1,44 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6300M 24SFP+ 4SFP56",
+  "label": "Aruba CX 6300M 24SFP+ 4SFP56 (JL658A)",
+  "category": "l3-switch",
+  "description": "Aruba CX 6300M 24SFP+ 4SFP56 - 24x 1/10G SFP+ fiber ports plus 4x 1/10/25G SFP56 uplinks. Fiber aggregation model.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/25",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/26",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/27",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/28",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

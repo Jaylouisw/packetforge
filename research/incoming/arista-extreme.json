@@ -1,0 +1,1689 @@
+[
+  {
+    "vendor": "arista",
+    "model": "7050SX3-48YC8",
+    "label": "7050SX3-48YC8",
+    "category": "l3-switch",
+    "description": "Arista 7050SX3-48YC8 - 1RU 10/25G leaf: 48x 25G SFP28 downlinks (Ethernet1-48) plus 8x 100G QSFP28 uplinks (Ethernet49-56), 4 Tbps.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet49",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet50",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet51",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet52",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet54",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet55",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet56",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "7050CX3-32S",
+    "label": "7050CX3-32S",
+    "category": "l3-switch",
+    "description": "Arista 7050CX3-32S - 1RU 100G spine/leaf: 32x 100G QSFP28 (Ethernet1-32) plus 2x 1/10G SFP+ (Ethernet33-34), 6.4 Tbps.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 32,
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "7060CX2-32S",
+    "label": "7060CX2-32S",
+    "category": "l3-switch",
+    "description": "Arista 7060CX2-32S - 1RU 100G data-center switch: 32x 100G QSFP28 (Ethernet1-32, 4x25G/2x50G breakout capable) plus 2x 10G SFP+ (Ethernet33-34), 6.4 Tbps.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 32,
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "7280SR2-48YC6",
+    "label": "7280SR2-48YC6",
+    "category": "l3-switch",
+    "description": "Arista 7280SR2-48YC6 - 1RU deep-buffer router/switch (7280R2): 48x 1/10/25G SFP (Ethernet1-48) plus 6x 100G QSFP28 (Ethernet49-54).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet49",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet50",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet51",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet52",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet54",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "7280SR3-40YC6",
+    "label": "7280SR3-40YC6",
+    "category": "l3-switch",
+    "description": "Arista 7280SR3-40YC6 - 1RU 800G deep-buffer platform (7280R3): 40x 1/10/25G SFP (Ethernet1-40) plus 6x 100G QSFP28 (Ethernet41-46).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 40,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet41",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet42",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet43",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet44",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet45",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet46",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "7504R",
+    "label": "7504R (4x 36CQ)",
+    "category": "l3-switch",
+    "description": "Arista 7504R - 7RU 4-line-card modular data-center chassis (7500R series, 38 Tbps fabric). Shown fully populated with 4x 7500R-36CQ line cards: 144x 100G QSFP28 as Ethernet1/1-4/36.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Ethernet1/1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/4",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/5",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/6",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/7",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/8",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/9",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/10",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/11",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/12",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/13",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/14",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/15",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/16",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/17",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/18",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/19",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/20",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/21",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/22",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/23",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/24",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/25",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/27",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/28",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/29",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/30",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/31",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/32",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/33",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/34",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/35",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet1/36",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/4",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/5",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/6",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/7",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/8",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/9",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/10",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/11",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/12",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/13",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/14",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/15",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/16",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/17",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/18",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/19",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/20",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/21",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/22",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/23",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/24",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/25",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/27",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/28",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/29",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/30",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/31",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/32",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/33",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/34",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/35",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet2/36",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/4",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/5",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/6",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/7",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/8",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/9",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/10",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/11",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/12",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/13",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/14",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/15",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/16",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/17",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/18",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/19",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/20",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/21",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/22",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/23",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/24",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/25",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/27",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/28",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/29",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/30",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/31",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/32",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/33",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/34",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/35",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet3/36",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/4",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/5",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/6",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/7",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/8",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/9",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/10",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/11",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/12",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/13",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/14",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/15",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/16",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/17",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/18",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/19",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/20",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/21",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/22",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/23",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/24",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/25",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/27",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/28",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/29",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/30",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/31",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/32",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/33",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/34",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/35",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet4/36",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "720XP-48ZC2",
+    "label": "720XP-48ZC2",
+    "category": "switch",
+    "description": "Arista CCS-720XP-48ZC2 - 1RU Cognitive Campus leaf: 40x 100M-2.5G mGig PoE+ (Ethernet1-40), 8x 100M-5G mGig PoE+ (Ethernet41-48), 4x 25G SFP (Ethernet49-52), 2x 100G QSFP (Ethernet53-54).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Ethernet1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet2",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet3",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet4",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet5",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet6",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet7",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet8",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet9",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet10",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet11",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet12",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet13",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet14",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet15",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet16",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet17",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet18",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet19",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet20",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet21",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet22",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet23",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet24",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet25",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet26",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet27",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet28",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet29",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet30",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet31",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet32",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet35",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet36",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet37",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet38",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet39",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet40",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Ethernet41",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet42",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet43",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet44",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet45",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet46",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet47",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet48",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "Ethernet49",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet50",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet51",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet52",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "Ethernet54",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "arista",
+    "model": "720XP-48Y6",
+    "label": "720XP-48Y6",
+    "category": "switch",
+    "description": "Arista CCS-720XP-48Y6 - 1RU Cognitive Campus leaf: 48x 10M/100M/1G RJ45 PoE+ (Ethernet1-48) plus 6x 1/10/25G SFP (Ethernet49-54).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet49",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet50",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet51",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet52",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet53",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "Ethernet54",
+        "type": "ethernet",
+        "speed": "25G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X440-G2-48t-10GE4",
+    "label": "X440-G2-48t-10GE4",
+    "category": "switch",
+    "description": "ExtremeSwitching X440-G2-48t-10GE4 (16702) - 1RU edge switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48, four of which double as 1G SFP combo ports) plus 4x rear SFP+ uplinks (ports 1:49-1:52) that run 1G by default and 10G with the 10Gb upgrade licence.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "1:49",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:50",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:51",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:52",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X460-G2-48t-10GE4",
+    "label": "X460-G2-48t-10GE4",
+    "category": "switch",
+    "description": "ExtremeSwitching X460-G2-48t-10GE4 (16702) - 1RU scalable edge/aggregation switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48) plus 4x 10GBASE-X SFP+ (ports 1:49-1:52, two usable as stacking). Optional rear VIM adds 10G/40G uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "1:49",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:50",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:51",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:52",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X465-48T",
+    "label": "X465-48T",
+    "category": "switch",
+    "description": "ExtremeSwitching X465-48T (10953) - 1RU universal edge switch, ExtremeXOS: 48x 10/100/1000BASE-T MACsec-capable RJ45 (ports 1:1-1:48), one VIM5 slot for 10G/25G/40G uplinks and 2 dedicated stacking ports. Shown with the VIM slot empty.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X590-24x-1q-2c",
+    "label": "X590-24x-1q-2c",
+    "category": "l3-switch",
+    "description": "ExtremeSwitching X590-24x-1q-2c (16790) - 1RU 10G/100G aggregation switch, ExtremeXOS: 24x 1G/10GBASE-X SFP+ (ports 1:1-1:24), 1x 10G/40G QSFP+ (port 1:25), 2x 10/25/40/50/100G QSFP28 (ports 1:26-1:27).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "1:25",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "1:26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "1:27",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X620-16x",
+    "label": "X620-16x",
+    "category": "l3-switch",
+    "description": "ExtremeSwitching X620-16x (17401) - compact 1RU 10G edge switch, ExtremeXOS: 16x 100M/1G/10GBASE-X SFP+ ports (ports 1:1-1:16), hot-swappable PSU and fans.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "X690-48x-2q-4c",
+    "label": "X690-48x-2q-4c",
+    "category": "l3-switch",
+    "description": "ExtremeSwitching X690-48x-2q-4c (17350) - 1RU 10G leaf, ExtremeXOS: 48x 1G/10GBASE-X SFP+ (ports 1:1-1:48), 2x 10G/40G QSFP+ (ports 1:49-1:50), 4x 10/25/40/50/100G QSFP28 (ports 1:51-1:54).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "1:49",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "1:50",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "1:51",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "1:52",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "1:53",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "1:54",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "VSP 4450GSX-PWR+",
+    "label": "VSP 4450GSX-PWR+",
+    "category": "switch",
+    "description": "Extreme VSP 4450GSX-PWR+ - 1RU Fabric Connect edge switch (VOSS, VSP 4000 series): 12x 10/100/1000BASE-T PoE+ (1:1-1:12), 36x 100/1000BASE-X SFP (1:13-1:48), 2x 1/10G SFP+ uplinks (1:49-1:50) in slot 1.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "1:49",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "1:50",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "VSP 7254XSQ",
+    "label": "VSP 7254XSQ",
+    "category": "l3-switch",
+    "description": "Extreme VSP 7254XSQ - 1RU 10/40G Fabric Connect top-of-rack switch (VOSS, VSP 7200 series): 48x 1G/10G SFP+ in slot 1 (1:1-1:48) and 6x 40G QSFP+ in slot 2 (2:1-2:6).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "1:",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "2:1",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "2:2",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "2:3",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "2:4",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "2:5",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "2:6",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "AP305C",
+    "label": "AP305C",
+    "category": "wireless",
+    "description": "Extreme AP305C - indoor Wi-Fi 6 (802.11ax) access point with two dual-band 2x2:2 radios (2.4 GHz and 5 GHz, dual-5GHz capable) and one autosensing 10/100/1000BASE-T PoE (802.3af/at) port, ETH0.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "ETH0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#e11d48"
+  },
+  {
+    "vendor": "extreme",
+    "model": "AP4000",
+    "label": "AP4000",
+    "category": "wireless",
+    "description": "Extreme AP4000 - indoor Wi-Fi 6E tri-radio access point (2.4 GHz, 5 GHz and 6 GHz, 2x2:2 each) with Eth0 100/1000/2500 Mbps 802.3at PoE and Eth1 10/100/1000 Mbps.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "Eth0",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#e11d48"
+  }
+]

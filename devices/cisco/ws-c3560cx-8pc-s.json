@@ -1,0 +1,43 @@
+{
+  "vendor": "cisco",
+  "model": "WS-C3560CX-8PC-S",
+  "label": "Catalyst 3560CX-8PC-S",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 3560-CX compact L3 switch - 8x 1G PoE+ (240 W), 2x 1G SFP and 2x 1G copper uplinks, fanless.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/12",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0d9488"
+}

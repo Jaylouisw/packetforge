@@ -1,0 +1,44 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6200F 48G CL4 PoE 4SFP+",
+  "label": "Aruba CX 6200F 48G Class4 PoE 4SFP+ 370W (JL727A)",
+  "category": "l3-switch",
+  "description": "Aruba CX 6200F 48G Class 4 PoE 4SFP+ 370W - 48x 1G PoE+ RJ45 (370 W) plus 4x 1/10G SFP+ uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/49",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/50",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/51",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/52",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

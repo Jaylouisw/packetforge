@@ -1,0 +1,63 @@
+{
+  "vendor": "cisco",
+  "model": "C9300-24UX",
+  "label": "Catalyst 9300-24UX",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 9300 - 24x Multigigabit 100M/1G/2.5G/5G/10G copper (UPOE 90 W), network module slot with 8x 10G SFP+.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Gi1/1/8",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

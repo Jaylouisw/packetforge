@@ -1,0 +1,53 @@
+{
+  "vendor": "arista",
+  "model": "7280SR3-40YC6",
+  "label": "7280SR3-40YC6",
+  "category": "l3-switch",
+  "description": "Arista 7280SR3-40YC6 - 1RU 800G deep-buffer platform (7280R3): 40x 1/10/25G SFP (Ethernet1-40) plus 6x 100G QSFP28 (Ethernet41-46).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 40,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet41",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet42",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet43",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet44",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet45",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet46",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

@@ -1,0 +1,43 @@
+{
+  "vendor": "cisco",
+  "model": "N3K-C3048TP-1GE",
+  "label": "Nexus 3048TP-1GE",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 3048 - 48x 1G RJ45 downlinks plus 4x 10G SFP+ uplinks, low-latency 1RU ToR.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Eth1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Eth1/49",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Eth1/50",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Eth1/51",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Eth1/52",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#6366f1"
+}

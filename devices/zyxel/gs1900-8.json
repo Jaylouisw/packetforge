@@ -1,0 +1,21 @@
+{
+  "vendor": "zyxel",
+  "model": "GS1900-8",
+  "label": "Zyxel GS1900-8",
+  "category": "switch",
+  "description": "Zyxel GS1900-8 - 8x 1G RJ45 web-managed smart switch, fanless desktop unit (no SFP).",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [],
+  "icon": "switch",
+  "color": "#f97316"
+}

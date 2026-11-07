@@ -1,0 +1,56 @@
+{
+  "vendor": "h3c",
+  "model": "MSR3620-X1",
+  "label": "MSR3620-X1",
+  "category": "router",
+  "description": "H3C MSR3620-X1 integrated services router (Comware 7) - 8x GE WAN + 8x GE LAN/WAN copper ports + 6x 10GE SFP+, 2x HMIM and 4x SIC slots.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/",
+    "start": 0,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Ten-GigabitEthernet0/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet0/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet0/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet0/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet0/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet0/21",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

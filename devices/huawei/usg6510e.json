@@ -1,0 +1,36 @@
+{
+  "vendor": "huawei",
+  "model": "USG6510E",
+  "label": "HiSecEngine USG6510E",
+  "category": "firewall",
+  "description": "Huawei HiSecEngine USG6510E next-gen firewall - 10x GE RJ45 + 2x GE SFP, 1.2 Gbit/s firewall throughput, 1U desktop.",
+  "capabilities": [
+    "firewall",
+    "l3-forward",
+    "nat",
+    "cli",
+    "dhcp-server",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 0,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "GigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/11",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f59e0b"
+}

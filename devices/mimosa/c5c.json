@@ -1,0 +1,27 @@
+{
+  "vendor": "mimosa",
+  "model": "C5c",
+  "label": "Mimosa C5c",
+  "category": "ptp",
+  "description": "Mimosa C5c - 5 GHz 2x2 connectorized client radio, up to 700 Mbps IP (866 Mbps PHY) in PtP or PtMP; single 1G RJ45.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#8b5cf6"
+}

@@ -1,0 +1,27 @@
+{
+  "vendor": "radwin",
+  "model": "RADWIN 2000 C",
+  "label": "RADWIN 2000 C-Series",
+  "category": "ptp",
+  "description": "RADWIN 2000 C-Series - sub-6 GHz point-to-point radio, 200 Mbps net aggregate with native TDM (up to 16 E1/T1), up to 120 km; single 1G RJ45 with PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

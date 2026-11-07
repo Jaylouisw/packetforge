@@ -1,0 +1,75 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UDM-Pro-Max",
+  "label": "UniFi Dream Machine Pro Max",
+  "category": "firewall",
+  "description": "Ubiquiti UDM-Pro-Max - 1U cloud gateway with two NVR bays: 8x 1GbE RJ45 LAN (no PoE), 1x 2.5GbE RJ45 WAN, 2x 10G SFP+; 5 Gbps IDS/IPS.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "WAN",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+ 2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#3b82f6"
+}

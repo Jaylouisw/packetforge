@@ -1,0 +1,38 @@
+{
+  "vendor": "extreme",
+  "model": "X590-24x-1q-2c",
+  "label": "X590-24x-1q-2c",
+  "category": "l3-switch",
+  "description": "ExtremeSwitching X590-24x-1q-2c (16790) - 1RU 10G/100G aggregation switch, ExtremeXOS: 24x 1G/10GBASE-X SFP+ (ports 1:1-1:24), 1x 10G/40G QSFP+ (port 1:25), 2x 10/25/40/50/100G QSFP28 (ports 1:26-1:27).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "1:25",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "1:26",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1:27",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#e11d48"
+}

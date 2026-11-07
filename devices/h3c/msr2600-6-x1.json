@@ -1,0 +1,44 @@
+{
+  "vendor": "h3c",
+  "model": "MSR2600-6-X1",
+  "label": "MSR2600-6-X1",
+  "category": "router",
+  "description": "H3C MSR2600-6-X1 branch router (Comware 7) - 1x GE WAN copper + 1x GE SFP combo WAN, 4x GE RJ45 LAN, 2x SIC slots.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

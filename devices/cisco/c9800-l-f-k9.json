@@ -1,0 +1,46 @@
+{
+  "vendor": "cisco",
+  "model": "C9800-L-F-K9",
+  "label": "Catalyst 9800-L-F Controller",
+  "category": "wireless",
+  "description": "Cisco Catalyst 9800-L wireless controller (fiber uplinks) - 4x 1/2.5G Multigigabit RJ45 + 2x 1/10G SFP+ data ports, up to 500 APs.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi1/0/1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Gi1/0/2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Gi1/0/3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Gi1/0/4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Te1/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Te1/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

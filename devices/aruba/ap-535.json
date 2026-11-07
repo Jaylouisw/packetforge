@@ -1,0 +1,31 @@
+{
+  "vendor": "aruba",
+  "model": "AP-535",
+  "label": "Aruba AP-535",
+  "category": "wireless",
+  "description": "Aruba AP-535 - Wi-Fi 6 4x4 dual-radio high-density AP with two 2.5G SmartRate Ethernet ports (E0/E1).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "E1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

@@ -1,0 +1,33 @@
+{
+  "vendor": "extreme",
+  "model": "VSP 4450GSX-PWR+",
+  "label": "VSP 4450GSX-PWR+",
+  "category": "switch",
+  "description": "Extreme VSP 4450GSX-PWR+ - 1RU Fabric Connect edge switch (VOSS, VSP 4000 series): 12x 10/100/1000BASE-T PoE+ (1:1-1:12), 36x 100/1000BASE-X SFP (1:13-1:48), 2x 1/10G SFP+ uplinks (1:49-1:50) in slot 1.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1:49",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:50",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#e11d48"
+}

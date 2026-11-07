@@ -1,0 +1,43 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8360-48XT4C",
+  "label": "Aruba CX 8360-48XT4C",
+  "category": "l3-switch",
+  "description": "Aruba CX 8360-48XT4C - 48x 1/10G 10GBASE-T RJ45 plus 4x 100G QSFP28 uplinks. L3 switch for 10G copper access.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

@@ -24,7 +24,8 @@
         "motd": null,
         "vlans": {},
         "lags": {},
-        "acls": {}
+        "acls": {},
+        "ospf": null
       },
       "interfaces": [
         {
@@ -85,7 +86,8 @@
         "motd": null,
         "vlans": {},
         "lags": {},
-        "acls": {}
+        "acls": {},
+        "ospf": null
       },
       "interfaces": [
         {
@@ -145,7 +147,8 @@
         "motd": null,
         "vlans": {},
         "lags": {},
-        "acls": {}
+        "acls": {},
+        "ospf": null
       },
       "interfaces": [
         {

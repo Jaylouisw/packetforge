@@ -1,0 +1,67 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Enterprise-8-PoE",
+  "label": "UniFi Switch Enterprise 8 PoE",
+  "category": "l3-switch",
+  "description": "Ubiquiti USW-Enterprise-8-PoE - 8x 2.5GbE RJ45 all PoE+ (120W), 2x 10G SFP+; Layer 3 UniFi switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+ 2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

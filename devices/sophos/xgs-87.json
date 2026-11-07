@@ -1,0 +1,30 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 87",
+  "label": "Sophos XGS 87",
+  "category": "firewall",
+  "description": "Sophos XGS 87 - 4x 1G RJ45 (Port1-Port4) + 1x 1G SFP (PortF1); desktop, no dedicated MGMT port.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

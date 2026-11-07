@@ -1,0 +1,43 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG3428",
+  "label": "TP-Link TL-SG3428",
+  "category": "l3-switch",
+  "description": "TP-Link JetStream/Omada TL-SG3428 - 24x 1G RJ45, 4x 1G SFP, L2+ managed with static routing, 56 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#22c55e"
+}

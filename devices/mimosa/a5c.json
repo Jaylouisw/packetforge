@@ -1,0 +1,27 @@
+{
+  "vendor": "mimosa",
+  "model": "A5c",
+  "label": "Mimosa A5c",
+  "category": "ptp",
+  "description": "Mimosa A5c - 5 GHz 4x4:4 connectorized access point, up to 1.0 Gbps IP (1.7 Gbps PHY), 64 clients; single 1G RJ45 with 802.3at PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#8b5cf6"
+}

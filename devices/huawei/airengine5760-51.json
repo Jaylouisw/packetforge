@@ -1,0 +1,36 @@
+{
+  "vendor": "huawei",
+  "model": "AirEngine5760-51",
+  "label": "AirEngine 5760-51",
+  "category": "wireless",
+  "description": "Huawei AirEngine 5760-51 indoor Wi-Fi 6 AP - dual/tri-radio 2+4 streams, 1x 100M/1G/2.5G/5GE electrical (PoE in) + 1x GE + USB, IoT slot.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "5GE",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "GE",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WLAN-2.4G",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "WLAN-5G",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "wireless",
+  "color": "#a855f7"
+}

@@ -1,0 +1,49 @@
+{
+  "vendor": "h3c",
+  "model": "MSR3610-X1",
+  "label": "MSR3610-X1",
+  "category": "router",
+  "description": "H3C MSR3610-X1 integrated services router (Comware 7) - 4x GE WAN (2 copper combo) + 2x SFP, 4x SIC slots, no fixed LAN ports.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

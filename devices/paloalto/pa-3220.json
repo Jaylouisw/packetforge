@@ -1,0 +1,85 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-3220",
+  "label": "PA-3220",
+  "category": "firewall",
+  "description": "Palo Alto PA-3220 - 12x 1G RJ45 (1/1-1/12), 4x 1G SFP (1/13-1/16), 4x 10G SFP+ (1/17-1/20), 1x 1G MGMT, 2x 1G HA + 1x 10G HA.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "ethernet1/13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-b",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f97316"
+}

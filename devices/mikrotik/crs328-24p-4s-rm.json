@@ -1,0 +1,44 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS328-24P-4S+RM",
+  "label": "CRS328-24P-4S+RM",
+  "category": "switch",
+  "description": "MikroTik CRS328-24P-4S+RM - 24x 1G RJ45 with 802.3af/at PoE-out and 4x 10G SFP+ cages, RouterOS or SwOS.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

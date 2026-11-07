@@ -1,0 +1,43 @@
+{
+  "vendor": "huawei",
+  "model": "S5735-L48T4X-A1",
+  "label": "S5735-L48T4X-A1",
+  "category": "switch",
+  "description": "Huawei CloudEngine S5735-L48T4X-A1 - 48x 10/100/1000BASE-T ports + 4x 10GE SFP+ uplinks, fanless Lite access switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "XGigabitEthernet0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#ef4444"
+}

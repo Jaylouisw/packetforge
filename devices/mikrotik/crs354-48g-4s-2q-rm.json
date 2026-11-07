@@ -1,0 +1,62 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS354-48G-4S+2Q+RM",
+  "label": "CRS354-48G-4S+2Q+RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS354-48G-4S+2Q+RM - 48x 1G RJ45, 4x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (ether49), L3 hardware offload.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "ether49",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "qsfpplus1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "qsfpplus2",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

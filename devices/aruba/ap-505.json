@@ -1,0 +1,26 @@
+{
+  "vendor": "aruba",
+  "model": "AP-505",
+  "label": "Aruba AP-505",
+  "category": "wireless",
+  "description": "Aruba AP-505 - Wi-Fi 6 (802.11ax) 2x2 dual-radio indoor AP, single 1G PoE uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

@@ -1,0 +1,53 @@
+{
+  "vendor": "extreme",
+  "model": "VSP 7254XSQ",
+  "label": "VSP 7254XSQ",
+  "category": "l3-switch",
+  "description": "Extreme VSP 7254XSQ - 1RU 10/40G Fabric Connect top-of-rack switch (VOSS, VSP 7200 series): 48x 1G/10G SFP+ in slot 1 (1:1-1:48) and 6x 40G QSFP+ in slot 2 (2:1-2:6).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "2:1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2:2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2:3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2:4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2:5",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2:6",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#e11d48"
+}

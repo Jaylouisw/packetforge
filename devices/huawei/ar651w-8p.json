@@ -1,0 +1,36 @@
+{
+  "vendor": "huawei",
+  "model": "AR651W-8P",
+  "label": "AR651W-8P Router",
+  "category": "router",
+  "description": "Huawei AR651W-8P branch router: 2x GE combo WAN + 8x GE RJ45 LAN with PoE+, integrated 802.11b/g/n/ac 2x2 Wi-Fi, 1x MIC slot.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "WLAN-2.4G",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "WLAN-5G",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#f43f5e"
+}

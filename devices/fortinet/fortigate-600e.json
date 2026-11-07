@@ -1,0 +1,85 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 600E",
+  "label": "FortiGate 600E",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 600E - 10x GE RJ45 (1x MGMT, 1x HA, 8x switch), 8x GE SFP, 2x 10G SFP+.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

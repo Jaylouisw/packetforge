@@ -1,0 +1,42 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR2216-1G-12XS-2XQ",
+  "label": "CCR2216-1G-12XS-2XQ",
+  "category": "router",
+  "description": "MikroTik CCR2216-1G-12XS-2XQ - 16-core ARM cloud core router: 1x 1G RJ45, 12x 25G SFP28 cages and 2x 100G QSFP28 cages.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "sfp28-",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "qsfp28-1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp28-2",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

@@ -1,0 +1,33 @@
+{
+  "vendor": "netgear",
+  "model": "M4250-10G2F-PoE+",
+  "label": "Netgear M4250-10G2F-PoE+",
+  "category": "l3-switch",
+  "description": "Netgear AV Line M4250-10G2F-PoE+ (GSM4212P) - 8x 1G PoE+ (125 W) + 2x 1G RJ45 + 2x 1G SFP, fully managed AV switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

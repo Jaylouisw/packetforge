@@ -1,0 +1,32 @@
+{
+  "vendor": "ignitenet",
+  "model": "MetroLinq 60",
+  "label": "IgniteNet MetroLinq 60",
+  "category": "ptp",
+  "description": "IgniteNet MetroLinq 60 - 60 GHz point-to-point radio with 5 GHz failover radio, 1 Gbps aggregate; 2x 1G RJ45 (PoE in) plus a PoE power-out tap.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#22c55e"
+}

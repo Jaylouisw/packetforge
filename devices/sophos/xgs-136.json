@@ -1,0 +1,45 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 136",
+  "label": "Sophos XGS 136",
+  "category": "firewall",
+  "description": "Sophos XGS 136 - 10x 1G RJ45 (Port1-Port10) + 2x 2.5G RJ45 PoE + 2x 1G SFP (PortF1-PortF2); 1 Flexi Port bay.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Port11",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port12",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PortF2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

@@ -1,0 +1,32 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB3011UiAS-RM",
+  "label": "RB3011UiAS-RM",
+  "category": "router",
+  "description": "MikroTik RB3011UiAS-RM - 1U rackmount router: 10x 1G RJ45, 1x 1G SFP cage, PoE-out on ether10, dual-core ARM.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

@@ -1,0 +1,95 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 200F",
+  "label": "FortiGate 200F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 200F - 18x GE RJ45 (1x MGMT, 1x HA, 16x switch), 8x GE SFP, 4x 10G SFP+ (2 data, 2 FortiLink).",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fortilink1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fortilink2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

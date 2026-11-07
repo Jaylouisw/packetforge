@@ -1,0 +1,85 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 100F",
+  "label": "FortiGate 100F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 100F - 22x GE RJ45 (2x WAN, 1x DMZ, 1x MGMT, 2x HA, 16x switch incl. 4 RJ45/SFP shared), 4x GE SFP, 2x 10G SFP+ FortiLink.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "dmz",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

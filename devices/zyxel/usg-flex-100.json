@@ -1,0 +1,31 @@
+{
+  "vendor": "zyxel",
+  "model": "USG FLEX 100",
+  "label": "Zyxel USG FLEX 100",
+  "category": "firewall",
+  "description": "Zyxel USG FLEX 100 - SMB NGFW: 1x 1G WAN + 4x 1G LAN/DMZ/OPT RJ45, 1x 1G SFP, RJ45 console and USB 3.0.",
+  "capabilities": [
+    "firewall",
+    "nat",
+    "l3-forward",
+    "dhcp-server",
+    "dhcp-client",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 5,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f97316"
+}

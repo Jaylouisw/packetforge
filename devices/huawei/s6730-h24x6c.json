@@ -1,0 +1,54 @@
+{
+  "vendor": "huawei",
+  "model": "S6730-H24X6C",
+  "label": "S6730-H24X6C",
+  "category": "l3-switch",
+  "description": "Huawei CloudEngine S6730-H24X6C - 24x 10GE SFP+ + 6x 40GE QSFP28 (RTU upgradeable to 100GE), 10GE aggregation switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "XGigabitEthernet0/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "40GE0/0/25",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40GE0/0/26",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40GE0/0/27",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40GE0/0/28",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40GE0/0/29",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40GE0/0/30",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626"
+}

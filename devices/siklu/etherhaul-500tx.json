@@ -1,0 +1,27 @@
+{
+  "vendor": "siklu",
+  "model": "EtherHaul 500TX",
+  "label": "Siklu EtherHaul 500TX",
+  "category": "ptp",
+  "description": "Siklu EtherHaul 500TX - 57-66 GHz V-band point-to-point radio, gigabit Ethernet class (up to ~1 Gbps), short-range street-level links; single 1G RJ45 with PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#06b6d4"
+}

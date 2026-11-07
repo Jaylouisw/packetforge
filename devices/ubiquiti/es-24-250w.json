@@ -1,0 +1,146 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ES-24-250W",
+  "label": "EdgeSwitch 24 PoE (250W)",
+  "category": "switch",
+  "description": "Ubiquiti EdgeSwitch ES-24-250W - 24x 1GbE RJ45 with 802.3af/at and 24V passive PoE (250W budget), 2x 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP 2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

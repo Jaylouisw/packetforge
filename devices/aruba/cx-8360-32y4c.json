@@ -1,0 +1,43 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8360-32Y4C",
+  "label": "Aruba CX 8360-32Y4C",
+  "category": "l3-switch",
+  "description": "Aruba CX 8360-32Y4C - 32x 25G SFP28 plus 4x 100G QSFP28 uplinks. L3 aggregation/core switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/33",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/34",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/35",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/36",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

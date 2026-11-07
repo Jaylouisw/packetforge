@@ -1,0 +1,286 @@
+{
+  "vendor": "arista",
+  "model": "720XP-48ZC2",
+  "label": "720XP-48ZC2",
+  "category": "switch",
+  "description": "Arista CCS-720XP-48ZC2 - 1RU Cognitive Campus leaf: 40x 100M-2.5G mGig PoE+ (Ethernet1-40), 8x 100M-5G mGig PoE+ (Ethernet41-48), 4x 25G SFP (Ethernet49-52), 2x 100G QSFP (Ethernet53-54).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Ethernet1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet9",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet10",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet11",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet12",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet13",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet14",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet15",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet16",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet17",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet18",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet19",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet20",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet21",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet22",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet23",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet24",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet25",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet26",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet27",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet28",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet29",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet30",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet31",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet32",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet35",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet36",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet37",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet38",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet39",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet40",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Ethernet41",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet42",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet43",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet44",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet45",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet46",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet47",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet48",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

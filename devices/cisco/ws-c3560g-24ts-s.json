@@ -1,0 +1,43 @@
+{
+  "vendor": "cisco",
+  "model": "WS-C3560G-24TS-S",
+  "label": "Catalyst 3560G-24TS-S",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 3560G - 24x 1G downlinks and 4x 1G SFP uplinks, multilayer (routing) fixed-configuration switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi0/25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/28",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0d9488"
+}

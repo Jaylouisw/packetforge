@@ -1,0 +1,44 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6300M 48G 4SFP56",
+  "label": "Aruba CX 6300M 48G 4SFP56 (JL663A)",
+  "category": "l3-switch",
+  "description": "Aruba CX 6300M 48G 4SFP56 - 48x 1G RJ45 plus 4x 1/10/25G SFP56 uplinks. Stackable L3 (VSF), full routing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/49",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/50",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/51",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1/1/52",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

@@ -1,0 +1,26 @@
+{
+  "vendor": "aruba",
+  "model": "AP-303",
+  "label": "Aruba AP-303",
+  "category": "wireless",
+  "description": "Aruba AP-303 - 802.11ac Wave 2 2x2 dual-radio indoor AP, single 1G PoE (802.3af) uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

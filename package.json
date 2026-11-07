@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
-    "test": "node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js",
+    "test": "node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js && node test/ospf-wire.test.js",
     "test:engine": "node test/engine.test.js",
     "test:cli": "node test/cli.test.js",
     "test:validation": "node test/validation.test.js",
@@ -22,6 +22,7 @@
     "test:acl-data": "node test/acl-data.test.js",
     "test:vrrp": "node test/vrrp.test.js",
     "test:ospf": "node test/ospf.test.js",
+    "test:ospf-wire": "node test/ospf-wire.test.js",
     "examples": "node examples/build-examples.js",
     "syntax": "node scripts/syntax-check.js"
   },

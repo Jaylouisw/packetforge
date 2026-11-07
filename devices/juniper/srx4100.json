@@ -1,0 +1,23 @@
+{
+  "vendor": "juniper",
+  "model": "SRX4100",
+  "label": "SRX4100 Firewall",
+  "category": "firewall",
+  "description": "Juniper SRX4100 - data-centre NGFW: 8x 1G/10G SFP+ (xe-0/0/0-7), 2 dedicated HA fabric ports, 40 Gbps firewall.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "xe-0/0/",
+    "start": 0,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "icon": "firewall",
+  "color": "#84cc16"
+}

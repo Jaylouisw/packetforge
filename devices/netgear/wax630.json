@@ -1,0 +1,41 @@
+{
+  "vendor": "netgear",
+  "model": "WAX630",
+  "label": "Netgear WAX630",
+  "category": "wireless",
+  "description": "Netgear WAX630 - AX6000 tri-band (2.4 GHz + 2x 5 GHz) WiFi 6 AP: one 2.5G PoE++ uplink plus one 1G LAN port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#64748b"
+}

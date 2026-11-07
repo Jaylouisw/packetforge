@@ -1,0 +1,276 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ES-48-500W",
+  "label": "EdgeSwitch 48 PoE (500W)",
+  "category": "switch",
+  "description": "Ubiquiti EdgeSwitch ES-48-500W - 48x 1GbE RJ45 PoE+ (500W budget), 2x 10G SFP+ and 2x 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 29",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 30",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 31",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 32",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 33",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 34",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 35",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 36",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 37",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 38",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 39",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 40",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 41",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 42",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 43",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 44",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 45",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 46",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 47",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 48",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+ 2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP 2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

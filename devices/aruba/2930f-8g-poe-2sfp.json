@@ -1,0 +1,67 @@
+{
+  "vendor": "aruba",
+  "model": "2930F 8G PoE+ 2SFP+",
+  "label": "Aruba 2930F 8G PoE+ 2SFP+ (JL258A)",
+  "category": "l3-switch",
+  "description": "Aruba 2930F 8G PoE+ 2SFP+ - 8x 1G PoE+ RJ45 plus 2x 10G SFP+ uplinks. Fanless ArubaOS-Switch access switch with static routing and RIP.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

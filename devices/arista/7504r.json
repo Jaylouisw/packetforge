@@ -1,0 +1,736 @@
+{
+  "vendor": "arista",
+  "model": "7504R",
+  "label": "7504R (4x 36CQ)",
+  "category": "l3-switch",
+  "description": "Arista 7504R - 7RU 4-line-card modular data-center chassis (7500R series, 38 Tbps fabric). Shown fully populated with 4x 7500R-36CQ line cards: 144x 100G QSFP28 as Ethernet1/1-4/36.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Ethernet1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/11",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/12",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/13",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/14",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/15",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/16",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/17",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/18",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/19",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/20",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/21",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/22",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/23",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/24",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/25",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/26",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/27",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/28",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/29",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/30",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/31",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/32",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/33",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/34",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/35",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/36",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/11",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/12",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/13",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/14",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/15",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/16",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/17",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/18",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/19",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/20",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/21",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/22",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/23",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/24",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/25",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/26",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/27",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/28",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/29",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/30",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/31",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/32",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/33",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/34",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/35",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet2/36",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/11",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/12",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/13",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/14",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/15",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/16",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/17",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/18",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/19",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/20",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/21",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/22",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/23",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/24",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/25",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/26",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/27",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/28",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/29",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/30",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/31",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/32",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/33",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/34",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/35",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet3/36",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/11",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/12",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/13",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/14",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/15",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/16",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/17",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/18",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/19",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/20",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/21",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/22",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/23",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/24",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/25",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/26",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/27",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/28",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/29",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/30",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/31",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/32",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/33",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/34",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/35",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet4/36",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

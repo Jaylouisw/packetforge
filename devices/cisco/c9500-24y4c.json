@@ -1,0 +1,43 @@
+{
+  "vendor": "cisco",
+  "model": "C9500-24Y4C",
+  "label": "Catalyst 9500-24Y4C",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 9500 high-performance - 24x 1/10/25G SFP28 downlinks plus 4x 40/100G QSFP28 fixed uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Twe1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "Hu1/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Hu1/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Hu1/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Hu1/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

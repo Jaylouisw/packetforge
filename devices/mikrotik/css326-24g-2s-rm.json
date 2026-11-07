@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "CSS326-24G-2S+RM",
+  "label": "CSS326-24G-2S+RM",
+  "category": "switch",
+  "description": "MikroTik CSS326-24G-2S+RM - SwOS-only switch: 24x 1G RJ45 and 2x 10G SFP+ cages, fanless 1U rackmount.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

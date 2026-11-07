@@ -1,0 +1,34 @@
+{
+  "vendor": "h3c",
+  "model": "S6520X-30QC-EI",
+  "label": "S6520X-30QC-EI",
+  "category": "l3-switch",
+  "description": "H3C S6520X-30QC-EI - 24x 1G/10G SFP+ ports + 2x 40GE QSFP+ (split into 4x 10GE each), 2 expansion slots, IRF/VXLAN aggregation switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "Ten-GigabitEthernet1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "FortyGigE1/0/25",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "FortyGigE1/0/26",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#1d4ed8"
+}

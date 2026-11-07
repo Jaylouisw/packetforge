@@ -1,0 +1,57 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS520-4XS-16XQ-RM",
+  "label": "CRS520-4XS-16XQ-RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS520-4XS-16XQ-RM - 16x 100G QSFP28 cages, 4x 25G SFP28 cages and 2x 1G/10G RJ45 management ports, quad-core ARM, L3HW offload.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "qsfp28-",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "100G"
+  },
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp28-1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp28-2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp28-3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp28-4",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

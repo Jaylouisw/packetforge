@@ -1,0 +1,839 @@
+[
+  {
+    "vendor": "huawei",
+    "model": "AR6300",
+    "label": "NetEngine AR6300",
+    "category": "router",
+    "description": "Huawei NetEngine AR6300 modular aggregation router with SRU-400H: 14x 10GE SFP+ (GE-capable) plus 10x GE RJ45, all ports configurable as WAN or LAN; 4 SIC slots.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "XGigabitEthernet0/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/8",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/10",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/11",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/12",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/13",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/14",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "router",
+    "color": "#f43f5e"
+  },
+  {
+    "vendor": "huawei",
+    "model": "AR651",
+    "label": "AR651 Router",
+    "category": "router",
+    "description": "Huawei AR651 branch router: 2x GE combo WAN (RJ45/SFP) + 8x GE RJ45 LAN, 1x USB 2.0, 1x MIC slot.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#f43f5e"
+  },
+  {
+    "vendor": "huawei",
+    "model": "AR651W-8P",
+    "label": "AR651W-8P Router",
+    "category": "router",
+    "description": "Huawei AR651W-8P branch router: 2x GE combo WAN + 8x GE RJ45 LAN with PoE+, integrated 802.11b/g/n/ac 2x2 Wi-Fi, 1x MIC slot.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "wireless"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "WLAN-2.4G",
+        "type": "wireless"
+      },
+      {
+        "name": "WLAN-5G",
+        "type": "wireless"
+      }
+    ],
+    "icon": "router",
+    "color": "#f43f5e"
+  },
+  {
+    "vendor": "huawei",
+    "model": "AR2220",
+    "label": "AR2220 Router",
+    "category": "router",
+    "description": "Huawei AR2220 enterprise router: 3x GE fixed ports (one GE combo RJ45/SFP), 4x SIC + 2x WSIC slots, 1Mpps forwarding.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "GigabitEthernet0/0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#f43f5e"
+  },
+  {
+    "vendor": "huawei",
+    "model": "S5735-L48T4X-A1",
+    "label": "S5735-L48T4X-A1",
+    "category": "switch",
+    "description": "Huawei CloudEngine S5735-L48T4X-A1 - 48x 10/100/1000BASE-T ports + 4x 10GE SFP+ uplinks, fanless Lite access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "XGigabitEthernet0/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "huawei",
+    "model": "S5731-H24T4XC",
+    "label": "S5731-H24T4XC",
+    "category": "l3-switch",
+    "description": "Huawei CloudEngine S5731-H24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot, dual pluggable power.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "XGigabitEthernet0/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#dc2626"
+  },
+  {
+    "vendor": "huawei",
+    "model": "S5736-S24T4XC",
+    "label": "S5736-S24T4XC",
+    "category": "switch",
+    "description": "Huawei CloudEngine S5736-S24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot (standard multi-GE access family).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "XGigabitEthernet0/0/1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "huawei",
+    "model": "S6730-H24X6C",
+    "label": "S6730-H24X6C",
+    "category": "l3-switch",
+    "description": "Huawei CloudEngine S6730-H24X6C - 24x 10GE SFP+ + 6x 40GE QSFP28 (RTU upgradeable to 100GE), 10GE aggregation switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "XGigabitEthernet0/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "40GE0/0/25",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "40GE0/0/26",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "40GE0/0/27",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "40GE0/0/28",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "40GE0/0/29",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "40GE0/0/30",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#dc2626"
+  },
+  {
+    "vendor": "huawei",
+    "model": "S12704",
+    "label": "S12704 Chassis",
+    "category": "l3-switch",
+    "description": "Huawei S12700 Agile Switch S12704 chassis - 4 LPU slots, 2 MPU, 2 SFU, 4 power modules; listed with one 24-port 10GE SFP+ line card (LST7X24BX6E0) in slot 1.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "XGigabitEthernet1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "icon": "switch",
+    "color": "#dc2626"
+  },
+  {
+    "vendor": "huawei",
+    "model": "USG6510E",
+    "label": "HiSecEngine USG6510E",
+    "category": "firewall",
+    "description": "Huawei HiSecEngine USG6510E next-gen firewall - 10x GE RJ45 + 2x GE SFP, 1.2 Gbit/s firewall throughput, 1U desktop.",
+    "capabilities": [
+      "firewall",
+      "l3-forward",
+      "nat",
+      "cli",
+      "dhcp-server",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 0,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "GigabitEthernet0/0/10",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/0/11",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f59e0b"
+  },
+  {
+    "vendor": "huawei",
+    "model": "USG6555E",
+    "label": "HiSecEngine USG6555E",
+    "category": "firewall",
+    "description": "Huawei HiSecEngine USG6555E next-gen firewall - 2x GE WAN + 8x GE combo + 2x 10GE SFP+, 4 Gbit/s firewall throughput, 1U.",
+    "capabilities": [
+      "firewall",
+      "l3-forward",
+      "nat",
+      "cli",
+      "dhcp-server",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/0/",
+      "start": 0,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "XGigabitEthernet0/0/10",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "XGigabitEthernet0/0/11",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f59e0b"
+  },
+  {
+    "vendor": "huawei",
+    "model": "AirEngine5760-51",
+    "label": "AirEngine 5760-51",
+    "category": "wireless",
+    "description": "Huawei AirEngine 5760-51 indoor Wi-Fi 6 AP - dual/tri-radio 2+4 streams, 1x 100M/1G/2.5G/5GE electrical (PoE in) + 1x GE + USB, IoT slot.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "5GE",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "GE",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "WLAN-2.4G",
+        "type": "wireless"
+      },
+      {
+        "name": "WLAN-5G",
+        "type": "wireless"
+      }
+    ],
+    "icon": "wireless",
+    "color": "#a855f7"
+  },
+  {
+    "vendor": "huawei",
+    "model": "AirEngine6760-X1",
+    "label": "AirEngine 6760-X1",
+    "category": "wireless",
+    "description": "Huawei AirEngine 6760-X1 indoor Wi-Fi 6 AP - 4+6 streams (10 spatial streams, RTU to 12), 1x 10GE electrical (PoE in) + 1x GE + 1x 10GE SFP+, USB, IoT slot.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "10GE",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "GE",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "XGigabitEthernet",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "WLAN-2.4G",
+        "type": "wireless"
+      },
+      {
+        "name": "WLAN-5G",
+        "type": "wireless"
+      }
+    ],
+    "icon": "wireless",
+    "color": "#a855f7"
+  },
+  {
+    "vendor": "h3c",
+    "model": "MSR2600-6-X1",
+    "label": "MSR2600-6-X1",
+    "category": "router",
+    "description": "H3C MSR2600-6-X1 branch router (Comware 7) - 1x GE WAN copper + 1x GE SFP combo WAN, 4x GE RJ45 LAN, 2x SIC slots.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "GigabitEthernet0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#3b82f6"
+  },
+  {
+    "vendor": "h3c",
+    "model": "MSR3610-X1",
+    "label": "MSR3610-X1",
+    "category": "router",
+    "description": "H3C MSR3610-X1 integrated services router (Comware 7) - 4x GE WAN (2 copper combo) + 2x SFP, 4x SIC slots, no fixed LAN ports.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "GigabitEthernet0/0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet0/5",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "router",
+    "color": "#3b82f6"
+  },
+  {
+    "vendor": "h3c",
+    "model": "MSR3620-X1",
+    "label": "MSR3620-X1",
+    "category": "router",
+    "description": "H3C MSR3620-X1 integrated services router (Comware 7) - 8x GE WAN + 8x GE LAN/WAN copper ports + 6x 10GE SFP+, 2x HMIM and 4x SIC slots.",
+    "capabilities": [
+      "l3-forward",
+      "cli",
+      "nat",
+      "dhcp-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet0/",
+      "start": 0,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Ten-GigabitEthernet0/16",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet0/17",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet0/18",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet0/19",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet0/20",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet0/21",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "router",
+    "color": "#3b82f6"
+  },
+  {
+    "vendor": "h3c",
+    "model": "S5130S-28P-EI",
+    "label": "S5130S-28P-EI",
+    "category": "switch",
+    "description": "H3C S5130S-28P-EI - 24x 10/100/1000BASE-T ports + 4x 1000BASE-X SFP uplinks, fanless EI access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "GigabitEthernet1/0/25",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet1/0/26",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet1/0/27",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "GigabitEthernet1/0/28",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#2563eb"
+  },
+  {
+    "vendor": "h3c",
+    "model": "S5560X-30C-EI",
+    "label": "S5560X-30C-EI",
+    "category": "l3-switch",
+    "description": "H3C S5560X-30C-EI - 24x 10/100/1000BASE-T ports (8 of them combo SFP) + 4x 10G/1G SFP+ ports, 1 expansion slot, 2 power module slots.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "GigabitEthernet1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Ten-GigabitEthernet1/0/25",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet1/0/26",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet1/0/27",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "Ten-GigabitEthernet1/0/28",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8"
+  },
+  {
+    "vendor": "h3c",
+    "model": "S6520X-30QC-EI",
+    "label": "S6520X-30QC-EI",
+    "category": "l3-switch",
+    "description": "H3C S6520X-30QC-EI - 24x 1G/10G SFP+ ports + 2x 40GE QSFP+ (split into 4x 10GE each), 2 expansion slots, IRF/VXLAN aggregation switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ten-GigabitEthernet1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "FortyGigE1/0/25",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "FortyGigE1/0/26",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8"
+  },
+  {
+    "vendor": "h3c",
+    "model": "WA6320",
+    "label": "WA6320 AP",
+    "category": "wireless",
+    "description": "H3C WA6320 indoor Wi-Fi 6 (802.11ax) AP - dual-radio 2x2 2.4 GHz + 2x2 5 GHz (1.775 Gbit/s), 1x GE RJ45 with PoE in, built-in antennas.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "GigabitEthernet1/0/1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "WLAN-2.4G",
+        "type": "wireless"
+      },
+      {
+        "name": "WLAN-5G",
+        "type": "wireless"
+      }
+    ],
+    "icon": "wireless",
+    "color": "#8b5cf6"
+  }
+]

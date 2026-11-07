@@ -113,8 +113,11 @@ class Device {
       motd: null,
       vlans: {},                 // vid -> { name }
       lags: {},                  // lagId -> { mode, hashPolicy, members: [iface] }
-      acls: {}                   // aclNumber -> [ { action, ... } ]
+      acls: {},                  // aclNumber -> [ { action, ... } ]
+      ospf: null                 // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
     };
+    // Routes learned by OSPF (derived, never persisted)
+    this.ospfRoutes = [];
     // Per-interface ACL bindings: ifaceName -> { in: aclNumber, out: aclNumber }
     this.aclBindings = {};
   }
@@ -236,7 +239,23 @@ class Device {
       }
     }
 
-    // 3. default gateway (hosts / routers)
+    // 3. OSPF-learned routes (admin distance 110; longest prefix still wins)
+    for (const r of (this.ospfRoutes || [])) {
+      if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
+        const prefix = net.prefixOf(r.mask);
+        if (!best || prefix > best.prefix) {
+          best = {
+            iface: r.iface || null,
+            via: r.nextHop || dstIp,
+            type: 'ospf',
+            prefix: prefix,
+            cost: r.cost
+          };
+        }
+      }
+    }
+
+    // 4. default gateway (hosts / routers)
     if (!best && this.config.defaultGateway) {
       best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0 };
     }
@@ -271,6 +290,12 @@ class Device {
         gw: r.gw || '-', iface: r.iface || '-', type: 'static'
       });
     }
+    for (const r of (this.ospfRoutes || [])) {
+      rows.push({
+        code: 'O', dest: r.dest, mask: r.mask,
+        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf'
+      });
+    }
     if (this.config.defaultGateway) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
     }
@@ -296,7 +321,8 @@ class Device {
         motd: this.config.motd,
         vlans: Object.assign({}, this.config.vlans),
         lags: JSON.parse(JSON.stringify(this.config.lags)),
-        acls: JSON.parse(JSON.stringify(this.config.acls))
+        acls: JSON.parse(JSON.stringify(this.config.acls)),
+        ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -343,6 +369,7 @@ class Device {
         d.config.vlans = Object.assign({}, state.config.vlans || {});
         d.config.lags = JSON.parse(JSON.stringify(state.config.lags || {}));
         d.config.acls = JSON.parse(JSON.stringify(state.config.acls || {}));
+        d.config.ospf = state.config.ospf ? JSON.parse(JSON.stringify(state.config.ospf)) : null;
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {

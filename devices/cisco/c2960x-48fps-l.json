@@ -1,0 +1,42 @@
+{
+  "vendor": "cisco",
+  "model": "C2960X-48FPS-L",
+  "label": "Catalyst 2960X-48FPS-L",
+  "category": "switch",
+  "description": "Cisco Catalyst 2960-X full PoE+ - 48x 1G PoE+ downlinks (740 W budget), 4x 1G SFP fixed uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/49",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/50",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/51",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/52",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0d9488"
+}

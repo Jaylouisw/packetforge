@@ -1,0 +1,26 @@
+{
+  "vendor": "cisco",
+  "model": "C9130AXI",
+  "label": "Catalyst 9130AXI AP",
+  "category": "wireless",
+  "description": "Cisco Catalyst 9130AXI Wi-Fi 6 AP - internal antennas, 8x8:8 MIMO, 1x 100M/1G/2.5G/5G Multigigabit uplink with PoE-in.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

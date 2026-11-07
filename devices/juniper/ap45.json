@@ -1,0 +1,26 @@
+{
+  "vendor": "juniper",
+  "model": "AP45",
+  "label": "Mist AP45 Access Point",
+  "category": "wireless",
+  "description": "Juniper Mist AP45 - indoor Wi-Fi 6E (802.11ax) tri-band 4x4/4x4/2x2 AP: eth0 5G PoE-in, eth1 1G data/PoE-out.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#84cc16"
+}

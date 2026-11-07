@@ -1,0 +1,874 @@
+[
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG3428",
+    "label": "TP-Link TL-SG3428",
+    "category": "l3-switch",
+    "description": "TP-Link JetStream/Omada TL-SG3428 - 24x 1G RJ45, 4x 1G SFP, L2+ managed with static routing, 56 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG3428X",
+    "label": "TP-Link TL-SG3428X",
+    "category": "l3-switch",
+    "description": "TP-Link Omada TL-SG3428X - 24x 1G RJ45, 4x 10G SFP+, L2+ managed, 128 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG3452",
+    "label": "TP-Link TL-SG3452",
+    "category": "l3-switch",
+    "description": "TP-Link Omada TL-SG3452 - 48x 1G RJ45, 4x 1G SFP, L2+ managed with static routing.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG3452X",
+    "label": "TP-Link TL-SG3452X",
+    "category": "l3-switch",
+    "description": "TP-Link Omada TL-SG3452X - 48x 1G RJ45, 4x 10G SFP+, L2+ managed with static routing.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG2210MP",
+    "label": "TP-Link TL-SG2210MP",
+    "category": "switch",
+    "description": "TP-Link Omada TL-SG2210MP - 8x 1G PoE+ (802.3af/at, 150 W budget) plus 2x 1G SFP; web-managed smart switch, fanless.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SX3008F",
+    "label": "TP-Link TL-SX3008F",
+    "category": "l3-switch",
+    "description": "TP-Link Omada TL-SX3008F - full-fiber 8x 10G SFP+ L2+ managed aggregation switch, 160 Gbps, fanless; no RJ45 data ports.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "SFP+8",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP670",
+    "label": "TP-Link Omada EAP670",
+    "category": "wireless",
+    "description": "TP-Link Omada EAP670 - AX5400 dual-band WiFi 6 ceiling AP (574 Mbps 2.4 GHz + 4804 Mbps 5 GHz) with one 2.5G PoE+ uplink.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "5G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP690E HD",
+    "label": "TP-Link Omada EAP690E HD",
+    "category": "wireless",
+    "description": "TP-Link Omada EAP690E HD - AXE11000 quad-band WiFi 6E ceiling AP with a single 10G PoE++ (802.3bt) uplink.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio3",
+        "type": "wireless",
+        "speed": "5G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "netgear",
+    "model": "GS110EMX",
+    "label": "Netgear GS110EMX",
+    "category": "switch",
+    "description": "Netgear GS110EMX - 8x 1G RJ45 plus 2x multi-gig 100M/1G/2.5G/5G/10G RJ45 uplinks, fanless web-managed Plus switch (56 Gbps).",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "GS748T",
+    "label": "Netgear GS748T",
+    "category": "l3-switch",
+    "description": "Netgear GS748T - 48x 1G RJ45 with 2 dedicated 1G SFP uplinks (a further 2 SFP slots are combo/shared with RJ45 ports 47-48), Smart Cloud managed.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "MS510TX",
+    "label": "Netgear MS510TX",
+    "category": "switch",
+    "description": "Netgear MS510TX - 10-port multi-gigabit Smart Managed Pro: 4x 1G, 2x 1G/2.5G, 2x 1G/2.5G/5G, 1x 1G/2.5G/5G/10G copper and 1x 10G SFP+.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "M4250-10G2F-PoE+",
+    "label": "Netgear M4250-10G2F-PoE+",
+    "category": "l3-switch",
+    "description": "Netgear AV Line M4250-10G2F-PoE+ (GSM4212P) - 8x 1G PoE+ (125 W) + 2x 1G RJ45 + 2x 1G SFP, fully managed AV switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "M4250-26G4F-PoE+",
+    "label": "Netgear M4250-26G4F-PoE+",
+    "category": "l3-switch",
+    "description": "Netgear AV Line M4250-26G4F-PoE+ (GSM4230P) - 24x 1G PoE+ (300 W) + 2x 1G RJ45 + 4x 1G SFP, fully managed AV switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 26,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "WAX610",
+    "label": "Netgear WAX610",
+    "category": "wireless",
+    "description": "Netgear WAX610 - AX1800 dual-band WiFi 6 Insight-managed access point with a single 2.5G PoE+ uplink.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "WAX630",
+    "label": "Netgear WAX630",
+    "category": "wireless",
+    "description": "Netgear WAX630 - AX6000 tri-band (2.4 GHz + 2x 5 GHz) WiFi 6 AP: one 2.5G PoE++ uplink plus one 1G LAN port.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-8",
+    "label": "Zyxel GS1900-8",
+    "category": "switch",
+    "description": "Zyxel GS1900-8 - 8x 1G RJ45 web-managed smart switch, fanless desktop unit (no SFP).",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [],
+    "icon": "switch",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-24",
+    "label": "Zyxel GS1900-24",
+    "category": "switch",
+    "description": "Zyxel GS1900-24 - 24x 1G RJ45 plus 2x 1G SFP, web-managed smart switch.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-48",
+    "label": "Zyxel GS1900-48",
+    "category": "switch",
+    "description": "Zyxel GS1900-48 - 48x 1G RJ45 plus 2x 1G SFP, web-managed smart switch.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "XGS1250-12",
+    "label": "Zyxel XGS1250-12",
+    "category": "switch",
+    "description": "Zyxel XGS1250-12 - 8x 1G RJ45 plus 3x 100M/1G/2.5G/5G/10G RJ45 and 1x 10G SFP+, web-managed multi-gigabit switch.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS2220-28",
+    "label": "Zyxel GS2220-28",
+    "category": "switch",
+    "description": "Zyxel GS2220-28 - 24x 1G RJ45 plus 4x 1G combo ports (RJ45 or SFP), L2+ managed NebulaFlex switch, 56 Gbps.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "switch",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "NWA90AX PRO",
+    "label": "Zyxel NWA90AX PRO",
+    "category": "wireless",
+    "description": "Zyxel NWA90AX PRO - AX3000 dual-band WiFi 6 NebulaFlex AP (2x2 2.4 GHz + 3x3 5 GHz) with a 1G/2.5G PoE+ uplink.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "USG FLEX 100",
+    "label": "Zyxel USG FLEX 100",
+    "category": "firewall",
+    "description": "Zyxel USG FLEX 100 - SMB NGFW: 1x 1G WAN + 4x 1G LAN/DMZ/OPT RJ45, 1x 1G SFP, RJ45 console and USB 3.0.",
+    "capabilities": [
+      "firewall",
+      "nat",
+      "l3-forward",
+      "dhcp-server",
+      "dhcp-client",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 5,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "USG FLEX 200",
+    "label": "Zyxel USG FLEX 200",
+    "category": "firewall",
+    "description": "Zyxel USG FLEX 200 - SMB NGFW: 2x 1G WAN + 4x 1G LAN/DMZ/OPT RJ45, 1x 1G SFP, DB9 console and 2x USB 3.0.",
+    "capabilities": [
+      "firewall",
+      "nat",
+      "l3-forward",
+      "dhcp-server",
+      "dhcp-client",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 6,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "vendor": "huawei",
+  "model": "S5736-S24T4XC",
+  "label": "S5736-S24T4XC",
+  "category": "switch",
+  "description": "Huawei CloudEngine S5736-S24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot (standard multi-GE access family).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "XGigabitEthernet0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#ef4444"
+}

@@ -1,0 +1,165 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 1800F",
+  "label": "FortiGate 1800F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 1800F - 16x GE RJ45 + 2x GE MGMT RJ45, 8x GE SFP, 12x 25G SFP28, 4x 40G QSFP+, 2x 10G SFP+ HA.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x4",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x5",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x6",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x7",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x8",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x9",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x10",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x11",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "x12",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "q1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

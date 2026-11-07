@@ -1,0 +1,31 @@
+{
+  "vendor": "h3c",
+  "model": "WA6320",
+  "label": "WA6320 AP",
+  "category": "wireless",
+  "description": "H3C WA6320 indoor Wi-Fi 6 (802.11ax) AP - dual-radio 2x2 2.4 GHz + 2x2 5 GHz (1.775 Gbit/s), 1x GE RJ45 with PoE in, built-in antennas.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet1/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WLAN-2.4G",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "WLAN-5G",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "wireless",
+  "color": "#8b5cf6"
+}

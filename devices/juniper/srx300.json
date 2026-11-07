@@ -1,0 +1,23 @@
+{
+  "vendor": "juniper",
+  "model": "SRX300",
+  "label": "SRX300 Firewall",
+  "category": "firewall",
+  "description": "Juniper SRX300 - branch firewall: 8x 1G (6x RJ45 ge-0/0/0-5, 2x SFP ge-0/0/6-7), 2x mini-PIM slots.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "icon": "firewall",
+  "color": "#84cc16"
+}

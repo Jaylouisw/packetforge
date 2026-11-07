@@ -118,6 +118,12 @@ class CliSession {
       }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
+    } else if (head === 'ospf') {
+      out.push.apply(out, this._ospfConfig(tokens.slice(1)));
+    } else if (head === 'no' && tokens[1] === 'ospf') {
+      this.device.config.ospf = null;
+      this.device.ospfRoutes = [];
+      out.push('OSPF disabled');
     } else if (head === 'ip' && tokens[1] === 'route') {
       // ip route DEST MASK GW [iface]
       const dest = tokens[2], mask = tokens[3], gw = tokens[4], iface = tokens[5] || null;
@@ -176,6 +182,10 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'ip' && tokens[1] === 'ospf') {
+      out.push.apply(out, this._ipOspf(tokens.slice(2), iface));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'ospf') {
+      out.push.apply(out, this._ipOspf(['no'].concat(tokens.slice(3)), iface));
     } else if (head === 'ip' && tokens[1] === 'access-group') {
       out.push.apply(out, this._accessGroup(tokens.slice(2), iface));
     } else if (head === 'encapsulation') {
@@ -221,6 +231,66 @@ class CliSession {
       parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
     }
     return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
+  }
+
+  // ---------- OSPF ----------
+  _ospfConfig(tokens) {
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x); });
+    if (!t.length) return ['% Usage: ospf router-id <ip> | ospf area <id>'];
+    const cfg = dev.config.ospf || { routerId: null, areaId: 0, interfaces: [] };
+    if (!cfg.interfaces) cfg.interfaces = [];
+
+    if (t[0] === 'router-id') {
+      const ip = t[1] || '';
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return ['% Invalid router-id "' + ip + '"'];
+      cfg.routerId = ip;
+      dev.config.ospf = cfg;
+      return ['OSPF enabled, router-id ' + ip + ' area ' + (cfg.areaId || 0)];
+    }
+    if (t[0] === 'area') {
+      const id = parseInt(t[1], 10);
+      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id "' + (t[1] || '') + '"'];
+      cfg.areaId = id;
+      dev.config.ospf = cfg;
+      return ['OSPF area ' + id];
+    }
+    return ['% Usage: ospf router-id <ip> | ospf area <id>'];
+  }
+
+  _ipOspf(tokens, iface) {
+    const dev = this.device;
+    if (!dev.config.ospf) return ['% OSPF is not enabled (use "ospf router-id <ip>" in config mode)'];
+    const cfg = dev.config.ospf;
+    if (!cfg.interfaces) cfg.interfaces = [];
+
+    let ov = null;
+    for (const x of cfg.interfaces) { if (x.name === iface.name) { ov = x; break; } }
+    if (!ov) { ov = { name: iface.name }; cfg.interfaces.push(ov); }
+
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    const negate = t[0] === 'no';
+    const rest = negate ? t.slice(1) : t;
+
+    if (rest[0] === 'cost') {
+      if (negate) { delete ov.cost; return ['OSPF cost reset on ' + iface.name]; }
+      const c = parseInt(rest[1], 10);
+      if (!(c >= 1 && c <= 65535)) return ['% Cost must be 1..65535'];
+      ov.cost = c;
+      return ['OSPF cost ' + c + ' on ' + iface.name];
+    }
+    if (rest[0] === 'area') {
+      if (negate) { delete ov.area; return ['OSPF area reset on ' + iface.name]; }
+      const id = parseInt(rest[1], 10);
+      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id'];
+      ov.area = id;
+      return ['OSPF area ' + id + ' on ' + iface.name];
+    }
+    if (rest[0] === 'passive') {
+      ov.passive = !negate;
+      return ['OSPF ' + (negate ? 'active' : 'passive') + ' on ' + iface.name];
+    }
+    return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf passive'];
   }
 
   // ---------- switchport / VLAN membership ----------

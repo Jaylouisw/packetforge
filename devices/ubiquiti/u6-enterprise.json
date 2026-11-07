@@ -1,0 +1,27 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-Enterprise",
+  "label": "UniFi U6 Enterprise",
+  "category": "wireless",
+  "description": "Ubiquiti U6-Enterprise - tri-band Wi-Fi 6E AP: 4x4 6GHz and 4x4 5GHz (4.8 Gbps each) + 2x2 2.4GHz, 2.5GbE RJ45 PoE+ uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6"
+}

@@ -1,0 +1,42 @@
+{
+  "vendor": "cisco",
+  "model": "C2960X-24TS-L",
+  "label": "Catalyst 2960X-24TS-L",
+  "category": "switch",
+  "description": "Cisco Catalyst 2960-X - 24x 1G non-PoE downlinks, 4x 1G SFP fixed uplinks, LAN Base, stackable to 8 units.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/28",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0d9488"
+}

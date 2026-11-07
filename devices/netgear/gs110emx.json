@@ -1,0 +1,32 @@
+{
+  "vendor": "netgear",
+  "model": "GS110EMX",
+  "label": "Netgear GS110EMX",
+  "category": "switch",
+  "description": "Netgear GS110EMX - 8x 1G RJ45 plus 2x multi-gig 100M/1G/2.5G/5G/10G RJ45 uplinks, fanless web-managed Plus switch (56 Gbps).",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

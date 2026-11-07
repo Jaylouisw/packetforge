@@ -1,0 +1,43 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG3428X",
+  "label": "TP-Link TL-SG3428X",
+  "category": "l3-switch",
+  "description": "TP-Link Omada TL-SG3428X - 24x 1G RJ45, 4x 10G SFP+, L2+ managed, 128 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#22c55e"
+}

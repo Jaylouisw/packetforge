@@ -1,0 +1,37 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB5009UPr+S+IN",
+  "label": "RB5009UPr+S+IN",
+  "category": "router",
+  "description": "MikroTik RB5009UPr+S+IN - PoE-in/PoE-out version of the RB5009: 1x 2.5G RJ45, 7x 1G RJ45 and 1x 10G SFP+ cage.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 2,
+    "count": 7,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

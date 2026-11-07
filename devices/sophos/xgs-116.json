@@ -1,0 +1,30 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 116",
+  "label": "Sophos XGS 116",
+  "category": "firewall",
+  "description": "Sophos XGS 116 - 8x 1G RJ45 (Port1-Port8, Port8 PoE) + 1x 1G SFP (PortF1); 1 Flexi Port bay.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

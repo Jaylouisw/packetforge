@@ -1,0 +1,32 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG2210MP",
+  "label": "TP-Link TL-SG2210MP",
+  "category": "switch",
+  "description": "TP-Link Omada TL-SG2210MP - 8x 1G PoE+ (802.3af/at, 150 W budget) plus 2x 1G SFP; web-managed smart switch, fanless.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#22c55e"
+}

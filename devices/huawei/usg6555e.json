@@ -1,0 +1,36 @@
+{
+  "vendor": "huawei",
+  "model": "USG6555E",
+  "label": "HiSecEngine USG6555E",
+  "category": "firewall",
+  "description": "Huawei HiSecEngine USG6555E next-gen firewall - 2x GE WAN + 8x GE combo + 2x 10GE SFP+, 4 Gbit/s firewall throughput, 1U.",
+  "capabilities": [
+    "firewall",
+    "l3-forward",
+    "nat",
+    "cli",
+    "dhcp-server",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 0,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "XGigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "XGigabitEthernet0/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f59e0b"
+}

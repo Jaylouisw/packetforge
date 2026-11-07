@@ -1,0 +1,43 @@
+{
+  "vendor": "extreme",
+  "model": "X460-G2-48t-10GE4",
+  "label": "X460-G2-48t-10GE4",
+  "category": "switch",
+  "description": "ExtremeSwitching X460-G2-48t-10GE4 (16702) - 1RU scalable edge/aggregation switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48) plus 4x 10GBASE-X SFP+ (ports 1:49-1:52, two usable as stacking). Optional rear VIM adds 10G/40G uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1:49",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:50",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:51",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:52",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#e11d48"
+}

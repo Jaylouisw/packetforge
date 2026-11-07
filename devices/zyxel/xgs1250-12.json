@@ -1,0 +1,42 @@
+{
+  "vendor": "zyxel",
+  "model": "XGS1250-12",
+  "label": "Zyxel XGS1250-12",
+  "category": "switch",
+  "description": "Zyxel XGS1250-12 - 8x 1G RJ45 plus 3x 100M/1G/2.5G/5G/10G RJ45 and 1x 10G SFP+, web-managed multi-gigabit switch.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f97316"
+}

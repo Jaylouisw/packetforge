@@ -1,0 +1,97 @@
+{
+  "vendor": "aruba",
+  "model": "3810M 16SFP+ 2-slot",
+  "label": "Aruba 3810M 16SFP+ 2-slot (JL075A)",
+  "category": "l3-switch",
+  "description": "Aruba 3810M 16SFP+ 2-slot - 16x fixed 1/10G SFP+ ports plus two open uplink module slots. ArubaOS-Switch fiber aggregation switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

@@ -1,0 +1,43 @@
+{
+  "vendor": "cisco",
+  "model": "N3K-C3064PQ-10GE",
+  "label": "Nexus 3064PQ-10GE",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 3064 - 48x 1/10G SFP+ downlinks plus 4x 40G QSFP+ uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Eth1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "Eth1/49",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "Eth1/50",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "Eth1/51",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "Eth1/52",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#6366f1"
+}

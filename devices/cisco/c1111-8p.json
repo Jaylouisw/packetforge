@@ -1,0 +1,35 @@
+{
+  "vendor": "cisco",
+  "model": "C1111-8P",
+  "label": "ISR 1111-8P",
+  "category": "router",
+  "description": "Cisco ISR 1100 8P - 8x 1G LAN (PoE-capable switch ports), 1x 1G WAN, 1x GE/SFP combo WAN.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/1/",
+    "start": 0,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

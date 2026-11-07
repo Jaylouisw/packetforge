@@ -1,0 +1,65 @@
+{
+  "vendor": "netgear",
+  "model": "MS510TX",
+  "label": "Netgear MS510TX",
+  "category": "switch",
+  "description": "Netgear MS510TX - 10-port multi-gigabit Smart Managed Pro: 4x 1G, 2x 1G/2.5G, 2x 1G/2.5G/5G, 1x 1G/2.5G/5G/10G copper and 1x 10G SFP+.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

@@ -1,0 +1,1512 @@
+[
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 40F",
+    "label": "FortiGate 40F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 40F - 5x GE RJ45 (1x WAN, 1x FortiLink, 3x internal), fanless desktop; no SFP cages.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 60F",
+    "label": "FortiGate 60F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 60F - 10x GE RJ45 (2x WAN, 1x DMZ, 5x internal, 2x FortiLink); no SFP cages.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 7,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "dmz",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 80F",
+    "label": "FortiGate 80F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 80F - 10x GE RJ45 (2x WAN, 6x internal, 2x FortiLink) plus 2x GE SFP shared with WAN1/WAN2.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 6,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "fortilink1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "fortilink2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 100F",
+    "label": "FortiGate 100F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 100F - 22x GE RJ45 (2x WAN, 1x DMZ, 1x MGMT, 2x HA, 16x switch incl. 4 RJ45/SFP shared), 4x GE SFP, 2x 10G SFP+ FortiLink.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "dmz",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 200F",
+    "label": "FortiGate 200F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 200F - 18x GE RJ45 (1x MGMT, 1x HA, 16x switch), 8x GE SFP, 4x 10G SFP+ (2 data, 2 FortiLink).",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "fortilink1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "fortilink2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 600E",
+    "label": "FortiGate 600E",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 600E - 10x GE RJ45 (1x MGMT, 1x HA, 8x switch), 8x GE SFP, 2x 10G SFP+.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 1800F",
+    "label": "FortiGate 1800F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 1800F - 16x GE RJ45 + 2x GE MGMT RJ45, 8x GE SFP, 12x 25G SFP28, 4x 40G QSFP+, 2x 10G SFP+ HA.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "mgmt2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x3",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x4",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x5",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x6",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x7",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x8",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x9",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x10",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x11",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "x12",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "q1",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "q2",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "q3",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "q4",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 3000F",
+    "label": "FortiGate 3000F",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 3000F - 16x 10G RJ45 + 2x 10G MGMT RJ45, 14x 25G SFP28 + 2x 25G HA, 6x 100G QSFP28.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "internal",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "mgmt2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp5",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp6",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp7",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp8",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp9",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp10",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp11",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp12",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp13",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp14",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "qsfp1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp2",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp3",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp4",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp5",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp6",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-220",
+    "label": "PA-220",
+    "category": "firewall",
+    "description": "Palo Alto PA-220 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; fanless desktop, no SFP.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-440",
+    "label": "PA-440",
+    "category": "firewall",
+    "description": "Palo Alto PA-440 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; desktop, no SFP cages.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-450",
+    "label": "PA-450",
+    "category": "firewall",
+    "description": "Palo Alto PA-450 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; same chassis as PA-440, no SFP cages.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-820",
+    "label": "PA-820",
+    "category": "firewall",
+    "description": "Palo Alto PA-820 - 4x 1G RJ45 (1/1-1/4), 8x 1G SFP (1/5-1/12), 1x 1G MGMT, 2x 1G HA.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/9",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/10",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/11",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/12",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-3220",
+    "label": "PA-3220",
+    "category": "firewall",
+    "description": "Palo Alto PA-3220 - 12x 1G RJ45 (1/1-1/12), 4x 1G SFP (1/13-1/16), 4x 10G SFP+ (1/17-1/20), 1x 1G MGMT, 2x 1G HA + 1x 10G HA.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/13",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/14",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/15",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/16",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/17",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/18",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/19",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/20",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-a",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-b",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-5220",
+    "label": "PA-5220",
+    "category": "firewall",
+    "description": "Palo Alto PA-5220 - 4x 10G RJ45 (1/1-1/4), 16x 1G/10G SFP/SFP+ (1/5-1/20), 4x 40G QSFP+ (1/21-1/24), 1x 1G MGMT, 2x 1G HA, 1x 40G HA.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/8",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/10",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/11",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/12",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/13",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/14",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/15",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/16",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/17",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/18",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/19",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/20",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/21",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "ethernet1/22",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "ethernet1/23",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "ethernet1/24",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-a",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-b",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha2",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-5410",
+    "label": "PA-5410",
+    "category": "firewall",
+    "description": "Palo Alto PA-5410 - 8x 1G/2.5G/5G/10G RJ45 (1/1-1/8), 12x 1G/10G SFP+ (1/9-1/20), 4x 25G SFP28 (1/21-1/24), 4x 40/100G QSFP28 (1/25-1/28), 1x MGMT, 2x 10G HA, 1x 40G HSCI.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/9",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/10",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/11",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/12",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/13",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/14",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/15",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/16",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/17",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/18",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/19",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/20",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ethernet1/21",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ethernet1/22",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ethernet1/23",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ethernet1/24",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "ethernet1/25",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "ethernet1/26",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "ethernet1/27",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "ethernet1/28",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-a",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ha1-b",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "hsci",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 87",
+    "label": "Sophos XGS 87",
+    "category": "firewall",
+    "description": "Sophos XGS 87 - 4x 1G RJ45 (Port1-Port4) + 1x 1G SFP (PortF1); desktop, no dedicated MGMT port.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 116",
+    "label": "Sophos XGS 116",
+    "category": "firewall",
+    "description": "Sophos XGS 116 - 8x 1G RJ45 (Port1-Port8, Port8 PoE) + 1x 1G SFP (PortF1); 1 Flexi Port bay.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 136",
+    "label": "Sophos XGS 136",
+    "category": "firewall",
+    "description": "Sophos XGS 136 - 10x 1G RJ45 (Port1-Port10) + 2x 2.5G RJ45 PoE + 2x 1G SFP (PortF1-PortF2); 1 Flexi Port bay.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Port11",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Port12",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "PortF2",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 2100",
+    "label": "Sophos XGS 2100",
+    "category": "firewall",
+    "description": "Sophos XGS 2100 - 8x 1G RJ45 (Port1-Port8, 1 bypass pair) + 2x 1G SFP (PortF1-PortF2) + 1x 1G MGMT; 1U, 1 expansion bay.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "PortF2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "MGMT",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 3100",
+    "label": "Sophos XGS 3100",
+    "category": "firewall",
+    "description": "Sophos XGS 3100 - 8x 1G RJ45 (Port1-Port8) + 2x 10G SFP+ (PortF1-PortF2) + 2x 1G SFP (PortF3-PortF4) + 1x 1G MGMT; 1U, 1 expansion bay.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "PortF2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "PortF3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "PortF4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "MGMT",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 4300",
+    "label": "Sophos XGS 4300",
+    "category": "firewall",
+    "description": "Sophos XGS 4300 - 4x 1G RJ45 (Port1-Port4) + 4x 2.5G RJ45 (Port5-Port8) + 4x 10G SFP+ (PortF1-PortF4) + 1x 1G MGMT; 1U, 2 expansion bays.",
+    "capabilities": [
+      "l3-forward",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "Port5",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Port6",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Port7",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "Port8",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "PortF1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "PortF2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "PortF3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "PortF4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "MGMT",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#0ea5e9"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "vendor": "extreme",
+  "model": "AP4000",
+  "label": "AP4000",
+  "category": "wireless",
+  "description": "Extreme AP4000 - indoor Wi-Fi 6E tri-radio access point (2.4 GHz, 5 GHz and 6 GHz, 2x2:2 each) with Eth0 100/1000/2500 Mbps 802.3at PoE and Eth1 10/100/1000 Mbps.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "Eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#e11d48"
+}

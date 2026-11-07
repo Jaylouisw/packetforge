@@ -1,0 +1,31 @@
+{
+  "vendor": "extreme",
+  "model": "AP305C",
+  "label": "AP305C",
+  "category": "wireless",
+  "description": "Extreme AP305C - indoor Wi-Fi 6 (802.11ax) access point with two dual-band 2x2:2 radios (2.4 GHz and 5 GHz, dual-5GHz capable) and one autosensing 10/100/1000BASE-T PoE (802.3af/at) port, ETH0.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ETH0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#e11d48"
+}

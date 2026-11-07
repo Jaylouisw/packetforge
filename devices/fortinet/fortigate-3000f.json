@@ -1,0 +1,145 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 3000F",
+  "label": "FortiGate 3000F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 3000F - 16x 10G RJ45 + 2x 10G MGMT RJ45, 14x 25G SFP28 + 2x 25G HA, 6x 100G QSFP28.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "qsfp1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp6",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

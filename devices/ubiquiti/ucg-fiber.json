@@ -1,0 +1,55 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UCG-Fiber",
+  "label": "UniFi Cloud Gateway Fiber",
+  "category": "router",
+  "description": "Ubiquiti UCG-Fiber - 10G cloud gateway: 1x 10GbE RJ45, 2x 10G SFP+, 4x 2.5GbE RJ45 LAN (1 PoE+, 30W); 5 Gbps IDS/IPS.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "WAN",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+ 2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

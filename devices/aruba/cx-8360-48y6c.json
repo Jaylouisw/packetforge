@@ -1,0 +1,53 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8360-48Y6C",
+  "label": "Aruba CX 8360-48Y6C",
+  "category": "l3-switch",
+  "description": "Aruba CX 8360-48Y6C - 48x 25G SFP28 plus 6x 100G QSFP28 uplinks. L3 spine/aggregation switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

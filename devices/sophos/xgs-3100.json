@@ -1,0 +1,50 @@
+{
+  "vendor": "sophos",
+  "model": "XGS 3100",
+  "label": "Sophos XGS 3100",
+  "category": "firewall",
+  "description": "Sophos XGS 3100 - 8x 1G RJ45 (Port1-Port8) + 2x 10G SFP+ (PortF1-PortF2) + 2x 1G SFP (PortF3-PortF4) + 1x 1G MGMT; 1U, 1 expansion bay.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "PortF1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "PortF2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "PortF3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PortF4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "MGMT",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#0ea5e9"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "aruba",
+  "model": "AP-515",
+  "label": "Aruba AP-515",
+  "category": "wireless",
+  "description": "Aruba AP-515 - Wi-Fi 6 dual-radio AP (4x4 5 GHz / 2x2 2.4 GHz) with a 2.5G SmartRate PoE port (E0) and a 1G port (E1).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "E1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

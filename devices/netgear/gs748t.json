@@ -1,0 +1,33 @@
+{
+  "vendor": "netgear",
+  "model": "GS748T",
+  "label": "Netgear GS748T",
+  "category": "l3-switch",
+  "description": "Netgear GS748T - 48x 1G RJ45 with 2 dedicated 1G SFP uplinks (a further 2 SFP slots are combo/shared with RJ45 ports 47-48), Smart Cloud managed.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

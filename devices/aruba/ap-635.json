@@ -1,0 +1,31 @@
+{
+  "vendor": "aruba",
+  "model": "AP-635",
+  "label": "Aruba AP-635",
+  "category": "wireless",
+  "description": "Aruba AP-635 - Wi-Fi 6E tri-radio 2x2 AP (2.4/5/6 GHz) with two 2.5G SmartRate Ethernet ports (E0/E1) for hitless PoE failover.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "E1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

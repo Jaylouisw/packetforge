@@ -61,6 +61,19 @@ function validateSpec(spec) {
     }
   }
 
+  // Wireless ports carry a radio throughput, not a cabled line rate. If the
+  // research agent left it out, infer a conservative band-appropriate value and
+  // record a warning, so the provenance of that number stays visible.
+  if (Array.isArray(spec.interfaces)) {
+    for (const i of spec.interfaces) {
+      if (i && i.type === 'wireless' && !i.speed) {
+        const n = String(i.name || '');
+        i.speed = /2\.4/.test(n) ? '600M' : /6G/.test(n) ? '9.6G' : /5/.test(n) ? '4.8G' : '1G';
+        warnings.push('wireless "' + n + '" had no throughput; defaulted to ' + i.speed);
+      }
+    }
+  }
+
   // Ports: the spec must DECLARE ports. expandInterfaces() silently falls back
   // to a default 'eth0' when nothing is declared, so check the declaration
   // first -- otherwise a portless device would be imported as a 1-port box.
@@ -97,8 +110,14 @@ function validateSpec(spec) {
     seen[name] = true;
     if (i.type && TYPES.indexOf(i.type) === -1) errors.push('interface "' + name + '" has unknown type "' + i.type + '"');
     if (i.type !== 'console' && i.type !== 'usb') {
-      if (!i.speed) errors.push('interface "' + name + '" has no speed');
-      else if (SPEEDS[i.speed] === undefined) {
+      if (!i.speed) {
+        errors.push('interface "' + name + '" has no speed');
+      } else if (i.type === 'wireless') {
+        // Radio throughput, e.g. 867M or 4.8G -- not a standard line rate.
+        if (!/^\d+(\.\d+)?[MG]$/.test(String(i.speed))) {
+          errors.push('wireless "' + name + '" speed "' + i.speed + '" should look like 600M or 4.8G');
+        }
+      } else if (SPEEDS[i.speed] === undefined) {
         errors.push('interface "' + name + '" speed "' + i.speed + '" is not one of ' + Object.keys(SPEEDS).join('/'));
       }
     }

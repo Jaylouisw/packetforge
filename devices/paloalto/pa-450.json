@@ -1,0 +1,30 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-450",
+  "label": "PA-450",
+  "category": "firewall",
+  "description": "Palo Alto PA-450 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; same chassis as PA-440, no SFP cages.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f97316"
+}

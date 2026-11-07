@@ -1,0 +1,63 @@
+{
+  "vendor": "juniper",
+  "model": "EX4650-48Y",
+  "label": "EX4650-48Y Switch",
+  "category": "l3-switch",
+  "description": "Juniper EX4650-48Y - 48x 1G/10G/25G SFP28 (et-0/0/0-47) plus 8x 40G/100G QSFP28 uplinks (et-0/1/0-7).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "et-0/0/",
+    "start": 0,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "et-0/1/0",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/1/7",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#84cc16"
+}

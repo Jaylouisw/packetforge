@@ -1,0 +1,43 @@
+{
+  "vendor": "h3c",
+  "model": "S5130S-28P-EI",
+  "label": "S5130S-28P-EI",
+  "category": "switch",
+  "description": "H3C S5130S-28P-EI - 24x 10/100/1000BASE-T ports + 4x 1000BASE-X SFP uplinks, fanless EI access switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "GigabitEthernet1/0/25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet1/0/26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet1/0/27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet1/0/28",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#2563eb"
+}

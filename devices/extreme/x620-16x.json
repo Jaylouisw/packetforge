@@ -1,0 +1,21 @@
+{
+  "vendor": "extreme",
+  "model": "X620-16x",
+  "label": "X620-16x",
+  "category": "l3-switch",
+  "description": "ExtremeSwitching X620-16x (17401) - compact 1RU 10G edge switch, ExtremeXOS: 16x 100M/1G/10GBASE-X SFP+ ports (ports 1:1-1:16), hot-swappable PSU and fans.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "icon": "switch",
+  "color": "#e11d48"
+}

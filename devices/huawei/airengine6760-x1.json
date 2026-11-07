@@ -1,0 +1,41 @@
+{
+  "vendor": "huawei",
+  "model": "AirEngine6760-X1",
+  "label": "AirEngine 6760-X1",
+  "category": "wireless",
+  "description": "Huawei AirEngine 6760-X1 indoor Wi-Fi 6 AP - 4+6 streams (10 spatial streams, RTU to 12), 1x 10GE electrical (PoE in) + 1x GE + 1x 10GE SFP+, USB, IoT slot.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "10GE",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "GE",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "XGigabitEthernet",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "WLAN-2.4G",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "WLAN-5G",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "wireless",
+  "color": "#a855f7"
+}

@@ -1,0 +1,53 @@
+{
+  "vendor": "arista",
+  "model": "720XP-48Y6",
+  "label": "720XP-48Y6",
+  "category": "switch",
+  "description": "Arista CCS-720XP-48Y6 - 1RU Cognitive Campus leaf: 48x 10M/100M/1G RJ45 PoE+ (Ethernet1-48) plus 6x 1/10/25G SFP (Ethernet49-54).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

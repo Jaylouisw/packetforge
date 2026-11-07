@@ -1,0 +1,40 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 60F",
+  "label": "FortiGate 60F",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 60F - 10x GE RJ45 (2x WAN, 1x DMZ, 5x internal, 2x FortiLink); no SFP cages.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "internal",
+    "start": 1,
+    "count": 7,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "dmz",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

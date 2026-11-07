@@ -1,0 +1,56 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBD53G-5HacD2HnD-TC&EG12-EA",
+  "label": "Chateau LTE12",
+  "category": "wireless",
+  "description": "MikroTik Chateau LTE12 - home router with LTE Cat12 modem (EG12-EA), 5x 1G RJ45, dual-band 802.11n/ac Wi-Fi, 1 SIM slot, USB.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "wireless",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6"
+}

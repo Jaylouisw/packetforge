@@ -1,0 +1,32 @@
+{
+  "vendor": "cambium",
+  "model": "ePMP 4600",
+  "label": "Cambium ePMP 4600",
+  "category": "ptp",
+  "description": "Cambium ePMP 4600 - 6 GHz 4x4 MU-MIMO 802.11ax access point, multi-Gbps sector capacity from 160 MHz channels; 1x 1G RJ45 (802.3at) plus aux SFP+ cage.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

@@ -1,0 +1,42 @@
+{
+  "vendor": "cisco",
+  "model": "C9200L-24P-4G",
+  "label": "Catalyst 9200L-24P-4G",
+  "category": "switch",
+  "description": "Cisco Catalyst 9200L - 24x 1G PoE+ (370 W budget) downlinks, 4x 1G SFP fixed uplinks, StackWise-80.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi1/0/28",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

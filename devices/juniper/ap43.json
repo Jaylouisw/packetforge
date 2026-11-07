@@ -1,0 +1,26 @@
+{
+  "vendor": "juniper",
+  "model": "AP43",
+  "label": "Mist AP43 Access Point",
+  "category": "wireless",
+  "description": "Juniper Mist AP43 - indoor Wi-Fi 6 (802.11ax) 4x4 AP: eth0 2.5G PoE-in, eth1 1G data/PoE-out, BLE + IoT port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#84cc16"
+}

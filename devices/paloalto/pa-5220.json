@@ -1,0 +1,145 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-5220",
+  "label": "PA-5220",
+  "category": "firewall",
+  "description": "Palo Alto PA-5220 - 4x 10G RJ45 (1/1-1/4), 16x 1G/10G SFP/SFP+ (1/5-1/20), 4x 40G QSFP+ (1/21-1/24), 1x 1G MGMT, 2x 1G HA, 1x 40G HA.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "ethernet1/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/21",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "ethernet1/22",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "ethernet1/23",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "ethernet1/24",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-b",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f97316"
+}

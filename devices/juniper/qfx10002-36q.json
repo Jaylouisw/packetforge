@@ -1,0 +1,21 @@
+{
+  "vendor": "juniper",
+  "model": "QFX10002-36Q",
+  "label": "QFX10002-36Q Switch",
+  "category": "l3-switch",
+  "description": "Juniper QFX10002-36Q - 2U spine/core, 36x 40G QSFP+ (12 cages QSFP28-capable to 100G), 2.88 Tbps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "et-0/0/",
+    "start": 0,
+    "count": 36,
+    "type": "ethernet",
+    "speed": "40G"
+  },
+  "icon": "switch",
+  "color": "#84cc16"
+}

@@ -1,0 +1,44 @@
+{
+  "vendor": "aruba",
+  "model": "CX 6100 24G 4SFP+",
+  "label": "Aruba CX 6100 24G 4SFP+ (JL678A)",
+  "category": "l3-switch",
+  "description": "Aruba CX 6100 24G 4SFP+ - 24x 1G RJ45 plus 4x 10G SFP+ uplinks. Layer 3 lite (static routing, RIP).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1/1/25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/1/28",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

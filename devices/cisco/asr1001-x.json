@@ -1,0 +1,58 @@
+{
+  "vendor": "cisco",
+  "model": "ASR1001-X",
+  "label": "ASR 1001-X",
+  "category": "router",
+  "description": "Cisco ASR 1001-X - 6x 1G SFP + 2x 10G SFP+ built in, 1 RU, 2.5 Gbps ESP (up to 20 Gbps licensed).",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Te0/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Te0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

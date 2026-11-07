@@ -1,0 +1,53 @@
+{
+  "vendor": "cisco",
+  "model": "N9K-C93180YC-FX",
+  "label": "Nexus 93180YC-FX",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 93180YC-FX - 1RU leaf: 48x 1/10/25G SFP28 downlinks and 6x 40/100G QSFP28 uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Eth1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G"
+  },
+  "interfaces": [
+    {
+      "name": "Eth1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Eth1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Eth1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Eth1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Eth1/53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Eth1/54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#6366f1"
+}

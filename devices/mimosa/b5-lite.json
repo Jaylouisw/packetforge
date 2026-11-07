@@ -1,0 +1,27 @@
+{
+  "vendor": "mimosa",
+  "model": "B5-Lite",
+  "label": "Mimosa B5-Lite",
+  "category": "ptp",
+  "description": "Mimosa B5-Lite - low-cost 5 GHz 2x2 backhaul radio, up to 700 Mbps IP (833 Mbps PHY), sub-1 ms latency; single 1G RJ45.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#8b5cf6"
+}

@@ -1,0 +1,24 @@
+{
+  "vendor": "huawei",
+  "model": "AR651",
+  "label": "AR651 Router",
+  "category": "router",
+  "description": "Huawei AR651 branch router: 2x GE combo WAN (RJ45/SFP) + 8x GE RJ45 LAN, 1x USB 2.0, 1x MIC slot.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet0/0/",
+    "start": 1,
+    "count": 10,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "icon": "router",
+  "color": "#f43f5e"
+}

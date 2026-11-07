@@ -1,0 +1,45 @@
+{
+  "vendor": "juniper",
+  "model": "SRX1500",
+  "label": "SRX1500 Firewall",
+  "category": "firewall",
+  "description": "Juniper SRX1500 - campus/data-centre firewall: 12x 1G RJ45 + 4x 1G SFP (ge-0/0/0-15) and 4x 10G SFP+ (xe-0/0/16-19).",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "xe-0/0/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/19",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#84cc16"
+}

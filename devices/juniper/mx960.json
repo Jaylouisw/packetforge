@@ -1,0 +1,423 @@
+{
+  "vendor": "juniper",
+  "model": "MX960",
+  "label": "MX960 Router",
+  "category": "router",
+  "description": "Juniper MX960 - 12-slot modular chassis (11 MPC slots); modeled with 6x MPC 16x10G, 96x xe- 10G ports.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "xe-0/0/",
+    "start": 0,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "xe-1/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-1/0/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-2/0/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-3/0/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-4/0/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-5/0/15",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#84cc16"
+}

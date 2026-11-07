@@ -1,0 +1,739 @@
+[
+  {
+    "vendor": "cambium",
+    "model": "PTP 550",
+    "label": "Cambium PTP 550",
+    "category": "ptp",
+    "description": "Cambium PTP 550 - 5 GHz 802.11ac Wave 2 point-to-point radio, 1.4 Gbps over two 80 MHz channels; 1x 1G RJ45 (PoE in) plus 1x 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "cambium",
+    "model": "PTP 670",
+    "label": "Cambium PTP 670",
+    "category": "ptp",
+    "description": "Cambium PTP 670 - 4.9-6 GHz point-to-point bridge, 450 Mbps aggregate, transparent L2; 2x 1G RJ45 plus 1x 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "cambium",
+    "model": "PTP 820S",
+    "label": "Cambium PTP 820S",
+    "category": "ptp",
+    "description": "Cambium PTP 820S - licensed 6-42 GHz microwave radio, QPSK-2048QAM up to 112 MHz channels; 1x 1G RJ45 plus 2x 1G SFP traffic ports.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "cambium",
+    "model": "ePMP 3000",
+    "label": "Cambium ePMP 3000",
+    "category": "ptp",
+    "description": "Cambium ePMP 3000 - 5 GHz 4x4 MU-MIMO sector access point (also used for PtP links), ~1 Gbps sector capacity; 1x 1G RJ45 (802.3at) plus aux SFP.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "cambium",
+    "model": "ePMP 4600",
+    "label": "Cambium ePMP 4600",
+    "category": "ptp",
+    "description": "Cambium ePMP 4600 - 6 GHz 4x4 MU-MIMO 802.11ax access point, multi-Gbps sector capacity from 160 MHz channels; 1x 1G RJ45 (802.3at) plus aux SFP+ cage.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "cambium",
+    "model": "Force 300-25",
+    "label": "Cambium ePMP Force 300-25",
+    "category": "ptp",
+    "description": "Cambium ePMP Force 300-25 - 5 GHz 802.11ac Wave 2 dish subscriber radio, up to 600 Mbps; single 1G RJ45 with PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#f97316"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "B5",
+    "label": "Mimosa B5",
+    "category": "ptp",
+    "description": "Mimosa B5 - 5 GHz 4x4:4 backhaul radio with 25 dBi dish, up to 1.5 Gbps IP aggregate (1.7 Gbps PHY); single 1G RJ45 with 802.3at PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#8b5cf6"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "B5-Lite",
+    "label": "Mimosa B5-Lite",
+    "category": "ptp",
+    "description": "Mimosa B5-Lite - low-cost 5 GHz 2x2 backhaul radio, up to 700 Mbps IP (833 Mbps PHY), sub-1 ms latency; single 1G RJ45.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#8b5cf6"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "A5c",
+    "label": "Mimosa A5c",
+    "category": "ptp",
+    "description": "Mimosa A5c - 5 GHz 4x4:4 connectorized access point, up to 1.0 Gbps IP (1.7 Gbps PHY), 64 clients; single 1G RJ45 with 802.3at PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#8b5cf6"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "C5c",
+    "label": "Mimosa C5c",
+    "category": "ptp",
+    "description": "Mimosa C5c - 5 GHz 2x2 connectorized client radio, up to 700 Mbps IP (866 Mbps PHY) in PtP or PtMP; single 1G RJ45.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#8b5cf6"
+  },
+  {
+    "vendor": "siklu",
+    "model": "EtherHaul 500TX",
+    "label": "Siklu EtherHaul 500TX",
+    "category": "ptp",
+    "description": "Siklu EtherHaul 500TX - 57-66 GHz V-band point-to-point radio, gigabit Ethernet class (up to ~1 Gbps), short-range street-level links; single 1G RJ45 with PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#06b6d4"
+  },
+  {
+    "vendor": "siklu",
+    "model": "EtherHaul 8010FX",
+    "label": "Siklu EtherHaul 8010FX",
+    "category": "ptp",
+    "description": "Siklu EtherHaul 8010FX - 71-86 GHz E-band radio, up to 10 Gbps full duplex; combo 10G port (RJ45 CAT6a or SFP+) plus a separate 1G RJ45 port.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "10G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#06b6d4"
+  },
+  {
+    "vendor": "siklu",
+    "model": "EtherHaul 1200FX",
+    "label": "Siklu EtherHaul 1200FX",
+    "category": "ptp",
+    "description": "Siklu EtherHaul 1200FX - 71-86 GHz E-band radio, 1 Gbps full duplex; 2x 1G RJ45 copper ports with PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#06b6d4"
+  },
+  {
+    "vendor": "aviat",
+    "model": "WTM 4000",
+    "label": "Aviat WTM 4000",
+    "category": "ptp",
+    "description": "Aviat WTM 4000 - all-outdoor 6-42 GHz microwave radio, up to 2.5 Gbps with 4096QAM/ACM and XPIC; 2x 1G RJ45 (one PoE) and 2 SFP cages (1/2.5/10G).",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "aviat",
+    "model": "CTR 8540",
+    "label": "Aviat CTR 8540",
+    "category": "ptp",
+    "description": "Aviat CTR 8540 - indoor microwave router (IDU) for ODU 600/300 with built-in cell-site routing; 8x 1G RJ45, 4x GigE SFP and 16x E1.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#ef4444"
+  },
+  {
+    "vendor": "ignitenet",
+    "model": "MetroLinq 60",
+    "label": "IgniteNet MetroLinq 60",
+    "category": "ptp",
+    "description": "IgniteNet MetroLinq 60 - 60 GHz point-to-point radio with 5 GHz failover radio, 1 Gbps aggregate; 2x 1G RJ45 (PoE in) plus a PoE power-out tap.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "ignitenet",
+    "model": "MetroLinq 2.5G 60",
+    "label": "IgniteNet MetroLinq 2.5G 60",
+    "category": "ptp",
+    "description": "IgniteNet MetroLinq 2.5G 60 - 60 GHz point-to-point radio with 5 GHz failover, 2.5 Gbps aggregate; 1x 2.5G RJ45 (PoE in) plus an SFP cage.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#22c55e"
+  },
+  {
+    "vendor": "engenius",
+    "model": "EnStation5",
+    "label": "EnGenius EnStation5",
+    "category": "ptp",
+    "description": "EnGenius EnStation5 - 5 GHz 802.11n N300 outdoor PtP/PtMP bridge, 19 dBi dual-polarized panel, links up to ~6 km; 2x 100M RJ45 (one PoE).",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#eab308"
+  },
+  {
+    "vendor": "engenius",
+    "model": "EnStationAC",
+    "label": "EnGenius EnStationAC",
+    "category": "ptp",
+    "description": "EnGenius EnStationAC - 5 GHz 802.11ac Wave 2 outdoor bridge, 867 Mbps PHY with 19 dBi panel; 2x 1G RJ45 with 802.3af/at PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#eab308"
+  },
+  {
+    "vendor": "radwin",
+    "model": "RADWIN 5000 JET",
+    "label": "RADWIN 5000 JET",
+    "category": "ptp",
+    "description": "RADWIN 5000 JET - 5 GHz PtP/PtMP base station radio with smart beamforming, 250 Mbps per link (750 Mbps with dual carriers); 2x 1G RJ45, optional 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#3b82f6"
+  },
+  {
+    "vendor": "radwin",
+    "model": "RADWIN 2000 C",
+    "label": "RADWIN 2000 C-Series",
+    "category": "ptp",
+    "description": "RADWIN 2000 C-Series - sub-6 GHz point-to-point radio, 200 Mbps net aggregate with native TDM (up to 16 E1/T1), up to 120 km; single 1G RJ45 with PoE.",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#3b82f6"
+  },
+  {
+    "vendor": "dragonwave",
+    "model": "Horizon Compact+",
+    "label": "DragonWave Horizon Compact+",
+    "category": "ptp",
+    "description": "DragonWave Horizon Compact+ - all-outdoor 6-38 GHz packet microwave, 1-2 Gbps with Bandwidth Accelerator and XPIC; 2x 1G RJ45 (or 4x 100M).",
+    "capabilities": [
+      "l2-forward",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ptp",
+    "color": "#a855f7"
+  }
+]

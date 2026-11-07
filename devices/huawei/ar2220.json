@@ -1,0 +1,33 @@
+{
+  "vendor": "huawei",
+  "model": "AR2220",
+  "label": "AR2220 Router",
+  "category": "router",
+  "description": "Huawei AR2220 enterprise router: 3x GE fixed ports (one GE combo RJ45/SFP), 4x SIC + 2x WSIC slots, 1Mpps forwarding.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#f43f5e"
+}

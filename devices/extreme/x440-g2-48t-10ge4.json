@@ -1,0 +1,43 @@
+{
+  "vendor": "extreme",
+  "model": "X440-G2-48t-10GE4",
+  "label": "X440-G2-48t-10GE4",
+  "category": "switch",
+  "description": "ExtremeSwitching X440-G2-48t-10GE4 (16702) - 1RU edge switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48, four of which double as 1G SFP combo ports) plus 4x rear SFP+ uplinks (ports 1:49-1:52) that run 1G by default and 10G with the 10Gb upgrade licence.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "1:49",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:50",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:51",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1:52",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#e11d48"
+}

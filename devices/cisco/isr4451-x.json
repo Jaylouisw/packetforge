@@ -1,0 +1,38 @@
+{
+  "vendor": "cisco",
+  "model": "ISR4451-X",
+  "label": "ISR 4451-X",
+  "category": "router",
+  "description": "Cisco ISR 4451-X - 4x 1G onboard GE, 2 NIM + 2 SM slots, up to 1 Gbps IMIX forwarding.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

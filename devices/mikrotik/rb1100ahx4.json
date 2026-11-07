@@ -1,0 +1,26 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB1100AHx4",
+  "label": "RB1100AHx4",
+  "category": "router",
+  "description": "MikroTik RB1100AHx4 (product code RB1100x4) - 1U rackmount router with 13x 1G RJ45, quad-core AL21400, RJ45 serial console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 13,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [],
+  "icon": "router",
+  "color": "#14b8a6"
+}

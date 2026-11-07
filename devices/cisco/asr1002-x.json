@@ -1,0 +1,48 @@
+{
+  "vendor": "cisco",
+  "model": "ASR1002-X",
+  "label": "ASR 1002-X",
+  "category": "router",
+  "description": "Cisco ASR 1002-X - 2 RU chassis, 6x 1G SFP built in plus 3 SIP/SPA slots for I/O expansion.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

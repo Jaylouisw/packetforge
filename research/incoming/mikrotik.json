@@ -1,0 +1,778 @@
+[
+  {
+    "vendor": "mikrotik",
+    "model": "CCR2004-1G-12S+2XS",
+    "label": "CCR2004-1G-12S+2XS",
+    "category": "router",
+    "description": "MikroTik CCR2004-1G-12S+2XS - cloud core router: 1x 1G RJ45, 12x 10G SFP+ cages and 2x 25G SFP28 cages, quad-core ARM AL32400.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp28-1",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp28-2",
+        "type": "ethernet",
+        "speed": "25G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "sfp-sfpplus",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CCR2004-16G-2S+",
+    "label": "CCR2004-16G-2S+",
+    "category": "router",
+    "description": "MikroTik CCR2004-16G-2S+ - cloud core router: 16x 1G RJ45 and 2x 10G SFP+ cages, quad-core ARM AL32400.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CCR2116-12G-4S+",
+    "label": "CCR2116-12G-4S+",
+    "category": "router",
+    "description": "MikroTik CCR2116-12G-4S+ - 16-core ARM cloud core router: 13x 1G RJ45 (12 data + 1 management) and 4x 10G SFP+ cages, L3 hardware offload.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 13,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CCR2216-1G-12XS-2XQ",
+    "label": "CCR2216-1G-12XS-2XQ",
+    "category": "router",
+    "description": "MikroTik CCR2216-1G-12XS-2XQ - 16-core ARM cloud core router: 1x 1G RJ45, 12x 25G SFP28 cages and 2x 100G QSFP28 cages.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "qsfp28-1",
+        "type": "ethernet",
+        "speed": "100G"
+      },
+      {
+        "name": "qsfp28-2",
+        "type": "ethernet",
+        "speed": "100G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "sfp28-",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RB3011UiAS-RM",
+    "label": "RB3011UiAS-RM",
+    "category": "router",
+    "description": "MikroTik RB3011UiAS-RM - 1U rackmount router: 10x 1G RJ45, 1x 1G SFP cage, PoE-out on ether10, dual-core ARM.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 10,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RB1100AHx4",
+    "label": "RB1100AHx4",
+    "category": "router",
+    "description": "MikroTik RB1100AHx4 (product code RB1100x4) - 1U rackmount router with 13x 1G RJ45, quad-core AL21400, RJ45 serial console.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 13,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RB5009UPr+S+IN",
+    "label": "RB5009UPr+S+IN",
+    "category": "router",
+    "description": "MikroTik RB5009UPr+S+IN - PoE-in/PoE-out version of the RB5009: 1x 2.5G RJ45, 7x 1G RJ45 and 1x 10G SFP+ cage.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 2,
+      "count": 7,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "L009UiGS-RM",
+    "label": "L009UiGS-RM",
+    "category": "router",
+    "description": "MikroTik L009UiGS-RM - 8x 1G RJ45 (PoE-out on ether8) and 1x SFP cage that also accepts 2.5G modules, ARM dual-core.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "router",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS312-4C+8XG-RM",
+    "label": "CRS312-4C+8XG-RM",
+    "category": "l3-switch",
+    "description": "MikroTik CRS312-4C+8XG-RM - 8x 10G RJ45, 4x 10G combo ports (RJ45 or SFP+ cage, one at a time), 1x 100M management port, dual PSU, RouterOS or SwOS.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-client",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ether9",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "combo1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "combo2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "combo3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "combo4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS354-48G-4S+2Q+RM",
+    "label": "CRS354-48G-4S+2Q+RM",
+    "category": "l3-switch",
+    "description": "MikroTik CRS354-48G-4S+2Q+RM - 48x 1G RJ45, 4x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (ether49), L3 hardware offload.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-client",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ether49",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus4",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "qsfpplus1",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "qsfpplus2",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS520-4XS-16XQ-RM",
+    "label": "CRS520-4XS-16XQ-RM",
+    "category": "l3-switch",
+    "description": "MikroTik CRS520-4XS-16XQ-RM - 16x 100G QSFP28 cages, 4x 25G SFP28 cages and 2x 1G/10G RJ45 management ports, quad-core ARM, L3HW offload.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-client",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "ether2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp28-1",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp28-2",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp28-3",
+        "type": "ethernet",
+        "speed": "25G"
+      },
+      {
+        "name": "sfp28-4",
+        "type": "ethernet",
+        "speed": "25G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "qsfp28-",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS326-24S+2Q+RM",
+    "label": "CRS326-24S+2Q+RM",
+    "category": "switch",
+    "description": "MikroTik CRS326-24S+2Q+RM - 24x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (ether1), RouterOS or SwOS.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "qsfpplus1",
+        "type": "ethernet",
+        "speed": "40G"
+      },
+      {
+        "name": "qsfpplus2",
+        "type": "ethernet",
+        "speed": "40G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "sfp-sfpplus",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS328-24P-4S+RM",
+    "label": "CRS328-24P-4S+RM",
+    "category": "switch",
+    "description": "MikroTik CRS328-24P-4S+RM - 24x 1G RJ45 with 802.3af/at PoE-out and 4x 10G SFP+ cages, RouterOS or SwOS.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus3",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus4",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CSS326-24G-2S+RM",
+    "label": "CSS326-24G-2S+RM",
+    "category": "switch",
+    "description": "MikroTik CSS326-24G-2S+RM - SwOS-only switch: 24x 1G RJ45 and 2x 10G SFP+ cages, fanless 1U rackmount.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G"
+      }
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "icon": "switch",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "C53UiG+5HPaxD2HPaxD",
+    "label": "hAP ax3",
+    "category": "wireless",
+    "description": "MikroTik hAP ax3 - Wi-Fi 6 dual-band AP/router: 1x 2.5G RJ45, 4x 1G RJ45, USB 3.0, quad-core ARM.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "wireless",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "ether2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "wAPG-5HaxD2HaxD",
+    "label": "wAP ax",
+    "category": "wireless",
+    "description": "MikroTik wAP ax - outdoor IP54 Wi-Fi 6 dual-band 2x2 AP with 2x 1G RJ45, PoE-in and DC jack.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "wireless",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "cAPGi-5HaxD2HaxD",
+    "label": "cAP ax",
+    "category": "wireless",
+    "description": "MikroTik cAP ax - ceiling Wi-Fi 6 dual-band 2x2 AP with 2x 1G RJ45 (PoE-in and PoE-out), quad-core ARM, 1 GB RAM.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "wireless",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#14b8a6"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RBD53G-5HacD2HnD-TC&EG12-EA",
+    "label": "Chateau LTE12",
+    "category": "wireless",
+    "description": "MikroTik Chateau LTE12 - home router with LTE Cat12 modem (EG12-EA), 5x 1G RJ45, dual-band 802.11n/ac Wi-Fi, 1 SIM slot, USB.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "wireless",
+      "cli",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ether5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan2",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "icon": "ap",
+    "color": "#14b8a6"
+  }
+]

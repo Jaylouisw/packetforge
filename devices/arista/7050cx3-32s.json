@@ -1,0 +1,33 @@
+{
+  "vendor": "arista",
+  "model": "7050CX3-32S",
+  "label": "7050CX3-32S",
+  "category": "l3-switch",
+  "description": "Arista 7050CX3-32S - 1RU 100G spine/leaf: 32x 100G QSFP28 (Ethernet1-32) plus 2x 1/10G SFP+ (Ethernet33-34), 6.4 Tbps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G"
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

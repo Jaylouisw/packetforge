@@ -1,0 +1,26 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On AP25",
+  "label": "Aruba Instant On AP25",
+  "category": "wireless",
+  "description": "Aruba Instant On AP25 - Wi-Fi 6 4x4 dual-radio small-business AP with a single 2.5G PoE+ uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "E0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b"
+}

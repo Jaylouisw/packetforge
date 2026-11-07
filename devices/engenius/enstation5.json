@@ -1,0 +1,31 @@
+{
+  "vendor": "engenius",
+  "model": "EnStation5",
+  "label": "EnGenius EnStation5",
+  "category": "ptp",
+  "description": "EnGenius EnStation5 - 5 GHz 802.11n N300 outdoor PtP/PtMP bridge, 19 dBi dual-polarized panel, links up to ~6 km; 2x 100M RJ45 (one PoE).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#eab308"
+}

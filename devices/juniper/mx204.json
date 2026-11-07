@@ -3,9 +3,73 @@
   "model": "MX204",
   "label": "MX204 Router",
   "category": "router",
-  "description": "Juniper MX204 — 4x 100G service router (modeled as 4x 10G).",
-  "capabilities": ["l3-forward", "cli"],
-  "portTemplate": { "prefix": "xe-0/0/", "start": 0, "count": 4, "type": "ethernet", "speed": "10G" },
+  "description": "Juniper MX204 - 4x 100G QSFP28 (et-0/0/0-3) + 8x 10G SFP+ (xe-0/0/0-7).",
+  "capabilities": [
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "et-0/0/0",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "et-0/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "xe-0/0/0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/7",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
   "icon": "router",
   "color": "#84cc16"
 }

@@ -1,0 +1,32 @@
+{
+  "vendor": "zyxel",
+  "model": "GS1900-48",
+  "label": "Zyxel GS1900-48",
+  "category": "switch",
+  "description": "Zyxel GS1900-48 - 48x 1G RJ45 plus 2x 1G SFP, web-managed smart switch.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f97316"
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "huawei",
+  "model": "S12704",
+  "label": "S12704 Chassis",
+  "category": "l3-switch",
+  "description": "Huawei S12700 Agile Switch S12704 chassis - 4 LPU slots, 2 MPU, 2 SFU, 4 power modules; listed with one 24-port 10GE SFP+ line card (LST7X24BX6E0) in slot 1.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "XGigabitEthernet1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "icon": "switch",
+  "color": "#dc2626"
+}

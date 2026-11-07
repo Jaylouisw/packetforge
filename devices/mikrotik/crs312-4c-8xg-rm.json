@@ -1,0 +1,52 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS312-4C+8XG-RM",
+  "label": "CRS312-4C+8XG-RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS312-4C+8XG-RM - 8x 10G RJ45, 4x 10G combo ports (RJ45 or SFP+ cage, one at a time), 1x 100M management port, dual PSU, RouterOS or SwOS.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "ether",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "ether9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "combo1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "combo2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "combo3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "combo4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

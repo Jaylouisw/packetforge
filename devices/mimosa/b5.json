@@ -1,0 +1,27 @@
+{
+  "vendor": "mimosa",
+  "model": "B5",
+  "label": "Mimosa B5",
+  "category": "ptp",
+  "description": "Mimosa B5 - 5 GHz 4x4:4 backhaul radio with 25 dBi dish, up to 1.5 Gbps IP aggregate (1.7 Gbps PHY); single 1G RJ45 with 802.3at PoE.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#8b5cf6"
+}

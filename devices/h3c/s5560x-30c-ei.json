@@ -1,0 +1,44 @@
+{
+  "vendor": "h3c",
+  "model": "S5560X-30C-EI",
+  "label": "S5560X-30C-EI",
+  "category": "l3-switch",
+  "description": "H3C S5560X-30C-EI - 24x 10/100/1000BASE-T ports (8 of them combo SFP) + 4x 10G/1G SFP+ ports, 1 expansion slot, 2 power module slots.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "GigabitEthernet1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "Ten-GigabitEthernet1/0/25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet1/0/26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet1/0/27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ten-GigabitEthernet1/0/28",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#1d4ed8"
+}

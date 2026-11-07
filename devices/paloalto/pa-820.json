@@ -1,0 +1,80 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-820",
+  "label": "PA-820",
+  "category": "firewall",
+  "description": "Palo Alto PA-820 - 4x 1G RJ45 (1/1-1/4), 8x 1G SFP (1/5-1/12), 1x 1G MGMT, 2x 1G HA.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "ethernet1/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#f97316"
+}
