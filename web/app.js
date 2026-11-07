@@ -369,6 +369,17 @@
       // Delete belongs somewhere you can see it.
       '<button id="btn-delete-device" class="btn danger" style="margin-left:auto;padding:4px 10px;font-size:12px" title="Remove this device and all of its cables">Delete device</button>' +
       '</div>';
+
+    // The front panel. On a 48-port switch the per-port list below is a wall of rows and
+    // the canvas is a cluster of unlabelled dots; a panel laid out the way the chassis is
+    // answers "which socket is port 23" by position alone. Optional on purpose - if the
+    // module is absent the inspector still works.
+    if (typeof window !== 'undefined' && window.PFFaceplate && typeof window.PFFaceplate.render === 'function') {
+      try {
+        html += '<div class="fp-wrap"><div class="field-label" style="margin-top:8px">Front panel</div>' +
+          window.PFFaceplate.render(d, { topology: topo, fullNames: true }) + '</div>';
+      } catch (e) { /* a layout failure must not cost you the port list */ }
+    }
     html += '<div class="kv"><span class="k">Model</span><span>' + d.model + ' (' + d.label + ')</span></div>';
     html += '<div class="kv"><span class="k">Category</span><span>' + d.category + '</span></div>';
     html += '<div class="kv"><span class="k">ID</span><span style="font-family:var(--mono)">' + d.id + '</span></div>';
@@ -452,6 +463,22 @@
     // The delete button is part of the generated HTML, so it needs wiring on every
     // render - same as the interface editors below.
     bindDeviceDelete();
+
+    // Clicking a port on the panel reports it in the status bar: the panel answers
+    // "where is it", this answers "what is it".
+    if (typeof window !== 'undefined' && window.PFFaceplate && typeof window.PFFaceplate.bind === 'function') {
+      const fp = wrap.querySelector('.fp-wrap');
+      if (fp) {
+        try {
+          window.PFFaceplate.bind(fp, function (hit) {
+            const name = hit && (hit.port || hit.name);
+            const iface = name ? d.interfaces && (d.interfaces[name] || d.interfaces.find(function (i) { return i.name === name; })) : null;
+            if (iface) setStatus(name + ' - ' + (iface.cage || 'connector unknown') + (iface.enabled === false ? ' (administratively down)' : ''));
+            else if (name) setStatus(String(name));
+          });
+        } catch (e) { /* binding is an enhancement, not a requirement */ }
+      }
+    }
 
     // wire interface editors
     wrap.querySelectorAll('input[data-field]').forEach(function (inp) {
@@ -926,6 +953,19 @@
       case 'route6': return e.dev + ' routes ' + e.dst + ' via ' + e.via + ' out ' + e.iface +
         '  (hop ' + e.hopLimit + ')';
       case 'ping6': return 'ping6 seq ' + e.seq + ' → ' + e.dst;
+      case 'rs-send': return 'RS  ' + (e.dev || '') + '/' + (e.iface || '') +
+        '  who is a router?  → ' + (e.dst || 'ff02::2');
+      case 'rs-recv': return 'RS  ' + (e.dev || '') + '/' + (e.iface || '') +
+        '  heard from ' + (e.from || '') + '  (answering)';
+      case 'ra-send': return 'RA  ' + (e.dev || '') + '/' + (e.iface || '') + '  → ' + (e.dst || 'ff02::1') +
+        '  [' + ((e.prefixes || []).join(', ') || 'default router') + ']' +
+        (e.m ? '  M=1' : '') + (e.solicited ? '  (solicited)' : '');
+      case 'ra-recv': return 'RA  ' + (e.dev || '') + '/' + (e.iface || '') + '  from ' + (e.from || '') +
+        '  [' + ((e.prefixes || []).join(', ') || 'default router') + ']' + (e.m ? '  M=1' : '');
+      case 'slaac-address': return 'SLAAC ' + (e.dev || '') + '/' + (e.iface || '') + '  ' +
+        (e.addr || '') + '/' + (e.prefix == null ? '' : e.prefix) + '  from ' + (e.prefixSource || '');
+      case 'slaac-refused': return 'SLAAC refused ' + (e.dev || '') + '/' + (e.iface || '') +
+        ': ' + (e.reason || '');
       case 'bgp': return 'BGP ' + (e.dev || '?') + ' ' + (e.session === 'ebgp' ? '⇄' : '↔') +
         ' ' + (e.peer || '?') + '  ' + (e.session || '') + '  AS' + e.localAs + '–AS' + e.remoteAs;
       case 'dns': return 'DNS ' + (e.qname || '?') + (e.ok
