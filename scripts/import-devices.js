@@ -30,7 +30,7 @@ const DEVICES = process.env.PF_DEVICES
 // Vocabulary accepted by the registry and the UI.
 const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server',
   'wireless', 'ptp', 'cloud', 'olt', 'splitter', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
-  'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot'];
+  'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot', 'tap'];
 const CAPABILITIES = ['cli', 'dhcp-client', 'dhcp-server', 'firewall', 'host', 'http-server',
   'l2-forward', 'l3-forward', 'nat', 'wireless',
   // Hardware descriptors. These describe power, not forwarding: they grant no

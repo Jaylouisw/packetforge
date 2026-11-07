@@ -3,14 +3,17 @@
   "model": "UF-WIFI",
   "label": "UFiber WiFi (UF-WIFI)",
   "category": "ont",
-  "description": "GPON CPE ONU/ONT (ITU-G.984, 2.5 Gbit/s down / 1.2 Gbit/s up) with four GbE RJ45 LAN ports, one SC/APC GPON WAN port and a single 2.4 GHz 802.11n 2x2 radio (300 Mbit/s, 20 dBm); Layer 2/3 switch with NAT and firewall, managed from UISP.",
+  "description": "Ubiquiti UFiber WiFi GPON CPE ONU (ITU-T G.984, 2.488 Gbit/s down / 1.244 Gbit/s up) with four GbE RJ45 LAN ports, one SC/APC GPON WAN port and a single 2x2 2.4 GHz 802.11n radio (300 Mbit/s); Layer 2/Layer 3 CPE with NAT and firewall, provisioned and monitored from UISP.",
   "capabilities": [
     "l3-forward",
     "l2-forward",
     "nat",
     "firewall",
     "wireless",
-    "cli"
+    "cli",
+    "dhcp-server",
+    "host",
+    "http-server"
   ],
   "interfaces": [
     {

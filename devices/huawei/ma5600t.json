@@ -3,7 +3,7 @@
   "model": "MA5600T",
   "label": "SmartAX MA5600T OLT",
   "category": "olt",
-  "description": "Huawei SmartAX MA5600T (16 service slots, 2 control slots, 2 uplink slots) with one H802GPBD 8-port GPON board in service slot 1 (ports 0/1/0-0/1/7, 1:128 split) and an H801X2CS 2x10GE uplink board in slot 19. The SCUN control board contributes its own GE uplinks for in-band management.",
+  "description": "Huawei SmartAX MA5600T 16-service-slot all-in-one copper/fibre access platform. Counted here: one H805VDMF 48-port VDSL2-over-POTS board in slot 1 (ports 0/1/0-47, VDSL2 17a/8b, MELT, G.INP, ADSL2+ backwards compatible) plus the SCUN control board's 4x GE optical uplinks (SFP) = 52 ports. An H801X2CS uplink board adds 2x 10GE SFP+ and 64-port VDPD/VDQM boards raise the line side to 64.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -12,107 +12,247 @@
   ],
   "interfaces": [
     {
-      "name": "gpon0/1/0",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/0",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/1",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/1",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/2",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/2",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/3",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/3",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/4",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/4",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/5",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/5",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/6",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/6",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "gpon0/1/7",
-      "type": "pon",
-      "speed": "2.5G",
-      "connector": "sc-apc",
-      "speedCaps": [
-        1244,
-        2488
-      ]
+      "name": "0/1/7",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "0/19/0",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
-      "speedCaps": [
-        1000,
-        10000
-      ]
+      "name": "0/1/8",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "0/19/1",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
-      "speedCaps": [
-        1000,
-        10000
-      ]
+      "name": "0/1/9",
+      "type": "dsl",
+      "speed": "100M"
     },
     {
-      "name": "0/16/0",
+      "name": "0/1/10",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/11",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/12",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/13",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/14",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/15",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/16",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/17",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/18",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/19",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/20",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/21",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/22",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/23",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/24",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/25",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/26",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/27",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/28",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/29",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/30",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/31",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/32",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/33",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/34",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/35",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/36",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/37",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/38",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/39",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/40",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/41",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/42",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/43",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/44",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/45",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/46",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/47",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "ge0/1",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -121,7 +261,25 @@
       ]
     },
     {
-      "name": "0/16/1",
+      "name": "ge0/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge0/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge0/4",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -130,5 +288,6 @@
       ]
     }
   ],
-  "sourceUrl": "https://aleashop.es/documentacion/Huawei-GPON-Portfolio.pdf"
+  "sourceUrl": "https://www.scribd.com/presentation/520286987/MA5600T-Product-Introduction",
+  "notes": "SCUN provides four GE upstream optical ports (SFP). Board table: 48-channel VDSL2 boards VDJM (over ISDN), VDMF/VCMM (over POTS), VSNL/VSNF splitters."
 }

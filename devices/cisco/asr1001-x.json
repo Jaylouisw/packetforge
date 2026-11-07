@@ -15,61 +15,55 @@
     {
       "name": "Gi0/0/0",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "Gi0/0/1",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "Gi0/0/2",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "Gi0/0/3",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "Gi0/0/4",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "Gi0/0/5",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {

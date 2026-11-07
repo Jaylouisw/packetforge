@@ -3,10 +3,11 @@
   "model": "XS-010X-Q",
   "label": "XS-010X-Q XGS-PON ONT",
   "category": "ont",
-  "description": "Nokia XS-010X-Q single-family-unit XGS-PON ONT (ITU-T G.9807, 10G/10G symmetric) with one SC/APC PON port and one multi-rate 100M/1G/2.5G/5G/10G Ethernet port. Bridge-mode data service only - no WiFi, no voice, no routing.",
+  "description": "XGS-PON single-family-unit ONT (ITU-T G.9807.1, 9.953 Gbit/s symmetric, SC/APC) with exactly one RJ-45 port that auto-negotiates 100M/1G/2.5G/5G/10G; no Wi-Fi and no voice, Layer 2 bridging plus ONT management (web UI, OMCI/TR-069).",
   "capabilities": [
     "host",
-    "l2-forward"
+    "l2-forward",
+    "http-server"
   ],
   "interfaces": [
     {
@@ -32,5 +33,5 @@
       "connector": "rj45"
     }
   ],
-  "sourceUrl": "https://www.nokia.com/asset/i/210704/"
+  "sourceUrl": "https://onestore.nokia.com/asset/i/212763/"
 }

@@ -315,6 +315,16 @@ class Device {
   // both directions. Modelling it as a switch would be wrong - a switch learns
   // and filters, a splitter cannot.
   isSplitter() { return String(this.spec.category || '') === 'splitter'; }
+
+  // A tap is a one-way street with a copy: network ports pass the link's traffic
+  // through untouched, monitor ports receive a duplicate and can never transmit back.
+  // A passive tap has no software stack at all, so it cannot learn, filter or tag.
+  isTap() { return String(this.spec.category || '') === 'tap'; }
+  isPassiveTap() {
+    if (!this.isTap()) return false;
+    if (this.spec.passive === true) return true;
+    return (this.spec.capabilities || []).length === 0;
+  }
   isL3() { return this.hasCap('l3-forward'); }
 
   // MAC table for a given VLAN (VLAN 1 keeps the legacy flat map).

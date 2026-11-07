@@ -2,7 +2,7 @@
   "vendor": "keysight",
   "model": "Vision Edge 40",
   "label": "Vision Edge 40 (E40) 48x10G + 6x40G packet broker",
-  "category": "firewall",
+  "category": "tap",
   "description": "Ixia-lineage 1RU packet broker with 48 SFP/SFP+ ports at 1G or 10G and 6 QSFP+ ports at 40G, each 40G cage able to break out to four more 1G/10G links (72 ports total). Filters, aggregates and load-balances rack-level SPAN/TAP traffic toward monitoring and security tools.",
   "capabilities": [
     "cli",

@@ -3,7 +3,7 @@
   "model": "FRITZ!Box 7590",
   "label": "FRITZ!Box 7590 VDSL2/ADSL2+ dual-band router",
   "category": "router",
-  "description": "AVM FRITZ!Box 7590 - Wi-Fi 5 AC+N dual-band router with an integrated VDSL2 35b supervectoring modem (2.4 GHz 800 Mbps and 5 GHz 1733 Mbps, both 4x4), one 1G WAN, four 1G LAN ports and an RJ11 DSL port. The DSL port is declared at 100M because the engine's line-rate ladder has no 300M step, while the hardware runs 35b at up to 300 Mbit/s.",
+  "description": "VDSL2 35b supervectoring (up to 300 Mbit/s) and ADSL2+ router with a 4x4 MU-MIMO dual-band access point (800 Mbit/s on 2.4 GHz, 1733 Mbit/s on 5 GHz), one RJ-11 DSL port, four gigabit LAN ports and a separate gigabit WAN port for cable/fibre modems.",
   "capabilities": [
     "wireless",
     "l2-forward",
@@ -12,9 +12,16 @@
     "dhcp-server",
     "dhcp-client",
     "firewall",
-    "http-server"
+    "http-server",
+    "cli"
   ],
   "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M",
+      "connector": "rj11"
+    },
     {
       "name": "wan",
       "type": "ethernet",
@@ -41,22 +48,18 @@
       "speed": "1G"
     },
     {
-      "name": "dsl0",
-      "type": "dsl",
-      "speed": "100M"
-    },
-    {
-      "name": "radio0",
+      "name": "wlan1",
       "type": "wireless",
       "speed": "800M"
     },
     {
-      "name": "radio1",
+      "name": "wlan2",
       "type": "wireless",
       "speed": "1.7G"
     }
   ],
   "icon": "router",
   "color": "#2563eb",
-  "sourceUrl": "https://en.avm.de/products/fritzbox/fritzbox-7590/technical-specifications/"
+  "sourceUrl": "https://en.avm.de/products/fritzbox/fritzbox-7590/technical-specifications/",
+  "notes": "AVM datasheet: 'All DSL lines with up to 300 Mbit/s', '4 x gigabit Ethernet', '1 x gigabit WAN', '4 x 4 Wireless AC + N with Multi-User MIMO', 1733 Mbit/s (5 GHz) + 800 Mbit/s (2.4 GHz). Corrects the older catalogue entry that pinned this 35b line to 100M: 35b is a 300M rung, and no DSL line here is gigabit."
 }

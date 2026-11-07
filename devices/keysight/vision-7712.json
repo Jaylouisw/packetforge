@@ -2,7 +2,7 @@
   "vendor": "keysight",
   "model": "Vision 7712",
   "label": "Vision 7712 32x100G packet broker",
-  "category": "firewall",
+  "category": "tap",
   "description": "1RU high-density packet broker built on the Edgecore 7712 platform and running Vision Edge OS: 32 QSFP28 cages that run 100G, 40G, 4x25G or 4x10G each. Used as the spine of a visibility fabric, aggregating many TAP/SPAN feeds and filtering them toward tool farms.",
   "capabilities": [
     "cli",

@@ -3,7 +3,7 @@
   "model": "AN5506-04-FAT",
   "label": "AN5506-04-FAT GPON ONT",
   "category": "ont",
-  "description": "Fiberhome AN5506-04-FAT GPON home gateway: one SC/APC GPON uplink (2.488G down / 1.244G up), four 1GE LAN ports, two POTS ports and concurrent dual-band Wi-Fi (3x3 802.11n at 2.4GHz and 3x3 802.11ac at 5GHz) for triple-play FTTH service.",
+  "description": "FiberHome AN5506-04-FAT GPON triple-play ONT with four GE LAN ports, two POTS ports and dual-band Wi-Fi (3x3 802.11n 2.4 GHz at 450 Mbit/s plus 3x3 802.11ac 5 GHz at 1300 Mbit/s); the GPON interface is offered as SC/UPC or SC/APC and this variant is ordered with the SC/UPC adapter.",
   "capabilities": [
     "host",
     "l2-forward",
@@ -13,14 +13,15 @@
     "dhcp-server",
     "dhcp-client",
     "http-server",
-    "wireless"
+    "wireless",
+    "cli"
   ],
   "interfaces": [
     {
       "name": "pon",
       "type": "pon",
       "speed": "2.5G",
-      "connector": "sc-apc",
+      "connector": "sc-upc",
       "speedCaps": [
         1244,
         2488
@@ -47,15 +48,15 @@
       "speed": "1G"
     },
     {
-      "name": "wlan2g",
+      "name": "wlan2.4",
       "type": "wireless",
       "speed": "450M"
     },
     {
-      "name": "wlan5g",
+      "name": "wlan5",
       "type": "wireless",
       "speed": "1300M"
     }
   ],
-  "sourceUrl": "https://www.router-switch.com/pdf2html/pdf/an5506-04-fat-datasheet.pdf"
+  "sourceUrl": "https://www.ycict.net/products/an5506-04-fat-onu/"
 }

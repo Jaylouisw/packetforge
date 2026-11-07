@@ -3,10 +3,12 @@
   "model": "F601",
   "label": "ZXHN F601 GPON ONT",
   "category": "ont",
-  "description": "Single-port GPON bridge ONT (ITU-T G.984.x / G.988) delivering 2.488 Gbit/s downstream and 1.244 Gbit/s upstream with one GE RJ-45 LAN port and an SC/UPC PON connector; no WiFi or voice.",
+  "description": "GPON SFU/bridge ONT (ITU-T G.984.x and G.988 compliant, 2.488 Gbit/s downstream / 1.244 Gbit/s upstream) with a single 10/100/1000Base-T LAN port and one SC/APC PON interface; no Wi-Fi, Layer 2 bridging only with a local web management stack.",
   "capabilities": [
     "l2-forward",
-    "cli"
+    "cli",
+    "host",
+    "http-server"
   ],
   "interfaces": [
     {
@@ -25,5 +27,5 @@
       "speed": "1G"
     }
   ],
-  "sourceUrl": "https://www.zte.com.cn/global/home_and_enterprise/campus_network/zxhn_f601.html"
+  "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f601/zxhn-f601.html"
 }

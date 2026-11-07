@@ -41,6 +41,7 @@
   const CAT_LABELS = {
     router: 'Routers', switch: 'Switches', 'l3-switch': 'L3 Switches', firewall: 'Firewalls',
     wireless: 'Wireless APs', ptp: 'PTP Radios', olt: 'OLTs (PON headend)', ont: 'ONT / ONU',
+    tap: 'Taps & packet brokers',
     splitter: 'PON Splitters (passive)',
     modem: 'Modems (DOCSIS / DSL)', powerline: 'Powerline / MoCA',
     host: 'End Devices', server: 'Servers', nas: 'NAS', desktop: 'Desktops', laptop: 'Laptops',
@@ -48,7 +49,7 @@
     nvr: 'NVR / DVR', iot: 'IoT / Smart Home', cloud: 'Cloud / WAN'
   };
   // Network gear first, then the things that plug into it.
-  const CAT_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'wireless', 'ptp',
+  const CAT_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'tap', 'wireless', 'ptp',
     'olt', 'splitter', 'ont', 'modem', 'powerline', 'host', 'server', 'nas', 'desktop', 'laptop',
     'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot', 'cloud'];
   const BADGE_LABELS = {
@@ -170,7 +171,7 @@
 
   function iconFor(s) {
     const m = {
-      router: '🧭', switch: '🔀', 'l3-switch': '🔀', firewall: '🛡️', wireless: '📶', ptp: '📻',
+      router: '🧭', switch: '🔀', 'l3-switch': '🔀', firewall: '🛡️', tap: '🔍', wireless: '📶', ptp: '📻',
       olt: '🏢', ont: '📡', splitter: '🔀', modem: '📞', powerline: '🔌',
       host: '🖥️', server: '🗄️', nas: '💾', desktop: '🖥️', laptop: '💻',
       phone: '📱', tablet: '📲', printer: '🖨️', camera: '📷', nvr: '🎥', iot: '🏠',

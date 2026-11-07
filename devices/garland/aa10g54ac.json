@@ -2,7 +2,7 @@
   "vendor": "garland",
   "model": "AA10G54AC",
   "label": "AA10G54AC 48x10G + 6x40G packet broker",
-  "category": "firewall",
+  "category": "tap",
   "description": "Fixed-port 1RU packet broker for top-of-rack and edge use: 48 SFP/SFP+ cages at 1G or 10G plus 6 QSFP+ cages at 40G that can each take 4x10G. Aggregates, filters (L2-L4) and load-balances TAP/SPAN inputs onto tools, with GRE/VXLAN tunnel origination for remote feeds.",
   "capabilities": [
     "http-server",

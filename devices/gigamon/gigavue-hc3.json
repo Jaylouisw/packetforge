@@ -2,7 +2,7 @@
   "vendor": "gigamon",
   "model": "GigaVUE-HC3",
   "label": "GigaVUE-HC3 modular visibility node (2x PRT-HC3-X24 + 2x PRT-HC3-C16)",
-  "category": "firewall",
+  "category": "tap",
   "description": "3RU chassis with four hot-swappable port-module bays, modelled here as two PRT-HC3-X24 modules (48 25G/10G SFP28 cages) and two PRT-HC3-C16 modules (32 40G/100G QSFP28 cages). Bypass modules can sit inline in front of IPS/WAF tools, so the same node serves out-of-band aggregation and inline fail-to-wire protection.",
   "capabilities": [
     "cli",

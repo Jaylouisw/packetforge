@@ -27,7 +27,29 @@ catalog to the API and the UI palette.
 | `vendor` | yes | lowercase manufacturer slug |
 | `model` | yes | unique per vendor |
 | `label` | yes | human-friendly name shown in the palette |
-| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `host`, `server`, `wireless`, `cloud` |
+| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `tap`, `host`, `server`, `wireless`, `cloud`, `olt`, `ont`, `splitter`, `modem`, `powerline`, `nas`, `desktop`, `laptop`, `phone`, `tablet`, `printer`, `camera`, `nvr`, `iot` |
+
+
+### Taps and passive hardware
+
+`category: "tap"` covers network taps and packet brokers. Two things distinguish them.
+
+**An active tap** (a packet broker: GigaVAVE VUE, Keysight Vision, Garland AA10G54AC) is a
+device with software: it carries `l2-forward`, aggregates, filters, and behaves like a switch.
+
+**A passive tap** carries `"passive": true` and **no capabilities at all**, because there is
+nothing inside it to have capabilities with. The data path gives it exactly one behaviour:
+
+- a frame arriving on a `net*` port is passed through to the other `net*` ports unchanged,
+- and a copy is emitted on every `mon*` port,
+- a frame arriving on a `mon*` port is discarded (`tap-inject-refused`), because a tap is a
+  one-way street with a copy, not a hub,
+- nothing is learned: a passive tap has no table.
+
+Getting the category wrong is not cosmetic. Before this existed, the passive taps were filed
+as `category: "firewall"` with an empty capability list, which the engine reads as "drops
+everything" - so inserting a tap into a lab cut the link it was inserted into, and no test
+noticed, because a link carrying nothing looks like a link with nothing to carry.
 | `capabilities` | yes | drives the engine — see below |
 | `interfaces` | one of | explicit array of `{name,type,speed}` |
 | `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` |

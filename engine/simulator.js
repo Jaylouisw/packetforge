@@ -1649,7 +1649,9 @@ class Simulator {
     // 3. MAC learning, scoped to the VLAN.
     // A passive coupler has no table to learn into: it forwards everything both
     // ways regardless of what it has seen before.
-    if (inIface && !dev.isSplitter()) dev.macTableFor(vid).set(f.srcMac, inIface);
+    // A passive coupler and a passive tap have no table to learn into: neither can
+    // remember what it has seen, so neither may be credited with learning.
+    if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.macTableFor(vid).set(f.srcMac, inIface);
 
     // 3b. Inbound access list.
     const aclIn = this._aclCheck(dev, inIface, 'in', f);
@@ -1706,6 +1708,39 @@ class Simulator {
     //     why GPON downstream is encrypted); upstream one ONT's frame reaches the
     //     OLT and every sibling, which is why a PON needs time slots. No learning,
     //     no filtering, no VLAN rewrite - a coupler cannot do any of those.
+    // 3a. Passive tap: the link keeps working and the monitor gets a copy.
+    //
+    // These were catalogued as category 'firewall' with no capabilities, which made
+    // the engine treat them as a device that drops everything: a tap inserted into a
+    // live link silently cut it. That is the one thing a tap must not do. Network
+    // ports pass frames through unchanged; monitor ports receive a duplicate, and a
+    // frame arriving on a monitor port is discarded, because a tap is not a hub.
+    if (dev.isTap() && dev.isPassiveTap()) {
+      // inIface arrives as a port object from some callers and as a plain name from
+      // others. Testing `port.name` on a string silently read undefined, matched no
+      // monitor prefix, and forwarded a frame that came in on a monitor port - so the
+      // tap behaved as a hub for exactly the broadcasts (ARP) that matter most.
+      const nameOf = function (p) {
+        return typeof p === 'string' ? p : String((p && p.name) || '');
+      };
+      const isMonitor = function (p) { return /^mon(itor)?/i.test(nameOf(p)); };
+      const arrivedOn = nameOf(inIface);
+      if (isMonitor(arrivedOn)) {
+        this._emit({ type: 'tap-inject-refused', dev: dev.id, iface: arrivedOn, vlan: vid });
+        return;
+      }
+      let passed = 0, copied = 0;
+      for (const port of dev.activeInterfaces()) {
+        if (port.name === arrivedOn) continue;
+        if (inIface.peer && port.peer === inIface.peer) continue;
+        if (isMonitor(port)) { this._emitFrame(dev, port, Object.assign({}, f), vid); copied++; continue; }
+        this._emitFrame(dev, port, Object.assign({}, f), vid);
+        passed++;
+      }
+      this._emit({ type: 'tap', dev: dev.id, iface: arrivedOn, through: passed, monitors: copied, vlan: vid });
+      return;
+    }
+
     if (dev.isSplitter()) {
       let legs = 0;
       for (const port of dev.activeInterfaces()) {

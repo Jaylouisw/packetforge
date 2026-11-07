@@ -257,7 +257,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -267,7 +266,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -277,14 +275,21 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
     {
       "name": "ge4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "combo",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "notes": "7330 shelf: up to 10 slots for DSL / P2P fibre / aggregation modules, same ISAM LT cards as the 7302 (48 lines per LT). NANT: 2 SFP user/network/subtending links plus 1 GE optical SFP and 1 switchable GE SFP/RJ45.",
+  "sourceUrl": "https://carritech.com/products/alcatel-lucent/alcatel-isam-asam/alcatel-7330-isam-2/"
 }

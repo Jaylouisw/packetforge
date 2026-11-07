@@ -3,7 +3,7 @@
   "model": "844G",
   "label": "Calix GigaCenter 844G",
   "category": "ont",
-  "description": "GPON GigaCenter (2.5G GPON, 2.488/1.244 Gbit/s) residential service delivery gateway with four Gigabit Ethernet LAN ports, two FXS voice lines, one USB 2.0 port and carrier-class dual-band WiFi (2x2 802.11n 2.4 GHz plus 4x4 802.11ac MU-MIMO 5 GHz); SC/APC fiber connector.",
+  "description": "GPON GigaCenter residential gateway ONT (ITU-T G.984, 2.488/1.244 Gbit/s, SC/APC) with four GE LAN ports, two POTS lines and carrier-class dual-band Wi-Fi (2x2 802.11n 2.4 GHz at 300 Mbit/s plus 4x4 MU-MIMO 802.11ac 5 GHz at 1733 Mbit/s); Layer 2 bridging and Layer 3 routing with NAT, DHCP, firewall and DNS.",
   "capabilities": [
     "l3-forward",
     "l2-forward",
@@ -11,7 +11,9 @@
     "dhcp-server",
     "dhcp-client",
     "firewall",
-    "wireless"
+    "wireless",
+    "host",
+    "http-server"
   ],
   "interfaces": [
     {

@@ -2,7 +2,7 @@
   "vendor": "gigamon",
   "model": "GigaVUE-TA25",
   "label": "GigaVUE-TA25 48x25G + 8x100G traffic aggregator",
-  "category": "firewall",
+  "category": "tap",
   "description": "1RU tap/aggregation node that funnels TAP and SPAN feeds into one any-to-any port map: 48 SFP28 cages taking 1G, 10G or 25G optics plus 8 QSFP28 cages taking 40G or 100G. GigaVUE-OS does aggregation, replication and L2-L4 flow mapping, but it is an out-of-band box with no inline forwarding path.",
   "capabilities": [
     "cli",

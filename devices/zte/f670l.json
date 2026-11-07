@@ -3,7 +3,7 @@
   "model": "F670L",
   "label": "ZXHN F670L GPON Gateway",
   "category": "ont",
-  "description": "AC1200 dual-band GPON triple-play gateway with 4 GE LAN ports, 1 FXS phone port, USB 2.0 and concurrent 2x2 802.11n 2.4 GHz plus 2x2 802.11ac 5 GHz WiFi (1200 Mbit/s class); SC/APC GPON connector.",
+  "description": "AC1200 dual-band GPON triple-play home gateway with four GE LAN ports, one POTS port and concurrent 2x2 802.11n 2.4 GHz (300 Mbit/s) plus 2x2 802.11ac 5 GHz (867 Mbit/s) Wi-Fi; ships with an SC/UPC optical port by default with SC/APC orderable.",
   "capabilities": [
     "l3-forward",
     "l2-forward",
@@ -12,7 +12,9 @@
     "dhcp-client",
     "firewall",
     "wireless",
-    "cli"
+    "cli",
+    "host",
+    "http-server"
   ],
   "interfaces": [
     {
@@ -56,5 +58,5 @@
       "speed": "867M"
     }
   ],
-  "sourceUrl": "https://ycict.net/wp-content/uploads/2024/05/ZXHN-F670L-Datasheet.pdf"
+  "sourceUrl": "https://www.ycict.net/wp-content/uploads/2024/05/ZXHN-F670L-Datasheet.pdf"
 }

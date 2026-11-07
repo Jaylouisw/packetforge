@@ -21,7 +21,7 @@
     renderError: null // (failures[], error) - a redraw could not draw everything
   };
 
-  const ICONS = { router: '🧭', switch: '🔀', 'l3-switch': '🔀', host: '🖥️', server: '🗄️', firewall: '🛡️', wireless: '📶', ptp: '📻', cloud: '☁️', ont: '📡', ap: '📶' };
+  const ICONS = { router: '🧭', switch: '🔀', 'l3-switch': '🔀', tap: '🔍', host: '🖥️', server: '🗄️', firewall: '🛡️', wireless: '📶', ptp: '📻', cloud: '☁️', ont: '📡', ap: '📶' };
 
   // Human names for connector families, used in port tooltips. Kept here as well as
   // in app.js because the canvas draws its own SVG and cannot import the UI module.

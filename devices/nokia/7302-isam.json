@@ -257,7 +257,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -267,7 +266,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -277,14 +275,21 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
     {
       "name": "ge4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "combo",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "notes": "ECNT-C NT board: four GE links on the front panel, 3x GE optical SFP plus 1x GE optical/electrical selectable. LT cards are 48 lines each (16 LT slots).",
+  "sourceUrl": "https://www.scribd.com/document/283781374/7302-7330-ISAM-R2-5-Product-Information"
 }

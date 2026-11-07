@@ -2,7 +2,7 @@
   "vendor": "garland",
   "model": "OM3501",
   "label": "OM3501 passive 10G-SR multimode fibre TAP (1 tap, 50/50, LC)",
-  "category": "firewall",
+  "category": "tap",
   "description": "Passive 1-tap optical splitter for a duplex OM3 multimode link at 100M/1G/10G: the two network LC ports pass traffic through unpowered and each direction is split 50/50 onto its own monitor LC port. No power, no IP stack, no management - it is a pure optical coupler, so a dead tap cannot drop the live link.",
   "capabilities": [],
   "interfaces": [
@@ -51,5 +51,6 @@
       ]
     }
   ],
-  "sourceUrl": "https://www.garlandtechnology.com/products/fiber-taps"
+  "sourceUrl": "https://www.garlandtechnology.com/products/fiber-taps",
+  "passive": true
 }

@@ -2,7 +2,7 @@
   "vendor": "cubro",
   "model": "EXA8",
   "label": "Cubro EXA8 8x1G + 2x10G session master / aggregator",
-  "category": "firewall",
+  "category": "tap",
   "description": "Compact fanless aggregation and capture box: 8 native RJ45 ports at 10/100/1000 plus 2 SFP/SFP+ cages at 1G or 10G, usable as 4 copper TAPs feeding 2 x 10G outputs in either direction. Runs L4/L7 filtering, de-duplication and keyword/regex search, and can stream filtered traffic straight to a pcap on its SSD.",
   "capabilities": [
     "cli",

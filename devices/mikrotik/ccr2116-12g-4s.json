@@ -3,7 +3,7 @@
   "model": "CCR2116-12G-4S+",
   "label": "CCR2116-12G-4S+",
   "category": "router",
-  "description": "MikroTik CCR2116-12G-4S+ - 16-core ARM cloud core router: 13x 1G RJ45 (12 data + 1 management) and 4x 10G SFP+ cages, L3 hardware offload.",
+  "description": "1 RU cloud core router built on a 16-core 2 GHz ARM64 CPU with 16 GB RAM: twelve 1G RJ-45 ports and four 10G SFP+ cages, all wired through the Marvell Aldrin switch chip, plus an M.2 PCIe slot and a serial console. Targets 10G-era BGP and NAT edge roles at a fraction of the cost of a chassis router.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -11,7 +11,8 @@
     "nat",
     "firewall",
     "dhcp-server",
-    "dhcp-client"
+    "dhcp-client",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "ether",
@@ -22,12 +23,71 @@
   },
   "interfaces": [
     {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
       "name": "sfp-sfpplus1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     },
@@ -37,7 +97,6 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     },
@@ -47,7 +106,6 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     },
@@ -57,11 +115,12 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     }
   ],
   "icon": "router",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "MikroTik product page: \"four 10G SFP+ ports ... connected to the Marvell Aldrin family switch chip. Then we have Gigabit Ethernet ports. 12 of them are running through the Marvell chip.\" Port labels are ether1-ether12 and sfp-sfpplus1-4 as shown in RouterOS. No PoE, no USB data ports (M.2 PCIe slot and 1x RJ-45 serial console only).",
+  "sourceUrl": "https://mikrotik.com/product/ccr2116_12g_4splus"
 }
