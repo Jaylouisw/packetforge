@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **IPv6 in the forwarding path.** Interfaces take `ipv6 address <addr>/<len>`;
+  every interface derives an EUI-64 link-local from its MAC; neighbour discovery
+  runs over the wire (NS to the solicited-node multicast MAC `33:33:ff:…`, NA
+  back, cached, pending packets flushed on resolution); ICMPv6 echo request/reply
+  (types 128/129) with hop-limit decrement on every router. Multicast MACs are
+  now received and flooded like broadcast, which is what makes NS arrive.
+  CLI: `ipv6 address`, `ipv6 route`, `ipv6 gateway`. `Simulator.ping6()`.
 - **BGP route installation.** Sessions form only when BOTH sides are configured
   (each lists the other with a matching remote-as); advertisement runs to
   convergence with per-neighbour split horizon and AS-path loop detection; the

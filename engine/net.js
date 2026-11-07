@@ -76,6 +76,8 @@ function normalizeMac(mac) { return intToMac(macToInt(mac)); }
 // --- Ethernet / IP / ICMP constants ---
 const ETH_ARP = 'arp';
 const ETH_IPV4 = 'ipv4';
+const ETH_IPV6 = 'ipv6';
+const ETH_ND = 'nd';          // ICMPv6 neighbour solicitation / advertisement
 const ICMP_ECHO_REQUEST = 8;
 const ICMP_ECHO_REPLY = 0;
 
@@ -84,5 +86,5 @@ module.exports = {
   ipToInt, intToIp, maskToInt, prefixOf, networkOf, broadcastOf,
   sameSubnet, ipInSubnet, isIp,
   macToInt, intToMac, isBroadcastMac, isMulticastMac, normalizeMac,
-  ETH_ARP, ETH_IPV4, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY
+  ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY
 };

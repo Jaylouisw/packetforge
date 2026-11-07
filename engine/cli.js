@@ -118,6 +118,16 @@ class CliSession {
       }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
+    } else if (head === 'ipv6' && tokens[1] === 'route') {
+      out.push.apply(out, this._ipv6Route(tokens.slice(2)));
+    } else if (head === 'ipv6' && tokens[1] === 'gateway') {
+      const v6 = require('./ipv6');
+      if (!v6.validateAddress6(tokens[2]).ok) out.push('% Invalid IPv6 gateway "' + (tokens[2] || '') + '"');
+      else { this.device.config.gateway6 = tokens[2]; out.push('IPv6 default gateway ' + tokens[2]); }
+    } else if (head === 'no' && tokens[1] === 'ipv6') {
+      this.device.config.gateway6 = null;
+      this.device.config.routes6 = [];
+      out.push('IPv6 routes cleared');
     } else if (head === 'router' && tokens[1] === 'bgp') {
       out.push.apply(out, this._bgp(['as', tokens[2]]));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
@@ -215,6 +225,11 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'ipv6' && tokens[1] === 'address') {
+      out.push.apply(out, this._ipv6Iface(tokens.slice(2), iface));
+    } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'address') {
+      if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
+      out.push('IPv6 address removed from ' + iface.name);
     } else if (head === 'ip' && tokens[1] === 'ospf') {
       out.push.apply(out, this._ipOspf(tokens.slice(2), iface));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'ospf') {
@@ -264,6 +279,34 @@ class CliSession {
       parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
     }
     return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
+  }
+
+  // ---------- IPv6 ----------
+  _ipv6Iface(tokens, iface) {
+    const v6 = require('./ipv6');
+    const spec = String(tokens[0] || '');
+    const parts = spec.split('/');
+    const parsed = v6.parseIpv6(parts[0]);
+    if (!parsed.valid) return ['% Invalid IPv6 address "' + parts[0] + '"'];
+    const len = parts.length > 1 ? parseInt(parts[1], 10) : 64;
+    if (!(len >= 0 && len <= 128)) return ['% Invalid prefix length "' + parts[1] + '"'];
+    if (!this.device.config.ip6) this.device.config.ip6 = {};
+    const addr = v6.formatIpv6(parsed.groups);
+    this.device.config.ip6[iface.name] = { addr: addr, prefix: len };
+    return ['IPv6 address ' + addr + '/' + len + ' on ' + iface.name];
+  }
+
+  _ipv6Route(tokens) {
+    const v6 = require('./ipv6');
+    const dest = tokens[0];
+    const nh = tokens[1];
+    const p = v6.parsePrefix6(dest);
+    if (!p.valid) return ['% Invalid IPv6 prefix "' + (dest || '') + '"'];
+    if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + (nh || '') + '"'];
+    if (!this.device.config.routes6) this.device.config.routes6 = [];
+    const net = v6.networkAddress6(dest);
+    this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
+    return ['IPv6 route ' + net + '/' + p.prefixLen + ' via ' + nh];
   }
 
   // ---------- BGP ----------

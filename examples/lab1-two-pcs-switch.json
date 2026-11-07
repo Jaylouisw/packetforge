@@ -28,7 +28,10 @@
         "ospf": null,
         "dnsServers": [],
         "dnsZones": [],
-        "bgp": null
+        "bgp": null,
+        "ip6": {},
+        "routes6": [],
+        "gateway6": null
       },
       "interfaces": [
         {
@@ -93,7 +96,10 @@
         "ospf": null,
         "dnsServers": [],
         "dnsZones": [],
-        "bgp": null
+        "bgp": null,
+        "ip6": {},
+        "routes6": [],
+        "gateway6": null
       },
       "interfaces": [
         {
@@ -157,7 +163,10 @@
         "ospf": null,
         "dnsServers": [],
         "dnsZones": [],
-        "bgp": null
+        "bgp": null,
+        "ip6": {},
+        "routes6": [],
+        "gateway6": null
       },
       "interfaces": [
         {

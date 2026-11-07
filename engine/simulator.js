@@ -12,6 +12,7 @@ const aclLib = require('./acl');
 const ospfLib = require('./ospf');
 const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
+const ipv6Lib = require('./ipv6');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -68,6 +69,7 @@ class Simulator {
     this.step = 0;
     this.maxSteps = 8000;
     this.icmpReplies = [];    // {dst, id, seq, step}
+    this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
     this._icmpId = 0x1000;
     this._stpDirty = true;
     this.stpResult = null;
@@ -565,6 +567,197 @@ class Simulator {
     return result;
   }
 
+  // ---------------------------------------------------------------------
+  // IPv6: neighbour discovery and ICMPv6 echo
+  // ---------------------------------------------------------------------
+
+  // Solicited-node multicast MAC: 33:33:ff followed by the low 24 bits of the
+  // target address. This is what a real host sends an NS to.
+  _snmMac(ip6) {
+    const b = ipv6Lib.ipv6ToBigInt(ip6);
+    if (b === null) return null;
+    const hex = (b & 0xFFFFFFn).toString(16).padStart(6, '0');
+    return '33:33:ff:' + hex.slice(0, 2) + ':' + hex.slice(2, 4) + ':' + hex.slice(4, 6);
+  }
+
+  _ndTable(dev) {
+    if (!dev.nd) dev.nd = new Map();
+    return dev.nd;
+  }
+
+  // The address a device sources packets from on a given interface.
+  _srcAddr6(dev, iface) {
+    for (const e of dev.ip6Addrs()) {
+      if (e.name === iface.name) return e.addr;
+    }
+    return dev.linkLocal6(iface);
+  }
+
+  // Send an IPv6 packet, resolving the next hop with neighbour discovery.
+  _sendL3v6(dev, egress, nextHop6, ip6, icmp6, vid) {
+    const v = (vid === undefined || vid === null) ? portPvid(egress) : vid;
+    const mac = this._ndTable(dev).get(nextHop6);
+    if (mac) {
+      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHop6, mac: mac, via: 'nd-cache', vlan: v });
+      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV6, ip6, icmp6, null), v);
+      return;
+    }
+    const snm = this._snmMac(nextHop6);
+    this._emit({ type: 'nd-request', dev: dev.id, iface: egress.name, target: nextHop6, mac: snm, vlan: v });
+    this._emitFrame(dev, egress, {
+      dstMac: snm,
+      srcMac: egress.mac,
+      etherType: net.ETH_ND,
+      nd: { type: 'ns', target: nextHop6, srcIp6: this._srcAddr6(dev, egress) }
+    }, v);
+
+    if (!dev.pending6) dev.pending6 = new Map();
+    let list = dev.pending6.get(nextHop6);
+    if (!list) { list = []; dev.pending6.set(nextHop6, list); }
+    list.push({ egress: egress.name, ip: ip6, icmp: icmp6, vid: v });
+  }
+
+  _sendIcmp6(src, dstIp6, icmp6) {
+    let route = src.route6To(dstIp6);
+    // A link-local destination has no prefix in the routing table; it is
+    // reachable on whichever interface owns a link-local address.
+    if (!route && ipv6Lib.isLinkLocal(dstIp6)) {
+      const ifaces = src.activeInterfaces();
+      if (ifaces.length) {
+        route = { iface: ifaces[0].name, via: dstIp6, type: 'link-local', prefix: 64 };
+      }
+    }
+    if (!route) {
+      this._emit({ type: 'drop', reason: 'no IPv6 route to ' + dstIp6, dev: src.id });
+      return;
+    }
+    const egress = route.iface ? src.interfaces.get(route.iface) : src.egressFor6(route.via);
+    if (!egress || !egress.enabled) {
+      this._emit({ type: 'drop', reason: 'IPv6 egress interface down', dev: src.id });
+      return;
+    }
+    const ip6 = {
+      src: this._srcAddr6(src, egress), dst: dstIp6,
+      hopLimit: 64, nextHeader: 58, id: icmp6.id
+    };
+    this._sendL3v6(src, egress, route.via, ip6, icmp6, portPvid(egress));
+  }
+
+  _handleNd(dev, frame, inIface) {
+    const nd = frame.nd;
+    const vid = frame.vid || 1;
+
+    if (nd.type === 'ns') {
+      const iface = dev.interfaceWithIp6(nd.target);
+      if (!iface) return;                       // not our address: stay silent
+      this._ndTable(dev).set(nd.srcIp6, frame.srcMac);
+      this._emit({ type: 'nd-advert', dev: dev.id, iface: iface.name, target: nd.target, mac: iface.mac, vlan: vid });
+      this._emitFrame(dev, iface, {
+        dstMac: frame.srcMac,
+        srcMac: iface.mac,
+        etherType: net.ETH_ND,
+        nd: { type: 'na', target: nd.target, targetMac: iface.mac, srcIp6: this._srcAddr6(dev, iface) }
+      }, vid);
+      return;
+    }
+
+    if (nd.type === 'na') {
+      this._ndTable(dev).set(nd.target, nd.targetMac);
+      this._emit({ type: 'nd-cache', dev: dev.id, addr: nd.target, mac: nd.targetMac, vlan: vid });
+      const list = (dev.pending6 && dev.pending6.get(nd.target)) || [];
+      if (dev.pending6) dev.pending6.delete(nd.target);
+      for (const item of list) {
+        const egress = dev.interfaces.get(item.egress);
+        if (!egress) continue;
+        this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nd.target, mac: nd.targetMac, via: 'nd-resolved', vlan: item.vid });
+        this._emitFrame(dev, egress, ethFrame(nd.targetMac, egress.mac, net.ETH_IPV6, item.ip, item.icmp, null), item.vid);
+      }
+    }
+  }
+
+  _handleLocalIp6(dev, frame, inIface) {
+    const icmp = frame.icmp;
+    if (!icmp) return;
+    const vid = frame.vid || 1;
+
+    if (icmp.type === ipv6Lib.ICMPV6_TYPES.ECHO_REQUEST) {
+      const iface = dev.interfaceWithIp6(frame.ip.dst);
+      if (!iface) {
+        this._emit({ type: 'drop', reason: 'echo for unknown local IPv6', dev: dev.id });
+        return;
+      }
+      this._emit({ type: 'icmp6-echo', dev: dev.id, iface: iface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
+      const replyIp = { src: frame.ip.dst, dst: frame.ip.src, hopLimit: 64, nextHeader: 58, id: icmp.id };
+      const replyIcmp = { type: ipv6Lib.ICMPV6_TYPES.ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
+      this._emit({ type: 'icmp6-reply', dev: dev.id, iface: iface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
+      this._emitFrame(dev, iface, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV6, replyIp, replyIcmp, null), vid);
+    } else if (icmp.type === ipv6Lib.ICMPV6_TYPES.ECHO_REPLY) {
+      this.icmp6Replies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
+      this._emit({ type: 'icmp6-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });
+    }
+  }
+
+  _forwardL3v6(dev, frame, inIface) {
+    frame.ip.hopLimit -= 1;
+    if (frame.ip.hopLimit <= 0) {
+      this._emit({ type: 'drop', reason: 'hop limit exceeded', dev: dev.id });
+      return;
+    }
+    const route = dev.route6To(frame.ip.dst);
+    if (!route) {
+      this._emit({ type: 'drop', reason: 'no IPv6 route to ' + frame.ip.dst, dev: dev.id });
+      return;
+    }
+    const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor6(route.via);
+    if (!egress || !egress.enabled) {
+      this._emit({ type: 'drop', reason: 'no usable IPv6 egress interface', dev: dev.id });
+      return;
+    }
+    this._emit({ type: 'route6', dev: dev.id, dst: frame.ip.dst, via: route.via, iface: egress.name, hopLimit: frame.ip.hopLimit });
+    const newIp = {
+      src: frame.ip.src, dst: frame.ip.dst,
+      hopLimit: frame.ip.hopLimit, nextHeader: 58, id: frame.ip.id
+    };
+    this._sendL3v6(dev, egress, route.via, newIp, frame.icmp, portPvid(egress));
+  }
+
+  // --- public: IPv6 ping ---
+  ping6(srcId, dstIp6, opts) {
+    opts = opts || {};
+    const count = opts.count || 4;
+    this.reset();
+    this.computeStp();
+    this.computeOspf();
+    this.computeBgp();
+
+    const src = this.topo.getDevice(srcId);
+    if (!src) throw new Error('Unknown device: ' + srcId);
+
+    const id = this._icmpId++;
+    const replies = [];
+    for (let seq = 0; seq < count; seq++) {
+      const startStep = this.step;
+      this._emit({ type: 'ping6', src: srcId, dst: dstIp6, seq: seq });
+      this._sendIcmp6(src, dstIp6, {
+        type: ipv6Lib.ICMPV6_TYPES.ECHO_REQUEST, code: 0, id: id, seq: seq
+      });
+      this._run();
+      const got = this.icmp6Replies.filter(function (r) {
+        return r.dst === srcId && r.id === id && r.seq === seq;
+      })[0];
+      replies.push({
+        seq: seq,
+        success: !!got,
+        hops: got ? (got.step - startStep) : null,
+        rtt: got ? (got.step - startStep) : null
+      });
+    }
+    return {
+      events: this.events, replies: replies, step: this.step,
+      success: replies.some(function (r) { return r.success; })
+    };
+  }
+
   _isBlocked(dev, ifaceName) {
     return !!(dev.stp && dev.stp.blocked && dev.stp.blocked.has(ifaceName));
   }
@@ -764,20 +957,24 @@ class Simulator {
     }
 
     const bcast = net.isBroadcastMac(f.dstMac);
+    // Multicast (including the 33:33:xx IPv6 range) must be received and
+    // flooded exactly like broadcast, or neighbour discovery never arrives.
+    const mcast = net.isMulticastMac(f.dstMac);
+    const flood = bcast || mcast;
     const mine = dev.interfaceWithMac(f.dstMac);
 
     // 4. Bridge / switch: forward at L2. An L3-capable switch may also
     //    terminate frames addressed to its own MAC (routing / management).
     if (dev.isL2()) {
-      if (mine && !bcast && dev.hasCap('l3-forward')) {
+      if (mine && !flood && dev.hasCap('l3-forward')) {
         if (this._tryProcessL3(dev, f, inIface)) return;
       }
-      this._forwardL2(dev, f, inIface, bcast, vid);
+      this._forwardL2(dev, f, inIface, flood, vid);
       return;
     }
 
-    // 5. Host / router / firewall: only act on frames addressed to us or broadcast.
-    if (!mine && !bcast) {
+    // 5. Host / router / firewall: only act on frames addressed to us or group-addressed.
+    if (!mine && !flood) {
       this._emit({ type: 'drop', reason: 'not addressed to this device', dev: dev.id, iface: inIface });
       return;
     }
@@ -787,6 +984,13 @@ class Simulator {
 
   _tryProcessL3(dev, frame, inIface) {
     if (frame.etherType === net.ETH_ARP) { this._handleArp(dev, frame, inIface); return true; }
+    if (frame.etherType === net.ETH_ND) { this._handleNd(dev, frame, inIface); return true; }
+    if (frame.etherType === net.ETH_IPV6) {
+      if (dev.interfaceWithIp6(frame.ip.dst)) { this._handleLocalIp6(dev, frame, inIface); return true; }
+      if (dev.isL3()) { this._forwardL3v6(dev, frame, inIface); return true; }
+      this._emit({ type: 'drop', reason: 'IPv6 packet not for us and not routable', dev: dev.id, iface: inIface });
+      return true;
+    }
     if (frame.etherType === net.ETH_IPV4) {
       if (dev.interfaceWithIp(frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
       if (dev.isL3()) { this._forwardL3(dev, frame, inIface); return true; }

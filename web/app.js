@@ -542,6 +542,16 @@
         (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
       case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
         ' of [' + (e.members || []).join(', ') + ']';
+      case 'nd-request': return 'ND  ' + (e.dev || '') + '/' + (e.iface || '') + '  who has ' +
+        (e.target || '') + '  → ' + (e.mac || '');
+      case 'nd-advert': return 'ND  ' + (e.dev || '') + ' is-at ' + (e.target || '') + ' ' + (e.mac || '');
+      case 'nd-cache': return 'ND  ' + (e.dev || '') + ' cached ' + (e.addr || '') + ' → ' + (e.mac || '');
+      case 'icmp6-echo': return 'ICMPv6 echo ' + (e.dev || '') + ' from ' + (e.from || '') + ' seq ' + e.seq;
+      case 'icmp6-reply': return 'ICMPv6 reply ' + (e.dev || '') + ' to ' + (e.to || '') + ' seq ' + e.seq;
+      case 'icmp6-received': return 'ICMPv6 reply received by ' + (e.dev || '') + ' from ' + (e.from || '');
+      case 'route6': return e.dev + ' routes ' + e.dst + ' via ' + e.via + ' out ' + e.iface +
+        '  (hop ' + e.hopLimit + ')';
+      case 'ping6': return 'ping6 seq ' + e.seq + ' → ' + e.dst;
       case 'bgp': return 'BGP ' + (e.dev || '?') + ' ' + (e.session === 'ebgp' ? '⇄' : '↔') +
         ' ' + (e.peer || '?') + '  ' + (e.session || '') + '  AS' + e.localAs + '–AS' + e.remoteAs;
       case 'dns': return 'DNS ' + (e.qname || '?') + (e.ok

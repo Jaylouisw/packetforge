@@ -117,7 +117,10 @@ class Device {
       ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
       dnsServers: [],            // upstream resolvers, by IP
       dnsZones: [],              // zones this device is authoritative for
-      bgp: null                  // { as, routerId, neighbors: [{ address, remoteAs }] }
+      bgp: null,                 // { as, routerId, neighbors: [{ address, remoteAs }] }
+      ip6: {},                   // ifaceName -> { addr, prefix }   (global IPv6 addresses)
+      routes6: [],               // [{ dest, prefix, nextHop, iface }]
+      gateway6: null             // default IPv6 gateway
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
@@ -297,6 +300,72 @@ class Device {
     return best;
   }
 
+  // --- IPv6 -------------------------------------------------------------
+
+  // Global IPv6 addresses configured on this device.
+  ip6Addrs() {
+    const out = [];
+    const map = this.config.ip6 || {};
+    for (const name of Object.keys(map)) {
+      const iface = this.interfaces.get(name);
+      if (!iface || !iface.enabled) continue;
+      out.push({ iface: iface, name: name, addr: map[name].addr, prefix: map[name].prefix });
+    }
+    return out;
+  }
+
+  // Every interface has a link-local address derived from its MAC (EUI-64),
+  // exactly as a real IPv6 host does.
+  linkLocal6(iface) {
+    return require('./ipv6').linkLocalFromMac(iface.mac);
+  }
+
+  // Does this device own the given IPv6 address (global or link-local)?
+  interfaceWithIp6(addr) {
+    for (const e of this.ip6Addrs()) {
+      if (e.addr === addr) return e.iface;
+    }
+    for (const iface of this.activeInterfaces()) {
+      if (this.linkLocal6(iface) === addr) return iface;
+    }
+    return null;
+  }
+
+  // IPv6 routing: on-link prefixes, then static routes, then default gateway.
+  route6To(dstIp6) {
+    const v6 = require('./ipv6');
+    let best = null;
+
+    for (const e of this.ip6Addrs()) {
+      if (v6.prefixContains6(e.addr + '/' + e.prefix, dstIp6)) {
+        best = { iface: e.name, via: dstIp6, type: 'connected', prefix: e.prefix };
+      }
+    }
+    for (const r of (this.config.routes6 || [])) {
+      if (v6.prefixContains6(r.dest + '/' + r.prefix, dstIp6)) {
+        if (!best || r.prefix > best.prefix) {
+          best = { iface: r.iface || null, via: r.nextHop || dstIp6, type: 'static6', prefix: r.prefix };
+        }
+      }
+    }
+    if (!best && this.config.gateway6) {
+      best = { iface: null, via: this.config.gateway6, type: 'default6', prefix: 0 };
+    }
+    return best;
+  }
+
+  // Egress interface for a next-hop IPv6 address.
+  egressFor6(nextHop6) {
+    const v6 = require('./ipv6');
+    for (const e of this.ip6Addrs()) {
+      if (v6.prefixContains6(e.addr + '/' + e.prefix, nextHop6)) return e.iface;
+    }
+    for (const iface of this.activeInterfaces()) {
+      if (this.linkLocal6(iface) === nextHop6) return iface;
+    }
+    return null;
+  }
+
   // Resolve the concrete egress interface when only a gateway IP is known.
   egressFor(nextHopIp) {
     for (const iface of this.activeInterfaces()) {
@@ -366,7 +435,10 @@ class Device {
         ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null,
         dnsServers: (this.config.dnsServers || []).slice(),
         dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || [])),
-        bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null
+        bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null,
+        ip6: JSON.parse(JSON.stringify(this.config.ip6 || {})),
+        routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
+        gateway6: this.config.gateway6 || null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -417,6 +489,9 @@ class Device {
         d.config.dnsServers = (state.config.dnsServers || []).slice();
         d.config.dnsZones = JSON.parse(JSON.stringify(state.config.dnsZones || []));
         d.config.bgp = state.config.bgp ? JSON.parse(JSON.stringify(state.config.bgp)) : null;
+        d.config.ip6 = JSON.parse(JSON.stringify(state.config.ip6 || {}));
+        d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));
+        d.config.gateway6 = state.config.gateway6 || null;
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {
