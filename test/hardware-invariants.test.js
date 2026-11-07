@@ -277,6 +277,53 @@ console.log('\nEvery device can be plugged into a copy of itself:');
     (splitterDeadEnds.length ? ' (' + splitterDeadEnds.slice(0, 3).join('; ') + ')' : ''));
 }
 
+console.log('\nA port connector agrees with the port type:');
+{
+  // A radio port is an antenna, not a fibre cage. Three PtP radios shipped with an SFP
+  // connector on a wireless interface - almost certainly because the box also has an
+  // SFP uplink that should have been its own ethernet port - which made the *radio*
+  // render as a fibre socket and allowed it to be "cabled" to a switch with a patch
+  // lead. Drawing a physical link that cannot exist is the thing this project exists
+  // to refuse.
+  const TYPE_CAGES = {
+    wireless: ['antenna'],
+    console: ['console'],
+    coax: ['coax'],
+    dsl: ['dsl'],
+    powerline: ['powerline'],
+    pon: ['sc-apc', 'sc-upc', 'lc-upc', 'lc-apc']
+  };
+  const wrong = [];
+  for (const x of all) {
+    for (const i of x.ifaces) {
+      const allowed = TYPE_CAGES[i.type];
+      if (!allowed) continue;
+      if (allowed.indexOf(i.hardware.cage) === -1) {
+        wrong.push(x.spec.vendor + '/' + x.spec.model + ' ' + i.name +
+          ' (type ' + i.type + ' -> cage ' + i.hardware.cage + ')');
+      }
+    }
+  }
+  ok(wrong.length === 0, 'every typed port resolves to a cage of its own type' +
+    (wrong.length ? ': ' + wrong.slice(0, 5).join('; ') : ''));
+
+  // And the cable itself must be refused, not merely drawn oddly.
+  let tested = 0, refused = 0;
+  for (const x of all) {
+    const radio = x.ifaces.find(function (i) { return i.type === 'wireless'; });
+    const fibre = x.ifaces.find(function (i) { return i.hardware.cage === 'sfp+'; });
+    if (!radio || !fibre) continue;
+    tested++;
+    const t = new Topology();
+    const a = t.addDevice(x.spec);
+    const b = t.addDevice(x.spec);
+    const v = t.validateLink(a.id, radio.name, b.id, fibre.name, {});
+    if (v && !v.ok) refused++;
+  }
+  ok(tested === 0 || refused === tested,
+    'a radio port refuses to cable to an SFP+ cage (' + refused + '/' + tested + ')');
+}
+
 console.log('\nUSB is not a network interface:');
 {
   // This has now been fixed twice: once when 28 tablets advertised a gigabit on a

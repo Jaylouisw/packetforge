@@ -3,7 +3,7 @@
   "model": "EtherHaul 8010FX",
   "label": "Siklu EtherHaul 8010FX",
   "category": "ptp",
-  "description": "Siklu EtherHaul 8010FX - 71-86 GHz E-band radio, up to 10 Gbps full duplex; combo 10G port (RJ45 CAT6a or SFP+) plus a separate 1G RJ45 port.",
+  "description": "Siklu EtherHaul 8010FX - 71-86 GHz E-band radio, up to 10 Gbps full duplex; 1x 10G SFP+ data port plus 1x 1G RJ45 management port.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,25 +14,30 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "10G"
-    },
-    {
-      "name": "radio0",
-      "type": "wireless",
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
         1000,
         10000
       ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "10G"
     }
   ],
   "icon": "ptp",
-  "color": "#06b6d4",
-  "comboPorts": 1
+  "color": "#06b6d4"
 }

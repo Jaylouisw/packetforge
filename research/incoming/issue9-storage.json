@@ -3,29 +3,34 @@
     {
       "vendor": "truenas",
       "model": "R50",
+      "confidence": "high",
       "sourceUrl": "https://www.truenas.com/docs/files/RSeriesPUM/R50BM/R50BMPUM.pdf",
-      "confidence": "medium",
       "ports": [
         {
           "name": "enp1s0f0",
           "connector": "qsfp28",
-          "speed": "100G",
-          "speedCaps": [10000, 25000, 40000, 100000]
+          "speedCaps": [
+            40000,
+            100000
+          ]
         },
         {
           "name": "enp1s0f1",
           "connector": "qsfp28",
-          "speed": "100G",
-          "speedCaps": [10000, 25000, 40000, 100000]
+          "speedCaps": [
+            40000,
+            100000
+          ]
         },
         {
           "name": "oobm",
           "connector": "rj45",
-          "speed": "1G",
-          "speedCaps": [1000]
+          "speedCaps": [
+            1000
+          ]
         }
       ],
-      "notes": "R50 (R50BM) high-speed pair is optical 10/25/40/100GbE (SR4 = QSFP28 for 40/100G and 4x10G breakout, SFP28 SR card for 10/25G) plus a 1G RJ45 OOBM port; caveat: iX's product manual lists this pair as 'Additional Networking 1 (Optional) 2x 10/25/40/100 GbE' with 'Onboard Networking 2x 10 GbE', and the R50B rear panel labels those onboard ports '10Gb RJ-45 x2' - the R-Series datasheet headline ('Networking 2x 10/25/40/100 GbE') is what our description follows, so ports are modelled as the optical pair; 10GBase-T and 2x32Gb FC are separate optional add-in cards."
+      "notes": "R50 User Manual v.25121 p.4 'R50 Hardware': 'Onboard Networking 2x 10 GbE / Additional Networking 1 (Optional) 2x 10/25/40/100 GbE / Additional Networking 2 (Optional) 2 or 6 x 100GBaseT or SR'. The high-speed pair is the fibre port: manual section 9.1 '10/40/100GbE NIC Cabling' tells the installer to seat SR4 optics, i.e. 4-lane parallel optics - QSFP28 for 100GBASE-SR4 and QSFP+ for 40GBASE-SR4. 40G and 100G physically cannot be carried by a single-lane SFP+/SFP28 cage, so the description's 'SFP+' is the wrong cage name (it should read QSFP28) and these two ports are modelled qsfp28. The datasheet's '10/25/40/100' is the card's whole speed family: 10G and 25G are QSFP28 breakout modes (4x10G / 4x25G) or QSA-adapter modes, not native port rates, so speedCaps are the cage-native 40/100G exactly as the rest of the catalogue models a QSFP28 port (cf. devices/cisco/n9k-c9336c-fx2.json, same [40000,100000] on 40/100G QSFP28). oobm is the dedicated out-of-band IPMI port and is copper 1GbE RJ-45 (R50 Basic Setup Guide v3.0 rear panel labels 'OOBM' separately from the '10Gb RJ-45 x2' onboard pair). Two caveats for a follow-up: (1) NONE of these port names match R50 enumeration - 'R-Series Network Port IDs' v.231101 p.6 lists the R50b/R50BM integrated ports as eno1/eno2 and the add-on high-speed pair as enp101s0f4/enp101s0f4d1, so enp1s0f0/enp1s0f1 is an R40-style pattern and should be renamed (not renamed here: this tool must not invent names); (2) the 10/25/40/100GbE pair is an add-in card - a base 3rd-gen R50 has 2x 10Gb RJ-45 onboard plus PCIe slots, which is why the datasheet headlines this pair as 'Additional Networking 1 (Optional)'. The copper 10GBase-T onboard pair is not modelled in this spec at all."
     }
   ],
   "verification": [

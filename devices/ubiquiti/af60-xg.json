@@ -3,7 +3,7 @@
   "model": "AF60-XG",
   "label": "airFiber 60 XG",
   "category": "ptp",
-  "description": "60 GHz point-to-point radio with 5 GHz failover, up to 5.4 Gbps; 1x GigE MGMT + 1x 10G SFP+ DATA.",
+  "description": "60 GHz point-to-point radio with 5 GHz failover, up to 5.4 Gbps; 1x GigE MGMT + 1x 1/10G SFP+ DATA.",
   "capabilities": [
     "l3-forward",
     "wireless",
@@ -18,12 +18,23 @@
     {
       "name": "mgmt",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "data",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "radio0",
@@ -33,12 +44,7 @@
     {
       "name": "radio1",
       "type": "wireless",
-      "speed": "10G",
-      "connector": "sfp+",
-      "speedCaps": [
-        1000,
-        10000
-      ]
+      "speed": "1G"
     }
   ],
   "icon": "ptp",
