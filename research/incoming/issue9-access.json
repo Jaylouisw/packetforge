@@ -1,0 +1,233 @@
+[
+  {
+    "vendor": "adtran",
+    "model": "Total Access 1148V",
+    "sourceUrl": "https://www.pulsesupply.com/images/pdf/adtran/1148VX.pdf",
+    "cardModelled": "Sealed node uplink complex on the host unit - 4x SFP cages (no plug-in line card)",
+    "confidence": "high",
+    "ports": [
+      {
+        "name": "xge1",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge2",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge3",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge4",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "notes": "ADTRAN 1148V/1148VX datasheet: 4x 1/2.5/10GE SFP interfaces (or GPON/10G PON on the VX-DMT variant); all four uplinks are SFP+/SFP cages, none copper. TA1148V Intl datasheet lists the same 4x1/2,5/10GE SFP interfaces."
+  },
+  {
+    "vendor": "calix",
+    "model": "C7",
+    "sourceUrl": "https://www.calix.com/content/dam/calix/mycalix-misc/archive/c7/prod-lit/C7_GE-2p_FE-4p.pdf",
+    "cardModelled": "GE-2p/FE-4p uplink card",
+    "confidence": "high",
+    "ports": [
+      {
+        "name": "ge1",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "Calix GE-2p/FE-4p datasheet: the two GE interfaces are reached through SFP optical transceivers in the card faceplate; only fe1-fe4 are copper (10/100BaseT via adaptor onto the rear RJ-21), so they stay as-is."
+  },
+  {
+    "vendor": "calix",
+    "model": "E3-48C",
+    "sourceUrl": "https://cios.deltelecom.ru/Calix/E7-2_E5-48_E3-48C%20R2.4%20xDSL%20Applications%20Guide.pdf",
+    "cardModelled": "E3-48C sealed ESAN uplink complex - 2x 10GE/1GE SFP+ MSA sockets + 3x 1GE/2.5GE SFP MSA sockets",
+    "confidence": "high",
+    "ports": [
+      {
+        "name": "xge1",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xge2",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ge1",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge3",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "All five uplinks are SFP sockets: xge1/xge2 = 1GE/10GE SFP+ , ge1-ge3 = 1GE/2.5GE SFP (2.5G not represented in speedCaps per issue convention). Copper-uplink r2 build variant exists (Calix EOL notice CAB-21-042) but is not the modelled unit."
+  },
+  {
+    "vendor": "huawei",
+    "model": "MA5616",
+    "sourceUrl": "https://www.router-switch.com/media/upload/product-pdf/huawei-smartax-ma5616-mdu-and-board-datasheet.pdf",
+    "cardModelled": "H83BCVLE 32-port VDSL2+POTS combo board in a service slot, uplinks from the UP2A/UP2C GE upstream daughter board on the control board (CCUB/CCUC/CCUE)",
+    "confidence": "high",
+    "ports": [
+      {
+        "name": "ge0/1",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge0/2",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "Huawei MA5616: upstream daughter board UP2A/UP2C exposes port 0 and port 1, both SFP cages (GE1A variant likewise gives GE0/GE1 as SFP); the GP1A variant makes them 2x GPON. No copper GE uplink on this chassis, only the separate ETH craft/management port."
+  },
+  {
+    "vendor": "nokia",
+    "model": "7302 ISAM",
+    "sourceUrl": "https://www.scribd.com/document/62217768/7302-7330-ISAM-R2-5-Product-Information",
+    "cardModelled": "ECNT-C network termination board",
+    "confidence": "high",
+    "ports": [
+      {
+        "name": "ge1",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge3",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "ECNT-C front panel = 4 GE links: 3 GE optical (SFP-1..3) + 1 GE optical/electrical selectable (SFP-4/RJ45). ge1-ge3 are fibre only; ge4 is a genuine combo, so it is left as copper - mark it sfp only if you want the SFP half modelled."
+  },
+  {
+    "vendor": "nokia",
+    "model": "7330 ISAM FTTN",
+    "sourceUrl": "https://www.scribd.com/document/930105718/7330-ISAM-FTTN-Product-Information",
+    "cardModelled": "NT controller board - either NANT-D (3x GE SFP 1/2.5G + 1x 10GE SFP+) or the ECNT-C used in the 7330 FTTN XD sealed variant (3x GE optical SFP + 1x combo)",
+    "confidence": "medium",
+    "ports": [
+      {
+        "name": "ge1",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge3",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "ge1-ge3 are SFP cages under both candidate NT cards, so they are safe. ge4 is ambiguous and deliberately left alone: under NANT-D it is a 10GE SFP+ (would also need speed 10G), under ECNT-C it is a GE SFP/RJ45 combo. The spec description's 4-GE wording matches neither NANT-A (only 2 GE: 1 SFP + 1 combo) - human should pick the card and re-check ge4."
+  }
+]

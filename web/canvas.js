@@ -22,6 +22,30 @@
 
   const ICONS = { router: '🧭', switch: '🔀', 'l3-switch': '🔀', host: '🖥️', server: '🗄️', firewall: '🛡️', wireless: '📶', ptp: '📻', cloud: '☁️', ont: '📡', ap: '📶' };
 
+  // Human names for connector families, used in port tooltips. Kept here as well as
+  // in app.js because the canvas draws its own SVG and cannot import the UI module.
+  function cageLabel(cage) {
+    const names = {
+      rj45: 'RJ45 copper',
+      sfp: 'SFP cage',
+      'sfp+': 'SFP+ cage',
+      sfp28: 'SFP28 cage',
+      'qsfp+': 'QSFP+ cage',
+      qsfp28: 'QSFP28 cage',
+      combo: 'combo RJ45/SFP',
+      console: 'console',
+      coax: 'F-connector coax',
+      dsl: 'RJ11 DSL',
+      powerline: 'mains powerline',
+      antenna: 'antenna',
+      'sc-apc': 'SC/APC fibre',
+      'sc-upc': 'SC/UPC fibre',
+      usb: 'USB'
+    };
+    return names[cage] || cage;
+  }
+
+
   function el(name, attrs, parent) {
     const e = document.createElementNS(NS, name);
     for (const k in attrs) e.setAttribute(k, attrs[k]);
@@ -147,16 +171,77 @@
       .textContent = d.vendor + ' · ' + d.model;
 
     // ports
+    //
+    // A port dot on its own tells you nothing: not its name, not whether it is copper
+    // or fibre, not what is plugged into it. On a 48-port switch the dots are
+    // indistinguishable, which makes the drawing unusable for the one thing you
+    // actually want from it - knowing which socket is which.
+    //
+    // So each port now carries its identity three ways: a colour by connector family,
+    // a hover title with name/cage/rate/what is plugged in, and a label where there is
+    // room for one (always on small devices, and on any device you have selected).
+    const CAGE_TINT = {
+      rj45: '#94a3b8',
+      sfp: '#fbbf24', 'sfp+': '#fbbf24', sfp28: '#fbbf24',
+      'qsfp+': '#f59e0b', qsfp28: '#f59e0b',
+      'sc-apc': '#22d3ee', 'sc-upc': '#22d3ee',
+      combo: '#e879f9',
+      console: '#a78bfa',
+      coax: '#fb923c',
+      dsl: '#34d399',
+      powerline: '#f472b6',
+      antenna: '#60a5fa',
+      usb: '#cbd5e1'
+    };
+    function peerLabel(portName) {
+      const link = (state.topology.links || []).find(function (l) {
+        return (l.a.deviceId === d.id && l.a.iface === portName) ||
+               (l.b.deviceId === d.id && l.b.iface === portName);
+      });
+      if (!link) return null;
+      const other = link.a.deviceId === d.id ? link.b : link.a;
+      const dev = (state.topology.devices || []).find(function (x) { return x.id === other.deviceId; });
+      return (dev ? dev.name : other.deviceId) + ':' + other.iface;
+    }
+    // A 12-port cut-off was too tight: a router with 13 sockets showed no labels at
+    // all, which is precisely when you need them. Labels are cheap; only genuinely
+    // dense hardware (48-port switches) hides them until you select the device.
+    const dense = g.ports.length > 24;
+    const showLabels = state.selected === d.id || !dense;
     for (const p of g.ports) {
       const iface = d.interfaces.find(function (i) { return i.name === p.name; });
-      const connected = !!iface.peer || (state.topology.links || []).some(function (l) {
-        return (l.a.deviceId === d.id && l.a.iface === p.name) || (l.b.deviceId === d.id && l.b.iface === p.name);
-      });
-      el('circle', {
+      const peer = peerLabel(p.name);
+      const connected = !!peer || !!iface.peer;
+      const cage = iface.cage || 'rj45';
+      const tint = CAGE_TINT[cage] || '#94a3b8';
+      const rate = (iface.speedCaps && iface.speedCaps.length)
+        ? Math.max.apply(null, iface.speedCaps) + ' Mbps'
+        : '';
+      const roleBit = iface.role ? ' · ' + String(iface.role).toUpperCase() : '';
+      const title = p.name + ' · ' + cageLabel(cage) + ' (' + cage + ')' +
+        (rate ? ' · ' + rate : '') + roleBit +
+        (peer ? ' · cabled to ' + peer : ' · not cabled') +
+        (iface.enabled === false ? ' · administratively down' : '');
+      const dot = el('circle', {
         cx: p.x, cy: p.y, r: 5,
-        class: 'port' + (connected ? ' connected' : '') + (state.connecting && state.connecting.deviceId === d.id && state.connecting.iface === p.name ? ' active' : ''),
+        class: 'port' + (connected ? ' connected' : '') +
+          (iface.enabled === false ? ' down' : '') +
+          (state.connecting && state.connecting.deviceId === d.id && state.connecting.iface === p.name ? ' active' : ''),
+        stroke: tint,
         'data-device-id': d.id, 'data-iface': p.name
       }, node);
+      el('title', {}, dot).textContent = title;
+      if (showLabels) {
+        // Left column labels sit outside the body, right column labels inside, so
+        // they never collide with the ports opposite them.
+        const onLeft = p.x <= 0.5;
+        el('text', {
+          x: onLeft ? p.x - 9 : p.x + 9,
+          y: p.y + 3,
+          'text-anchor': onLeft ? 'end' : 'start',
+          class: 'port-label' + (connected ? ' cabled' : '')
+        }, node).textContent = p.name + (iface.role && iface.dualRole ? ' ⇄' : '');
+      }
     }
 
     node.setAttribute('transform', 'translate(' + g.pos.x + ',' + g.pos.y + ')');

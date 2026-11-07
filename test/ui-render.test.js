@@ -120,7 +120,10 @@ ok(/hw-grid/.test(devHtml), 'per-port hardware grid is present');
 ok(/Speeds/.test(devHtml) && /Cage/.test(devHtml) && /Media/.test(devHtml), 'cage / speeds / media rows present');
 ok(/VLAN/.test(devHtml) && /access 20/.test(devHtml), 'the VLAN config from the CLI shows up (access 20)');
 ok(/class="dot up"/.test(devHtml), 'admin state is shown per port');
-ok(/port-link/.test(devHtml), 'cabled ports are marked');
+ok(/port-link/.test(devHtml) || /port-peer/.test(devHtml), 'cabled ports are marked');
+// A dot alone said "cabled" without saying where to. The row must name the peer.
+ok(/class="port-peer"/.test(devHtml), 'a cabled port names what is plugged into it');
+ok(/\u2192\s/.test(devHtml), 'and points at the far end (device:port)');
 
 console.log('\nPoE is surfaced where the hardware provides it:');
 let poePick = null;

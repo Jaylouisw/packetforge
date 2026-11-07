@@ -672,13 +672,31 @@
       ? i.speedCaps.slice().sort(function (a, b) { return a - b; }).map(fmtSpeed).join(' / ')
       : fmtSpeed(i.speed);
 
+    // What is actually plugged into this socket. "cabled" as a bare dot told you a
+    // cable existed but not where it went, which is the question you have when you
+    // are staring at eight identical ports.
+    const peerLink = (topo.links || []).find(function (l) {
+      return (l.a.deviceId === d.id && l.a.iface === i.name) ||
+             (l.b.deviceId === d.id && l.b.iface === i.name);
+    });
+    let peerText = '';
+    if (peerLink) {
+      const other = peerLink.a.deviceId === d.id ? peerLink.b : peerLink.a;
+      const otherDev = deviceById(other.deviceId);
+      const peerName = otherDev ? otherDev.name : other.deviceId;
+      const media = peerLink.mediaId ? ' · ' + peerLink.mediaId : '';
+      const len = peerLink.lengthM ? ' · ' + peerLink.lengthM + ' m' : '';
+      peerText = '<span class="port-peer" title="' + peerName + ' ' + other.iface + media + len + '">' +
+        '\u2192 ' + peerName + ':' + other.iface + '</span>';
+    }
+
     let html = '<div class="iface-row" data-iface="' + i.name + '">';
     html += '<div class="iface-head">' +
       '<span class="dot ' + (i.enabled ? 'up' : 'down') + '"></span>' +
       '<span class="port-name">' + i.name + '</span>' +
       '<span class="port-media">' + hw + '</span>' +
       '<span class="port-ip' + (i.ip ? ' has' : '') + '">' + ipText + '</span>' +
-      (connected ? '<span class="port-link" title="cabled">●</span>' : '') +
+      peerText +
       '</div>';
 
     html += '<div class="iface-body">';
