@@ -26,42 +26,82 @@
     {
       "name": "GigabitEthernet0/0/2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "GigabitEthernet0/0/10",
@@ -86,5 +126,6 @@
   ],
   "icon": "firewall",
   "color": "#f59e0b",
-  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 8x GE combo used as copper plus 2x GE WAN."
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 8x GE combo used as copper plus 2x GE WAN.",
+  "comboPorts": 10
 }

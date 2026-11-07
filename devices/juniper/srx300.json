@@ -14,7 +14,7 @@
   "portTemplate": {
     "prefix": "ge-0/0/",
     "start": 0,
-    "count": 8,
+    "count": 6,
     "type": "ethernet",
     "speed": "1G"
   },
@@ -22,7 +22,7 @@
   "color": "#84cc16",
   "interfaces": [
     {
-      "name": "ge-0/0/8",
+      "name": "ge-0/0/6",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "name": "ge-0/0/9",
+      "name": "ge-0/0/7",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",

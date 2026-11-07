@@ -43,5 +43,6 @@
   ],
   "icon": "wireless",
   "color": "#a855f7",
-  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 1x 10GE SFP+ plus electrical ports and IoT."
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 1x 10GE SFP+ plus electrical ports and IoT.",
+  "comboPorts": 1
 }

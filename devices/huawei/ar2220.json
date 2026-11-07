@@ -27,7 +27,10 @@
       "type": "ethernet",
       "speed": "1G",
       "comboWith": "Gi0/0/3-sfp",
-      "comboRole": "rj45"
+      "comboRole": "rj45",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "Gi0/0/3-sfp",
@@ -42,5 +45,6 @@
     }
   ],
   "icon": "router",
-  "color": "#f43f5e"
+  "color": "#f43f5e",
+  "comboPorts": 1
 }

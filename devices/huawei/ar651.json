@@ -74,5 +74,6 @@
       ]
     }
   ],
-  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 2x GE combo WAN modelled on the SFP side."
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 2x GE combo WAN modelled on the SFP side.",
+  "comboPorts": 2
 }

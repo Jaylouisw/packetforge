@@ -14,7 +14,7 @@
   "portTemplate": {
     "prefix": "ge-0/0/",
     "start": 0,
-    "count": 16,
+    "count": 8,
     "type": "ethernet",
     "speed": "1G"
   },
@@ -22,7 +22,7 @@
   "color": "#84cc16",
   "interfaces": [
     {
-      "name": "ge-0/0/16",
+      "name": "ge-0/0/8",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "name": "ge-0/0/17",
+      "name": "ge-0/0/9",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -40,7 +40,7 @@
       ]
     },
     {
-      "name": "ge-0/0/18",
+      "name": "ge-0/0/10",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
@@ -49,7 +49,43 @@
       ]
     },
     {
-      "name": "ge-0/0/19",
+      "name": "ge-0/0/11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/15",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp",
