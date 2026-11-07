@@ -1,0 +1,31 @@
+{
+  "vendor": "arris",
+  "model": "SB8200",
+  "label": "SURFboard SB8200 DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32x8 bonded SC-QAM DOCSIS 3.0 channels plus 2x2 OFDM/OFDMA DOCSIS 3.1 channels, bridged to two 10/100/1000Base-T LAN ports off a single F-connector coax input.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

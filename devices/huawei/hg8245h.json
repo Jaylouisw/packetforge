@@ -1,0 +1,49 @@
+{
+  "vendor": "huawei",
+  "model": "HG8245H",
+  "label": "EchoLife HG8245H GPON ONT",
+  "category": "ont",
+  "description": "GPON routing-type home gateway ONT (Class B+) with 4 GE LAN ports, 2 POTS voice ports, 1 USB 2.0 and a 2x2 802.11b/g/n 2.4 GHz radio; SC/APC optical port.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "vendor": "zte",
+  "model": "F601",
+  "label": "ZXHN F601 GPON ONT",
+  "category": "ont",
+  "description": "Single-port GPON bridge ONT (ITU-T G.984.x / G.988) delivering 2.488 Gbit/s downstream and 1.244 Gbit/s upstream with one GE RJ-45 LAN port and an SC/UPC PON connector; no WiFi or voice.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

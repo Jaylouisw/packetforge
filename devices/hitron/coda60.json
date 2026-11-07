@@ -1,0 +1,26 @@
+{
+  "vendor": "hitron",
+  "model": "CODA60",
+  "label": "CODA60 DOCSIS 4.0 mid/high/ultra-high tri-split cable modem",
+  "category": "modem",
+  "description": "DOCSIS 4.0 cable modem with switchable mid (5-85 MHz), high (5-204 MHz) and ultra-high (5-396 MHz) upstream splits against a 1794 MHz downstream, supporting 5 configurable 192 MHz OFDM channels and 32 SC-QAM downstream, presented as a single 10GBASE-T LAN port.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

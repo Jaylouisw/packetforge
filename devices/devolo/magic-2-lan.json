@@ -1,0 +1,22 @@
+{
+  "vendor": "devolo",
+  "model": "Magic 2 LAN",
+  "label": "devolo Magic 2 LAN powerline adapter",
+  "category": "powerline",
+  "description": "G.hn (HomeGrid Forum) powerline adapter, 2400 Mbps MIMO / 1200 Mbps SISO PHY over 500 m of mains wiring. One Gigabit Ethernet port and a 16 A filtered integrated socket (2-80 MHz noise filter).",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

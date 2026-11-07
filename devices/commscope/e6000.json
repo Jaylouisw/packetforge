@@ -1,0 +1,290 @@
+{
+  "vendor": "commscope",
+  "model": "E6000",
+  "label": "E6000 Converged Edge Router (Gen 2: RSM-2 + DCAM-2 + UCAM-2)",
+  "category": "router",
+  "description": "Integrated CCAP / CMTS chassis modelled with the Gen 2 module set: one RSM-2 plus RPIC-2Q giving 3x 100G QSFP28 and 10x 10G SFP+ network-side uplinks, one DCAM-2 with 16 downstream RF ports and one UCAM-2 with 24 upstream RF ports across 12 connector groups.",
+  "capabilities": [
+    "l3-forward",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "nsi100g1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "nsi100g2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "nsi100g3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "nsi10g1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "nsi10g10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ds1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds3",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds4",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds5",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds6",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds7",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds8",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds9",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds10",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds11",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds12",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds13",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds14",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds15",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds16",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us4",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us5",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us6",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us7",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us8",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us9",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us10",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us11",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us12",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us13",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us14",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us15",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us16",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us17",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us18",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us19",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us20",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us21",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us22",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us23",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us24",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}

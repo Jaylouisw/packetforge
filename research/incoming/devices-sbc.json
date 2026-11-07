@@ -1,0 +1,202 @@
+{
+  "devices": [
+    {
+      "vendor": "raspberrypi",
+      "model": "Raspberry Pi 5",
+      "label": "Raspberry Pi 5 SBC",
+      "category": "host",
+      "description": "BCM2712 quad-core Cortex-A76 SBC with a single gigabit Ethernet port fed by the RP1 I/O controller, plus dual-band 2x2 802.11ac Wi-Fi and Bluetooth 5.0.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "wlan0", "type": "wireless", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.raspberrypi.com/products/raspberry-pi-5/",
+      "notes": "1x 1GbE only - no 2.5GbE on the Pi 5 despite many RK3588 competitors having it. USB ports are not modelled. Existing catalogue entry 'RaspberryPi5' declares eth0 only and omits the onboard radio."
+    },
+    {
+      "vendor": "raspberrypi",
+      "model": "Raspberry Pi 4 Model B",
+      "label": "Raspberry Pi 4 Model B SBC",
+      "category": "host",
+      "description": "BCM2711 quad-core Cortex-A72 SBC with one true gigabit Ethernet port (PCIe-attached, not USB-bridged) and dual-band 2x2 802.11ac Wi-Fi with Bluetooth 5.0.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "wlan0", "type": "wireless", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/",
+      "notes": "Wireless/BT are absent on the cheaper SKUs sold as 'Pi 4 Model B (no wireless)'; this spec models the standard board. Single RJ45, so router duties are limited to VLAN trunking."
+    },
+    {
+      "vendor": "raspberrypi",
+      "model": "Compute Module 4",
+      "label": "Raspberry Pi Compute Module 4",
+      "category": "host",
+      "description": "SO-DIMM-format BCM2711 module whose gigabit MAC/PHY and optional dual-band 802.11ac radio are only usable through a carrier board that exposes the RJ45 and antenna connectors.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "wlan0", "type": "wireless", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.raspberrypi.com/products/compute-module-4/",
+      "notes": "No connectors on the module itself: eth0 assumes a carrier board with an RJ45 (most do), wlan0 assumes a wireless SKU (CM4 has 'Lite' and non-wireless variants). Nice for modelling custom multi-NIC carrier boards."
+    },
+    {
+      "vendor": "orangepi",
+      "model": "Orange Pi 5 Plus",
+      "label": "Orange Pi 5 Plus SBC",
+      "category": "host",
+      "description": "Rockchip RK3588 SBC with two independent 2.5GbE ports (RTL8125 on PCIe) plus an M.2 E-key slot for an optional Wi-Fi 6 module - no radio is fitted on the board.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth1", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-5-plus.html",
+      "notes": "Dual 2.5G: the cheapest way to get two 2.5G ports in a lab router/firewall role (VyOS/OpenWrt). No onboard Wi-Fi - add a 2230 Wi-Fi 6 module to the M.2 E-key slot and add wlan0 to the model if the lab needs it."
+    },
+    {
+      "vendor": "radxa",
+      "model": "ROCK 5B",
+      "label": "Radxa ROCK 5B SBC",
+      "category": "host",
+      "description": "Rockchip RK3588 SBC with a single 2.5GbE port (PoE with an add-on HAT) and an M.2 E-key slot for a Wi-Fi module; the base 5B ships without a radio.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://radxa.com/products/rock5/5b/",
+      "notes": "Single 2.5GbE, no onboard Wi-Fi/BT on the plain 5B (the ROCK 5B+ adds an RTL8852BE Wi-Fi 6 module - model that variant separately if needed). Same RK3588 class as the Orange Pi 5 Plus but half the NICs."
+    },
+    {
+      "vendor": "bananapi",
+      "model": "BPI-R3",
+      "label": "Banana Pi BPI-R3 router board",
+      "category": "host",
+      "description": "OpenWrt-oriented MediaTek MT7986 (Filogic 830) router board: 5x gigabit RJ45 plus 2x 2.5GbE SFP cages, with 4x4 Wi-Fi 6 radios on both 2.4 GHz and 5 GHz.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" },
+        { "name": "eth2", "type": "ethernet", "speed": "1G" },
+        { "name": "eth3", "type": "ethernet", "speed": "1G" },
+        { "name": "eth4", "type": "ethernet", "speed": "1G" },
+        { "name": "sfp0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "sfp1", "type": "ethernet", "speed": "2.5G" },
+        { "name": "wlan0", "type": "wireless", "speed": "1G" },
+        { "name": "wlan1", "type": "wireless", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://docs.banana-pi.org/en/BPI-R3/BananaPi_BPI-R3",
+      "notes": "Port map: eth0 = WAN gigabit RJ45, eth1-eth4 = 4x LAN gigabit RJ45, sfp0/sfp1 = the two 2.5Gbase-X SFP cages (serdes is fixed at 2.5G, so 1G SFPs do not link). Two radios, one interface each: wlan0 = 4x4 2.4 GHz (MT7975N), wlan1 = 4x4 5 GHz (MT7975P). SFP cages are modelled as ethernet with speed 2.5G; SFF modules themselves belong in the optics catalogue."
+    },
+    {
+      "vendor": "intel",
+      "model": "NUC 13 Pro",
+      "label": "Intel NUC 13 Pro mini PC",
+      "category": "host",
+      "description": "4x4-inch 13th-gen Core mini PC with a single Intel i226-V 2.5GbE port plus Intel AX211 Wi-Fi 6E and Bluetooth 5.3.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "wlan0", "type": "wireless", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://www.asus.com/us/displays-desktops/nucs/nuc-mini-pcs/asus-nuc-13-pro/techspec/",
+      "notes": "One 2.5G RJ45 only; the second Thunderbolt 4 port can carry a 10G/2.5G Thunderbolt NIC but that adapter is not modelled. Kit model NUC13ANHi7 already exists in the catalogue with wlan0 at 1G - AX211 is a 2x2 160 MHz Wi-Fi 6E part, so 2.5G is the more accurate radio figure."
+    },
+    {
+      "vendor": "beelink",
+      "model": "SER6",
+      "label": "Beelink SER6 mini PC",
+      "category": "host",
+      "description": "Ryzen 9 6900HX mini PC with one 2.5GbE RJ45 port and a Wi-Fi 6 (2x2, 2.4 Gbps) radio; the chassis also carries USB4, which is not a NIC.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "wlan0", "type": "wireless", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://beelink-store.com/beelink-ser6/",
+      "notes": "Single 2.5G port - fine as a virtualisation host or single-legged router, not as a wired multi-port firewall. Several listings advertise '2.5G LAN ports' plural; the SER6 chassis has one RJ45."
+    },
+    {
+      "vendor": "minisforum",
+      "model": "UM790 Pro",
+      "label": "Minisforum Venus UM790 Pro mini PC",
+      "category": "host",
+      "description": "Ryzen 9 7940HS mini PC with a single 2.5GbE RJ45 port, Wi-Fi 6E (2x2 160 MHz) and Bluetooth 5.3, plus two USB4 ports.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "firewall", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "wlan0", "type": "wireless", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://store.minisforum.com/products/minisforum-um790-pro-mini-pc",
+      "notes": "One 2.5G RJ45, no second wired NIC. USB4/Thunderbolt adapters ignored per the no-USB-NIC rule."
+    },
+    {
+      "vendor": "protectli",
+      "model": "VP2420",
+      "label": "Protectli Vault Pro VP2420",
+      "category": "host",
+      "description": "Fanless Intel Celeron J6412 appliance with four Intel 2.5GbE RJ45 ports (i225-V or i226-V depending on build date) and no wireless; the classic quad-2.5G pfSense/OPNsense box.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth1", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth2", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth3", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://protectli.com/product/vp2420/",
+      "notes": "4x 2.5G, no fans, no Wi-Fi - great WAN/LAN/DMZ/OPT lab corner. Existing catalogue copy of VP2420 is categorised 'firewall'; this batch uses 'host' for all SBC/mini-PC/fanless-appliance entries."
+    },
+    {
+      "vendor": "protectli",
+      "model": "Vault Pro VP4670",
+      "label": "Protectli Vault Pro VP4670 (6-port 2.5G)",
+      "category": "host",
+      "description": "Fanless six-port Vault Pro built on an Intel i7-10810U with six Intel i226-V 2.5GbE RJ45 ports and no wireless; the highest-port-count 2.5G Vault Pro.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth1", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth2", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth3", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth4", "type": "ethernet", "speed": "2.5G" },
+        { "name": "eth5", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://protectli.com/product/vp4670/",
+      "notes": "6x 2.5G, i7-10810U, M.2 NVMe + 2.5in SATA, 16GB eMMC, micro-USB console. The VP4600 family are 6-port 2.5G boxes (VP4630/VP4630e/VP4650/VP4670); only CPU differs, so this spec covers the family at the top SKU."
+    },
+    {
+      "vendor": "qotom",
+      "model": "Q555G6",
+      "label": "Qotom Q555G6 6-LAN mini PC",
+      "category": "host",
+      "description": "Fanless 6-LAN industrial mini PC on an Intel i5-7200U (Skylake-U) with six Intel I210/I211 gigabit RJ45 ports and no wireless.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" },
+        { "name": "eth2", "type": "ethernet", "speed": "1G" },
+        { "name": "eth3", "type": "ethernet", "speed": "1G" },
+        { "name": "eth4", "type": "ethernet", "speed": "1G" },
+        { "name": "eth5", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.qotom.net/product/tag/q555g6",
+      "notes": "6x 1G (not 2.5G): Qotom's 2.5G six-port boxes are separate SKUs (e.g. i225-V 4305U models). Also sold in 1U rack ears - modelled as a host/mini-PC since the board is the desktop unit. Sibling Q750G5 (5x 2.5G) is already in the catalogue."
+    },
+    {
+      "vendor": "zima",
+      "model": "ZimaBoard 832",
+      "label": "ZimaBoard 832 single-board server",
+      "category": "host",
+      "description": "Credit-card-sized x86 single-board server with Intel Celeron N3450, two gigabit Ethernet ports and no wireless, plus a PCIe x4 slot for an add-in NIC.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client", "dhcp-server", "firewall", "l2-forward", "l3-forward", "nat"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.zimaspace.com/docs/hardware/zimaboard-hardware-overview",
+      "notes": "Dual 1G (both gigabit, not 2.5G) and no Wi-Fi at all. The exposed PCIe x4 slot is usually populated with a 2.5G card in router builds - add eth2 at 2.5G in the lab if that card is modelled; the slot itself is not a port."
+    }
+  ]
+}

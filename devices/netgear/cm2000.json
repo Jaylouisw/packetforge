@@ -1,0 +1,26 @@
+{
+  "vendor": "netgear",
+  "model": "CM2000",
+  "label": "Nighthawk CM2000 2.5Gbps DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "Nighthawk DOCSIS 3.1 cable modem with 32x8 SC-QAM plus 2 OFDM / 2 OFDMA channels and a single 2.5GBASE-T LAN port.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

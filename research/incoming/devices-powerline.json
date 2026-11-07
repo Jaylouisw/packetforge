@@ -196,7 +196,7 @@
     "model": "PLA5456",
     "label": "Zyxel PLA5456 AV2000 passthrough powerline adapter",
     "category": "powerline",
-    "description": "HomePlug AV2 MIMO adapter with a maximum PHY rate of 1800 Mbps over powerline (sold as AV2000). Two Gigabit Ethernet ports and a noise-filtered AC pass-through socket.",
+    "description": "HomePlug AV2 MIMO adapter with a maximum PHY rate of 1800 Mbps over powerline (sold as AV2000). Two Gigabit Ethernet ports and an AC pass-through socket so the wall outlet stays usable.",
     "capabilities": [
       "host"
     ],
@@ -314,7 +314,7 @@
     "model": "ECB7250",
     "label": "ScreenBeam (Actiontec) ECB7250 MoCA 2.5 adapter",
     "category": "powerline",
-    "description": "Bonded MoCA 2.5 network adapter (5 bonded channels, 1125-1675 MHz) with a 2.5 Gbps MoCA PHY and one 10/100/2500BASE-T RJ45 port, the first MoCA adapter to ship a 2.5GbE port for true full-duplex multi-gigabit. Up to 16 nodes; same hardware as the Actiontec-branded ECB7250.",
+    "description": "Bonded MoCA 2.5 network adapter with a 2.5Gbps MoCA PHY and one 10/100/2500BASE-T RJ45 port - ScreenBeam's first-to-market 2.5GbE MoCA adapter, giving multi-gigabit full-duplex over existing coax. Backward compatible with MoCA 2.0/1.1/1.0, up to 16 nodes; the same hardware is sold as the Actiontec ECB7250.",
     "capabilities": [
       "host"
     ],
@@ -337,7 +337,7 @@
     "model": "ECB6200",
     "label": "ScreenBeam (Actiontec) ECB6200 Bonded MoCA 2.0 adapter",
     "category": "powerline",
-    "description": "Bonded MoCA 2.0 adapter: MoCA PHY up to 1.4 Gbps, ~1 Gbps real throughput. One 10/100/1000BASE-T RJ45 port plus a coax IN (1125-1675 MHz extended D-band) and a TV/STB coax pass-through for the set-top box; up to 16 nodes.",
+    "description": "Bonded MoCA 2.0 Ethernet-over-coax adapter: up to 1.0 Gbps throughput over existing coax, backward compatible with MoCA 2.0/1.1/1.0, up to 16 nodes. One 10/100/1000BASE-T RJ45 port and one coax (F-type) port; sold today under the ScreenBeam brand, originally Actiontec ECB6200.",
     "capabilities": [
       "host"
     ],

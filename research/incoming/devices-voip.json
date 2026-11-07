@@ -1,0 +1,349 @@
+{
+  "devices": [
+    {
+      "vendor": "yealink",
+      "model": "T54W",
+      "label": "T54W IP phone",
+      "category": "phone",
+      "description": "Yealink SIP-T54W prime business desk phone with a 4.3-inch adjustable colour display, 16 SIP accounts and built-in dual-band Wi-Fi plus Bluetooth, sitting on a dual-port Gigabit Ethernet switch whose second RJ45 is a PC passthrough. Powered by 802.3af PoE class 3 or an optional 5 V adapter.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "867M",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.yealink.com/docs/sip-t54w/yealink-sip-t54w-datasheet/58992982bf3248b19951ea1d9afa053c",
+      "notes": "Interface section: dual-port Gigabit Ethernet, PoE IEEE 802.3af class 3, 1x RJ9 handset + 1x RJ9 headset (neither modelled). PoE draw 2.2-5.5 W, so the class-3 reservation is what the PSE must budget, not the measured draw. Built-in Wi-Fi 802.11a/b/g/n/ac 2.4/5 GHz (433 Mbps) and Bluetooth 4.2; DECT only via the DD10K dongle, so the phone acts as a Wi-Fi or wired endpoint but not a DECT base. VLAN via 802.1p/Q, LLDP/CDP/DHCP-VLAN, 802.1X, OpenVPN, TR-069. The USB 2.0 port is not modelled."
+    },
+    {
+      "vendor": "yealink",
+      "model": "T33G",
+      "label": "T33G IP phone",
+      "category": "phone",
+      "description": "Yealink SIP-T33G entry-level colour-screen desk phone for 4 SIP lines with a dual-port Gigabit Ethernet switch, the second port being a PC passthrough, and integrated 802.3af PoE.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 6.49
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://support.yealink.com/docs/sip-t33p-g/yealink-sip-t33g-datasheet/469b3c31217a48d1b17f5f52e6c2844a",
+      "notes": "2.4-inch 320x240 colour display, 4 SIP accounts, local 5-way conference, dual-port Gigabit. PoE class is inconsistently documented: the current Yealink datasheet says IEEE 802.3af class 1, while the same sheet quotes 3.5-5 W PoE draw (class 1 caps the PD at 3.84 W), so this entry budgets class 2 (6.49 W) to stay safe. Wired only, no Wi-Fi or Bluetooth. RJ9 headset/handset and EHS35 not modelled."
+    },
+    {
+      "vendor": "poly",
+      "model": "VVX 450",
+      "label": "VVX 450 IP phone",
+      "category": "phone",
+      "description": "Polycom VVX 450 12-line business media desk phone with a 4.3-inch colour display and a two-port 10/100/1000 switch wired as LAN plus PC passthrough. PoE 802.3af class 0 at up to 13 W, or the optional 5 V DC adapter.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 13.0
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.poly.com/content/dam/www/products/phones/vvx/vvx-450/datasheet-vvx-450.pdf",
+      "notes": "Datasheet: 'Two-port Gigabit Ethernet switch 10/100/1000Base-TX across LAN and PC ports', 'built-in auto sensing IEEE 802.3af Power over Ethernet (Class 0) 13 W (maximum)'. Class 0 is the full 13.0 W PD budget - a fat load for an access port and a good test case for a switch that only does 802.3af class 2/3. Up to 34 SIP registrations, LDAP, SRTP/TLS. Wi-Fi only via an optional USB adapter, so no wireless interface is modelled; the two USB 2.0 Type-A ports are not modelled."
+    },
+    {
+      "vendor": "cisco",
+      "model": "8841",
+      "label": "IP Phone 8841",
+      "category": "phone",
+      "description": "Cisco IP Phone 8841 five-inch colour SIP/Unified CM desk phone with an internal two-port 10/100/1000 switch for the phone and a co-located PC. Sized as 802.3af class 2, accepting 802.3at switch ports and CDP/LLDP-PoE power negotiation.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 6.49
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/collaboration-endpoints/unified-ip-phone-8800-series/datasheet-c78-731638.html",
+      "notes": "Datasheet: 'An internal 2-port Cisco Ethernet switch ... 10/100/1000BASE-T ... single LAN connectivity for both the phone and a co-located PC', 'IEEE Power over Ethernet class 2', compatible with 802.3af and 802.3at blades, CDP and LLDP-PoE. Power input rating 0.917 A at 48 V DC, under 6.49 W. Separate 802.1Q VLANs can be set per PC and voice port, which is the interesting bit in a lab. No Wi-Fi or Bluetooth; the aux and headset ports are not modelled."
+    },
+    {
+      "vendor": "grandstream",
+      "model": "GXP2170",
+      "label": "GXP2170 IP phone",
+      "category": "phone",
+      "description": "Grandstream GXP2170 enterprise desk phone for high-volume users, 12 lines and 4.3-inch colour LCD, with dual switched 10/100/1000 ports (LAN plus PC passthrough) and integrated 802.3af PoE. Max 5.4 W on its own, 9.2 W when four GXP2200EXT modules are cascaded off it.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 6.49
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/datasheet_gxp2170_english.pdf",
+      "notes": "Datasheet: 'Dual switched auto-sensing 10/100/1000 Mbps Gigabit Ethernet ports with integrated PoE', 'Integrated Power-over-Ethernet (802.3af)', business power adapter 12 V 1 A optional. Grandstream publishes no PoE class; 5.4 W fits class 2 (6.49 W) so that is what is budgeted here - with four cascaded GXP2200EXT sidecars the same phone pulls 9.2 W and would need class 3. Built-in Bluetooth for headsets and mobile contact sync; no Wi-Fi. RJ9 headset and EHS not modelled."
+    },
+    {
+      "vendor": "snom",
+      "model": "D785",
+      "label": "D785 IP phone",
+      "category": "phone",
+      "description": "Snom D785 Linux-based desk phone with a dual display (main colour plus SmartDisplay labels), 12 SIP identities and two Gigabit RJ45 sockets labelled NET and PC. PoE IEEE 802.3af class 3, or the optional 5 V adapter.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://dsg.snom.com/m/products/d785-d785n/en/latest.pdf",
+      "notes": "Snom documentation: '2 x RJ45-8P8C (NET/PC) sockets', 'Power over Ethernet (PoE): IEEE 802.3af class 2/3', with the footnote that the Bluetooth-less D785N is class 2 while the D785 with Bluetooth is class 3 - hence 12.95 W here. The NET port is the uplink and PC is a daisy-chain passthrough (explicitly for chaining further Ethernet devices). Bluetooth 4.0 class 2 for headsets. USB 2.0 Type A, EHS RJ12 and headset RJ9 are not modelled."
+    },
+    {
+      "vendor": "fanvil",
+      "model": "X6U",
+      "label": "X6U IP phone",
+      "category": "phone",
+      "description": "Fanvil X6U enterprise desk phone with a 4.3-inch main colour screen plus two 2.4-inch side screens, 20 SIP lines, dual Gigabit ports (network plus PC passthrough) and integrated 802.3af PoE.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.fanvil.com/upload/files/20241231/1642066v20.pdf",
+      "notes": "'Dual Gigabit ports, integrated PoE', 10/100/1000 Mbps, 20 SIP lines, built-in Bluetooth, optional 5 V/2 A adapter. Fanvil does not publish a PoE class for the X6U; published dissipation is 1.49 W standby / 6.88 W high, which exceeds the 6.49 W class-2 PD cap, so this entry budgets class 3 (12.95 W) rather than under-powering it. EHS headset, RJ9 handset and the USB port are not modelled."
+    },
+    {
+      "vendor": "avaya",
+      "model": "J189",
+      "label": "J189 IP phone",
+      "category": "phone",
+      "description": "Avaya J189 SIP desk phone with two colour displays, 16 feature keys and up to two J100 expansion modules, on dual 10/100/1000 Ethernet ports (network plus PC passthrough). PoE class is set by a hardware slideswitch: class 2 in the L position, class 3 in H.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 6.49
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.avaya.com/content/dam/aem-avaya-portal/en_us/documents/fs-ip-phone-j189-dv15518en.pdf",
+      "notes": "Avaya specs: 'Gigabit Ethernet (10/100/1000 Mbps) line interface', 'Secondary Gigabit Ethernet (10/100/1000 Mbps) interface ... for a PC', 'PoE Class 2 IEEE 802.3af when PoE Slideswitch is in L position, and PoE Class 3 IEEE 802.3af when ... in H position'. Modelled at class 2 (6.49 W); flip the slideswitch to H and the switch has to find 12.95 W, which is a nice mis-configuration scenario. Some Avaya marketing sheets call the J189 a 'PoE Class 1 design' - the documentation's class 2/3 statement is used here. Optional Wi-Fi/Bluetooth via USB dongles, so no built-in wireless; USB-A/USB-C and headset ports not modelled."
+    },
+    {
+      "vendor": "yeastar",
+      "model": "S300",
+      "label": "S300 IP PBX (Yeastar)",
+      "category": "phone",
+      "description": "Yeastar S300 modular IP PBX for 300 users (500 licensed), 60 concurrent calls, in a 1U rack case with two 10/100/1000 RJ45 ports that run in Single, Bridge or Dual Ethernet mode. AC powered, no PoE.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "nat",
+        "firewall",
+        "l3-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://help.yeastar.com/en/s-series/installation/s300_overview.html",
+      "notes": "Naming trap: this box is a Yeastar S300 - Yealink does not make a PBX appliance, and several manuals/mirrors mislabel the Yeastar S300 guide as 'Yealink S300'. Ports: 'two 10/100/1000Mbps adaptive RJ45 Ethernet ports', default mode Single (LAN is the uplink, WAN disabled), Bridge (WAN becomes a PC bridge port, i.e. effectively a two-port switch) or Dual (both uplinks). Rack-mount 1U, AC 100-240 V 50/60 Hz, 6.2-59.1 W; no PoE in or out. IP services include static IP, DHCP server, VPN, firewall, VLAN, DDNS, PPPoE, QoS, static NAT, STUN - hence nat/firewall/l3-forward. 3 expansion slots for FXO/FXS/BRI/E1/GSM modules; the analog/PRI ports and the RS232 console and USB/SD ports are not modelled. Asterisk-based firmware."
+    },
+    {
+      "vendor": "grandstream",
+      "model": "UCM6304",
+      "label": "UCM6304 IP PBX",
+      "category": "phone",
+      "description": "Grandstream UCM6304 unified communications PBX, Asterisk 16 based, for up to 2000 users and 300 concurrent calls with 4 FXS and 4 FXO ports. Three self-adaptive Gigabit RJ45 ports that can run switched, routed or dual mode, with a NAT router and firewall; 12 V DC powered, no PoE input.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "nat",
+        "firewall",
+        "l3-forward",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/Datasheet_UCM6300_Series_English.pdf",
+      "notes": "'Three self-adaptive Gigabit ports (switched, routed or dual mode) with PoE+ and NAT router' - in switched mode the three ports behave as an L2 switch (hence l2-forward), in routed mode as a NAT/firewall edge (nat, l3-forward). Grandstream's 'PoE+' wording refers to the UCM6300 family's power-source capability, but no per-port PSE budget is published, so no poeOut is modelled on these ports. Power: 2 x DC 12 V jacks, 100-240 V AC adapter. Hot-standby HA, GDMS cloud management, UCM RemoteConnect NAT traversal. 4 FXS + 4 FXO RJ11 ports and the USB/SD ports are not modelled."
+    },
+    {
+      "vendor": "sangoma",
+      "model": "FreePBX 100",
+      "label": "FreePBX 100 appliance",
+      "category": "phone",
+      "description": "Sangoma FreePBX 100 purpose-built 1U PBX appliance running the FreePBX Distro, sized for 100 users / 60 concurrent calls, with three Gigabit RJ45 network ports plus a serial console. Mains powered, no PoE.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.neocenter.com/img/Sangoma/FreePBX/FreePBX-Series-Datasheet_2025.pdf",
+      "notes": "Sangoma FreePBX Series datasheet (2025): FreePBX 100 = 100 users / 60 calls, 2 PCI Express slots, '3x GB Network / 1x Serial Console (RJ45) / 1x VGA', Intel Celeron quad-core, 4 GB RAM, 250 GB SSD, 1U with rack ears. Earlier FreePBX 100 revisions shipped five Gigabit ports - check the silkscreen before cabling a lab. Ports are eth0/eth1/eth2 in the FreePBX distro; typically one WAN-facing and one or two on the voice VLAN. The RJ45 serial console, VGA and the PCIe telephony card slots are not modelled (analog/PRI trunks are out of scope here). Asterisk + FreePBX web GUI/SSH management, so host + http-server + cli."
+    },
+    {
+      "vendor": "yealink",
+      "model": "W70B",
+      "label": "W70B DECT base station",
+      "category": "phone",
+      "description": "Yealink W70B single-cell DECT IP base station (CAT-iq2.0) that registers up to 10 handsets and bridges them to SIP over one 10/100 RJ45 port. PoE IEEE 802.3af class 1, or a 5 V/0.6 A adapter.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 3.84
+        }
+      ],
+      "sourceUrl": "https://support.yealink.com/docs/w70b/yealink-w70b-datasheet/90719da65c2b4c3089fb13f5ef34c3ce",
+      "notes": "'1 x RJ45 10/100M Ethernet port', 'Power over Ethernet (IEEE 802.3af), Class 1' - one port only, 100M, no PC passthrough (base stations are not daisy-chained). DECT radio 1880-1900 MHz (EU) / 1920-1930 MHz (US), CAT-iq2.0, up to 10 handsets (W73H/W59R/W53H/W56H) and 5 concurrent calls; the DECT air interface and handsets are deliberately not modelled as Ethernet interfaces. Signals the PoE class-1 vs class-3 distinction in a lab: a 3.84 W load that some 802.3af switches misclassify."
+    }
+  ]
+}

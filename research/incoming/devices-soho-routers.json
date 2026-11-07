@@ -1,0 +1,287 @@
+[
+  {
+    "vendor": "tp-link",
+    "model": "Archer AX73",
+    "label": "Archer AX73 AX5400 dual-band router",
+    "category": "router",
+    "description": "TP-Link Archer AX73 - Wi-Fi 6 AX5400 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 4804 Mbps 4x4) with 1x 1G WAN and 4x 1G LAN. Every Ethernet port is gigabit, so a 2.5G or 10G uplink needs a faster model.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "574M" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.tp-link.com/us/home-networking/wifi-router/archer-ax73/"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "Archer BE800",
+    "label": "Archer BE800 BE19000 tri-band Wi-Fi 7 router",
+    "category": "router",
+    "description": "TP-Link Archer BE800 - Wi-Fi 7 BE19000 tri-band router (2.4 GHz 1376 Mbps, 5 GHz 5760 Mbps, 6 GHz 11520 Mbps, 4x4 each) with two 10G WAN/LAN ports, one plain RJ45 and one Ethernet/fibre combo cage, plus four 2.5G LAN ports. The 2.5G ports support 5 Gbps aggregation in pairs.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "10g-wanlan", "type": "ethernet", "speed": "10G" },
+      { "name": "10g-combo", "type": "ethernet", "speed": "10G" },
+      { "name": "2.5g1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "2.5g2", "type": "ethernet", "speed": "2.5G" },
+      { "name": "2.5g3", "type": "ethernet", "speed": "2.5G" },
+      { "name": "2.5g4", "type": "ethernet", "speed": "2.5G" },
+      { "name": "radio0", "type": "wireless", "speed": "1.4G" },
+      { "name": "radio1", "type": "wireless", "speed": "5.8G" },
+      { "name": "radio2", "type": "wireless", "speed": "11.5G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.tp-link.com/en/home-networking/wifi-router/archer-be800/"
+  },
+  {
+    "vendor": "asus",
+    "model": "RT-AX86U Pro",
+    "label": "RT-AX86U Pro AX5700 dual-band gaming router",
+    "category": "router",
+    "description": "ASUS RT-AX86U Pro - Wi-Fi 6 AX5700 dual-band gaming router (2.4 GHz 861 Mbps 3x3, 5 GHz 4804 Mbps 4x4) with one 2.5G WAN/LAN port, one 1G WAN and four 1G LAN ports. The 2.5G port is the only multi-gig one, so it is the port to use for a multi-gig uplink.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "2.5g-wanlan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "861M" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ax86u-pro/techspec/"
+  },
+  {
+    "vendor": "asus",
+    "model": "RT-BE96U",
+    "label": "RT-BE96U BE19000 tri-band Wi-Fi 7 router",
+    "category": "router",
+    "description": "ASUS RT-BE96U - Wi-Fi 7 BE19000 tri-band router (2.4 GHz 1376 Mbps, 5 GHz 5764 Mbps, 6 GHz 11529 Mbps) with two 10G ports (one WAN/LAN, one LAN-only) plus a 1G WAN/LAN port and three 1G LAN ports. Total wired count is four 1G and two 10G, not six gigabit ports.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "10g-wanlan", "type": "ethernet", "speed": "10G" },
+      { "name": "10g-lan", "type": "ethernet", "speed": "10G" },
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1.4G" },
+      { "name": "radio1", "type": "wireless", "speed": "5.8G" },
+      { "name": "radio2", "type": "wireless", "speed": "11.5G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.asus.com/us/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-be96u/techspec/"
+  },
+  {
+    "vendor": "netgear",
+    "model": "RAXE500",
+    "label": "Nighthawk RAXE500 AXE11000 tri-band Wi-Fi 6E router",
+    "category": "router",
+    "description": "Netgear Nighthawk RAXE500 - Wi-Fi 6E AXE11000 tri-band router (2.4 GHz 1.2 Gbps, 5 GHz 4.8 Gbps, 6 GHz 4.8 Gbps, all 4x4) with one 2.5G/1G multi-gig port that can be assigned to WAN or LAN, one 1G WAN and four 1G LAN ports. The 2.5G port is the sole multi-gig interface and doubles as the faster WAN.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "2.5g-multigig", "type": "ethernet", "speed": "2.5G" },
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1.2G" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" },
+      { "name": "radio2", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.netgear.com/images/datasheet/networking/wifirouter/RAXE500.pdf"
+  },
+  {
+    "vendor": "linksys",
+    "model": "MR9600",
+    "label": "MR9600 AX6000 dual-band mesh router",
+    "category": "router",
+    "description": "Linksys MR9600 - Wi-Fi 6 AX6000 dual-band mesh router (2.4 GHz 1147 Mbps 4x4, 5 GHz 4804 Mbps 4x4) with one 1G WAN and four 1G LAN ports. It has no multi-gig port and no dual-WAN or link aggregation, so every cabled link tops out at 1G.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1.1G" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.linksys.com/p/linksys-mr9600-dual-band-mesh-wifi-6-router/MR9600/"
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2927",
+    "label": "Vigor2927 dual-WAN SMB firewall router",
+    "category": "router",
+    "description": "DrayTek Vigor 2927 - wired dual-Ethernet-WAN SMB firewall router with one fixed 1G WAN, one 1G switchable WAN/LAN port and five 1G LAN ports. There is no radio on the base 2927, which is Wi-Fi-free by design; 802.11ac and 802.11ax live on the 2927ac and 2927ax variants.",
+    "capabilities": ["l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "wan1", "type": "ethernet", "speed": "1G" },
+      { "name": "wan2-lan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "lan5", "type": "ethernet", "speed": "1G" }
+    ],
+    "icon": "router",
+    "color": "#f43f5e",
+    "sourceUrl": "https://www.draytek.com/products/vigor2927/"
+  },
+  {
+    "vendor": "gl-inet",
+    "model": "GL-MT6000",
+    "label": "Flint 2 (GL-MT6000) AX6000 dual-band OpenWrt router",
+    "category": "router",
+    "description": "GL.iNet Flint 2 (GL-MT6000) - Wi-Fi 6 AX6000 dual-band OpenWrt router (2.4 GHz 1148 Mbps 4x4, 5 GHz 4804 Mbps 4x4) with two 2.5G ports (one WAN, one LAN) and four 1G LAN ports. Two multi-gig ports make it usable as a 2.5G router between a multigig modem and a 2.5G switch.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "lan5", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1.1G" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#0ea5e9",
+    "sourceUrl": "https://www.gl-inet.com/products/gl-mt6000/"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UX",
+    "label": "UniFi Express (UX) AX3000 cloud gateway",
+    "category": "router",
+    "description": "Ubiquiti UniFi Express (UX) - Wi-Fi 6 AX3000 dual-band cloud gateway with a built-in 2x2 access point (2.4 GHz 574 Mbps, 5 GHz 2.4 Gbps) and exactly two wired ports: one 1G WAN and one 1G LAN. It is managed through UniFi Network rather than a local CLI, and the single LAN port means any switch hangs off that one link.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "574M" },
+      { "name": "radio1", "type": "wireless", "speed": "2.4G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://techspecs.ui.com/unifi/unifi-cloud-gateways/ux"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "NBG6604",
+    "label": "NBG6604 AC1200 dual-band router (Fast Ethernet)",
+    "category": "router",
+    "description": "Zyxel NBG6604 - Wi-Fi 5 AC1200 dual-band router (2.4 GHz 300 Mbps 2x2, 5 GHz 867 Mbps 2x2) with one 100M WAN and four 100M LAN ports. The wired side is Fast Ethernet rather than gigabit, so even a perfect wireless link is capped by a 100 Mbps cable.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "100M" },
+      { "name": "lan1", "type": "ethernet", "speed": "100M" },
+      { "name": "lan2", "type": "ethernet", "speed": "100M" },
+      { "name": "lan3", "type": "ethernet", "speed": "100M" },
+      { "name": "lan4", "type": "ethernet", "speed": "100M" },
+      { "name": "radio0", "type": "wireless", "speed": "300M" },
+      { "name": "radio1", "type": "wireless", "speed": "867M" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://download.zyxel.com/NBG6604/user_guide/NBG6604_v1_ed3.pdf"
+  },
+  {
+    "vendor": "synology",
+    "model": "WRX560",
+    "label": "WRX560 AX3000 dual-band router",
+    "category": "router",
+    "description": "Synology WRX560 - Wi-Fi 6 AX3000 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 2402 Mbps 4x4) with one 1G WAN, one 2.5GbE port configurable as WAN or LAN, and three 1G LAN ports. Using the 2.5GbE port as WAN leaves only three gigabit LAN ports on the LAN side.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "2.5g-wanlan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "574M" },
+      { "name": "radio1", "type": "wireless", "speed": "2.4G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/DataSheet/Router/22-year/WRX560/enu/Datasheet_WRX560_enu.pdf"
+  },
+  {
+    "vendor": "xiaomi",
+    "model": "AX6000",
+    "label": "Router AX6000 (Mi AX6000) dual-band router",
+    "category": "router",
+    "description": "Xiaomi Router AX6000 - Wi-Fi 6 AX6000 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 4804 Mbps 4x4) with one 2.5GbE adaptive WAN/LAN port and three 1G LAN ports. Four wired ports in total, and only the first one is multi-gig.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "2.5g-wanlan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "574M" },
+      { "name": "radio1", "type": "wireless", "speed": "4.8G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://www.mi.com/global/product/xiaomi-router-ax6000/"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "C53UiG+5HPaxD2HPaxD",
+    "label": "hAP ax3 (C53UiG+5HPaxD2HPaxD) dual-band router",
+    "category": "router",
+    "description": "MikroTik hAP ax3 - RouterOS Wi-Fi 6 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 1201 Mbps 2x2) with one 2.5G port that also does PoE in and out, plus four 1G LAN ports. The 2.5G port is ether1, which is also where the device is powered from PoE.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server", "cli"],
+    "interfaces": [
+      { "name": "ether1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "ether2", "type": "ethernet", "speed": "1G" },
+      { "name": "ether3", "type": "ethernet", "speed": "1G" },
+      { "name": "ether4", "type": "ethernet", "speed": "1G" },
+      { "name": "ether5", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan1", "type": "wireless", "speed": "574M" },
+      { "name": "wlan2", "type": "wireless", "speed": "1.2G" }
+    ],
+    "icon": "router",
+    "color": "#14b8a6",
+    "sourceUrl": "https://mikrotik.com/product/hap_ax3"
+  },
+  {
+    "vendor": "avm",
+    "model": "FRITZ!Box 7590",
+    "label": "FRITZ!Box 7590 VDSL2/ADSL2+ dual-band router",
+    "category": "router",
+    "description": "AVM FRITZ!Box 7590 - Wi-Fi 5 AC+N dual-band router with an integrated VDSL2 35b supervectoring modem (2.4 GHz 800 Mbps and 5 GHz 1733 Mbps, both 4x4), one 1G WAN, four 1G LAN ports and an RJ11 DSL port. The DSL port is declared at 100M because the engine's line-rate ladder has no 300M step, while the hardware runs 35b at up to 300 Mbit/s.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "dhcp-client", "firewall", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "dsl0", "type": "dsl", "speed": "100M" },
+      { "name": "radio0", "type": "wireless", "speed": "800M" },
+      { "name": "radio1", "type": "wireless", "speed": "1.7G" }
+    ],
+    "icon": "router",
+    "color": "#2563eb",
+    "sourceUrl": "https://en.avm.de/products/fritzbox/fritzbox-7590/technical-specifications/"
+  }
+]

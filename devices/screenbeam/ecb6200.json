@@ -1,0 +1,22 @@
+{
+  "vendor": "screenbeam",
+  "model": "ECB6200",
+  "label": "ScreenBeam (Actiontec) ECB6200 Bonded MoCA 2.0 adapter",
+  "category": "powerline",
+  "description": "Bonded MoCA 2.0 Ethernet-over-coax adapter: up to 1.0 Gbps throughput over existing coax, backward compatible with MoCA 2.0/1.1/1.0, up to 16 nodes. One 10/100/1000BASE-T RJ45 port and one coax (F-type) port; sold today under the ScreenBeam brand, originally Actiontec ECB6200.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "1G"
+    }
+  ]
+}

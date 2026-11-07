@@ -1,0 +1,1000 @@
+{
+  "devices": [
+    {
+      "vendor": "moxa",
+      "model": "EDS-510E-3GTXSFP-T",
+      "label": "EDS-510E industrial managed switch",
+      "category": "switch",
+      "description": "DIN-rail (wall-mount kit optional) Layer 2 managed Fast Ethernet switch with 7 x 10/100BaseT(X) RJ45 ports and 3 combo Gigabit ports that take either 10/100/1000BaseT(X) copper or 100/1000BaseSFP optics; -40 to 75 C extended-temperature model with redundant 12/24/48 VDC inputs and Turbo Ring redundancy.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp8",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp9",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp10",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/en/products/industrial-network-infrastructure/ethernet-switches/layer-2-managed-switches/eds-510e-series/eds-510e-3gtxsfp-t",
+      "comboPorts": 3
+    },
+    {
+      "vendor": "moxa",
+      "model": "EDS-G4012-4GC-T",
+      "label": "EDS-G4012 industrial managed switch",
+      "category": "switch",
+      "description": "DIN-rail full-Gigabit Layer 2 managed switch with 8 x 10/100/1000BaseT(X) RJ45 ports plus 4 combo ports usable as 10/100/1000BaseT(X) copper or 100/1000BaseSFP cages; -40 to 75 C wide-temperature model, dual redundant power input, Turbo Ring/Turbo Chain.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "11",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "12",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp9",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp10",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp11",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp12",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/en/products/industrial-network-infrastructure/ethernet-switches/layer-2-managed-switches/eds-g4012-series",
+      "comboPorts": 4
+    },
+    {
+      "vendor": "moxa",
+      "model": "EDS-G4012-8P-4QGS-LVB-T",
+      "label": "EDS-G4012 8-port PoE industrial switch",
+      "category": "switch",
+      "description": "DIN-rail Layer 2 managed PoE switch: 8 x 10/100/1000BaseT(X) RJ45 ports with IEEE 802.3bt PoE (up to 90 W per port) plus 4 x 1000/2500BaseSFP cages; -40 to 75 C, dual 12/24/48 VDC inputs, 150 W total PoE budget on 24 VDC input (180 W on 48 VDC).",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 90
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp3",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp4",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        }
+      ],
+      "poe": {
+        "budgetW": 150
+      },
+      "sourceUrl": "https://www.moxa.com/en/products/industrial-network-infrastructure/ethernet-switches/layer-2-managed-switches/eds-g4012-series/eds-g4012-8p-4qgs-lvb-t"
+    },
+    {
+      "vendor": "hirschmann",
+      "model": "RS20-0800T1T1SDAE",
+      "label": "RS20 OpenRail compact managed switch",
+      "category": "switch",
+      "description": "Compact DIN-rail Layer 2 Enhanced managed Fast Ethernet switch, 8 x 10/100BASE-TX RJ45 ports, fanless store-and-forward design, HIPER-Ring/MRP/RSTP redundancy, 12/24/48 VDC; standard temperature variant rated 0 to 60 C.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.farnell.com/datasheets/1733221.pdf"
+    },
+    {
+      "vendor": "siemens",
+      "model": "SCALANCE XC208",
+      "label": "SCALANCE XC208 managed IE switch",
+      "category": "switch",
+      "description": "DIN-rail / S7-rail / wall-mount Layer 2 managed industrial Ethernet switch (6GK5208-0BA00-2AC2) with 8 x 10/100 Mbit/s RJ45 ports and a console port; -40 to +70 C, redundant power supply, PROFINET IO device with RSTP/VLAN.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://support.industry.siemens.com/teddatasheet/?format=pdf&mlfbs=6GK5208-0BA00-2AC2&language=en&caller=SIOS"
+    },
+    {
+      "vendor": "siemens",
+      "model": "SCALANCE XC224",
+      "label": "SCALANCE XC224 managed IE switch",
+      "category": "switch",
+      "description": "DIN-rail / S7-rail / wall-mount Layer 2 managed industrial Ethernet switch (6GK5224-0BA00-2AC2) with 24 x 10/100 Mbit/s RJ45 ports and a console port; -40 to +70 C, redundant power supply, PROFINET IO device. The XC224-4C G variant adds Gigabit copper and 4 combo SFP ports.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "9",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "10",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "11",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "12",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "13",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "14",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "15",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "16",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "17",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "18",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "19",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "20",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "21",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "22",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "23",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "24",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://support.industry.siemens.com/teddatasheet/?format=pdf&mlfbs=6GK5224-0BA00-2AC2&language=en&caller=SIOS"
+    },
+    {
+      "vendor": "phoenix-contact",
+      "model": "FL SWITCH 2008",
+      "label": "FL SWITCH 2008 managed switch",
+      "category": "switch",
+      "description": "Managed Switch 2000 series DIN-rail switch (2702324) with 8 x 10/100 Mbps RJ45 ports, IP20 metal housing, 18-32 VDC supply; 0 to 60 C ambient, PROFINET Conformance Class A, IEC 62443-4-2 certified.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.phoenixcontact.com/en-us/products/switch-fl-switch-2008-2702324"
+    },
+    {
+      "vendor": "cisco",
+      "model": "IE-3300-8T2S",
+      "label": "Catalyst IE3300 rugged switch",
+      "category": "switch",
+      "description": "DIN-rail or wall-mount ruggedized Layer 2/3 industrial switch with 8 x 10/100/1000 RJ45 copper ports and 2 x 100/1000 SFP uplinks, expandable to 26 Gigabit ports via a media module; -40 to +75 C, IOS-XE with static/RIP routing.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-ie3300-rugged-series/catalyst-ie3300-rugged-series-ds.html"
+    },
+    {
+      "vendor": "advantech",
+      "model": "EKI-7708G-4FI",
+      "label": "EKI-7708G-4FI industrial switch",
+      "category": "switch",
+      "description": "DIN-rail managed industrial switch with 4 x 10/100/1000Base-T RJ45 ports and 4 x Gigabit SFP cages; -40 to 75 C wide-temperature model, redundant 12-48 VDC input, IEC 62443-4-2 SL2 and NEMA TS2 certified.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "sfp3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "sfp4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.advantech.com/en/products/1-2mljzp/eki-7708g-4fi/mod_491a3bbd-d6cb-4894-9ecf-492c6c85f2e3"
+    },
+    {
+      "vendor": "belden",
+      "model": "GRS1042",
+      "label": "Hirschmann GREYHOUND GRS1042 rack switch",
+      "category": "switch",
+      "description": "19-inch 1U rack-mount (not DIN-rail) Hirschmann GREYHOUND backbone switch: 6 x 10/100/1000 RJ45 TX ports, 4 x 1/2.5 Gbit/s SFP slots and 2 x 100/1000 SFP slots, expandable with two media modules to 28 ports; 0 to +60 C in the standard temperature code, -40 to +70 C with the T/E code.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp3",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp4",
+          "type": "ethernet",
+          "speed": "2.5G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            2500
+          ]
+        },
+        {
+          "name": "sfp5",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "sfp6",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.doc.hirschmann.com/pdf/IG_GRS1042_GRS1142_GMM_GPS_09_0323_en_2023-03-16.pdf"
+    },
+    {
+      "vendor": "antaira",
+      "model": "LNP-0800G-24-T",
+      "label": "LNP-0800G 8-port industrial PoE+ switch",
+      "category": "switch",
+      "description": "DIN-rail unmanaged industrial Gigabit PoE+ switch with 8 x 10/100/1000Base-TX RJ45 ports, all IEEE 802.3af/at PSE at up to 30 W per port; -40 to 75 C extended-temperature model, 9-55 VDC redundant input, 240 W PoE budget on 48-55 VDC (150 W at 24 VDC).",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeOut": 30
+        }
+      ],
+      "poe": {
+        "budgetW": 240
+      },
+      "sourceUrl": "https://www.antaira.com/products/gigabit-unmanaged-poe/LNP-0800G-24-T"
+    },
+    {
+      "vendor": "westermo",
+      "model": "L106-F2G",
+      "label": "Lynx L106-F2G industrial switch",
+      "category": "switch",
+      "description": "Compact DIN-rail Layer 2 industrial switch (WeOS) with 4 x 10/100 Mbit/s RJ45 ports and 2 x 1 Gbit/s SFP cages; -40 to +70 C fanless housing, dual 19-60 VDC input, FRNT ring recovery.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.westermo.com/products/ethernet-switches/layer-2/l106-f2g"
+    }
+  ]
+}

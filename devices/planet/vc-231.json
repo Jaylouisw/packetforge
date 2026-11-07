@@ -1,0 +1,22 @@
+{
+  "vendor": "planet",
+  "model": "VC-231",
+  "label": "PLANET VC-231 VDSL2 Ethernet extender",
+  "category": "modem",
+  "description": "Point-to-point VDSL2 (G.993.2 17a/30a) Ethernet extender used in CO/CPE pairs to run Ethernet over existing phone wire: one 10/100BASE-TX RJ45 and one RJ11 telephone jack, up to 100/100 Mbps symmetric at 200 m and 22/19 Mbps at 1.4 km.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    }
+  ]
+}

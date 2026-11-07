@@ -1,0 +1,69 @@
+{
+  "vendor": "technicolor",
+  "model": "CGA4236",
+  "label": "MARLIN L CGA4236 DOCSIS 3.1 cable gateway",
+  "category": "modem",
+  "description": "DOCSIS 3.1 / EuroDOCSIS 3.1 cable gateway with 32x8 bonded channels plus 2x2 OFDM(A), four GE LAN ports (one 2.5GBASE-T plus three gigabit), dual-band Wi-Fi 6, two FXS voice ports and a USB 3.1 port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "wireless",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "fxs1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "fxs2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "usb1",
+      "type": "usb"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ]
+}

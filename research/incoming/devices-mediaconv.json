@@ -1,0 +1,513 @@
+[
+  {
+    "vendor": "mikrotik",
+    "model": "CRS305-1G-4S+IN",
+    "label": "CRS305-1G-4S+IN 10G desktop switch",
+    "category": "switch",
+    "description": "Four SFP+ cages plus a single 1G RJ45 port (ETH/BOOT, also the PoE-in port) in a fanless desktop case. Each cage takes either a 1.25G SFP or a 10G SFP+ module, so 1G optics work in all four.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://manual.mikrotik.com/hardware/crs305-1g-4s-plus-in/",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS309-1G-8S+IN",
+    "label": "CRS309-1G-8S+IN 8x 10G desktop switch",
+    "category": "switch",
+    "description": "Eight SFP+ cages (1G or 10G modules) plus one 1G RJ45 management port that also accepts 802.3af/at or passive PoE-in. 162 Gbps switching capacity, 81 Gbps non-blocking, fanless.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/crs309_1g_8s_in",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "MC220L",
+    "label": "MC220L gigabit SFP media converter",
+    "category": "switch",
+    "description": "Two-port gigabit media converter: one 10/100/1000BASE-T RJ45 port and one gigabit SFP slot. The cage is 1G only (1000BASE-SX/LX or a 1000BASE-T copper module) - 100BASE-FX optics are not supported.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/accessory/mc220l/v1/",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "FC311A-20",
+    "label": "FC311A-20 gigabit WDM media converter (single fibre, 20 km)",
+    "category": "switch",
+    "description": "Gigabit WDM converter with one 10/100/1000BASE-T RJ45 port and a single-fibre SC port (TX 1310 nm / RX 1550 nm) that reaches 20 km on one single-mode strand. It occupies one core only because the A side transmits on 1310 and receives on 1550, so it must pair with the B-side unit (FC311B-20).",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "fiber0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sc-upc",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/uk/business-networking/omada-accessory-media-converter/fc311a-20/v2.20/",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "startech",
+    "model": "ET91000SM20",
+    "label": "ET91000SM20 gigabit copper-to-fibre converter (SM LC, 20 km)",
+    "category": "switch",
+    "description": "Gigabit copper-to-fibre converter with one 10/100/1000BASE-T RJ45 port and one SFP cage shipped with a 1000BASE-LX single-mode LC module good for 20 km at 1310 nm. The module is removable, so SX/LX/EX/ZX or a 1000BASE-T SFP can be swapped in instead.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://media.startech.com/cms/pdfs/et91000sm20_datasheet.pdf",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "planet",
+    "model": "GT-805A",
+    "label": "GT-805A 10/100/1000T to SFP media converter",
+    "category": "switch",
+    "description": "Standalone media converter with one 10/100/1000BASE-T RJ45 port and one SFP (mini-GBIC) slot that accepts 100BASE-FX or 1000BASE-SX/LX optics. Reach and wavelength come entirely from the pluggable, so a 100M pair of SFPs gives a 100M link and 1G SFPs give 1G.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://store.cmsdistribution.com/media/catalog/product/attachments/datasheet/GT805A_355670.pdf",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "netgear",
+    "model": "GS110TP",
+    "label": "GS110TP 8-port gigabit PoE smart switch + 2 SFP",
+    "category": "switch",
+    "description": "Eight 10/100/1000BASE-T RJ45 ports with 802.3af PoE (15.4 W per port, 46 W total budget) plus two separate dedicated 1G SFP uplinks - the SFP slots are their own positions, not combo cages shared with copper.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.netgear.com/images/datasheet/switches/SmartSwitches/GS110TP.pdf",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-Instant",
+    "label": "UFiber Instant GPON CPE (SFP form factor)",
+    "category": "switch",
+    "description": "GPON ONU built into an SFP module: an SC/APC PON port (2.488 Gbit/s down, 1.244 Gbit/s up) on the outside, and a 1G SGMII host interface on the SFP edge connector that plugs straight into a switch cage. There is no RJ45 anywhere on the unit.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "gpon0",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      {
+        "name": "sgmii0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://dl.ui.com/qsg/UF-Instant/UF-Instant_EN.html",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "allied-telesis",
+    "model": "AT-MC102XL",
+    "label": "AT-MC102XL 100TX to 100FX media converter (SC, MM, 2 km)",
+    "category": "switch",
+    "description": "Unmanaged Fast Ethernet converter with one 100BASE-TX RJ45 port and one duplex SC multimode fibre port at 1310 nm reaching 2 km. No IP stack and no management - it just forwards frames between the copper and fibre sides (and can be racked in an MCR12 chassis).",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "fiber0",
+        "type": "ethernet",
+        "speed": "100M",
+        "connector": "sc-upc",
+        "speedCaps": [
+          100
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.alliedtelesis.com/us/en/products/media-converters/unmanaged/mc100-series/mc102xl",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "planet",
+    "model": "XT-705A",
+    "label": "XT-705A 10G copper to SFP+ media converter",
+    "category": "switch",
+    "description": "10G media converter with one 100M/1G/2.5G/5G/10G auto-negotiating RJ45 port and one 10GBASE-X SFP+ slot. The cage is 10G only (10GBASE-SR/LR, up to 300 m multimode or 60 km single-mode), so multi-gig copper can be carried onto fibre without a 10G switch.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp0",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.planet.com.tw/en/product/xt-705a",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "planet",
+    "model": "VC-231G",
+    "label": "VC-231G gigabit Ethernet-over-VDSL2 bridge",
+    "category": "switch",
+    "description": "Ethernet-over-VDSL2 bridge with one 10/100/1000BASE-T RJ45 port and one RJ11 VDSL2 port plus a POTS splitter, with CO/CPE role chosen by DIP switch. A pair turns one telephone pair into roughly 150 Mbit/s symmetric at short reach, falling to about 20/12 Mbit/s at 1.4 km.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "100M",
+        "connector": "rj11"
+      }
+    ],
+    "sourceUrl": "https://www.planet.com.tw/storage/products/49032/EM-VC-231G%20Series%20Ethernet%20over%20VDSL2%20Brdige_v1.4.pdf",
+    "icon": "switch",
+    "color": "#64748b"
+  },
+  {
+    "vendor": "allnet",
+    "model": "ALL-GHN102v2-Coax",
+    "label": "G.hn coax bridge (2x GbE + F-connector)",
+    "category": "switch",
+    "description": "G.hn bridge for existing TV coax: two 100/1000BASE-T RJ45 ports and one F-connector G.hn port rated up to 500 Mbit/s PHY, with a built-in filter so DVB-C/TV signal passes through the same cable. Sold as a point-to-point pair for runs up to about 800 m.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ghn0",
+        "type": "coax",
+        "speed": "1G",
+        "connector": "coax"
+      }
+    ],
+    "sourceUrl": "https://shop-en.allnet.de/Products/Network-active-components/HomePN/G.hn-Coax/",
+    "icon": "switch",
+    "color": "#64748b"
+  }
+]

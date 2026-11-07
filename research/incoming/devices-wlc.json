@@ -1,0 +1,198 @@
+[
+  {
+    "vendor": "cisco",
+    "model": "Catalyst 9800-L",
+    "label": "Catalyst 9800-L Wireless Controller",
+    "category": "host",
+    "description": "Cisco IOS-XE hardware WLC appliance for small and midsize campus: 250 APs / 5,000 clients (500 / 10,000 with the Performance license) and up to 5 Gbps of throughput. Copper (9800-L-C) variant carries four 2.5G mGig data ports plus two 10G uplinks and two 1G service/redundancy ports; no radios.",
+    "capabilities": ["cli", "dhcp-server", "host", "http-server", "l2-forward", "l3-forward"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+      { "name": "eth1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "eth2", "type": "ethernet", "speed": "2.5G" },
+      { "name": "eth3", "type": "ethernet", "speed": "2.5G" },
+      { "name": "eth4", "type": "ethernet", "speed": "10G" },
+      { "name": "eth5", "type": "ethernet", "speed": "10G" },
+      { "name": "eth6", "type": "ethernet", "speed": "1G" },
+      { "name": "eth7", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/wireless/catalyst-9800-series-wireless-controllers/datasheet-c78-742434.html"
+  },
+  {
+    "vendor": "aruba",
+    "model": "7210 Mobility Controller",
+    "label": "Aruba 7210 Mobility Controller",
+    "category": "host",
+    "description": "1RU ArubaOS campus WLC for up to 512 APs and 16,384 clients with 20 Gbps of firewall throughput. Four 10G SFP+ ports for AP/network traffic plus two dual-media (10/100/1000BASE-T or SFP) ports used for HA and management; no radios.",
+    "capabilities": ["cli", "dhcp-server", "host", "http-server", "l2-forward", "l3-forward", "nat"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "10G" },
+      { "name": "eth1", "type": "ethernet", "speed": "10G" },
+      { "name": "eth2", "type": "ethernet", "speed": "10G" },
+      { "name": "eth3", "type": "ethernet", "speed": "10G" },
+      { "name": "eth4", "type": "ethernet", "speed": "1G" },
+      { "name": "eth5", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.arubanetworks.com/assets/ds/DS_7200Series.pdf"
+  },
+  {
+    "vendor": "ruckus",
+    "model": "SmartZone 144",
+    "label": "RUCKUS SmartZone 144 (SZ144) controller",
+    "category": "host",
+    "description": "1RU SmartZone WLAN controller managing up to 2,000 RUCKUS APs (6,000 in a 3+1 active-active cluster) with built-in DHCP and NAT services. Four 1GbE ports and four 10GbE ports for control/data traffic; no radios.",
+    "capabilities": ["cli", "dhcp-server", "host", "http-server", "l2-forward", "l3-forward", "nat"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G" },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "eth2", "type": "ethernet", "speed": "1G" },
+      { "name": "eth3", "type": "ethernet", "speed": "1G" },
+      { "name": "eth4", "type": "ethernet", "speed": "10G" },
+      { "name": "eth5", "type": "ethernet", "speed": "10G" },
+      { "name": "eth6", "type": "ethernet", "speed": "10G" },
+      { "name": "eth7", "type": "ethernet", "speed": "10G" }
+    ],
+    "sourceUrl": "https://www.azenn.com/wp-content/uploads/Ruckus_SZ-144-1.pdf"
+  },
+  {
+    "vendor": "extreme",
+    "model": "ExtremeCloud IQ Controller E1120",
+    "label": "ExtremeCloud IQ Controller E1120",
+    "category": "host",
+    "description": "Compact fanless ExtremeCloud IQ Controller appliance that manages up to 125 APs standalone (250 in HA) with 3.7 Gbps mixed throughput. Four 10/100/1000BASE-T data ports plus a separate 1G management port; no radios.",
+    "capabilities": ["cli", "dhcp-server", "host", "http-server", "l2-forward", "l3-forward"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G" },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "eth2", "type": "ethernet", "speed": "1G" },
+      { "name": "eth3", "type": "ethernet", "speed": "1G" },
+      { "name": "eth4", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.extremenetworks.com/products/wi-fi-management/extremecloud-iq-controller/extremecloud-iq-controller"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UniFi Cloud Key G2 Plus",
+    "label": "UniFi Cloud Key G2 Plus",
+    "category": "host",
+    "description": "Self-contained UniFi controller appliance (UniFi Network plus UniFi Protect on a 1 TB HDD) for small and mid-size sites. Single Gigabit RJ45 port that also accepts 802.3af PoE in, so it needs no local power brick; no radios.",
+    "capabilities": ["cli", "dhcp-client", "host", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://dl.ui.com/ds/uck-g2-plus_ds.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UniFi Dream Machine Pro",
+    "label": "UniFi Dream Machine Pro (UDM-Pro)",
+    "category": "host",
+    "description": "1RU UniFi OS console that is both a 10G router/gateway and the UniFi Network controller (100+ UniFi devices, 1,000+ clients) with a built-in NVR. Eight 1G RJ45 LAN ports, one 1G RJ45 WAN port, and one 10G SFP+ LAN plus one 10G SFP+ WAN port; no radios.",
+    "capabilities": ["cli", "dhcp-client", "dhcp-server", "firewall", "host", "http-server", "l2-forward", "l3-forward", "nat"],
+    "interfaces": [
+      { "name": "wan0", "type": "ethernet", "speed": "1G" },
+      { "name": "eth0", "type": "ethernet", "speed": "1G" },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "eth2", "type": "ethernet", "speed": "1G" },
+      { "name": "eth3", "type": "ethernet", "speed": "1G" },
+      { "name": "eth4", "type": "ethernet", "speed": "1G" },
+      { "name": "eth5", "type": "ethernet", "speed": "1G" },
+      { "name": "eth6", "type": "ethernet", "speed": "1G" },
+      { "name": "eth7", "type": "ethernet", "speed": "1G" },
+      { "name": "sfp0", "type": "ethernet", "speed": "10G" },
+      { "name": "sfp1", "type": "ethernet", "speed": "10G" }
+    ],
+    "sourceUrl": "https://dl.ui.com/ds/udm-pro.pdf"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "OC200",
+    "label": "Omada Hardware Controller OC200",
+    "category": "host",
+    "description": "Fanless Omada SDN hardware controller managing up to 100 Omada APs, 20 switches and 10 routers. Two Fast Ethernet RJ45 ports (10/100) with 802.3af/at PoE input on the LAN port; no radios.",
+    "capabilities": ["dhcp-client", "host", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 5 },
+      { "name": "eth1", "type": "ethernet", "speed": "100M" }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-controller/oc200/v1/"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U6 Enterprise",
+    "label": "UniFi U6 Enterprise AP",
+    "category": "wireless",
+    "description": "Wi-Fi 6E tri-radio indoor AP: 2x2 on 2.4 GHz, 4x4 on 5 GHz and 4x4 on 6 GHz for 10.2 Gbps aggregate PHY. Single 2.5GbE RJ45 uplink with PoE+ input (22 W max).",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "2.5G", "poeIn": 22 },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" },
+      { "name": "radio2", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-enterprise"
+  },
+  {
+    "vendor": "aruba",
+    "model": "AP-635",
+    "label": "Aruba AP-635 Campus AP",
+    "category": "wireless",
+    "description": "Wi-Fi 6E tri-radio 2x2:2 indoor campus AP covering 2.4, 5 and 6 GHz concurrently for 3.9 Gbps aggregate. Two 2.5G Smart Rate RJ45 ports (E0/E1) for hitless failover on data and power, 802.3af/at/bt PoE-PD.",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "2.5G", "poeIn": 22.5 },
+      { "name": "eth1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://apps.juniper.net/hct/product/AP-635/hwspecs"
+  },
+  {
+    "vendor": "ruckus",
+    "model": "R770",
+    "label": "RUCKUS R770 Wi-Fi 7 AP",
+    "category": "wireless",
+    "description": "Wi-Fi 7 tri-radio indoor AP: 2x2 on 2.4 GHz, 4x4 on 5 GHz and 2x2 on 6 GHz with MLO and 320 MHz channels for 12.22 Gbps combined PHY. One 100M/1G/2.5G/5G/10G PoE port plus a secondary 1G port, 802.3af/at/bt.",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "10G", "poeIn": 32 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" },
+      { "name": "radio2", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://www.ruckusnetworks.com/products/wireless-access-points/r770/"
+  },
+  {
+    "vendor": "extreme",
+    "model": "AP4000",
+    "label": "Extreme AP4000 Wi-Fi 6E AP",
+    "category": "wireless",
+    "description": "Wi-Fi 6E tri-radio 2x2:2 universal indoor AP (3.9 Gbps aggregate) that can run as three data radios or two data radios plus a tri-frequency sensor. ETH0 is a 100/1000/2500 Mbps PoE port, ETH1 a 1G port; 802.3at powered at 13.8 W typical.",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "2.5G", "poeIn": 13.8 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://www.extremenetworks.com/products/wi-fi-access-points/universal-aps-indoor/ap4000"
+  },
+  {
+    "vendor": "cisco",
+    "model": "Catalyst 9162I",
+    "label": "Catalyst 9162I Wi-Fi 6E AP",
+    "category": "wireless",
+    "description": "Wi-Fi 6E tri-radio 2x2:2 enterprise indoor AP (2.4/5/6 GHz) with a 2.5G mGig uplink; joins Catalyst 9800 or Meraki cloud. Single 100M/1G/2.5G Multigigabit RJ45 PoE port drawing 25.5 W on 802.3at/bt, plus an RJ45 console port.",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "2.5G", "poeIn": 25.5 },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/wireless/catalyst-9100ax-access-points/cat-9162-series-access-points-ds.html"
+  }
+]

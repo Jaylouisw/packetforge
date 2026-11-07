@@ -1,0 +1,22 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-PA8010P",
+  "label": "TL-PA8010P AV1300 passthrough powerline adapter",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO adapter rated AV1300 (1300 Mbps PHY, several hundred Mbps real throughput). One Gigabit Ethernet port and a 16 A filtered passthrough socket; sold singly and as a starter kit.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

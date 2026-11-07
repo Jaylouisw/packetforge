@@ -1,0 +1,22 @@
+{
+  "vendor": "dlink",
+  "model": "DHP-P701AV",
+  "label": "D-Link DHP-P701AV PowerLine AV2 2000 passthrough kit",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO kit of two DHP-P700AV adapters, up to 2000 Mbps powerline PHY (D-Link's spec table quotes 1900 Mbps). Each adapter has one Gigabit Ethernet port and a noise-filtered passthrough socket rated 15 A.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

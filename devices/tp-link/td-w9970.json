@@ -1,0 +1,54 @@
+{
+  "vendor": "tp-link",
+  "model": "TD-W9970",
+  "label": "TD-W9970 300Mbps Wireless N USB VDSL2 modem router",
+  "category": "router",
+  "description": "VDSL2/ADSL2+ modem router with a 2.4 GHz 802.11n access point, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a USB 2.0 port for storage or printer sharing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "wireless",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "usb1",
+      "type": "usb"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ]
+}

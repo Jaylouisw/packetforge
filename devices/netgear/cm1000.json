@@ -1,0 +1,26 @@
+{
+  "vendor": "netgear",
+  "model": "CM1000",
+  "label": "CM1000 Ultra-High Speed DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32 downstream / 8 upstream DOCSIS 3.0 SC-QAM channels plus 2 OFDM downstream and 2 OFDMA upstream channels, bridged to a single gigabit Ethernet port.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

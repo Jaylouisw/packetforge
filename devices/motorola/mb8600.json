@@ -1,0 +1,41 @@
+{
+  "vendor": "motorola",
+  "model": "MB8600",
+  "label": "MB8600 DOCSIS 3.1 cable modem, 4x GigE",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32x8 DOCSIS 3.0 fallback plus DOCSIS 3.1 OFDM/OFDMA, and four gigabit LAN ports that can be link-aggregated for up to 3.8 Gbps of delivered throughput.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

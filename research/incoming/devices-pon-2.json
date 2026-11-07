@@ -1,0 +1,261 @@
+[
+  {
+    "vendor": "calix",
+    "model": "E7-2",
+    "label": "E7-2 Modular ESAP OLT",
+    "category": "olt",
+    "description": "Calix E7-2 AXOS Ethernet Service Access Platform: a 1RU shelf with two universal line-card slots that holds 16 GPON ports when fully populated. This spec counts one GPON-8 r2 card in slot 1 - 8 GPON OIM ports (gpon1/1-8, 64 ONTs each) plus that card's own 2x 10GE SFP+, 2x 10GE XFP and 4x GE SFP ports; two GPON-8 r2 cards fill the shelf for 16 PON ports and 1024 ONTs at 1:64.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 8,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [1244, 2488]
+    },
+    "interfaces": [
+      { "name": "xge1/1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/2", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "ge1/1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000, 2500] },
+      { "name": "ge1/2", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000, 2500] },
+      { "name": "ge1/3", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000, 2500] },
+      { "name": "ge1/4", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000, 2500] }
+    ],
+    "sourceUrl": "https://telecomcauliffe.com/wp-content/uploads/2022/01/Calix_E7-2_GPON-8_r2_100-04665.pdf"
+  },
+  {
+    "vendor": "dzs",
+    "model": "Velocity V2",
+    "label": "Velocity V2 OLT",
+    "category": "olt",
+    "description": "DZS Velocity V2 compact chassis OLT (2RU, ETSI EN 300 hardened): 2 multi-service subscriber slots plus 2 management/network-facing slots, scaling to 32 GPON/XGS-PON ports. This spec counts one V2-LC-NGPC16-5 any-PON service card - 16 SFP+ ports (gpon1/1-16) that each run GPON, XGS-PON or combo PON - together with that card's 2x 100GE QSFP28 on-board uplinks and 1 management port.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [2488, 9953]
+    },
+    "interfaces": [
+      { "name": "qsfp1/1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "qsfp1/2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "mgmt0", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/ff/af/4b/62/624bafff06de6ea8aa834968/texts/6e/af/bd/62/62bdaf6eea7cabde0045d040/DZS%20V-CHASSIS-V2_Datasheet.pdf"
+  },
+  {
+    "vendor": "dzs",
+    "model": "Velocity V6",
+    "label": "Velocity V6 OLT",
+    "category": "olt",
+    "description": "DZS Velocity V6 6RU chassis OLT with 6 access service slots, 2 fabric-card/network-facing slots and 2 management slots, scaling to 96 GPON/XGS-PON ports (24,000+ subscribers). This spec counts one V2-LC-NGPC16-5 any-PON card - 16 SFP+ PON ports (gpon1/1-16) - plus 2x 100GE QSFP28 and 4x 10GE SFP+ uplinks on the redundant AEHG2/AETG4 fabric card, and 1 management port.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "gpon1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [2488, 9953]
+    },
+    "interfaces": [
+      { "name": "qsfp1/1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "qsfp1/2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "xge1/1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/2", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/3", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/4", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "mgmt0", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://amt.com/wp-content/uploads/2024/10/V6_Datasheet-1.pdf"
+  },
+  {
+    "vendor": "fiberhome",
+    "model": "AN5516-06",
+    "label": "AN5516-06 OLT",
+    "category": "olt",
+    "description": "Fiberhome AN5516-06 6U 19-inch OLT with a 720 Gbit/s backplane, 6 GPON/EPON service slots (11-16), redundant core switch slots (9-10) and two uplink slots; up to 96 PON ports with 16-port cards. This spec counts one GCOB 16-port GPON card (gpon11/1-16, Class C+ optics, 1:128) plus an HSUC uplink card providing 4x 10GE SFP+ and 4x GE ports.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "gpon11/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [1244, 2488]
+    },
+    "interfaces": [
+      { "name": "xge1/1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/2", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/3", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "xge1/4", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "ge1/1", "type": "ethernet", "speed": "1G" },
+      { "name": "ge1/2", "type": "ethernet", "speed": "1G" },
+      { "name": "ge1/3", "type": "ethernet", "speed": "1G" },
+      { "name": "ge1/4", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.telecomate.com/fiberhome-an5516-olt-configuration-handbook-official-technical-overview-hardware-datasheet/"
+  },
+  {
+    "vendor": "nokia",
+    "model": "7360 ISAM FX-4",
+    "label": "7360 ISAM FX-4 OLT",
+    "category": "olt",
+    "description": "Nokia 7360 ISAM FX-4 access node/OLT: 5RU shelf with 4 line-termination (LT) slots and 2 NT controller slots on a 2x 100G/slot backplane, 64 GPON ports at 16 ports/slot and ready for XGS-PON/TWDM-PON line cards. This spec models one 16-port GPON LT card in slot 1 (1/1/1-16) plus the four configurable 10G/1G SFP+ network links on the FANT-F controller (1/9/1-4).",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 16,
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [1244, 2488]
+    },
+    "interfaces": [
+      { "name": "1/9/1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "1/9/2", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "1/9/3", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+      { "name": "1/9/4", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] }
+    ],
+    "sourceUrl": "https://onestore.nokia.com/asset/f/194448/"
+  },
+  {
+    "vendor": "adtran",
+    "model": "SDX 6330",
+    "label": "SDX 6330 Combo PON OLT",
+    "category": "olt",
+    "description": "Adtran SDX 6330 disaggregated 10G Combo PON OLT, 2.5RU hardened fixed-configuration box (no card slots): 48 combo PON ports that each carry GPON and XGS-PON simultaneously, 2x 200GbE QSFP-DD, 2x 100GbE QSFP28 and 2x 10/25GbE SFP28 uplinks, 1 out-of-band management port.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "dhcp-server", "dhcp-client"],
+    "portTemplate": {
+      "prefix": "pon",
+      "start": 1,
+      "count": 48,
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [2488, 9953]
+    },
+    "interfaces": [
+      { "name": "qsfpdd1/1", "type": "ethernet", "speed": "200G", "connector": "qsfp28", "speedCaps": [100000, 200000] },
+      { "name": "qsfpdd1/2", "type": "ethernet", "speed": "200G", "connector": "qsfp28", "speedCaps": [100000, 200000] },
+      { "name": "qsfp1/1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "qsfp1/2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "xge1/1", "type": "ethernet", "speed": "25G", "connector": "sfp28", "speedCaps": [10000, 25000] },
+      { "name": "xge1/2", "type": "ethernet", "speed": "25G", "connector": "sfp28", "speedCaps": [10000, 25000] },
+      { "name": "mgmt0", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-6000-series.pdf"
+  },
+  {
+    "vendor": "calix",
+    "model": "854G",
+    "label": "854G GigaCenter GPON ONT",
+    "category": "ont",
+    "description": "Calix 854G-1 GigaCenter residential GPON gateway with RF video output: 2.5G GPON uplink (SC/APC), four 1GE LAN ports, two POTS lines, dual-band Wi-Fi 5 (2x2 802.11n at 2.4GHz plus 4x4 MU-MIMO 802.11ac at 5GHz, 80MHz/DFS) and TR-069/Compass management for FTTH triple play.",
+    "capabilities": ["host", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server", "wireless"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "2.5G", "connector": "sc-apc", "speedCaps": [1244, 2488] },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan2g", "type": "wireless", "speed": "300M" },
+      { "name": "wlan5g", "type": "wireless", "speed": "1733M" }
+    ],
+    "sourceUrl": "https://pctelcom.coop/wp-content/uploads/2017/12/844G_854G_GC_ANSI.pdf"
+  },
+  {
+    "vendor": "fiberhome",
+    "model": "AN5506-04-FAT",
+    "label": "AN5506-04-FAT GPON ONT",
+    "category": "ont",
+    "description": "Fiberhome AN5506-04-FAT GPON home gateway: one SC/APC GPON uplink (2.488G down / 1.244G up), four 1GE LAN ports, two POTS ports and concurrent dual-band Wi-Fi (3x3 802.11n at 2.4GHz and 3x3 802.11ac at 5GHz) for triple-play FTTH service.",
+    "capabilities": ["host", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server", "wireless"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "2.5G", "connector": "sc-apc", "speedCaps": [1244, 2488] },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan2g", "type": "wireless", "speed": "450M" },
+      { "name": "wlan5g", "type": "wireless", "speed": "1300M" }
+    ],
+    "sourceUrl": "https://www.router-switch.com/pdf2html/pdf/an5506-04-fat-datasheet.pdf"
+  },
+  {
+    "vendor": "nokia",
+    "model": "XS-2426G-A",
+    "label": "XS-2426G-A XGS-PON ONT",
+    "category": "ont",
+    "description": "Nokia XS-2426G-A indoor XGS-PON gateway (ITU-T G.9807.1, 10G/10G symmetric, SC/APC): four 1GE UNI ports, two POTS ports and dual-band Wi-Fi 6 (2x2 802.11n at 2.4GHz, 2x2 802.11ax at 5GHz) with EasyMesh, managed through OMCI and Nokia AMS.",
+    "capabilities": ["host", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server", "wireless"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan2g", "type": "wireless", "speed": "300M" },
+      { "name": "wlan5g", "type": "wireless", "speed": "1200M" }
+    ],
+    "sourceUrl": "https://fccid.io/m/f4367457a6bdb338c8f5ad0a78a02f1e85801a0689ba44bf850c24509befd07c.pdf"
+  },
+  {
+    "vendor": "zte",
+    "model": "F8648P",
+    "label": "ZXHN F8648P XGS-PON ONT",
+    "category": "ont",
+    "description": "ZTE ZXHN F8648P AX6000 XGS-PON gateway: one SC/APC 10G/10G XGS-PON WAN, one 10GE plus four 1GE LAN ports, two FXS voice ports and 4x4 Wi-Fi 6 on both bands (1148M at 2.4GHz, 4800M at 5GHz with 160MHz) - the ONT Orange Spain uses for 10G services, managed by full ITU-T G.988 OMCI.",
+    "capabilities": ["host", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server", "wireless"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "10G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "lan5", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan2g", "type": "wireless", "speed": "1148M" },
+      { "name": "wlan5g", "type": "wireless", "speed": "4800M" }
+    ],
+    "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f8648p0/zxhn-f8648p.html"
+  },
+  {
+    "vendor": "nokia",
+    "model": "G-1425G-A",
+    "label": "G-1425G-A GPON ONT",
+    "category": "ont",
+    "description": "Nokia 7368 ISAM ONT G-1425G-A GPON dual-band residential gateway: G.984/G.988 GPON uplink on SC/APC with 2.488G downstream and 1.244G upstream, four 1GE UNI ports, one POTS port and concurrent 2x2 802.11n 2.4GHz plus 2x2 802.11ac 5GHz Wi-Fi on internal antennas.",
+    "capabilities": ["host", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server", "wireless"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "2.5G", "connector": "sc-apc", "speedCaps": [1244, 2488] },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan2g", "type": "wireless", "speed": "300M" },
+      { "name": "wlan5g", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://manuals.plus/m/4952670e1bb9d17a5496605aa0990797d7731caeb6107c2f31762a2550ef4d12_optim.pdf"
+  },
+  {
+    "vendor": "nokia",
+    "model": "XS-010X-Q",
+    "label": "XS-010X-Q XGS-PON SFU ONT",
+    "category": "ont",
+    "description": "Nokia XS-010X-Q single-port XGS-PON SFU ONT (ITU-T G.9807.1, 10G/10G symmetric, SC/APC BOSA): one auto-sensing 100M/1G/2.5G/5G/10G RJ-45 Ethernet port, Layer 2 bridging only, no Wi-Fi or voice, managed by OMCI/AMS - used to feed a router or mesh base unit from a 10G PON drop.",
+    "capabilities": ["host", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "10G" }
+    ],
+    "sourceUrl": "https://www.nokia.com/asset/f/210704/"
+  }
+]

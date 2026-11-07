@@ -1,0 +1,22 @@
+{
+  "vendor": "zyxel",
+  "model": "PLA6456",
+  "label": "Zyxel PLA6456 G.hn Wave 2 passthrough adapter",
+  "category": "powerline",
+  "description": "G.hn Wave 2 (ITU-T G.9963) powerline adapter, marketed as G.hn 2400 while Zyxel's own feature table gives a 1200 Mbps maximum PHY rate over powerline. One Gigabit Ethernet port and an AC pass-through socket.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

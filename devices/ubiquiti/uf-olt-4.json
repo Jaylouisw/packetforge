@@ -1,0 +1,36 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UF-OLT-4",
+  "label": "UFiber OLT 4",
+  "category": "olt",
+  "description": "Ubiquiti UFiber UF-OLT-4 compact GPON OLT: 4 GPON SFP ports (128 ONUs each, 512 clients), 1x 10G SFP+ uplink and 1 Ethernet out-of-band management port = 6 ports. Fanless 1U half-width Layer-2 PON headend for small FTTH builds.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "gpon",
+    "start": 1,
+    "count": 4,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

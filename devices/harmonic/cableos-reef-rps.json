@@ -1,0 +1,43 @@
+{
+  "vendor": "harmonic",
+  "model": "CableOS Reef RPS",
+  "label": "CableOS Reef Dense Remote PHY Shelf (1 line card modelled)",
+  "category": "modem",
+  "description": "2 RU passive Remote PHY shelf for Harmonic's CableOS virtualised CMTS, housing 9 hot-swap line cards each carrying two independent Pebble RPDs of 1DS x 2US; modelled here with a single line card, so 2 downstream and 4 upstream coax ports.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ds1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us4",
+      "type": "coax",
+      "speed": "100M"
+    }
+  ]
+}

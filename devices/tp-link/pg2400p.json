@@ -1,0 +1,27 @@
+{
+  "vendor": "tp-link",
+  "model": "PG2400P",
+  "label": "PG2400P G.hn2400 passthrough powerline kit",
+  "category": "powerline",
+  "description": "G.hn (HomeGrid) 2x2 MIMO powerline kit, G.hn2400 class with transmission speeds up to 1428 Mbps. Each adapter has 2x Gigabit Ethernet, a 16 A passthrough socket, and is deliberately not interoperable with HomePlug AV/AV2.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

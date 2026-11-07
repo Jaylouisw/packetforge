@@ -1,0 +1,37 @@
+{
+  "vendor": "calix",
+  "model": "E9-2",
+  "label": "AXOS E9-2 Intelligent Access Appliance",
+  "category": "olt",
+  "description": "Calix AXOS E9-2 modular access appliance/OLT that scales to 16 PON line cards in one managed system. This spec models one GP1612 line card in slot 1: 16 SFP GPON ports (gpon1/1-16) + its 2x QSFP-28 40/100G uplinks = 18 ports. The CLX3001 control card separately adds 2x QSFP-28, 8x SFP+ and 2x SFP for aggregation.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfp1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

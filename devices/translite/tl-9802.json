@@ -1,0 +1,27 @@
+{
+  "vendor": "translite",
+  "model": "TL-9802",
+  "label": "Translite TL-9802 G.hn over coax Ethernet bridge",
+  "category": "powerline",
+  "description": "G.hn Wave 2 Ethernet-over-coax CPE/bridge for MDU and SFU deployments: two Gigabit Ethernet ports, a coax port with TV RF pass-through, up to 1 Gbps data rate and up to 16 bridges per network. Frequency-band plan avoids live CATV.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "1G"
+    }
+  ]
+}

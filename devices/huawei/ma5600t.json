@@ -1,0 +1,1326 @@
+{
+  "vendor": "huawei",
+  "model": "MA5600T",
+  "label": "SmartAX MA5600T DSLAM/OLT (4x 64-port VDSL2 boards)",
+  "category": "olt",
+  "description": "10U copper/fibre access shelf used as a large-capacity DSLAM: 23 board slots (2 SCU control, 16 service, 2 GIU uplink), modelled here with four 64-port VDSL2 over POTS vectoring boards and four 10GE GIU uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "vdsl1",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl2",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl3",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl4",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl5",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl6",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl7",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl8",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl9",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl10",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl11",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl12",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl13",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl14",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl15",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl16",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl17",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl18",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl19",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl20",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl21",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl22",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl23",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl24",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl25",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl26",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl27",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl28",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl29",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl30",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl31",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl32",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl33",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl34",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl35",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl36",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl37",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl38",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl39",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl40",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl41",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl42",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl43",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl44",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl45",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl46",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl47",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl48",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl49",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl50",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl51",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl52",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl53",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl54",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl55",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl56",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl57",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl58",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl59",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl60",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl61",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl62",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl63",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl64",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl65",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl66",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl67",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl68",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl69",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl70",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl71",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl72",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl73",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl74",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl75",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl76",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl77",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl78",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl79",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl80",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl81",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl82",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl83",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl84",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl85",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl86",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl87",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl88",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl89",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl90",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl91",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl92",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl93",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl94",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl95",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl96",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl97",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl98",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl99",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl100",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl101",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl102",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl103",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl104",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl105",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl106",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl107",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl108",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl109",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl110",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl111",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl112",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl113",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl114",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl115",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl116",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl117",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl118",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl119",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl120",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl121",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl122",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl123",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl124",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl125",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl126",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl127",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl128",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl129",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl130",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl131",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl132",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl133",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl134",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl135",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl136",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl137",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl138",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl139",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl140",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl141",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl142",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl143",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl144",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl145",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl146",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl147",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl148",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl149",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl150",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl151",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl152",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl153",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl154",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl155",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl156",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl157",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl158",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl159",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl160",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl161",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl162",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl163",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl164",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl165",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl166",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl167",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl168",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl169",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl170",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl171",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl172",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl173",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl174",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl175",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl176",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl177",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl178",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl179",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl180",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl181",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl182",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl183",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl184",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl185",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl186",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl187",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl188",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl189",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl190",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl191",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl192",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl193",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl194",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl195",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl196",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl197",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl198",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl199",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl200",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl201",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl202",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl203",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl204",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl205",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl206",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl207",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl208",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl209",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl210",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl211",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl212",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl213",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl214",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl215",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl216",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl217",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl218",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl219",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl220",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl221",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl222",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl223",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl224",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl225",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl226",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl227",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl228",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl229",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl230",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl231",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl232",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl233",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl234",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl235",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl236",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl237",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl238",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl239",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl240",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl241",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl242",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl243",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl244",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl245",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl246",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl247",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl248",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl249",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl250",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl251",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl252",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl253",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl254",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl255",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "vdsl256",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "giu10g1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "giu10g2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "giu10g3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "giu10g4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}

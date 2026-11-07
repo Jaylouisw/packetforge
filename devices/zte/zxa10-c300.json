@@ -1,0 +1,53 @@
+{
+  "vendor": "zte",
+  "model": "ZXA10 C300",
+  "label": "ZXA10 C300 OLT",
+  "category": "olt",
+  "description": "ZTE ZXA10 C300 carrier OLT, 10U vertical-slot chassis: 14 service slots in the 19-inch (21-slot) shelf, 16 in the 21-inch (23-slot) shelf, 2 control/switch slots (SCXN 480G or SCTM 2.56T) and 2 uplink-card slots, up to 16384 GPON users. This spec models one GTGH 16-port GPON card (gpon2/1-16) + one XUTQ 4x 10GE SFP+ uplink card + 1 out-of-band management port = 21 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon2/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge19/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge19/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge19/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge19/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

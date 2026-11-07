@@ -1,0 +1,52 @@
+{
+  "vendor": "commscope",
+  "model": "OM6000",
+  "label": "Opti Max OM6000 1.2 GHz 4x4 HFC segmentable node",
+  "category": "modem",
+  "description": "1.2 GHz 4x4 segmentable HFC optical node that terminates the fibre node in a DOCSIS plant: four forward RF segment outputs and four return RF segment inputs, 10 application module slots in the lid for optics, EDFA, PON extension or a Remote PHY device.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "fwd1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "fwd2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "fwd3",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "fwd4",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "rtn1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "rtn2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "rtn3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "rtn4",
+      "type": "coax",
+      "speed": "100M"
+    }
+  ]
+}

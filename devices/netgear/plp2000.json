@@ -1,0 +1,27 @@
+{
+  "vendor": "netgear",
+  "model": "PLP2000",
+  "label": "NETGEAR Powerline 2000 + Extra Outlet (PLP2000)",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO powerline adapter at 2000 Mbps PHY. Two Gigabit Ethernet ports act as a small switch and the adapter carries a noise-filtered extra power outlet; Push-and-Secure button for 128-bit AES pairing.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

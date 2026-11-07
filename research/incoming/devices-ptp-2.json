@@ -1,0 +1,197 @@
+[
+  {
+    "vendor": "cambium",
+    "model": "PTP 550",
+    "label": "Cambium PTP 550",
+    "category": "ptp",
+    "description": "Cambium PTP 550 - 5.17-5.9 GHz 802.11ac Wave 2 point-to-point radio, 1.4 Gbps aggregate over two 80 MHz channels (4x4 MIMO, 2x2:2 per radio); 1x 1G RJ45 for data plus PoE in, and 1x 1G SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25.5 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://brandcentral.cambiumnetworks.com/m/39ef3ab6dea49ee1/original/PTP_550_Spec_sheet.pdf"
+  },
+  {
+    "vendor": "cambium",
+    "model": "PTP 820C",
+    "label": "Cambium PTP 820C",
+    "category": "ptp",
+    "description": "Cambium PTP 820C - all-outdoor licensed 6-38 GHz microwave radio, QPSK to 2048QAM with ACM, up to 2 Gbps in 2+0 configurations; 1x 1G RJ45 traffic port (PoE-capable), 1x 1G SFP and 1x 100M management RJ45.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 48 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "eth1", "type": "ethernet", "speed": "100M" },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/3e72c403-8d3c-40d8-a76f-973ccc4bd8af/Cambium_Networks_data_sheet_PTP_820C.pdf"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "B5c",
+    "label": "Mimosa B5c",
+    "category": "ptp",
+    "description": "Mimosa B5c - connectorized 4.9-6.2 GHz 4x4:4 backhaul radio (dual N-type antenna ports), 1.5 Gbps IP aggregate with single or dual 20/40/80 MHz channels; 1x 1G RJ45 with PoE in and 1x 1G SFP fibre port.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 20 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://www.mehtagroup.net/Content/img/products/pdf/Mimosa-B5c.pdf"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "B24",
+    "label": "Mimosa B24",
+    "category": "ptp",
+    "description": "Mimosa B24 - 24.00-24.25 GHz unlicensed backhaul radio with integrated 33 dBi antenna, 1.5 Gbps IP aggregate over single or dual 20/40/80 MHz channels; 1x 1G RJ45 (802.3at PoE in) plus 1x 1G SFP in hot-standby.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 19.5 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://mimosa.co/sites/default/files/2024-06/Mimosa-Radisys-B24-Datasheet-DS-2023-12.pdf"
+  },
+  {
+    "vendor": "siklu",
+    "model": "EtherHaul 1200FX",
+    "label": "Siklu EtherHaul 1200FX",
+    "category": "ptp",
+    "description": "Siklu EtherHaul 1200FX - 71-76/81-86 GHz E-band FDD radio, 1 Gbps full duplex with hitless adaptive bandwidth/coding/modulation; 2x 1G RJ45 copper ports (PoE powered, usable for cascade or ring).",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 40 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://www.winncom.com/pdf/Siklu_EtherHaul_1200T_F/Siklu_EtherHaul-1200_Datasheet.pdf"
+  },
+  {
+    "vendor": "siklu",
+    "model": "EtherHaul 8010FX",
+    "label": "Siklu EtherHaul 8010FX",
+    "category": "ptp",
+    "description": "Siklu EtherHaul 8010FX - 71-76/81-86 GHz E-band radio delivering 10 Gbps full duplex in 500/1250/2000 MHz channels; 1x dual-media 10GE data port (RJ45 or SFP+, PoE+ powered) and 1x 1G RJ45 management port.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 2500, 5000, 10000], "poeIn": 50 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "10G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://www.winncom.com/pdf/Siklu_EH_8010FX/Siklu_EH-8010FX_Datasheet.pdf"
+  },
+  {
+    "vendor": "aviat",
+    "model": "WTM 4200",
+    "label": "Aviat WTM 4200",
+    "category": "ptp",
+    "description": "Aviat WTM 4200 - all-outdoor licensed 6-42 GHz microwave radio, QPSK to 4096QAM with hitless ACM, up to 2.5 Gbps per link; 2x 1G RJ45 traffic ports (one with 48 VDC PoE) plus 2x SFP cages supporting 1/2.5/10G optics or copper.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 45 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "sfp1", "type": "ethernet", "speed": "2.5G", "connector": "sfp+", "speedCaps": [1000, 2500, 10000] },
+      { "name": "sfp2", "type": "ethernet", "speed": "2.5G", "connector": "sfp+", "speedCaps": [1000, 2500, 10000] },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://afren.co.za/wp-content/uploads/2023/05/Aviat-WTM-4200-Datasheet.pdf"
+  },
+  {
+    "vendor": "dragonwave",
+    "model": "Harmony Enhanced",
+    "label": "DragonWave Harmony Enhanced",
+    "category": "ptp",
+    "description": "DragonWave Harmony Enhanced - zero-footprint all-outdoor packet microwave radio covering 6-42 GHz licensed/unlicensed bands, up to 2 Gbps per radio (4 Gbps with MIMO/XPIC) at 2048QAM; 2x 1G RJ45 (port 1 PoE++) plus 2x 1G SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 60 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "sfp2", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://dragonwavex.com/system/files/harmony_enhanced_product_sheet_2021.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "airFiber 60 LR",
+    "label": "Ubiquiti airFiber 60 LR",
+    "category": "ptp",
+    "description": "Ubiquiti airFiber 60 LR (AF60-LR) - 57-71 GHz long-range point-to-point radio with 38 dBi dish, 2 Gbps aggregate over 2160/1080 MHz channels to 12+ km; 1x 1G RJ45 with passive PoE in (22 W).",
+    "capabilities": ["l2-forward", "wireless", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 22 },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/af-60-lr"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "airFiber 11FX",
+    "label": "Ubiquiti airFiber 11FX",
+    "category": "ptp",
+    "description": "Ubiquiti airFiber 11FX (AF-11FX) - licensed 10.7-11.7 GHz true full-duplex FDD radio, up to 1.2 Gbps with 1024QAM and reversible high/low-band duplexers; 1x 1G data port (PoE in, 36 W) plus 1x 100M management port.",
+    "capabilities": ["l2-forward", "wireless", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 36 },
+      { "name": "eth1", "type": "ethernet", "speed": "100M" },
+      { "name": "radio0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://dl.ui.com/datasheets/airfiber/airFiber_AF-11FX_DS.pdf"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "Wireless Wire Dish",
+    "label": "MikroTik Wireless Wire Dish",
+    "category": "ptp",
+    "description": "MikroTik Wireless Wire Dish (RBLHGG-60adkit) - factory-paired 60 GHz link kit of two LHG 60G units, 2 Gbps aggregate over up to 1.5 km; each unit has 1x 1G RJ45 with 802.3af/at PoE in (5 W).",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 5 },
+      { "name": "radio0", "type": "wireless", "speed": "1G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://mikrotik.com/product/wireless_wire_dish"
+  },
+  {
+    "vendor": "radwin",
+    "model": "5000 JET",
+    "label": "RADWIN 5000 JET",
+    "category": "ptp",
+    "description": "RADWIN 5000 JET - sub-6 GHz beamforming sector radio, multi-band 3.3-3.8/3.65 GHz or 5.1-5.8 GHz in one unit, up to 1 Gbps per cell (250 Mbps per sector, 40 km range); 1x 1G RJ45 with PoE in plus 1x 1G SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000] },
+      { "name": "radio0", "type": "wireless", "speed": "1G" }
+    ],
+    "icon": "ptp",
+    "color": "#f97316",
+    "sourceUrl": "https://www.4gon.co.uk/documents/radwin_5000_jet_datasheet.pdf"
+  }
+]

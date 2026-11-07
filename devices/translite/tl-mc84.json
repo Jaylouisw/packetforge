@@ -1,0 +1,27 @@
+{
+  "vendor": "translite",
+  "model": "TL-MC84",
+  "label": "Translite TL-MC84 MoCA 2.5 adapter",
+  "category": "powerline",
+  "description": "MoCA 2.5 adapter (1125-1675 MHz) with 2.5 Gbps over coax and two Gigabit Ethernet ports that behave as a small hub for a TV plus a console/PC. One coax port, web management, up to 16 adapters in a network.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "2.5G"
+    }
+  ]
+}

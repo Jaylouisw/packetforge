@@ -13,12 +13,18 @@
 // ---------------------------------------------------------------------------
 // Splitters
 // ---------------------------------------------------------------------------
+// These are the WORST CASE across the parts in catalogue/optics/odn.json, not the
+// best: a design tool must plan against the part that loses the most. The 1:2
+// figure was raised from 3.8 to 4.1 after the catalogue turned up a real Gigalight
+// part at 4.1 dB - every other ratio in this table is more pessimistic than the
+// catalogue, so only that one was optimistic.
+//
 // Real PLC insertion loss is worse than the ideal split ratio (10*log10(n)): a
 // 1:2 ideal is 3.01 dB but a real part is about 3.6, and the penalty grows with
 // the ratio. These are conservative catalogue figures; a specific vendor part can
 // override them.
 const SPLITTERS = {
-  '1:2': { ratio: 2, minDb: 3.4, maxDb: 3.8 },
+  '1:2': { ratio: 2, minDb: 3.4, maxDb: 4.1 },
   '1:4': { ratio: 4, minDb: 7.0, maxDb: 7.6 },
   '1:8': { ratio: 8, minDb: 10.0, maxDb: 10.8 },
   '1:16': { ratio: 16, minDb: 13.4, maxDb: 14.2 },
@@ -155,8 +161,104 @@ function describeOverrun(fibreDb, splitterDb, passiveDb) {
   return parts.join(', ') + '. Reduce the split ratio, shorten the run, or move to a higher class.';
 }
 
+
+// ---------------------------------------------------------------------------
+// The parts catalogue
+// ---------------------------------------------------------------------------
+// Real part numbers beat generic assumptions: "10GBASE-LR" is a standard, but a
+// GLC-SX-MMD has a specific reach and a specific ferrule, and a 1x2 PLC splitter
+// from a given vendor loses more than the ideal 3.01 dB. These live in
+// catalogue/optics/ rather than in code so a contributor can add a part without
+// touching the engine.
+let _transceivers = null;
+let _odn = null;
+
+function _load(file) {
+  const fs = require('fs');
+  const path = require('path');
+  try {
+    const p = path.join(__dirname, '..', 'catalogue', 'optics', file);
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (e) {
+    return null;
+  }
+}
+
+function transceivers() {
+  if (_transceivers === null) {
+    const raw = _load('transceivers.json');
+    _transceivers = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.transceivers) ? raw.transceivers : []);
+  }
+  return _transceivers;
+}
+
+function transceiverByPart(partNumber) {
+  const want = String(partNumber || '').toLowerCase().trim();
+  return transceivers().filter(function (t) {
+    return String(t.partNumber || '').toLowerCase() === want;
+  })[0] || null;
+}
+
+// Which real modules a cage can take, e.g. everything that fits an SFP+ slot.
+function transceiversForCage(cage) {
+  return transceivers().filter(function (t) { return t.formFactor === cage; });
+}
+
+// Single-strand bidirectional optics only work as a PAIR with crossed
+// wavelengths: a 1270/1330 module must meet a 1330/1270 module. Mating two
+// identical BiDi parts leaves both ends transmitting on the same wavelength and
+// both receivers deaf - a real and very common mistake.
+function biDiPairsWith(a, b) {
+  const ta = typeof a === 'string' ? transceiverByPart(a) : a;
+  const tb = typeof b === 'string' ? transceiverByPart(b) : b;
+  if (!ta || !tb) return { ok: false, code: 'E_UNKNOWN_PART', message: 'Unknown transceiver part.' };
+  if (!ta.biDi && !tb.biDi) return { ok: true, code: null, message: 'Not BiDi; both directions use their own strand.' };
+  if (!ta.biDi || !tb.biDi) {
+    return { ok: false, code: 'E_BIDI_MISMATCH',
+      message: (ta.partNumber) + ' and ' + (tb.partNumber) + ' cannot be paired: one is single-strand ' +
+        'BiDi and the other needs two strands.' };
+  }
+  const aTx = Number(ta.wavelengthNm), bTx = Number(tb.wavelengthNm);
+  const aRx = Number(ta.pairWavelengthNm), bRx = Number(tb.pairWavelengthNm);
+  if (aTx === bTx) {
+    return { ok: false, code: 'E_BIDI_SAME_WAVELENGTH',
+      message: ta.partNumber + ' and ' + tb.partNumber + ' both transmit at ' + aTx +
+        ' nm. A BiDi pair must be crossed (1270/1330 with 1330/1270), or both receivers ' +
+        'stay deaf.' };
+  }
+  if (aRx && bRx && (aTx !== bRx || bTx !== aRx)) {
+    return { ok: false, code: 'E_BIDI_MISMATCH',
+      message: ta.partNumber + ' transmits ' + aTx + ' nm and listens on ' + aRx +
+        ' nm, which does not cross with ' + tb.partNumber + ' (' + bTx + '/' + bRx + ' nm).' };
+  }
+  return { ok: true, code: null, message: 'Crossed BiDi pair: ' + aTx + '/' + aRx + ' nm against ' + bTx + '/' + bRx + ' nm.' };
+}
+
+function odnParts() {
+  if (_odn === null) {
+    const raw = _load('odn.json');
+    _odn = Array.isArray(raw) ? raw : [];
+  }
+  return _odn;
+}
+
+// Real measured insertion loss for a ratio, if the catalogue has one. Falls back
+// to the built-in conservative table.
+function catalogueSplitterLossDb(ratio) {
+  const want = String(ratio);
+  const hit = odnParts().filter(function (p) {
+    return String(p.kind || '') === 'splitter' && String(p.ratio || '') === want;
+  })[0];
+  if (!hit || !hit.insertionLossDb) return null;
+  const loss = hit.insertionLossDb;
+  return (typeof loss === 'number') ? loss : (Number(loss.max) || null);
+}
+
+
 module.exports = {
   SPLITTERS, PON_CLASSES, FIBRE_DB_PER_KM,
+  transceivers, transceiverByPart, transceiversForCage, biDiPairsWith,
+  odnParts, catalogueSplitterLossDb,
   CONNECTOR_LOSS_DB, SPLICE_LOSS_DB,
   splitterById, splitterLossDb, fibreLossDbPerKm, ponBudget
 };

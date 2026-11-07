@@ -1,0 +1,793 @@
+[
+  {
+    "vendor": "zyxel",
+    "model": "XGS1930-28",
+    "label": "Zyxel XGS1930-28",
+    "category": "l3-switch",
+    "description": "Zyxel XGS1930-28 - 24x 1G RJ45 with 4x 1G/10G SFP+ uplinks. Lite-L3 smart managed switch (static routing), 128 Gbps switching capacity, fanless.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9",
+    "sourceUrl": "https://www.zyxel.com/in/en-in/products/switch/xgs1930-series/specifications"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG3428XMP",
+    "label": "TP-Link TL-SG3428XMP",
+    "category": "l3-switch",
+    "description": "TP-Link Omada JetStream TL-SG3428XMP - 24x 1G RJ45 PoE+ (802.3af/at, 30 W per port, 384 W budget) plus 4x 1G/10G SFP+ uplinks. L2+ managed with static routing, 128 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Gi0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 384,
+      "sourceUrl": "https://www.tp-link.com/uk/business-networking/omada-switch-l3-l2-managed/tl-sg3428xmp/v1/"
+    },
+    "icon": "switch",
+    "color": "#22c55e",
+    "sourceUrl": "https://www.tp-link.com/uk/business-networking/omada-switch-l3-l2-managed/tl-sg3428xmp/v1/"
+  },
+  {
+    "vendor": "netgear",
+    "model": "GS728TPv3",
+    "label": "Netgear GS728TPv3",
+    "category": "l3-switch",
+    "description": "Netgear GS728TPv3 - 24x 1G RJ45 PoE+ (802.3at, 30 W per port, 190 W budget) plus 4x dedicated 1G SFP uplinks. Smart Cloud switch with IPv4/IPv6 static routing (32 routes), 56 Gbps fabric.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 190,
+      "sourceUrl": "https://www.netgear.com/business/wired/switches/smart-cloud/gs728tpv3/"
+    },
+    "icon": "switch",
+    "color": "#64748b",
+    "sourceUrl": "https://www.netgear.com/business/wired/switches/smart-cloud/gs728tpv3/"
+  },
+  {
+    "vendor": "netgear",
+    "model": "MS510TXM",
+    "label": "Netgear MS510TXM",
+    "category": "l3-switch",
+    "description": "Netgear MS510TXM - 8-port multi-gigabit Smart Managed Pro switch: 4x 100M/1G/2.5G and 4x 100M/1G/2.5G/5G/10G copper ports plus 2x 1G/10G SFP+ uplinks. Layer 3 static routing (32 routes), 140 Gbps non-blocking.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    "interfaces": [
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "switch",
+    "color": "#64748b",
+    "sourceUrl": "https://www.netgear.com/business/wired/switches/smart-cloud/ms510txm/"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "USW-Lite-16-PoE",
+    "label": "UniFi Switch Lite 16 PoE",
+    "category": "switch",
+    "description": "Fanless 16-port 1G Layer 2 switch: ports 1-8 are 802.3af/at PoE+ (45 W total budget), ports 9-16 are plain 1G RJ45. No SFP cage; managed by a UniFi console.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "poe": {
+      "budgetW": 45,
+      "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lite-16-poe"
+    },
+    "icon": "switch",
+    "color": "#3b82f6",
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lite-16-poe"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CSS610-8G-2S+",
+    "label": "CSS610-8G-2S+IN",
+    "category": "switch",
+    "description": "MikroTik CSS610-8G-2S+IN - 8x 1G RJ45 plus 2x 10G SFP+ uplinks, fanless desktop switch running SwOS Lite. Passively cooled, no PoE output.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "ether",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp-sfpplus1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp-sfpplus2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "switch",
+    "color": "#14b8a6",
+    "sourceUrl": "https://mikrotik.com/product/css610_8g_2s_in"
+  },
+  {
+    "vendor": "dlink",
+    "model": "DGS-1210-28",
+    "label": "D-Link DGS-1210-28",
+    "category": "l3-switch",
+    "description": "D-Link DGS-1210-28 - 24x 1G RJ45 plus 4x Gigabit RJ45/SFP combo ports (ports 25-28, one medium per cage). Smart managed with L2+ static routing, fanless, 56 Gbps.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "25",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "25-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "25-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "25",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "26",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "26-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "26-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "26",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "27",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "27-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "27-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "27",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "28",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "28-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "28-sfp",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "28",
+        "comboRole": "sfp"
+      }
+    ],
+    "icon": "switch",
+    "color": "#0ea5e9",
+    "sourceUrl": "https://www.dlink.com/us/en/products/dgs-1210-28mp-28-port-gigabit-smart-managed-poe-switch"
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TEG-S380",
+    "label": "TRENDnet TEG-S380",
+    "category": "switch",
+    "description": "TRENDnet TEG-S380 - 8x 100M/1G/2.5G RJ45 unmanaged switch, fanless metal desktop housing, 40 Gbps switching capacity. No SFP, no PoE, no management.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    "icon": "switch",
+    "color": "#f97316",
+    "sourceUrl": "https://www.trendnet.com/products/2-5g-switch/8-port-unmanaged-2-5g-switch-TEG-S380"
+  },
+  {
+    "vendor": "qnap",
+    "model": "QSW-M2108-2C",
+    "label": "QNAP QSW-M2108-2C",
+    "category": "switch",
+    "description": "QNAP QSW-M2108-2C - 8x 2.5G RJ45 plus 2x 10GbE SFP+/RJ45 combo ports (ports 9-10, one medium per cage, 10G/5G/2.5G/1G/100M on copper). Layer 2 web-managed desktop switch, 80 Gbps.",
+    "capabilities": [
+      "l2-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    "interfaces": [
+      {
+        "name": "9",
+        "type": "ethernet",
+        "speed": "10G",
+        "comboWith": "9-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "9-sfp",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ],
+        "comboWith": "9",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "10",
+        "type": "ethernet",
+        "speed": "10G",
+        "comboWith": "10-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "10-sfp",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ],
+        "comboWith": "10",
+        "comboRole": "sfp"
+      }
+    ],
+    "icon": "switch",
+    "color": "#a855f7",
+    "sourceUrl": "https://www.qnap.com/en/product/qsw-m2108-2c/specs/hardware"
+  },
+  {
+    "vendor": "engenius",
+    "model": "ECS1552",
+    "label": "EnGenius ECS1552",
+    "category": "l3-switch",
+    "description": "EnGenius Cloud ECS1552 - 48x 1G RJ45 plus 4x 1G/10G SFP+ uplinks. L2+ cloud-managed switch with static routing (63 IPv4 routes), CLI/SSH, 176 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.engeniustech.com/wp-content/uploads/2024/07/DS_Cloud_ECS1552_v1.3.pdf"
+  },
+  {
+    "vendor": "cisco",
+    "model": "CBS350-24P-4G",
+    "label": "Cisco Business 350 CBS350-24P-4G",
+    "category": "l3-switch",
+    "description": "Cisco Business 350 CBS350-24P-4G - 24x 1G RJ45 PoE+ (802.3at, 30 W per port, 195 W budget) plus 4x Gigabit SFP uplinks (ports 25-28). Managed L3 switch with IPv4/IPv6 static routing and CLI.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 195,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/business-350-series-managed-switches/datasheet-c78-744156.pdf"
+    },
+    "icon": "switch",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/business-350-series-managed-switches/datasheet-c78-744156.pdf"
+  },
+  {
+    "vendor": "aruba",
+    "model": "Instant On 1930 24G",
+    "label": "Aruba Instant On 1930 24G 4SFP/SFP+ (JL682A)",
+    "category": "l3-switch",
+    "description": "Aruba Instant On 1930 24G 4SFP/SFP+ (JL682A) - 24x 1G RJ45 plus 4x 1G/10G SFP+ uplinks. Fanless smart-managed switch with IPv4 static routing (32 routes), web/cloud GUI only (no CLI).",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "switch",
+    "color": "#f59e0b",
+    "sourceUrl": "https://download.axilogi.com/HPE/Datasheet/JL682A.pdf"
+  }
+]

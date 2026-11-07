@@ -1,0 +1,160 @@
+{
+  "vendor": "cisco",
+  "model": "cBR-8",
+  "label": "cBR-8 Converged Broadband Router (CCAP)",
+  "category": "router",
+  "description": "13 RU, 10-slot CCAP chassis (8 subscriber-side line-card slots, 2 supervisor slots) modelled with one CBR-LC-8D31-16U31 line card: 8 downstream and 16 upstream coax ports, plus a supervisor PIC carrying two 100G QSFP28 NSI uplinks and two RJ-45 GE management ports.",
+  "capabilities": [
+    "l3-forward",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ds1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds3",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds4",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds5",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds6",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds7",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds8",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us4",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us5",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us6",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us7",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us8",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us9",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us10",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us11",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us12",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us13",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us14",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us15",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us16",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "sup100g1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "sup100g2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "sup-mgmt1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sup-mgmt2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}

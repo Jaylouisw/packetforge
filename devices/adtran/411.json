@@ -1,0 +1,22 @@
+{
+  "vendor": "adtran",
+  "model": "411",
+  "label": "ADTRAN 411 Micro ONT",
+  "category": "ont",
+  "description": "ADTRAN 411 Micro SFU ONT (GPON, ITU-T G.984, TX 1310 nm / RX 1490 nm, -27 dBm receive sensitivity) in a compact wall/desk housing with one 10/100/1000Base-T Ethernet port and one POTS port, SC/APC fiber connector; bridge only, no WiFi.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

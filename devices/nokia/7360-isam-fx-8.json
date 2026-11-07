@@ -1,0 +1,47 @@
+{
+  "vendor": "nokia",
+  "model": "7360 ISAM FX-8",
+  "label": "7360 ISAM FX-8 OLT",
+  "category": "olt",
+  "description": "Nokia 7360 ISAM FX-8 access node/OLT, 8RU shelf with 8 line-termination (LT) slots and 2 NT controller slots on a 2x 100G/slot backplane; 128 GPON ports at 16 ports/slot. This spec models one 16-port GPON LT card in slot 1 (1/1/1-16) + the four configurable 10G/1G SFP+ network links on the FANT-F controller = 20 ports. No dedicated management port; management is in-band via 5520 AMS.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "1/9/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

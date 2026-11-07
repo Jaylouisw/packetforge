@@ -1,0 +1,22 @@
+{
+  "vendor": "gocoax",
+  "model": "MA2500D",
+  "label": "goCoax MA2500D MoCA 2.5 adapter",
+  "category": "powerline",
+  "description": "MoCA 2.5 adapter with up to 5 bonded channels and 2.5 Gbps real traffic throughput. One 2.5GbE RJ45 LAN port and one MoCA coax port (1125-1675 MHz), up to 16 nodes; wall- or desk-mountable.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "2.5G"
+    }
+  ]
+}

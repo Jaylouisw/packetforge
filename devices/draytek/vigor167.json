@@ -1,0 +1,34 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor167",
+  "label": "Vigor167 VDSL2 35b supervectoring / ADSL2+ modem",
+  "category": "modem",
+  "description": "VDSL2 profile 35b supervectoring and ADSL2+ modem/router with a single RJ-11 DSL port, two gigabit Ethernet LAN ports and an SPI firewall.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

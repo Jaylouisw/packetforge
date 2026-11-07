@@ -1,0 +1,31 @@
+{
+  "vendor": "arris",
+  "model": "S33",
+  "label": "SURFboard S33 DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32x8 SC-QAM plus 2x2 OFDM/OFDMA channels, giving one 2.5GBASE-T port and one 1GBASE-T port from a single coax drop.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

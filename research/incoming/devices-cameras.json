@@ -1,0 +1,215 @@
+[
+  {
+    "vendor": "axis",
+    "model": "P3245-LV",
+    "label": "P3245-LV 1080p fixed dome camera",
+    "category": "camera",
+    "description": "HDTV 1080p (2 MP, 1920x1080) indoor fixed dome with a 3.4-8.9 mm varifocal lens, Forensic WDR and OptimizedIR. One RJ45 10/100 port, powered only by PoE 802.3af/802.3at Type 1 Class 3 (10.7 W max).",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://www.axis.com/dam/public/c3/7b/2d/datasheet-axis-p3245%E2%80%93lv-network-camera-en-US-463432.pdf"
+  },
+  {
+    "vendor": "axis",
+    "model": "Q1798-LE",
+    "label": "Q1798-LE 4K/10 MP box camera",
+    "category": "camera",
+    "description": "4K / 10 MP (3712x2784) box camera on a 4/3-inch sensor with a 12-48 mm Canon lens and 4x optical zoom. One shielded RJ45 10/100/1000 port, powered by PoE 802.3at Type 2 Class 4 (24 W max).",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25.5 }
+    ],
+    "sourceUrl": "https://www.axis.com/dam/public/b0/7e/a7/datasheet-axis-q1798-le-network-camera-en-US-378444.pdf"
+  },
+  {
+    "vendor": "hikvision",
+    "model": "DS-2CD2143G2-I",
+    "label": "DS-2CD2143G2-I 4MP AcuSense dome camera",
+    "category": "camera",
+    "description": "4 MP (2688x1520) AcuSense fixed dome with 120 dB WDR, human/vehicle classification and 30 m IR. One RJ45 10/100 port, PoE 802.3af Class 3 at 6.5 W max (12 VDC also accepted).",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000002/S000000003/S000000025/OFR007888/M000037851/Data_Sheet/DS-2CD2143G2-IS_Datasheet_V5.5.113_20230303.pdf"
+  },
+  {
+    "vendor": "hikvision",
+    "model": "DS-2CD2087G2-LU",
+    "label": "DS-2CD2087G2-LU 4K ColorVu bullet camera",
+    "category": "camera",
+    "description": "8 MP 4K (3840x2160) ColorVu fixed bullet with 24/7 colour imaging, a built-in microphone and 40 m white-light supplement. One RJ45 10/100 port, PoE 802.3af Class 3 at 8.5 W max.",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000002/S000000003/S000000025/OFR000043/M000041482/Data_Sheet/DS-2CD2087G2-LU_Datasheet_V5.5.154_20201202.pdf"
+  },
+  {
+    "vendor": "dahua",
+    "model": "IPC-HDW5442TM-AS",
+    "label": "IPC-HDW5442TM-AS 4MP WizMind eyeball camera",
+    "category": "camera",
+    "description": "4 MP (2688x1520) WizMind IR eyeball with a starlight sensor, AI perimeter protection and people counting. One RJ45 10/100 port, PoE 802.3af Class 0 drawing under 7.2 W.",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://www.dahuasecurity.com/asset/upload/uploads/soft/20191223/DH-IPC-HDW5442TM-ASE_datasheet_20191126.pdf"
+  },
+  {
+    "vendor": "reolink",
+    "model": "RLC-810A",
+    "label": "RLC-810A 4K PoE bullet camera",
+    "category": "camera",
+    "description": "8 MP 4K (3840x2160) PoE bullet with person/vehicle/animal detection, a built-in microphone and 30 m IR. One RJ45 10/100 port, PoE 802.3af (48 V active) under 12 W, with an optional 12 VDC jack.",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://reolink.com/product/rlc-810a/"
+  },
+  {
+    "vendor": "hanwha",
+    "model": "XNV-6081Z",
+    "label": "XNV-6081Z 2MP vandal dome with 4.3x zoom",
+    "category": "camera",
+    "description": "1080p (2 MP) outdoor vandal-resistant dome (IP67/IK10+) with a 2.8-12 mm 4.3x motorised varifocal lens and 60 fps H.265. One RJ45 10/100 port, PoE 802.3af Class 3 at 11 W max (12 VDC and 24 VAC also accepted).",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://www.hanwhavision.com/vn/products/camera/network/dome/xnv-6081z/"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UVC-G5-Pro",
+    "label": "UniFi Protect G5 Pro camera",
+    "category": "camera",
+    "description": "4K 8 MP (3840x2160) indoor/outdoor PoE camera with 3x optical zoom and IR to 25 m. One 10/100 RJ45 port and PoE-only power: 10 W alone, 12.95 W with the Vision Enhancer fitted.",
+    "capabilities": ["host", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "100M", "poeIn": 12.95 }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-pro"
+  },
+  {
+    "vendor": "hikvision",
+    "model": "DS-7608NI-K2/8P",
+    "label": "DS-7608NI-K2/8P 8-channel NVR with 8-port PoE switch",
+    "category": "nvr",
+    "description": "8-channel 4K NVR with two SATA bays, one gigabit LAN port and eight 10/100 PoE camera ports on a private subnet. The built-in switch supplies 802.3af/at with an 80 W total PoE budget.",
+    "capabilities": ["host", "dhcp-client", "http-server", "dhcp-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "1G" },
+      { "name": "PoE 1", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 2", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 3", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 4", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 5", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 6", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 7", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 8", "type": "ethernet", "speed": "100M", "poeOut": 25.5 }
+    ],
+    "poe": { "budgetW": 80 },
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR000040/M000000568/Data_Sheet/Datasheet-of-DS-7608NI-K2_8P-NVR-D-or-E_4.71.410_20221026.pdf"
+  },
+  {
+    "vendor": "dahua",
+    "model": "NVR5216-16P-4KS2E",
+    "label": "NVR5216-16P-4KS2E 16-channel NVR with 16-port PoE",
+    "category": "nvr",
+    "description": "16-channel 1U 4K NVR with two HDD bays, one gigabit uplink and sixteen 10/100 PoE camera ports (ports 1-8 also carry Dahua ePoE/EoC). 802.3af/at at 25.5 W per port with a 130 W total rated PoE budget.",
+    "capabilities": ["host", "dhcp-client", "http-server", "dhcp-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "1G" },
+      { "name": "PoE 1", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 2", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 3", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 4", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 5", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 6", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 7", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 8", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 9", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 10", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 11", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 12", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 13", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 14", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 15", "type": "ethernet", "speed": "100M", "poeOut": 25.5 },
+      { "name": "PoE 16", "type": "ethernet", "speed": "100M", "poeOut": 25.5 }
+    ],
+    "poe": { "budgetW": 130 },
+    "sourceUrl": "https://rxtx.com.au/wp-content/uploads/2023/03/Dahua-DHI-NVR5216-16P-4KS2E-Datasheet.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UNVR",
+    "label": "UniFi Protect Network Video Recorder",
+    "category": "nvr",
+    "description": "1U UniFi Protect recorder with one 10/100/1000 RJ45 port and one 1/10G SFP+ uplink. It has no PoE outputs at all, so every camera must be powered from a separate PoE switch.",
+    "capabilities": ["host", "dhcp-client", "http-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "1G" },
+      { "name": "SFP+ 1", "type": "ethernet", "speed": "10G" }
+    ],
+    "sourceUrl": "https://dl.ui.com/ds/unvr_ds.pdf"
+  },
+  {
+    "vendor": "synology",
+    "model": "DVA1622",
+    "label": "DVA1622 deep-learning NVR, 2 bays",
+    "category": "nvr",
+    "description": "Two-bay desktop NVR with on-board deep-learning analytics, 8 bundled camera licences (16 channels of 1080p) and a single RJ-45 1GbE port. No PoE: each camera needs its own power source.",
+    "capabilities": ["host", "dhcp-client", "http-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/NetworkVideoRecorder/22-year/DVA1622/enu/Product_Spec_DVA1622_enu.pdf"
+  },
+  {
+    "vendor": "reolink",
+    "model": "RLN8-410",
+    "label": "RLN8-410 8-channel PoE NVR",
+    "category": "nvr",
+    "description": "8-channel PoE NVR with one SATA bay, a single 10/100 LAN/WAN port and eight 10/100 PoE camera ports rated 25 W each (802.3af/at). Reolink does not publish an aggregate PoE budget for this box.",
+    "capabilities": ["host", "dhcp-client", "http-server", "dhcp-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "100M" },
+      { "name": "PoE 1", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 2", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 3", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 4", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 5", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 6", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 7", "type": "ethernet", "speed": "100M", "poeOut": 25 },
+      { "name": "PoE 8", "type": "ethernet", "speed": "100M", "poeOut": 25 }
+    ],
+    "poe": { "budgetW": null, "budgetUnknown": true },
+    "sourceUrl": "https://cdn.reolink.com/files/docs/specs/RLK8-810B4-A-NVR-Kit-NVR-Specifications.pdf"
+  },
+  {
+    "vendor": "axis",
+    "model": "S3008",
+    "label": "S3008 recorder with integrated 8-port PoE switch",
+    "category": "nvr",
+    "description": "Compact 8-channel recorder with a 2/4/8 TB surveillance HDD, eight 10/100 PoE camera ports and one gigabit uplink. The integrated switch delivers 802.3af/at with a 65 W total PoE budget on the 2 TB and 4 TB models (60 W on the 8 TB).",
+    "capabilities": ["host", "dhcp-client", "http-server", "dhcp-server", "l2-forward"],
+    "interfaces": [
+      { "name": "LAN", "type": "ethernet", "speed": "1G" },
+      { "name": "PoE 1", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 2", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 3", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 4", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 5", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 6", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 7", "type": "ethernet", "speed": "100M", "poeOut": 12.95 },
+      { "name": "PoE 8", "type": "ethernet", "speed": "100M", "poeOut": 12.95 }
+    ],
+    "poe": { "budgetW": 65 },
+    "sourceUrl": "https://www.axis.com/dam/public/cd/56/85/datasheet-axis-s3008-recorder-en-US-470377.pdf"
+  }
+]

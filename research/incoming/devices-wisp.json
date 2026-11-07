@@ -1,0 +1,172 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "LBE-5AC-Gen2",
+    "label": "LiteBeam 5AC Gen2",
+    "category": "ptp",
+    "description": "5 GHz airMAX ac CPE with a 23 dBi integrated panel, 450+ Mbps TCP and a dedicated 2.4 GHz management radio. Single GbE RJ45 powered by 24 V passive PoE, 7 W max; no SFP cage.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://dl.ui.com/datasheets/LiteBeam/LiteBeam_AC_Gen2_DS.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "NBE-5AC-Gen2",
+    "label": "NanoBeam 5AC Gen2",
+    "category": "ptp",
+    "description": "5 GHz airMAX ac CPE / PtP radio, 19 dBi, 450+ Mbps TCP, 8.5 W max from 24 V passive PoE. Networking interface is one GbE RJ45 with PoE in plus a GbE passthrough jack; no SFP.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://dl.ubnt.com/datasheets/NanoBeam_ac/NanoBeam_AC_Gen2_DS.pdf"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "PBE-5AC-400",
+    "label": "PowerBeam 5AC 400",
+    "category": "ptp",
+    "description": "5 GHz airMAX ac bridge with a 400 mm, 25 dBi dish, 450+ Mbps TCP and 25 dBm output. One GbE RJ45 fed by 24 V passive PoE, 8 W max; no SFP cage.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://dl.ui.com/qsg/PBE-5AC-400/PBE-5AC-400_EN.html"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "RP-5AC-Gen2",
+    "label": "airMAX Rocket Prism 5AC Gen2",
+    "category": "ptp",
+    "description": "5 GHz airPrism 2x2 base-station/backhaul radio for external sector or dish antennas (2x RP-SMA), 500+ Mbps, 28 dBm and 9.5 W max from 24 V passive PoE. One GbE RJ45 only; no SFP.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://dl.ubnt.com/datasheets/RocketAC/Rocket_Prism_AC_Gen2_DS.pdf"
+  },
+  {
+    "vendor": "cambium",
+    "model": "ePMP 3000",
+    "label": "Cambium ePMP 3000 Sector AP",
+    "category": "ptp",
+    "description": "5 GHz (4910-5970 MHz) 4x4 MU-MIMO sector access point, up to 120 subscribers and roughly 1 Gbps of sector capacity, 4x N female antenna ports. One 1G RJ45 (802.3at, 25 W max) plus an auxiliary SFP cage.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25.5 },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.cambiumnetworks.com/wp-content/uploads/Cambium_Networks_data_sheet_ePMP_3000_Series.pdf"
+  },
+  {
+    "vendor": "cambium",
+    "model": "Force 300-25",
+    "label": "Cambium ePMP Force 300-25",
+    "category": "ptp",
+    "description": "5 GHz 802.11ac Wave 2 subscriber module with a 25 dBi integrated dish, up to 600 Mbps and 27 dBm. Single 1G RJ45, powered by 30 V passive PoE (14-30 V), 12 W max; no SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://www.cambiumnetworks.com/resource/epmp-force-300-series-data-sheet/"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "A5c",
+    "label": "Mimosa A5c",
+    "category": "ptp",
+    "description": "5 GHz (4.9-6.4 GHz) 4x4:4 connectorized sector access point with 4x N female ports, 100 clients and up to 1.0 Gbps IP (1.7 Gbps PHY). Single 1G RJ45 fed by 802.3at, 25 W max; no SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25.5 },
+      { "name": "radio0", "type": "wireless", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.netmark.com.vn/Upload/files/Mimosa/Mimosa-A5c-Datasheet.pdf"
+  },
+  {
+    "vendor": "mimosa",
+    "model": "C5c",
+    "label": "Mimosa C5c",
+    "category": "ptp",
+    "description": "5 GHz (4.9-6.4 GHz) 2x2:2 connectorized client radio with 2x RP-SMA, 500 Mbps PTMP / 700 Mbps PTP and 27 dBm. Single 1G RJ45, 9.2 W max from passive PoE (24-56 V); no SFP.",
+    "capabilities": ["l2-forward", "wireless", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://mimosa.co/sites/default/files/2024-06/Mimosa-Radisys-C5c-Datasheet_DS-2024-01.pdf"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RBSXTsqG-5acD",
+    "label": "MikroTik SXTsq 5 ac",
+    "category": "ptp",
+    "description": "Compact 5 GHz 802.11ac dual-chain CPE/backbone radio, 16 dBi, 867 Mbps PHY, RouterOS with full routing and NAT. One GbE port, 7 W max from passive PoE (10-30 V); no SFP.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "ether1", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/sxtsq_5_ac"
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RBLHGG-5acD",
+    "label": "MikroTik LHG 5 ac",
+    "category": "ptp",
+    "description": "5 GHz 802.11ac dual-chain CPE / point-to-point radio with a 24.5 dBi grid dish, 867 Mbps PHY, RouterOS. One GbE port, 8 W max from passive PoE (10-30 V); no SFP.",
+    "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "ether1", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "867M" }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/lhg_5_ac"
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-12-250-AC",
+    "label": "Netonix WS-12-250-AC WISP Switch",
+    "category": "switch",
+    "description": "Managed WISP PoE switch: 12x 1G RJ45 with per-port passive PoE (24 V/48 V, 1-2 A, current sensing, 250 W total budget) plus 2x 1G SFP uplinks, 14 Gbps non-blocking. AC powered, fan-cooled, -25 to 55 C.",
+    "capabilities": ["l2-forward", "cli", "http-server"],
+    "interfaces": [
+      { "name": "Port 1", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 2", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 3", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 4", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 5", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 6", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 7", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 8", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 9", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 10", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 11", "type": "ethernet", "speed": "1G" },
+      { "name": "Port 12", "type": "ethernet", "speed": "1G" },
+      { "name": "sfp1", "type": "ethernet", "speed": "1G" },
+      { "name": "sfp2", "type": "ethernet", "speed": "1G" }
+    ],
+    "sourceUrl": "https://netonix.com/ws-12-250-ac.html"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U6-Mesh-Pro",
+    "label": "UniFi U6 Mesh Pro",
+    "category": "wireless",
+    "description": "Outdoor Wi-Fi 6 mesh AP, IPX6: 2x2 5 GHz at 2.4 Gbps plus 2x2 2.4 GHz at 573 Mbps, 250+ clients. Two GbE RJ45 ports (GbE uplink, 9 W max from PoE, 42.5-57 V); no SFP and no PoE passthrough.",
+    "capabilities": ["wireless", "l2-forward", "cli", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "wlan0", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-mesh-pro"
+  }
+]

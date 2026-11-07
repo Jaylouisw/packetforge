@@ -1,0 +1,26 @@
+{
+  "vendor": "motorola",
+  "model": "MB8611",
+  "label": "MB8611 DOCSIS 3.1 cable modem, 2.5G",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32x8 DOCSIS 3.0 and DOCSIS 3.1 OFDM/OFDMA support, offering a single 2.5GBASE-T LAN port rated to 2,500 Mbps downstream.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

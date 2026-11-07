@@ -1,0 +1,53 @@
+{
+  "vendor": "nokia",
+  "model": "G-140W-C",
+  "label": "7368 ISAM ONT G-140W-C",
+  "category": "ont",
+  "description": "GPON residential gateway ONT (G.984.2 Class B+) with 4 Gigabit Ethernet LAN ports, 1 POTS port, 2 USB 2.0 and concurrent 2.4 GHz 802.11b/g/n plus 5 GHz 802.11ac WiFi; SC/APC optical connector.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan5",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

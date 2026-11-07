@@ -1,0 +1,22 @@
+{
+  "vendor": "comtrend",
+  "model": "GCA-6000",
+  "label": "Comtrend GCA-6000 G.hn Ethernet over Coax adapter",
+  "category": "powerline",
+  "description": "G.hn Ethernet-over-coax adapter with a 1200 Mbps PHY: one 10/100/1000BASE-T RJ45 and one F-type coax connector (built-in 100 MHz diplexer optional). Dark coax only - it cannot share a cable carrying live CATV/satellite; up to 32 nodes.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "1G"
+    }
+  ]
+}

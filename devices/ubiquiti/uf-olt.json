@@ -1,0 +1,46 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UF-OLT",
+  "label": "UFiber OLT 8",
+  "category": "olt",
+  "description": "Ubiquiti UFiber UF-OLT GPON OLT, 1U fixed box (no card slots): 8 GPON SFP ports (2.488G down / 1.244G up, 128 ONUs per port, 1024 clients), 2x 10G SFP+ uplinks, 1 Ethernet out-of-band management port and 1 in-band Ethernet port = 12 ports. Layer-2 GPON core with 4062 VLANs.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "gpon",
+    "start": 1,
+    "count": 8,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

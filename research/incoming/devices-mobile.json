@@ -1,0 +1,227 @@
+{
+  "devices": [
+    {
+      "vendor": "apple",
+      "model": "iPhone 15 Pro",
+      "label": "iPhone 15 Pro smartphone",
+      "category": "phone",
+      "description": "Apple flagship with a 5G sub-6 GHz / mmWave modem and Wi-Fi 6E: 802.11ax on 2.4, 5 and 6 GHz, 2x2 MIMO at up to 2.4 Gbps per band.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/111829"
+    },
+    {
+      "vendor": "apple",
+      "model": "iPhone 16",
+      "label": "iPhone 16 smartphone",
+      "category": "phone",
+      "description": "5G sub-6 GHz / mmWave modem with Wi-Fi 7 (802.11be) on 2.4, 5 and 6 GHz, 2x2 MIMO; Apple caps EHT channels at 160 MHz, so peak PHY is about 2.4 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/121029"
+    },
+    {
+      "vendor": "samsung",
+      "model": "Galaxy S24",
+      "label": "Samsung Galaxy S24 smartphone",
+      "category": "phone",
+      "description": "Compact Samsung flagship with a 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, HE160, 1024-QAM) on 2.4, 5 and 6 GHz, 2x2 MIMO; Wi-Fi 7 is disabled on the base S24.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-s24/specs/"
+    },
+    {
+      "vendor": "samsung",
+      "model": "Galaxy S24 Ultra",
+      "label": "Samsung Galaxy S24 Ultra smartphone",
+      "category": "phone",
+      "description": "5G sub-6 GHz modem with Wi-Fi 7 (802.11be), 320 MHz EHT channels and 4096-QAM over 2.4, 5 and 6 GHz, 2x2 MIMO at up to about 5.8 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.samsung.com/hk_en/smartphones/galaxy-s24-ultra/specs/"
+    },
+    {
+      "vendor": "google",
+      "model": "Pixel 8",
+      "label": "Google Pixel 8 smartphone",
+      "category": "phone",
+      "description": "Tensor G3 phone with a 5G sub-6 GHz / mmWave modem and Wi-Fi 7 (802.11be) on 2.4, 5 and 6 GHz, 2x2 MIMO; Japan units are Wi-Fi 6E and TW/SG/IN units dual-band Wi-Fi 6.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.google.com/pixelphone/answer/7158570"
+    },
+    {
+      "vendor": "google",
+      "model": "Pixel 8a",
+      "label": "Google Pixel 8a smartphone",
+      "category": "phone",
+      "description": "Mid-range Tensor G3 phone with a 5G sub-6 GHz / mmWave modem and Wi-Fi 6E (802.11ax, HE80) on 2.4, 5 and 6 GHz, 2x2 MIMO, so peak PHY is about 1.2 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "1G"},
+        {"name": "wlan1", "type": "wireless", "speed": "1G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.google.com/pixelphone/answer/7158570"
+    },
+    {
+      "vendor": "oneplus",
+      "model": "OnePlus 12",
+      "label": "OnePlus 12 smartphone",
+      "category": "phone",
+      "description": "Snapdragon 8 Gen 3 flagship with a 5G modem and Wi-Fi 7 (802.11be) plus Wi-Fi 6E over 2.4, 5 and 6 GHz, 2x2 MIMO at up to about 5.8 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.oneplus.com/us/12/specs"
+    },
+    {
+      "vendor": "xiaomi",
+      "model": "Xiaomi 14",
+      "label": "Xiaomi 14 smartphone",
+      "category": "phone",
+      "description": "Compact Snapdragon 8 Gen 3 flagship with a 5G modem and Wi-Fi 7 (802.11be) across 2.4, 5 and 6 GHz, 2x2 MIMO, MLO peaks around 3.6 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.mi.com/global/product/xiaomi-14/specs/"
+    },
+    {
+      "vendor": "nothing",
+      "model": "Phone (2)",
+      "label": "Nothing Phone (2) smartphone",
+      "category": "phone",
+      "description": "Snapdragon 8+ Gen 1 phone with a 5G modem and dual-band Wi-Fi 6 only (802.11ax, 2.4 and 5 GHz, 2x2 MIMO); it has no 6 GHz radio, so no Wi-Fi 6E or 7.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "1G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://checkout-eu.nothing.tech/pages/phone-2"
+    },
+    {
+      "vendor": "fairphone",
+      "model": "Fairphone 5",
+      "label": "Fairphone 5 smartphone",
+      "category": "phone",
+      "description": "Repairable QCM6490 phone with a 5G modem (up to 2.3 Gbps) and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.fairphone.com/resources/pdf/Introducing-the-most-affordable-Fairphone-5-yet-the-6GB-version.pdf"
+    },
+    {
+      "vendor": "sony",
+      "model": "Xperia 1 V",
+      "label": "Sony Xperia 1 V smartphone",
+      "category": "phone",
+      "description": "Sony flagship with a Snapdragon 8 Gen 2 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-v-256gb/specifications"
+    },
+    {
+      "vendor": "motorola",
+      "model": "Edge 50",
+      "label": "Motorola Edge 50 smartphone",
+      "category": "phone",
+      "description": "Mid-range Motorola with a Snapdragon 7 Gen 1 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://en-us.support.motorola.com/app/answers/detail/a_id/183654/~/specifications---motorola-edge-50"
+    },
+    {
+      "vendor": "apple",
+      "model": "iPad Air 11-inch (M2)",
+      "label": "iPad Air 11-inch (M2) tablet",
+      "category": "tablet",
+      "description": "M2 tablet with an optional 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, 2x2 MIMO) on 2.4, 5 and 6 GHz; it tops out at 6E with no Wi-Fi 7 radio.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/119894"
+    },
+    {
+      "vendor": "apple",
+      "model": "iPad Pro 11-inch (M4)",
+      "label": "iPad Pro 11-inch (M4) tablet",
+      "category": "tablet",
+      "description": "M4 pro tablet with an optional 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, 2x2 MIMO) across 2.4, 5 and 6 GHz, with simultaneous dual-band operation.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/119892"
+    },
+    {
+      "vendor": "samsung",
+      "model": "Galaxy Tab S9",
+      "label": "Samsung Galaxy Tab S9 tablet",
+      "category": "tablet",
+      "description": "Android tablet with an optional 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, HE160, 1024-QAM) on 2.4, 5 and 6 GHz, 2x2 MIMO at up to 2.4 Gbps.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.samsung.com/hk_en/tablets/galaxy-tab-s/galaxy-tab-s9-wi-fi-beige-128gb-sm-x710nzeatgy/"
+    },
+    {
+      "vendor": "microsoft",
+      "model": "Surface Pro 10",
+      "label": "Microsoft Surface Pro 10 tablet",
+      "category": "tablet",
+      "description": "Windows 2-in-1: the Wi-Fi-only SKU has Wi-Fi 6E (802.11ax) and the Wi-Fi+5G SKU adds Wi-Fi 7 (802.11be) alongside a 5G sub-6 GHz modem, both on 2.4, 5 and 6 GHz.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "2.5G"},
+        {"name": "wlan1", "type": "wireless", "speed": "2.5G"},
+        {"name": "wwan0", "type": "wireless", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.microsoft.com/en-in/surface/business/surface-pro-10"
+    }
+  ]
+}

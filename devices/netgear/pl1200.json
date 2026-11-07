@@ -1,0 +1,22 @@
+{
+  "vendor": "netgear",
+  "model": "PL1200",
+  "label": "NETGEAR Powerline 1200 Extender (PL1200)",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO wall-plug adapter at 1200 Mbps PHY with a single 10/100/1000 Mbps Ethernet port. No passthrough outlet; pick-a-plug LED for outlet selection, up to 16 adapters per network.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

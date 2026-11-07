@@ -1,0 +1,53 @@
+{
+  "vendor": "huawei",
+  "model": "MA5800-X7",
+  "label": "MA5800-X7 OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5800-X7 next-generation OLT, 6U chassis with 7 service slots (slots 1-7), 2 control-board slots (8-9) and a universal slot 0; scales to 112 GPON or 56 XGS-PON ports. This spec models one fully populated slot: a 16-port H901GPHF GPON card (gpon1/1-16) plus the 4x 10GE SFP+ uplinks carried on a single MPLA control board and 1 ETH management port = 21 ports. MPLG/MPLH control boards add 2x/4x 100GE.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

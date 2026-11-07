@@ -1,0 +1,36 @@
+{
+  "vendor": "netgear",
+  "model": "CM3000",
+  "label": "Nighthawk CM3000 mid/high-split DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "Mid/high-split DOCSIS 3.1 cable modem with 32 SC-QAM plus 2 OFDM downstream and 8 SC-QAM plus 2 OFDMA upstream channels, exposing one 2.5GBASE-T port and two aggregateable 1GBASE-T ports.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

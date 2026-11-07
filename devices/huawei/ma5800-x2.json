@@ -1,0 +1,53 @@
+{
+  "vendor": "huawei",
+  "model": "MA5800-X2",
+  "label": "MA5800-X2 OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5800-X2 compact OLT, 1U DC/AC chassis with 2 service slots and 2 control-board slots (MPSA/MPSG/MPSD), max 32 GPON ports. This spec models one 16-port H901GPHF GPON card (gpon1/1-16) + 4x 10GE/GE SFP+ uplinks on the MPSA control board + 1 ETH management port = 21 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

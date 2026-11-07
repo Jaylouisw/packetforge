@@ -1,0 +1,43 @@
+{
+  "vendor": "trendnet",
+  "model": "TPL-430AP",
+  "label": "TRENDnet TPL-430AP Powerline 1200 AV2 access point",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO powerline 1200 adapter fused with an AC1200 dual-band access point: three Gigabit Ethernet ports (6 Gbps switching capacity), 300 Mbps 2.4 GHz + 867 Mbps 5 GHz Wi-Fi, 300 m powerline range, no passthrough socket.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

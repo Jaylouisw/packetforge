@@ -1,0 +1,225 @@
+{
+  "vendor": "casa",
+  "model": "C100G",
+  "label": "C100G Converged Cable Access Platform (CCAP)",
+  "category": "router",
+  "description": "13 RU, 14-slot CCAP chassis (12 subscriber slots + 2 switch/management modules) modelled with one DS8x96 downstream module (8 F-type DS ports), one 16-port US upstream module and an SMM8x10G switch module providing eight 10G SFP+ uplinks.",
+  "capabilities": [
+    "l3-forward",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ds1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds3",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds4",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds5",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds6",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds7",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "ds8",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us1",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us2",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us3",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us4",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us5",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us6",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us7",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us8",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us9",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us10",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us11",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us12",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us13",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us14",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us15",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "us16",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "smm10g1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "smm10g8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}

@@ -69,10 +69,10 @@ function normaliseCapabilities(list) {
   return out;
 }
 
-const TYPES = ['ethernet', 'wireless', 'console', 'usb'];
+const TYPES = ['ethernet', 'wireless', 'console', 'usb', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
-const SPEEDS = { '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };
+const SPEEDS = { '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };
 
 function slug(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');

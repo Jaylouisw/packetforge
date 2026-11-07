@@ -83,6 +83,23 @@ const MEDIA = {
   '100gbase-sr4': { name: '100GBASE-SR4', family: 'fiber', connector: 'mpo', speedMbps: 100000, maxRangeM: 100, fiber: 'mmf', wavelengthNm: 850 },
   '100gbase-lr4': { name: '100GBASE-LR4', family: 'fiber', connector: 'lc', speedMbps: 100000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
 
+  // ---- subscriber access: coax, twisted pair, mains ----
+  // These are SHARED mediums in reality: an HFC segment, a binder group, a ring
+  // main. Modelling them as a point-to-point run is a simplification, but the
+  // part that matters for a lab is honest: the class rate, the asymmetry, and the
+  // fact that reach falls off with distance far sooner than fibre does.
+  'docsis-31': { name: 'DOCSIS 3.1 (coax)', family: 'coax', connector: 'f', speedMbps: 10000, upstreamMbps: 1000, maxRangeM: 300, shared: true },
+  'docsis-30': { name: 'DOCSIS 3.0 (coax)', family: 'coax', connector: 'f', speedMbps: 1000, upstreamMbps: 200, maxRangeM: 300, shared: true },
+  'moca-25': { name: 'MoCA 2.5 (coax)', family: 'coax', connector: 'f', speedMbps: 2500, maxRangeM: 100, shared: true },
+  'moca-11': { name: 'MoCA 1.1 (coax)', family: 'coax', connector: 'f', speedMbps: 175, maxRangeM: 100, shared: true },
+  'vdsl2-35b': { name: 'VDSL2 35b (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 300, maxRangeM: 400 },
+  'vdsl2-17a': { name: 'VDSL2 17a (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 100, maxRangeM: 900 },
+  'adsl2plus': { name: 'ADSL2+ (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 24, maxRangeM: 3000 },
+  'homeplug-av2': { name: 'HomePlug AV2 (mains)', family: 'powerline', connector: 'mains', speedMbps: 1000, maxRangeM: 300, shared: true },
+  'ghn': { name: 'G.hn (mains)', family: 'powerline', connector: 'mains', speedMbps: 1700, maxRangeM: 300, shared: true },
+  'homeplug-av': { name: 'HomePlug AV (mains)', family: 'powerline', connector: 'mains', speedMbps: 200, maxRangeM: 300, shared: true },
+  'ghn-25': { name: 'G.hn 2.5G (mains)', family: 'powerline', connector: 'mains', speedMbps: 2500, maxRangeM: 300, shared: true },
+
   // ---- fiber, PON (single-mode, outside plant) ----
   // A PON is the one place where the connector belongs to the medium rather than
   // the cage: the same OLT port takes an SC/APC or an SC/UPC module, and the two
@@ -136,6 +153,12 @@ const CAGES = {
   // about 3 dB of loss and can chip the endface.
   'sc-apc': { name: 'SC/APC', family: 'optical', label: 'SC/APC (green, angled 8 deg)' },
   'sc-upc': { name: 'SC/UPC', family: 'optical', label: 'SC/UPC (blue, flat)' },
+  // Subscriber-access connectors. An F-connector is not an RJ45 and a mains plug
+  // never meets one, so each gets its own cage rather than being flattened into
+  // copper ethernet.
+  coax: { name: 'F-connector', family: 'coax', label: 'F-connector (coax)' },
+  dsl: { name: 'RJ11', family: 'dsl', label: 'RJ11 (twisted pair)' },
+  powerline: { name: 'Mains', family: 'powerline', label: 'Mains plug' },
   console: { name: 'Console', family: 'management', label: 'Console (RS-232)' },
   usb: { name: 'USB', family: 'management', label: 'USB' },
   antenna: { name: 'Antenna', family: 'wireless', label: 'Wireless radio' }
@@ -153,6 +176,9 @@ const CAGE_MATE = {
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
+  coax: ['coax'],
+  dsl: ['dsl'],
+  powerline: ['powerline'],
   console: ['console'],
   usb: ['usb', 'console'],
   antenna: ['antenna']
@@ -228,6 +254,17 @@ const CAGE_MEDIA = {
     if (maxMbps >= 9000) out.push('xgspon-sc-upc');
     return out;
   },
+  coax: function (maxMbps) {
+    const out = ['moca-11', 'moca-25', 'docsis-30'];
+    if (maxMbps >= 1000) out.push('docsis-31');
+    return out;
+  },
+  dsl: function (maxMbps) {
+    const out = ['adsl2plus', 'vdsl2-17a'];
+    if (maxMbps >= 300) out.push('vdsl2-35b');
+    return out;
+  },
+  powerline: function () { return ['homeplug-av', 'homeplug-av2', 'ghn', 'ghn-25']; },
   console: function () { return ['console-rs232']; },
   usb: function () { return ['usb-console']; },
   antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-60']; }
@@ -262,6 +299,19 @@ const CAGE_SPEEDS = {
     if (maxMbps >= 9000) out.push(9953);
     return out;
   },
+  coax: function (maxMbps) {
+    const out = [175, 1000];
+    if (maxMbps >= 2500) out.push(2500);
+    if (maxMbps >= 5000) out.push(5000);
+    if (maxMbps >= 10000) out.push(10000);
+    return out.filter(function (v) { return v <= maxMbps; }).concat([Math.min(1000, maxMbps)]).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; });
+  },
+  dsl: function (maxMbps) {
+    const out = [24, 100];
+    if (maxMbps >= 300) out.push(300);
+    return out.filter(function (v) { return v <= maxMbps; });
+  },
+  powerline: function () { return [200, 1000, 1700, 2500]; },
   console: function () { return [0.1152]; },
   usb: function () { return [12]; },
   antenna: function (maxMbps) { return [maxMbps]; }
@@ -283,6 +333,10 @@ function inferCage(ifaceSpec, maxMbps) {
   if (type === 'wireless' || type === 'radio') return 'antenna';
   if (type === 'console') return 'console';
   if (type === 'usb') return 'usb';
+  // Subscriber-access line types are their own connector families.
+  if (type === 'coax') return 'coax';
+  if (type === 'dsl' || type === 'adsl' || type === 'vdsl') return 'dsl';
+  if (type === 'powerline' || type === 'plc' || type === 'mains') return 'powerline';
   if (/console|con\d|tty|aux/.test(name)) return 'console';
   if (/usb/.test(name)) return 'usb';
 

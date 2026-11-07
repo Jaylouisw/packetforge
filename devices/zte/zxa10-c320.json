@@ -1,0 +1,43 @@
+{
+  "vendor": "zte",
+  "model": "ZXA10 C320",
+  "label": "ZXA10 C320 OLT",
+  "category": "olt",
+  "description": "ZTE ZXA10 C320 compact OLT, 2U 19-inch chassis with 2 service-card slots and 2 main-control switching slots (SMXA, GPON/P2P/XG-PON1). This spec models one GTGH 16-port GPON card in service slot 2 (gpon2/1-16) + 2x 10GE SFP+ uplinks (one per SMXA when both control cards are fitted) + 1 out-of-band management FE port = 19 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon2/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge2/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge2/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

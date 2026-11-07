@@ -1,0 +1,22 @@
+{
+  "vendor": "planet",
+  "model": "VC-231G",
+  "label": "PLANET VC-231G VDSL2 Ethernet extender (gigabit)",
+  "category": "modem",
+  "description": "VDSL2 35b Super Vectoring + G.vectoring Ethernet extender pair for phone wire: one 10/100/1000BASE-T RJ45 and one RJ11 port, up to 200/200 Mbps symmetric at 200 m and 21/13 Mbps at 1.4 km, CO/CPE selectable by DIP switch.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    }
+  ]
+}

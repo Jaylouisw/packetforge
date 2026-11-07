@@ -1,0 +1,28 @@
+{
+  "vendor": "netgear",
+  "model": "DM200",
+  "label": "DM200 Broadband High-Speed VDSL/ADSL modem",
+  "category": "modem",
+  "description": "VDSL/VDSL2 and ADSL/ADSL2+ bridge modem with auto-detection for universal DSL, one RJ-11 DSL port and exactly one 10/100 Ethernet LAN port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

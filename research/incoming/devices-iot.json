@@ -1,0 +1,202 @@
+{
+  "devices": [
+    {
+      "vendor": "shelly",
+      "model": "Plus 1PM",
+      "label": "Shelly Plus 1PM smart relay",
+      "category": "iot",
+      "description": "Shelly Plus 1PM (SNSW-001P16EU) is a DIN-box-sized smart relay with power metering that switches one 16 A load, controlled from the Shelly app, MQTT, or its own embedded web UI. WiFi-only: 2.4 GHz 802.11 b/g/n plus Bluetooth 4.2 for provisioning - there is no Ethernet port, so in a lab it can only be attached through an access point, never cabled.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://www.shelly.com/products/shelly-plus-1pm"
+    },
+    {
+      "vendor": "shelly",
+      "model": "Pro 4PM",
+      "label": "Shelly Pro 4PM DIN-rail 4-channel smart switch",
+      "category": "iot",
+      "description": "Shelly Pro 4PM is a DIN-rail four-channel smart switch (16 A per channel, 40 A total) with per-channel power metering, a 1.8-inch colour display, embedded web UI, MQTT and KNXnet/IP support. Unlike the Plus line it has a real RJ45 LAN port (100M Ethernet) alongside 2.4 GHz 802.11 b/g/n WiFi and Bluetooth, so it can be wired straight into a switch or run wireless.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"},
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://www.shelly.com/products/shelly-pro-4pm"
+    },
+    {
+      "vendor": "philips-hue",
+      "model": "Hue Bridge",
+      "label": "Philips Hue Bridge smart lighting hub",
+      "category": "iot",
+      "description": "The Hue Bridge is the Zigbee hub for Hue bulbs, sensors and cameras (up to 50 lights and 12 accessories), exposing a local HTTPS/REST API and Matter bridging to the LAN. It is wired-only on the network side: a single 100M Ethernet port to the router (Hue's setup guide requires a free LAN port and the bundled Ethernet cable) and no WiFi radio at all - the 2.4 GHz link it runs is Zigbee to the bulbs, which is not an IP interface.",
+      "capabilities": ["host", "http-server"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"}
+      ],
+      "sourceUrl": "https://www.philips-hue.com/en-us/explore-hue/faq/controls/how-to-connect-hue-bridge-to-wifi"
+    },
+    {
+      "vendor": "aqara",
+      "model": "Hub M2",
+      "label": "Aqara Hub M2 Zigbee 3.0 home hub",
+      "category": "iot",
+      "description": "Aqara Hub M2 is a Zigbee 3.0 + BLE 5.0 hub with a built-in IR blaster that bridges Aqara sensors, switches and curtains to HomeKit, Alexa, Google Home and Aqara Home. It is dual-homed on the IP side: an RJ45 Ethernet port plus 2.4 GHz 802.11 b/g/n WiFi, so either can be used to reach the LAN; its Zigbee/BLE radios are device-side only and are not modelled.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"},
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://www.aqara.com/us/product/hub-m2/specs/"
+    },
+    {
+      "vendor": "sonoff",
+      "model": "Zigbee Bridge Pro",
+      "label": "Sonoff Zigbee Bridge Pro (ZBBridge-P)",
+      "category": "iot",
+      "description": "Sonoff Zigbee Bridge Pro (ZBBridge-P) is a Zigbee 3.0 coordinator that pairs up to 128 Sonoff/eWeLink Zigbee sub-devices and runs local smart scenes and alarms for them. It is WiFi-only on the network side: 2.4 GHz 802.11 b/g/n powered from a 5 V USB supply, with no Ethernet port - the Zigbee 3.0 radio faces the sensors and is not modelled as an IP interface.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://sonoff.tech/en-us/products/sonoff-zigbee-bridge-pro"
+    },
+    {
+      "vendor": "home-assistant",
+      "model": "Yellow",
+      "label": "Home Assistant Yellow home automation appliance",
+      "category": "iot",
+      "description": "Home Assistant Yellow is a Raspberry Pi Compute Module 4 based home-automation appliance that runs Home Assistant OS and hosts the whole local automation stack (web UI on 8123, REST/WebSocket API, MQTT broker add-ons). It is wired-only: one Gigabit Ethernet port (PoE+ on the PoE kit variant) and no WiFi, with an on-board Zigbee 3.0 / Thread radio for devices - that radio is not an Ethernet or WiFi interface, so the box is cabled, never associated.",
+      "capabilities": ["host", "http-server", "dhcp-client"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.home-assistant.io/yellow/"
+    },
+    {
+      "vendor": "amazon",
+      "model": "Echo (4th Gen)",
+      "label": "Amazon Echo (4th gen) smart speaker with hub",
+      "category": "iot",
+      "description": "Amazon Echo (4th gen) is a spherical Alexa smart speaker that doubles as a smart-home hub with built-in Zigbee, Thread and Bluetooth Low Energy mesh radios. Network side is WiFi-only: dual-band 802.11 a/b/g/n/ac on 2.4 and 5 GHz, with no Ethernet port anywhere on the device, so it must be associated to an SSID even when it is acting as a Thread border router for Matter devices.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "867M"}
+      ],
+      "sourceUrl": "https://www.amazon.com/Echo-4th-Gen/dp/B07XKF5RM3"
+    },
+    {
+      "vendor": "home-assistant",
+      "model": "Green",
+      "label": "Home Assistant Green home automation hub",
+      "category": "iot",
+      "description": "Home Assistant Green is the plug-and-play Home Assistant appliance (Rockchip RK3566, 4 GB RAM, 32 GB eMMC) with the web UI and local APIs on port 8123. It has exactly one network interface - a Gigabit Ethernet port - and no WiFi at all, so it must be cabled; it ships without any Zigbee/Thread radio (a Connect ZBT-2 USB dongle is needed for that), and USB is not modelled here.",
+      "capabilities": ["host", "http-server", "dhcp-client"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "1G"}
+      ],
+      "sourceUrl": "https://www.home-assistant.io/green/"
+    },
+    {
+      "vendor": "ring",
+      "model": "Video Doorbell Pro 2",
+      "label": "Ring Video Doorbell Pro 2 (Wired Doorbell Pro)",
+      "category": "iot",
+      "description": "Ring Video Doorbell Pro 2 - now sold as Wired Doorbell Pro - is a hardwired 1536p doorbell camera with 3D motion detection, Bird's Eye View and two-way talk. It is WiFi-only for networking: 802.11 a/b/g/n/ac on 2.4 or 5 GHz; the only wiring it accepts is 16-24 VAC doorbell power, so there is no Ethernet drop and it cannot be cabled into a switch.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "433M"}
+      ],
+      "sourceUrl": "https://ring.com/support/products/doorbells/wired-doorbell-pro"
+    },
+    {
+      "vendor": "ecobee",
+      "model": "Smart Thermostat Premium",
+      "label": "Ecobee Smart Thermostat Premium",
+      "category": "iot",
+      "description": "Ecobee Smart Thermostat Premium controls 24 VAC HVAC (up to 2H/2C plus heat pump), adds occupancy radar, air-quality monitoring and an ecobee Smart Security hub role. It is WiFi-only: dual-band 802.11 b/g/n at 2.4 GHz and 802.11 a/n/ac at 5 GHz plus Bluetooth 5.0; the wall wiring is HVAC control (Rc, C, W, Y, G), not Ethernet, so it has no RJ45 and must join a wireless SSID.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "433M"}
+      ],
+      "sourceUrl": "https://www.ecobee.com/en-us/smart-thermostats/smart-thermostat-premium/"
+    },
+    {
+      "vendor": "tado",
+      "model": "Bridge X",
+      "label": "tado X Bridge X Thread border router",
+      "category": "iot",
+      "description": "The tado Bridge X is the Thread border router that puts a tado X heating system (Smart Thermostat X, radiator thermostats, sensors) on the internet and bridges it to Matter controllers. It is WiFi-only: it plugs into a wall socket and joins the home network over 2.4 GHz WiFi via WPS or a WiFi password, with no Ethernet port; the Thread radio that talks to the thermostats is not modelled as an IP interface.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://help.tado.com/en/articles/9121429-what-should-i-do-if-i-have-problems-when-setting-up-the-bridge-x-for-the-first-time"
+    },
+    {
+      "vendor": "samsung",
+      "model": "QN90B Neo QLED 4K",
+      "label": "Samsung QN90B Neo QLED 4K smart TV",
+      "category": "iot",
+      "description": "Samsung QN90B is a Neo QLED 4K Tizen smart TV with 4 HDMI 2.1 ports, SmartThings hub support and an IP control / web API. It has both network paths: a real RJ45 LAN port (100M Ethernet, wired to the one-connect style input panel) plus built-in Wi-Fi 5 802.11ac, so it can be cabled or associated; the HDMI, USB and optical ports are not network interfaces.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"},
+        {"name": "wlan0", "type": "wireless", "speed": "867M"}
+      ],
+      "sourceUrl": "https://image-us.samsung.com/SamsungUS/samsungbusiness/tv-ci-resources/qn90b-spec-sheet/QN90B_Spec_Sheet.pdf"
+    },
+    {
+      "vendor": "roku",
+      "model": "Ultra",
+      "label": "Roku Ultra 4K streaming player",
+      "category": "iot",
+      "description": "Roku Ultra is a 4K HDR streaming player with Wi-Fi 6 and a wired option, controlled locally through the Roku ECP HTTP API on port 8060. It is the rare streaming box with a real port: 10/100 Base-T Ethernet on the back plus dual-band 802.11ax WiFi 6 (2.4/5 GHz), so a lab can wire it when WiFi is deliberately broken; its USB 3.0 port is storage, not networking.",
+      "capabilities": ["host", "http-server", "wireless"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"},
+        {"name": "wlan0", "type": "wireless", "speed": "1.2G"}
+      ],
+      "sourceUrl": "https://www.roku.com/products/players/roku-ultra"
+    },
+    {
+      "vendor": "google",
+      "model": "Chromecast with Google TV (4K)",
+      "label": "Chromecast with Google TV (4K) streaming dongle",
+      "category": "iot",
+      "description": "Chromecast with Google TV (4K) is an HDMI dongle running Google TV with Chromecast casting, 4K HDR output and a voice remote. It is WiFi-only: 802.11ac on 2.4 and 5 GHz plus Bluetooth 4.2, powered over USB-C; there is no RJ45 on the device and Ethernet only appears if you buy Google's separate Ethernet power adapter, so out of the box it cannot be cabled.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "867M"}
+      ],
+      "sourceUrl": "https://support.google.com/chromecast/answer/3046409/chromecast-specifications"
+    },
+    {
+      "vendor": "sonos",
+      "model": "Era 100",
+      "label": "Sonos Era 100 smart speaker",
+      "category": "iot",
+      "description": "Sonos Era 100 is a stereo smart speaker with Sonos voice control, Alexa, AirPlay 2 and Bluetooth 5.0. Networking is WiFi-first: WiFi 6 on 802.11 a/b/g/n/ac/ax at 2.4 and 5 GHz; there is no RJ45 jack on the speaker - Ethernet is only possible through the sold-separately USB-C Combo Adapter, and USB is not modelled as a network interface here, so treat it as wireless-only.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        {"name": "wlan0", "type": "wireless", "speed": "1.2G"}
+      ],
+      "sourceUrl": "https://www.sonos.com/en-us/guides/era100"
+    },
+    {
+      "vendor": "teltonika",
+      "model": "RUT241",
+      "label": "Teltonika RUT241 industrial 4G/LTE IoT router",
+      "category": "iot",
+      "description": "Teltonika RUT241 is a compact DIN-rail industrial 4G LTE Cat 4 router for IoT/M2M and remote-site gateways, running RutOS (OpenWrt) with firewall, NAT, VLANs, IPsec/OpenVPN, MQTT and RMS remote management. It has a real two-port Ethernet switch side: 1x WAN and 1x LAN, both 10/100 Mbps RJ45, plus a 2.4 GHz 802.11 b/g/n access point; the cellular link is LTE, not WiFi, and is described here rather than modelled as an 802.11 interface.",
+      "capabilities": ["cli", "dhcp-client", "dhcp-server", "firewall", "host", "http-server", "l2-forward", "l3-forward", "nat", "wireless"],
+      "interfaces": [
+        {"name": "eth0", "type": "ethernet", "speed": "100M"},
+        {"name": "eth1", "type": "ethernet", "speed": "100M"},
+        {"name": "wlan0", "type": "wireless", "speed": "150M"}
+      ],
+      "sourceUrl": "https://wiki.teltonika-networks.com/view/RUT241"
+    }
+  ]
+}

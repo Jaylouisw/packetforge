@@ -1,0 +1,53 @@
+{
+  "vendor": "huawei",
+  "model": "MA5608T",
+  "label": "MA5608T OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5608T mini OLT, 2U chassis with 2 service slots and 2 control-board slots, max 32 GPON ports (2x 16-port GPFD). This spec models a GPBD 8-port GPON card (gpon1/1-8) + an MCUD1 control board providing 2x GE SFP and 2x 10GE SFP+ uplinks + 1 ETH management port = 13 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 8,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "ge0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

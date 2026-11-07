@@ -1,0 +1,22 @@
+{
+  "vendor": "gocoax",
+  "model": "WF-803M",
+  "label": "goCoax WF-803M MoCA 2.5 adapter",
+  "category": "powerline",
+  "description": "Earlier goCoax MoCA 2.5 adapter: 2.5 Gbps over coax but only a single Gigabit RJ45 port - goCoax's own MA2500D page documents the upgrade from the WF-803M's 1GbE port to 2.5GbE. One coax port, up to 16 nodes.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "2.5G"
+    }
+  ]
+}

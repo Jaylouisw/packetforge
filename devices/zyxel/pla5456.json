@@ -1,0 +1,27 @@
+{
+  "vendor": "zyxel",
+  "model": "PLA5456",
+  "label": "Zyxel PLA5456 AV2000 passthrough powerline adapter",
+  "category": "powerline",
+  "description": "HomePlug AV2 MIMO adapter with a maximum PHY rate of 1800 Mbps over powerline (sold as AV2000). Two Gigabit Ethernet ports and an AC pass-through socket so the wall outlet stays usable.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

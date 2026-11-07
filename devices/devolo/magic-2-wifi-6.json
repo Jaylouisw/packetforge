@@ -1,0 +1,38 @@
+{
+  "vendor": "devolo",
+  "model": "Magic 2 WiFi 6",
+  "label": "devolo Magic 2 WiFi 6 next powerline access point",
+  "category": "powerline",
+  "description": "G.hn powerline access point: 2400 Mbps MIMO / 1200 Mbps SISO over mains, plus Wi-Fi 6 dual-band dual-concurrent (574 Mbps 2.4 GHz + 2402 Mbps 5 GHz). Two Gigabit Ethernet ports and a filtered 16 A pass-through socket.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2402M"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

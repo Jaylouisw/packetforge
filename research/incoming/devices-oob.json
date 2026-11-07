@@ -1,0 +1,844 @@
+{
+  "devices": [
+    {
+      "vendor": "opengear",
+      "model": "OM1208",
+      "label": "OM1208 Operations Manager console server",
+      "category": "host",
+      "description": "Compact Smart OOB appliance with 8 RJ45 RS-232 Cisco-straight serial console ports (50-230.4 kbps) and 2 combo 10/100/1000 Ethernet/SFP ports; used to reach edge-site routers, switches and servers without a truck roll.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://resources.opengear.com/om/datasheets/om1200/",
+      "notes": "OM1208 base model: 8 serial ports, 2 x 10/100/1000 Ethernet/SFP fiber combo ports (no embedded switch - that is the OM1208-8E, which adds an 8-port GbE switch and would also carry l2-forward). Console ports are Cisco straight X2 pinout RS-232 on RJ45, software-visible only - they terminate into device consoles, not into an IP network. Runs Lighthouse-managed Smart OOB with Docker/Python runtime."
+    },
+    {
+      "vendor": "opengear",
+      "model": "OM2200",
+      "label": "OM2200 Operations Manager console server (OM2216)",
+      "category": "host",
+      "description": "1RU data-centre Operations Manager in the OM2216 configuration: 16 RJ45 RS-232 console management ports with software-selectable straight/rollover pinout, plus 2 combo 10/100/1000 Ethernet/SFP ports.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://resources.opengear.com/om/datasheets/om2200/",
+      "notes": "OM2200 series spans OM2216 (16 serial), OM2232 (32), OM2248 (48) and OM2224-24E (24 serial + 24 switched GbE, 10GbE platform with 2 x SFP+ and 1 x 10/100/1000 RJ45). Modelled here as the 16-port OM2216 on the 1GbE platform: 2 x 10/100/1000 Ethernet/SFP fiber combo ports. x86 quad-core, 8 GB RAM, 64 GB storage, optional global 4G LTE and PSTN modem."
+    },
+    {
+      "vendor": "lantronix",
+      "model": "SLC8000",
+      "label": "SLC8000 modular advanced console manager (16-port)",
+      "category": "host",
+      "description": "Modular 1RU console manager starting at 16 RS-232 RJ45 device ports and expandable to 48 via swappable 8/16-port RS-232 or 16-port USB modules, with dual 1 Gigabit Ethernet ports (bonding supported).",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.lantronix.com/products/lantronix-slc-8000/",
+      "notes": "Base 16-port RS-232 (RJ45) configuration; add up to two I/O modules for 32 or 48 device ports (FRRJ451601 16-port RS-232, FRUSB1601 16-port USB). Dual 10/100/1000 Ethernet with bonding, software-programmable DTE/DCE pins, FIPS 140-2 mode. USB device ports are deliberately not modelled."
+    },
+    {
+      "vendor": "lantronix",
+      "model": "UDS1100",
+      "label": "UDS1100 serial-to-Ethernet device server",
+      "category": "host",
+      "description": "Single-port external device server: one DB25 female DCE serial port (RS-232/422/485) bridged to one 10/100 Ethernet port, used to network-enable a lone console or serial device.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.lantronix.com/products/uds1100-uds1100-poe/",
+      "notes": "1 x DB25F DCE serial (RS-232/422/485, up to 921.6 kbps) + 1 x 10/100Base-T RJ45. PoE variant UDS1100-PoE draws power from the Ethernet port. Configured via HTTP, Telnet, serial or DeviceInstaller; TruPort/Com Port Redirector for virtual COM. Smallest building block for 'one console port, reachable over the LAN'."
+    },
+    {
+      "vendor": "digi",
+      "model": "Connect IT 16",
+      "label": "Digi Connect IT 16 console access server",
+      "category": "host",
+      "description": "1RU console access server with 16 RJ45 RS-232 serial ports (standard/reversed pinout selectable), a separate RS-232 console port, 2 x 10/100/1000 RJ45 Ethernet and 2 SFP+ cages.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.digi.com/products/models/it16-1002",
+      "notes": "IT16-1002: (2) RJ45 10/100/1G Ethernet, (2) SFP+ sockets (used at 1G here - cage type only, no 10G optics assumed), (16) RS-232 device ports plus (1) RS-232 console port for local setup (not modelled as a device port). Optional Digi CORE LTE Cat 4 module, dual redundant field-replaceable power. 48-port sibling is Connect IT 48."
+    },
+    {
+      "vendor": "digi",
+      "model": "AnywhereUSB 24 Plus",
+      "label": "AnywhereUSB 24 Plus USB-over-IP hub",
+      "category": "host",
+      "description": "Rackmount USB-over-IP hub presenting 24 USB 3.1 Gen 1 Type A ports to remote hosts over dual 10 M/100 M/1 G/10 G Ethernet or 2 SFP+ sockets, with one RS-232 DB9 console port.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "10G"
+        }
+      ],
+      "sourceUrl": "https://www.digi.com/products/models/aw24-g300",
+      "notes": "24 USB ports are intentionally not modelled (PacketForge has no USB device model); what matters for topology is the dual 10G RJ45 plus dual SFP+ uplinks, 2 GB RAM / 4 GB eMMC, dual 100-240 VAC PSUs and optional Digi CORE cellular module. Console is 1 x DB9M RS-232 DTE. Multi-host: each USB port or group can be claimed independently, so one hub can serve several KVM/session hosts."
+    },
+    {
+      "vendor": "vertiv",
+      "model": "ACS8000",
+      "label": "Avocent ACS8000 advanced console server (16-port)",
+      "category": "host",
+      "description": "Avocent ACS8000 16-port advanced console server: 16 RS-232 RJ45 serial ports (first two selectable RS-232/422/485) expandable to 48 in the same family, plus 2 x 10/100/1000 RJ45 and 2 x 1 Gb SFP ports.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.vertiv.com/49f559/globalassets/products/monitoring-control-and-management/serial-console-and-gateways/vertiv-avocent-acs-8000-serial-consoles/avocent-acs-8000-advanced-console-server-data-sheet.pdf",
+      "notes": "ACS8016 class hardware: 2 Gigabit fiber SFP + 2 x 10/100/1000BT RJ45, 1 RS-232 console port on RJ45 for local management (not counted in the 16 device ports), 8 USB 2.0 Type A (not modelled), environmental sensor port and 4 digital-in sensor inputs. Series also ships in 8/32/48-port and 4G LTE variants; some models include a built-in PSTN modem."
+    },
+    {
+      "vendor": "perle",
+      "model": "IOLAN SDS8",
+      "label": "Perle IOLAN SDS8 secure device server",
+      "category": "host",
+      "description": "1RU secure serial-to-Ethernet device/terminal server with 8 RJ45 serial ports (software-selectable RS-232/422/485) and one 10/100/1000 Ethernet port; doubles as a console server for 8 console ports.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "firewall"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.perle.com/products/iolan-sds-rack-terminal-server.shtml",
+      "notes": "IOLAN SDS series is 8-port (SDS8) and 16-port (SDS16, superset feature set) in 1RU, each with a single 10/100/1000Base-T Ethernet. TrueSerial, SSH/SSL/AES encryption, RADIUS/TACACS+/LDAP/Kerberos auth, Modbus gateway, PPP/SLIP routing. Front, rear or DIN mounting."
+    },
+    {
+      "vendor": "moxa",
+      "model": "NPort 5650-16",
+      "label": "Moxa NPort 5650-16 rackmount serial device server",
+      "category": "host",
+      "description": "16-port RS-232/422/485 rackmount device server with 8-pin RJ45 serial connectors and a single 10/100BaseT(X) Ethernet port, 100-240 VAC powered.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/en/products/industrial-edge-connectivity/serial-device-servers/general-device-servers/nport-5600-series/nport-5650-16",
+      "notes": "NPort 5600 series: 5610 (RS-232), 5630 (RS-422/485), 5650 (RS-232/422/485, 8 or 16 ports). 19-inch rackmount, LCD panel + push buttons, Real COM/TCP Server/Client/UDP/Pair Connection/Reverse Telnet/RFC2217 modes, SNMPv1/v2c/v3, HTTPS (TLS 1.2). Only 10/100 - no gigabit."
+    },
+    {
+      "vendor": "aten",
+      "model": "KN2124VA",
+      "label": "ATEN KN2124VA 24-port KVM over IP switch",
+      "category": "host",
+      "description": "1-local/2-remote Cat 5 KVM over IP switch with 24 RJ-45 KVM server ports (expandable to 40 in 1RU) and two 10/100/1000 Mbps NICs for redundant LAN or dual-IP operation.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.aten.com/us/en/products/kvm/kvm-over-ip-switches/kn2124va/",
+      "notes": "Zero RS-232 ports: the 24 server-side ports are proprietary Cat5 KVM ports (video + USB + virtual media via KA71xx dongles), not Ethernet, so they are not modelled as ethernet interfaces - the box therefore appears with only its 2 management NICs. Dual power supplies, LUC USB laptop console port (not modelled), FIPS 140-2 level 1, HTML5 WebClient, Panel Array Mode, CC2000/CCVSR integration. KN2124VA is discontinued; KN2124VB is the drop-in replacement. Typical use: IP reach into a rack whose servers have no serial console at all."
+    },
+    {
+      "vendor": "raritan",
+      "model": "Dominion KX III KX3-864",
+      "label": "Raritan Dominion KX III KX3-864 KVM-over-IP switch",
+      "category": "host",
+      "description": "2RU KVM-over-IP switch for up to 64 servers over UTP cabling with 8 simultaneous remote users, dual 10/100/1000 Ethernet access and a DB9 RS-232 modem/serial port.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.raritan.com/assets/re/resources/data_sheets/RE-ds-KX_III.pdf",
+      "notes": "64 KVM ports over Cat5/5e/6 with D2CIM dongles (not Ethernet, not modelled); 2 x 10/100/1000 gigabit Ethernet, dual-stack IPv4/IPv6, dual AC power, DVI-D local port, tiering port, 1 x DB9(F) DTE modem/serial port. Serial capacity can be raised to 8 devices with DSAM-4/DSAM-8 Dominion Serial Access Modules - those add RS-232 devices, not network ports, so add serial ports there if a lab uses them."
+    },
+    {
+      "vendor": "digi",
+      "model": "Digi One SP",
+      "label": "Digi One SP serial-to-Ethernet device server",
+      "category": "host",
+      "description": "Compact single-port serial server: one DB9M RS-232/422/485 port bridged to a 10/100Base-T Ethernet port - the classic one-console-port-to-Ethernet adapter.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.digi.com/products/networking/infrastructure-management/serial-connectivity/device-servers/digionesp",
+      "notes": "1 x DB9M switch-selectable RS-232/422/485 up to 230 kbps + 1 x 10/100Base-T. TCP/UDP sockets, RealPort COM redirector, SSH/Telnet sockets, Modbus TCP-to-RTU, modem emulation. 1/2/4-port siblings in the Digi One and PortServer TS families; the IA variant is the DIN-rail industrial version with the same DB9 port."
+    }
+  ]
+}

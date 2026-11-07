@@ -1,0 +1,59 @@
+{
+  "vendor": "huawei",
+  "model": "HN8255Ws",
+  "label": "OptiXstar HN8255Ws XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON routing-type ONT (optical class N1/N2, 10 Gbit/s symmetric via a pluggable SFP+ PON module) with 4 GE LAN ports, one 10GE LAN port, 2 POTS ports, USB 2.0/3.0 and concurrent 2.4 GHz (450 Mbit/s) plus 5 GHz (1733 Mbit/s) WiFi.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "450M"
+    },
+    {
+      "name": "wlan5",
+      "type": "wireless",
+      "speed": "1733M"
+    }
+  ]
+}

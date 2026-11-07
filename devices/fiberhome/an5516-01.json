@@ -1,0 +1,57 @@
+{
+  "vendor": "fiberhome",
+  "model": "AN5516-01",
+  "label": "AN5516-01 OLT",
+  "category": "olt",
+  "description": "Fiberhome AN5516-01 large-capacity OLT, 11U 19-inch chassis with 16 service slots and a 3.2 Tbit/s backplane, up to 256 GPON ports. This spec models one GCOB 16-port GPON card (gpon1/1-16) plus one HU2A uplink card: 2x 10GE SFP+ and 2 combo GE optical/electrical positions (each counted as an RJ45 + SFP pair) = 22 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ge1/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/1-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/2-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

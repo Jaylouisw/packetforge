@@ -1,0 +1,27 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-PA9020P",
+  "label": "TL-PA9020P AV2000 powerline adapter",
+  "category": "powerline",
+  "description": "HomePlug AV2 2x2 MIMO powerline adapter rated AV2000 (2000 Mbps PHY; expect roughly gigabit-class real throughput). Two Gigabit Ethernet ports plus a filtered 16 A passthrough socket so the wall outlet is not lost.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "2.5G"
+    }
+  ]
+}

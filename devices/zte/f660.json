@@ -1,0 +1,49 @@
+{
+  "vendor": "zte",
+  "model": "F660",
+  "label": "ZXHN F660 GPON ONT",
+  "category": "ont",
+  "description": "GPON home gateway ONT with four auto-adapting LAN ports (1 GE + 3 FE), two POTS voice ports, one USB and a 2x2 802.11b/g/n 2.4 GHz radio (N300); SC/APC PON port.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ]
+}
