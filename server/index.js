@@ -166,6 +166,15 @@ async function handleApi(req, res, urlPath) {
         const body = await readBody(req);
         const spec = catalog.find(function (s) { return s.vendor === body.vendor && s.model === body.model; });
         if (!spec) return sendJSON(res, 404, { error: 'unknown device model: ' + body.vendor + '/' + body.model });
+        // A client-supplied id that is already taken must not replace the device that
+        // holds it. addDevice throws for that; answer with a conflict instead of a 500.
+        if (body.id && topo.devices.has(body.id)) {
+          return sendJSON(res, 409, {
+            error: 'device id already in use',
+            id: body.id,
+            existing: topo.devices.get(body.id).label || topo.devices.get(body.id).model
+          });
+        }
         const dev = topo.addDevice(spec, body.id || null);
         topo.layout[dev.id] = { x: body.x || 160, y: body.y || 160 };
         broadcast(topoId);

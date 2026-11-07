@@ -45,7 +45,17 @@ class Topology {
 
   addDevice(spec, id) {
     const fullSpec = Object.assign({}, spec, { interfaces: expandInterfaces(spec) });
-    id = id || ('d' + (this._seq++));
+    if (id) {
+      // An explicit id that is already taken used to overwrite the existing device
+      // without a word. Losing a device because two callers picked the same name is
+      // not something a simulator should do quietly.
+      if (this.devices.has(id)) throw new Error('device id already in use: ' + id);
+    } else {
+      // Skip any id already present. A restored topology can arrive with a sequence
+      // that is behind its own contents (see fromJSON), and the honest outcome there
+      // is a fresh id, not a replaced device.
+      do { id = 'd' + (this._seq++); } while (this.devices.has(id));
+    }
     const dev = new Device(id, fullSpec);
     this._assignMacs(dev);
     this.devices.set(id, dev);
@@ -191,7 +201,17 @@ class Topology {
     }
 
     const mediaId = opts.mediaId || verdict.mediaId || null;
-    const link = new Link('l' + (this._seq++), aId, aIface, bId, bIface, {
+    // A link may carry its own id, so restoring a topology keeps the cable ids the
+    // saved file used. Without this every save/load cycle renumbered the links, which
+    // made a link id useless as a reference and inflated the sequence counter.
+    let linkId;
+    if (opts.id) {
+      if (this.links.has(opts.id)) throw new Error('link id already in use: ' + opts.id);
+      linkId = opts.id;
+    } else {
+      do { linkId = 'l' + (this._seq++); } while (this.links.has(linkId));
+    }
+    const link = new Link(linkId, aId, aIface, bId, bIface, {
       type: 'media',
       mediaId: mediaId,
       speedMbps: opts.speedMbps || verdict.speedMbps || null,
@@ -227,7 +247,13 @@ class Topology {
   serialize() {
     const devices = Array.from(this.devices.values()).map(function (d) { return d.serialize(); });
     const links = Array.from(this.links.values()).map(function (l) { return l.serialize(); });
-    return { format: 'packetforge-topology', version: 1, devices: devices, links: links, layout: this.layout };
+    // The id sequence is part of the state. Omitting it meant a reloaded topology
+    // restarted at d1 and its next addDevice() overwrote an existing device (#13).
+    return {
+      format: 'packetforge-topology', version: 1,
+      seq: this._seq,
+      devices: devices, links: links, layout: this.layout
+    };
   }
 
   static fromJSON(data) {
@@ -255,6 +281,7 @@ class Topology {
       // force: true so legacy topologies (no media info) still load.
       try {
         topo.connect(l.a.deviceId, l.a.iface, l.b.deviceId, l.b.iface, {
+          id: l.id,
           mediaId: l.mediaId, speedMbps: l.speedMbps, duplex: l.duplex,
           lengthM: l.lengthM, lagId: l.lagId, type: l.type, force: true
         });
@@ -263,6 +290,25 @@ class Topology {
       }
     }
     topo.layout = (data.layout && typeof data.layout === 'object') ? data.layout : {};
+
+    // Restore the id sequence LAST, after the devices and links are in place.
+    //
+    // Doing it before the link loop was wrong: connect() allocates from the same
+    // counter, so the sequence ended up ahead of the highest id by however many links
+    // had just been restored. Harmless-looking (ids stay unique) but the counter no
+    // longer means anything, and a file written before #13 has no `seq` field, so the
+    // high-water mark must come from the ids actually present.
+    let high = Number(data.seq) || 1;
+    function note(id) {
+      const m = /^[dl](\d+)$/.exec(String(id || ''));
+      if (m) high = Math.max(high, Number(m[1]) + 1);
+    }
+    for (const d of devices) note(d.id);
+    for (const l of (data.links || [])) note(l.id);
+    for (const id of topo.devices.keys()) note(id);
+    for (const id of topo.links.keys()) note(id);
+    topo._seq = high;
+
     return topo;
   }
 }
