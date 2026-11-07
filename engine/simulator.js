@@ -8,6 +8,7 @@ const net = require('./net');
 const vlanLib = require('./vlan');
 const lagLib = require('./lag');
 const stpLib = require('./stp');
+const aclLib = require('./acl');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -203,6 +204,26 @@ class Simulator {
     return !!(dev.stp && dev.stp.blocked && dev.stp.blocked.has(ifaceName));
   }
 
+  // Evaluate an access list bound to (iface, direction) against a frame.
+  // ACLs are IP filters: ARP and other non-IP traffic pass untouched.
+  _aclCheck(dev, ifaceName, dir, frame) {
+    const bind = dev.aclBindings && dev.aclBindings[ifaceName];
+    if (!bind || bind[dir] == null) return { action: 'permit', acl: null };
+    if (frame.etherType !== net.ETH_IPV4 || !frame.ip) return { action: 'permit', acl: bind[dir] };
+    const list = (dev.config.acls || {})[String(bind[dir])];
+    if (!list || !list.length) return { action: 'permit', acl: bind[dir] };
+    const pkt = {
+      srcIp: frame.ip.src,
+      dstIp: frame.ip.dst,
+      protocol: frame.icmp ? 'icmp' : 'ip',
+      srcPort: null,
+      dstPort: null
+    };
+    const verdict = aclLib.evaluate(list, pkt);
+    verdict.acl = bind[dir];
+    return verdict;
+  }
+
   // ---------------------------------------------------------------------
   // L3 origination
   // ---------------------------------------------------------------------
@@ -275,6 +296,16 @@ class Simulator {
         return;
       }
       v = Number(iface.encapVid) || v;
+    }
+
+    // Outbound access list is evaluated on the physical port the frame leaves.
+    const aclOut = this._aclCheck(dev, port.name, 'out', frame);
+    if (aclOut.action === 'deny') {
+      this._emit({
+        type: 'acl-deny', dev: dev.id, iface: port.name, dir: 'out', acl: aclOut.acl,
+        src: frame.ip ? frame.ip.src : null, dst: frame.ip ? frame.ip.dst : null, vlan: v
+      });
+      return;
     }
 
     const egress = vlanLib.classifyEgress(port.vlan, v);
@@ -356,6 +387,16 @@ class Simulator {
 
     // 3. MAC learning, scoped to the VLAN.
     if (inIface) dev.macTableFor(vid).set(f.srcMac, inIface);
+
+    // 3b. Inbound access list.
+    const aclIn = this._aclCheck(dev, inIface, 'in', f);
+    if (aclIn.action === 'deny') {
+      this._emit({
+        type: 'acl-deny', dev: dev.id, iface: inIface, dir: 'in', acl: aclIn.acl,
+        src: f.ip ? f.ip.src : null, dst: f.ip ? f.ip.dst : null, vlan: vid
+      });
+      return;
+    }
 
     const bcast = net.isBroadcastMac(f.dstMac);
     const mine = dev.interfaceWithMac(f.dstMac);

@@ -23,7 +23,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -65,7 +66,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d2",
@@ -96,7 +98,8 @@
         ],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -198,7 +201,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d3",
@@ -221,7 +225,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -1092,7 +1097,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d4",
@@ -1115,7 +1121,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -2042,7 +2049,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d5",
@@ -2064,7 +2072,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -2665,7 +2674,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d6",
@@ -2688,7 +2698,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -2724,7 +2735,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d7",
@@ -2747,7 +2759,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -2783,7 +2796,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d8",
@@ -2807,7 +2821,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -2843,7 +2858,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     }
   ],
   "links": [

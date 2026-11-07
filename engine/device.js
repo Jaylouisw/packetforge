@@ -112,8 +112,11 @@ class Device {
       defaultGateway: null,
       motd: null,
       vlans: {},                 // vid -> { name }
-      lags: {}                   // lagId -> { mode, hashPolicy, members: [iface] }
+      lags: {},                  // lagId -> { mode, hashPolicy, members: [iface] }
+      acls: {}                   // aclNumber -> [ { action, ... } ]
     };
+    // Per-interface ACL bindings: ifaceName -> { in: aclNumber, out: aclNumber }
+    this.aclBindings = {};
   }
 
   interface(name) { return this.interfaces.get(name); }
@@ -292,7 +295,8 @@ class Device {
         routes: this.config.routes.slice(),
         motd: this.config.motd,
         vlans: Object.assign({}, this.config.vlans),
-        lags: JSON.parse(JSON.stringify(this.config.lags))
+        lags: JSON.parse(JSON.stringify(this.config.lags)),
+        acls: JSON.parse(JSON.stringify(this.config.acls))
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -317,7 +321,9 @@ class Device {
           parent: i.parent || null,
           encapVid: i.encapVid || null
         };
-      })
+      }),
+      // per-interface ACL bindings (acl definitions live in config.acls)
+      aclBindings: this.aclBindings || {}
     };
   }
 
@@ -336,6 +342,8 @@ class Device {
         d.config.motd = state.config.motd || null;
         d.config.vlans = Object.assign({}, state.config.vlans || {});
         d.config.lags = JSON.parse(JSON.stringify(state.config.lags || {}));
+        d.config.acls = JSON.parse(JSON.stringify(state.config.acls || {}));
+        d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {
         for (const is of state.interfaces) {

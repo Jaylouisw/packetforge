@@ -506,7 +506,7 @@
     if (!log) return;
     const rows = events.map(function (e) {
       const cls = e.type === 'frame' ? 'frame'
-        : (e.type === 'drop' || e.type === 'vlan-drop' || e.type === 'stp-block') ? 'drop'
+        : (e.type === 'drop' || e.type === 'vlan-drop' || e.type === 'stp-block' || e.type === 'acl-deny') ? 'drop'
         : (e.type === 'lag') ? 'lag' : '';
       return '<div class="ev ' + cls + '">' + String(e.step).padStart(3, '0') + ' ' + describeEvent(e) + '</div>';
     });
@@ -533,6 +533,9 @@
       case 'icmp-reply': return e.dev + ' sending echo-reply to ' + e.to;
       case 'icmp-received': return e.dev + ' got echo-reply from ' + e.from;
       case 'drop': return 'DROP (' + (e.reason || '') + ')';
+      case 'acl-deny': return 'ACL ' + (e.acl == null ? '?' : e.acl) + ' DENY ' + e.dir + ' on ' +
+        (e.dev || '') + '/' + (e.iface || '') +
+        (e.src ? '  ' + e.src + ' → ' + e.dst : '');
       case 'vlan-drop': return 'VLAN DROP ' + (e.dev || '') + '/' + (e.iface || '') +
         ' vlan ' + (e.vlan == null ? '?' : e.vlan) + ' — ' + (e.reason || 'not a member');
       case 'stp-block': return 'STP BLOCK ' + (e.dev || '') + '/' + (e.iface || '') +

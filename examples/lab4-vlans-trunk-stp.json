@@ -29,7 +29,8 @@
             "name": "GUEST"
           }
         },
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -302,7 +303,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d2",
@@ -331,7 +333,8 @@
             "name": "GUEST"
           }
         },
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -604,7 +607,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d3",
@@ -627,7 +631,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -663,7 +668,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d4",
@@ -686,7 +692,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -722,7 +729,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     },
     {
       "id": "d5",
@@ -745,7 +753,8 @@
         "routes": [],
         "motd": null,
         "vlans": {},
-        "lags": {}
+        "lags": {},
+        "acls": {}
       },
       "interfaces": [
         {
@@ -781,7 +790,8 @@
           "parent": null,
           "encapVid": null
         }
-      ]
+      ],
+      "aclBindings": {}
     }
   ],
   "links": [

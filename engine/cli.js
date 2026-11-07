@@ -91,6 +91,17 @@ class CliSession {
       if (!vi.parent) return ['% ' + name + ' is a physical interface and cannot be removed'];
       this.device.interfaces.delete(name);
       out.push('Subinterface ' + name + ' removed');
+    } else if (head === 'access-list') {
+      out.push.apply(out, this._accessList(tokens.slice(1)));
+    } else if (head === 'no' && tokens[1] === 'access-list') {
+      const n = tokens[2];
+      if (this.device.config.acls) delete this.device.config.acls[n];
+      const binds = this.device.aclBindings || {};
+      for (const k of Object.keys(binds)) {
+        if (String(binds[k].in) === String(n)) delete binds[k].in;
+        if (String(binds[k].out) === String(n)) delete binds[k].out;
+      }
+      out.push('Access list ' + n + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
       if (!this.device.interfaces.has(tokens[1])) {
@@ -165,6 +176,8 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'ip' && tokens[1] === 'access-group') {
+      out.push.apply(out, this._accessGroup(tokens.slice(2), iface));
     } else if (head === 'encapsulation') {
       out.push.apply(out, this._encap(tokens.slice(1), iface));
     } else if (head === 'switchport') {
@@ -297,6 +310,40 @@ class CliSession {
     return out;
   }
 
+  // ---------- access lists ----------
+  _accessList(tokens) {
+    const aclLib = require('./acl');
+    if (!tokens.length) return ['% Incomplete command'];
+    const num = parseInt(tokens[0], 10);
+    const kind = aclLib.aclKind(num);
+    if (!kind) return ['% Invalid access list number: ' + tokens[0]];
+    const entry = aclLib.parseEntry(tokens.slice(1).join(' '), num);
+    if (!entry || entry.error) return ['% ' + ((entry && entry.error) || 'invalid entry')];
+    const dev = this.device;
+    if (!dev.config.acls) dev.config.acls = {};
+    const key = String(num);
+    if (!dev.config.acls[key]) dev.config.acls[key] = [];
+    dev.config.acls[key].push(entry);
+    return [kind.charAt(0).toUpperCase() + kind.slice(1) + ' access list ' + num +
+      ': ' + entry.action + ' entry added'];
+  }
+
+  _accessGroup(tokens, iface) {
+    const aclLib = require('./acl');
+    const num = parseInt(tokens[0], 10);
+    const dir = String(tokens[1] || '').toLowerCase();
+    if (!aclLib.aclKind(num)) return ['% Invalid access list number: ' + (tokens[0] || '')];
+    if (dir !== 'in' && dir !== 'out') return ['% Usage: ip access-group <acl> in|out'];
+    const dev = this.device;
+    if (!dev.config.acls || !dev.config.acls[String(num)]) {
+      return ['% Access list ' + num + ' does not exist'];
+    }
+    if (!dev.aclBindings) dev.aclBindings = {};
+    if (!dev.aclBindings[iface.name]) dev.aclBindings[iface.name] = {};
+    dev.aclBindings[iface.name][dir] = num;
+    return ['Interface ' + iface.name + ': access list ' + num + ' applied ' + dir];
+  }
+
   // ---------- ping ----------
   _ping(tokens) {
     const out = [];
@@ -342,6 +389,24 @@ class CliSession {
       out.push('Codes: C - connected, S - static');
       for (const r of dev.routesTable()) {
         out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
+      }
+    } else if (what === 'access-lists' || what === 'access-list') {
+      const aclLib = require('./acl');
+      const acls = dev.config.acls || {};
+      const ids = Object.keys(acls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+      if (!ids.length) out.push('% No access lists configured');
+      const binds = dev.aclBindings || {};
+      for (const id of ids) {
+        const kind = aclLib.aclKind(parseInt(id, 10));
+        out.push((kind === 'standard' ? 'Standard' : 'Extended') + ' IP access list ' + id);
+        let n = 1;
+        for (const e of acls[id]) {
+          out.push('  ' + (n++) + ' ' + (e.line || (e.action + ' ' + (e.protocol || 'ip'))));
+        }
+        for (const k of Object.keys(binds)) {
+          if (String(binds[k].in) === String(id)) out.push('    applied IN on ' + k);
+          if (String(binds[k].out) === String(id)) out.push('    applied OUT on ' + k);
+        }
       }
     } else if (what === 'vlan') {
       out.push('VLAN Name                             Status    Ports');
@@ -457,7 +522,14 @@ class CliSession {
         }
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;
         if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
+        const binds = dev.aclBindings && dev.aclBindings[i.name];
+        if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
+        if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
         if (!i.enabled) out.push('  shutdown');
+      }
+      const allAcls = dev.config.acls || {};
+      for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
+        for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
       }
       for (const r of dev.config.routes) {
         out.push('ip route ' + r.dest + ' ' + r.mask + ' ' + (r.gw || '') + (r.iface ? ' ' + r.iface : ''));
@@ -489,9 +561,12 @@ class CliSession {
       '  switchport trunk native vlan <id>',
       '  switchport trunk allowed vlan <list|all>',
       '  channel-group <id> mode active|passive|on',
+      '  access-list <1-2699> permit|deny ...        (config mode)',
+      '  ip access-group <acl> in|out               (interface mode)',
       '  ping <ip> [count]',
       '  show version | ip interface brief | ip route | arp',
       '  show vlan [brief] | spanning-tree | etherchannel summary',
+      '  show access-lists',
       '  show mac address-table | interfaces | running-config'
     ];
   }
