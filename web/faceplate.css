@@ -1,0 +1,276 @@
+/* faceplate.css — the front panel view for a device.
+ *
+ * Pairs with web/faceplate.js. The module emits hooks only (data-cage + fp-*
+ * classes), so every colour, size and spacing decision lives here.
+ *
+ * Palette follows web/style.css: --panel/--border/--text/--muted plus --green,
+ * --amber, --red, --accent. Connector tints follow the canvas legend so a port is
+ * the same colour wherever you look at it:
+ *   copper grey · fibre amber · combo pink · coax orange · DSL green · console purple
+ */
+
+.faceplate {
+  --fp-tint: #6b7280;      /* overwritten per data-cage below */
+  --fp-gap: 3px;
+  --fp-cell-h: 26px;
+
+  background: linear-gradient(180deg, #12161f, #10141c);
+  border: 1px solid var(--border-2, #303a4d);
+  border-radius: var(--radius, 8px);
+  padding: 10px 12px 11px;
+  font-family: var(--mono, ui-monospace, "Cascadia Code", Consolas, monospace);
+  color: var(--text, #e7ecf5);
+  /* a little bezel shading so the panel reads as hardware, not a table */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- connector families: the only place colour is decided ---------- */
+.faceplate [data-cage="rj45"] { --fp-tint: #94a3b8; }        /* copper  */
+.faceplate [data-cage="rj11"] { --fp-tint: #94a3b8; }
+.faceplate [data-cage="sfp"] { --fp-tint: #fbbf24; }         /* fibre   */
+.faceplate [data-cage="sfp+"] { --fp-tint: #fbbf24; }
+.faceplate [data-cage="sfp28"] { --fp-tint: #fbbf24; }
+.faceplate [data-cage="qsfp+"] { --fp-tint: #f59e0b; }
+.faceplate [data-cage="qsfp28"] { --fp-tint: #f59e0b; }
+.faceplate [data-cage="qsfpdd"] { --fp-tint: #f59e0b; }
+.faceplate [data-cage="sc-apc"] { --fp-tint: #22d3ee; }      /* PON     */
+.faceplate [data-cage="sc-upc"] { --fp-tint: #22d3ee; }
+.faceplate [data-cage="lc-upc"] { --fp-tint: #22d3ee; }
+.faceplate [data-cage="lc-apc"] { --fp-tint: #4ade80; }
+.faceplate [data-cage="mpo"] { --fp-tint: #22d3ee; }
+.faceplate [data-cage="combo"] { --fp-tint: #e879f9; }       /* pink    */
+.faceplate [data-cage="coax"] { --fp-tint: #fb923c; }        /* orange  */
+.faceplate [data-cage="dsl"] { --fp-tint: #34d399; }         /* green   */
+.faceplate [data-cage="powerline"] { --fp-tint: #f472b6; }
+.faceplate [data-cage="antenna"] { --fp-tint: #60a5fa; }
+.faceplate [data-cage="console"] { --fp-tint: #a78bfa; }     /* purple  */
+.faceplate [data-cage="usb"] { --fp-tint: #cbd5e1; }
+.faceplate [data-cage="unknown"] { --fp-tint: #6b7280; }
+
+/* ---------- header ---------- */
+.fp-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 7px;
+  margin-bottom: 9px;
+  border-bottom: 1px solid var(--border, #252c3a);
+}
+.fp-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text, #e7ecf5);
+}
+.fp-model {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--muted, #8b94a7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fp-counts {
+  font-size: 10px;
+  color: var(--muted, #8b94a7);
+  white-space: nowrap;
+}
+
+/* ---------- groups ---------- */
+.fp-groups { display: flex; flex-direction: column; gap: 11px; }
+
+.fp-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.fp-group-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #8b94a7);
+}
+.fp-group-cage {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0 5px;
+  border-radius: 4px;
+  color: var(--fp-tint);
+  border: 1px solid currentColor;
+  opacity: 0.95;
+}
+.fp-group-count,
+.fp-group-rate {
+  font-size: 10px;
+  color: var(--muted, #8b94a7);
+}
+.fp-group-rate { margin-left: auto; opacity: 0.75; }
+
+/* ---------- rows ----------
+ * A row is one physical row of sockets. Cells share the row width evenly
+ * (minmax(0,1fr)) so twelve columns still fit the 340px inspector, while a short
+ * fibre group simply gets wider cages — which is what the hardware does.
+ */
+.fp-row {
+  display: grid;
+  gap: var(--fp-gap);
+  margin-bottom: var(--fp-gap);
+}
+.fp-row:last-child { margin-bottom: 0; }
+
+.fp-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.fp-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fp-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fp-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.fp-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.fp-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.fp-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.fp-cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.fp-cols-9 { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+.fp-cols-10 { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+.fp-cols-11 { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+.fp-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+/* ---------- a single socket ---------- */
+.fp-port {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: var(--fp-cell-h);
+  padding: 0 2px 2px;
+  /* dark recess: the hole in the panel, with the family tint on its lip */
+  background: #0b0f16;
+  border: 1px solid var(--border, #252c3a);
+  border-radius: 3px;
+  color: #9fb0c9;
+  font: inherit;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+/* the socket mouth — tinted by family, dimmed so 48 of them stay calm */
+.fp-port::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 22%;
+  right: 22%;
+  height: 6px;
+  border-radius: 1px;
+  border: 1px solid var(--fp-tint);
+  background: #060a10;
+  opacity: 0.5;
+}
+
+.fp-port:hover {
+  background: #131a26;
+  border-color: var(--fp-tint);
+  color: var(--text, #e7ecf5);
+}
+.fp-port:focus-visible {
+  outline: 2px solid var(--accent, #3f7cff);
+  outline-offset: 1px;
+}
+.fp-port:active { background: #1a2331; }
+
+.fp-port-name {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* status LED, top-right of the cell: dark = nothing, green = cabled, red = admin down */
+.fp-led {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #2b3444;
+}
+.fp-up .fp-led { background: #3d4759; }
+.fp-cabled .fp-led {
+  background: var(--green, #2dd4a7);
+  box-shadow: 0 0 4px rgba(45, 212, 167, 0.75);
+}
+.fp-down .fp-led {
+  background: var(--red, #f4556b);
+  box-shadow: none;
+}
+.fp-cabled { border-color: rgba(45, 212, 167, 0.35); color: var(--text, #e7ecf5); }
+.fp-down { opacity: 0.45; color: var(--muted, #8b94a7); }
+.fp-down .fp-port-name { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* PoE: a powered socket gets the amber "P" chip, the same amber as the fibre tint
+   so the panel does not grow a second colour vocabulary. */
+.fp-port-flag {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 7px;
+  font-weight: 700;
+  color: var(--amber, #f5b942);
+  line-height: 1;
+}
+.fp-poe { box-shadow: inset 0 0 0 1px rgba(245, 185, 66, 0.25); }
+.fp-poe-in .fp-led { background: var(--amber, #f5b942); }
+
+/* a port with an address, or one that has heard a neighbour */
+.fp-ip { border-color: rgba(96, 165, 250, 0.4); }
+.fp-lldp .fp-led { box-shadow: 0 0 4px rgba(163, 230, 53, 0.6); }
+
+.fp-selected {
+  border-color: var(--accent, #3f7cff);
+  box-shadow: inset 0 0 0 1px var(--accent, #3f7cff);
+  background: #16243a;
+}
+
+.fp-role .fp-port-name::after {
+  content: "\21C4";       /* ⇄ : the cage can be flipped between roles */
+  font-size: 7px;
+  margin-left: 1px;
+  color: var(--muted, #8b94a7);
+}
+
+/* ---------- legend ---------- */
+.fp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border, #252c3a);
+  font-size: 9px;
+  color: var(--muted, #8b94a7);
+}
+.fp-key { display: inline-flex; align-items: center; gap: 4px; }
+.fp-swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--fp-tint);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ---------- empty / narrow ---------- */
+.fp-empty {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--muted, #8b94a7);
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .faceplate { --fp-gap: 2px; --fp-cell-h: 24px; padding: 8px; }
+  .fp-port { font-size: 8px; }
+}
