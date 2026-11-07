@@ -78,16 +78,40 @@ console.log('Every device exposes ports it can actually cable:');
 
 console.log('\nPort names are unambiguous:');
 {
+  // Check what the SPEC declares, not the materialised interface map. The map is keyed by
+  // name, so a port declared twice silently collapses and the duplicate is invisible -
+  // which is how a FiberHome OLT shipped a combo port declared twice, alongside a chained
+  // 'ge1/1-sfp-sfp' left by a conversion run twice. An earlier version of this check read
+  // the map and therefore could never fail.
   const duff = [];
   for (const x of all) {
+    const declared = (x.spec.interfaces || []).map(function (i) { return i.name; });
     const seen = new Set();
-    for (const i of x.ifaces) {
-      if (seen.has(i.name)) duff.push(x.spec.model + '/' + i.name);
-      seen.add(i.name);
+    for (const n of declared) {
+      if (seen.has(n)) duff.push(x.spec.model + '/' + n);
+      seen.add(n);
     }
   }
-  ok(duff.length === 0, 'no duplicate port names within a device' +
+  ok(duff.length === 0, 'no port is declared twice in a spec' +
     (duff.length ? ' (' + duff.slice(0, 3).join(', ') + ')' : ''));
+
+  // A combo pair on real hardware is exactly two positions that name each other. A third
+  // port pointing at the same position means the pair was converted more than once.
+  const chained = [];
+  for (const x of all) {
+    const byName = {};
+    for (const i of (x.spec.interfaces || [])) byName[i.name] = i;
+    for (const i of (x.spec.interfaces || [])) {
+      if (!i.comboWith) continue;
+      const partner = byName[i.comboWith];
+      if (!partner) { chained.push(x.spec.model + '/' + i.name + ' -> missing ' + i.comboWith); continue; }
+      if (partner.comboWith !== i.name) {
+        chained.push(x.spec.model + '/' + i.name + ' -> ' + i.comboWith + ' -> ' + (partner.comboWith || 'nothing'));
+      }
+    }
+  }
+  ok(chained.length === 0, 'every combo pair names its partner symmetrically' +
+    (chained.length ? ' (' + chained.slice(0, 3).join(', ') + ')' : ''));
 }
 
 console.log('\nThe description does not promise hardware the ports lack:');

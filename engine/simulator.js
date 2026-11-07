@@ -14,6 +14,7 @@ const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
 const lldp = require('./lldp');
 const ipv6Lib = require('./ipv6');
+const raLib = require('./ra');
 const scionLib = require('./scion');
 
 // --- frame builders ---
@@ -141,6 +142,9 @@ class Simulator {
     this.computePoe();
     // Announce ourselves on every cabled port, the way real gear does on link-up.
     this.announceLldp();
+    // Then let the routers hand out IPv6 prefixes, so a host configured for
+    // autoconfiguration has an address before anyone asks it to send a packet.
+    this.announceRa();
     // Recompute OSPF so learned routes are present before the first packet.
     this.computeOspf();
     // Recompute BGP so learned routes are present before the first packet.
@@ -654,6 +658,11 @@ class Simulator {
     const nd = frame.nd;
     const vid = frame.vid || 1;
 
+    // Router solicitation and advertisement are neighbour-discovery messages
+    // too (RFC 4861 §4), and they are the ones that hand out addresses.
+    if (nd.type === 'rs') { this._handleRs(dev, frame, inIface); return; }
+    if (nd.type === 'ra') { this._handleRa(dev, frame, inIface); return; }
+
     if (nd.type === 'ns') {
       const iface = dev.interfaceWithIp6(nd.target);
       if (!iface) return;                       // not our address: stay silent
@@ -680,6 +689,244 @@ class Simulator {
         this._emitFrame(dev, egress, ethFrame(nd.targetMac, egress.mac, net.ETH_IPV6, item.ip, item.icmp, null), item.vid);
       }
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // IPv6 stateless address autoconfiguration (SLAAC)
+  //
+  // A host that has been told 'ipv6 address autoconfig' has no address at all
+  // until a router gives it one. That is the point of the feature: the address
+  // must come off the wire, not out of the configuration, or the lab proves
+  // nothing about how IPv6 is deployed.
+  // ---------------------------------------------------------------------
+
+  // One exchange: routers advertise, hosts that are waiting solicit, routers
+  // answer. A real network repeats the unsolicited advertisement every few
+  // minutes and a host solicits at boot; one pass at the start of a run is
+  // enough here, and it has to happen before the first packet, otherwise the
+  // host would be asked to send from an address it does not have yet.
+  announceRa() {
+    for (const dev of this.topo.devices.values()) {
+      // A device that cannot forward has no prefix to give away; skip it before
+      // even looking at the configuration.
+      if (!dev.isL3()) continue;
+      const cfg = raLib.normalizeConfig(dev.config.ra);
+      if (!cfg.enabled) continue;
+      for (const iface of dev.activeInterfaces()) {
+        if (iface.parent) continue;              // subinterfaces are not ports
+        if (!iface.peer) continue;               // nothing plugged in: nobody to tell
+        this._sendRa(dev, iface, { solicited: false });
+      }
+    }
+
+    // Then the hosts that are still waiting ask, which is what puts a
+    // solicitation on the timeline instead of making the address appear by magic.
+    for (const dev of this.topo.devices.values()) {
+      for (const iface of dev.activeInterfaces()) {
+        if (iface.parent || !iface.peer || !iface.autoconfig) continue;
+        this._sendRs(dev, iface);
+      }
+    }
+
+    this._run();
+    return this;
+  }
+
+  // Router solicitation to all routers (ff02::2). Sent from the link-local
+  // address, because until the router answers that is the only address this
+  // interface has.
+  _sendRs(dev, iface, opts) {
+    const o = opts || {};
+    const vid = (o.vid === undefined || o.vid === null) ? portPvid(iface) : o.vid;
+    const msg = raLib.buildRs({ srcMac: iface.mac });
+    this._emit({
+      type: 'rs-send', dev: dev.id, iface: iface.name,
+      dst: raLib.ALL_ROUTERS, mac: raLib.ALL_ROUTERS_MAC,
+      from: dev.linkLocal6(iface), vlan: vid
+    });
+    this._emitFrame(dev, iface, {
+      dstMac: raLib.ALL_ROUTERS_MAC,
+      srcMac: iface.mac,
+      etherType: net.ETH_ND,
+      nd: { type: 'rs', srcIp6: dev.linkLocal6(iface), rs: msg }
+    }, vid);
+    return 1;
+  }
+
+  // Router advertisement to all nodes (ff02::1).
+  _sendRa(dev, iface, opts) {
+    const o = opts || {};
+    // A prefix is a promise to route the traffic addressed inside it. A bridge
+    // that advertises one is lying: the hosts would send it packets it can only
+    // flood. The CLI refuses to configure it too, but config files and imported
+    // labs exist, so the forwarding path is the line that matters.
+    if (!dev.hasCap('l3-forward')) return 0;
+
+    const cfg = raLib.normalizeConfig(dev.config.ra);
+    if (!cfg.enabled) return 0;
+    // suppress-ra silences the periodic advertisement, not the router: a host
+    // that asks still gets an answer, which is exactly what the command means on
+    // real gear. A router that never answers is a router with RAs switched off.
+    if (cfg.suppress && o.solicited !== true) return 0;
+
+    // A router advertises a prefix on the link it is attached to, not on every
+    // port it happens to own. Sending the aa::/64 down the bb link would hand
+    // every host on that wire an address on the wrong subnet - the kind of
+    // silent mistake that looks like "IPv6 does not work" for an hour.
+    const onLink = [];
+    for (const p of cfg.prefixes) {
+      if (this._prefixOnIface(dev, iface, p)) onLink.push(p);
+    }
+
+    const msg = raLib.buildRa({
+      m: cfg.m, o: cfg.o,
+      curHopLimit: cfg.curHopLimit,
+      routerLifetime: cfg.routerLifetime,
+      reachableTime: cfg.reachableTime,
+      retransTimer: cfg.retransTimer,
+      prefixes: onLink,
+      srcMac: iface.mac
+    });
+
+    const vid = (o.vid === undefined || o.vid === null) ? portPvid(iface) : o.vid;
+    this._emit({
+      type: 'ra-send', dev: dev.id, iface: iface.name,
+      dst: raLib.ALL_NODES, mac: raLib.ALL_NODES_MAC,
+      from: dev.linkLocal6(iface),
+      m: msg.m, o: msg.o, routerLifetime: msg.routerLifetime,
+      prefixes: msg.prefixes.map(function (p) { return p.prefix + '/' + p.prefixLen; }),
+      solicited: o.solicited === true,
+      vlan: vid
+    });
+    this._emitFrame(dev, iface, {
+      dstMac: raLib.ALL_NODES_MAC,
+      srcMac: iface.mac,
+      etherType: net.ETH_ND,
+      nd: { type: 'ra', srcIp6: dev.linkLocal6(iface), ra: msg }
+    }, vid);
+    return 1;
+  }
+
+  // Does this interface hold an address inside the prefix? A router only has a
+  // right to advertise a prefix it is actually attached to.
+  _prefixOnIface(dev, iface, pio) {
+    for (const e of dev.ip6Addrs()) {
+      if (e.name !== iface.name) continue;
+      if (ipv6Lib.prefixContains6(pio.prefix + '/' + pio.prefixLen, e.addr)) return true;
+    }
+    return false;
+  }
+
+  _handleRs(dev, frame, inIface) {
+    if (!dev.hasCap('l3-forward')) return;       // nothing to advertise, and no right to
+    const cfg = raLib.normalizeConfig(dev.config.ra);
+    if (!cfg.enabled) return;
+    const iface = dev.resolveIface(inIface);
+    if (!iface) return;
+    this._emit({
+      type: 'rs-recv', dev: dev.id, iface: iface.name,
+      from: (frame.nd && frame.nd.srcIp6) || null, mac: frame.srcMac,
+      vlan: frame.vid || 1
+    });
+    // The answer leaves the interface the question arrived on: a router with
+    // eight ports has eight different links and only one of them asked.
+    this._sendRa(dev, iface, { solicited: true, vid: frame.vid || null });
+  }
+
+  _handleRa(dev, frame, inIface) {
+    const iface = dev.resolveIface(inIface);
+    if (!iface) return;
+    // Only an interface that was told to autoconfigure reacts. A host given an
+    // address by hand must not have it rewritten by a router it never asked,
+    // and a switch that terminates the flooded all-nodes frame has no use for it.
+    if (!iface.autoconfig) return;
+
+    // Decode the wire encoding instead of reading the sender's object: what
+    // arrives is ICMPv6 type 134 octets, and a mistake in that layout is
+    // supposed to be visible here rather than hidden behind a shared structure.
+    const decoded = raLib.parseRa(raLib.encodeRa(frame.nd.ra));
+    if (!decoded.valid) {
+      this._emit({
+        type: 'drop', dev: dev.id, iface: iface.name,
+        reason: 'malformed router advertisement: ' + decoded.error.message
+      });
+      return;
+    }
+    const ra = decoded.ra;
+    const vid = frame.vid || 1;
+    const router = (frame.nd && frame.nd.srcIp6) || null;
+
+    this._emit({
+      type: 'ra-recv', dev: dev.id, iface: iface.name, from: router, mac: frame.srcMac,
+      m: ra.m, o: ra.o, routerLifetime: ra.routerLifetime,
+      prefixes: ra.prefixes.map(function (p) { return p.prefix + '/' + p.prefixLen; }),
+      vlan: vid
+    });
+
+    // RFC 4861 §6.3.4: the source link-layer address option seeds the neighbour
+    // cache, so the first packet to the router needs no solicitation of its own.
+    if (router) this._ndTable(dev).set(router, frame.srcMac);
+
+    if (ra.m) {
+      // M=1 means "this network hands out addresses with DHCPv6". A host that
+      // autoconfigured anyway would hold an address the network does not manage,
+      // so refusing is the correct behaviour - and it is reported, because a
+      // host that silently stays unaddressed is a lab bug that takes an hour to
+      // find.
+      this._emit({
+        type: 'slaac-refused', dev: dev.id, iface: iface.name, from: router, flag: 'm',
+        reason: 'router set the M (managed) flag: addresses on this network come from DHCPv6, so stateless autoconfiguration must not run'
+      });
+      return;
+    }
+
+    const existing = (dev.config.ip6 || {})[iface.name];
+    if (existing && !existing.autoconfig) {
+      this._emit({
+        type: 'slaac-refused', dev: dev.id, iface: iface.name, from: router, flag: 'manual',
+        reason: 'interface already carries the manually configured address ' + existing.addr +
+          '; autoconfiguration will not overwrite it'
+      });
+      return;
+    }
+
+    const installed = [];
+    for (const pio of ra.prefixes) {
+      // A=0 means on-link only: the prefix tells the host who is reachable
+      // directly, but it must not invent an address inside it.
+      if (!raLib.canAutoconfigure(pio)) continue;
+      // One global address per interface in this model. A real host would keep one
+      // address per advertised prefix; taking the first autonomous prefix is
+      // honest about the limit instead of letting the last option win by accident.
+      if (installed.length) break;
+      const addr = raLib.deriveAddress(pio.prefix, pio.prefixLen, iface.mac);
+      if (!addr) continue;
+
+      dev.config.ip6[iface.name] = {
+        addr: addr, prefix: pio.prefixLen, autoconfig: true,
+        validLifetime: pio.validLifetime, preferredLifetime: pio.preferredLifetime,
+        from: router
+      };
+      installed.push(addr);
+      this._emit({
+        type: 'slaac-address', dev: dev.id, iface: iface.name, addr: addr,
+        prefix: pio.prefixLen, prefixSource: pio.prefix + '/' + pio.prefixLen,
+        router: router, validLifetime: pio.validLifetime,
+        preferredLifetime: pio.preferredLifetime, vlan: vid
+      });
+    }
+
+    // Router lifetime 0 means "do not use me as a default router" - a router
+    // being drained says exactly that, and honouring it is the difference
+    // between a graceful shutdown and a black hole.
+    if (ra.routerLifetime > 0 && router) {
+      dev.config.gateway6 = router;
+      // fe80:: is on-link on every interface, so a link-local next hop only
+      // means something together with the port it was heard on. Without this
+      // the default route exists but has no egress to send by.
+      dev.config.gateway6Iface = iface.name;
+    }
+    return installed;
   }
 
   _handleLocalIp6(dev, frame, inIface) {
@@ -735,6 +982,9 @@ class Simulator {
     this.reset();
     this.computeStp();
     this.computePoe();
+    // SLAAC first: a host with 'ipv6 address autoconfig' and no router answer
+    // would otherwise be asked to send from an address it has never had.
+    this.announceRa();
     this.computeOspf();
     this.computeBgp();
 
@@ -830,6 +1080,10 @@ class Simulator {
   refreshNeighbours() {
     this.computePoe();
     this.announceLldp();
+    // The same argument applies to IPv6: a host that was just plugged into a
+    // router advertising a prefix should have an address before anyone asks it
+    // a question, not only after the next ping.
+    this.announceRa();
     this._run();
     return this;
   }

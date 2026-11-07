@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SLAAC via router advertisements.** IPv6 hosts can now get an address off the
+  wire instead of having one typed in. `engine/ra.js` builds, encodes and parses
+  ICMPv6 router solicitations (133) and advertisements (134) — M/O flags, router
+  lifetime, reachable/retrans timers, prefix information options (prefix, length,
+  L/A, valid and preferred lifetimes) and the source link-layer address option.
+  A host with `ipv6 address autoconfig` multicasts an RS to `ff02::2`, the router
+  answers to `ff02::1`, and the host splices its own EUI-64 identifier onto the
+  advertised prefix, installs the router's link-local as its default gateway
+  (remembering which port it was heard on, because `fe80::` is on-link
+  everywhere) and can then be pinged from another host. An advertisement with the
+  M flag set is refused with a stated reason rather than silently ignored, only a
+  device with `l3-forward` ever advertises anything, a prefix is only advertised
+  on the link the router is attached to, and `suppress-ra` stops the periodic
+  advertisement without silencing the answer to a host that asks. New commands:
+  `ipv6 nd ra enable|disable|managed|other-config|lifetime`, `ipv6 nd prefix
+  <prefix>/<len> [valid <s>] [preferred <s>]`, `ipv6 nd suppress-ra`,
+  `ipv6 address autoconfig` and `show ipv6 nd`. Tests:
+  `test/ipv6-slaac.test.js`.
 - **SCION in the forwarding path.** ASes are declared with `scion <isd>-<as>`
   (`1-ff00:0:0` is core because its AS number ends in `:0`, the SCION
   convention). Beaconing runs over the real peering graph derived from the

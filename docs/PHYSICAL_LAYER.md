@@ -27,7 +27,7 @@ Every interface has a derived **hardware descriptor** (`engine/media.js`):
 
 | Field | Meaning |
 |-------|---------|
-| `cage` | The physical connector/cage: `rj45`, `sfp`, `sfp+`, `sfp28`, `qsfp+`, `qsfp28`, `console`, `usb`, `antenna` |
+| `cage` | The physical connector/cage — 18 of them, from `rj45` and `sfp+` to `qsfpdd`, `sc-apc` and `antenna`. The full table is in [CONNECTORS.md](CONNECTORS.md) |
 | `media[]` | Media (optics / copper / DAC) the port can carry |
 | `speedCaps[]` | Line rates the port can negotiate (Mbps) |
 | `poeOut` | Watts this port can *source* (PSE) |
@@ -77,7 +77,9 @@ device declares the `poe-pse` capability.
 
 ## 2. Medium catalogue
 
-32 media across 5 families. Selected highlights:
+53 media across eight families (copper, fibre, DAC, coax, DSL, powerline,
+console, wireless), carried by 18 cages — see [CONNECTORS.md](CONNECTORS.md) for
+the cage-by-cage table. Selected highlights:
 
 | Family | Medium | Speed | Connector | Reach |
 |--------|--------|-------|-----------|-------|

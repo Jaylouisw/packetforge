@@ -21,6 +21,7 @@ const bgp = require('./bgp');
 const dns = require('./dns');
 const scion = require('./scion');
 const ipv6 = require('./ipv6');
+const ra = require('./ra');
 
 module.exports = {
   net,
@@ -39,6 +40,7 @@ module.exports = {
   dns,
   scion,
   ipv6,
+  ra,
   Device,
   Interface,
   Link,

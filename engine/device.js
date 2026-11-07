@@ -17,9 +17,13 @@ class Interface {
 
     // runtime / configurable state
     this.ip = null;           // dotted-quad or null
-    this.mask = null;         // dotted-quad or null
+    this.mask = null;         // dotted-quad mask or null
     this.enabled = true;
     this.dhcp = false;
+    // 'ipv6 address autoconfig': this interface asks a router for its address
+    // instead of being given one. Separate from `dhcp` because it is a different
+    // protocol with a different failure mode (no router = no address, quietly).
+    this.autoconfig = false;
     this.description = '';
     this.peer = null;         // { deviceId, iface }
 
@@ -157,6 +161,14 @@ class Device {
       ip6: {},                   // ifaceName -> { addr, prefix }   (global IPv6 addresses)
       routes6: [],               // [{ dest, prefix, nextHop, iface }]
       gateway6: null,            // default IPv6 gateway
+      // A link-local default gateway only means something together with the
+      // interface it was heard on: fe80:: is on-link everywhere, so without this
+      // the route resolves to no egress at all. Filled in by an RA.
+      gateway6Iface: null,
+      // Router advertisement policy: { enabled, suppress, m, o, prefixes[] }.
+      // null until the device is told to advertise anything, which is why no
+      // existing lab suddenly starts emitting RAs.
+      ra: null,
       scionAs: null              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
     };
     // Routes learned by OSPF (derived, never persisted)
@@ -422,14 +434,21 @@ class Device {
 
   // --- IPv6 -------------------------------------------------------------
 
-  // Global IPv6 addresses configured on this device.
+  // Global IPv6 addresses configured on this device. `autoconfig` marks the ones
+  // that came from a router advertisement rather than from a human, so `show` can
+  // tell "the host configured itself" apart from "someone typed this in".
   ip6Addrs() {
     const out = [];
     const map = this.config.ip6 || {};
     for (const name of Object.keys(map)) {
       const iface = this.interfaces.get(name);
       if (!iface || !iface.enabled) continue;
-      out.push({ iface: iface, name: name, addr: map[name].addr, prefix: map[name].prefix });
+      out.push({
+        iface: iface, name: name,
+        addr: map[name].addr, prefix: map[name].prefix,
+        autoconfig: !!map[name].autoconfig,
+        from: map[name].from || null
+      });
     }
     return out;
   }
@@ -469,7 +488,12 @@ class Device {
       }
     }
     if (!best && this.config.gateway6) {
-      best = { iface: null, via: this.config.gateway6, type: 'default6', prefix: 0 };
+      best = {
+        iface: this.config.gateway6Iface || null,
+        via: this.config.gateway6,
+        type: 'default6',
+        prefix: 0
+      };
     }
     return best;
   }
@@ -562,6 +586,8 @@ class Device {
         ip6: JSON.parse(JSON.stringify(this.config.ip6 || {})),
         routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
         gateway6: this.config.gateway6 || null,
+        gateway6Iface: this.config.gateway6Iface || null,
+        ra: this.config.ra ? JSON.parse(JSON.stringify(this.config.ra)) : null,
         scionAs: this.config.scionAs || null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
@@ -569,6 +595,8 @@ class Device {
           name: i.name, type: i.type, speed: i.speed,
           ip: i.ip, mask: i.mask, enabled: i.enabled,
           dhcp: i.dhcp, description: i.description,
+          // 'ipv6 address autoconfig' - the interface is waiting for a router
+          autoconfig: !!i.autoconfig,
           // physical hardware (so the UI can render cages/media without re-deriving)
           cage: i.hardware.cage,
           media: i.hardware.media,
@@ -624,6 +652,8 @@ class Device {
         d.config.ip6 = JSON.parse(JSON.stringify(state.config.ip6 || {}));
         d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));
         d.config.gateway6 = state.config.gateway6 || null;
+        d.config.gateway6Iface = state.config.gateway6Iface || null;
+        d.config.ra = state.config.ra ? JSON.parse(JSON.stringify(state.config.ra)) : null;
         d.config.scionAs = state.config.scionAs || null;
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
@@ -639,6 +669,7 @@ class Device {
           iface.mask = is.mask || null;
           iface.enabled = is.enabled !== false;
           iface.dhcp = !!is.dhcp;
+          iface.autoconfig = !!is.autoconfig;
           iface.description = is.description || '';
           if (is.duplex) iface.duplex = is.duplex;
           if (is.lagId !== undefined) iface.lagId = is.lagId || null;

@@ -52,6 +52,58 @@ Modes and their prompts:
 | `description <text>` | set a description |
 | `exit` | back to config mode |
 
+## IPv6 commands
+
+Config mode:
+
+| Command | Effect |
+|---------|--------|
+| `ipv6 route <prefix>/<len> <next-hop>` | add a static IPv6 route |
+| `ipv6 gateway <addr>` | set the default IPv6 gateway |
+| `no ipv6` | clear the IPv6 gateway and static routes |
+| `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertise prefixes to the link (`l3-forward` only) |
+| `ipv6 nd ra managed` / `ipv6 nd ra other-config` | set the M / O flag (`no …` clears it) |
+| `ipv6 nd ra lifetime <s>` | router lifetime; `0` means "not a default router" |
+| `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]` | advertise a prefix with L=A=1 |
+| `no ipv6 nd prefix <prefix>/<len>` | withdraw a prefix |
+| `ipv6 nd suppress-ra` | stop periodic advertisements, still answer solicitations (`no …` resumes) |
+| `show ipv6 nd` | what this device would advertise, and which interfaces are waiting |
+
+Interface mode:
+
+| Command | Effect |
+|---------|--------|
+| `ipv6 address <addr>/<len>` | assign a static global address |
+| `ipv6 address autoconfig` | take an address from a router advertisement (SLAAC) |
+| `no ipv6 address` | remove the static address |
+| `no ipv6 address autoconfig` | stop autoconfiguring and drop the learned address |
+
+A router advertises a prefix **only on the link where it holds an address inside
+that prefix**, because a prefix is a promise to route the traffic addressed in
+it. `show ipv6 nd` prints that mapping and says so when a configured prefix is
+attached to no interface.
+
+```
+R1(config)# interface Gi0/0
+R1(config-if)# ipv6 address 2001:db8:aa::1/64
+R1(config-if)# exit
+R1(config)# ipv6 nd ra enable
+R1(config)# ipv6 nd prefix 2001:db8:aa::/64 valid 2592000 preferred 604800
+R1(config)# exit
+R1# show ipv6 nd
+
+PC1(config)# interface eth0
+PC1(config-if)# ipv6 address autoconfig
+PC1# show ipv6 nd
+IPv6 router advertisements on PC1:
+  Autoconfig  : eth0 -> 2001:db8:aa::ff:fe00:200/64 (from fe80::ff:fe00:0)
+```
+
+The host sends a router solicitation to `ff02::2`, the router answers to
+`ff02::1`, and the host splices its own EUI-64 identifier onto the advertised
+prefix. If the advertisement carries the M (managed) flag the host refuses to
+autoconfigure and reports why: addresses on that network come from DHCPv6.
+
 ## Example session (two-subnet router)
 
 ```

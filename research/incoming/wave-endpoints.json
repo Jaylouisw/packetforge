@@ -1,0 +1,598 @@
+{
+  "devices": [
+    {
+      "vendor": "ricoh",
+      "model": "IM C3000",
+      "label": "IM C3000 A3 colour MFP",
+      "category": "printer",
+      "description": "Ricoh IM C3000 is a 30 ppm A3 colour multifunction printer with a 320 GB HDD and a single standard 10/100/1000BASE-T RJ45 port; wireless LAN is an option, not fitted as standard.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://assets.ricoh-usa.com/j2jqn9lauv41/6MrL4kDitHAhx5l3ejEkcW/f5f72732903876fed596025d46b6f3ab/im-c3000-c3500-spec-sheet.pdf"
+    },
+    {
+      "vendor": "konica-minolta",
+      "model": "bizhub C360i",
+      "label": "bizhub C360i A3 colour MFP",
+      "category": "printer",
+      "description": "Konica Minolta bizhub C360i is a 36 ppm A3 colour MFP whose standard network interface is 10BASE-T/100BASE-TX/1000BASE-T Ethernet, with Wi-Fi 802.11b/g/n available only as an optional kit.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.jtfcorp.com/konica-bizhub-c360i-multifunction-printer-aa2j011"
+    },
+    {
+      "vendor": "kyocera",
+      "model": "ECOSYS M3655idn",
+      "label": "ECOSYS M3655idn A4 mono MFP",
+      "category": "printer",
+      "description": "Kyocera ECOSYS M3655idn is a 55 ppm A4 monochrome MFP with standard Gigabit Ethernet (10BaseT/100BaseTX/1000BaseT) and no built-in WLAN; Wi-Fi needs the optional IB-36 kit.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.kyoceradocumentsolutions.us/content/dam/download-center-americas-cf/us/documents/brochures-and-specs/ECOSYS_M3660idn_M3655idn_Vantage_Point_EN_pdf.download.pdf"
+    },
+    {
+      "vendor": "xerox",
+      "model": "AltaLink C8145",
+      "label": "AltaLink C8145 A3 colour MFP",
+      "category": "printer",
+      "description": "Xerox AltaLink C8145 is a 45 ppm tabloid/A3 colour all-in-one with a standard 10/100/1000Base-T Ethernet port; Wi-Fi and Wi-Fi Direct are separate options.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.office.xerox.com/latest/AC8SS-032.PDF"
+    },
+    {
+      "vendor": "axis",
+      "model": "M2036-LE",
+      "label": "M2036-LE 4MP bullet camera",
+      "category": "camera",
+      "description": "AXIS M2036-LE is a 4 MP (1440p) IK08 outdoor bullet with deep-learning analytics and a single RJ45 10BASE-T/100BASE-TX PoE connector, 802.3af/at Type 1 Class 3 at 5 W typical and 12.95 W max with IR on.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.axis.com/dam/public/ee/d3/cd/datasheet-axis-m2036-le-bullet-camera-en-US-519726.pdf"
+    },
+    {
+      "vendor": "hanwha",
+      "model": "QNV-8080R",
+      "label": "QNV-8080R 5MP IR dome camera",
+      "category": "camera",
+      "description": "Hanwha Vision QNV-8080R is a 5 MP vandal-resistant IR dome with a 3.2-10 mm varifocal lens and one RJ-45 10/100BASE-T port powered by PoE Class 3.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/QNV-8080R"
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-2CD2347G2-LU",
+      "label": "4MP ColorVu fixed turret camera",
+      "category": "camera",
+      "description": "Hikvision DS-2CD2347G2-LU is a 4 MP ColorVu turret with a built-in mic and one RJ45 10M/100M self-adaptive port; 802.3af Class 3 PoE draws about 7.6 W, and a 12 VDC barrel jack is the alternative.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/us-en/products/network-products/network-cameras/colorvu-series/ds-2cd2347g2-lu/"
+    },
+    {
+      "vendor": "dahua",
+      "model": "IPC-HDW2431T-AS-S2",
+      "label": "4MP WDR IR eyeball camera",
+      "category": "camera",
+      "description": "Dahua IPC-HDW2431T-AS-S2 is a 4 MP Lite-series eyeball with a built-in mic, one RJ-45 10/100 Base-T port and 12 VDC or PoE power.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.dahuasecurity.com/ceen/products/network-products/network-cameras/Lite-Series/4-MP/IPC-HDW2431T-AS-S2"
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-7616NXI-K2/16P",
+      "label": "16-ch AcuSense 4K NVR with 16-port PoE",
+      "category": "nvr",
+      "description": "Hikvision DS-7616NXI-K2/16P is a 1U AcuSense 4K NVR with two SATA bays, one self-adaptive 10/100/1000 Mbps uplink and sixteen independent RJ-45 10/100 Mbps PoE camera ports (plug-and-play, 160 Mbps incoming bandwidth).",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 9",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 10",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 11",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 12",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 13",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 14",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 15",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 16",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR031212/M000141849/Data_Sheet/Datasheet-of-DS-7616NXI-K2_16PD_20240523.pdf"
+    },
+    {
+      "vendor": "dahua",
+      "model": "NVR4208-8P-4KS3",
+      "label": "8-ch 1U Lite NVR with 8-port PoE",
+      "category": "nvr",
+      "description": "Dahua NVR4208-8P-4KS3 is a 1U 8-channel 4K Lite recorder with two HDD bays, eight 10/100 Mbps PoE ports (IEEE 802.3af/at) and one gigabit RJ45 uplink for the LAN.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/Lite-Series/NVR4-4KS3-Series/2HDD/NVR4208-8P-4KS3"
+    },
+    {
+      "vendor": "synology",
+      "model": "DVA3221",
+      "label": "DVA3221 deep-learning NVR, 4 bays",
+      "category": "nvr",
+      "description": "Synology DVA3221 is a 4-bay desktop deep-learning NVR with four independent RJ-45 1GbE LAN ports supporting link aggregation and failover, and no PoE outputs.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN 1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "LAN 2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "LAN 3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "LAN 4",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/DataSheet/NetworkVideoRecorder/21-year/DVA3221/enu/Synology_DVA3221_Data_Sheet_enu.pdf"
+    },
+    {
+      "vendor": "yealink",
+      "model": "T57W",
+      "label": "T57W prime business phone",
+      "category": "phone",
+      "description": "Yealink SIP-T57W is a 16-line prime desk phone with a 7-inch touchscreen, a two-port Gigabit Ethernet switch (LAN in plus PC passthrough) and built-in dual-band 2.4/5 GHz Wi-Fi with Bluetooth 4.2; PoE 802.3af or a 5 V adapter powers it.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://www.netxl.com/yealink/docs/T57W-Data-Sheet.pdf"
+    },
+    {
+      "vendor": "poly",
+      "model": "Trio C60",
+      "label": "Trio C60 IP conference phone",
+      "category": "phone",
+      "description": "Poly Trio C60 is a 5-inch touchscreen conference phone with a two-port gigabit Ethernet switch: LAN IN is an 802.3at Class 4 PoE PD and LAN OUT an 802.3af PSE, plus a MIMO Wi-Fi radio on standard (non-\"No Radio\") SKUs.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN IN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "LAN OUT",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://www.content.shi.com/cms-content/accelerator/media/pdfs/poly/poly-060123-trio-c60-datasheet.pdf"
+    },
+    {
+      "vendor": "snom",
+      "model": "D385",
+      "label": "D385 IP desk phone",
+      "category": "phone",
+      "description": "Snom D385 is a Linux-based 12-line desk phone with a 4.3-inch TFT display, integrated Bluetooth and a two-port Gigabit Ethernet switch (RJ45) powered by 802.3af Class 3 PoE or a 5 V adapter.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.netxl.com/snom/docs/snom-d385-deskphone-datasheet.pdf"
+    },
+    {
+      "vendor": "homey",
+      "model": "Homey Pro (2023)",
+      "label": "Homey Pro (Early 2023) smart home hub",
+      "category": "iot",
+      "description": "Athom Homey Pro (Early 2023) is a local-first hub with eight radios (Wi-Fi 2.4/5 GHz, Zigbee, Z-Wave Plus, BLE, 433 MHz RF, infrared, Matter and Thread) and NO Ethernet port: wired networking needs the separately sold Homey Pro Ethernet adapter, so its only IP interface is Wi-Fi.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://cdn-reichelt.de/documents/datenblatt/E910/HOMEY_PRO_3_DB-EN.pdf"
+    },
+    {
+      "vendor": "hubitat",
+      "model": "C-8 Pro",
+      "label": "Hubitat Elevation C-8 Pro hub",
+      "category": "iot",
+      "description": "Hubitat Elevation C-8 Pro is a local home-automation controller (2.0 GHz, 2 GB RAM) with built-in Zigbee 3.0, Z-Wave 800 (including Long Range) and Matter, and it is dual-homed on IP: one RJ45 Ethernet port plus a built-in 2.4 GHz Wi-Fi radio.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "150M"
+        }
+      ],
+      "sourceUrl": "https://hubitat.com/products/7194320273451"
+    },
+    {
+      "vendor": "aqara",
+      "model": "Hub M3",
+      "label": "Aqara Hub M3 Matter/Thread hub",
+      "category": "iot",
+      "description": "Aqara Hub M3 is an all-in-one Zigbee 3.0 / Thread / Matter hub and Thread border router with dual-band 2.4/5 GHz Wi-Fi and a PoE RJ45 port, so it can be powered and back-hauled over a single Ethernet cable.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1.2G"
+        }
+      ],
+      "sourceUrl": "https://eu.aqara.com/products/aqara-smart-hub-m3"
+    },
+    {
+      "vendor": "synology",
+      "model": "DS224+",
+      "label": "DS224+ 2-bay DiskStation NAS",
+      "category": "nas",
+      "description": "Synology DiskStation DS224+ is a 2-bay desktop NAS (Intel Celeron J4125) with two RJ-45 1GbE LAN ports that support link aggregation and failover.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN 1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "LAN 2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.synology.com/en-us/products/DS224+"
+    },
+    {
+      "vendor": "qnap",
+      "model": "TS-264",
+      "label": "TS-264 2-bay 2.5GbE NAS",
+      "category": "nas",
+      "description": "QNAP TS-264 is a 2-bay desktop NAS with two built-in 2.5GbE RJ45 ports (2.5G/1G/100M) that can be trunked for 5 Gbps, plus a PCIe slot for a 10GbE card.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.qnap.com/en/product/ts-264/specs/hardware"
+    },
+    {
+      "vendor": "terramaster",
+      "model": "F2-424",
+      "label": "F2-424 2-bay 2.5GbE NAS",
+      "category": "nas",
+      "description": "TerraMaster F2-424 is a 2-bay home/SOHO NAS on an Intel N95 with dual 2.5GbE RJ45 Ethernet jacks and no 1GbE-only port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.terra-master.com/pages/f2-424-specification"
+    }
+  ]
+}

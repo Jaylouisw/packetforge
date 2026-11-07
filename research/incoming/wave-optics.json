@@ -1,0 +1,1040 @@
+{
+  "devices": [
+    {
+      "vendor": "huawei",
+      "model": "MA5800-X15",
+      "label": "SmartAX MA5800-X15 OLT",
+      "category": "olt",
+      "description": "Huawei SmartAX MA5800-X15 11U OLT: a 20-slot shelf with 15 service slots (200 Gbit/s each), 2 control slots and a universal interface slot, scaling to 240 GPON ports. This spec models one H901GPHF 16-port GPON card in slot 1 (gpon1/1-16, SC/APC) plus the 4x GE/10GE SFP+ uplinks on an MPLB control board and 1 GE out-of-band management port = 21 ports.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "portTemplate": {
+        "prefix": "gpon1/",
+        "start": 1,
+        "count": 16,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "xge0/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge0/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge0/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge0/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5800"
+    },
+    {
+      "vendor": "zte",
+      "model": "ZXA10 C650",
+      "label": "ZXA10 C650 OLT",
+      "category": "olt",
+      "description": "ZTE ZXA10 C650 medium-capacity TITAN OLT: a 13-slot shelf with 7 universal line-card slots, 2 switch-and-control slots and 2 power slots, 6 Tbit/s backplane and up to 112 GPON/Combo-PON ports. This spec models one 16-port GPON line card (GFGH, gpon1/1-16, SC/APC) plus one XFTO 8x 10GE/GE uplink card = 24 ports.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "portTemplate": {
+        "prefix": "gpon1/",
+        "start": 1,
+        "count": 16,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "xge1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/5",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/6",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/7",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/8",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.zte.com.cn/global/product_index/optical_access_en/pon-olt/zxa10/zxa10-c650.html"
+    },
+    {
+      "vendor": "zte",
+      "model": "ZXA10 C620",
+      "label": "ZXA10 C620 compact OLT",
+      "category": "olt",
+      "description": "ZTE ZXA10 C620 2U compact TITAN OLT: 2 universal line-card slots plus 2 switch-and-control (SPUF) slots, 1.8 Tbit/s backplane and up to 32 GPON/XGS-PON ports. This spec models one 16-port GPON card (gpon1/1-16, SC/APC) with one SPUF card's 4x 10GE/GE SFP+ uplinks = 20 ports; the second line-card slot and the redundant SPUF are empty.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "portTemplate": {
+        "prefix": "gpon1/",
+        "start": 1,
+        "count": 16,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "xge1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "xge1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.zte.com.cn/global/product_index/optical_access_en/pon-olt/zxa10/zxa10-c620.html"
+    },
+    {
+      "vendor": "nokia",
+      "model": "Lightspan MF-2",
+      "label": "Lightspan MF-2 fibre access node",
+      "category": "olt",
+      "description": "Nokia Lightspan MF-2 2RU two-slot fibre access node on the Quillion chipset: one 16-port Multi-PON line card (GPON today, XGS-PON or 25G/50G with a different PON module, SC/APC) in slot 1 plus the LMNT-C network termination card's 4x SFP+ 10GE/1GE uplinks = 20 ports. The LMNT-D NT card replaces those with 2x QSFP 100GE cages.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "portTemplate": {
+        "prefix": "pon1/",
+        "start": 1,
+        "count": 16,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "sfp+1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://onestore.nokia.com/asset/i/207139/"
+    },
+    {
+      "vendor": "adtran",
+      "model": "SDX 6312-4",
+      "label": "SDX 6312-4 sealed 10G Combo PON OLT",
+      "category": "olt",
+      "description": "ADTRAN SDX 6312-4 fanless IP68-sealed 10G Combo PON remote OLT: 4 PON ports that each carry XGS-PON and GPON simultaneously through one pluggable combo-PON optic (SC/APC, up to 512 subscribers across the four ports), plus 4x 10GE SFP+ uplinks = 8 ports. Strand-, pole- or cabinet-mount with span or AC/DC power options.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "pon1/",
+        "start": 1,
+        "count": 4,
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          9953,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "sfp+1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "sfp+1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-6000-series.pdf"
+    },
+    {
+      "vendor": "fiberhome",
+      "model": "AN6000-17",
+      "label": "AN6000-17 OLT",
+      "category": "olt",
+      "description": "FiberHome AN6000-17 OLT subrack: 17 service-card slots (slots 1-8 and 11-19), 2 core-switch-card slots, 2 uplink-card slots, 13.6 Tbit/s backplane and up to 272 GPON/10G-PON ports. This spec models one GNOA 16-port GPON card (pon1/1-16, SC/APC) plus one HU8A 8x GE/10GE uplink card = 24 ports.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "portTemplate": {
+        "prefix": "pon1/",
+        "start": 1,
+        "count": 16,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "uplink1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/5",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/6",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/7",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "uplink1/8",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://en.fiberhome.com/u/cms/fhgj/202602/27165359mg7j.pdf"
+    },
+    {
+      "vendor": "huawei",
+      "model": "MA5671A",
+      "label": "MA5671A GPON SFP ONT",
+      "category": "ont",
+      "description": "Huawei MA5671A mini-PON ONT built into an SFP module: a single SC/APC GPON port on the fibre side (2.488 Gbit/s down, 1.244 Gbit/s up) and an HSGMII host interface on the SFP edge connector, so there is no RJ45 and no Wi-Fi anywhere on the unit. Managed over its own web UI, SSH or the 115200 baud UART on the SFP pins.",
+      "capabilities": [
+        "l2-forward",
+        "host",
+        "http-server",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [],
+      "sourceUrl": "https://hack-gpon.org/ont-huawei-ma5671a/"
+    },
+    {
+      "vendor": "nokia",
+      "model": "G-010S-A",
+      "label": "G-010S-A GPON SFP ONT",
+      "category": "ont",
+      "description": "Nokia G-010S-A GPON ONT in SFP form factor (Lantiq PEB98035): one SC/UPC angled-free GPON port (2.488/1.244 Gbit/s) and an HSGMII host interface on the SFP edge connector, with no RJ45 and no Wi-Fi. It is the SC/UPC sibling of the SC/APC G-010S-P and is managed by OMCI or its own CLI.",
+      "capabilities": [
+        "l2-forward",
+        "http-server",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-upc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [],
+      "sourceUrl": "https://onestore.nokia.com/asset/f/201221"
+    },
+    {
+      "vendor": "zyxel",
+      "model": "PMG3000-D20B",
+      "label": "PMG3000-D20B GPON SFP-type SFU",
+      "category": "ont",
+      "description": "Zyxel PMG3000-D20B Gigabit GPON SFU built into an SFP electrical footprint: one SC/APC ITU-T G.984 GPON port and an MSA SFP host edge connector that bridges GPON to a router or switch cage, with no RJ45 of its own. Managed over OMCI (G.984.4 / TR-247).",
+      "capabilities": [
+        "l2-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [],
+      "sourceUrl": "https://www.zyxel.com/service-provider/global/en/products/fiber-oltsonts/gpon/sfus/pmg3000-d20b"
+    },
+    {
+      "vendor": "adtran",
+      "model": "SDX 621",
+      "label": "SDX 621 XGS-PON ONT",
+      "category": "ont",
+      "description": "ADTRAN SDX 621 XGS-PON ONT (ITU-T G.9807.1, 10G/10G, SC/APC): one auto-sensing 100M/1G/2.5G/5G/10G RJ-45 UNI port and no Wi-Fi or voice, the 10GE member of the SDX 620 series. Managed zero-touch through Mosaic One.",
+      "capabilities": [
+        "host",
+        "l2-forward",
+        "http-server"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          9953
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "10G"
+        }
+      ],
+      "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-620-series.pdf"
+    },
+    {
+      "vendor": "calix",
+      "model": "GP1100G",
+      "label": "GigaPoint GP1100G 2.5G GPON ONU",
+      "category": "ont",
+      "description": "Calix GigaPoint GP1100G indoor 2.5 Gbit/s GPON SFU: one SC/APC GPON drop and one 2.5 Gigabit RJ-45 Ethernet UNI in a half-depth wall/desk housing, with a single POTS line for voice and no Wi-Fi.",
+      "capabilities": [
+        "l2-forward",
+        "host"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          1244,
+          2488
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.calix.com/products/platform/unlimited-subscriber/gigapoint-ont-onu.html"
+    },
+    {
+      "vendor": "tp-link",
+      "model": "XGZ032",
+      "label": "XGZ032 XGS-PON terminal",
+      "category": "ont",
+      "description": "TP-Link XGZ032 XGS-PON terminal: 10 Gbit/s symmetric PON (1270 nm upstream / 1577 nm downstream, 20 km) on one SC/APC BOSA port and a single 2.5 Gigabit RJ-45 LAN port, with no Wi-Fi. Supports IGMP v1/v2/v3 snooping and AES encryption.",
+      "capabilities": [
+        "l2-forward",
+        "host",
+        "http-server"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          9953
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202610/20261008/Datasheet-XGZ032.pdf"
+    },
+    {
+      "vendor": "zte",
+      "model": "ZXHN F2801S",
+      "label": "ZXHN F2801S XGS-PON bridge ONT",
+      "category": "ont",
+      "description": "ZTE ZXHN F2801S XGS-PON bridge ONT: one SC/APC XGS-PON port and a single 2.5 Gigabit RJ-45 LAN port, bridge mode only with no routing or Wi-Fi. Intended to feed an upstream router on FTTH and small-business drops.",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "portTemplate": {
+        "prefix": "pon",
+        "start": 1,
+        "count": 1,
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          9953
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.zte.com.cn/global/home_and_enterprise/campus_network/zxhn_f2801s.html"
+    },
+    {
+      "vendor": "arista",
+      "model": "7060DX5-64S",
+      "label": "7060DX5-64S 400G switch",
+      "category": "switch",
+      "description": "Arista 7060DX5-64S 2RU 400G data-centre switch: 64x QSFP-DD 400G ports (Ethernet1-64, 25.6 Tbps, 4x100G breakout per port) plus 2x SFP+ 10G ports (Ethernet65-66). Runs EOS with 400G/200G/100G optics or DACs.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet",
+        "start": 1,
+        "count": 64,
+        "type": "ethernet",
+        "speed": "400G",
+        "connector": "qsfpdd",
+        "speedCaps": [
+          400000,
+          200000,
+          100000,
+          40000,
+          25000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Ethernet65",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "Ethernet66",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7060X5-Datasheet.pdf"
+    },
+    {
+      "vendor": "celestica",
+      "model": "DS4000",
+      "label": "DS4000 400GbE data-centre switch",
+      "category": "switch",
+      "description": "Celestica DS4000 1U 400GbE open-networking switch: 32x QSFP-DD 400G ports (any rate 10G-400G, up to 144 sub-rate 10/25/50G ports with breakout, 12.8 Tbps) plus one shared CPU/BMC 1G RJ-45 management port.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet",
+        "start": 1,
+        "count": 32,
+        "type": "ethernet",
+        "speed": "400G",
+        "connector": "qsfpdd",
+        "speedCaps": [
+          400000,
+          200000,
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/networking/networking-list/cls_datasheet_DS4000.pdf"
+    },
+    {
+      "vendor": "edgecore",
+      "model": "AS7726-32X",
+      "label": "AS7726-32X 100G open switch",
+      "category": "switch",
+      "description": "Edgecore AS7726-32X (DCS204) 1RU 100G open-networking ToR/spine: 32x QSFP28 100G ports (2x50G, 4x25G, 1x40G or 4x10G via breakout, 3.2 Tbps) plus 2x SFP+ 10G ports and one 1G RJ-45 Ethernet management port. Ships with ONIE for SONiC or another NOS.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet",
+        "start": 1,
+        "count": 32,
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Ethernet33",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "Ethernet34",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.edge-core.com/product/dcs204/"
+    },
+    {
+      "vendor": "edgecore",
+      "model": "AS9716-32D",
+      "label": "AS9716-32D 400G spine",
+      "category": "switch",
+      "description": "Edgecore AS9716-32D (DCS510) 1RU 400G spine: 32x QSFP-DD 400G ports (1x400G, 1x100G, or 4x100G/4x25G via breakout, 12.8 Tbps) plus 2x SFP+ 10G and one 1G RJ-45 management port. ONIE-loaded open networking hardware on Tomahawk 3.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet",
+        "start": 1,
+        "count": 32,
+        "type": "ethernet",
+        "speed": "400G",
+        "connector": "qsfpdd",
+        "speedCaps": [
+          400000,
+          200000,
+          100000,
+          50000,
+          25000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Ethernet33",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "Ethernet34",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.edge-core.com/product/dcs510/"
+    },
+    {
+      "vendor": "dell",
+      "model": "Z9432F-ON",
+      "label": "PowerSwitch Z9432F-ON",
+      "category": "switch",
+      "description": "Dell PowerSwitch Z9432F-ON 1U 400GbE aggregation/leaf switch: 32x 400GbE QSFP56-DD ports (10/25/40/50/100/200/400G per port, 12.8 Tbps) plus 2x 10GbE SFP+ ports and one 1G RJ-45 management port. Ships with ONIE plus Enterprise SONiC or SmartFabric OS10.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet1/",
+        "start": 1,
+        "count": 32,
+        "type": "ethernet",
+        "speed": "400G",
+        "connector": "qsfpdd",
+        "speedCaps": [
+          400000,
+          200000,
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Ethernet1/33",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "Ethernet1/34",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/dell-emc-powerswitch-z9432f-spec-sheet-en-dl1ljen-original.pdf"
+    },
+    {
+      "vendor": "dell",
+      "model": "Z9264F-ON",
+      "label": "PowerSwitch Z9264F-ON",
+      "category": "switch",
+      "description": "Dell PowerSwitch Z9264F-ON 2RU 100GbE ToR/end-of-row switch: 64x QSFP28 ports at 1/10/25/40/50/100GbE (128x 25G/50G with breakout, 12.8 Tbps) plus 2x 1/10GbE SFP+ ports and one 1G RJ-45 management port.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "Ethernet1/",
+        "start": 1,
+        "count": 64,
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Ethernet1/65",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "Ethernet1/66",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000,
+            1000
+          ]
+        },
+        {
+          "name": "mgmt0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://cdn.blueally.com/netsolutionworks/datasheets/dell-emc-networking-z9264-on-spec-sheet.pdf"
+    },
+    {
+      "vendor": "fs",
+      "model": "N8560-32C",
+      "label": "N8560-32C 100G data-centre switch",
+      "category": "switch",
+      "description": "FS N8560-32C 1U 100G spine/leaf switch: 32x QSFP28 100G ports (40G or 4x25G per port, 6.4 Tbps, VXLAN/EVPN and MLAG) plus one 1G RJ-45 management port; ONIE with PicOS or another NOS. Console access is an RJ-45 serial port, not a data interface.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "portTemplate": {
+        "prefix": "HundredGigabitEthernet0/",
+        "start": 1,
+        "count": 32,
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          100000,
+          40000,
+          25000
+        ]
+      },
+      "interfaces": [
+        {
+          "name": "Management0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://img-en.fs.com/file/datasheet/n8560-32c-switch-datasheet.pdf"
+    }
+  ]
+}

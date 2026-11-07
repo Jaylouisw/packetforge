@@ -136,6 +136,10 @@ class CliSession {
       const v6 = require('./ipv6');
       if (!v6.validateAddress6(tokens[2]).ok) out.push('% Invalid IPv6 gateway "' + (tokens[2] || '') + '"');
       else { this.device.config.gateway6 = tokens[2]; out.push('IPv6 default gateway ' + tokens[2]); }
+    } else if (head === 'ipv6' && tokens[1] === 'nd') {
+      out.push.apply(out, this._ipv6Nd(tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'nd') {
+      out.push.apply(out, this._ipv6Nd(['no'].concat(tokens.slice(3))));
     } else if (head === 'no' && tokens[1] === 'ipv6') {
       this.device.config.gateway6 = null;
       this.device.config.routes6 = [];
@@ -240,8 +244,13 @@ class CliSession {
     } else if (head === 'ipv6' && tokens[1] === 'address') {
       out.push.apply(out, this._ipv6Iface(tokens.slice(2), iface));
     } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'address') {
-      if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
-      out.push('IPv6 address removed from ' + iface.name);
+      if (String(tokens[3] || '').toLowerCase() === 'autoconfig') {
+        out.push.apply(out, this._noAutoconfig(iface));
+      } else {
+        if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
+        iface.autoconfig = false;
+        out.push('IPv6 address removed from ' + iface.name);
+      }
     } else if (head === 'ip' && tokens[1] === 'ospf') {
       out.push.apply(out, this._ipOspf(tokens.slice(2), iface));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'ospf') {
@@ -297,6 +306,17 @@ class CliSession {
   _ipv6Iface(tokens, iface) {
     const v6 = require('./ipv6');
     const spec = String(tokens[0] || '');
+
+    // 'ipv6 address autoconfig': the address comes from a router advertisement.
+    // Any address typed in by hand is removed, because two sources of truth for
+    // one address is how a lab ends up "not working" with nothing to look at.
+    if (spec.toLowerCase() === 'autoconfig') {
+      if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
+      iface.autoconfig = true;
+      return ['IPv6 address autoconfig on ' + iface.name +
+        ' (no address until a router advertisement arrives)'];
+    }
+
     const parts = spec.split('/');
     const parsed = v6.parseIpv6(parts[0]);
     if (!parsed.valid) return ['% Invalid IPv6 address "' + parts[0] + '"'];
@@ -304,8 +324,174 @@ class CliSession {
     if (!(len >= 0 && len <= 128)) return ['% Invalid prefix length "' + parts[1] + '"'];
     if (!this.device.config.ip6) this.device.config.ip6 = {};
     const addr = v6.formatIpv6(parsed.groups);
+    // A static address cancels autoconfiguration: the operator has just said
+    // what the address is, so waiting for a router to say otherwise would only
+    // produce a second address nobody asked for.
+    iface.autoconfig = false;
     this.device.config.ip6[iface.name] = { addr: addr, prefix: len };
     return ['IPv6 address ' + addr + '/' + len + ' on ' + iface.name];
+  }
+
+  // Withdrawing autoconfiguration has to take the learned address with it.
+  // Otherwise the host keeps an address nobody refreshes any more, which is the
+  // stale-address problem that makes "the ping still works but nothing else
+  // does" so hard to explain.
+  _noAutoconfig(iface) {
+    const dev = this.device;
+    const out = [];
+    iface.autoconfig = false;
+    const entry = dev.config.ip6 && dev.config.ip6[iface.name];
+    if (entry && entry.autoconfig) {
+      delete dev.config.ip6[iface.name];
+      out.push('SLAAC address ' + entry.addr + '/' + entry.prefix + ' removed from ' + iface.name);
+    }
+    let waiting = 0;
+    for (const i of dev.interfaces.values()) if (i.autoconfig) waiting++;
+    if (!waiting && dev.config.gateway6 && dev.config.gateway6Iface) {
+      dev.config.gateway6 = null;
+      dev.config.gateway6Iface = null;
+      out.push('Default IPv6 gateway (learned from a router advertisement) cleared');
+    }
+    out.push('IPv6 autoconfiguration disabled on ' + iface.name);
+    return out;
+  }
+
+  // ---------- IPv6 neighbour discovery / router advertisements ----------
+  //
+  // 'ipv6 nd ...' describes a router to its link: which prefixes it owns, whether
+  // hosts should configure themselves from them, and whether it may be used as a
+  // default router. Only the policy lives here; the message format is engine/ra.js.
+  _ipv6Nd(tokens) {
+    const v6 = require('./ipv6');
+    const raLib = require('./ra');
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+
+    let negated = false;
+    if (t[0] === 'no') { negated = true; t.shift(); }
+    if (!t.length) return ['% Incomplete command: ipv6 nd ra|prefix|suppress-ra'];
+
+    function cfg() {
+      if (!dev.config.ra) dev.config.ra = raLib.normalizeConfig(null);
+      if (!Array.isArray(dev.config.ra.prefixes)) dev.config.ra.prefixes = [];
+      return dev.config.ra;
+    }
+
+    // Advertising a prefix is a promise to route traffic inside it. A device
+    // without l3-forward cannot keep that promise, so the configuration is
+    // refused here rather than producing a link full of black holes.
+    function needsRouter() {
+      if (dev.hasCap('l3-forward')) return null;
+      return ['% ' + dev.name + ' cannot advertise: it has no l3-forward capability, ' +
+        'so it could not route the traffic a prefix would attract'];
+    }
+
+    if (t[0] === 'ra') {
+      const sub = t[1] || '';
+      const bad = needsRouter();
+      if (bad) return bad;
+      const c = cfg();
+
+      if (sub === 'enable' || sub === 'disable') {
+        // 'no ipv6 nd ra enable' reads as "stop advertising", and that is what it
+        // does: the negated form flips the verb rather than being refused.
+        const on = (sub === 'enable') !== negated;
+        c.enabled = on;
+        return [on
+          ? 'IPv6 router advertisements enabled on ' + dev.name
+          : 'IPv6 router advertisements disabled on ' + dev.name];
+      }
+      if (sub === 'managed' || sub === 'other-config') {
+        const on = !negated;
+        if (sub === 'managed') c.m = on; else c.o = on;
+        return ['IPv6 RA ' + (sub === 'managed' ? 'M (managed)' : 'O (other-config)') +
+          ' flag ' + (on ? 'set' : 'cleared')];
+      }
+      if (sub === 'lifetime') {
+        const val = t[2];
+        if (val === undefined) return ['% Incomplete command: ipv6 nd ra lifetime <seconds>'];
+        if (!/^\d{1,5}$/.test(val)) return ['% Invalid router lifetime "' + val + '" (0..65535 seconds)'];
+        const n = parseInt(val, 10);
+        if (n > 65535) return ['% Router lifetime out of range: ' + val + ' (0..65535)'];
+        c.routerLifetime = n;
+        return ['IPv6 RA router lifetime ' + n + 's' + (n === 0 ? ' (not a default router)' : '')];
+      }
+      return ['% Unknown IPv6 RA command: ipv6 nd ra ' + sub];
+    }
+
+    if (t[0] === 'suppress-ra') {
+      const bad = needsRouter();
+      if (bad) return bad;
+      const c = cfg();
+      c.suppress = !negated;
+      return [negated
+        ? 'IPv6 periodic router advertisements resume'
+        : 'IPv6 router advertisements suppressed: solicited advertisements only'];
+    }
+
+    if (t[0] === 'prefix') {
+      const bad = needsRouter();
+      if (bad) return bad;
+      const raw = t[1];
+      if (!raw) return ['% Incomplete command: ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]'];
+      const parsed = v6.parsePrefix6(raw);
+      if (!parsed.valid) return ['% Invalid IPv6 prefix "' + raw + '"'];
+      const network = v6.networkAddress6(parsed);
+      const c = cfg();
+      const same = function (p) {
+        const pp = raLib.normalizePrefixInfo(p);
+        return !!(pp && pp.prefix === network && pp.prefixLen === parsed.prefixLen);
+      };
+
+      if (negated) {
+        const before = c.prefixes.length;
+        c.prefixes = c.prefixes.filter(function (p) { return !same(p); });
+        if (c.prefixes.length === before) {
+          return ['% No such advertised prefix: ' + network + '/' + parsed.prefixLen];
+        }
+        return ['IPv6 ND prefix ' + network + '/' + parsed.prefixLen + ' withdrawn'];
+      }
+
+      let valid = raLib.DEFAULTS.validLifetime;
+      let preferred = raLib.DEFAULTS.preferredLifetime;
+      const rest = t.slice(2);
+      for (let i = 0; i < rest.length; i += 2) {
+        const key = rest[i];
+        const val = rest[i + 1];
+        if (key !== 'valid' && key !== 'preferred') {
+          return ['% Unexpected "' + key + '": expected [valid <seconds>] [preferred <seconds>]'];
+        }
+        if (val === undefined) return ['% Incomplete command: ' + key + ' needs a value in seconds'];
+        if (!/^\d{1,10}$/.test(val)) return ['% Invalid lifetime "' + val + '" (whole seconds)'];
+        const n = parseInt(val, 10);
+        if (n > raLib.INFINITE) return ['% Lifetime out of range: ' + val + ' (0..' + raLib.INFINITE + ')'];
+        if (key === 'valid') valid = n; else preferred = n;
+      }
+      // A preferred lifetime past the valid one is a contradiction on the wire;
+      // refusing it here means the router never advertises nonsense.
+      if (preferred > valid) {
+        return ['% Preferred lifetime (' + preferred + 's) cannot exceed the valid lifetime (' + valid + 's)'];
+      }
+
+      // One advertisement per prefix: re-issuing the command replaces the entry,
+      // which is what an operator means by running it again.
+      c.prefixes = c.prefixes.filter(function (p) { return !same(p); });
+      c.prefixes.push({
+        prefix: network, prefixLen: parsed.prefixLen,
+        onLink: true, autonomous: true,
+        validLifetime: valid, preferredLifetime: preferred
+      });
+
+      const lines = ['IPv6 ND prefix ' + network + '/' + parsed.prefixLen +
+        ' advertised (L=1 A=1, valid ' + valid + 's, preferred ' + preferred + 's)'];
+      if (parsed.prefixLen !== 64) {
+        lines.push('% note: only a /64 leaves room for a 64-bit interface identifier, ' +
+          'so hosts will not form a SLAAC address from this prefix');
+      }
+      return lines;
+    }
+
+    return ['% Unknown IPv6 ND command: ipv6 nd ' + t.join(' ')];
   }
 
   _ipv6Route(tokens) {
@@ -634,6 +820,8 @@ class CliSession {
       for (const r of dev.routesTable()) {
         out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
       }
+    } else if (what === 'ipv6' && tokens[1] === 'nd') {
+      out.push.apply(out, this._showIpv6Nd());
     } else if (what === 'lldp') {
       // The table that answers "what is plugged into this port" - and it is honest,
       // because it is filled from LLDPDUs that actually crossed the link rather than
@@ -800,6 +988,92 @@ class CliSession {
     return out;
   }
 
+  // What this device would advertise right now. A router shows its policy and the
+  // exact options that would go on the wire; a host shows which interfaces are
+  // waiting for a router, because "no address yet" is the failure mode of SLAAC
+  // and it should be visible rather than mysterious.
+  _showIpv6Nd() {
+    const raLib = require('./ra');
+    const dev = this.device;
+    const cfg = raLib.normalizeConfig(dev.config.ra);
+    const canAdvertise = dev.hasCap('l3-forward');
+    const out = [];
+
+    out.push('IPv6 router advertisements on ' + dev.name + ':');
+    out.push('  Device      : ' + dev.model + (canAdvertise ? '  (l3-forward)' : '  (no l3-forward)'));
+    if (!canAdvertise) {
+      out.push('  Advertise   : unavailable - a device without l3-forward cannot route a prefix');
+    } else if (!cfg.enabled) {
+      out.push('  Advertise   : disabled  (ipv6 nd ra enable to start)');
+    } else if (cfg.suppress) {
+      out.push('  Advertise   : enabled, suppressed  (solicited advertisements only)');
+    } else {
+      out.push('  Advertise   : enabled');
+    }
+    out.push('  Flags       : M=' + (cfg.m ? 1 : 0) + ' O=' + (cfg.o ? 1 : 0) +
+      '   router lifetime ' + cfg.routerLifetime + 's' +
+      (cfg.routerLifetime === 0 ? ' (not a default router)' : ''));
+    out.push('  Timers      : reachable ' + cfg.reachableTime + 'ms, retrans ' + cfg.retransTimer +
+      'ms, hop limit ' + cfg.curHopLimit);
+
+    if (!cfg.prefixes.length) {
+      out.push('  Prefixes    : none - hosts would learn a default router only');
+    } else {
+      out.push('  Prefixes    : ' + cfg.prefixes.length);
+      out.push('    ' + pad('prefix', 26) + pad('L', 3) + pad('A', 3) + pad('valid(s)', 12) + 'preferred(s)');
+      for (const p of cfg.prefixes) {
+        out.push('    ' + pad(p.prefix + '/' + p.prefixLen, 26) +
+          pad(p.onLink ? '1' : '0', 3) + pad(p.autonomous ? '1' : '0', 3) +
+          pad(p.validLifetime, 12) + p.preferredLifetime);
+      }
+    }
+
+    if (canAdvertise) {
+      const v6 = require('./ipv6');
+      const ports = dev.activeInterfaces()
+        .filter(function (i) { return !i.parent && i.peer; });
+      const holds = function (iface, p) {
+        for (const e of dev.ip6Addrs()) {
+          if (e.name !== iface.name) continue;
+          if (v6.prefixContains6(p.prefix + '/' + p.prefixLen, e.addr)) return true;
+        }
+        return false;
+      };
+      if (!ports.length) {
+        out.push('  Interfaces  : (no cabled ports)');
+      } else {
+        // Which prefix would go out of which port: a router advertises a prefix
+        // on the link it is attached to, not on every port it owns.
+        const rows = ports.map(function (i) {
+          const list = cfg.prefixes.filter(function (p) { return holds(i, p); })
+            .map(function (p) { return p.prefix + '/' + p.prefixLen; });
+          return i.name + (list.length ? ' (' + list.join(', ') + ')' : ' (default router only)');
+        });
+        out.push('  Interfaces  : ' + rows.join(', '));
+      }
+      for (const p of cfg.prefixes) {
+        if (ports.some(function (i) { return holds(i, p); })) continue;
+        out.push('  % ' + p.prefix + '/' + p.prefixLen +
+          ' is configured but no interface has an address inside it, so it is never advertised');
+      }
+    }
+
+    const waiting = [];
+    for (const i of dev.activeInterfaces()) {
+      if (!i.autoconfig) continue;
+      const learned = (dev.config.ip6 || {})[i.name];
+      waiting.push(i.name + (learned && learned.autoconfig
+        ? ' -> ' + learned.addr + '/' + learned.prefix + ' (from ' + (learned.from || 'RA') + ')'
+        : ' (waiting for a router)'));
+    }
+    out.push('  Autoconfig  : ' + (waiting.length ? waiting.join(', ') : 'none'));
+    if (dev.config.gateway6) {
+      out.push('  Default gw  : ' + dev.config.gateway6 +
+        (dev.config.gateway6Iface ? ' via ' + dev.config.gateway6Iface : ''));
+    }
+    return out;
+  }
+
   _banner() {
     const dev = this.device;
     return 'PacketForge ' + dev.label + ' (' + dev.vendor + ' ' + dev.model + ')';
@@ -813,6 +1087,11 @@ class CliSession {
       '  ip route <dest> <mask> <gw> [iface]',
       '  show lldp neighbors               neighbours learned over the wire',
       '  ip default-gateway <gw>  shutdown / no shutdown',
+      '  ipv6 address <addr>/<len> | autoconfig        (interface mode)',
+      '  ipv6 nd ra enable|disable|managed|other-config|lifetime <s>',
+      '  ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]',
+      '  ipv6 nd suppress-ra',
+      '  show ipv6 nd                    what this device would advertise',
       '  vlan <id> [name]                       (config mode)',
       '  interface <parent>.<vlan>              (creates a subinterface)',
       '  encapsulation dot1q <vlan>             (interface mode)',

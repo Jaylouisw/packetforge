@@ -462,6 +462,7 @@ module.exports = {
   isMulticast,
   isLoopback6,
   solicitedNodeMulticast,
+  macToBytes,
   eui64FromMac,
   linkLocalFromMac,
   ipv6ToBigInt,

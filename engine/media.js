@@ -207,7 +207,10 @@ const CAGE_MATE = {
   dsl: ['dsl'],
   powerline: ['powerline'],
   console: ['console'],
-  usb: ['usb', 'console'],
+  // A USB port mates with a USB port, not with a console port. A USB-to-serial adapter
+  // is an external part, not a cable between two devices, and claiming the pair mated
+  // made the answer depend on which end you asked about: usb said yes, console said no.
+  usb: ['usb'],
   antenna: ['antenna']
 };
 
@@ -269,7 +272,10 @@ const CAGE_MEDIA = {
       '1000base-t-sfp', 'dac-10g', 'dac-10g-active', 'aoc-10g'];
   },
   sfp28: function () {
-    return ['25gbase-sr', '25gbase-lr', '10gbase-sr', '10gbase-lr', 'dac-25g', 'dac-10g'];
+    // An SFP28 cage takes 25G, 10G and 1G modules. Without the 1G optics an SFP28 port
+    // refused a plain 1G SFP uplink, which the hardware accepts without complaint.
+    return ['25gbase-sr', '25gbase-lr', '10gbase-sr', '10gbase-lr', 'dac-25g', 'dac-10g',
+            '1000base-sx', '1000base-lx', '1000base-t-sfp', 'dac-1g'];
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
@@ -278,13 +284,18 @@ const CAGE_MEDIA = {
             // backward-compatible modules, which run at their own rate
             '100gbase-sr4', '100gbase-lr4', '40gbase-sr4', '40gbase-lr4', 'dac-100g'];
   },
+  // SC is a connector, not a protocol: it is standard on PON and it is also what older
+  // 100BASE-FX and 1000BASE-LX optics use. Offering only PON media left a 100 Mbps SC
+  // media converter with no medium and no rate, so it could not be cabled to itself.
   'sc-apc': function (maxMbps) {
-    const out = ['gpon-sc-apc'];
+    const out = ['gpon-sc-apc', '100base-fx'];
+    if (maxMbps >= 1000) out.push('1000base-lx');
     if (maxMbps >= 9000) out.push('xgspon-sc-apc');
     return out;
   },
   'sc-upc': function (maxMbps) {
-    const out = ['gpon-sc-upc'];
+    const out = ['gpon-sc-upc', '100base-fx'];
+    if (maxMbps >= 1000) out.push('1000base-lx');
     if (maxMbps >= 9000) out.push('xgspon-sc-upc');
     return out;
   },
@@ -319,7 +330,13 @@ const CAGE_MEDIA = {
     if (maxMbps >= 300) out.push('vdsl2-35b');
     return out;
   },
-  powerline: function () { return ['homeplug-av', 'homeplug-av2', 'ghn', 'ghn-25']; },
+  powerline: function (maxMbps) {
+    const out = ['homeplug-av'];
+    if (maxMbps >= 1000) out.push('homeplug-av2');
+    if (maxMbps >= 1700) out.push('ghn');
+    if (maxMbps >= 2500) out.push('ghn-25');
+    return out;
+  },
   console: function () { return ['console-rs232']; },
   usb: function () { return ['usb-console']; },
   antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-60']; }
@@ -349,14 +366,10 @@ const CAGE_SPEEDS = {
     return out.filter(function (v) { return v <= maxMbps; });
   },
   'sc-apc': function (maxMbps) {
-    const out = [1244, 2488];
-    if (maxMbps >= 9000) out.push(9953);
-    return out;
+    return [100, 1000, 1244, 2488, 9953].filter(function (v) { return v <= maxMbps; });
   },
   'sc-upc': function (maxMbps) {
-    const out = [1244, 2488];
-    if (maxMbps >= 9000) out.push(9953);
-    return out.filter(function (v) { return v <= maxMbps; });
+    return [100, 1000, 1244, 2488, 9953].filter(function (v) { return v <= maxMbps; });
   },
   'lc-upc': function (maxMbps) {
     const out = [1000, 1244, 2488, 9953, 10000, 25000, 100000];
@@ -378,7 +391,11 @@ const CAGE_SPEEDS = {
     if (maxMbps >= 300) out.push(300);
     return out.filter(function (v) { return v <= maxMbps; });
   },
-  powerline: function () { return [200, 1000, 1700, 2500]; },
+  powerline: function (maxMbps) {
+    // A port's own maximum bounds what it can offer: a 1000M powerline port was
+    // negotiating 2500M because this list ignored maxMbps.
+    return [200, 1000, 1700, 2500].filter(function (v) { return v <= maxMbps; });
+  },
   console: function () { return [0.1152]; },
   usb: function () { return [12]; },
   antenna: function (maxMbps) { return [maxMbps]; }
@@ -465,6 +482,18 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     : { name: cage, family: 'unknown', label: cage + ' (not a modelled connector)' };
   let media = known ? (CAGE_MEDIA[cage] || CAGE_MEDIA.rj45)(maxMbps) : [];
   let speeds = known ? (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) : [];
+
+  // Belt and braces. A cage table that forgets to filter by maxMbps is exactly how a
+  // 1000 Mbps port came to negotiate a 2500 Mbps medium, so the port's own maximum is
+  // applied here too - to the rates, and to the media that would carry them at a rate
+  // the port cannot reach.
+  speeds = speeds.filter(function (v) { return v <= maxMbps; });
+  media = media.filter(function (id) {
+    const m = MEDIA[id];
+    if (!m || !m.speedMbps) return true;
+    if (m.fiber) return true; // optical reach is budgeted, not rate-capped per medium
+    return m.speedMbps <= maxMbps;
+  });
 
   // A wireless radio only carries its own band.
   if (cage === 'antenna') {
