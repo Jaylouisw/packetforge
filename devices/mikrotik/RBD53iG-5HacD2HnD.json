@@ -1,0 +1,50 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBD53iG-5HacD2HnD",
+  "label": "hAP ac3",
+  "category": "wireless",
+  "description": "Dual-band 802.11ac AP with five Gigabit ports and high-gain external antennas for whole-home coverage.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "wireless",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6"
+}

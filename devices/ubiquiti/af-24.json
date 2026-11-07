@@ -1,0 +1,15 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF-24",
+  "label": "airFiber 24",
+  "category": "ptp",
+  "description": "24 GHz unlicensed point-to-point radio, up to 1.4 Gbps; 1x GigE MGMT + 1x GigE DATA.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "mgmt", "type": "ethernet", "speed": "1G" },
+    { "name": "data", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1.4G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

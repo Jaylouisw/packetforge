@@ -1,0 +1,33 @@
+{
+  "vendor": "gl-inet",
+  "model": "GL-MT300N-V2",
+  "label": "GL.iNet Mango (GL-MT300N-V2)",
+  "category": "router",
+  "description": "Pocket-sized OpenWrt travel router with dual 100M ports and 2.4GHz N300 Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "router",
+  "color": "#22c55e"
+}

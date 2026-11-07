@@ -1,0 +1,15 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS326-24G",
+  "label": "CRS326-24G-2S+IN",
+  "category": "switch",
+  "description": "MikroTik CRS326-24G-2S+IN — 24x 1G RJ45, 2x 10G SFP+, dual-boot RouterOS/SwOS.",
+  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "portTemplate": { "prefix": "ether", "start": 1, "count": 24, "type": "ethernet", "speed": "1G" },
+  "interfaces": [
+    { "name": "sfp-sfpplus1", "type": "ethernet", "speed": "10G" },
+    { "name": "sfp-sfpplus2", "type": "ethernet", "speed": "10G" }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

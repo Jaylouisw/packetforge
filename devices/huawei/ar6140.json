@@ -1,0 +1,11 @@
+{
+  "vendor": "huawei",
+  "model": "AR6140",
+  "label": "AR6140 Router",
+  "category": "router",
+  "description": "Huawei AR6140 branch router.",
+  "capabilities": ["l3-forward", "cli", "nat", "dhcp-server"],
+  "portTemplate": { "prefix": "GE0/0/", "start": 0, "count": 4, "type": "ethernet", "speed": "1G" },
+  "icon": "router",
+  "color": "#f43f5e"
+}

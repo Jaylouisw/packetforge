@@ -1,0 +1,14 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-Pro",
+  "label": "Wave Pro",
+  "category": "ptp",
+  "description": "60 GHz Wave point-to-point/multipoint radio, multi-gigabit aggregate; 1x 2.5G Ethernet port.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "2.5G" },
+    { "name": "radio0", "type": "wireless", "speed": "4.8G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

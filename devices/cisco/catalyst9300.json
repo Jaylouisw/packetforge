@@ -1,0 +1,11 @@
+{
+  "vendor": "cisco",
+  "model": "Catalyst9300",
+  "label": "Catalyst 9300 (L3)",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 9300 multilayer switch — 24x 1G.",
+  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "portTemplate": { "prefix": "Gi1/0/", "start": 1, "count": 24, "type": "ethernet", "speed": "1G" },
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

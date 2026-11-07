@@ -1,0 +1,14 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF60-LR",
+  "label": "airFiber 60 LR",
+  "category": "ptp",
+  "description": "60 GHz long-range point-to-point radio, up to ~1 Gbps at 12+ km with high-gain antenna; 1x GigE data port.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

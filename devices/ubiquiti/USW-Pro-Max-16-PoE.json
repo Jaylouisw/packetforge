@@ -1,0 +1,107 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Pro-Max-16-PoE",
+  "label": "UniFi Switch Pro Max 16 PoE",
+  "category": "l3-switch",
+  "description": "Layer 3 PoE switch with 12 GbE PoE+ and 4 2.5GbE PoE++ ports plus dual 10G SFP+ uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

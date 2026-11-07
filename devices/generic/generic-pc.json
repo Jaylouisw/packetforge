@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-pc",
+  "label": "PC",
+  "category": "host",
+  "description": "End host. Responds to ARP and ICMP echo.",
+  "capabilities": ["host", "cli", "dhcp-client"],
+  "interfaces": [{ "name": "eth0", "type": "ethernet", "speed": "1G" }],
+  "icon": "pc",
+  "color": "#3b82f6"
+}

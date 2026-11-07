@@ -1,0 +1,45 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB750Gr3",
+  "label": "hEX (RB750Gr3)",
+  "category": "router",
+  "description": "Cheap five-port Gigabit router, dual-core 880MHz, the classic starter RouterOS box.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

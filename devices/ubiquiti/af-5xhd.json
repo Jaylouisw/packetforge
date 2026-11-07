@@ -1,0 +1,15 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF-5XHD",
+  "label": "airFiber 5XHD",
+  "category": "ptp",
+  "description": "5 GHz point-to-point backhaul radio, up to 2 Gbps aggregate with GPS sync; 1x GigE MGMT + 1x SFP DATA.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "mgmt", "type": "ethernet", "speed": "1G" },
+    { "name": "data", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "2G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

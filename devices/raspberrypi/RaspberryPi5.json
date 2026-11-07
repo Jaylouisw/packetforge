@@ -1,0 +1,21 @@
+{
+  "vendor": "raspberrypi",
+  "model": "RaspberryPi5",
+  "label": "Raspberry Pi 5",
+  "category": "host",
+  "description": "Single-board computer with one gigabit Ethernet port, used as a lightweight homelab host.",
+  "capabilities": [
+    "host",
+    "cli",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "host",
+  "color": "#c51a4a"
+}

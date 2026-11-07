@@ -1,0 +1,17 @@
+{
+  "vendor": "huawei",
+  "model": "S5735-L24T4S",
+  "label": "S5735-L24T4S",
+  "category": "switch",
+  "description": "Huawei S5735-L24T4S — 24x 1G RJ45 + 4x 1G SFP uplinks, Lite access switch.",
+  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "portTemplate": { "prefix": "GE0/0/", "start": 1, "count": 24, "type": "ethernet", "speed": "1G" },
+  "interfaces": [
+    { "name": "GE0/0/25", "type": "ethernet", "speed": "1G" },
+    { "name": "GE0/0/26", "type": "ethernet", "speed": "1G" },
+    { "name": "GE0/0/27", "type": "ethernet", "speed": "1G" },
+    { "name": "GE0/0/28", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "switch",
+  "color": "#ef4444"
+}

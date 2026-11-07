@@ -1,0 +1,39 @@
+{
+  "vendor": "trendnet",
+  "model": "TEG-S350",
+  "label": "TRENDnet TEG-S350",
+  "category": "switch",
+  "description": "Fanless unmanaged 5-port 2.5GBASE-T switch with 25Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0891b2"
+}

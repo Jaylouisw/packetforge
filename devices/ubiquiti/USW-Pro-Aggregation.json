@@ -1,0 +1,177 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Pro-Aggregation",
+  "label": "UniFi Switch Pro Aggregation",
+  "category": "l3-switch",
+  "description": "Layer 3 aggregation switch with 28 10G SFP+ ports and four 25G SFP28 uplinks, 760 Gbps capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp23",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp24",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp28",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "up1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "up2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "up3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "up4",
+      "type": "ethernet",
+      "speed": "25G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

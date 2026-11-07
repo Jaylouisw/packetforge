@@ -1,0 +1,26 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP650",
+  "label": "TP-Link Omada EAP650",
+  "category": "wireless",
+  "description": "AX3000 ceiling-mount WiFi 6 access point, PoE-powered over one Gigabit port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#22c55e"
+}

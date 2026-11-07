@@ -1,0 +1,11 @@
+{
+  "vendor": "cisco",
+  "model": "Catalyst2960",
+  "label": "Catalyst 2960",
+  "category": "switch",
+  "description": "Cisco Catalyst 2960 — 24x 10/100 FastEthernet.",
+  "capabilities": ["l2-forward", "cli"],
+  "portTemplate": { "prefix": "Fa0/", "start": 1, "count": 24, "type": "ethernet", "speed": "100M" },
+  "icon": "switch",
+  "color": "#14b8a6"
+}

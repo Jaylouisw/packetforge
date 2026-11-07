@@ -1,0 +1,14 @@
+{
+  "vendor": "huawei",
+  "model": "HG8010H",
+  "label": "HG8010H ONT",
+  "category": "ont",
+  "description": "Huawei EchoLife HG8010H — single-GE PON bridge ONT, 1x PON (SC/APC) + 1x GbE LAN. Class B+ optics.",
+  "capabilities": ["l2-forward", "cli"],
+  "interfaces": [
+    { "name": "pon", "type": "ethernet", "speed": "2.5G" },
+    { "name": "lan1", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "ont",
+  "color": "#ef4444"
+}

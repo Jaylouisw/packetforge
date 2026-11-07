@@ -1,0 +1,28 @@
+{
+  "vendor": "gl-inet",
+  "model": "GL-MT2500",
+  "label": "GL.iNet Brume 2 (GL-MT2500)",
+  "category": "firewall",
+  "description": "Fanless OpenWrt VPN gateway/security appliance with one 2.5G WAN and one 1G LAN port.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#64748b"
+}

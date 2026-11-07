@@ -1,0 +1,38 @@
+name: Device / hardware request
+description: Request a hardware model to be added to the catalog
+title: "[Device]: "
+labels: [device, enhancement]
+body:
+  - type: input
+    id: vendor
+    attributes:
+      label: Vendor
+      placeholder: "e.g. MikroTik, Ubiquiti, Cisco"
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      placeholder: "e.g. CRS328-24P-4S+RM"
+    validations:
+      required: true
+  - type: textarea
+    id: ports
+    attributes:
+      label: Ports / interfaces
+      description: List every RJ45, SFP/SFP+, and wireless interface with its speed, straight from the datasheet.
+      placeholder: |
+        24x 1G RJ45
+        4x 10G SFP+
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: Capabilities
+      description: Routing, switching, PoE, wireless, NAT, DHCP, etc.
+  - type: input
+    id: datasheet
+    attributes:
+      label: Datasheet / product page URL

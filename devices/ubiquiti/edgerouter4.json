@@ -1,0 +1,16 @@
+{
+  "vendor": "ubiquiti",
+  "model": "EdgeRouter-4",
+  "label": "EdgeRouter 4",
+  "category": "router",
+  "description": "Ubiquiti EdgeRouter 4 — 3x 1G RJ45 + 1x 1G SFP (eth3).",
+  "capabilities": ["l3-forward", "cli", "nat", "dhcp-server"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "eth1", "type": "ethernet", "speed": "1G" },
+    { "name": "eth2", "type": "ethernet", "speed": "1G" },
+    { "name": "eth3", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "router",
+  "color": "#f43f5e"
+}

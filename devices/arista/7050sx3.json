@@ -1,0 +1,11 @@
+{
+  "vendor": "arista",
+  "model": "7050SX3",
+  "label": "7050SX3-48YC8 (L3)",
+  "category": "l3-switch",
+  "description": "Arista 7050SX3 — 48x 25G L3 leaf switch.",
+  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "portTemplate": { "prefix": "Et", "start": 1, "count": 12, "type": "ethernet", "speed": "25G" },
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

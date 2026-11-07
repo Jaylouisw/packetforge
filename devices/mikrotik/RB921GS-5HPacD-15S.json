@@ -1,0 +1,15 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB921GS-5HPacD-15S",
+  "label": "mANTBox 15s",
+  "category": "ptp",
+  "description": "5 GHz point-to-point/multipoint sector radio, 15 dBi, 867 Mbps; 1x GigE + 1x GigE SFP, RouterOS.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "ether1", "type": "ethernet", "speed": "1G" },
+    { "name": "sfp1", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6"
+}

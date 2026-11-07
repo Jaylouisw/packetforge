@@ -1,0 +1,15 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF-5",
+  "label": "airFiber 5",
+  "category": "ptp",
+  "description": "Legacy 5 GHz point-to-point radio, up to 1.2 Gbps aggregate; 1x GigE MGMT + 1x SFP DATA.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "mgmt", "type": "ethernet", "speed": "1G" },
+    { "name": "data", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1.2G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

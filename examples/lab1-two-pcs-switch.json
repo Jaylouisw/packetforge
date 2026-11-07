@@ -1,0 +1,214 @@
+{
+  "format": "packetforge-topology",
+  "version": 1,
+  "devices": [
+    {
+      "id": "d1",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC-d1",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "192.168.1.10",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC-d2",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "192.168.1.20",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "vendor": "generic",
+      "model": "generic-switch",
+      "label": "Switch (L2)",
+      "category": "switch",
+      "color": "#14b8a6",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "cli"
+      ],
+      "name": "Switch (L2)-d3",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "Fa0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/5",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/6",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/7",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Fa0/8",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l4",
+      "a": {
+        "deviceId": "d1",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d3",
+        "iface": "Fa0/1"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l5",
+      "a": {
+        "deviceId": "d2",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d3",
+        "iface": "Fa0/2"
+      },
+      "type": "copper"
+    }
+  ],
+  "layout": {
+    "d1": {
+      "x": 120,
+      "y": 200
+    },
+    "d3": {
+      "x": 360,
+      "y": 200
+    },
+    "d2": {
+      "x": 620,
+      "y": 200
+    }
+  }
+}

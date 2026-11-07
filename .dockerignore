@@ -1,0 +1,21 @@
+.git
+.gitignore
+.gitattributes
+.editorconfig
+.dockerignore
+.github
+
+node_modules
+*.log
+npm-debug.log*
+
+# Not needed at runtime — keeps the image small and reduces attack surface.
+test
+scripts
+examples
+docs
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md

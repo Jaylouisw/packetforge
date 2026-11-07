@@ -1,0 +1,43 @@
+{
+  "vendor": "qotom",
+  "model": "Q750G5",
+  "label": "Qotom Q750G5",
+  "category": "firewall",
+  "description": "Compact Celeron J4125 mini-PC firewall with five Intel i225-V 2.5G LAN ports.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#7c3aed"
+}

@@ -1,0 +1,11 @@
+{
+  "vendor": "juniper",
+  "model": "MX204",
+  "label": "MX204 Router",
+  "category": "router",
+  "description": "Juniper MX204 — 4x 100G service router (modeled as 4x 10G).",
+  "capabilities": ["l3-forward", "cli"],
+  "portTemplate": { "prefix": "xe-0/0/", "start": 0, "count": 4, "type": "ethernet", "speed": "10G" },
+  "icon": "router",
+  "color": "#84cc16"
+}

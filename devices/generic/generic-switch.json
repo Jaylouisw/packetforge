@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-switch",
+  "label": "Switch (L2)",
+  "category": "switch",
+  "description": "Generic L2 switch with MAC learning and flooding.",
+  "capabilities": ["l2-forward", "cli"],
+  "portTemplate": { "prefix": "Fa0/", "start": 1, "count": 8, "type": "ethernet", "speed": "1G" },
+  "icon": "switch",
+  "color": "#14b8a6"
+}

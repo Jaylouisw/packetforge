@@ -1,0 +1,37 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Pro",
+  "label": "UniFi 7 Pro",
+  "category": "wireless",
+  "description": "Tri-band WiFi 7 access point with a 2.5G PoE+ uplink and 6 GHz support.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "5.8G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.9G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "688M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6"
+}

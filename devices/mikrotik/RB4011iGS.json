@@ -1,0 +1,75 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB4011iGS",
+  "label": "RB4011iGS+RM",
+  "category": "router",
+  "description": "Rackmount router with ten Gigabit ports, one 10G SFP+, PoE-out on ether10 and strong IPSec throughput.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

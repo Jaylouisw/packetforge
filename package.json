@@ -1,0 +1,46 @@
+{
+  "name": "packetforge",
+  "version": "0.1.0",
+  "description": "PacketForge — an open-source, vendor-agnostic network simulator (a modern alternative to Cisco Packet Tracer). Zero runtime dependencies.",
+  "main": "engine/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node test/engine.test.js && node test/cli.test.js",
+    "test:engine": "node test/engine.test.js",
+    "test:cli": "node test/cli.test.js",
+    "examples": "node examples/build-examples.js",
+    "syntax": "node scripts/syntax-check.js"
+  },
+  "keywords": [
+    "network",
+    "simulator",
+    "packet-tracer",
+    "networking",
+    "education",
+    "topology",
+    "ccna",
+    "emulator",
+    "cisco",
+    "lab"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaylouisw/packetforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jaylouisw/packetforge/issues"
+  },
+  "homepage": "https://github.com/Jaylouisw/packetforge#readme",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "engine",
+    "server",
+    "web",
+    "devices"
+  ]
+}

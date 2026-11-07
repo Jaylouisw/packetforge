@@ -1,0 +1,14 @@
+{
+  "vendor": "ubiquiti",
+  "model": "PBE-5AC-Gen2",
+  "label": "PowerBeam 5AC Gen2",
+  "category": "ptp",
+  "description": "High-gain 5 GHz airMAX AC point-to-point radio, 450+ Mbps; 1x GigE port, integrated dish.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

@@ -1,0 +1,14 @@
+{
+  "vendor": "generic",
+  "model": "generic-access-point",
+  "label": "Access Point",
+  "category": "wireless",
+  "description": "Wireless access point (bridge to wired LAN).",
+  "capabilities": ["l2-forward", "wireless", "cli"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  ],
+  "icon": "ap",
+  "color": "#22c55e"
+}

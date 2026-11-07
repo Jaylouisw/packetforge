@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-server",
+  "label": "Server",
+  "category": "server",
+  "description": "Server host (HTTP/DHCP capable).",
+  "capabilities": ["host", "cli", "dhcp-server", "http-server"],
+  "interfaces": [{ "name": "eth0", "type": "ethernet", "speed": "1G" }],
+  "icon": "server",
+  "color": "#8b5cf6"
+}

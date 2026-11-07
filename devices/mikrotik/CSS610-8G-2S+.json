@@ -1,0 +1,65 @@
+{
+  "vendor": "mikrotik",
+  "model": "CSS610-8G-2S+",
+  "label": "CSS610-8G-2S+IN",
+  "category": "switch",
+  "description": "Cheap fanless eight-port Gigabit switch with two SFP+ 10G uplinks, SwOS Lite and PoE-in.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

@@ -1,0 +1,14 @@
+{
+  "vendor": "huawei",
+  "model": "S800E",
+  "label": "OptiXstar S800E",
+  "category": "ont",
+  "description": "Huawei OptiXstar S800E — XGS-PON SFP ONU stick, 1x XGS-PON (SC/APC, 9.953G symmetric) + 1x GE/2.5/5/10G host port. ITU-T G.9807.",
+  "capabilities": ["l2-forward", "cli"],
+  "interfaces": [
+    { "name": "pon", "type": "ethernet", "speed": "10G" },
+    { "name": "host", "type": "ethernet", "speed": "10G" }
+  ],
+  "icon": "ont",
+  "color": "#ef4444"
+}

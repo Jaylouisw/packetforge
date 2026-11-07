@@ -1,0 +1,14 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBDynaDishG-5HacD",
+  "label": "DynaDish 5",
+  "category": "ptp",
+  "description": "5 GHz point-to-point dish radio, 25 dBi, 867 Mbps; 1x GigE port, RouterOS.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "ether1", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6"
+}

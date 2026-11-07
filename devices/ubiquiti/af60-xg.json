@@ -1,0 +1,16 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF60-XG",
+  "label": "airFiber 60 XG",
+  "category": "ptp",
+  "description": "60 GHz point-to-point radio with 5 GHz failover, up to 5.4 Gbps; 1x GigE MGMT + 1x 10G SFP+ DATA.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "mgmt", "type": "ethernet", "speed": "1G" },
+    { "name": "data", "type": "ethernet", "speed": "10G" },
+    { "name": "radio0", "type": "wireless", "speed": "5.4G" },
+    { "name": "radio1", "type": "wireless", "speed": "450M" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

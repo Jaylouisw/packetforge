@@ -1,0 +1,14 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLHGG-60ad",
+  "label": "Wireless Wire nRAY (LHG 60G)",
+  "category": "ptp",
+  "description": "60 GHz point-to-point radio with integrated 35 dBi dish, 1 Gbps; 1x GigE port, RouterOS.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "ether1", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1G" }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6"
+}

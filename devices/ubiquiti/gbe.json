@@ -1,0 +1,14 @@
+{
+  "vendor": "ubiquiti",
+  "model": "GBE",
+  "label": "GigaBeam",
+  "category": "ptp",
+  "description": "60 GHz point-to-point radio, 1+ Gbps up to ~2 km; 1x GigE port.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1G" }
+  ],
+  "icon": "ptp",
+  "color": "#3b82f6"
+}

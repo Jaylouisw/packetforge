@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-router",
+  "label": "Router",
+  "category": "router",
+  "description": "Generic L3 router. Vendor-agnostic baseline.",
+  "capabilities": ["l3-forward", "cli", "dhcp-server", "nat"],
+  "portTemplate": { "prefix": "Gi0/", "start": 0, "count": 3, "type": "ethernet", "speed": "1G" },
+  "icon": "router",
+  "color": "#f43f5e"
+}

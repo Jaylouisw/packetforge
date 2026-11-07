@@ -1,0 +1,14 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLHGG-5HPacD-XL",
+  "label": "LHG XL 5 ac",
+  "category": "ptp",
+  "description": "5 GHz long-range point-to-point dish radio, 27 dBi, 867 Mbps; 1x GigE port, RouterOS.",
+  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "interfaces": [
+    { "name": "ether1", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6"
+}

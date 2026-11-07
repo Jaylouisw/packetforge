@@ -1,0 +1,26 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP610",
+  "label": "TP-Link Omada EAP610",
+  "category": "wireless",
+  "description": "AX1800 ceiling-mount WiFi 6 access point with a single PoE Gigabit uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#22c55e"
+}

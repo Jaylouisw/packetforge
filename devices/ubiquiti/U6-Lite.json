@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-Lite",
+  "label": "UniFi 6 Lite",
+  "category": "wireless",
+  "description": "WiFi 6 ceiling access point, 2x2 dual-band with a single GbE PoE-powered uplink.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "574M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6"
+}

@@ -1,0 +1,38 @@
+{
+  "vendor": "gl-inet",
+  "model": "GL-AXT1800",
+  "label": "GL.iNet Slate AX (GL-AXT1800)",
+  "category": "router",
+  "description": "Wi-Fi 6 AX1800 travel router with three gigabit ports, USB 3.0 and WireGuard/OpenVPN.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "icon": "router",
+  "color": "#16a34a"
+}

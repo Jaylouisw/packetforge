@@ -1,0 +1,44 @@
+{
+  "vendor": "qnap",
+  "model": "QSW-2104-2T",
+  "label": "QNAP QSW-2104-2T",
+  "category": "switch",
+  "description": "Fanless unmanaged switch with four 2.5GbE and two 10GbE 10GBASE-T RJ45 ports.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#1d4ed8"
+}

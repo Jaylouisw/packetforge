@@ -1,0 +1,15 @@
+{
+  "vendor": "generic",
+  "model": "generic-firewall",
+  "label": "Firewall",
+  "category": "firewall",
+  "description": "L3 firewall with NAT capability (filtering not yet enforced).",
+  "capabilities": ["l3-forward", "host", "cli", "nat", "firewall"],
+  "interfaces": [
+    { "name": "eth0", "type": "ethernet", "speed": "1G" },
+    { "name": "eth1", "type": "ethernet", "speed": "1G" },
+    { "name": "eth2", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "firewall",
+  "color": "#f59e0b"
+}

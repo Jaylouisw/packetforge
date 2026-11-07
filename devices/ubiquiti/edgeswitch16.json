@@ -1,0 +1,15 @@
+{
+  "vendor": "ubiquiti",
+  "model": "EdgeSwitch-16",
+  "label": "EdgeSwitch 16",
+  "category": "switch",
+  "description": "Ubiquiti EdgeSwitch 16 (ES-16-150W) — 16x 1G RJ45 + 2x 1G SFP.",
+  "capabilities": ["l2-forward", "cli"],
+  "portTemplate": { "prefix": "port", "start": 1, "count": 16, "type": "ethernet", "speed": "1G" },
+  "interfaces": [
+    { "name": "SFP1", "type": "ethernet", "speed": "1G" },
+    { "name": "SFP2", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-l3-switch",
+  "label": "Switch (L3)",
+  "category": "l3-switch",
+  "description": "Generic multilayer switch: L2 switching + L3 routing.",
+  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "portTemplate": { "prefix": "Gi1/0/", "start": 1, "count": 8, "type": "ethernet", "speed": "1G" },
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

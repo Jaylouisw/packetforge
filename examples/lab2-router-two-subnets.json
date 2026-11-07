@@ -1,0 +1,166 @@
+{
+  "format": "packetforge-topology",
+  "version": 1,
+  "devices": [
+    {
+      "id": "d1",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC-d1",
+      "config": {
+        "hostname": null,
+        "defaultGateway": "10.0.1.1",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.1.10",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC-d2",
+      "config": {
+        "hostname": null,
+        "defaultGateway": "10.0.2.1",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.2.20",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "vendor": "generic",
+      "model": "generic-router",
+      "label": "Router",
+      "category": "router",
+      "color": "#f43f5e",
+      "icon": "router",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "dhcp-server",
+        "nat"
+      ],
+      "name": "Router-d3",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "Gi0/0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.1.1",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Gi0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.2.1",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Gi0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l4",
+      "a": {
+        "deviceId": "d1",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d3",
+        "iface": "Gi0/0"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l5",
+      "a": {
+        "deviceId": "d2",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d3",
+        "iface": "Gi0/1"
+      },
+      "type": "copper"
+    }
+  ],
+  "layout": {
+    "d1": {
+      "x": 100,
+      "y": 200
+    },
+    "d3": {
+      "x": 400,
+      "y": 200
+    },
+    "d2": {
+      "x": 700,
+      "y": 200
+    }
+  }
+}

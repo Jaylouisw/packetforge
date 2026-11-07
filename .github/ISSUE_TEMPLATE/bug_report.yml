@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a bug in PacketForge
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Place a ...
+        2. Cable ...
+        3. Ping ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, OS, and branch/commit if relevant.
+      placeholder: "Node 20, Windows 11, main"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / output
+      description: Any relevant console or terminal output.
+      render: shell

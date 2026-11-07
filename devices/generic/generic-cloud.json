@@ -1,0 +1,11 @@
+{
+  "vendor": "generic",
+  "model": "generic-cloud",
+  "label": "Cloud / Internet",
+  "category": "cloud",
+  "description": "Simulated Internet gateway / cloud service.",
+  "capabilities": ["host", "l3-forward", "cli"],
+  "interfaces": [{ "name": "eth0", "type": "ethernet", "speed": "10G" }],
+  "icon": "cloud",
+  "color": "#94a3b8"
+}

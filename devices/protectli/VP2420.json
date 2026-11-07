@@ -1,0 +1,38 @@
+{
+  "vendor": "protectli",
+  "model": "VP2420",
+  "label": "Protectli Vault Pro VP2420",
+  "category": "firewall",
+  "description": "Fanless Intel Celeron J6412 firewall with four 2.5GbE Intel i225-V/i226-V ports.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#334155"
+}

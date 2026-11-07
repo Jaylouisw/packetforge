@@ -1,0 +1,146 @@
+{
+  "vendor": "netgear",
+  "model": "GS724T",
+  "label": "Netgear GS724T",
+  "category": "l3-switch",
+  "description": "24-port Gigabit Smart Cloud switch with 2 dedicated SFP slots and L3-lite routing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

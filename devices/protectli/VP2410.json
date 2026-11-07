@@ -1,0 +1,38 @@
+{
+  "vendor": "protectli",
+  "model": "VP2410",
+  "label": "Protectli Vault VP2410",
+  "category": "firewall",
+  "description": "Fanless Intel Celeron J4125 firewall appliance with four 1GbE Intel i210/i211 NICs.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#475569"
+}

@@ -1,0 +1,1049 @@
+{
+  "format": "packetforge-topology",
+  "version": 1,
+  "devices": [
+    {
+      "id": "d1",
+      "vendor": "generic",
+      "model": "generic-cloud",
+      "label": "Cloud / Internet",
+      "category": "cloud",
+      "color": "#94a3b8",
+      "icon": "cloud",
+      "capabilities": [
+        "host",
+        "l3-forward",
+        "cli"
+      ],
+      "name": "Cloud / Internet-d1",
+      "config": {
+        "hostname": null,
+        "defaultGateway": "198.51.100.2",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "10G",
+          "ip": "198.51.100.1",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "vendor": "cisco",
+      "model": "ISR4321",
+      "label": "ISR 4321 Router",
+      "category": "router",
+      "color": "#f43f5e",
+      "icon": "router",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "dhcp-server",
+        "nat"
+      ],
+      "name": "EDGE",
+      "config": {
+        "hostname": "EDGE",
+        "defaultGateway": null,
+        "routes": [
+          {
+            "dest": "0.0.0.0",
+            "mask": "0.0.0.0",
+            "gw": "198.51.100.1",
+            "iface": null
+          }
+        ],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "Gi0/0/0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "198.51.100.2",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Gi0/0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.0.1",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Gi0/0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "vendor": "arista",
+      "model": "7050SX3",
+      "label": "7050SX3-48YC8 (L3)",
+      "category": "l3-switch",
+      "color": "#0ea5e9",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "name": "7050SX3-48YC8 (L3)-d3",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "Et1",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et2",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et3",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et4",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et5",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et6",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et7",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et8",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et9",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et10",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et11",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "Et12",
+          "type": "ethernet",
+          "speed": "25G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d4",
+      "vendor": "huawei",
+      "model": "S5735-L24T4S",
+      "label": "S5735-L24T4S",
+      "category": "switch",
+      "color": "#ef4444",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "name": "S5735-L24T4S-d4",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "GE0/0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/5",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/6",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/7",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/8",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/9",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/10",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/11",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/12",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/13",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/14",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/15",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/16",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/17",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/18",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/19",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/20",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/21",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/22",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/23",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/24",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/25",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/26",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/27",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "GE0/0/28",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d5",
+      "vendor": "mikrotik",
+      "model": "CRS326-24G",
+      "label": "CRS326-24G-2S+IN",
+      "category": "switch",
+      "color": "#14b8a6",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli"
+      ],
+      "name": "CRS326-24G-2S+IN-d5",
+      "config": {
+        "hostname": null,
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "ether1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether3",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether4",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether5",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether6",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether7",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether8",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether9",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether10",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether11",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether12",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether13",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether14",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether15",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether16",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether17",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether18",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether19",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether20",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether21",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether22",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether23",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "ether24",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "sfp-sfpplus1",
+          "type": "ethernet",
+          "speed": "10G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        },
+        {
+          "name": "sfp-sfpplus2",
+          "type": "ethernet",
+          "speed": "10G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d6",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC1",
+      "config": {
+        "hostname": "PC1",
+        "defaultGateway": "10.0.0.1",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.0.10",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d7",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC2",
+      "config": {
+        "hostname": "PC2",
+        "defaultGateway": "10.0.0.1",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.0.20",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "d8",
+      "vendor": "generic",
+      "model": "generic-server",
+      "label": "Server",
+      "category": "server",
+      "color": "#8b5cf6",
+      "icon": "server",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-server",
+        "http-server"
+      ],
+      "name": "SRV1",
+      "config": {
+        "hostname": "SRV1",
+        "defaultGateway": "10.0.0.1",
+        "routes": [],
+        "motd": null
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "10.0.0.30",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l9",
+      "a": {
+        "deviceId": "d1",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d2",
+        "iface": "Gi0/0/0"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l10",
+      "a": {
+        "deviceId": "d2",
+        "iface": "Gi0/0/1"
+      },
+      "b": {
+        "deviceId": "d3",
+        "iface": "Et1"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l11",
+      "a": {
+        "deviceId": "d3",
+        "iface": "Et2"
+      },
+      "b": {
+        "deviceId": "d4",
+        "iface": "GE0/0/1"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l12",
+      "a": {
+        "deviceId": "d3",
+        "iface": "Et3"
+      },
+      "b": {
+        "deviceId": "d5",
+        "iface": "ether1"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l13",
+      "a": {
+        "deviceId": "d4",
+        "iface": "GE0/0/2"
+      },
+      "b": {
+        "deviceId": "d6",
+        "iface": "eth0"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l14",
+      "a": {
+        "deviceId": "d4",
+        "iface": "GE0/0/3"
+      },
+      "b": {
+        "deviceId": "d7",
+        "iface": "eth0"
+      },
+      "type": "copper"
+    },
+    {
+      "id": "l15",
+      "a": {
+        "deviceId": "d5",
+        "iface": "ether2"
+      },
+      "b": {
+        "deviceId": "d8",
+        "iface": "eth0"
+      },
+      "type": "copper"
+    }
+  ],
+  "layout": {
+    "d1": {
+      "x": 400,
+      "y": 60
+    },
+    "d2": {
+      "x": 400,
+      "y": 180
+    },
+    "d3": {
+      "x": 400,
+      "y": 330
+    },
+    "d4": {
+      "x": 180,
+      "y": 480
+    },
+    "d5": {
+      "x": 640,
+      "y": 480
+    },
+    "d6": {
+      "x": 60,
+      "y": 620
+    },
+    "d7": {
+      "x": 300,
+      "y": 620
+    },
+    "d8": {
+      "x": 760,
+      "y": 620
+    }
+  }
+}

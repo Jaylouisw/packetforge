@@ -1,0 +1,54 @@
+{
+  "vendor": "generic",
+  "model": "2.5G-8P",
+  "label": "Generic 8-Port 2.5GbE Switch",
+  "category": "switch",
+  "description": "Cheap fanless unmanaged 8-port 2.5GBASE-T switch for homelab backbone links.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#94a3b8"
+}

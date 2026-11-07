@@ -1,0 +1,11 @@
+{
+  "vendor": "juniper",
+  "model": "EX2300",
+  "label": "EX2300-24T",
+  "category": "switch",
+  "description": "Juniper EX2300 — 24x 1G access switch.",
+  "capabilities": ["l2-forward", "cli"],
+  "portTemplate": { "prefix": "ge-0/0/", "start": 0, "count": 24, "type": "ethernet", "speed": "1G" },
+  "icon": "switch",
+  "color": "#84cc16"
+}

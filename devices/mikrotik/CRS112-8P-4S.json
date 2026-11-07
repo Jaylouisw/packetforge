@@ -1,0 +1,76 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS112-8P-4S",
+  "label": "CRS112-8P-4S-IN",
+  "category": "switch",
+  "description": "Eight-port Gigabit PoE switch with 802.3af/at and passive PoE plus four SFP fiber cages.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6"
+}

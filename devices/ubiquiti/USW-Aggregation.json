@@ -1,0 +1,56 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Aggregation",
+  "label": "UniFi Switch Aggregation",
+  "category": "switch",
+  "description": "Compact Layer 2 aggregation switch with eight 10G SFP+ ports for small 10G backbones.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

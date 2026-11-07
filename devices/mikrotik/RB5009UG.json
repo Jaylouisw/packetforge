@@ -1,0 +1,65 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB5009UG",
+  "label": "RB5009UG+S+IN",
+  "category": "router",
+  "description": "Heavy-duty homelab router: quad-core ARM64, one 2.5G port, seven 1G ports and a 10G SFP+ cage.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6"
+}

@@ -1,0 +1,15 @@
+{
+  "vendor": "cisco",
+  "model": "ASA5506",
+  "label": "ASA 5506-X",
+  "category": "firewall",
+  "description": "Cisco ASA 5506-X firewall.",
+  "capabilities": ["l3-forward", "host", "cli", "nat", "firewall"],
+  "interfaces": [
+    { "name": "Gi1/1", "type": "ethernet", "speed": "1G" },
+    { "name": "Gi1/2", "type": "ethernet", "speed": "1G" },
+    { "name": "Gi1/3", "type": "ethernet", "speed": "1G" }
+  ],
+  "icon": "firewall",
+  "color": "#f59e0b"
+}

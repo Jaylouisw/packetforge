@@ -1,0 +1,45 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UCG-Ultra",
+  "label": "UniFi Cloud Gateway Ultra",
+  "category": "router",
+  "description": "Compact fanless UniFi gateway with 2.5G WAN and a 4-port GbE LAN switch.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#3b82f6"
+}

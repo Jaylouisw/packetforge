@@ -1,0 +1,50 @@
+{
+  "vendor": "mikrotik",
+  "model": "C52iG-5HaxD2HaxD",
+  "label": "hAP ax2",
+  "category": "wireless",
+  "description": "Wi-Fi 6 dual-band AP with five Gigabit ports, IPQ-6010 CPU and PoE-in/PoE-out on ether1.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "wireless",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ether5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1200M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6"
+}

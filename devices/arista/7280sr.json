@@ -1,0 +1,11 @@
+{
+  "vendor": "arista",
+  "model": "7280SR",
+  "label": "7280SR Router",
+  "category": "router",
+  "description": "Arista 7280SR series core router.",
+  "capabilities": ["l3-forward", "cli"],
+  "portTemplate": { "prefix": "Et", "start": 1, "count": 8, "type": "ethernet", "speed": "100G" },
+  "icon": "router",
+  "color": "#f43f5e"
+}

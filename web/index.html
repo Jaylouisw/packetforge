@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PacketForge — Open Network Simulator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◧</span>
+      <span class="brand-name">Packet<strong>Forge</strong></span>
+      <span class="tagline">vendor-agnostic network simulator</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-new" class="btn" title="Start a new topology">New</button>
+      <button id="btn-import" class="btn" title="Import a topology JSON">Import</button>
+      <button id="btn-export" class="btn" title="Download topology JSON">Export</button>
+      <button id="btn-reset" class="btn" title="Clear ARP/MAC tables">Reset state</button>
+    </div>
+  </header>
+
+  <aside id="palette">
+    <div class="palette-header">Device Catalog</div>
+    <div id="palette-filters" class="palette-filters">
+      <input id="pf-search" type="search" placeholder="Search vendor / model / type…" autocomplete="off" spellcheck="false" />
+      <div class="pf-row">
+        <select id="pf-vendor"><option value="">All vendors</option></select>
+        <select id="pf-type"><option value="">All types</option></select>
+      </div>
+    </div>
+    <div id="palette-list" class="palette-list"></div>
+    <div class="palette-footer">
+      <span class="hint">Click a device, then click the canvas to place it.</span>
+    </div>
+  </aside>
+
+  <main id="canvas-wrap">
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f7cff" />
+        </marker>
+      </defs>
+      <g id="world"></g>
+      <g id="packets"></g>
+      <g id="overlay"></g>
+    </svg>
+    <div id="canvas-toolbar">
+      <button id="btn-zoom-in" class="mini" title="Zoom in">＋</button>
+      <button id="btn-zoom-out" class="mini" title="Zoom out">－</button>
+      <button id="btn-zoom-fit" class="mini" title="Fit to view">⛶</button>
+      <span class="sep"></span>
+      <span id="canvas-hint" class="hint">Scroll to zoom · drag background to pan · click a port to cable</span>
+    </div>
+  </main>
+
+  <aside id="inspector">
+    <div class="tabs">
+      <button class="tab active" data-tab="device">Device</button>
+      <button class="tab" data-tab="console">Console</button>
+      <button class="tab" data-tab="simulate">Simulate</button>
+    </div>
+    <div id="tab-device" class="tab-panel active"></div>
+    <div id="tab-console" class="tab-panel">
+      <div id="console-output" class="console-output"></div>
+      <form id="console-form" class="console-form">
+        <span id="console-prompt" class="console-prompt">&gt;</span>
+        <input id="console-input" class="console-input" autocomplete="off" spellcheck="false" placeholder="type a command, e.g. show ip route" />
+      </form>
+    </div>
+    <div id="tab-simulate" class="tab-panel"></div>
+  </aside>
+
+  <footer id="statusbar">
+    <span id="status-left">Ready</span>
+    <span id="status-right"></span>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="canvas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

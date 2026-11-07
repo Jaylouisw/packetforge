@@ -1,0 +1,26 @@
+{
+  "vendor": "zyxel",
+  "model": "NWA50AX",
+  "label": "Zyxel NWA50AX",
+  "category": "wireless",
+  "description": "AX1800 dual-radio WiFi 6 NebulaFlex access point with one PoE Gigabit port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f97316"
+}
