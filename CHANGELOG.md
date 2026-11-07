@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SCION in the forwarding path.** ASes are declared with `scion <isd>-<as>`
+  (`1-ff00:0:0` is core because its AS number ends in `:0`, the SCION
+  convention). Beaconing runs over the real peering graph derived from the
+  topology — up-segments away from each core, down-segments back out, and
+  core-to-core segments chained across adjacent core ASes. Paths compose from
+  that segment set, are validated by shape (`up|down`, `up|core|down`, …) and
+  selected with policy (`avoidAses`). `Simulator.pingScion()` then source-routes
+  the packet along the path, one hop per AS, with **no IP addresses and no
+  routing table involved** — which is the point of path-aware networking, and is
+  asserted: not one interface has an IPv4 address and the packet still arrives.
+  A non-core AS that no beacon reaches has no up-segment, so it gets no path and
+  a stated reason.
 - **Hardware-aware inspector.** The Device tab only showed port / IP / mask,
   hiding the entire physical layer it was built on. Each port is now a row with
   cage, negotiated rate, admin state and a cabled marker, expanding to an IP

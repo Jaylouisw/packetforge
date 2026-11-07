@@ -13,6 +13,7 @@ const ospfLib = require('./ospf');
 const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
 const ipv6Lib = require('./ipv6');
+const scionLib = require('./scion');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -70,6 +71,7 @@ class Simulator {
     this.maxSteps = 8000;
     this.icmpReplies = [];    // {dst, id, seq, step}
     this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
+    this.scion = null;        // last computed SCION beaconing state
     this._icmpId = 0x1000;
     this._stpDirty = true;
     this.stpResult = null;
@@ -756,6 +758,249 @@ class Simulator {
       events: this.events, replies: replies, step: this.step,
       success: replies.some(function (r) { return r.success; })
     };
+  }
+
+  // ---------------------------------------------------------------------
+  // SCION: path-aware networking over the AS topology
+  // ---------------------------------------------------------------------
+
+  // Devices that belong to an ISD-AS, sorted by canonical id.
+  scionMembers() {
+    const out = [];
+    for (const dev of this.topo.devices.values()) {
+      const raw = dev.config.scionAs;
+      if (!raw) continue;
+      const p = scionLib.parseIsdAs(raw);
+      if (!p.valid) continue;
+      out.push({ dev: dev, id: scionLib.formatIsdAs(p.isd, p.asHex) });
+    }
+    out.sort(function (a, b) { return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0); });
+    return out;
+  }
+
+  _scionDevice(asId) {
+    for (const m of this.scionMembers()) {
+      if (m.id === asId) return m.dev;
+    }
+    return null;
+  }
+
+  _resolveScionAs(dst) {
+    if (!dst) return null;
+    const dev = this.topo.getDevice(dst);
+    if (dev && dev.config.scionAs) return dev.config.scionAs;
+    const p = scionLib.parseIsdAs(dst);
+    if (p.valid) return scionLib.formatIsdAs(p.isd, p.asHex);
+    return String(dst);
+  }
+
+  _linkBetween(aId, bId) {
+    for (const l of this.topo.links.values()) {
+      if ((l.a.deviceId === aId && l.b.deviceId === bId) ||
+          (l.a.deviceId === bId && l.b.deviceId === aId)) return l;
+    }
+    return null;
+  }
+
+  // Core-to-core segments: chains across adjacent core ASes.
+  _scionCoreSegments(cores, neighbours) {
+    const adj = new Map();
+    for (const c of cores) adj.set(c, []);
+    for (const pair of neighbours) {
+      if (scionLib.isCore(pair[0]) && scionLib.isCore(pair[1])) {
+        adj.get(pair[0]).push(pair[1]);
+        adj.get(pair[1]).push(pair[0]);
+      }
+    }
+    const out = [];
+    for (const from of cores) {
+      const parent = new Map();
+      const seen = new Set([from]);
+      let frontier = [from];
+      while (frontier.length) {
+        const next = [];
+        for (const node of frontier) {
+          for (const nb of (adj.get(node) || [])) {
+            if (seen.has(nb)) continue;
+            seen.add(nb);
+            parent.set(nb, node);
+            next.push(nb);
+          }
+        }
+        frontier = next;
+      }
+      for (const to of cores) {
+        if (to === from || !seen.has(to)) continue;
+        const chain = [to];
+        let cur = to;
+        while (parent.has(cur)) { cur = parent.get(cur); chain.push(cur); }
+        chain.reverse();
+        out.push({ type: scionLib.PATH_TYPES.CORE, from: from, to: to, hops: chain });
+      }
+    }
+    return out;
+  }
+
+  // Run beaconing over the real peering graph and keep the segment set.
+  computeScion() {
+    const members = this.scionMembers();
+
+    // AS adjacency is the physical topology: a link between two SCION-enabled
+    // devices is a peering between their ASes.
+    const neighbours = [];
+    for (const link of this.topo.links.values()) {
+      const a = this.topo.getDevice(link.a.deviceId);
+      const b = this.topo.getDevice(link.b.deviceId);
+      if (!a || !b || !a.config.scionAs || !b.config.scionAs) continue;
+      const pa = scionLib.parseIsdAs(a.config.scionAs);
+      const pb = scionLib.parseIsdAs(b.config.scionAs);
+      if (!pa.valid || !pb.valid) continue;
+      const ia = scionLib.formatIsdAs(pa.isd, pa.asHex);
+      const ib = scionLib.formatIsdAs(pb.isd, pb.asHex);
+      if (ia === ib) continue;               // same AS: internal, not a peering
+      neighbours.push([ia, ib]);
+    }
+
+    const cores = members.filter(function (m) { return scionLib.isCore(m.id); })
+      .map(function (m) { return m.id; });
+
+    const segments = scionLib.beaconing(cores, neighbours).map(function (s) {
+      return scionLib.createSegment(s);
+    });
+    const coreSegments = this._scionCoreSegments(cores, neighbours);
+    for (const c of coreSegments) segments.push(scionLib.createSegment(c));
+
+    this.scion = {
+      members: members,
+      cores: cores,
+      neighbours: neighbours,
+      segments: segments,
+      coreSegments: coreSegments
+    };
+    return this.scion;
+  }
+
+  // Every path the beaconed segments can compose between two ASes.
+  scionPaths(srcAs, dstAs) {
+    const S = this.computeScion();
+    const paths = [];
+    const failures = [];
+    const add = function (segs) {
+      const p = scionLib.buildPath(segs);
+      if (p.valid) paths.push(p); else failures.push(p);
+    };
+
+    const UP = scionLib.PATH_TYPES.UP;
+    const DOWN = scionLib.PATH_TYPES.DOWN;
+    const ups = S.segments.filter(function (s) { return s.type === UP && s.from === srcAs; });
+    const downs = S.segments.filter(function (s) { return s.type === DOWN && s.to === dstAs; });
+    const cores = S.coreSegments;
+
+    // non-core -> core -> non-core, with or without a core segment in between
+    for (const a of ups) {
+      for (const d of downs) {
+        if (a.to === d.from) add([a, d]);
+        else for (const c of cores) if (c.from === a.to && c.to === d.from) add([a, c, d]);
+      }
+    }
+    // core source
+    if (scionLib.isCore(srcAs)) {
+      for (const d of downs) {
+        if (d.from === srcAs) add([d]);
+        else for (const c of cores) if (c.from === srcAs && c.to === d.from) add([c, d]);
+      }
+    }
+    // core destination
+    if (scionLib.isCore(dstAs)) {
+      for (const a of ups) if (a.to === dstAs) add([a]);
+      if (scionLib.isCore(srcAs)) {
+        for (const c of cores) if (c.from === srcAs && c.to === dstAs) add([c]);
+      }
+    }
+    return { paths: paths, failures: failures, scion: S };
+  }
+
+  selectScionPath(srcAs, dstAs, policy) {
+    const r = this.scionPaths(srcAs, dstAs);
+    return {
+      path: scionLib.selectPath(r.paths, policy),
+      candidates: r.paths,
+      failures: r.failures,
+      scion: r.scion
+    };
+  }
+
+  // Source-routed SCION packet: the path is carried in the packet, and each
+  // hop is an AS. Nothing here consults the IP routing table.
+  pingScion(srcId, dst, opts) {
+    opts = opts || {};
+    this.reset();
+    this.computeScion();
+
+    const src = this.topo.getDevice(srcId);
+    if (!src) throw new Error('Unknown device: ' + srcId);
+    if (!src.config.scionAs) throw new Error(src.name + ' is not a SCION AS');
+
+    const srcAs = src.config.scionAs;
+    const dstAs = this._resolveScionAs(dst);
+    const sel = this.selectScionPath(srcAs, dstAs, opts.policy);
+    const result = {
+      srcAs: srcAs, dstAs: dstAs,
+      candidates: sel.candidates.length,
+      path: sel.path || null
+    };
+
+    if (!sel.path) {
+      let why = 'no beaconed path reaches ' + dstAs;
+      if (sel.failures.length) why = sel.failures[0].error.message + ' [' + sel.failures[0].error.code + ']';
+      this._emit({ type: 'scion-drop', src: srcAs, dst: dstAs, reason: why });
+      result.success = false;
+      result.reason = why;
+      result.events = this.events;
+      result.step = this.step;
+      return result;
+    }
+
+    const hops = scionLib.pathHops(sel.path);
+    this._emit({
+      type: 'scion-path', src: srcAs, dst: dstAs, hops: hops,
+      shape: sel.path.segments.map(function (s) { return s.type; }).join('|'),
+      latencyMs: scionLib.pathLatency(sel.path)
+    });
+
+    let prev = null;
+    for (const hop of hops) {
+      const dev = this._scionDevice(hop);
+      if (!dev) {
+        const why = 'no device in the topology belongs to AS ' + hop;
+        this._emit({ type: 'scion-drop', src: srcAs, dst: dstAs, reason: why });
+        result.success = false; result.reason = why;
+        result.events = this.events; result.step = this.step;
+        return result;
+      }
+      if (prev) {
+        const link = this._linkBetween(prev.id, dev.id);
+        if (!link) {
+          const why = 'no physical interconnect between ' + prev.name + ' and ' + dev.name;
+          this._emit({ type: 'scion-drop', src: srcAs, dst: dstAs, reason: why });
+          result.success = false; result.reason = why;
+          result.events = this.events; result.step = this.step;
+          return result;
+        }
+        this._emit({ type: 'scion-hop', from: prev.name, to: dev.name, as: hop, link: link.id });
+      } else {
+        this._emit({ type: 'scion-hop', from: null, to: dev.name, as: hop, link: null });
+      }
+      prev = dev;
+    }
+
+    this._emit({ type: 'scion-delivered', src: srcAs, dst: dstAs, at: prev ? prev.name : null });
+    result.success = true;
+    result.hops = hops;
+    result.latencyMs = scionLib.pathLatency(sel.path);
+    result.events = this.events;
+    result.step = this.step;
+    return result;
   }
 
   _isBlocked(dev, ifaceName) {

@@ -366,6 +366,13 @@
         ' PSE ports · budget not modelled</span></div>';
     }
 
+    // SCION membership
+    if (d.config && d.config.scionAs) {
+      html += '<div class="kv"><span class="k">SCION</span><span class="mono">' +
+        d.config.scionAs + ' <span class="muted">(' +
+        (/:0$/.test(d.config.scionAs) ? 'core AS' : 'non-core') + ')</span></span></div>';
+    }
+
     // hostname editor
     html += '<div class="field-label">Hostname</div>';
     html += '<input type="text" id="hostname-input" style="width:100%;background:var(--bg-2);border:1px solid var(--border-2);color:var(--text);border-radius:5px;padding:6px 8px" value="' + (d.name || '') + '">';
@@ -704,6 +711,11 @@
         (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
       case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
         ' of [' + (e.members || []).join(', ') + ']';
+      case 'scion-path': return 'SCION ' + (e.src || '') + ' → ' + (e.dst || '') +
+        '  [' + (e.shape || '') + ']  ' + ((e.hops || []).join(' → '));
+      case 'scion-hop': return 'SCION hop → ' + (e.to || '') + '  (AS ' + (e.as || '') + ')';
+      case 'scion-drop': return 'SCION drop  ' + (e.src || '') + ' → ' + (e.dst || '') + ': ' + (e.reason || '');
+      case 'scion-delivered': return 'SCION delivered at ' + (e.at || '');
       case 'nd-request': return 'ND  ' + (e.dev || '') + '/' + (e.iface || '') + '  who has ' +
         (e.target || '') + '  → ' + (e.mac || '');
       case 'nd-advert': return 'ND  ' + (e.dev || '') + ' is-at ' + (e.target || '') + ' ' + (e.mac || '');

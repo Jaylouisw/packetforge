@@ -118,6 +118,18 @@ class CliSession {
       }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
+    } else if (head === 'scion') {
+      const scionLib2 = require('./scion');
+      const parsed = scionLib2.parseIsdAs(tokens[1]);
+      if (!parsed.valid) out.push('% Invalid SCION ISD-AS "' + (tokens[1] || '') + '" (expected e.g. 1-ff00:0:110)');
+      else {
+        this.device.config.scionAs = scionLib2.formatIsdAs(parsed.isd, parsed.asHex);
+        out.push('SCION ' + this.device.config.scionAs +
+          (scionLib2.isCore(this.device.config.scionAs) ? ' (core AS)' : ''));
+      }
+    } else if (head === 'no' && tokens[1] === 'scion') {
+      this.device.config.scionAs = null;
+      out.push('SCION membership removed');
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
     } else if (head === 'ipv6' && tokens[1] === 'gateway') {

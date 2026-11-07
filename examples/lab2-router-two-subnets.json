@@ -31,7 +31,8 @@
         "bgp": null,
         "ip6": {},
         "routes6": [],
-        "gateway6": null
+        "gateway6": null,
+        "scionAs": null
       },
       "interfaces": [
         {
@@ -99,7 +100,8 @@
         "bgp": null,
         "ip6": {},
         "routes6": [],
-        "gateway6": null
+        "gateway6": null,
+        "scionAs": null
       },
       "interfaces": [
         {
@@ -168,7 +170,8 @@
         "bgp": null,
         "ip6": {},
         "routes6": [],
-        "gateway6": null
+        "gateway6": null,
+        "scionAs": null
       },
       "interfaces": [
         {

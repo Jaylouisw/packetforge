@@ -121,7 +121,8 @@ class Device {
       bgp: null,                 // { as, routerId, neighbors: [{ address, remoteAs }] }
       ip6: {},                   // ifaceName -> { addr, prefix }   (global IPv6 addresses)
       routes6: [],               // [{ dest, prefix, nextHop, iface }]
-      gateway6: null             // default IPv6 gateway
+      gateway6: null,            // default IPv6 gateway
+      scionAs: null              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
@@ -439,7 +440,8 @@ class Device {
         bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null,
         ip6: JSON.parse(JSON.stringify(this.config.ip6 || {})),
         routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
-        gateway6: this.config.gateway6 || null
+        gateway6: this.config.gateway6 || null,
+        scionAs: this.config.scionAs || null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -493,6 +495,7 @@ class Device {
         d.config.ip6 = JSON.parse(JSON.stringify(state.config.ip6 || {}));
         d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));
         d.config.gateway6 = state.config.gateway6 || null;
+        d.config.scionAs = state.config.scionAs || null;
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {
