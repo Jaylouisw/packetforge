@@ -1,0 +1,70 @@
+{
+  "vendor": "citrix",
+  "model": "ADC MPX 8905",
+  "label": "Citrix ADC MPX 8905",
+  "category": "firewall",
+  "description": "Citrix ADC MPX 8905 - 1U ADC in the 5 Gbps class: 4x 10G SFP+ fiber ports and 6x 10/100/1000 copper RJ45 data ports, plus a dedicated 1G RJ45 management port.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "0/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "0/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "0/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "0/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "0/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "0/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "0/8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "0/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "0/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

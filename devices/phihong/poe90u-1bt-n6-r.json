@@ -1,0 +1,22 @@
+{
+  "vendor": "phihong",
+  "model": "POE90U-1BT-N6-R",
+  "label": "90W 802.3bt Type 4 managed PoE midspan",
+  "category": "powerline",
+  "description": "SNMP-managed single-port midspan delivering the full 90 W of 802.3bt Type 4 at 56 V/1.6 A over four pairs into a gigabit link, for high-power APs, laptops over PoE and 4K PTZ cameras. It negotiates class 8 power and reports per-port consumption, so the 90 W is only committed after the PD is classified.",
+  "capabilities": [
+    "poe-injector"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

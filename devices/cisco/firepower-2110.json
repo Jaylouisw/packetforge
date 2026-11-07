@@ -1,0 +1,52 @@
+{
+  "vendor": "cisco",
+  "model": "Firepower 2110",
+  "label": "Cisco Firepower 2110 firewall",
+  "category": "firewall",
+  "description": "Cisco Firepower 2110 (FPR-2110) - 1RU branch NGFW for FTD/ASA: 12x 1G RJ45 (Ethernet1/1-1/12) + 4x 1G SFP (Ethernet1/13-1/16) + 1x 1G management, with one network-module slot for 10G/40G or bypass modules. WAN is any Ethernet1/x port - typically Ethernet1/1 on copper or Ethernet1/13 on fiber.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Ethernet1/13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Ethernet1/14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Ethernet1/15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Ethernet1/16",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

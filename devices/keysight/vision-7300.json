@@ -1,0 +1,338 @@
+{
+  "vendor": "keysight",
+  "model": "Vision 7300",
+  "label": "Keysight Vision 7300",
+  "category": "firewall",
+  "description": "Keysight (Ixia) Vision 7300 network packet broker - 7U chassis with six line-module slots (up to 288x 1/10G SFP+ or 96x 40G QSFP+); as modeled, one 48-port 1G/10G SFP+ card and one 16-port 40G QSFP+ card plus a 1G RJ45 management port.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/23",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/24",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/28",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/29",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/30",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/31",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/32",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/33",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/34",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/35",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/36",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/37",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/38",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/39",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/40",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/41",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/42",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/43",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/44",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/45",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/46",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/47",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/48",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2/1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/5",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/6",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/7",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/8",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/9",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/10",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/11",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/12",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/13",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/14",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/15",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2/16",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

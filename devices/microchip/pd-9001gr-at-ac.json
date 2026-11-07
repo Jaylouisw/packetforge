@@ -1,0 +1,24 @@
+{
+  "vendor": "microchip",
+  "model": "PD-9001GR/AT/AC",
+  "label": "802.3at 30W gigabit single-port midspan",
+  "category": "powerline",
+  "description": "Single-port 802.3at midspan that inserts 30 W of PoE+ into one existing gigabit cable run, the standard fix for a lone AP or camera on a non-PoE switch. It classifies the PD per 802.3af/at and backs off to 15.4 W for af devices, so 802.3bt loads are not supported.",
+  "capabilities": [
+    "poe-injector",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

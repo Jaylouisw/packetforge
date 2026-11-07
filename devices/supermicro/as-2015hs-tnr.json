@@ -1,0 +1,20 @@
+{
+  "vendor": "supermicro",
+  "model": "AS-2015HS-TNR",
+  "label": "Hyper A+ AS-2015HS-TNR 2U rack server",
+  "category": "server",
+  "description": "2U single-socket AMD EPYC 9004/9005 Hyper server with no onboard data NICs: the base configuration has only the 1x RJ45 1GbE dedicated BMC LAN port, while data networking comes from the single PCIe 5.0 x16 AIOM slot (OCP NIC 3.0 compatible) plus the optional PCIe slots.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "bmc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

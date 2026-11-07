@@ -1,0 +1,70 @@
+{
+  "vendor": "fs",
+  "model": "FMU-MCA044753",
+  "label": "4-channel CWDM OADM, 1470-1530nm, dual fibre east/west, LC/UPC",
+  "category": "splitter",
+  "description": "4-channel CWDM optical add/drop multiplexer on 1470/1490/1510/1530 nm, dual-fibre east-and-west configuration with two duplex LC/UPC line ports plus an add and a drop port per channel (12 LC/UPC ports). Thin-film-filter design: add/drop insertion loss <2.4 dB, express bypass loss <3.0 dB, adjacent-channel isolation >=30 dB, return loss >=45 dB, passive.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "lineW-in",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lineW-out",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lineE-in",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lineE-out",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "add1470",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "drop1470",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "add1490",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "drop1490",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "add1510",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "drop1510",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "add1530",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "drop1530",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

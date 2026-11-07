@@ -1,0 +1,44 @@
+{
+  "vendor": "huawei",
+  "model": "5G CPE Pro",
+  "label": "Huawei 5G CPE Pro indoor 5G router",
+  "category": "router",
+  "description": "Indoor 5G CPE built on the Balong 5000 modem (5G NR NSA/SA sub-6, 1.6 Gbps LTE fallback) with Wi-Fi 6 dual-band DBDC; the wired side is minimal, just two Gigabit Ethernet ports (one WAN/LAN, one LAN).",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

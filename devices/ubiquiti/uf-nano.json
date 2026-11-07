@@ -1,0 +1,28 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UF-NANO",
+  "label": "UFiber Nano G (UF-NANO)",
+  "category": "ont",
+  "description": "WISP-oriented Ubiquiti UFiber Nano G GPON CPE ONU with a digital status display, one SC/APC GPON WAN port and exactly one GbE RJ45 LAN port, powered by 24V passive PoE; bridging plus routing/NAT and firewall, managed from UISP.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

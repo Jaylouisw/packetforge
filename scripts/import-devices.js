@@ -32,7 +32,10 @@ const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 
   'wireless', 'ptp', 'cloud', 'olt', 'splitter', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
   'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot'];
 const CAPABILITIES = ['cli', 'dhcp-client', 'dhcp-server', 'firewall', 'host', 'http-server',
-  'l2-forward', 'l3-forward', 'nat', 'wireless'];
+  'l2-forward', 'l3-forward', 'nat', 'wireless',
+  // Hardware descriptors. These describe power, not forwarding: they grant no
+  // behaviour, so they cannot make the simulator pretend a box routes.
+  'poe-injector', 'poe-pse', 'poe-pd', 'passive-poe', '802.3af', '802.3at', '802.3bt'];
 // Researchers describe endpoints in the vocabulary of the device, not of this
 // engine ("ipv4-host", "wifi-client"). Map those onto the capabilities the
 // simulator actually implements rather than losing an otherwise good spec.
@@ -75,7 +78,24 @@ function normaliseCapabilities(list) {
 const TYPES = ['ethernet', 'wireless', 'console', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
-const SPEEDS = { '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };
+const SPEEDS = { '8M': 8, '24M': 24, '50M': 50, '200M': 200, '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };
+
+// Levenshtein distance, used only to tell a typo from a descriptive label. Two
+// edits apart is close enough to be a slip of the fingers ("l3-foward"), and far
+// enough that real words like "midspan" stay clear of the closed set.
+function editDistance(a, b) {
+  const s = String(a), t = String(b);
+  const rows = [];
+  for (let i = 0; i <= s.length; i++) rows.push([i]);
+  for (let j = 1; j <= t.length; j++) rows[0][j] = j;
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 1; j <= t.length; j++) {
+      const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+      rows[i][j] = Math.min(rows[i - 1][j] + 1, rows[i][j - 1] + 1, rows[i - 1][j - 1] + cost);
+    }
+  }
+  return rows[s.length][t.length];
+}
 
 function slug(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -96,14 +116,40 @@ function validateSpec(spec) {
 
   // A passive splitter is unpowered and has no software stack, so an empty
   // capability list is correct for it rather than an omission.
-  if (spec.category === 'splitter') {
-    spec.capabilities = Array.isArray(spec.capabilities) ? spec.capabilities : [];
-  } else if (!Array.isArray(spec.capabilities) || !spec.capabilities.length) {
+  // A passive part has no software stack at all, so an empty capability list is the
+  // accurate description of it rather than an omission. That covers splitters and
+  // also inline taps, which are just a splitter for copper.
+  const passive = spec.category === 'splitter' ||
+    /\bpassive\b/i.test(String(spec.description || ''));
+  if (!Array.isArray(spec.capabilities)) spec.capabilities = [];
+  if (!spec.capabilities.length && !passive) {
     errors.push('capabilities must be a non-empty array');
-  } else {
+  } else if (spec.capabilities.length) {
     spec.capabilities = normaliseCapabilities(spec.capabilities);
+    // Capabilities are a CLOSED set because the simulator branches on them: if a
+    // spec says "l3-forward" the box routes, so an unknown string must never be
+    // waved through. But researchers also use this field descriptively ("midspan",
+    // "poe-splitter", "802.3bt-type-3"), and rejecting the whole spec over a label
+    // loses a perfectly good device.
+    //
+    // So: a near-miss of a real capability is a typo and is rejected ("l3-foward"
+    // would silently cost the device its routing); anything else is hardware
+    // description and moves to `role`, which the engine never branches on.
+    const described = [];
+    const kept = [];
     for (const c of spec.capabilities) {
-      if (CAPABILITIES.indexOf(c) === -1) errors.push('unknown capability "' + c + '"');
+      if (CAPABILITIES.indexOf(c) !== -1) { kept.push(c); continue; }
+      const near = CAPABILITIES.filter(function (k) { return editDistance(c, k) <= 2; });
+      if (near.length) {
+        errors.push('capability "' + c + '" looks like a typo of "' + near[0] + '"');
+      } else {
+        described.push(c);
+      }
+    }
+    spec.capabilities = kept;
+    if (described.length) {
+      // Keep the description, just not in the field the simulator branches on.
+      spec.role = described;
     }
   }
 

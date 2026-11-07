@@ -1,0 +1,20 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkSystem SR665 V3",
+  "label": "ThinkSystem SR665 V3 2U rack server",
+  "category": "server",
+  "description": "2U two-socket AMD EPYC rack server whose base configuration has only the dedicated 1GbE RJ-45 XCC systems-management port; the optional OCP 3.0 module adds 2 or 4 Ethernet ports and up to 12 PCIe 5.0 slots remain free for stand-up adapters.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "xcc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

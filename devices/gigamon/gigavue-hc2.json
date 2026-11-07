@@ -1,0 +1,168 @@
+{
+  "vendor": "gigamon",
+  "model": "GigaVUE-HC2",
+  "label": "Gigamon GigaVUE-HC2",
+  "category": "firewall",
+  "description": "Gigamon GigaVUE-HC2 packet broker - 2RU chassis with four front module bays (more than 1 Tbps aggregate); as modeled it carries one PRT-HC0-X24 (24x 1G/10G SFP+ fiber) and one PRT-HC0-Q06 (6x 40G QSFP+ fiber) module plus a 1G RJ45 management port.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x23",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x24",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "q1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q5",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "q6",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "_comment": "Hardware defects that are known, tracked in GitHub, and not yet fixed. Each entry must cite its issue. tests fail on anything NOT listed here, and fail again if a listed device is fixed but not removed - so this file can only shrink.",
+  "opticsWithoutCage": [
+    "a10/Thunder 3030S",
+    "citrix/ADC MPX 8905",
+    "f5/BIG-IP i2800",
+    "fortinet/FortiGate 200G",
+    "kemp/LoadMaster LM-4000",
+    "radware/Alteon 5208",
+    "adtran/Total Access 1148V",
+    "calix/C7",
+    "calix/E3-48C",
+    "huawei/MA5616",
+    "nokia/7302 ISAM",
+    "nokia/7330 ISAM FTTN",
+    "truenas/R50"
+  ]
+}

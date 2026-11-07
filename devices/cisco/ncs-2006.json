@@ -1,0 +1,194 @@
+{
+  "vendor": "cisco",
+  "model": "NCS 2006",
+  "label": "Network Convergence System 2006",
+  "category": "switch",
+  "description": "6RU DWDM shelf of the NCS 2000 series with eight card slots: two for TNC/TSC controllers and six for line cards, plus ROADM, amplifier and OTDR modules; part of multishelf nodes of up to 50 shelves. Modelled with three double-slot 400G-XP-LC cards: per card six QSFP+ 10G client ports, four QSFP28 100G client ports and two 200G CFP2 coherent trunk (line) ports, i.e. 18x 10G and 12x 100G client ports plus 6 line ports modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "c1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c1/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c1/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c1/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c1/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c2/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c2/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c2/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c2/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c2/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c3/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "c3/7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c3/8",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c3/9",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c3/10",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

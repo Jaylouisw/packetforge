@@ -1,0 +1,20 @@
+{
+  "vendor": "fs",
+  "model": "MEMS VOA 0-30dB LC/UPC",
+  "label": "Single-channel MEMS variable optical attenuator, 0-30dB, LC/UPC",
+  "category": "splitter",
+  "description": "Single-channel MEMS variable optical attenuator plug-in card with 0-30 dB continuously adjustable attenuation in 0.1 dB steps, LC/UPC in and out ports, for padding a DWDM span so a receiver sits in its window without touching the amplifier gain. Self insertion loss <=1.5 dB at 0 dB setting, return loss >=50 dB, isolation >=30 dB, wavelength range 1290-1330 / 1525-1568 nm; the card itself is controlled from the managed chassis.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "out",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

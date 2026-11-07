@@ -1,0 +1,84 @@
+{
+  "vendor": "zhone",
+  "model": "MXK-194",
+  "label": "MXK-194 1U GPON OLT",
+  "category": "olt",
+  "description": "Zhone (now DZS) MXK-194 1U SLMS GPON OLT with a fixed 4-port GPON line-card set (Class B+/C+ optics, 64 ONTs per port, 256 ONTs per box) plus 8 FE/GE ports and the optional 2x 10GE SFP+ uplinks. EAPS/RSTP/LAG and 1588v2/SyncE timing are supported on the uplinks.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "gpon1",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon2",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon3",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon4",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "xge1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

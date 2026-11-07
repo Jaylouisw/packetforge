@@ -1,0 +1,54 @@
+{
+  "vendor": "tp-link",
+  "model": "Deco BE85",
+  "label": "TP-Link Deco BE85",
+  "category": "router",
+  "description": "BE22000 tri-band Wi-Fi 7 mesh (2.4 GHz 1376, 5 GHz 8640, 6 GHz 11520 Mbps) that bonds all three bands with MLO instead of a separate backhaul radio. Two 10G ports (one RJ45, one Ethernet/fibre combo) plus two 2.5G ports per unit, any of which can carry 10G or 2.5G wired backhaul.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "10g-wanlan",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10g-combo",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2.5g1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "2.5g2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "10G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "10G"
+    }
+  ]
+}

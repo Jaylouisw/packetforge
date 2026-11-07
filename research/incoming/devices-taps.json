@@ -2970,7 +2970,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },
@@ -2980,7 +2980,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },
@@ -2990,7 +2990,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },
@@ -3000,7 +3000,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },
@@ -3010,7 +3010,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },
@@ -3020,7 +3020,7 @@
         "speed": "40G",
         "connector": "qsfp+",
         "speedCaps": [
-          40000,
+          10000,
           40000
         ]
       },

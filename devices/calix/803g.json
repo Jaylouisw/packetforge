@@ -1,0 +1,23 @@
+{
+  "vendor": "calix",
+  "model": "803G",
+  "label": "803G GigaPoint GPON ONT",
+  "category": "ont",
+  "description": "Calix 803G GigaPoint indoor small-form-factor GPON SFU (2.5 Gbps downstream) with one GE port and one POTS port on a single SC/APC PON uplink. Data plus lifeline voice, no WiFi and no routing.",
+  "capabilities": [
+    "host",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

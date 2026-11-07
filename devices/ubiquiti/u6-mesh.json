@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6 Mesh",
+  "label": "UniFi U6 Mesh",
+  "category": "wireless",
+  "description": "Wi-Fi 6 mesh access point: 4x4 5 GHz plus 2x2 2.4 GHz, meshing on the 5 GHz client radio because there is no dedicated backhaul radio. Single GbE RJ45 uplink fed by 802.3af PoE (12.95 W), IPX5 housing for indoor/outdoor mounting.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

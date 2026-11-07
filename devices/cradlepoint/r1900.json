@@ -1,0 +1,55 @@
+{
+  "vendor": "cradlepoint",
+  "model": "R1900",
+  "label": "Cradlepoint R1900 ruggedized 5G router",
+  "category": "router",
+  "description": "Ruggedized in-vehicle 5G router with a 5G NR FR1 modem that drops to Cat 20 LTE outside 5G coverage, dual-band Wi-Fi 6, and four GbE ports that are all switchable between LAN and WAN roles.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

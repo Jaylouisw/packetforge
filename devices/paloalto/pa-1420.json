@@ -1,0 +1,187 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-1420",
+  "label": "Palo Alto PA-1420 firewall",
+  "category": "firewall",
+  "description": "Palo Alto Networks PA-1420 - branch-class ML-powered NGFW: 12x copper (4x 1G + 8x 1G/2.5G/5G, four of them PoE) + 2x 1G SFP + 8x 1G/10G SFP/SFP+ + dedicated HSCI 10G HA port and 1G management. WAN is any ethernet1/x port (typically ethernet1/1-1/4 copper or the SFP+ ports 1/15-1/22).",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "ethernet1/5",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/6",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/7",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/8",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/9",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/10",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/11",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ethernet1/12",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "ha1-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-b",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "management",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ethernet1/14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ethernet1/15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/17",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/18",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/19",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/20",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/21",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ethernet1/22",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "hsci",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

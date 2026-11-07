@@ -1,0 +1,37 @@
+{
+  "vendor": "cisco",
+  "model": "N9K-C9364C",
+  "label": "Cisco Nexus 9364C",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 9364C 2RU fixed spine: 64x 40/100G QSFP28 fabric ports plus 2x 1/10G SFP+ supervisor ports, 12.8 Tbps. Breakout on every QSFP28 yields up to 256x 25G or 128x 50G.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 64,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/65",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "Ethernet1/66",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "poe-texas",
+  "model": "GAF-12V12W",
+  "label": "802.3af to 12V DC gigabit PoE splitter",
+  "category": "powerline",
+  "description": "Inline splitter that accepts 802.3af PoE on one RJ45 and hands out clean 12 VDC at 1 A (12 W) on a 2.1x5.5 mm barrel while passing gigabit data through to the device. It lets a 12V-only camera or media player run from a PoE switch; it draws standard af power, so it works on any compliant PSE but not on a passive injector.",
+  "capabilities": [
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "poe_in",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

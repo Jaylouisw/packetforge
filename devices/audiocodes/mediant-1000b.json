@@ -1,0 +1,30 @@
+{
+  "vendor": "audiocodes",
+  "model": "Mediant 1000B",
+  "label": "Mediant 1000B modular voice gateway / eSBC",
+  "category": "modem",
+  "description": "Modular 19-inch voice gateway and eSBC whose six telephony slots take 4-port FXS, FXO or BRI modules (up to 24 FXS, 24 FXO or 20 BRI ports) alongside three 10/100/1000BASE-T LAN ports on the CRMX module, expandable to seven with SWX LAN expansion modules.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ge0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

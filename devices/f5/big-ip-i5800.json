@@ -1,0 +1,80 @@
+{
+  "vendor": "f5",
+  "model": "BIG-IP i5800",
+  "label": "BIG-IP i5800",
+  "category": "firewall",
+  "description": "F5 BIG-IP i5800 - 1U iSeries ADC in the 40 Gbps class: 8x 10G SFP+ and 4x 40G QSFP+ fiber cages with a single 1G RJ45 management port and no copper data ports.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "1.1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1.8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2.1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2.2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2.3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2.4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

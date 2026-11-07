@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R360",
+  "label": "PowerEdge R360 1U rack server",
+  "category": "server",
+  "description": "1U single-socket rack server with 2x 1GbE LOM ports on the system board (port 1 doubles as the local management port) plus a separate dedicated 1GbE iDRAC Ethernet port; the two PCIe slots take optional 4x 1GbE or 2x/4x 10GbE network cards.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

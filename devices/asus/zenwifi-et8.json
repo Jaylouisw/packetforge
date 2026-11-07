@@ -1,0 +1,54 @@
+{
+  "vendor": "asus",
+  "model": "ZenWiFi ET8",
+  "label": "ASUS ZenWiFi ET8 (AXE6600)",
+  "category": "router",
+  "description": "ZenWiFi ET8 AXE6600 tri-band Wi-Fi 6E mesh: 574 Mbps on 2.4 GHz, 1201 Mbps on 5 GHz and 4804 Mbps on 6 GHz, with the 6 GHz band usable as the dedicated wireless backhaul (radio2). One 2.5G WAN plus three GbE LAN per unit - the 2.5G port is the only multi-gig link and can be reassigned to LAN/backhaul.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

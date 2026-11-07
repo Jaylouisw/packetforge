@@ -1,0 +1,60 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 20X",
+  "label": "Peplink Balance 20X SD-WAN router",
+  "category": "router",
+  "description": "Small-branch SpeedFusion SD-WAN router whose embedded modem is LTE Cat 4 (Cat 6/7/18/20 and 5G arrive only via the FlexModule Mini slot), with 1x GE WAN, 4x GE LAN and dual-band Wi-Fi 5.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "vendor": "billion",
+  "model": "BiPAC 8800NL R2",
+  "label": "Billion BiPAC 8800NL R2 Wireless-N VDSL2/ADSL2+ router",
+  "category": "modem",
+  "description": "VDSL2 (profiles up to 17a, 100 Mbit/s down / 50 Mbit/s up) and ADSL2+ firewall router with a 2.4 GHz 802.11n access point at 300 Mbit/s, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a fifth gigabit port that works as LAN 5 or as an EWAN uplink.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ]
+}

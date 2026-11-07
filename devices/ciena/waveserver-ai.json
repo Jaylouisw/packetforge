@@ -1,0 +1,54 @@
+{
+  "vendor": "ciena",
+  "model": "Waveserver Ai",
+  "label": "Waveserver Ai DCI platform",
+  "category": "switch",
+  "description": "1RU coherent data-centre-interconnect platform with three pluggable Waveserver modules, 2.4 Tb/s of client capacity plus 2.4 Tb/s of line capacity. Modelled with three 2x400G modules: 24x 100GbE QSFP28 client ports and 6 line ports (2 per module) each carrying a single-carrier 200G/300G/400G wavelength, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

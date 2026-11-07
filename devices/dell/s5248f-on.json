@@ -1,0 +1,58 @@
+{
+  "vendor": "dell",
+  "model": "S5248F-ON",
+  "label": "Dell PowerSwitch S5248F-ON",
+  "category": "l3-switch",
+  "description": "Dell PowerSwitch S5200-ON series 1RU 25G ToR: 48x 25G SFP28 server ports, 4x 100G QSFP28 uplinks and 2x QSFP28-DD double-density cages carrying 2x 100G each, 2.0 Tbps. All 100G cages break out to 4x 25G or 2x 50G; ships with ONIE for OS10 or SONiC.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "ethernet1/1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "ethernet1/1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "ethernet1/1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "ethernet1/1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "ethernet1/1/53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "ethernet1/1/54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

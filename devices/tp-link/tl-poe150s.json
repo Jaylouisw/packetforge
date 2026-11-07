@@ -1,0 +1,23 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-PoE150S",
+  "label": "802.3af 15.4W gigabit PoE injector",
+  "category": "powerline",
+  "description": "IEEE 802.3af-compliant single-port injector that auto-detects the powered device and delivers up to 15.4 W at 48V over gigabit Ethernet. Because it performs real af detection/classification it powers standard PoE cameras and APs safely, but it cannot feed 802.3at 25.5W loads.",
+  "capabilities": [
+    "poe-injector",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

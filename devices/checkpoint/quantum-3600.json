@@ -1,0 +1,32 @@
+{
+  "vendor": "checkpoint",
+  "model": "Quantum 3600",
+  "label": "Check Point Quantum 3600 firewall",
+  "category": "firewall",
+  "description": "Check Point Quantum 3600 - small-office/desktop security gateway (780 Mbps threat prevention, 1.5 Gbps NGFW, 3.3 Gbps firewall): 5x 1GbE RJ45 data ports + 1x 1GbE RJ45 management port; no SFP cages. WAN is any of the 5 copper data ports (typically eth1).",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "eth",
+    "start": 1,
+    "count": 5,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

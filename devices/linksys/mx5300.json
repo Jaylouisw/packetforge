@@ -1,0 +1,59 @@
+{
+  "vendor": "linksys",
+  "model": "MX5300",
+  "label": "Linksys Velop MX5300 (MX5 Velop AX)",
+  "category": "router",
+  "description": "Velop MX5 tri-band Wi-Fi 6 (AX5300): a 2.4 GHz radio, a 4x4 5 GHz client radio at 2402 Mbps and a second 4x4 5 GHz radio at 1733 Mbps used as the mesh backhaul (radio2). Five GbE ports (one WAN, four LAN), all gigabit - this model has no 2.5G port.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

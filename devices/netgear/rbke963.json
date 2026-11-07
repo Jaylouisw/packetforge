@@ -1,0 +1,64 @@
+{
+  "vendor": "netgear",
+  "model": "RBKE963",
+  "label": "NETGEAR Orbi RBKE963 (RBRE960 + 2x RBSE960)",
+  "category": "router",
+  "description": "Orbi 960 quad-band Wi-Fi 6E (AXE11000): 2.4, 5 and 6 GHz serve clients while a fourth, dedicated 5 GHz radio (radio3) is the mesh backhaul to the satellites. The RBRE960 router has a 10G Internet port, one 2.5G LAN and three GbE LAN; each RBSE960 satellite has a 2.5G LAN port that can also take wired backhaul.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2.5g-lan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5G"
+    },
+    {
+      "name": "radio3",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

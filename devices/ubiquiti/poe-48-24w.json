@@ -1,0 +1,23 @@
+{
+  "vendor": "ubiquiti",
+  "model": "POE-48-24W",
+  "label": "48V 24W gigabit passive PoE injector",
+  "category": "powerline",
+  "description": "Passive 48 VDC / 0.5 A (24 W) gigabit injector for Ubiquiti gear that expects always-on 48V on the spare pairs (older airMAX, UniFi APs, airFiber links). It is not 802.3af/at: there is no handshake, so a standards-compliant PD that waits for detection will never power up from it.",
+  "capabilities": [
+    "poe-injector",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

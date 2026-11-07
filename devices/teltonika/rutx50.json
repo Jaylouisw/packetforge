@@ -1,0 +1,60 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTX50",
+  "label": "Teltonika RUTX50 industrial 5G router",
+  "category": "router",
+  "description": "Industrial 5G router running 5G sub-6 GHz SA/NSA with dual-SIM 4G Cat 20 fallback; the wired side is five Gigabit Ethernet ports (1x WAN, re-taskable as LAN, plus 4x LAN) alongside dual-band Wi-Fi 5 at up to 867 Mbps.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

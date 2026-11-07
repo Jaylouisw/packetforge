@@ -1,0 +1,50 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT956",
+  "label": "Teltonika RUT956 industrial 4G router",
+  "category": "router",
+  "description": "Industrial 4G LTE Cat 4 router with 3G/2G fallback, dual SIM and GNSS, aimed at serial/RS-485 M2M sites; four Fast Ethernet ports (1x WAN + 3x LAN, 10/100 Mbps) and a single 2.4 GHz Wi-Fi 4 access point - no gigabit copper at all.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

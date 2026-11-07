@@ -1,0 +1,44 @@
+{
+  "vendor": "fujitsu",
+  "model": "1FINITY T600",
+  "label": "1FINITY T600 transport blade",
+  "category": "switch",
+  "description": "1RU disaggregated DCI transponder/muxponder blade with two pluggable PIUs, 2.4 Tb/s per blade and software-provisioned line rates from 200G to 600G on a single wavelength. Modelled fully equipped: 24x 100GbE QSFP28 client ports (12 per PIU) and 4x fixed coherent line ports at 200G-600G, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

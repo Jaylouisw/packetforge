@@ -1,0 +1,23 @@
+{
+  "vendor": "microchip",
+  "model": "PD-9501GCO",
+  "label": "60W 802.3bt outdoor single-port midspan",
+  "category": "powerline",
+  "description": "Weatherproof single-port midspan that injects 60 W of 802.3bt (Type 3) power into a gigabit link, made for pole- or wall-mounted cameras and radios. It performs full bt detection, so it powers standards-based 60W PDs and refuses passive 24V/48V devices.",
+  "capabilities": [
+    "poe-injector",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

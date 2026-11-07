@@ -1,0 +1,70 @@
+{
+  "vendor": "radware",
+  "model": "Alteon 5208",
+  "label": "Radware Alteon 5208",
+  "category": "firewall",
+  "description": "Radware Alteon 5208 - 1U ADC with 6/12/26 Gbps licensed throughput, 8x 1G RJ45 copper data ports and 2x 10G SFP+ fiber ports, plus a 1G RJ45 management port.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

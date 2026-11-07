@@ -35,6 +35,20 @@ class Interface {
     this.comboWith = spec.comboWith || null;   // sibling interface name
     this.comboRole = spec.comboRole || null;   // 'rj45' | 'sfp'
 
+    // Port role. Plenty of hardware ships a cage that is either a WAN or a LAN
+    // port depending on how you configure it (a consumer router's 10G combo, a
+    // firewall's "DMZ or LAN" pair). `dualRole` lists what the port may become and
+    // `role` is what it currently is; a port with no dualRole just has a fixed role
+    // or none at all.
+    this.role = spec.role || null;             // 'wan' | 'lan'
+    this.dualRole = spec.dualRole || null;     // e.g. ['wan', 'lan']
+
+    // Bridge group: the ports of an internal switch chip all reach the same L3
+    // interface. On a consumer router the eight LAN sockets are one switch, so an
+    // address configured on "the LAN" answers on every one of them - it is not
+    // eight separate addresses. Ports sharing a group name share an address.
+    this.bridgeGroup = spec.bridgeGroup || null;   // e.g. 'lan'
+
     // L2 configuration (802.1Q)
     this.vlan = {
       mode: 'access',         // 'access' | 'trunk'
@@ -211,6 +225,71 @@ class Device {
     }
     return null;
   }
+
+  // Which interface answers for an address, seen from the port a frame arrived on.
+  //
+  // An address lives on exactly one interface, but an internal switch chip means it
+  // is reachable from every port in that bridge group - the eight LAN sockets of a
+  // router are one broadcast domain with one router address, not eight. So a reply
+  // must leave by the port the request came in on, otherwise a host on lan3 never
+  // hears back from an address configured on lan1.
+  // Callers pass either an Interface or a port name depending on the layer, so
+  // resolve both rather than making every call site remember which it holds.
+  resolveIface(x) {
+    if (!x) return null;
+    if (typeof x === 'string') return this.interfaces.get(x) || null;
+    if (x.name && this.interfaces.has(x.name)) return this.interfaces.get(x.name);
+    return null;
+  }
+
+  ownsIpOn(incomingIface, ip) {
+    const owner = this.interfaceWithIp(ip);
+    if (!owner) return null;
+    const inIface = this.resolveIface(incomingIface);
+    if (!inIface || owner.name === inIface.name) return owner;
+
+    // Router-on-a-stick: the address lives on a tagged subinterface, and the frames
+    // that reach it arrive on that subinterface's parent port.
+    if (owner.parent && owner.parent === inIface.name) return owner;
+
+    // WAN and LAN are separate L3 surfaces. A router's LAN address is not reachable
+    // from its WAN port - that is what NAT is for - so role separation outranks the
+    // VLAN shortcut below.
+    if (owner.role && inIface.role && owner.role !== inIface.role) return null;
+
+    // A switch's management address belongs to a VLAN, not to a socket, so any port
+    // in that same access VLAN can reach it. Scoped to access ports on both sides:
+    // a router subinterface is a tagged logical interface, and answering a tagged
+    // frame from an untagged port (or vice versa) would put traffic on the wrong VLAN
+    // entirely, which is worse than being unreachable.
+    const bothPhysical = !owner.parent && !inIface.parent;
+    const ownerAccess = owner.vlan && owner.vlan.mode !== 'trunk';
+    const inAccess = inIface.vlan && inIface.vlan.mode !== 'trunk';
+    if (bothPhysical && ownerAccess && inAccess &&
+        typeof this.isL2 === 'function' && this.isL2()) {
+      const ov = Number(owner.vlan && owner.vlan.accessVlan) || 1;
+      const iv = Number(inIface.vlan && inIface.vlan.accessVlan) || 1;
+      if (ov === iv) return owner;
+    }
+
+    // A router's LAN sockets are one switch chip with one address: every port in the
+    // group reaches it, and a reply leaves by the port that asked.
+    if (owner.bridgeGroup && inIface.bridgeGroup &&
+        owner.bridgeGroup === inIface.bridgeGroup) {
+      return owner;
+    }
+    return null;
+  }
+
+  // The interface that represents a bridge group for configuration purposes: the
+  // first member, so "the LAN address" has one obvious home.
+  bridgeGroupRep(group) {
+    for (const iface of this.interfaces.values()) {
+      if (iface.bridgeGroup === group) return iface;
+    }
+    return null;
+  }
+
 
   hasCap(c) { return this.capabilities.indexOf(c) !== -1; }
   isHost() { return this.hasCap('host'); }
@@ -497,6 +576,11 @@ class Device {
             allowedVlans: i.vlan.allowedVlans
           },
           lagId: i.lagId,
+          // port role: a dual-purpose cage can be WAN or LAN, and a bridge group
+          // tells the UI which ports share one switch chip and therefore one address
+          role: i.role || null,
+          dualRole: i.dualRole || null,
+          bridgeGroup: i.bridgeGroup || null,
           // router subinterface (null for physical ports)
           parent: i.parent || null,
           encapVid: i.encapVid || null
@@ -548,6 +632,9 @@ class Device {
           iface.description = is.description || '';
           if (is.duplex) iface.duplex = is.duplex;
           if (is.lagId !== undefined) iface.lagId = is.lagId || null;
+          if (is.role !== undefined) iface.role = is.role || null;
+          if (is.dualRole !== undefined) iface.dualRole = is.dualRole || null;
+          if (is.bridgeGroup !== undefined) iface.bridgeGroup = is.bridgeGroup || null;
           if (is.vlan && typeof is.vlan === 'object') {
             iface.vlan = {
               mode: is.vlan.mode === 'trunk' ? 'trunk' : 'access',

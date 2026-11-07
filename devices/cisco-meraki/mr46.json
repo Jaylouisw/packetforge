@@ -1,0 +1,30 @@
+{
+  "vendor": "cisco-meraki",
+  "model": "MR46",
+  "label": "Cisco Meraki MR46",
+  "category": "wireless",
+  "description": "Cloud-managed dual-radio 802.11ax AP with 4x4:4 on both 2.4 and 5 GHz (2.98 Gbps aggregate), plus dedicated WIDS/WIPS and BLE radios. It has a single 100/1000/2.5GBASE-T RJ45 port with 802.3at PoE-in and two client-serving radios (2.4 and 5 GHz).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ]
+}

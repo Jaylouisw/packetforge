@@ -1,0 +1,26 @@
+{
+  "vendor": "cisco",
+  "model": "N9K-C9336C-FX2",
+  "label": "Cisco Nexus 9336C-FX2",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 9300-FX2 1RU fixed spine/spline: 36x 40/100G QSFP28 ports, 7.2 Tbps. Every port supports breakout to 4x 10/25G or 2x 50G, giving up to 144x 25G.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 36,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": []
+}

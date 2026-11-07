@@ -1,0 +1,165 @@
+{
+  "vendor": "calix",
+  "model": "C7",
+  "label": "C7 multiservice access platform (ADSL2-24 card)",
+  "category": "olt",
+  "description": "Calix C7 multiservice access platform with 20 universal line-card slots (up to 2,400 ADSL lines per 7-foot bay). Counted here: one ADSL2-24 plug-in card (ports 1/1-1/24, 24 Mbps ADSL2+/Annex M, G.992.5, ATM PVC per line over rear RJ-21) plus the GE-2p/FE-4p uplink card 2x GE SFP optical + 4x 10/100BaseT = 30 ports. VDSL2 builds use the E3-48C style 48-port combo cards.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1/1",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/2",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/3",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/4",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/5",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/6",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/7",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/8",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/9",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/10",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/11",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/12",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/13",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/14",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/15",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/16",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/17",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/18",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/19",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/20",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/21",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/22",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/23",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1/24",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "fe1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "fe2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "fe3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "fe4",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

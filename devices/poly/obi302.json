@@ -1,0 +1,24 @@
+{
+  "vendor": "poly",
+  "model": "OBi302",
+  "label": "OBi302 2-port FXS ATA",
+  "category": "modem",
+  "description": "Small-office analog telephone adapter with 2 RJ-11 FXS ports registering up to 4 SIP/OBiTALK services, connected through two 10/100BASE-T Ethernet ports (Internet plus a LAN passthrough).",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

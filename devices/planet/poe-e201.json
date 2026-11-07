@@ -1,0 +1,23 @@
+{
+  "vendor": "planet",
+  "model": "POE-E201",
+  "label": "Gigabit 802.3af/at PoE extender (100m per hop)",
+  "category": "powerline",
+  "description": "Two-port inline extender with a PoE IN and a PoE OUT jack that regenerates both gigabit data and 802.3af/at power for another 100 m, chainable up to 500 m. It passes the PSE's negotiated power through with a small loss rather than creating a new budget, so downstream watts come out of the upstream switch port.",
+  "capabilities": [
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "poe_in",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe_out",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

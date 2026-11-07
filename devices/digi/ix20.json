@@ -1,0 +1,33 @@
+{
+  "vendor": "digi",
+  "model": "IX20",
+  "label": "Digi IX20 industrial 4G router",
+  "category": "router",
+  "description": "Compact DIN-rail industrial router on 4G LTE Cat 4 (Cat 7 and LTE-M/NB-IoT order codes share the chassis), with RS-232 and only two 10/100 Mbps Ethernet ports - no gigabit and no Wi-Fi radio.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

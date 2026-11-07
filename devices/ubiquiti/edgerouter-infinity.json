@@ -1,0 +1,63 @@
+{
+  "vendor": "ubiquiti",
+  "model": "EdgeRouter Infinity",
+  "label": "EdgeRouter Infinity ER-8-XG",
+  "category": "router",
+  "description": "1 RU EdgeOS router with an 80 Gbps aggregate forwarding capacity from a 16-core 1.8 GHz CPU and 16 GB DDR4: eight 10G SFP+ cages (eth1-eth8) plus a single 1G RJ-45 port (eth0), with no module slots. Aimed at ISP aggregation and 10G branch uplinks.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

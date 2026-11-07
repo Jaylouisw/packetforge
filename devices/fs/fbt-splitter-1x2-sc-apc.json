@@ -1,0 +1,25 @@
+{
+  "vendor": "fs",
+  "model": "FBT Splitter 1x2 SC/APC",
+  "label": "1x2 FBT fibre coupler, 50:50, SC/APC",
+  "category": "splitter",
+  "description": "1x2 fused-biconical-taper coupler, 50:50 split, dual-window 1310/1490 nm, SC/APC connectors on the common and both leg ports. Insertion loss <=3.9 dB per leg with connectors (3.6 dB bare fibre + 0.3 dB connector allowance), return loss >=55 dB (APC), PDL <=0.1 dB, bidirectional and unpowered.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "out1",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "out2",
+      "type": "pon",
+      "speed": "2.5G"
+    }
+  ]
+}

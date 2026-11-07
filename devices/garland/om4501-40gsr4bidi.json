@@ -1,0 +1,30 @@
+{
+  "vendor": "garland",
+  "model": "OM4501-40GSR4BiDi",
+  "label": "OM4501 40G-SR4 BiDi passive multimode fibre TAP (1 tap, 50/50, MTP)",
+  "category": "firewall",
+  "description": "Passive 40G tap for OM4 multimode: two MTP/MPO network ports carry the bidirectional 40GBASE-SR4 link through unpowered and two MTP/MPO monitor ports deliver the 50/50 copies. Pure optical split, no power and no management interface.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "speed": "40G"
+    }
+  ]
+}

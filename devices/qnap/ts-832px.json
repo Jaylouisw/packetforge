@@ -1,0 +1,35 @@
+{
+  "vendor": "qnap",
+  "model": "TS-832PX",
+  "label": "QNAP TS-832PX 8-bay desktop NAS with 10GbE",
+  "category": "nas",
+  "description": "8-bay desktop NAS with 2x 2.5GbE RJ-45 ports plus 2x 10GbE SFP+ ports on board, and no dedicated management port - QTS is managed in-band over any of the data ports.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "vendor": "paloalto",
+  "model": "PA-3410",
+  "label": "Palo Alto PA-3410 firewall",
+  "category": "firewall",
+  "description": "Palo Alto Networks PA-3410 - campus/aggregation-class NGFW: 12x 1G/2.5G/5G/10G copper + 10x 1G/10G SFP/SFP+ + 4x 25G SFP28, plus dedicated HSCI 10G HA port, 1G management and a/b HA copper ports. WAN is any ethernet1/x (commonly the copper 1/1-1/4 or the SFP+/SFP28 uplinks 1/13-1/26).",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "ethernet1/",
+    "start": 1,
+    "count": 12,
+    "type": "ethernet",
+    "speed": "10G"
+  },
+  "interfaces": [
+    {
+      "name": "ha1-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha1-b",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "management",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ethernet1/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ethernet1/23",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ethernet1/24",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ethernet1/25",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ethernet1/26",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "hsci",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

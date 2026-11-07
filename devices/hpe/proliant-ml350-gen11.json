@@ -1,0 +1,40 @@
+{
+  "vendor": "hpe",
+  "model": "ProLiant ML350 Gen11",
+  "label": "HPE ProLiant ML350 Gen11 4U tower server",
+  "category": "server",
+  "description": "4U two-socket tower server with no embedded LOM: the default configuration carries a Broadcom BCM5719 1Gb 4-port BASE-T OCP 3.0 adapter plus a dedicated 1GbE iLO 6 management port, and a second OCP 3.0 slot plus up to 10 PCIe 5.0 slots stay free for faster NICs.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ilo",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

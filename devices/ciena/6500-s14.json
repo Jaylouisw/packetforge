@@ -1,0 +1,85 @@
+{
+  "vendor": "ciena",
+  "model": "6500-S14",
+  "label": "6500 Packet-Optical Platform (S14 shelf)",
+  "category": "switch",
+  "description": "Ciena 6500 packet-optical platform in the 13RU, 14-slot S14 shelf: a single converged shelf for TDM, packet, OTN and coherent DWDM, 100G to 500G per slot, 96 C-band wavelengths and up to 19.2 Tb/s per system. Modelled configuration: 4x 200G coherent line cards (line1-line4, line side) each paired with its 100G/10G client card, giving 4 line ports at 200G (modelled at this engine's 100G ceiling), 8x 100GbE QSFP28 client ports and 20x 10G SFP+ client ports.",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "c10g",
+    "start": 1,
+    "count": 20,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "c100g8",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

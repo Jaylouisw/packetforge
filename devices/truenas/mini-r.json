@@ -1,0 +1,30 @@
+{
+  "vendor": "truenas",
+  "model": "Mini R",
+  "label": "TrueNAS Mini R 12-bay rackmount NAS",
+  "category": "nas",
+  "description": "12-bay rackmount NAS with 2x RJ-45 1/10GBase-T Ethernet LAN ports as standard plus a dedicated RJ45 IPMI port for out-of-band hardware management.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "enp1s0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "enp2s0",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

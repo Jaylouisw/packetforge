@@ -1,0 +1,181 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiADC 1000F",
+  "label": "FortiADC 1000F",
+  "category": "firewall",
+  "description": "Fortinet FortiADC 1000F - 1U ADC in the 40 Gbps class: 8x 1G SFP fiber (ports 1-8), 8x 1G RJ45 copper (ports 9-16), 4x 10G SFP+ fiber (ports 17-20) and a dedicated 1G RJ45 management port.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "firewall",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

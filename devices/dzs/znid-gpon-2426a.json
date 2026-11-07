@@ -1,0 +1,48 @@
+{
+  "vendor": "dzs",
+  "model": "ZNID-GPON-2426A",
+  "label": "ZNID-GPON-2426A GPON ONT",
+  "category": "ont",
+  "description": "DZS ZNID-GPON-2426A residential GPON/Active-Ethernet gateway: four GE LAN ports, two POTS ports and a single 2x2 2.4 GHz 802.11n radio, fed by one SC/APC GPON port. Routing, NAT and a local web UI are included.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ]
+}

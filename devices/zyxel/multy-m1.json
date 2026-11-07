@@ -1,0 +1,49 @@
+{
+  "vendor": "zyxel",
+  "model": "Multy M1",
+  "label": "Zyxel Multy M1 (WSM20)",
+  "category": "router",
+  "description": "Multy M1 AX1800 dual-band Wi-Fi 6 mesh node: 2x2 2.4 GHz at 574 Mbps and 2x2 5 GHz at 1201 Mbps, meshing on the 5 GHz client radio with no dedicated backhaul radio. Four GbE ports per unit (one WAN plus three LAN) and no multi-gig port.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

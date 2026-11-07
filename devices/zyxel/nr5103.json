@@ -1,0 +1,44 @@
+{
+  "vendor": "zyxel",
+  "model": "NR5103",
+  "label": "Zyxel NR5103 5G NR indoor CPE",
+  "category": "router",
+  "description": "Indoor 5G NR fixed-wireless CPE (3GPP Rel. 15, sub-6 GHz 2CC, up to 4.67 Gbps down) with Wi-Fi 6 4x4 and just two 2.5G Ethernet ports, one of which doubles as the LAN/WAN port.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

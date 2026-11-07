@@ -1,0 +1,26 @@
+{
+  "vendor": "juniper",
+  "model": "QFX5210-64C",
+  "label": "Juniper QFX5210-64C",
+  "category": "l3-switch",
+  "description": "Juniper QFX5210 2RU lean spine: 64x 50/100G QSFP28 ports, 12.8 Tbps at 750 ns latency. Breakout supports 128x 25G or 128x 50G.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "et-0/0/",
+    "start": 0,
+    "count": 64,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": []
+}

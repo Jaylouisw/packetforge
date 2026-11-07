@@ -1,0 +1,26 @@
+{
+  "vendor": "watchguard",
+  "model": "Firebox M290",
+  "label": "WatchGuard Firebox M290 firewall",
+  "category": "firewall",
+  "description": "WatchGuard Firebox M290 - mid-range branch firewall: 8x 1GbE RJ45 and no SFP cages as shipped (the open module bay accepts optional 4x1G copper, 4x1G SFP, 2x10G SFP+ or 4-port multispeed modules). Default WAN is eth0, eth1-eth7 are LAN/optional ports.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "eth",
+    "start": 0,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

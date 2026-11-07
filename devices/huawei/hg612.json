@@ -1,0 +1,32 @@
+{
+  "vendor": "huawei",
+  "model": "HG612",
+  "label": "Huawei EchoLife HG612 Openreach VDSL2 modem",
+  "category": "modem",
+  "description": "BT Openreach VDSL2 (profile 17a, 100 Mbit/s) and ADSL2+ bridge modem with one RJ-11 line port and two 10/100 Ethernet LAN ports, LAN1 for the bridged PPPoE path to the router and LAN2 for management access to its web and telnet interfaces.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

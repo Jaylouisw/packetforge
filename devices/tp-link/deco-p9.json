@@ -1,0 +1,44 @@
+{
+  "vendor": "tp-link",
+  "model": "Deco P9",
+  "label": "TP-Link Deco P9 powerline mesh",
+  "category": "router",
+  "description": "AC1200 dual-band Wi-Fi 5 mesh with a HomePlug AV1000 powerline backhaul: units bridge over the mains wiring on plc0, so interior walls and distance do not cut the mesh. Two GbE auto-sensing ports per unit and no dedicated wireless backhaul radio.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ]
+}

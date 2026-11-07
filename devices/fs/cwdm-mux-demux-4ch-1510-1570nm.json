@@ -1,0 +1,35 @@
+{
+  "vendor": "fs",
+  "model": "CWDM Mux Demux 4CH 1510-1570nm",
+  "label": "4-channel CWDM mux/demux, LC/UPC, FMU plug-in",
+  "category": "splitter",
+  "description": "4-channel dual-fibre CWDM mux/demux on the ITU-T G.694.2 20 nm grid, covering 1510/1530/1550/1570 nm, with a duplex LC/UPC line port and one duplex LC/UPC port per channel. Passive thin-film-filter module: insertion loss <=2.2 dB across the passband, adjacent-channel isolation >=30 dB, return loss >=45 dB, no power or software.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "line",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ch1510",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ch1530",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ch1550",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ch1570",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

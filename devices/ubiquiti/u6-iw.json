@@ -1,0 +1,49 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-IW",
+  "label": "UniFi U6 In-Wall",
+  "category": "wireless",
+  "description": "In-wall Wi-Fi 6 AP (4x4 5 GHz + 2x2 2.4 GHz, no dedicated backhaul radio) with a built-in 4-port GbE switch: one data-in GbE uplink plus four data-out GbE ports, one of which can pass 802.3af PoE through. Powered by 802.3at PoE+ (25.5 W, required for the PoE output).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

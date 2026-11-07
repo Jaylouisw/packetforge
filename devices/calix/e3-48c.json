@@ -1,0 +1,280 @@
+{
+  "vendor": "calix",
+  "model": "E3-48C",
+  "label": "E3-48C sealed ESAN (48 combo VDSL2/POTS)",
+  "category": "olt",
+  "description": "Calix E3-48C sealed Ethernet Service Access Node for pole, pedestal and cabinet FTTN deployments. The sealed unit is itself the fixed line assembly: 48 combo VDSL2/ADSL2+ + POTS subscriber ports (17a/8b with ADSL2+ fallback, bonding and vectoring-capable), plus 2x 10GE/1GE SFP+ and 3x 1GE/2.5GE SFP uplinks = 53 ports. Pairs with B-, C- and E-series shelves; up to two 10GE and four 2.5/1GE feeds per chassis.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1/1",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/2",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/3",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/4",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/5",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/6",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/7",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/8",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/9",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/10",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/11",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/12",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/13",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/14",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/15",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/16",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/17",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/18",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/19",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/20",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/21",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/22",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/23",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/24",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/25",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/26",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/27",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/28",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/29",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/30",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/31",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/32",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/33",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/34",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/35",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/36",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/37",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/38",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/39",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/40",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/41",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/42",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/43",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/44",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/45",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/46",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/47",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "1/48",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "xge1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

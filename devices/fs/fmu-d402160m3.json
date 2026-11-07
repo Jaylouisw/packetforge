@@ -1,0 +1,34 @@
+{
+  "vendor": "fs",
+  "model": "FMU-D402160M3",
+  "label": "40-channel DWDM mux/demux C21-C60, 100GHz, LC/UPC, 1U",
+  "category": "splitter",
+  "description": "40-channel dual-fibre DWDM mux/demux on the 100 GHz C-band grid C21-C60 (1560.61 nm down to 1529.55 nm, 0.8 nm spacing), with 40 duplex LC/UPC channel ports, a duplex LC/UPC line port and a 1310 nm band-pass port for 40G/100G LR4 optics. Flat-top AWG: insertion loss <=5.5 dB per channel (4.5 dB typical), 1310 nm port <=1.5 dB, return loss >=40 dB, passive.",
+  "capabilities": [],
+  "portTemplate": {
+    "prefix": "ch",
+    "start": 21,
+    "count": 40,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "lc",
+    "speedCaps": [
+      10000,
+      25000,
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "p1310",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

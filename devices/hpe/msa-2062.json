@@ -1,0 +1,64 @@
+{
+  "vendor": "hpe",
+  "model": "MSA 2062",
+  "label": "HPE MSA 2062 iSCSI array (dual controller)",
+  "category": "nas",
+  "description": "2U SFF dual-controller hybrid-flash block array: 8 host ports per array (four per controller) at 10/25GbE iSCSI SFP28 or 1/10GBase-T, with 8/16G FC and 12Gb SAS controller options. Out-of-band management is a 100/1000 Ethernet port per controller plus USB.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "A0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt-b",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

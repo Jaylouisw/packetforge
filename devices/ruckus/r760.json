@@ -1,0 +1,41 @@
+{
+  "vendor": "ruckus",
+  "model": "R760",
+  "label": "RUCKUS R760",
+  "category": "wireless",
+  "description": "Tri-radio Wi-Fi 6E indoor AP with 4x4:4 in 6 GHz, 5 GHz and 2.4 GHz (12 spatial streams) and onboard BLE/Zigbee. One 10GbE PoE-in port plus one 1GbE port, and three radios: 2.4, 5 and 6 GHz.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ]
+}

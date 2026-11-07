@@ -1,0 +1,144 @@
+{
+  "vendor": "zte",
+  "model": "ZXDSL 9806H",
+  "label": "ZXDSL 9806H mini-DSLAM (24-port ADSL2+ card)",
+  "category": "olt",
+  "description": "ZTE ZXDSL 9806H 2U mini-DSLAM: one control & switching slot plus four line-card slots, 96 ADSL2+ or 64 VDSL2 lines fully loaded. Counted here: one 24-port ADSL2+ over POTS card (ports 1-1-1-1 to 1-1-1-24, 24 Mbps class, Annex A/M) plus the SCCB card's 2x GE uplink/subtending ports = 26 ports. A VDSL2 build uses 16-port VSTDC cards instead.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1-1-1-1",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-2",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-3",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-4",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-5",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-6",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-7",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-8",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-9",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-10",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-11",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-12",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-13",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-14",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-15",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-16",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-17",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-18",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-19",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-20",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-21",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-22",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-23",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "1-1-1-24",
+      "type": "dsl",
+      "speed": "24M"
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "celestica",
+  "model": "DS3000",
+  "label": "Celestica DS3000",
+  "category": "l3-switch",
+  "description": "Celestica DS3000 1RU open-networking switch: 32x 100G QSFP28 on Broadcom Trident3-X7, 3.2 Tbps, 32 MB buffer, PHYless. The 32 cages expose 128 sub-rate ports via 4x 25G/10G or 2x 50G breakout; runs SONiC installed through ONIE.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": []
+}

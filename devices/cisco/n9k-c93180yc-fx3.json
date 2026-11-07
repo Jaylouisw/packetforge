@@ -1,0 +1,58 @@
+{
+  "vendor": "cisco",
+  "model": "N9K-C93180YC-FX3",
+  "label": "Cisco Nexus 93180YC-FX3",
+  "category": "l3-switch",
+  "description": "Cisco Nexus 9300-FX3 1RU leaf/spine: 48x 1/10/25G SFP28 downlinks plus 6x 40/100G QSFP28 uplinks, 1.8 Tbps with MACsec on every port. Each QSFP28 uplink breaks out to 4x 25G/10G or 2x 50G.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/54",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "vendor": "hpe",
+  "model": "SN3600B",
+  "label": "HPE B-series SN3600B 32G FC switch",
+  "category": "switch",
+  "description": "HPE's OEM Brocade G610: entry-level 1U 32G Fibre Channel switch with 24 x 32G SFP+ ports that autosense 4/8/16/32G, licensed 8 to 24 ports via Ports-on-Demand. One RJ45 1GbE management port and an RS-232 console port.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

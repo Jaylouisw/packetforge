@@ -1,0 +1,36 @@
+{
+  "vendor": "kemp",
+  "model": "LoadMaster LM-4000",
+  "label": "Kemp LoadMaster LM-4000",
+  "category": "firewall",
+  "description": "Progress Kemp LoadMaster LM-4000 - 1U ADC, 6.2 Gbps L4 / 6 Gbps L7 class with 2x 1G RJ45 copper and 2x 10G SFP+ fiber ports; no separate management NIC.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "firewall",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

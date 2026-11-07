@@ -1,0 +1,23 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBGPOE",
+  "label": "Gigabit passive PoE injector (18-57V pass-through)",
+  "category": "powerline",
+  "description": "Bare passive injector with no PSU: it takes 18-57 VDC on a DC jack and pushes that same voltage out on pins 4,5 (+) and 7,8 (-). Output power is whatever the attached adapter supplies (the 24 W / 24V 1A figure shown is the common pairing), and since it never negotiates, 802.3af/at PDs must not be connected to it.",
+  "capabilities": [
+    "poe-injector",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

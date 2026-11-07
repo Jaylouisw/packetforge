@@ -1,0 +1,64 @@
+{
+  "vendor": "dell",
+  "model": "PowerVault ME5012",
+  "label": "PowerVault ME5012 iSCSI array (dual controller)",
+  "category": "nas",
+  "description": "2U12 dual-active-controller block array. Each controller carries four 10/25GbE SFP28 iSCSI host ports and one 1GbE RJ45 management port, so 8 host ports and 2 management ports per array; FC 32G and 12Gb SAS controller options exist.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "A0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt-b",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

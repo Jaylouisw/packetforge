@@ -1,0 +1,68 @@
+{
+  "vendor": "juniper",
+  "model": "vSRX",
+  "label": "vSRX virtual firewall (SD-WAN edge)",
+  "category": "router",
+  "description": "Virtual Junos firewall/router instance for branch and SD-WAN edges: up to 10 vNICs, with fxp0 reserved for out-of-band management and ge-0/0/0 upward mapped to traffic vNICs at the hypervisor's NIC speed. There is no physical hardware - port count follows the vNIC set attached to the VM.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "cli",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "fxp0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

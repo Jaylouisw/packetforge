@@ -1,0 +1,177 @@
+{
+  "vendor": "huawei",
+  "model": "NE40E-X8A",
+  "label": "NetEngine 40E-X8A core router",
+  "category": "router",
+  "description": "21 RU core/peering chassis with 51.2 Tbit/s switching capacity and 7232 Mpps forwarding: eight LPU slots (two half-width subslots each), two MPU slots and four SFU slots, shown here fully populated with 32 x 100GE QSFP28 ports (4 per LPU). Line processing units accept E1/POS/CPOS/FE/GE/10GE/40GE/100GE cards, so the port mix follows the installed LPUs.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "100GE1/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE1/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE1/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE1/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE2/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE2/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE2/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE2/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE3/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE3/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE3/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE3/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE4/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE4/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE4/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE4/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE5/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE5/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE5/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE5/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE6/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE6/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE6/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE6/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE7/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE7/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE7/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE7/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE8/0/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE8/0/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE8/0/3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "100GE8/0/4",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

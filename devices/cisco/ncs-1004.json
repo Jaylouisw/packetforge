@@ -1,0 +1,64 @@
+{
+  "vendor": "cisco",
+  "model": "NCS 1004",
+  "label": "Network Convergence System 1004",
+  "category": "switch",
+  "description": "2RU modular muxponder/transponder chassis with four line-card slots, used as a compact DCI muxponder and WDM regenerator. Modelled with four OTN-XPonder line cards in 4x100G muxponder mode: 32x 100GbE QSFP28 client ports and 8 coherent trunk (line) ports programmable 100G-400G per slice, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "vendor": "arista",
+  "model": "7050SX3-48YC8 (DMF)",
+  "label": "Arista 7050SX3-48YC8 running DANZ Monitoring Fabric",
+  "category": "firewall",
+  "description": "Merchant-silicon 1RU switch repurposed as a DANZ Monitoring Fabric (DMF) leaf: 48 SFP28 cages at 1/10/25G plus 8 QSFP28 cages at 40/100G, all software-controlled by a DMF controller. The fabric does filtering, replication and load-balancing for the tool farm instead of a fixed box-by-box NPB.",
+  "capabilities": [
+    "cli",
+    "http-server",
+    "l2-forward",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "Ethernet1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet4",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet5",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet6",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet7",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet8",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet9",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet10",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet11",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet12",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet13",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet14",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet15",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet16",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet17",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet18",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet19",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet20",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet21",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet22",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet23",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet24",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet25",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet26",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet27",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet28",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet29",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet30",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet31",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet32",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet35",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet36",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet37",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet38",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet39",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet40",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet41",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet42",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet43",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet44",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet45",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet46",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet47",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet48",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "Ethernet49/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet50/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet51/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet52/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet53/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet54/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet55/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet56/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Management1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

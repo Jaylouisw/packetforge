@@ -1,0 +1,40 @@
+{
+  "vendor": "fs",
+  "model": "FMU-MDA0121",
+  "label": "1-channel DWDM OADM, C21, dual fibre east/west, LC/UPC",
+  "category": "splitter",
+  "description": "Single-channel 100 GHz DWDM optical add/drop multiplexer for C21 (1560.61 nm), dual-fibre east-and-west configuration: two duplex LC/UPC line ports, plus one add and one drop port. Thin-film-filter module with add/drop insertion loss <=1.2 dB, express channels pass through untouched; passive, so it drops one lambda out of a lit line without interrupting the rest.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "west-in",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "west-out",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "east-in",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "east-out",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "add",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "drop",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

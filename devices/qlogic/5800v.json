@@ -1,0 +1,139 @@
+{
+  "vendor": "qlogic",
+  "model": "5800V",
+  "label": "QLogic SANbox 5800V 8G FC switch",
+  "category": "switch",
+  "description": "1U stackable 8G Fibre Channel switch, 20 x 8G device ports (licensed in 4-port steps from 8) plus 4 always-on 10G stacking ports that upgrade to 20G ISL, 24 ports in total. Backwards compatible with 4G and 2G; stacking scales to 120 device ports across a stack.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "isl0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "isl1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "isl2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "isl3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

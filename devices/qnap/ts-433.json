@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-433",
+  "label": "QNAP TS-433 4-bay desktop NAS",
+  "category": "nas",
+  "description": "4-bay ARM-based desktop NAS with 1x 1GbE RJ-45 port and 1x 2.5GbE RJ-45 port (2.5G/1G/100M) out of the box; there is no dedicated management port, QTS runs in-band.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "vendor": "brocade",
+  "model": "G720",
+  "label": "Brocade G720 64G FC switch",
+  "category": "switch",
+  "description": "Gen 7 Brocade FC SAN switch in 1U: 48 x 64G SFP+ ports plus 8 x 2x64G SFP-DD double-density cages, giving 64 line-rate ports (56 cages). Ports autosense 32/64G; one 1GbE RJ45 management port and a mini-USB console.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "0",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd0",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd1",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd2",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd3",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd4",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd5",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd6",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "dd7",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

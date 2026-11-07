@@ -1,0 +1,30 @@
+{
+  "vendor": "garland",
+  "model": "P1GCCB",
+  "label": "P1GCCB passive 10/100/1000 copper breakout TAP",
+  "category": "firewall",
+  "description": "Passive inline breakout tap for a 10/100/1000BASE-T copper link: two RJ45 network ports stay mated to the live link and two RJ45 monitor ports hand a full-duplex copy to the tool. Unpowered and failsafe, with no IP stack - PoE passes through to the powered device.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

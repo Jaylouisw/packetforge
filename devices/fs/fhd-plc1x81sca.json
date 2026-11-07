@@ -1,0 +1,28 @@
+{
+  "vendor": "fs",
+  "model": "FHD-PLC1x81SCA",
+  "label": "1x8 PLC splitter, SC/APC, FHD cassette",
+  "category": "splitter",
+  "description": "1x8 balanced planar-lightwave-circuit splitter in an FHD cassette, operating 1260-1650 nm with SC/APC connectors on the common input and all 8 output legs. Insertion loss <=10.5 dB, PDL <=0.2 dB, return loss >=55 dB (APC); fully passive, carries GPON and XGS-PON wavelengths transparently.",
+  "capabilities": [],
+  "portTemplate": {
+    "prefix": "out",
+    "start": 1,
+    "count": 8,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "10G"
+    }
+  ]
+}

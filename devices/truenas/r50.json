@@ -1,0 +1,30 @@
+{
+  "vendor": "truenas",
+  "model": "R50",
+  "label": "TrueNAS R50 4U hybrid storage appliance",
+  "category": "nas",
+  "description": "4U (scalable to 12U) hybrid storage appliance whose base configuration has 2x SFP+ 10/25/40/100GbE ports plus a dedicated 1GBase-T OOBM management port; copper 10GBase-T and 32Gb Fibre Channel are optional add-in cards.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "enp1s0f0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "enp1s0f1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "oobm",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

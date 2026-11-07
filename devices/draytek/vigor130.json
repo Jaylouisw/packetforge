@@ -1,0 +1,29 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor130",
+  "label": "DrayTek Vigor130 VDSL2/ADSL2+ bridge modem",
+  "category": "modem",
+  "description": "Compact VDSL2 (profiles up to 30a, 100 Mbit/s downlink) / ADSL2+ modem that runs as a full DSL-to-Ethernet bridge in front of a third-party firewall or router, with one RJ-11 line port and a single gigabit Ethernet LAN port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

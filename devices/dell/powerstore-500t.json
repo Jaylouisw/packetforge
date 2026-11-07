@@ -1,0 +1,84 @@
+{
+  "vendor": "dell",
+  "model": "PowerStore 500T",
+  "label": "PowerStore 500T all-flash array (dual node)",
+  "category": "nas",
+  "description": "2U two-node all-flash appliance (25 NVMe slots). Each node's embedded module has 2 fixed 10GbE optical ports, a 4-port front-end card (25GbE SFP28, 10GBase-T or 32G FC), a 1GbE RJ45 system management port and a separate service port, plus two I/O module slots: 4 x 10GbE + 8 x 25GbE + 2 management in the modelled configuration.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "A-10g0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "A-10g1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "B-10g0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "B-10g1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "A0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "A3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "B3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt-b",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

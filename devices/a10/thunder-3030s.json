@@ -1,0 +1,80 @@
+{
+  "vendor": "a10",
+  "model": "Thunder 3030S",
+  "label": "A10 Thunder 3030S",
+  "category": "firewall",
+  "description": "A10 Thunder 3030S - 1U ADC/application service gateway, 30 Gbps class with 6x 1G RJ45 copper, 2x 1G SFP fiber, 4x 10G SFP+ fiber, plus 1G RJ45 management and LOM ports.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

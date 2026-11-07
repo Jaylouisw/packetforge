@@ -1,0 +1,57 @@
+{
+  "vendor": "netgate",
+  "model": "8200",
+  "label": "Netgate 8200 security gateway",
+  "category": "firewall",
+  "description": "Netgate 8200 - mid-range pfSense Plus security gateway: 4x 2.5G RJ45 LAN, 2x shared WAN combo positions (each is either a 1G RJ45 or a 1G SFP cage) and 2x 10G SFP+ (WAN3/WAN4). WAN1/WAN2 are the combo ports, WAN3/WAN4 the SFP+ ports; all labels are defaults and any port can be reassigned.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "LAN",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "2.5G"
+  },
+  "interfaces": [
+    {
+      "name": "WAN1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WAN2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WAN1-SFP",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WAN2-SFP",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "WAN3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "WAN4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

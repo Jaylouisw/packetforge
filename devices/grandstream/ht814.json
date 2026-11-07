@@ -1,0 +1,28 @@
+{
+  "vendor": "grandstream",
+  "model": "HT814",
+  "label": "HT814 4-port FXS ATA",
+  "category": "modem",
+  "description": "Analog telephone adapter with 4 RJ-11 FXS ports driven by 2 SIP profiles, sitting behind an integrated gigabit NAT router fed by two 10/100/1000 RJ-45 ports wired as a WAN/LAN pair.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "nat",
+    "firewall",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

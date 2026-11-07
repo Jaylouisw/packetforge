@@ -1,0 +1,44 @@
+{
+  "vendor": "nokia",
+  "model": "FastMile 5G Gateway 3.2",
+  "label": "Nokia FastMile 5G Gateway 3.2 FWA gateway",
+  "category": "router",
+  "description": "Indoor 5G fixed-wireless gateway (5G NR with 4G LTE fallback) that ships to operators as a self-install CPE with Wi-Fi 6; both copper ports are Gigabit LAN ports, since the cellular link is the WAN.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

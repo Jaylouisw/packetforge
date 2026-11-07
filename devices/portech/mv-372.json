@@ -1,0 +1,19 @@
+{
+  "vendor": "portech",
+  "model": "MV-372",
+  "label": "MV-372 2-channel GSM VoIP gateway",
+  "category": "modem",
+  "description": "SIP-to-GSM gateway with 2 GSM channels (2 SIMs, 1 antenna) for VoIP-to-mobile and mobile-to-VoIP calls, no analog FXS/FXO ports, and a single 10/100 RJ-45 LAN port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

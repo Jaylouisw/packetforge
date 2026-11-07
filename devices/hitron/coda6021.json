@@ -1,0 +1,60 @@
+{
+  "vendor": "hitron",
+  "model": "CODA6021",
+  "label": "Hitron CODA6021 DOCSIS 4.0 cable gateway",
+  "category": "modem",
+  "description": "DOCSIS 4.0 gateway with 5 configurable OFDM and 7 OFDMA channels plus 32x8 DOCSIS 3.0 fallback, tri-band Wi-Fi 7, and two 10GBASE-T plus two 2.5GBASE-T LAN ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "host",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wifi24",
+      "type": "wireless",
+      "speed": "1.1G"
+    },
+    {
+      "name": "wifi5",
+      "type": "wireless",
+      "speed": "5.8G"
+    },
+    {
+      "name": "wifi6",
+      "type": "wireless",
+      "speed": "11.5G"
+    }
+  ]
+}

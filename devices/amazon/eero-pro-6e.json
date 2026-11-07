@@ -1,0 +1,43 @@
+{
+  "vendor": "amazon",
+  "model": "eero Pro 6E",
+  "label": "eero Pro 6E",
+  "category": "router",
+  "description": "Wi-Fi 6E tri-band mesh router, 2x2 on 2.4, 5 and 6 GHz (AXE5400 class); the 6 GHz band carries both clients and mesh traffic, so there is no dedicated backhaul radio. Two auto-sensing ports per unit, one 2.5GbE and one 1GbE, so a 2.5G wired backhaul is possible on the primary node.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "vendor": "sonicwall",
+  "model": "NSa 4700",
+  "label": "SonicWall NSa 4700 firewall",
+  "category": "firewall",
+  "description": "SonicWall NSa 4700 (Gen 7) - enterprise branch NGFW: 24x 1GbE copper (X0-X23) + 6x 10G/5G/2.5G/1G SFP+ cages + 1x 1GbE MGMT port. Default WAN is X1 and X0 is LAN; the SFP+ cages are normally used for WAN/aggregation uplinks.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "X",
+    "start": 0,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "MGT",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP+6",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

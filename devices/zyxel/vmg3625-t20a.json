@@ -1,0 +1,60 @@
+{
+  "vendor": "zyxel",
+  "model": "VMG3625-T20A",
+  "label": "Zyxel VMG3625-T20A dual-band AC1200 VDSL2 gateway",
+  "category": "modem",
+  "description": "VDSL2 (profiles up to 30a, 100 Mbit/s) and ADSL2+ combo-WAN gateway with 802.11ac AC1200 dual-band Wi-Fi (300 Mbit/s on 2.4 GHz, 866 Mbit/s on 5 GHz), one RJ-11 DSL port, four gigabit LAN ports and a gigabit Ethernet WAN port for fibre migrations.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ]
+}

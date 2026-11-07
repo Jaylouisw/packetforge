@@ -1,0 +1,33 @@
+{
+  "vendor": "robustel",
+  "model": "R3000",
+  "label": "Robustel R3000 industrial 4G router",
+  "category": "router",
+  "description": "Industrial dual-SIM 4G LTE Cat 4 router with 3G/2G fallback and RS-232/RS-485 for serial M2M; the wired side is only two 10/100 Mbps ports (1x WAN + 1x LAN, or 2x LAN) and there is no Wi-Fi radio.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "vendor": "microchip",
+  "model": "PD-9004G/AC",
+  "label": "4-port 802.3at gigabit PoE midspan (30W/port)",
+  "category": "powerline",
+  "description": "Rack/desk midspan that splices 802.3at power into four existing gigabit links, giving 30 W per port (120 W total) to APs, PTZ cameras and phones without replacing the switch. It sits between the switch and the devices and negotiates af/at per port, so passive-PoE gear will not come up on it.",
+  "capabilities": [
+    "poe-injector",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

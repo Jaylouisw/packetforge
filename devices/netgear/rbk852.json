@@ -1,0 +1,59 @@
+{
+  "vendor": "netgear",
+  "model": "RBK852",
+  "label": "NETGEAR Orbi RBK852 (RBR850 + RBS850)",
+  "category": "router",
+  "description": "Orbi 850 tri-band Wi-Fi 6 mesh: 2.4 GHz and 5 GHz for clients plus a dedicated 5 GHz backhaul radio (radio2) linking router and satellites. The router has a 2.5Gbps Internet port and four GbE LAN, each satellite adds four more GbE LAN.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

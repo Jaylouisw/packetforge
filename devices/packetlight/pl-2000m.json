@@ -1,0 +1,40 @@
+{
+  "vendor": "packetlight",
+  "model": "PL-2000M",
+  "label": "PL-2000M 200G muxponder",
+  "category": "switch",
+  "description": "1RU 200G multi-protocol muxponder: up to 20 multi-rate client interfaces (10GbE, 40GbE, 100GbE, 8G/16G/32G Fibre Channel, 12G-SDI, OC-192, OTU2/OTU2e/OTU3/OTU4) aggregated onto one coherent 200G CFP2 uplink. Modelled as 2x 100G QSFP28 client ports + 16x 10G SFP+ client ports plus the single 200G line port, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 3,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "client1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "client2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

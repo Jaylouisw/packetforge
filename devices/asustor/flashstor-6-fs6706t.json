@@ -1,0 +1,25 @@
+{
+  "vendor": "asustor",
+  "model": "Flashstor 6 FS6706T",
+  "label": "ASUSTOR FLASHSTOR 6 (FS6706T) 6-bay M.2 NVMe NAS",
+  "category": "nas",
+  "description": "6-bay all-flash M.2 NVMe desktop NAS with dual 2.5-Gigabit Ethernet ports and no dedicated management port, so ADM is administered in-band over the 2.5G links.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

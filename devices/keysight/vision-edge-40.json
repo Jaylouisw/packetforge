@@ -1,0 +1,289 @@
+{
+  "vendor": "keysight",
+  "model": "Vision Edge 40",
+  "label": "Vision Edge 40 (E40) 48x10G + 6x40G packet broker",
+  "category": "firewall",
+  "description": "Ixia-lineage 1RU packet broker with 48 SFP/SFP+ ports at 1G or 10G and 6 QSFP+ ports at 40G, each 40G cage able to break out to four more 1G/10G links (72 ports total). Filters, aggregates and load-balances rack-level SPAN/TAP traffic toward monitoring and security tools.",
+  "capabilities": [
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port28",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port29",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port30",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port31",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port32",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port33",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port34",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port35",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port36",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port37",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port38",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port39",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port40",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port41",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port42",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port43",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port44",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port45",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port46",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port47",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port48",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port49",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "port50",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "port51",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "port52",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "port53",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "port54",
+      "type": "ethernet",
+      "speed": "40G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

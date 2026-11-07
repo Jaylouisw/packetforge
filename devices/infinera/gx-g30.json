@@ -1,0 +1,44 @@
+{
+  "vendor": "infinera",
+  "model": "GX G30",
+  "label": "Groove (GX) G30 compact modular platform",
+  "category": "switch",
+  "description": "1RU compact modular optical transport chassis with four service slots taking transponder, muxponder and OLS sleds, coherent line rates from 100G to 800G and clients from 1G to 400G. Modelled with two dual-slot CHM2T muxponder sleds: 24x 100GbE QSFP28 client ports (6 positions 400GbE-capable QSFP-DD) and 4 line ports at a 100G-600G programmable line rate, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

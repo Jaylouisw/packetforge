@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-453E",
+  "label": "QNAP TS-453E 4-bay desktop NAS",
+  "category": "nas",
+  "description": "4-bay long-life-cycle desktop NAS with 2x 2.5GbE RJ-45 ports (2.5G/1G/100M) and no separate management interface, so QTS administration runs in-band over the 2.5G links.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

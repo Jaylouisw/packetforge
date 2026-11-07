@@ -1,0 +1,46 @@
+{
+  "vendor": "nokia",
+  "model": "7750 SR-1",
+  "label": "7750 SR-1 service router",
+  "category": "router",
+  "description": "1 RU single-slot service router (up to 1.5 Tb/s full duplex on FP4) with one MDA slot fitted with the 6-port QSFP28 MDA-e-XP: six 100GE QSFP28 connectors, each also usable at 40GE or as 10/25GE breakouts. There are no copper data ports and no second line-card slot - capacity and port mix come entirely from the installed MDA.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "1/1/c1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/c2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/c3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/c4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/c5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "1/1/c6",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

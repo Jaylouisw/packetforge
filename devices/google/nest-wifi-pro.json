@@ -1,0 +1,43 @@
+{
+  "vendor": "google",
+  "model": "Nest Wifi Pro",
+  "label": "Google Nest Wifi Pro",
+  "category": "router",
+  "description": "Wi-Fi 6E tri-band mesh unit (AXE5400, 2x2 on 2.4, 5 and 6 GHz) where the 6 GHz band doubles as the mesh backhaul, with no dedicated backhaul radio. Two GbE ports per point for WAN/LAN, so wired backhaul tops out at 1G; the primary point routes with NAT/DHCP and there is no local web UI.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

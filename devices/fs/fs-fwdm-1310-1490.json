@@ -1,0 +1,25 @@
+{
+  "vendor": "fs",
+  "model": "FS-FWDM-1310-1490",
+  "label": "1310/1490nm GPON WDM coupler, SC/APC",
+  "category": "splitter",
+  "description": "Three-port filter WDM coupler for GPON ODN work: 1310 nm upstream passes to the reflection/upstream port while 1490 nm downstream (and 1550 nm RF overlay) crosses to the PON port, letting an OTDR or upstream receiver be inserted on a live branch. Thin-film filter, SC/APC on all three ports, insertion loss <=0.7 dB, channel isolation >30 dB, return loss >=55 dB, passive.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "com",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "pass1310",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "refl1490",
+      "type": "pon",
+      "speed": "2.5G"
+    }
+  ]
+}

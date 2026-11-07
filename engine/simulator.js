@@ -1350,7 +1350,7 @@ class Simulator {
       // never answer ARP for the address printed on its own label, so the whole
       // PON branch was unreachable even though every cable was right.
       const canTerminate = l3 || dev.isHost();
-      const forOurIp = !!(f.ip && dev.interfaceWithIp(f.ip.dst));
+      const forOurIp = !!(f.ip && dev.ownsIpOn(inIface, f.ip.dst));
       if (canTerminate && mine && !flood) {
         if (this._tryProcessL3(dev, f, inIface)) return;
       } else if (canTerminate && (isArp || isNd || forOurIp)) {
@@ -1381,7 +1381,7 @@ class Simulator {
       return true;
     }
     if (frame.etherType === net.ETH_IPV4) {
-      if (dev.interfaceWithIp(frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
+      if (dev.ownsIpOn(inIface, frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
       if (dev.isL3()) { this._forwardL3(dev, frame, inIface); return true; }
       this._emit({ type: 'drop', reason: 'packet not for us and not routable', dev: dev.id, iface: inIface });
       return true;
@@ -1500,11 +1500,21 @@ class Simulator {
     const arp = frame.arp;
     const vid = frame.vid || 1;
     if (arp.op === 'request') {
-      const iface = dev.interfaceWithIp(arp.targetIp);
-      if (iface) {
+      const inIf = dev.resolveIface(inIface);
+      const owner = dev.ownsIpOn(inIf, arp.targetIp);
+      if (owner) {
+        // Reply out of the port that asked: inside a bridge group every port reaches
+        // the same address, and answering on the wrong socket is how a LAN address
+        // becomes unreachable from half the switch.
+        // Inside a bridge group the group is one switch, so the reply leaves by the
+        // port that asked. Otherwise the reply must leave by the interface that owns
+        // the address: a router subinterface carries the VLAN tag, and sending the
+        // reply out the raw trunk port would strip it.
+        const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
+        const replyIface = sameGroup ? inIf : owner;
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
-        this._emit({ type: 'arp-reply', dev: dev.id, iface: iface.name, targetIp: arp.targetIp, mac: iface.mac, vlan: vid });
-        this._sendFromOwnIp(dev, iface, arpReply(frame, iface.mac, iface.ip), vid);
+        this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyIface.mac, vlan: vid });
+        this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyIface.mac, owner.ip), vid);
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
@@ -1519,16 +1529,19 @@ class Simulator {
     if (!icmp) return;
     const vid = frame.vid || 1;
     if (icmp.type === net.ICMP_ECHO_REQUEST) {
-      const iface = dev.interfaceWithIp(frame.ip.dst);
-      if (!iface) {
+      const inIf4 = dev.resolveIface(inIface);
+      const owner = dev.ownsIpOn(inIf4, frame.ip.dst);
+      if (!owner) {
         this._emit({ type: 'drop', reason: 'echo for unknown local IP', dev: dev.id });
         return;
       }
-      this._emit({ type: 'icmp-echo', dev: dev.id, iface: iface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
+      const sameGroup4 = owner.bridgeGroup && inIf4 && inIf4.bridgeGroup === owner.bridgeGroup;
+      const replyIface = sameGroup4 ? inIf4 : owner;
+      this._emit({ type: 'icmp-echo', dev: dev.id, iface: replyIface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
-      this._emit({ type: 'icmp-reply', dev: dev.id, iface: iface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
-      this._sendFromOwnIp(dev, iface, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
+      this._emit({ type: 'icmp-reply', dev: dev.id, iface: replyIface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
+      this._sendFromOwnIp(dev, replyIface, ethFrame(frame.srcMac, replyIface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });

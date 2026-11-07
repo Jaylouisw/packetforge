@@ -1,0 +1,31 @@
+{
+  "vendor": "arris",
+  "model": "CM8200",
+  "label": "Touchstone CM8200 DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 Touchstone modem with 2x192 MHz OFDM downstream and 2x96 MHz OFDMA upstream plus 32x8 SC-QAM fallback, bridged to two Gigabit Ethernet ports.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

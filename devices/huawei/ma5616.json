@@ -1,0 +1,185 @@
+{
+  "vendor": "huawei",
+  "model": "MA5616",
+  "label": "SmartAX MA5616 mini-DSLAM (H83BCVLE 32-port VDSL2)",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5616 2U multi-dwelling-unit box that doubles as a mini-DSLAM/MSAN. Counted here: one H83BCVLE 32-channel VDSL2 + POTS combo board (ports 0/1/0-31, profiles up to 17a, 600-ohm embedded splitters, vectoring/ SuperVector) plus the 2x GE SFP uplinks on the upstream board = 34 ports. GPON uplink variants swap those two GE cages for 2x GPON.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "0/1/0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/1",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/2",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/3",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/4",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/5",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/6",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/7",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/8",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/9",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/10",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/11",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/12",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/13",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/14",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/15",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/16",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/17",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/18",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/19",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/20",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/21",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/22",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/23",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/24",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/25",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/26",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/27",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/28",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/29",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/30",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "0/1/31",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "ge0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

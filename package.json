@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
-    "test": "node test/hardware-invariants.test.js && node test/combo.test.js && node test/request-queue.test.js && node test/optics-catalogue.test.js && node test/pon-splitter.test.js && node test/fiber-connectors.test.js && node test/apply-research.test.js && node test/l3-switch-management.test.js && node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js && node test/ospf-wire.test.js && node test/bgp.test.js && node test/dns.test.js && node test/scion.test.js && node test/ipv6.test.js && node test/dns-wire.test.js && node test/bgp-wire.test.js && node test/ipv6-wire.test.js && node test/ui-render.test.js && node test/scion-wire.test.js && node test/poe.test.js",
+    "test": "node test/hardware-invariants.test.js && node test/combo.test.js && node test/request-queue.test.js && node test/optics-catalogue.test.js && node test/pon-splitter.test.js && node test/fiber-connectors.test.js && node test/apply-research.test.js && node test/l3-switch-management.test.js && node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js && node test/ospf-wire.test.js && node test/bgp.test.js && node test/dns.test.js && node test/scion.test.js && node test/ipv6.test.js && node test/dns-wire.test.js && node test/bgp-wire.test.js && node test/ipv6-wire.test.js && node test/port-roles.test.js && node test/ui-render.test.js && node test/scion-wire.test.js && node test/poe.test.js",
     "test:engine": "node test/engine.test.js",
     "test:cli": "node test/cli.test.js",
     "test:validation": "node test/validation.test.js",
@@ -39,7 +39,8 @@
     "test:apply-research": "node test/apply-research.test.js",
     "test:fiber": "node test/fiber-connectors.test.js",
     "test:pon": "node test/pon-splitter.test.js",
-    "test:optics": "node test/optics-catalogue.test.js"
+    "test:optics": "node test/optics-catalogue.test.js",
+    "test:port-roles": "node test/port-roles.test.js"
   },
   "keywords": [
     "network",

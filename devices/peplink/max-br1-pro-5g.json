@@ -1,0 +1,50 @@
+{
+  "vendor": "peplink",
+  "model": "MAX BR1 Pro 5G",
+  "label": "Peplink MAX BR1 Pro 5G mobile router",
+  "category": "router",
+  "description": "5G mobile router with SpeedFusion bonding, dual-band 2x2 Wi-Fi 6, and three Ethernet ports: one 2.5G WAN plus two GbE LAN, with the WAN re-taskable as a third LAN.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

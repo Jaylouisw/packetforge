@@ -1,0 +1,137 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 200G",
+  "label": "FortiGate 200G firewall",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 200G - campus/edge NGFW (7 Gbps NGFW / 6 Gbps threat protection): 8x GE RJ45 + 8x 5G/2.5G/1G RJ45 + 8x 10G SFP+ FortiLink slots + 4x GE SFP slots, plus dedicated MGMT and HA copper ports. No fixed WAN silk-screen: wan1/wan2 are assigned in FortiOS, normally to port1/port2 (or any port/SFP).",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ha",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "x8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

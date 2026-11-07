@@ -1,0 +1,61 @@
+{
+  "vendor": "barracuda",
+  "model": "Load Balancer ADC 540",
+  "label": "Barracuda Load Balancer ADC 540",
+  "category": "firewall",
+  "description": "Barracuda Load Balancer ADC 540 - 1U ADC, 5 Gbps L4 / 3.6 Gbps L7 class with 8x 1G RJ45 copper data ports and a separate 1G RJ45 management port; no SFP cages.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "firewall",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "technicolor",
+  "model": "TC4400",
+  "label": "Technicolor TC4400 DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 2x2 OFDM(A) bonded channels and 32x8 DOCSIS 3.0 bonding, driving two 10/100/1000BASE-T LAN ports.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "vendor": "mellanox",
+  "model": "SN2410",
+  "label": "NVIDIA Mellanox SN2410",
+  "category": "l3-switch",
+  "description": "NVIDIA Mellanox Spectrum SN2410 1RU open Ethernet leaf: 48x 25G SFP28 downlinks plus 8x 100G QSFP28 uplinks, 4 Tbps, short-depth with redundant PSUs. Ships with Onyx, Cumulus Linux or ONIE; QSFP28 uplinks break out to 4x 25G or 2x 50G.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/49",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/50",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/51",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/52",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/53",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/54",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/55",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet1/56",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

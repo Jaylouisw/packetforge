@@ -1,0 +1,50 @@
+{
+  "vendor": "f5",
+  "model": "BIG-IP i2800",
+  "label": "BIG-IP i2800",
+  "category": "firewall",
+  "description": "F5 BIG-IP i2800 - 1U entry-class iSeries ADC, 10 Gbps L4/L7 throughput class with 4x 1G SFP fiber and 2x 10G SFP+ cages (no copper data ports), plus a 1G RJ45 management port.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "1.1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1.2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1.3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "1.4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2.1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2.2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

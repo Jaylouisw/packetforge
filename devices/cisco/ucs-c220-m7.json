@@ -1,0 +1,20 @@
+{
+  "vendor": "cisco",
+  "model": "UCS C220 M7",
+  "label": "Cisco UCS C220 M7 1U rack server",
+  "category": "server",
+  "description": "1RU two-socket rack server with a single 1Gbase-T RJ-45 dedicated management port for the CIMC as its only base network port; one modular mLOM/OCP 3.0 slot provides up to 2x 100GbE and up to 3 PCIe 4.0 or 2 PCIe 5.0 slots remain free.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "cimc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

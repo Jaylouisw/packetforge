@@ -1,0 +1,32 @@
+{
+  "vendor": "zyxel",
+  "model": "ZyWALL ATP500",
+  "label": "Zyxel ZyWALL ATP500 firewall",
+  "category": "firewall",
+  "description": "Zyxel ZyWALL ATP500 - SMB ATP/NGFW (2.6 Gbps SPI firewall, 1.7 Gbps IDP): 7x 1G RJ45 configurable LAN/DMZ/WAN/OPT ports + 1x 1G SFP cage, with DB9 console and no dedicated management port. One copper port is the default WAN; SFP1 is the fiber WAN/uplink option.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 7,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

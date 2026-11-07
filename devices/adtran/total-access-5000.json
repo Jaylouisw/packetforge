@@ -1,0 +1,75 @@
+{
+  "vendor": "adtran",
+  "model": "Total Access 5000",
+  "label": "Total Access 5000 OLT",
+  "category": "olt",
+  "description": "Adtran Total Access 5000 (TA 5000) shelf with one 8-Port GPON OLT Access Module (P/N 4187503F2, C+ class optics, 64 ONTs per port) in access slot 1, giving 8 GPON ports. The SM40 switch module adds four SFP+ 1GE/10GE uplinks and the SCM provides the out-of-band craft/Ethernet management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "gpon1/1",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/2",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/3",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/4",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/5",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/6",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/7",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "gpon1/8",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "xge1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

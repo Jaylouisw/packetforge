@@ -1,0 +1,19 @@
+{
+  "vendor": "cisco",
+  "model": "ATA 191",
+  "label": "ATA 191 2-port analog telephone adapter",
+  "category": "modem",
+  "description": "Two-port handset-to-Ethernet adapter with 2 RJ-11 FXS ports, each an independent SIP registration, and one 10/100BASE-T RJ-45 network port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

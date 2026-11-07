@@ -1,0 +1,2211 @@
+{
+  "devices": [
+    {
+      "vendor": "cisco",
+      "model": "ISR 4331",
+      "label": "ISR 4331 branch router",
+      "category": "router",
+      "description": "Sub-2 Gbps branch services router: 100 Mbps of CEF/IPsec forwarding in the base licence, 300 Mbps with the FL-4330-PERF licence and up to 1.8 Gbps with the booster licence. Three onboard dual-mode GE ports (an RJ-45 and an SFP cage on the same port number, one media active at a time) plus a dedicated GE management port, with two NIM slots, one ISC slot and one SM-X slot for WAN, voice and switching modules.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "Gi0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "Gi0/0/0",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "Gi0/0/0-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "Gi0/0/0-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "Gi0/0/0",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "Gi0/0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "Gi0/0/1-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "Gi0/0/1-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "Gi0/0/1",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "Gi0/0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "Gi0/0/2-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "Gi0/0/2-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "Gi0/0/2",
+          "comboRole": "sfp"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/routers/4000-series-integrated-services-routers-isr/data_sheet-c78-732542.pdf",
+      "notes": "ISR4331/K9: \"3 onboard GE, 2 NIM slots, 1 ISC slot, 1 SM slot\". Hardware installation guide, \"Dual Mode GE or SFP Ports\": the SFP cage shares the physical port with the RJ-45 of the same number and only one media can be active, so each GE port is modelled as a combo pair. GigabitEthernet0 is the separate 10/100/1000 management port. The SFP cages accept 1000BASE-SX/LX/ZX and 100 Mb/s SFPs; PoE+ is not fitted on the 4331 (only 4451-X and 4351 have front-panel PoE+)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "ASR 1001-X",
+      "label": "ASR 1001-X aggregation services router",
+      "category": "router",
+      "description": "1 RU 2.5 Gbps - 10 Gbps aggregation router with a fixed ESP and eight built-in Ethernet ports: six 1G SFP-only interfaces and two 10G SFP+ interfaces (10G rate only, SyncE capable). One half-height SPA slot adds further LAN/WAN ports; no copper data ports are fitted, only the 10/100/1000 management port.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "Gi0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "Gi0/0/0",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Gi0/0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Gi0/0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Gi0/0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Gi0/0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Gi0/0/5",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "Te0/0/0",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "Te0/0/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/1001-x/asr1hig-book/router_overview.html",
+      "notes": "ASR 1001-X hardware guide: \"Six built-in 1 GE SFP-only interfaces (do not support SFP+), and two built-in 10 GE SFP+ interfaces (support only 10-GE rate)\". Nine SPA options exist (1x10GE, 8x1GE, 4x1GE, 1xOC-3, 1xT3/E3, ...) but the SPA slot is empty in the base chassis, so only the fixed ports are modelled. ESP: 2.5 Gbps default, 5/10/20 Gbps with licence."
+    },
+    {
+      "vendor": "juniper",
+      "model": "MX204",
+      "label": "MX204 universal routing platform",
+      "category": "router",
+      "description": "1 RU 400 Gbps fixed-configuration edge router: eight 10GE SFP+ ports on PIC 1 plus four rate-selectable QSFP28 ports (PIC 0) that run as 100GE, 40GE, or four 10GE breakouts each, and a single 1G RJ-45 management port. No copper data ports and no line-card slots - the MX204 is fully fixed, with one built-in Routing Engine and 1+1 power supplies.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "fxp0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "xe-0/1/0",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/5",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/6",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "xe-0/1/7",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "et-0/0/0",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "et-0/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "et-0/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "et-0/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.juniper.net/documentation/us/en/software/junos/interfaces-ethernet/topics/topic-map/port-speed-mx-routers.html",
+      "notes": "MX204 chassis documentation: \"four rate-selectable ports that can be configured as 100-Gigabit Ethernet ports or 40-Gigabit Ethernet ports, or each port can be configured as four 10-Gigabit Ethernet ports (by using a breakout cable). The MX204 also has eight 10-Gigabit Ethernet ports. The four rate-selectable ports support QSFP28 and QSFP+ transceivers, whereas the eight 10-Gigabit Ethernet ports support SFP+ transceivers.\" Juniper's port-speed guide splits the router into fixed-port PIC 0 (ports 0-3, 100/40/10G) and MIC PIC 1 (ports 0-7, 10G), which is why the interfaces are et-0/0/0-3 and xe-0/1/0-7. Breakout is one physical cage, so each QSFP28 is a single interface with 40G/100G speed caps."
+    },
+    {
+      "vendor": "juniper",
+      "model": "SRX380",
+      "label": "SRX380 SD-WAN security gateway",
+      "category": "router",
+      "description": "1 RU branch SD-WAN gateway / firewall rated 20 Gbps firewall and 10 Gbps IMIX routing: 16 PoE-enabled 1G RJ-45 access ports, four MACsec-capable SFP/SFP+ ports that run at 1G or 10G, and a dedicated RJ-45 management port. Four mini-PIM slots take additional WAN or copper/fibre modules.",
+      "capabilities": [
+        "l3-forward",
+        "nat",
+        "firewall",
+        "cli",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "ge-0/0/0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/11",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/12",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/13",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/14",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/15",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/16",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "ge-0/0/17",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "ge-0/0/18",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "ge-0/0/19",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "fxp0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://apps.juniper.net/hct/product/SRX380/hwspecs",
+      "notes": "Juniper HCT hardware specs for SRX380-P-SYS-JB-AC: RJ-45 port count 16, SFP+ port count 4 (both MACsec), management port 1x RJ-45 (fxp0), 4 mini-PIM slots, 2 console ports. The four SFP+ cages accept 1G or 10G optics per the SRX380 chassis documentation (\"Four 1 or 10-Gigabit Ethernet MACsec-enabled SFP or SFP+ ports\"), hence speedCaps 1000/10000. The 16 copper ports are 802.3at PoE-enabled."
+    },
+    {
+      "vendor": "nokia",
+      "model": "7750 SR-1",
+      "label": "7750 SR-1 service router",
+      "category": "router",
+      "description": "1 RU single-slot service router (up to 1.5 Tb/s full duplex on FP4) with one MDA slot fitted with the 6-port QSFP28 MDA-e-XP: six 100GE QSFP28 connectors, each also usable at 40GE or as 10/25GE breakouts. There are no copper data ports and no second line-card slot - capacity and port mix come entirely from the installed MDA.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1/c1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "1/1/c2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "1/1/c3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "1/1/c4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "1/1/c5",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "1/1/c6",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        }
+      ],
+      "sourceUrl": "https://documentation.nokia.com/sr/24-3/7750-sr/pdf/Interface_Configuration_Guide_24.3.R1.pdf",
+      "notes": "Nokia 7750 SR data sheet: the SR-1 is a \"modular, single-slot system supporting up to 1.5 Tb/s FD\" with QSFP56-DD/QSFP28/SFP28 connectors and 10x10GE, 2x100GE and 4x100GE breakout options. The SR OS interface guides use the SR-1 with the 6-port QSFP28 mda-e-xp as the worked example (connector naming slot/mda/connector, i.e. 1/1/c1). Port list shown is that documented build; a different MDA changes the port mix."
+    },
+    {
+      "vendor": "huawei",
+      "model": "NE40E-X8A",
+      "label": "NetEngine 40E-X8A core router",
+      "category": "router",
+      "description": "21 RU core/peering chassis with 51.2 Tbit/s switching capacity and 7232 Mpps forwarding: eight LPU slots (two half-width subslots each), two MPU slots and four SFU slots, shown here fully populated with 32 x 100GE QSFP28 ports (4 per LPU). Line processing units accept E1/POS/CPOS/FE/GE/10GE/40GE/100GE cards, so the port mix follows the installed LPUs.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "100GE1/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE1/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE1/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE1/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE2/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE2/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE2/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE2/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE3/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE3/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE3/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE3/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE4/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE4/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE4/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE4/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE5/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE5/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE5/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE5/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE6/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE6/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE6/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE6/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE7/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE7/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE7/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE7/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE8/0/1",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE8/0/2",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE8/0/3",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        },
+        {
+          "name": "100GE8/0/4",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            100000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.ycict.net/products/huawei-ne40e-x8a-router/",
+      "notes": "NE40E-X8A platform table: 51.2 Tbit/s switching, 7232 Mpps, 2 MPU slots, 4 SFU slots, 8 LPU slots, 930 x 442 x 650 mm (21 U), 4770 W max. Huawei's slot map numbers LPUs 1-8 and SRUs 9-10, which is why port names use 100GE<slot>/0/<port>. Interface types supported: E1, POS, CPOS, FE, GE, 10GE, 40GE and 100GE; the 32 x 100GE list is one fully-populated build (8 LPUs x 4 x 100GE), not a fixed port count."
+    },
+    {
+      "vendor": "arista",
+      "model": "7280R3-48YC8",
+      "label": "7280R3 48YC8 25G/100G router",
+      "category": "router",
+      "description": "1 RU 2 Tbps deep-buffer routing platform with 48 SFP28 ports that run at 1G, 10G or 25G plus 8 QSFP28 ports at 100G or 40G, all fixed - there are no line-card or module slots. Designed for internet peering and WAN edge roles with full BGP tables and a 4 GB buffer.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "http-server",
+        "dhcp-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "Ethernet1",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet2",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet3",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet4",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet5",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet6",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet7",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet8",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet9",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet10",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet11",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet12",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet13",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet14",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet15",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet16",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet17",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet18",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet19",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet20",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet21",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet22",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet23",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet24",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet25",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet26",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet27",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet28",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet29",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet30",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet31",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet32",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet33",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet34",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet35",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet36",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet37",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet38",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet39",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet40",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet41",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet42",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet43",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet44",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet45",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet46",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet47",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet48",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            1000,
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "Ethernet49",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet50",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet51",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet52",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet53",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet54",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet55",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        },
+        {
+          "name": "Ethernet56",
+          "type": "ethernet",
+          "speed": "100G",
+          "connector": "qsfp28",
+          "speedCaps": [
+            40000,
+            100000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7280R3-Data-Sheet.pdf",
+      "notes": "7280R3 data sheet: \"7280SR3-48YC8 series: 48 port 25G and 8 port 100G\", \"2 Tbps wire speed performance with 4GB buffer, 48 x 25G SFP and 8 x 100G QSFP\". The SFP ports support 1/10/25G operation and the QSFP ports support 100G, 40G or breakout, hence the speedCaps. Fixed 1 RU chassis: no expansion slots."
+    },
+    {
+      "vendor": "mikrotik",
+      "model": "CCR2116-12G-4S+",
+      "label": "Cloud Core Router CCR2116-12G-4S+",
+      "category": "router",
+      "description": "1 RU cloud core router built on a 16-core 2 GHz ARM64 CPU with 16 GB RAM: twelve 1G RJ-45 ports and four 10G SFP+ cages, all wired through the Marvell Aldrin switch chip, plus an M.2 PCIe slot and a serial console. Targets 10G-era BGP and NAT edge roles at a fraction of the cost of a chassis router.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "ether1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether11",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether12",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp-sfpplus1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "sfp-sfpplus2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "sfp-sfpplus3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "sfp-sfpplus4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://mikrotik.com/product/ccr2116_12g_4splus",
+      "notes": "MikroTik product page: \"four 10G SFP+ ports ... connected to the Marvell Aldrin family switch chip. Then we have Gigabit Ethernet ports. 12 of them are running through the Marvell chip.\" Port labels are ether1-ether12 and sfp-sfpplus1-4 as shown in RouterOS. No PoE, no USB data ports (M.2 PCIe slot and 1x RJ-45 serial console only)."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "EdgeRouter Infinity",
+      "label": "EdgeRouter Infinity ER-8-XG",
+      "category": "router",
+      "description": "1 RU EdgeOS router with an 80 Gbps aggregate forwarding capacity from a 16-core 1.8 GHz CPU and 16 GB DDR4: eight 10G SFP+ cages (eth1-eth8) plus a single 1G RJ-45 port (eth0), with no module slots. Aimed at ISP aggregation and 10G branch uplinks.",
+      "capabilities": [
+        "l3-forward",
+        "cli",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth5",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth6",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth7",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "eth8",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeRouter_ER-8-XG_DS.pdf",
+      "notes": "Ubiquiti data sheet: \"eight 10G SFP+ ports and a Gigabit Ethernet RJ45 port for routing\" with 80 Gbps aggregate throughput. The ER-8-XG quick start guide labels the front panel \"SFP+ (eth1-eth8)\" for the hot-swappable 10G cages and \"RJ45 (eth0)\" for the 10/100/1000 port, so the copper port is eth0, not eth8. An RJ-45 serial console sits alongside but is not a data port."
+    },
+    {
+      "vendor": "juniper",
+      "model": "vSRX",
+      "label": "vSRX virtual firewall (SD-WAN edge)",
+      "category": "router",
+      "description": "Virtual Junos firewall/router instance for branch and SD-WAN edges: up to 10 vNICs, with fxp0 reserved for out-of-band management and ge-0/0/0 upward mapped to traffic vNICs at the hypervisor's NIC speed. There is no physical hardware - port count follows the vNIC set attached to the VM.",
+      "capabilities": [
+        "l3-forward",
+        "nat",
+        "firewall",
+        "cli",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "fxp0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge-0/0/8",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.juniper.net/documentation/us/en/software/vsrx/vsrx-vmware/vsrx-vmware.pdf",
+      "notes": "vSRX on VMware specification table: \"vNICs: Up to 10 vNICs (SR-IOV)\"; interface mapping is fxp0 for out-of-band management and ge-0/0/0 for the first traffic vNIC. Cloud variants are smaller (AWS and GCP cap at 8 interfaces, Nutanix 8). Modelled with 10 vNICs at 1G because the link rate is whatever the hypervisor NIC provides, not a fixed optic."
+    },
+    {
+      "vendor": "fortinet",
+      "model": "FortiGate 100F",
+      "label": "FortiGate 100F secure SD-WAN gateway",
+      "category": "router",
+      "description": "1 RU secure SD-WAN appliance with 20 Gbps firewall and 11.5 Gbps IPsec throughput on the purpose-built SD-WAN ASIC: 18 x 1G RJ-45 ports (MGMT/DMZ, WAN1-WAN2, HA1-HA2 and port1-12), four 1G SFP cages (13-16), four RJ-45/SFP shared pairs (17-20) where only one half of each pair can be used, and two 10G SFP+ FortiLink ports (X1-X2). No expansion slots.",
+      "capabilities": [
+        "l3-forward",
+        "nat",
+        "firewall",
+        "cli",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "mgmt",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "dmz",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ha1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ha2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port11",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port12",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port13",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port14",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port15",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port16",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port17",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "port17-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "port17-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "port17",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "port18",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "port18-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "port18-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "port18",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "port19",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "port19-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "port19-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "port19",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "port20",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "port20-sfp",
+          "comboRole": "rj45"
+        },
+        {
+          "name": "port20-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ],
+          "comboWith": "port20",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "x1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "x2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://docs.fortinet.com/document/fortigate/8.0.2/hardware-acceleration/47902/fortigate-100f-and-101f-fast-path-architecture",
+      "notes": "FortiGate 100F/101F fast-path architecture doc: \"Two 10/100/1000BASE-T Copper (DMZ, MGMT). Sixteen 10/100/1000BASE-T Copper (WAN1, WAN2, HA1, HA2, 1 to 12). Two 10 GigE SFP+ (X1 and X2) ... Four 1GigE SFP (13 to 16). Four shared interfaces (17 to 20) that can be either 10/100/1000BASE-T Copper or 1GE SFP.\" Ports 17-20 are therefore modelled as combo pairs: \"there are two sets of physical interfaces numbered 17 to 20 but only one of each can be connected to a network\". Interface names follow FortiOS (port1-port20, wan1/wan2, ha1/ha2, dmz, mgmt, x1/x2) with the SFP half of a shared pair suffixed -sfp because FortiOS gives both halves the same name."
+    },
+    {
+      "vendor": "fortinet",
+      "model": "FortiGate 200F",
+      "label": "FortiGate 200F secure SD-WAN gateway",
+      "category": "router",
+      "description": "1 RU campus/enterprise-branch secure SD-WAN gateway at 27 Gbps firewall and 13 Gbps IPsec: 16 x 1G RJ-45 switch ports, 8 x 1G SFP cages (17-24), 4 x 10G SFP+ ports (X1-X2 network, X3-X4 FortiLink) and dedicated MGMT and HA RJ-45 ports. Fixed chassis, no expansion slots.",
+      "capabilities": [
+        "l3-forward",
+        "nat",
+        "firewall",
+        "cli",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "port1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port8",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port9",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port10",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port11",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port12",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port13",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port14",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port15",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port16",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port17",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port18",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port19",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port20",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port21",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port22",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port23",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "port24",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "x1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "x2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "x3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "x4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            10000
+          ]
+        },
+        {
+          "name": "mgmt",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ha",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://cdn.blueally.com/avfirewalls/datasheets/fortigate/fortigate-200f-series.pdf",
+      "notes": "FortiGate 200F data sheet: \"18 x GE RJ45 (including 1 x MGMT port, 1 x HA port, 16 x switch ports), 8 x GE SFP slots, 2 x 10GE SFP+ slots, 2 x 10GE SFP+ FortiLink slots\". Front panel callouts: 2x GE RJ45 HA/MGMT, 16x GE RJ45, 2x 10GE SFP+ (X1-X2), 2x 10GE SFP+ FortiLink (X3-X4), 8x GE SFP. No shared media pairs on this model, unlike the 100F."
+    }
+  ]
+}

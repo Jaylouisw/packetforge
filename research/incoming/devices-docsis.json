@@ -295,10 +295,6 @@
           "connector": "rj11"
         },
         {
-          "name": "usb1",
-          "type": "usb"
-        },
-        {
           "name": "wlan1",
           "type": "wireless",
           "speed": "600M",
@@ -1451,10 +1447,6 @@
           "name": "lan4",
           "type": "ethernet",
           "speed": "100M"
-        },
-        {
-          "name": "usb1",
-          "type": "usb"
         },
         {
           "name": "wlan1",

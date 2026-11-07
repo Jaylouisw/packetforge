@@ -1,0 +1,26 @@
+{
+  "vendor": "motorola",
+  "model": "MB7621",
+  "label": "Motorola MB7621 24x8 DOCSIS 3.0 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.0 cable modem with 24 bonded downstream and 8 bonded upstream channels and exactly one Gigabit Ethernet port; no Wi-Fi, no telephone jacks.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

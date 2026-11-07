@@ -1,0 +1,27 @@
+{
+  "vendor": "zyxel",
+  "model": "VMG4005-B50A",
+  "label": "Zyxel VMG4005-B50A VDSL2 35b single-line bridge modem",
+  "category": "modem",
+  "description": "Pure VDSL2 bridge modem delivering 300 Mbit/s on a 35b single line (200 Mbit/s with 17a bonding) with ADSL2+ fallback, one RJ-11 line port and one 10/100/1000 Ethernet LAN port, transparently bridging PPPoE to the router behind it.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

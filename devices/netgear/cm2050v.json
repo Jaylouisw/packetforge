@@ -1,0 +1,26 @@
+{
+  "vendor": "netgear",
+  "model": "CM2050V",
+  "label": "NETGEAR Nighthawk CM2050V 2.5 Gbps DOCSIS 3.1 cable telephony modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 32x8 SC-QAM plus 2 OFDM and 2 OFDMA channels, exposing a single 2.5GBASE-T port; the two RJ11 telephone jacks are FXS voice lines, not data ports.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

@@ -1,0 +1,539 @@
+{
+  "vendor": "dell",
+  "model": "DS-6630B",
+  "label": "Dell Connectrix DS-6630B 32G FC switch",
+  "category": "switch",
+  "description": "2U Connectrix B-series (Brocade G630) SAN switch: 96 standard 32G SFP+ ports plus 8 QSFP ICL cages that add 32 more ports, 128 line-rate 32G ports in total. Ports autosense 8/16/32G; 1GbE RJ45 management and a serial console.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "48",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "49",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "50",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "51",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "52",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "53",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "54",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "55",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "56",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "57",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "58",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "59",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "60",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "61",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "62",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "63",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "64",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "65",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "66",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "67",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "68",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "69",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "70",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "71",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "72",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "73",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "74",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "75",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "76",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "77",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "78",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "79",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "80",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "81",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "82",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "83",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "84",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "85",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "86",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "87",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "88",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "89",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "90",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "91",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "92",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "93",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "94",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "95",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "icl0",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "icl7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

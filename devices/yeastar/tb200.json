@@ -1,0 +1,19 @@
+{
+  "vendor": "yeastar",
+  "model": "TB200",
+  "label": "TB200 2-port BRI VoIP gateway",
+  "category": "modem",
+  "description": "BRI gateway with 2 ISDN BRI ports (4 B-channels) that bridges ISDN BRI lines to SIP, with no analog FXS/FXO ports and a single 10/100 Mbps LAN port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

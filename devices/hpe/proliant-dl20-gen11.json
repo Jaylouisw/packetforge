@@ -1,0 +1,35 @@
+{
+  "vendor": "hpe",
+  "model": "ProLiant DL20 Gen11",
+  "label": "HPE ProLiant DL20 Gen11 1U short-depth server",
+  "category": "server",
+  "description": "1U short-depth single-socket rack server with an embedded Broadcom BCM5719 1Gb 4-port BASE-T controller; iLO 6 shares embedded port 1 by default, and a separate dedicated 1GbE iLO port only exists if the optional Serial Port/iLO/M.2 enablement kit is fitted.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

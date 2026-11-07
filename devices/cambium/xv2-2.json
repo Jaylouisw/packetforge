@@ -1,0 +1,31 @@
+{
+  "vendor": "cambium",
+  "model": "XV2-2",
+  "label": "Cambium Networks XV2-2",
+  "category": "wireless",
+  "description": "Dual-radio Wi-Fi 6 (802.11ax) 2x2 indoor enterprise AP managed by XMS-Cloud, cnMaestro or standalone. It has a single 10/100/1000/2500 Mbps RJ45 port with 802.3at PoE-in and two radios: 2.4 and 5 GHz.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ]
+}

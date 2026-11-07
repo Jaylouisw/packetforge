@@ -1,0 +1,44 @@
+{
+  "vendor": "netapp",
+  "model": "AFF A250",
+  "label": "NetApp AFF A250 entry all-flash array",
+  "category": "nas",
+  "description": "2U entry-level AFF all-flash system with two active-active controllers. Onboard I/O is 4 x 25GbE SFP28 (2 per controller, 10GbE autoranging) plus 2 x 1GbE RJ45 management ports (e0M, one per controller); PCIe slots take it to 20 x 25GbE or 16 x 32G FC for iSCSI, NVMe/TCP, NVMe/FC and NFS/SMB.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "e0c",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "e0d",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "e0e",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "e0f",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt-a",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt-b",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

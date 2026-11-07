@@ -1,0 +1,53 @@
+{
+  "vendor": "cisco",
+  "model": "ISR 4331",
+  "label": "ISR 4331 branch router",
+  "category": "router",
+  "description": "Sub-2 Gbps branch services router: 100 Mbps of CEF/IPsec forwarding in the base licence, 300 Mbps with the FL-4330-PERF licence and up to 1.8 Gbps with the booster licence. Three onboard dual-mode GE ports (an RJ-45 and an SFP cage on the same port number, one media active at a time) plus a dedicated GE management port, with two NIM slots, one ISC slot and one SM-X slot for WAN, voice and switching modules.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Gi0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/0-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/1-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/2-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

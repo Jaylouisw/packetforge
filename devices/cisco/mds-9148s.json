@@ -1,0 +1,259 @@
+{
+  "vendor": "cisco",
+  "model": "MDS 9148S",
+  "label": "Cisco MDS 9148S 16G FC switch",
+  "category": "switch",
+  "description": "1RU 16G Fibre Channel fabric switch: 48 autosensing 2/4/8/16G ports (12, 24 or 48 active per licence), SAN-OS/NX-OS with VSANs and IVR. One 10/100/1000Base-T mgmt0 port and an RJ45 console; no Ethernet data ports.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "fc1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/13",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/14",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/15",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/19",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/20",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/21",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/22",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/23",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/24",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/27",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/28",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/29",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/30",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/31",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/32",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/33",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/34",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/35",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/36",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/37",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/38",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/39",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/40",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/41",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/42",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/43",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/44",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/45",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/46",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/47",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "fc1/48",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "vendor": "tp-link",
+  "model": "Deco XE75",
+  "label": "TP-Link Deco XE75",
+  "category": "router",
+  "description": "AXE5400 tri-band Wi-Fi 6E mesh: 2x2 on 2.4, 5 and 6 GHz, with the 6 GHz radio (radio2) used as the dedicated wireless backhaul between Deco units. Three GbE auto-sensing ports per unit, so wired backhaul is 1G only unless you step up to the XE75 Pro variant with its 2.5G port.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

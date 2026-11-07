@@ -1,0 +1,24 @@
+{
+  "vendor": "fs",
+  "model": "FHD-1U-PP-24LC",
+  "label": "24-port LC/UPC fibre patch panel / ODF, 1U",
+  "category": "splitter",
+  "description": "1U rack-mount optical distribution frame holding 12 x LC/UPC duplex adapters (24 fibres), used to terminate outside-plant cable and cross-connect it to the equipment side. Passive pass-through: <=0.2 dB insertion loss per mated LC/UPC pair (0.1 dB typical), >=50 dB return loss, ceramic split sleeves; the enclosure takes four such panels for 96 fibres in 1U.",
+  "capabilities": [],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "lc",
+    "speedCaps": [
+      1000,
+      10000,
+      25000,
+      40000,
+      100000
+    ]
+  },
+  "interfaces": []
+}

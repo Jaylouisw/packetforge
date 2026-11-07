@@ -1,0 +1,262 @@
+{
+  "vendor": "casa",
+  "model": "C3200",
+  "label": "Casa Systems C3200 CMTS (3RU, 1x SMM + 3x DQM16 + 3x DCU16)",
+  "category": "modem",
+  "description": "3RU CMTS chassis with one Switch & Management Module carrying 12 gigabit Ethernet uplinks, fully populated with 3x DQM16 downstream modules (48 QAM channels on 12 F-connectors) and 3x DCU16 upstream modules (48 channels on 24 F-connectors).",
+  "capabilities": [
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ds1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds4",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds5",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds6",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds7",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds8",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds9",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds10",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds11",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "ds12",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us1",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us2",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us3",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us4",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us5",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us6",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us7",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us8",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us9",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us10",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us11",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us12",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us13",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us14",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us15",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us16",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us17",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us18",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us19",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us20",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us21",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us22",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us23",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "us24",
+      "type": "coax",
+      "speed": "100M"
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "uplink12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}

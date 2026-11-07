@@ -4,21 +4,121 @@
   "label": "RT-AX89X AX6000 dual-band router",
   "category": "router",
   "description": "ASUS RT-AX89X - Wi-Fi 6 AX6000 dual-band (2.4 GHz 4x4 1148 Mbps, 5 GHz 8x8 4804 Mbps) with one 10GBASE-T RJ45 port, one 10G SFP+ cage, 1x 1G WAN, 8x 1G LAN and 2x USB 3.0. Commonly deployed as an AiMesh main router.",
-  "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server", "cli"],
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "cli"
+  ],
   "interfaces": [
-    { "name": "wan", "type": "ethernet", "speed": "1G" },
-    { "name": "lan1", "type": "ethernet", "speed": "1G" },
-    { "name": "lan2", "type": "ethernet", "speed": "1G" },
-    { "name": "lan3", "type": "ethernet", "speed": "1G" },
-    { "name": "lan4", "type": "ethernet", "speed": "1G" },
-    { "name": "lan5", "type": "ethernet", "speed": "1G" },
-    { "name": "lan6", "type": "ethernet", "speed": "1G" },
-    { "name": "lan7", "type": "ethernet", "speed": "1G" },
-    { "name": "lan8", "type": "ethernet", "speed": "1G" },
-    { "name": "10g-rj45", "type": "ethernet", "speed": "10G", "speedCaps": [100, 1000, 2500, 5000, 10000] },
-    { "name": "10g-sfp", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
-    { "name": "radio0", "type": "wireless", "speed": "1G" },
-    { "name": "radio1", "type": "wireless", "speed": "1G" }
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "10g-rj45",
+      "type": "ethernet",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ],
+      "role": "lan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "10g-sfp",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "lan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
   ],
   "icon": "router",
   "color": "#2563eb",

@@ -1,0 +1,23 @@
+{
+  "vendor": "ubiquiti",
+  "model": "POE-24-24W",
+  "label": "24V 24W gigabit passive PoE injector",
+  "category": "powerline",
+  "description": "Single-port passive 24V PoE adapter that feeds 24 VDC at 1 A (24 W) over the spare pairs to an airMAX radio or other 24V-only device. It does no 802.3af/at detection or classification, so it will apply 24V to any device plugged in regardless of what that device expects.",
+  "capabilities": [
+    "poe-injector",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

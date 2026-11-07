@@ -1,0 +1,60 @@
+{
+  "vendor": "zte",
+  "model": "ZXHN F8648P",
+  "label": "ZXHN F8648P XGS-PON ONT",
+  "category": "ont",
+  "description": "ZTE ZXHN F8648P AX6000 XGS-PON residential gateway: one 10GE LAN port, four GE LAN ports, two POTS ports and concurrent dual-band WiFi 6 (4x4 2.4 GHz plus 4x4 5 GHz at 160 MHz). Single SC/APC XGS-PON port, routable with NAT/firewall.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G"
+    },
+    {
+      "name": "lan10g",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2.4",
+      "type": "wireless",
+      "speed": "1148M"
+    },
+    {
+      "name": "wlan5",
+      "type": "wireless",
+      "speed": "4804M"
+    }
+  ]
+}

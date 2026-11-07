@@ -1,0 +1,36 @@
+{
+  "vendor": "ruckus",
+  "model": "R650",
+  "label": "RUCKUS R650",
+  "category": "wireless",
+  "description": "Dual-band Wi-Fi 6 (802.11ax) indoor AP with 4x4:4 in 5 GHz and 2x2:2 in 2.4 GHz, BeamFlex+ adaptive antennas and onboard BLE/Zigbee. One 2.5GbE port plus one 1GbE port, and two radios: 2.4 GHz and 5 GHz.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ]
+}

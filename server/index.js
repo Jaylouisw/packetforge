@@ -270,6 +270,19 @@ async function handleApi(req, res, urlPath) {
       }
       if (body.enabled !== undefined) iface.enabled = !!body.enabled;
       if (body.description !== undefined) iface.description = body.description || '';
+      // A dual-purpose cage (WAN or LAN) can be switched, but only to a role the
+      // hardware actually offers. Refusing anything else keeps "impossible" out of
+      // the model while letting the complex-but-possible case through.
+      if (body.role !== undefined) {
+        const allowed = iface.dualRole || (iface.role ? [iface.role] : null);
+        if (!allowed || allowed.indexOf(body.role) === -1) {
+          return sendJSON(res, 400, {
+            error: iface.name + ' cannot be ' + body.role +
+              (allowed ? '; it is fixed to ' + allowed.join('/') : '; it has no configurable role')
+          });
+        }
+        iface.role = body.role;
+      }
       broadcast(topoId);
       return sendJSON(res, 200, { device: dev.serialize(), state: fullState(topo) });
     }

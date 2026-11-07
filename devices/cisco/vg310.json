@@ -1,0 +1,25 @@
+{
+  "vendor": "cisco",
+  "model": "VG310",
+  "label": "VG310 24-port FXS voice gateway",
+  "category": "modem",
+  "description": "1U Cisco IOS-based analog voice gateway with 24 FXS voice ports presented on an RJ-21 connector, two 10/100/1000BASE-T gigabit Ethernet ports and one EHWIC slot for PSTN or WAN uplinks.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ge0/0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge0/1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

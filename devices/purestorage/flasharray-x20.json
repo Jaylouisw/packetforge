@@ -1,0 +1,54 @@
+{
+  "vendor": "purestorage",
+  "model": "FlashArray //X20",
+  "label": "Pure Storage FlashArray //X20",
+  "category": "nas",
+  "description": "3U dual-controller all-NVMe block array. Each controller has 2 x 1/10/25GbE SFP28 host/replication ports and 2 x 1GbE management ports onboard (4 + 4 per array), with three host-I/O card slots per controller for 2-port 32G FC or extra 10/25GbE. Presents iSCSI, NVMe/TCP, FC and NVMe/FC.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "ct0.eth0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ct0.eth1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ct1.eth0",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ct1.eth1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "ct0.mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ct0.mgmt1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ct1.mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ct1.mgmt1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

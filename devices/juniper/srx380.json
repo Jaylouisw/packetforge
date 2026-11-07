@@ -1,0 +1,52 @@
+{
+  "vendor": "juniper",
+  "model": "SRX380",
+  "label": "Juniper SRX380 firewall",
+  "category": "firewall",
+  "description": "Juniper SRX380 - large-branch/campus services gateway: 16x 1G RJ45 PoE+ ports (ge-0/0/0-15) + 4x 1G/10G SFP/SFP+ ports (xe-0/0/16-19), all MACsec-capable, plus a dedicated 1G MGMT port and 4 Mini-PIM slots. WAN is normally carried on the four SFP/SFP+ ports, LAN on the 16 copper PoE ports.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "xe-0/0/16",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/17",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/18",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xe-0/0/19",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

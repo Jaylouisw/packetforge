@@ -1,0 +1,55 @@
+{
+  "vendor": "avm",
+  "model": "FRITZ!Box 7530",
+  "label": "AVM FRITZ!Box 7530 VDSL2 Supervectoring DSL router",
+  "category": "modem",
+  "description": "DSL router with an integrated VDSL2 35b Supervectoring / ADSL2+ modem on one DSL jack, four gigabit LAN ports (LAN 1 can act as WAN) and dual-band Wi-Fi 5.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "host",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wifi24",
+      "type": "wireless",
+      "speed": "400M"
+    },
+    {
+      "name": "wifi5",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

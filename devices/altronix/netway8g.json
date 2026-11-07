@@ -1,0 +1,94 @@
+{
+  "vendor": "altronix",
+  "model": "NetWay8G",
+  "label": "8-port managed 802.3at PoE midspan (30W/port, 240W)",
+  "category": "powerline",
+  "description": "1U managed midspan that adds 802.3af/at power to eight gigabit data links, 30 W per port and 240 W total with battery-backed charging. Per-port power is schedulable and metered over the network, which makes it the usual choice for camera runs where the switch has no PoE.",
+  "capabilities": [
+    "poe-injector",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

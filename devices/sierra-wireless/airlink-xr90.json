@@ -1,0 +1,55 @@
+{
+  "vendor": "sierra-wireless",
+  "model": "AirLink XR90",
+  "label": "Sierra Wireless AirLink XR90 5G vehicle router",
+  "category": "router",
+  "description": "Rugged IP64 vehicle router built around a 5G NR modem (a second 5G radio is an option, adding a fifth Ethernet port) with dual 4x4 Wi-Fi 6, one 5 Gbps Ethernet port and three GbE LAN ports.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

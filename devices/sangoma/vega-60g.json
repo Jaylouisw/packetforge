@@ -1,0 +1,19 @@
+{
+  "vendor": "sangoma",
+  "model": "Vega 60G",
+  "label": "Vega 60G analog/BRI VoIP gateway",
+  "category": "modem",
+  "description": "Compact standalone analog VoIP gateway available with 2, 4 or 8 RJ-11 FXS ports (also 4/8 FXO, 4 FXO + 4 FXS, or 2/4 BRI variants), connected to the LAN by a single 10/100/1000BASE-T RJ-45 port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

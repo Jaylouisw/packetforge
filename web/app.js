@@ -448,6 +448,12 @@
     // wire interface editors
     wrap.querySelectorAll('input[data-field]').forEach(function (inp) {
       inp.addEventListener('change', function () { applyInterfaceEdit(d.id, inp.getAttribute('data-iface'), inp.getAttribute('data-field'), inp.value); });
+      // Enter should commit the field you are in, the way it does everywhere else.
+      // Tab keeps its natural meaning: it moves to the next field, and for an address
+      // that next field is its mask.
+      inp.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); inp.blur(); }
+      });
     });
     wrap.querySelectorAll('.port-toggle').forEach(function (sp) {
       sp.addEventListener('click', async function () {
@@ -456,6 +462,24 @@
         try {
           const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { enabled: !cur.enabled });
           topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+        } catch (e) { toast(e.message); }
+      });
+    });
+    // Dual-purpose cages (a 10G port that can be WAN or LAN) flip here. The server
+    // only accepts roles the port actually lists, so an impossible combination comes
+    // back as a refusal rather than silently becoming something the hardware is not.
+    wrap.querySelectorAll('.port-role[data-iface]').forEach(function (chip) {
+      chip.addEventListener('click', async function (ev) {
+        ev.stopPropagation();
+        const iface = chip.getAttribute('data-iface');
+        const cur = d.interfaces.find(function (i) { return i.name === iface; });
+        const opts = cur && cur.dualRole ? cur.dualRole : [];
+        if (opts.length < 2) return;
+        const next = opts[(opts.indexOf(cur.role) + 1) % opts.length];
+        try {
+          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { role: next });
+          topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+          toast(iface + ' is now a ' + next.toUpperCase() + ' port');
         } catch (e) { toast(e.message); }
       });
     });
@@ -474,21 +498,71 @@
     return parts.reduce(function (a, o) { return a + (o.toString(2).match(/1/g) || []).length; }, 0);
   }
 
+  // ---------- IP / mask editing ----------
+  // The server requires a mask whenever an address is set, and the old code
+  // satisfied that by quietly filling in 255.255.255.0 the instant you typed an
+  // address. So a /24 appeared before you had a chance to say otherwise, and
+  // because the panel re-rendered on save, focus was thrown away too - Tab never
+  // reached the mask box. Both halves of that are the bug.
+  //
+  // Now an address is buffered until its mask arrives: type the address, press Tab,
+  // and you land in the mask field on the same port. Nothing is committed until
+  // both halves exist (issue #7).
+  const pendingIp = Object.create(null);
+
+  function maskFromShorthand(v) {
+    const s = String(v || '').trim().replace(/^\//, '');
+    if (!/^\d{1,2}$/.test(s)) return String(v || '').trim();
+    const bits = Number(s);
+    if (bits > 32) return String(v || '').trim();
+    let n = 0;
+    for (let i = 0; i < bits; i++) n |= (1 << (31 - i));
+    return [24, 16, 8, 0].map(function (sh) { return (n >>> sh) & 255; }).join('.');
+  }
+
+  function focusMask(devId, iface) {
+    const el = document.querySelector('input[data-iface="' + iface + '"][data-field="mask"]');
+    if (el) { el.focus(); if (el.select) el.select(); }
+  }
+
   async function applyInterfaceEdit(devId, iface, field, value) {
+    const key = devId + '/' + iface;
     try {
       const d = deviceById(devId);
       const cur = d.interfaces.find(function (i) { return i.name === iface; });
-      const body = { ip: cur.ip, mask: cur.mask };
+      if (!cur) return;
+
       if (field === 'ip') {
-        if (!value.trim()) body.ip = null;
-        else { body.ip = value.trim(); if (!body.mask) body.mask = '255.255.255.0'; }
-      } else if (field === 'mask') {
-        if (!value.trim()) body.mask = null;
-        else body.mask = value.trim();
+        const typed = String(value || '').trim();
+        if (!typed) {
+          // Clearing the address clears its mask with it - an address with no mask
+          // is not a thing you can route.
+          delete pendingIp[key];
+          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface,
+            { ip: null, mask: null });
+          topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+          toast('Cleared ' + iface);
+          return;
+        }
+        // Hold the address and put the cursor where the next number belongs.
+        pendingIp[key] = typed;
+        focusMask(devId, iface);
+        toast('Enter the mask for ' + typed + ' (24, or 255.255.255.0)');
+        return;
       }
-      const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface, body);
-      topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
-      toast('Updated ' + devId + '/' + iface);
+
+      if (field === 'mask') {
+        const raw = String(value || '').trim();
+        const ip = pendingIp[key] || cur.ip;
+        if (!ip) { toast('Enter an IP address first'); return; }
+        if (!raw) { toast('A mask is required with an address'); focusMask(devId, iface); return; }
+        const mask = maskFromShorthand(raw);
+        const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface, { ip: ip, mask: mask });
+        delete pendingIp[key];
+        topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+        toast('Set ' + iface + ' to ' + ip + '/' + maskBits(mask));
+        return;
+      }
     } catch (e) { toast(e.message); }
   }
 
@@ -574,6 +648,20 @@
 
   // One interface, collapsed to a single line with its hardware visible.
   function ifaceRowHTML(d, i) {
+    // A bridge group is one switch chip with one address: only the representative
+    // port offers address inputs, and the others say where the address lives. Eight
+    // identical address boxes on a consumer router imply eight addresses, which the
+    // hardware does not have (issue #8).
+    const groupRep = i.bridgeGroup
+      ? (d.interfaces.find(function (x) { return x.bridgeGroup === i.bridgeGroup; }) || {}).name
+      : null;
+    const isRep = !i.bridgeGroup || groupRep === i.name;
+    // A dual-purpose cage is a switch, not a label: show it and let it be flipped.
+    const roleChip = i.dualRole
+      ? '<span class="port-role" data-iface="' + i.name + '" title="This cage is either ' +
+          i.dualRole.join(' or ') + '; click to switch">' +
+          String(i.role || i.dualRole[0]).toUpperCase() + ' \u21c4</span>'
+      : (i.role ? '<span class="port-role fixed" title="Fixed role">' + i.role.toUpperCase() + '</span>' : '');
     const connected = (topo.links || []).some(function (l) {
       return (l.a.deviceId === d.id && l.a.iface === i.name) ||
              (l.b.deviceId === d.id && l.b.iface === i.name);
@@ -594,9 +682,12 @@
       '</div>';
 
     html += '<div class="iface-body">';
-    html += '<div class="iface-edit">' +
-      '<input type="text" data-iface="' + i.name + '" data-field="ip" value="' + (i.ip || '') + '" placeholder="IP">' +
-      '<input type="text" data-iface="' + i.name + '" data-field="mask" value="' + (i.mask || '') + '" placeholder="mask">' +
+    html += '<div class="iface-edit">' + roleChip +
+      (isRep
+        ? '<input type="text" data-iface="' + i.name + '" data-field="ip" value="' + (i.ip || '') + '" placeholder="IP">' +
+          '<input type="text" data-iface="' + i.name + '" data-field="mask" value="' + (i.mask || '') + '" placeholder="mask">'
+        : '<span class="port-shared" title="These ports are one switch chip and share one address">' +
+          'address on ' + groupRep + '</span>') +
       '<span class="port-toggle" data-iface="' + i.name + '" data-field="toggle" title="Toggle admin state" style="color:' +
         (i.enabled ? 'var(--green)' : 'var(--red)') + '">' + (i.enabled ? '▲ up' : '▼ down') + '</span>' +
       '</div>';

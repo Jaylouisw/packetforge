@@ -1,0 +1,34 @@
+{
+  "vendor": "fujitsu",
+  "model": "1FINITY T310",
+  "label": "1FINITY T310 muxponder blade",
+  "category": "switch",
+  "description": "1RU 200G muxponder blade for metro and regional aggregation: 20x 10GbE/OTU2/OC-192 client ports multiplexed onto two 100G/200G CFP2-ACO coherent line ports, DC powered and NEBS level 3. Modelled as 20x SFP+ 10G client ports plus 2 line ports at 100G/200G, modelled at this engine's 100G ceiling.",
+  "capabilities": [
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 20,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}

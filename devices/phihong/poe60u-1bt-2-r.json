@@ -1,0 +1,23 @@
+{
+  "vendor": "phihong",
+  "model": "POE60U-1BT-2-R",
+  "label": "60W 802.3bt Type 3 multi-gig PoE injector",
+  "category": "powerline",
+  "description": "Single-port 802.3bt Type 3 injector that negotiates up to 60 W at 56 V across all four pairs and carries 2.5G data, sized for Wi-Fi 6/6E APs and heaters/PTZ domes. Because it is a true bt PSE with LLDP and class-based power, it will only hand out 60 W to a device that asks for it.",
+  "capabilities": [
+    "poe-injector",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "poe",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

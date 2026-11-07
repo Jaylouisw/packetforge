@@ -1,0 +1,30 @@
+{
+  "vendor": "engenius",
+  "model": "EWS377AP",
+  "label": "EnGenius EWS377AP",
+  "category": "wireless",
+  "description": "Dual-radio Wi-Fi 6 (802.11ax) 4x4 indoor AP with OFDMA and MU-MIMO, up to 2400 Mbps in 5 GHz and 1148 Mbps in 2.4 GHz. It has one 10/100/1000/2500 BASE-T RJ45 port with 802.3at PoE-in and two radios: 2.4 and 5 GHz.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ]
+}

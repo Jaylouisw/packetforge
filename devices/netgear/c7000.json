@@ -1,0 +1,56 @@
+{
+  "vendor": "netgear",
+  "model": "C7000",
+  "label": "NETGEAR Nighthawk AC1900 cable modem router (C7000)",
+  "category": "modem",
+  "description": "Two-in-one DOCSIS 3.0 24x8 cable modem and 4-port gigabit router with dual-band 802.11ac Wi-Fi, all behind one coax F-connector.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "host",
+    "wireless",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wifi24",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "wifi5",
+      "type": "wireless",
+      "speed": "1.3G"
+    }
+  ]
+}

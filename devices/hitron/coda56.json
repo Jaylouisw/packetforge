@@ -1,0 +1,26 @@
+{
+  "vendor": "hitron",
+  "model": "CODA56",
+  "label": "Hitron CODA56 DOCSIS 3.1 cable modem",
+  "category": "modem",
+  "description": "DOCSIS 3.1 cable modem with 2x2 OFDM/OFDMA plus 32x8 SC-QAM bonding, presenting a single 2.5GBASE-T port off one F-connector.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

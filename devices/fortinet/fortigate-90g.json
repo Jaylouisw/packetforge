@@ -1,0 +1,47 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiGate 90G",
+  "label": "FortiGate 90G firewall",
+  "category": "firewall",
+  "description": "Fortinet FortiGate 90G - branch NGFW (2.5 Gbps NGFW / 2.2 Gbps threat protection): 8x GE RJ45 internal ports plus 2 shared 'WAN1/WAN2' combo positions that accept either 2.5G RJ45 or 10G SFP+. WAN = wan1/wan2 on copper or sfp1/sfp2 on fiber (same positions, shared media).",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "firewall",
+  "color": "#ef4444"
+}

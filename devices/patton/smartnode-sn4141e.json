@@ -1,0 +1,20 @@
+{
+  "vendor": "patton",
+  "model": "SmartNode SN4141E",
+  "label": "SmartNode SN4141E VoIP gateway",
+  "category": "modem",
+  "description": "Ruggedized DIN-rail SmartNode gateway with 4 RJ-11 FXS ports (also offered as 2 FXS + 2 FXO, or 8 FXS) and one 10/100/1000BASE-T gigabit Ethernet port for the IP side.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

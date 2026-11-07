@@ -1,0 +1,65 @@
+{
+  "vendor": "nokia",
+  "model": "1830 PSS-24x",
+  "label": "1830 Photonic Service Switch 24x",
+  "category": "switch",
+  "description": "24-slot OTN/packet switch with 1 Tb/s per slot and 24 Tb/s non-blocking switching per shelf (48 Tb/s per shelf pair), multiservice clients from sub-10G to 400GE and coherent uplinks up to 1 Tb/s. Modelled with 4x 10AN1T client cards (client1-client40: 40x QSFP28 100GE/OTU4, two positions per card 400GE-capable) and 2x 1T PSE-Vc line cards (line1-line8: 8x coherent line ports programmable 200G-400G, modelled at this engine's 100G ceiling).",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "client",
+    "start": 1,
+    "count": 40,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "100G"
+    }
+  ]
+}
