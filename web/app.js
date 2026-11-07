@@ -208,6 +208,28 @@
   };
 
   // Modal that lets the user choose the physical medium for a new cable.
+  // Lengths people actually buy.
+  //
+  // A DAC is a lead of a specific length, not a medium with a reach: "7 m" is the far
+  // edge of what passive 10G copper will do, and the picker was printing it where the
+  // photograph of the part number belongs. So a 3 m 10G DAC - the most ordinary part in
+  // the rack - could not be expressed at all, and every DAC in a lab was silently made
+  // at its maximum length (issue #31).
+  const DAC_LENGTHS = [0.5, 1, 1.5, 2, 3, 5, 7, 10, 15, 20];
+  const COPPER_LENGTHS = [0.5, 1, 2, 3, 5, 10, 15, 20, 30, 50, 75, 100];
+  const FIBRE_LENGTHS = [0.5, 1, 2, 3, 5, 10, 20, 50, 100, 300, 550, 1000, 2000, 10000, 40000];
+
+  function lengthChoicesFor(family, maxRangeM) {
+    const table = family === 'dac' ? DAC_LENGTHS
+      : (family === 'copper' ? COPPER_LENGTHS
+      : (family === 'fiber' || family === 'fibre' ? FIBRE_LENGTHS : null));
+    if (!table) return [];
+    const ceiling = Number(maxRangeM) || 0;
+    const within = ceiling > 0 ? table.filter(function (m) { return m <= ceiling; }) : table.slice();
+    if (!within.length) within.push(ceiling || 1);
+    return within;
+  }
+
   function pickLinkMedia(options, verdict, portA, portB) {
     return new Promise(function (resolve) {
       const overlay = document.createElement('div');
@@ -224,16 +246,68 @@
         html += '<label class="media-opt' + (sel ? ' sel' : '') + '">' +
           '<input type="radio" name="pf-media" value="' + esc(o.id) + '"' + (sel ? ' checked' : '') + '>' +
           '<span class="mo-name">' + esc(o.name || o.id) + '</span>' +
-          '<span class="mo-meta">' + esc(o.family || '') + (o.maxRangeM ? ' &middot; ' + o.maxRangeM + ' m' : '') + '</span>' +
+          '<span class="mo-meta">' + esc(o.family || '') +
+            (o.maxRangeM ? ' &middot; up to ' + o.maxRangeM + ' m' : '') + '</span>' +
           '</label>';
       }
       html += '</div>';
+      // Length. The ceiling above says how far the technology reaches; this says how long
+      // the lead is, which is the thing you can actually buy.
+      html += '<div class="modal-sub" style="margin-top:10px">Length</div>' +
+        '<div class="length-row"><select id="pf-length"></select>' +
+        '<input type="number" id="pf-length-other" min="0.1" step="0.1" placeholder="other (m)" ' +
+        'style="width:110px;background:var(--bg-2);border:1px solid var(--border-2);color:var(--text);' +
+        'border-radius:5px;padding:6px 8px"></div>';
       html += '<div class="modal-actions">' +
         '<button class="btn" data-act="cancel">Cancel</button>' +
         '<button class="btn primary" data-act="ok">Connect</button></div>';
       box.innerHTML = html;
       overlay.appendChild(box);
       document.body.appendChild(overlay);
+
+      const lengthSel = box.querySelector('#pf-length');
+      const lengthOther = box.querySelector('#pf-length-other');
+
+      function selectedOption() {
+        const chosen = box.querySelector('input[name=pf-media]:checked');
+        if (!chosen) return null;
+        for (const o of options) if (o.id === chosen.value) return o;
+        return null;
+      }
+
+      function refreshLengths() {
+        if (!lengthSel) return;
+        const o = selectedOption();
+        const choices = o ? lengthChoicesFor(o.family, o.maxRangeM) : [];
+        lengthSel.innerHTML = '';
+        for (const m of choices) {
+          const opt = document.createElement('option');
+          opt.value = String(m);
+          opt.textContent = m + ' m';
+          lengthSel.appendChild(opt);
+        }
+        // Default to the short lead: it is what is in the rack, and defaulting to the
+        // maximum quietly made every cable as long as the technology allows.
+        lengthSel.disabled = !choices.length;
+        if (lengthSel.parentNode && !choices.length) lengthSel.parentNode.style.display = 'none';
+      }
+
+      if (box.querySelectorAll) {
+        const radios = box.querySelectorAll('input[name=pf-media]');
+        for (const r of radios) r.addEventListener('change', refreshLengths);
+      }
+      refreshLengths();
+
+      function chosenLength() {
+        if (!lengthSel || lengthSel.disabled) return null;
+        const other = lengthOther && String(lengthOther.value || '').trim();
+        if (other) {
+          const n = parseFloat(other);
+          return isFinite(n) && n > 0 ? n : null;
+        }
+        const v = parseFloat(lengthSel.value);
+        return isFinite(v) && v > 0 ? v : null;
+      }
 
       function done(val) {
         overlay.remove();
@@ -248,7 +322,7 @@
         if (act === 'cancel') { done(null); return; }
         if (act === 'ok') {
           const chosen = box.querySelector('input[name=pf-media]:checked');
-          done(chosen ? chosen.value : null);
+          done(chosen ? { mediaId: chosen.value, lengthM: chosenLength() } : null);
         }
       });
     });
@@ -292,11 +366,13 @@
 
     // 2. Choose the medium
     let mediaId = verdict ? verdict.mediaId : null;
+    let lengthM = null;
     if (options.length > 1) {
       const picked = await pickLinkMedia(options, verdict,
         devName(c.deviceId) + '/' + c.iface, devName(deviceId) + '/' + iface);
       if (!picked) { PFCanvas.setConnecting(null); setStatus('Ready'); return; }
-      mediaId = picked;
+      mediaId = picked.mediaId;
+      lengthM = picked.lengthM;
     }
 
     // 3. Connect
@@ -304,7 +380,8 @@
       const r = await api('POST', '/topologies/' + TOPO + '/links', {
         a: { deviceId: c.deviceId, iface: c.iface },
         b: { deviceId: deviceId, iface: iface },
-        mediaId: mediaId
+        mediaId: mediaId,
+        lengthM: lengthM
       });
       topo = r.state;
       PFCanvas.setConnecting(null);
@@ -752,13 +829,23 @@
         'LLDP: ' + (i.lldp.systemName || '?') + '/' + (i.lldp.portId || '?') + '</span>';
     }
 
+    // The cable peer and the LLDP neighbour both describe this same port, and they
+    // are allowed to disagree - the cable record is wiring, the LLDP one is what the
+    // far end claims. Neither may hide the other (issue #25: as bare grid children of
+    // .iface-head they were auto-placed into the 10px dot column, where two nowrap
+    // labels at different offsets drew on top of each other and neither was legible).
+    // They get their own line under the port, and they can wrap.
+    const portLabels = (peerText || lldpText)
+      ? '<div class="port-labels">' + peerText + lldpText + '</div>'
+      : '';
+
     let html = '<div class="iface-row" data-iface="' + i.name + '">';
     html += '<div class="iface-head">' +
       '<span class="dot ' + (i.enabled ? 'up' : 'down') + '"></span>' +
       '<span class="port-name">' + i.name + '</span>' +
       '<span class="port-media">' + hw + '</span>' +
       '<span class="port-ip' + (i.ip ? ' has' : '') + '">' + ipText + '</span>' +
-      peerText + lldpText +
+      portLabels +
       '</div>';
 
     html += '<div class="iface-body">';
@@ -819,7 +906,17 @@
     html += '<div class="kv"><span class="k">Rate</span><span>' +
       (link.speedMbps ? fmtSpeed(link.speedMbps) + ' (' + link.speedMbps + ' Mbps)' : '—') + '</span></div>';
     html += '<div class="kv"><span class="k">Duplex</span><span>' + (link.duplex || '—') + '</span></div>';
-    if (link.lengthM) html += '<div class="kv"><span class="k">Length</span><span>' + link.lengthM + ' m</span></div>';
+    // Length is editable, because it belongs to the lead and not to the wiring job: the
+    // run you pulled is whatever length it is. It could previously only be set while the
+    // cable was being created, so a link that already existed could never be given a
+    // length at all (issue #31).
+    html += '<div class="kv"><span class="k">Length</span><span>' +
+      '<input type="number" id="link-length" min="0.1" step="0.1" value="' +
+        (link.lengthM === null || link.lengthM === undefined ? '' : link.lengthM) +
+        '" placeholder="not recorded" style="width:88px;background:var(--bg-2);' +
+        'border:1px solid var(--border-2);color:var(--text);border-radius:5px;padding:3px 6px"> m ' +
+      '<button class="btn" id="link-length-save" style="margin-left:6px">Set</button>' +
+      '</span></div>';
     if (link.lagId) html += '<div class="kv"><span class="k">LAG</span><span>group ' + link.lagId + '</span></div>';
     html += '<div class="kv"><span class="k">State</span><span>' + (link.state || 'up') + '</span></div>';
 
@@ -832,6 +929,28 @@
       'combination is refused at that moment, not silently accepted.</div>';
 
     wrap.innerHTML = html;
+
+    const lenBox = wrap.querySelector('#link-length');
+    const lenSave = wrap.querySelector('#link-length-save');
+    if (lenBox && lenSave) {
+      const commit = async function () {
+        const raw = String(lenBox.value || '').trim();
+        const value = raw === '' ? null : parseFloat(raw);
+        try {
+          const r = await api('PATCH', '/topologies/' + TOPO + '/links/' + link.id, { lengthM: value });
+          topo = r.state;
+          PFCanvas.setTopology(topo);
+          renderLinkInspector(wrap);
+          const warn = (r.warnings || [])[0];
+          if (warn) { toast(warn.message); setStatus('Cable length set, with a warning'); }
+          else setStatus('Cable length set to ' + (value === null ? 'not recorded' : value + ' m'));
+        } catch (e) {
+          toast('Could not set the length: ' + e.message);
+        }
+      };
+      lenSave.addEventListener('click', commit);
+      lenBox.addEventListener('keydown', function (e) { if (e.key === 'Enter') commit(); });
+    }
   }
 
   function renderConsole() {
@@ -1260,6 +1379,7 @@
   // Small surface for the UI render tests (also handy in the devtools console).
   window.__pf = {
     setTopology: function (t) { topo = t; },
+    lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,
     setConnected: setConnected,

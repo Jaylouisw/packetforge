@@ -465,13 +465,30 @@ function validateConnection(input) {
   }
 
   // -- E_PORT_IN_USE --------------------------------------------------------
-  if (ifaceA && ifaceA.peer) {
+  // A port is only in use by a DIFFERENT port. Checking a cable that already exists -
+  // which is what happens when its length is changed, or when the UI re-checks a link -
+  // used to be reported as "already connected", so an existing cable could never be
+  // re-validated and its length could never be edited (issue #31).
+  // Exact endpoint comparison. Peer interface NAMES are only unique within a device, so
+  // comparing names alone would let A/eth1 be re-validated against C/eth1 while it is in
+  // fact cabled to B/eth1. The caller passes the pair it is re-checking; anything else is
+  // a second cable in the same socket and stays refused.
+  const expected = inp.revalidate || null;
+  const peerIsTheOtherEnd = function (iface, which) {
+    if (!iface || !iface.peer || !expected) return false;
+    const want = expected[which];
+    if (!want) return false;
+    if (String(iface.peer.iface) !== String(want.iface)) return false;
+    if (want.deviceId && iface.peer.deviceId && String(iface.peer.deviceId) !== String(want.deviceId)) return false;
+    return true;
+  };
+  if (ifaceA && ifaceA.peer && !peerIsTheOtherEnd(ifaceA, 'a')) {
     errors.push({
       code: 'E_PORT_IN_USE',
       message: lblA + ' is already connected to ' + peerLabel(ifaceA.peer) + '.'
     });
   }
-  if (ifaceB && ifaceB.peer) {
+  if (ifaceB && ifaceB.peer && !peerIsTheOtherEnd(ifaceB, 'b')) {
     errors.push({
       code: 'E_PORT_IN_USE',
       message: lblB + ' is already connected to ' + peerLabel(ifaceB.peer) + '.'

@@ -133,6 +133,9 @@ class Topology {
         portB: bi && bi.hardware,
         ifaceA: ai,
         ifaceB: bi,
+        // A caller that is re-checking an existing cable says which pair it is, so the
+        // port-in-use rule does not refuse a cable that is plainly there.
+        revalidate: opts.revalidate || null,
         devA: a,
         devB: b,
         mediaId: opts.mediaId,
@@ -227,6 +230,45 @@ class Topology {
     bi.peer = { deviceId: aId, iface: aIface };
     this.links.set(link.id, link);
     return link;
+  }
+
+  // Change how long a lead is, after the fact.
+  //
+  // Length belongs to the cable, not to the wiring job: you pull a longer run, or you find
+  // out the 7 m you picked is really a 3 m part. Without this the only moment a length
+  // could be set was while a cable was being created, so a link that already existed could
+  // never be given one - and W_DISTANCE could never fire on a real over-length run.
+  setLinkLength(linkId, lengthM) {
+    const link = this.links.get(linkId);
+    if (!link) {
+      return { ok: false, errors: [{ code: 'E_NO_LINK', message: 'No such link: ' + linkId + '.' }], warnings: [] };
+    }
+    const length = (lengthM === null || lengthM === undefined || lengthM === '') ? null
+      : Number(lengthM);
+    if (length !== null && (!isFinite(length) || length <= 0)) {
+      return {
+        ok: false,
+        errors: [{ code: 'E_BAD_LENGTH', message: 'A cable length must be a positive number of metres.' }],
+        warnings: []
+      };
+    }
+    // Re-run the full physical verdict with the new length, so a run that is now beyond
+    // the medium's reach is reported the same way it would have been at cabling time.
+    const verdict = this.validateLink(link.a.deviceId, link.a.iface, link.b.deviceId, link.b.iface, {
+      mediaId: link.mediaId,
+      lengthM: length,
+      // This pair is already cabled to each other. Say so, or the port-in-use check
+      // refuses to look at a cable that plainly exists. Each entry names the PEER of
+      // that side, because the rule is "is this port already connected to the port I am
+      // validating against".
+      revalidate: {
+        a: { deviceId: link.b.deviceId, iface: link.b.iface },
+        b: { deviceId: link.a.deviceId, iface: link.a.iface }
+      }
+    });
+    if (!verdict.ok) return { ok: false, errors: verdict.errors, warnings: verdict.warnings || [] };
+    link.lengthM = length;
+    return { ok: true, link: link, warnings: verdict.warnings || [], errors: [] };
   }
 
   disconnect(linkId) {

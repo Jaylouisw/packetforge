@@ -365,6 +365,21 @@ async function handleApi(req, res, urlPath) {
         broadcast(topoId);
         return sendJSON(res, 200, { ok: true, state: fullState(topo) });
       }
+      if (method === 'PATCH' || method === 'POST') {
+        const body = await readBody(req);
+        const result = topo.setLinkLength(parts[4], body.lengthM);
+        if (!result.ok) {
+          return sendJSON(res, 422, { error: (result.errors[0] || {}).message, code: (result.errors[0] || {}).code, state: fullState(topo) });
+        }
+        broadcast(topoId);
+        const link = result.link;
+        return sendJSON(res, 200, {
+          ok: true,
+          link: { id: link.id, mediaId: link.mediaId, lengthM: link.lengthM },
+          warnings: result.warnings,
+          state: fullState(topo)
+        });
+      }
     }
 
     // /config/:devId
