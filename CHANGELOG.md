@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- **Cables are drawn as what they are made of.** Every medium was one grey 2 px line and
+  wireless-versus-not was the only distinction the canvas had. Colour now carries the family
+  (copper, fiber, dac, aoc, pon, coax, dsl, powerline, wireless), width the construction and a
+  dash "not a plain cable run", with `data-medium` and `data-media-id` on every line (#34).
+- **Cable length is a property of the lead.** The picker offers the lengths people actually buy
+  per family, defaults to the short lead, and an existing cable's length can be set from the
+  inspector or `PATCH /topologies/<id>/links/<id>` (#31).
+- **A 3 m DAC is expressible at last**, because the ceiling ("up to 7 m") is no longer printed
+  where the length belongs (#31).
+- `docs/CONNECTORS.md` gained the canvas colour key and how to wire up a new medium.
+
+### Fixed
+
+- **SFP28 accepts 1G SFP and 10G SFP+ modules**, with the reaches widened to the whole module
+  class (1000BASE-EX/ZX, 10GBASE-ER). 100M stays out deliberately (#17).
+- **MikroTik ports read eth1 / SFP+1**, not the RouterOS CLI spelling, and the CLI keeps the
+  RouterOS names as aliases so existing commands still resolve (#27).
+- **The inspector no longer draws the cable label and the LLDP neighbour on top of each
+  other** — they have their own row and can wrap (#25).
+- **A cable passing behind a chassis is no longer erased**: devices are drawn first, cables
+  after (#34).
+- **Re-validating an existing cable** is no longer refused as `E_PORT_IN_USE`; the check
+  compares the actual endpoint rather than an interface name that is only unique per device.
+- **A server restart no longer discards the board**, and the browser notices when it is stale:
+  connection badge, backoff retry, and a re-fetch that reports when fewer devices come back
+  than the tab was showing (#24).
+
+### Devices
+
+- Acer Nitro 5 AN515-57 added from hardware request #23.
+
+
 ### Fixed
 
 - **A server restart no longer discards the board.** Topologies are saved to

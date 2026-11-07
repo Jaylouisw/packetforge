@@ -148,11 +148,14 @@ test('rejects an RJ45 port cabled to an SFP cage', function () {
 });
 
 test('rejects ports that share a medium but no line rate', function () {
-  // A 1G SFP cage and a 25G-only SFP28 cage that has been pinned to a copper
-  // SFP module: they share the medium, but not a speed.
+  // A 1G SFP and an SFP28 cage pinned to 25G only, both taking a copper SFP module:
+  // they share the medium, but not a speed. (This used to lean on SFP28 having no 1G
+  // optics at all, which stopped being true when the cage gained 1G/10G support - the
+  // cage really does run a 1G module. What must still be refused is a port that will
+  // only negotiate 25G being handed a 1G module.)
   const a = mkDevice('d1', 'SW1', [{ name: 'eth-sfp1', speed: '1G' }]);
   const b = mkDevice('d2', 'SW2', [{
-    name: 'eth-sfp2', cage: 'sfp28', speed: '25G', media: ['1000base-t-sfp']
+    name: 'eth-sfp2', cage: 'sfp28', speed: '25G', speedCaps: [25000], media: ['1000base-t-sfp']
   }]);
   const r = cable(a, 'eth-sfp1', b, 'eth-sfp2');
 
