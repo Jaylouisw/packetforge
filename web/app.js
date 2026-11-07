@@ -542,6 +542,9 @@
         (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
       case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
         ' of [' + (e.members || []).join(', ') + ']';
+      case 'dns': return 'DNS ' + (e.qname || '?') + (e.ok
+        ? ' → ' + (e.address || '?') + ' (from ' + (e.server || '?') + ')'
+        : ' NXDOMAIN' + (e.server ? ' (from ' + e.server + ')' : ''));
       case 'limit': return 'simulation limit: ' + e.reason;
       default: return e.type;
     }

@@ -118,6 +118,20 @@ class CliSession {
       }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
+    } else if (head === 'dns') {
+      out.push.apply(out, this._dns(tokens.slice(1)));
+    } else if (head === 'ip' && tokens[1] === 'name-server') {
+      const ip = tokens[2];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip || '')) {
+        out.push('% Invalid name server "' + (ip || '') + '"');
+      } else {
+        if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
+        if (this.device.config.dnsServers.indexOf(ip) === -1) this.device.config.dnsServers.push(ip);
+        out.push('Name server ' + ip);
+      }
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'name-server') {
+      this.device.config.dnsServers = [];
+      out.push('Name servers cleared');
     } else if (head === 'ospf') {
       out.push.apply(out, this._ospfConfig(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'ospf') {
@@ -231,6 +245,47 @@ class CliSession {
       parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
     }
     return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
+  }
+
+  // ---------- DNS ----------
+  _dns(tokens) {
+    const dnsLib = require('./dns');
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x); });
+    if (!dev.config.dnsZones) dev.config.dnsZones = [];
+
+    if (t[0] === 'zone') {
+      const apex = t[1];
+      if (!apex) return ['% Usage: dns zone <name>'];
+      const key = dnsLib.normalizeName(apex);
+      let z = dev.config.dnsZones.filter(function (x) { return dnsLib.normalizeName(x.name) === key; })[0];
+      if (!z) {
+        z = { name: key, defaultTtl: 3600, records: [] };
+        dev.config.dnsZones.push(z);
+      }
+      this._dnsZone = z.name;
+      return ['DNS zone ' + z.name + ' ready'];
+    }
+
+    if (t[0] === 'add') {
+      const name = t[1];
+      const type = String(t[2] || 'A').toUpperCase();
+      const value = t[3];
+      if (!name || !value) return ['% Usage: dns add <name> <A|CNAME|MX|TXT> <value>'];
+      if (dnsLib.RECORD_TYPES.indexOf(type) === -1) {
+        return ['% Unknown record type "' + type + '" (use ' + dnsLib.RECORD_TYPES.join('/') + ')'];
+      }
+      let z = null;
+      if (this._dnsZone) {
+        z = dev.config.dnsZones.filter(function (x) { return x.name === this._dnsZone; }, this)[0];
+      }
+      if (!z) z = dev.config.dnsZones[dev.config.dnsZones.length - 1];
+      if (!z) return ['% No zone yet - create one with "dns zone <name>"'];
+      z.records.push({ name: name, type: type, ttl: z.defaultTtl, value: value });
+      return ['Added ' + name + ' ' + type + ' ' + value + ' to ' + z.name];
+    }
+
+    return ['% Usage: dns zone <name> | dns add <name> <type> <value>'];
   }
 
   // ---------- OSPF ----------

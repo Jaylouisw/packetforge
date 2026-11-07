@@ -10,6 +10,7 @@ const lagLib = require('./lag');
 const stpLib = require('./stp');
 const aclLib = require('./acl');
 const ospfLib = require('./ospf');
+const dnsLib = require('./dns');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -77,6 +78,52 @@ class Simulator {
     return ev;
   }
 
+  // ---------------------------------------------------------------------
+  // DNS resolution
+  // ---------------------------------------------------------------------
+
+  // Resolve a hostname to an IPv4 address using the devices in the topology.
+  // A device answers for zones it hosts (config.dnsZones); a client asks the
+  // servers in config.dnsServers, or any server in the lab when it lists none
+  // (small labs would otherwise need explicit resolver configuration).
+  resolveName(src, qname) {
+    const client = src || null;
+    const wanted = (client && client.config && client.config.dnsServers) || [];
+    const candidates = [];
+
+    for (const dev of this.topo.devices.values()) {
+      const zones = (dev.config && dev.config.dnsZones) || [];
+      if (!zones.length) continue;
+      const ips = [];
+      for (const i of dev.interfaces.values()) { if (i.enabled && i.ip) ips.push(i.ip); }
+      const listed = ips.some(function (ip) { return wanted.indexOf(ip) !== -1; });
+      if (wanted.length && !listed) continue;
+      candidates.push({ dev: dev, zones: zones, ips: ips });
+    }
+
+    for (const c of candidates) {
+      for (const zone of c.zones) {
+        const res = dnsLib.resolve(zone, qname, 'A');
+        const answers = (res && res.answers) || [];
+        if (!answers.length) continue;
+        const a = answers.filter(function (x) {
+          return String(x.type || '').toUpperCase() === 'A';
+        })[0] || answers[0];
+        const addr = a && (a.value || a.address || a.data);
+        if (addr) {
+          return { ok: true, address: addr, server: c.dev.name, rcode: res.rcode, answers: answers };
+        }
+      }
+    }
+
+    return {
+      ok: false,
+      rcode: dnsLib.RCODE.NXDOMAIN,
+      server: candidates.length ? candidates[0].dev.name : null,
+      answers: []
+    };
+  }
+
   // --- public: run a ping from srcDeviceId to dstIp ---
   ping(srcId, dstIp, opts) {
     opts = opts || {};
@@ -89,12 +136,33 @@ class Simulator {
     const src = this.topo.getDevice(srcId);
     if (!src) throw new Error('Unknown device: ' + srcId);
 
+    // A hostname destination is resolved through the lab's DNS servers before
+    // a single packet is sent, exactly like a real host would.
+    let target = dstIp;
+    let dnsResult = null;
+    if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(String(dstIp))) {
+      dnsResult = this.resolveName(src, String(dstIp));
+      this._emit({
+        type: 'dns', qname: String(dstIp), ok: !!dnsResult.ok,
+        address: dnsResult.address || null, server: dnsResult.server || null,
+        rcode: dnsResult.rcode
+      });
+      if (!dnsResult.ok) {
+        return {
+          events: this.events,
+          replies: [{ seq: 0, success: false, reason: 'dns-nxdomain' }],
+          step: this.step, success: false, resolved: null, dns: dnsResult
+        };
+      }
+      target = dnsResult.address;
+    }
+
     const id = this._icmpId++;
     const replies = [];
     for (let seq = 0; seq < count; seq++) {
       const startStep = this.step;
-      this._emit({ type: 'ping', src: srcId, dst: dstIp, seq: seq });
-      this._sendIcmp(src, dstIp, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: seq });
+      this._emit({ type: 'ping', src: srcId, dst: target, seq: seq });
+      this._sendIcmp(src, target, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: seq });
       this._run();
       const got = this.icmpReplies.filter(function (r) {
         return r.dst === srcId && r.id === id && r.seq === seq;
@@ -106,7 +174,7 @@ class Simulator {
         rtt: got ? (got.step - startStep) : null
       });
     }
-    return { events: this.events, replies: replies, step: this.step, success: replies.some(function (r) { return r.success; }) };
+    return { events: this.events, replies: replies, step: this.step, success: replies.some(function (r) { return r.success; }), resolved: target, dns: dnsResult };
   }
 
   // ---------------------------------------------------------------------

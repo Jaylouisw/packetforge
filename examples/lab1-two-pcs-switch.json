@@ -25,7 +25,9 @@
         "vlans": {},
         "lags": {},
         "acls": {},
-        "ospf": null
+        "ospf": null,
+        "dnsServers": [],
+        "dnsZones": []
       },
       "interfaces": [
         {
@@ -87,7 +89,9 @@
         "vlans": {},
         "lags": {},
         "acls": {},
-        "ospf": null
+        "ospf": null,
+        "dnsServers": [],
+        "dnsZones": []
       },
       "interfaces": [
         {
@@ -148,7 +152,9 @@
         "vlans": {},
         "lags": {},
         "acls": {},
-        "ospf": null
+        "ospf": null,
+        "dnsServers": [],
+        "dnsZones": []
       },
       "interfaces": [
         {

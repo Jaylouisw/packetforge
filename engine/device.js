@@ -114,7 +114,9 @@ class Device {
       vlans: {},                 // vid -> { name }
       lags: {},                  // lagId -> { mode, hashPolicy, members: [iface] }
       acls: {},                  // aclNumber -> [ { action, ... } ]
-      ospf: null                 // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
+      ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
+      dnsServers: [],            // upstream resolvers, by IP
+      dnsZones: []               // zones this device is authoritative for
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
@@ -322,7 +324,9 @@ class Device {
         vlans: Object.assign({}, this.config.vlans),
         lags: JSON.parse(JSON.stringify(this.config.lags)),
         acls: JSON.parse(JSON.stringify(this.config.acls)),
-        ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null
+        ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null,
+        dnsServers: (this.config.dnsServers || []).slice(),
+        dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || []))
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -370,6 +374,8 @@ class Device {
         d.config.lags = JSON.parse(JSON.stringify(state.config.lags || {}));
         d.config.acls = JSON.parse(JSON.stringify(state.config.acls || {}));
         d.config.ospf = state.config.ospf ? JSON.parse(JSON.stringify(state.config.ospf)) : null;
+        d.config.dnsServers = (state.config.dnsServers || []).slice();
+        d.config.dnsZones = JSON.parse(JSON.stringify(state.config.dnsZones || []));
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {

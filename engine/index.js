@@ -16,6 +16,10 @@ const nat = require('./nat');
 const acl = require('./acl');
 const vrrp = require('./vrrp');
 const ospf = require('./ospf');
+const bgp = require('./bgp');
+const dns = require('./dns');
+const scion = require('./scion');
+const ipv6 = require('./ipv6');
 
 module.exports = {
   net,
@@ -29,6 +33,10 @@ module.exports = {
   acl,
   vrrp,
   ospf,
+  bgp,
+  dns,
+  scion,
+  ipv6,
   Device,
   Interface,
   Link,
