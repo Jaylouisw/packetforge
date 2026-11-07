@@ -21,12 +21,20 @@
     {
       "name": "1/1/13",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "1/1/14",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
   "icon": "switch",

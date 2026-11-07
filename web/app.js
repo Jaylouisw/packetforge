@@ -711,6 +711,8 @@
         (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
       case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
         ' of [' + (e.members || []).join(', ') + ']';
+      case 'poe-deny': return 'PoE deny ' + (e.dev || '') + '/' + (e.iface || '') +
+        (e.pd ? ' → ' + e.pd : '') + ': ' + (e.reason || 'budget exhausted');
       case 'scion-path': return 'SCION ' + (e.src || '') + ' → ' + (e.dst || '') +
         '  [' + (e.shape || '') + ']  ' + ((e.hops || []).join(' → '));
       case 'scion-hop': return 'SCION hop → ' + (e.to || '') + '  (AS ' + (e.as || '') + ')';

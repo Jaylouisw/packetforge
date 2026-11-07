@@ -1,0 +1,238 @@
+{
+  "ports": [
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G 4SFP",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20Aruba%20Networking%20CX%206000%20Switch%20Series-a00112996enw.pdf",
+      "notes": "QuickSpecs port table: Access 24x 10/100/1000BASE-T + Uplink 4x 1G SFP; cages are dedicated uplinks on ports 25-28, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G 4SFP",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20Aruba%20Networking%20CX%206000%20Switch%20Series-a00112996enw.pdf",
+      "notes": "QuickSpecs port table: Access 48x 10/100/1000BASE-T + Uplink 4x 1G SFP; cages dedicated on ports 49-52, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20Aruba%20Networking%20CX%206000%20Switch%20Series-a00112996enw.pdf",
+      "notes": "QuickSpecs (R8N87A/B): 24x 10/100/1000BASE-T Class4 PoE + 4x 1G SFP uplinks, dedicated cages on ports 25-28."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G CL4 PoE 4SFP 370W",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20Aruba%20Networking%20CX%206000%20Switch%20Series-a00112996enw.pdf",
+      "notes": "QuickSpecs (R8N85A/B): 48x 10/100/1000BASE-T Class4 PoE + 4x 1G SFP uplinks, dedicated cages on ports 49-52."
+    },
+    {
+      "vendor": "aruba",
+      "model": "2930F 24G 4SFP+",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE+Aruba+Networking+2930F+Switch+Series+QuickSpecs-c05052929.pdf?id=c05052929.pdf&isFutureVersion=true&ver=27&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+      "notes": "JL253A QuickSpecs: 24 RJ-45 autosensing 10/100/1000 + 4 SFP/SFP+ 1G/10G ports (max 4 transceivers), separate from copper."
+    },
+    {
+      "vendor": "aruba",
+      "model": "2930F 48G PoE+ 4SFP+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE+Aruba+Networking+2930F+Switch+Series+QuickSpecs-c05052929.pdf?id=c05052929.pdf&isFutureVersion=true&ver=27&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+      "notes": "JL256A QuickSpecs: 48 RJ-45 PoE+ 10/100/1000 + 4 SFP/SFP+ 1G/10G ports, separate from copper."
+    },
+    {
+      "vendor": "aruba",
+      "model": "2930F 8G PoE+ 2SFP+",
+      "rj45Count": 8,
+      "sfpCount": 2,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE+Aruba+Networking+2930F+Switch+Series+QuickSpecs-c05052929.pdf?id=c05052929.pdf&isFutureVersion=true&ver=27&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+      "notes": "JL258A QuickSpecs: 8 RJ-45 PoE+ 10/100/1000 + 2 SFP/SFP+ 1G/10G ports, separate from copper."
+    },
+    {
+      "vendor": "aruba",
+      "model": "3810M 16SFP+ 2-slot",
+      "rj45Count": 0,
+      "sfpCount": 16,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04843019",
+      "notes": "JL075A QuickSpecs: 16 fixed 1000/10000 SFP/SFP+ ports (max 16 transceivers) + 2 uplink module slots; no copper data ports, only RJ-45 console/OOBM."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 24G 4SFP+",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+      "notes": "JL678A QuickSpecs: 24x 10/100/1000BASE-T + 4x 1G/10G SFP ports; dedicated uplink cages numbered after the copper ports, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 48G 4SFP+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+      "notes": "JL676A QuickSpecs: 48x 10/100/1000BASE-T + 4x 1G/10G SFP ports; dedicated uplink cages, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 12G CL4 PoE 2SFP+",
+      "rj45Count": 12,
+      "sfpCount": 2,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+      "notes": "JL679A QuickSpecs: 12x 10/100/1000BASE-T Class4 PoE + 2x 1G/10G SFP ports; datasheet also lists 2x 1GbE (1G copper) ports outside these 14 modelled interfaces."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 24G CL4 PoE 4SFP+",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+      "notes": "JL677A QuickSpecs: 24x 10/100/1000BASE-T Class4 PoE + 4x 1G/10G SFP ports; dedicated uplinks, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 48G CL4 PoE 4SFP+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+      "notes": "JL675A QuickSpecs: 48x 10/100/1000BASE-T Class4 PoE + 4x 1G/10G SFP ports; dedicated uplinks, not combo."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 24G 4SFP+",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/docDisplay?docId=a00099581en_us&docLocale=en_US",
+      "notes": "JL724A spec table: I/O ports 24x 10/100/1000BASE-T + 4x 1/10G SFP; fixed uplinks separate from copper (F models)."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 48G 4SFP+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/docDisplay?docId=a00099581en_us&docLocale=en_US",
+      "notes": "JL726A spec table: I/O ports 48x 10/100/1000BASE-T + 4x 1/10G SFP; fixed uplinks separate from copper."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 24G CL4 PoE 4SFP+",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/docDisplay?docId=a00099581en_us&docLocale=en_US",
+      "notes": "JL725A spec table: 24x 10/100/1000BASE-T Class4 PoE + 4x 1/10G SFP; fixed uplinks separate from copper."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 48G CL4 PoE 4SFP+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/docDisplay?docId=a00099581en_us&docLocale=en_US",
+      "notes": "JL727A spec table: 48x 10/100/1000BASE-T Class4 PoE + 4x 1/10G SFP; fixed uplinks separate from copper."
+    }
+  ]
+}

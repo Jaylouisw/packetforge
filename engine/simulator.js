@@ -136,6 +136,8 @@ class Simulator {
     this.reset();
     // Recompute spanning tree before the run so blocked ports are honoured.
     this.computeStp();
+    // Resolve PoE power before the run: an unpowered device must not transmit.
+    this.computePoe();
     // Recompute OSPF so learned routes are present before the first packet.
     this.computeOspf();
     // Recompute BGP so learned routes are present before the first packet.
@@ -729,6 +731,7 @@ class Simulator {
     const count = opts.count || 4;
     this.reset();
     this.computeStp();
+    this.computePoe();
     this.computeOspf();
     this.computeBgp();
 
@@ -800,6 +803,72 @@ class Simulator {
           (l.a.deviceId === bId && l.b.deviceId === aId)) return l;
     }
     return null;
+  }
+
+  // The link plugged into a specific port, if any.
+  _linkOnPort(deviceId, ifaceName) {
+    for (const l of this.topo.links.values()) {
+      if (l.a.deviceId === deviceId && l.a.iface === ifaceName) return l;
+      if (l.b.deviceId === deviceId && l.b.iface === ifaceName) return l;
+    }
+    return null;
+  }
+
+  // ---------------------------------------------------------------------
+  // PoE power budgeting
+  // ---------------------------------------------------------------------
+  // A PSE has a finite budget. Powered devices are served in port order until
+  // the budget runs out; the ones that miss out never power up, which is what
+  // a real switch does rather than silently over-subscribing.
+  computePoe() {
+    this.poe = [];
+
+    for (const dev of this.topo.devices.values()) dev.poeUnpowered = false;
+
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.poeBudget) continue;
+
+      let remaining = dev.poeBudget;
+      const ports = [];
+      const names = dev.activeInterfaces()
+        .filter(function (i) { return i.poeOut; })
+        .map(function (i) { return i.name; })
+        .sort();
+
+      for (const name of names) {
+        const link = this._linkOnPort(dev.id, name);
+        if (!link) continue;
+        const other = (link.a.deviceId === dev.id)
+          ? { id: link.b.deviceId, iface: link.b.iface }
+          : { id: link.a.deviceId, iface: link.a.iface };
+        const peer = this.topo.getDevice(other.id);
+        const peerIface = peer && peer.interfaces.get(other.iface);
+        if (!peerIface || !peerIface.poeIn) continue;   // not a powered device
+
+        const draw = peerIface.poeIn;
+        if (remaining >= draw) {
+          remaining -= draw;
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: true });
+        } else {
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: false });
+          peer.poeUnpowered = true;
+          this._emit({
+            type: 'poe-deny', dev: dev.id, iface: name, pd: other.id,
+            draw: draw, remaining: remaining,
+            reason: 'PSE budget exhausted: ' + draw + ' W requested, ' + remaining + ' W left'
+          });
+        }
+      }
+
+      this.poe.push({
+        dev: dev.id,
+        budget: dev.poeBudget,
+        used: dev.poeBudget - remaining,
+        ports: ports
+      });
+    }
+
+    return this.poe;
   }
 
   // Core-to-core segments: chains across adjacent core ASes.
@@ -935,6 +1004,7 @@ class Simulator {
   pingScion(srcId, dst, opts) {
     opts = opts || {};
     this.reset();
+    this.computePoe();
     this.computeScion();
 
     const src = this.topo.getDevice(srcId);
@@ -1090,6 +1160,14 @@ class Simulator {
   // port, tagged with the subinterface's VLAN.
   _emitFrame(dev, iface, frame, vid) {
     if (!iface) return;
+    // A device that could not get power from its PSE cannot transmit.
+    if (dev.poeUnpowered) {
+      this._emit({
+        type: 'poe-deny', dev: dev.id, iface: iface.name,
+        reason: 'no PoE power available - budget exhausted at the PSE'
+      });
+      return;
+    }
     let port = iface;
     let v = (vid === undefined || vid === null) ? portPvid(iface) : vid;
     if (iface.parent) {
@@ -1129,6 +1207,7 @@ class Simulator {
   }
 
   _run() {
+    this.computePoe();
     let guard = 0;
     while (this.queue.length) {
       if (this.step >= this.maxSteps) { this._emit({ type: 'limit', reason: 'max steps reached' }); break; }
@@ -1202,6 +1281,14 @@ class Simulator {
     }
 
     const bcast = net.isBroadcastMac(f.dstMac);
+    // A powered device whose PSE budget ran out is dead: it receives nothing.
+    if (dev.poeUnpowered) {
+      this._emit({
+        type: 'poe-deny', dev: dev.id, iface: inIface, vlan: vid,
+        reason: 'device is PoE-powered but the PSE budget is exhausted'
+      });
+      return;
+    }
     // Multicast (including the 33:33:xx IPv6 range) must be received and
     // flooded exactly like broadcast, or neighbour discovery never arrives.
     const mcast = net.isMulticastMac(f.dstMac);

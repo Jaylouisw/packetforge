@@ -143,5 +143,9 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-24-poe"
+  }
 }

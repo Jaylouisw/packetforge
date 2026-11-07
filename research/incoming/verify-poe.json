@@ -1,0 +1,58 @@
+{
+  "devices": [
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+      "currentFigureW": 370,
+      "verdict": "correct",
+      "correctFigureW": 370,
+      "sourceUrl": "https://download.axilogi.com/HPE/Datasheet/R8N87A.pdf",
+      "notes": "HPE datasheet (R8N87A, PSN1014138705): the spec table has a field literally named 'PoE capability: 370W Class 4 PoE/PoE+', and the series copy says 'up to 740W of Class 4 PoE'. Power consumption row is separate: 'Max Power (w/o PoE): 32.7W, Max Power (w/ PoE): 455W'. Because total input with PoE (455W) exceeds 370W, 370 cannot be the PSU rating - it is the PD allocation. Matches the stored 370W."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G CL4 PoE 4SFP 370W",
+      "currentFigureW": 370,
+      "verdict": "correct",
+      "correctFigureW": 370,
+      "sourceUrl": "https://download.axilogi.com/HPE/Datasheet/R8N85A.pdf",
+      "notes": "HPE datasheet (R8N85A): 'PoE capability: 370W Class 4 PoE/PoE+'. Separate power row: 'Max Power (w/o PoE): 45W, Max Power (w/ PoE): 480W'. The 48-port chassis therefore draws ~480W at full PoE yet is only rated to source 370W to PDs - the trailing 370W in the model name is the PoE budget, not the PSU. Same budget as the 24-port sibling; 48 ports simply spread 370W over more ports."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-24-250W",
+      "currentFigureW": 250,
+      "verdict": "correct",
+      "correctFigureW": 250,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-250w",
+      "notes": "Ubiquiti tech specs publish an explicit row 'Total PoE available: 250W' (PSU 'AC/DC, internal, 250W'; 'Max power consumption 30W (Excludes PoE output)'). Confirms the model-name convention for the 250W EdgeSwitch. Caveat worth knowing: 250W is also the PSU rating and the chassis alone draws 30W, so the fully deliverable PD load is nearer 220W; the catalogue figure nevertheless matches Ubiquiti's own labelled PoE figure."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-24-500W",
+      "currentFigureW": 500,
+      "verdict": "correct",
+      "correctFigureW": 500,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-500w",
+      "notes": "500W is Ubiquiti's own PoE figure - the official product bullet list reads '500W total PoE availability' for the ES-24-500W (and '250W total PoE availability' for the 250W sibling). IMPORTANT CAVEAT: the current tech-specs table for this model has NO 'Total PoE available' row; it only gives 'Power supply: AC/DC, internal, 500W' and 'Max power consumption: includes PoE output 500W / excludes PoE output 30W'. So 500W is simultaneously the PSU rating and the advertised PoE availability, and true PD headroom on the 500W PSU is ~470W (500 - 30W chassis). Kept at 500W because that is the vendor-published PoE figure the model name encodes."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-48-500W",
+      "currentFigureW": 500,
+      "verdict": "correct",
+      "correctFigureW": 500,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-48-500w",
+      "notes": "Ubiquiti tech specs publish 'Total PoE available: 500W' alongside 'Power supply AC/DC, internal, 500W' and 'Max power consumption 64W (Excludes PoE output)'. 500W PoE plus 64W chassis exceeds the 500W PSU, so the labelled 500W is the marketing/PSU-derived budget, not a figure usable in full while the switch itself is running (~436W realistic ceiling). Still 'correct' as the documented PoE budget and as the model-name number."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "USW-Pro-48-PoE",
+      "currentFigureW": 0,
+      "verdict": "wrong",
+      "correctFigureW": 600,
+      "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-48-poe",
+      "notes": "Stored figure is 0/absent, which would make the engine refuse all PoE draw on 48 PSE ports. Real budget: 'Total PoE Availability: 600W' (40x PoE+ / 8x PoE++), and this one is arithmetically consistent - 'Power Supply: AC/DC, internal, 660W' minus 'Max power consumption 60W (Excluding PoE Output)' = 600W. Max PoE wattage per port by PSE: PoE 15.4W, PoE+ 32W, PoE++ 60W."
+    }
+  ]
+}

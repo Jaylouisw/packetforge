@@ -273,5 +273,9 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "poe": {
+    "budgetW": 720,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-max-48-poe"
+  }
 }

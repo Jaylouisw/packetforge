@@ -273,5 +273,9 @@
     }
   ],
   "icon": "switch",
-  "color": "#f97316"
+  "color": "#f97316",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://support.hpe.com/hpesc/public/docDisplay?docId=c03711469&docLocale=en_US"
+  }
 }

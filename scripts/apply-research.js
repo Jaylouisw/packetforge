@@ -34,6 +34,32 @@ function findSpec(vendor, model) {
   return null;
 }
 
+// Device specs may describe copper ports compactly with a portTemplate that the
+// engine expands, plus explicit entries for the SFP cages. Counting only
+// spec.interfaces therefore undercounts: a 24-port switch with 4 SFP uplinks
+// has 4 raw entries and 28 real ports.
+function expandInterfaces(spec) {
+  const out = [];
+  const tpl = spec.portTemplate;
+  if (tpl && tpl.count) {
+    const prefix = tpl.prefix || '';
+    const start = (tpl.start === undefined) ? 1 : tpl.start;
+    for (let i = 0; i < tpl.count; i++) {
+      out.push({
+        name: prefix + (start + i),
+        type: tpl.type || 'ethernet',
+        speed: tpl.speed || '1G',
+        _fromTemplate: true,
+        _real: null
+      });
+    }
+  }
+  for (const i of (spec.interfaces || [])) {
+    out.push({ name: i.name, type: i.type, speed: i.speed, _fromTemplate: false, _real: i });
+  }
+  return out;
+}
+
 function isUrl(s) { return typeof s === 'string' && /^https?:\/\//.test(s); }
 
 const args = process.argv.slice(2);
@@ -105,9 +131,9 @@ for (const entry of (input.ports || [])) {
   }
 
   const spec = found.spec;
-  const ifaces = Array.isArray(spec.interfaces) ? spec.interfaces : [];
-  if (ifaces.length !== rj45 + sfp) {
-    reject(label, 'spec has ' + ifaces.length + ' interfaces but research says ' +
+  const expanded = expandInterfaces(spec);
+  if (expanded.length !== rj45 + sfp) {
+    reject(label, 'device has ' + expanded.length + ' ports (template + explicit) but research says ' +
       rj45 + ' rj45 + ' + sfp + ' sfp = ' + (rj45 + sfp));
     continue;
   }
@@ -115,19 +141,25 @@ for (const entry of (input.ports || [])) {
   const speeds = Array.isArray(entry.sfpSpeedsMbps) && entry.sfpSpeedsMbps.length
     ? entry.sfpSpeedsMbps : null;
 
-  // The trailing `sfp` interfaces are the cages; everything before is copper.
-  for (let i = 0; i < ifaces.length; i++) {
+  // The trailing `sfp` ports are the cages; everything before is copper.
+  let templatedMismatch = false;
+  for (let i = 0; i < expanded.length; i++) {
     const isSfp = i >= rj45;
+    const port = expanded[i];
+    if (isSfp && port._fromTemplate) { templatedMismatch = true; break; }
+    if (!isSfp && !port._fromTemplate) continue;   // explicit copper port stays copper
     if (isSfp) {
-      ifaces[i].connector = String(type).toLowerCase();
+      port._real.connector = String(type).toLowerCase();
       const mbps = speeds ? speeds[Math.min(i - rj45, speeds.length - 1)] : null;
       if (mbps) {
-        ifaces[i].speed = mbps >= 1000 ? (mbps / 1000) + 'G' : mbps + 'M';
-        ifaces[i].speedCaps = [mbps];
+        port._real.speed = mbps >= 1000 ? (mbps / 1000) + 'G' : mbps + 'M';
+        port._real.speedCaps = [mbps];
       }
-    } else {
-      delete ifaces[i].connector;
     }
+  }
+  if (templatedMismatch) {
+    reject(label, 'the SFP ports fall inside the portTemplate range; template editing is not supported');
+    continue;
   }
   if (entry.sfpSharedWithRj45 === true) spec.comboPorts = sfp;
   report.push('  + ' + label + '  ' + rj45 + 'x rj45 + ' + sfp + 'x ' + type +

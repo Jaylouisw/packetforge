@@ -39,5 +39,9 @@
     }
   ],
   "icon": "switch",
-  "color": "#64748b"
+  "color": "#64748b",
+  "poe": {
+    "budgetW": 300,
+    "sourceUrl": "https://www.netgear.com/business/wired/switches/fully-managed/gsm4230p/"
+  }
 }

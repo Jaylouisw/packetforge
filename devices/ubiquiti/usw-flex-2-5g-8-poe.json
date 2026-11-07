@@ -62,5 +62,9 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "poe": {
+    "budgetW": 196,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8-poe"
+  }
 }
