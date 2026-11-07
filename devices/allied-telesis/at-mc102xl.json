@@ -1,0 +1,24 @@
+{
+  "vendor": "allied-telesis",
+  "model": "AT-MC102XL",
+  "label": "AT-MC102XL 100TX to 100FX media converter (SC, MM, 2 km)",
+  "category": "switch",
+  "description": "Unmanaged Fast Ethernet converter with one 100BASE-TX RJ45 port and one duplex SC multimode fibre port at 1310 nm reaching 2 km. No IP stack and no management - it just forwards frames between the copper and fibre sides (and can be racked in an MCR12 chassis).",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "scupc1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

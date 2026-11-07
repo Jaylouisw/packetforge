@@ -1,0 +1,18 @@
+{
+  "vendor": "tado",
+  "model": "Bridge X",
+  "label": "tado X Bridge X Thread border router",
+  "category": "iot",
+  "description": "The tado Bridge X is the Thread border router that puts a tado X heating system (Smart Thermostat X, radiator thermostats, sensors) on the internet and bridges it to Matter controllers. It is WiFi-only: it plugs into a wall socket and joins the home network over 2.4 GHz WiFi via WPS or a WiFi password, with no Ethernet port; the Thread radio that talks to the thermostats is not modelled as an IP interface.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

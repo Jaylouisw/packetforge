@@ -1,0 +1,20 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UniFi Cloud Key G2 Plus",
+  "label": "UniFi Cloud Key G2 Plus",
+  "category": "host",
+  "description": "Self-contained UniFi controller appliance (UniFi Network plus UniFi Protect on a 1 TB HDD) for small and mid-size sites. Single Gigabit RJ45 port that also accepts 802.3af PoE in, so it needs no local power brick; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

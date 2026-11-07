@@ -1,0 +1,32 @@
+{
+  "vendor": "mimosa",
+  "model": "B5c",
+  "label": "Mimosa B5c",
+  "category": "ptp",
+  "description": "Mimosa B5c - connectorized 4.9-6.2 GHz 4x4:4 backhaul radio (dual N-type antenna ports), 1.5 Gbps IP aggregate with single or dual 20/40/80 MHz channels; 1x 1G RJ45 with PoE in and 1x 1G SFP fibre port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

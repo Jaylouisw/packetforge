@@ -1,0 +1,3964 @@
+[
+  {
+    "vendor": "gigamon",
+    "model": "GigaVUE-TA25",
+    "label": "GigaVUE-TA25 48x25G + 8x100G traffic aggregator",
+    "category": "firewall",
+    "description": "1RU tap/aggregation node that funnels TAP and SPAN feeds into one any-to-any port map: 48 SFP28 cages taking 1G, 10G or 25G optics plus 8 QSFP28 cages taking 40G or 100G. GigaVUE-OS does aggregation, replication and L2-L4 flow mapping, but it is an out-of-band box with no inline forwarding path.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "1/1/x1",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x2",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x3",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x4",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x5",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x6",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x7",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x8",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x9",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x10",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x11",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x12",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x13",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x14",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x15",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x16",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x17",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x18",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x19",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x20",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x21",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x22",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x23",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x24",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x25",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x26",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x27",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x28",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x29",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x30",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x31",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x32",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x33",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x34",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x35",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x36",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x37",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x38",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x39",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x40",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x41",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x42",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x43",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x44",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x45",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x46",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x47",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x48",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/c1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c3",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c4",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c5",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c6",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c7",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/c8",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://docs.gigamon.com/doclib613/Content/HW-GV-TA/Introducing_the_GigaVUE_TA25_Chassis.html"
+  },
+  {
+    "vendor": "gigamon",
+    "model": "GigaVUE-HC3",
+    "label": "GigaVUE-HC3 modular visibility node (2x PRT-HC3-X24 + 2x PRT-HC3-C16)",
+    "category": "firewall",
+    "description": "3RU chassis with four hot-swappable port-module bays, modelled here as two PRT-HC3-X24 modules (48 25G/10G SFP28 cages) and two PRT-HC3-C16 modules (32 40G/100G QSFP28 cages). Bypass modules can sit inline in front of IPS/WAF tools, so the same node serves out-of-band aggregation and inline fail-to-wire protection.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "1/1/x1",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x2",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x3",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x4",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x5",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x6",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x7",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x8",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x9",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x10",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x11",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x12",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x13",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x14",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x15",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x16",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x17",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x18",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x19",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x20",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x21",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x22",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x23",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/1/x24",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x1",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x2",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x3",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x4",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x5",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x6",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x7",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x8",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x9",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x10",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x11",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x12",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x13",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x14",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x15",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x16",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x17",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x18",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x19",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x20",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x21",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x22",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x23",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/2/x24",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "1/3/c1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c3",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c4",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c5",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c6",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c7",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c8",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c9",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c10",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c11",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c12",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c13",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c14",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c15",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/3/c16",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c3",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c4",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c5",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c6",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c7",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c8",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c9",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c10",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c11",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c12",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c13",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c14",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c15",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/4/c16",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://docs.gigamon.com/doclib613/Content/HW-GV-HC3/GigaVUE_HC3_Modules.html"
+  },
+  {
+    "vendor": "keysight",
+    "model": "Vision 7712",
+    "label": "Vision 7712 32x100G packet broker",
+    "category": "firewall",
+    "description": "1RU high-density packet broker built on the Edgecore 7712 platform and running Vision Edge OS: 32 QSFP28 cages that run 100G, 40G, 4x25G or 4x10G each. Used as the spine of a visibility fabric, aggregating many TAP/SPAN feeds and filtering them toward tool farms.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          10000,
+          25000,
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.keysight.com/us/en/lib/software-detail/instrument-firmware-software/vision-network-packet-broker-npb.html"
+  },
+  {
+    "vendor": "keysight",
+    "model": "Vision Edge 40",
+    "label": "Vision Edge 40 (E40) 48x10G + 6x40G packet broker",
+    "category": "firewall",
+    "description": "Ixia-lineage 1RU packet broker with 48 SFP/SFP+ ports at 1G or 10G and 6 QSFP+ ports at 40G, each 40G cage able to break out to four more 1G/10G links (72 ports total). Filters, aggregates and load-balances rack-level SPAN/TAP traffic toward monitoring and security tools.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port49",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "port50",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "port51",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "port52",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "port53",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "port54",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tempestns.com/wp-content/uploads/2022/03/Vision-Edge-40-Network-Packet-Broker.pdf"
+  },
+  {
+    "vendor": "garland",
+    "model": "AA10G54AC",
+    "label": "AA10G54AC 48x10G + 6x40G packet broker",
+    "category": "firewall",
+    "description": "Fixed-port 1RU packet broker for top-of-rack and edge use: 48 SFP/SFP+ cages at 1G or 10G plus 6 QSFP+ cages at 40G that can each take 4x10G. Aggregates, filters (L2-L4) and load-balances TAP/SPAN inputs onto tools, with GRE/VXLAN tunnel origination for remote feeds.",
+    "capabilities": [
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port49",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "port50",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "port51",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "port52",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "port53",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "port54",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000,
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.garlandtechnology.com/products/10g-40g-network-packet-broker"
+  },
+  {
+    "vendor": "cubro",
+    "model": "EXA8",
+    "label": "Cubro EXA8 8x1G + 2x10G session master / aggregator",
+    "category": "firewall",
+    "description": "Compact fanless aggregation and capture box: 8 native RJ45 ports at 10/100/1000 plus 2 SFP/SFP+ cages at 1G or 10G, usable as 4 copper TAPs feeding 2 x 10G outputs in either direction. Runs L4/L7 filtering, de-duplication and keyword/regex search, and can stream filtered traffic straight to a pcap on its SSD.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "p1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "p8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://frame.co.uk/wp-content/uploads/2020/02/Cubro-EXA8-Data-sheet.pdf"
+  },
+  {
+    "vendor": "arista",
+    "model": "7050SX3-48YC8 (DMF)",
+    "label": "Arista 7050SX3-48YC8 running DANZ Monitoring Fabric",
+    "category": "firewall",
+    "description": "Merchant-silicon 1RU switch repurposed as a DANZ Monitoring Fabric (DMF) leaf: 48 SFP28 cages at 1/10/25G plus 8 QSFP28 cages at 40/100G, all software-controlled by a DMF controller. The fabric does filtering, replication and load-balancing for the tool farm instead of a fixed box-by-box NPB.",
+    "capabilities": [
+      "cli",
+      "http-server",
+      "l2-forward",
+      "l3-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "Ethernet1",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet2",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet3",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet4",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet5",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet6",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet7",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet8",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet9",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet10",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet11",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet12",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet13",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet14",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet15",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet16",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet17",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet18",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet19",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet20",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet21",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet22",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet23",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet24",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet25",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet26",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet27",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet28",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet29",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet30",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet31",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet32",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet35",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet36",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet37",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet38",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet39",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet40",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet41",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet42",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet43",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet44",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet45",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet46",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet47",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet48",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "Ethernet49/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet50/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet51/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet52/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet53/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet54/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet55/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet56/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Management1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/user-manual/DMF-Hardware-Compatibility-List.pdf"
+  },
+  {
+    "vendor": "garland",
+    "model": "OM3501",
+    "label": "OM3501 passive 10G-SR multimode fibre TAP (1 tap, 50/50, LC)",
+    "category": "firewall",
+    "description": "Passive 1-tap optical splitter for a duplex OM3 multimode link at 100M/1G/10G: the two network LC ports pass traffic through unpowered and each direction is split 50/50 onto its own monitor LC port. No power, no IP stack, no management - it is a pure optical coupler, so a dead tap cannot drop the live link.",
+    "capabilities": [],
+    "interfaces": [
+      {
+        "name": "netA",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "netB",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "monA",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "monB",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.garlandtechnology.com/products/fiber-taps"
+  },
+  {
+    "vendor": "garland",
+    "model": "P1GCCB",
+    "label": "P1GCCB passive 10/100/1000 copper breakout TAP",
+    "category": "firewall",
+    "description": "Passive inline breakout tap for a 10/100/1000BASE-T copper link: two RJ45 network ports stay mated to the live link and two RJ45 monitor ports hand a full-duplex copy to the tool. Unpowered and failsafe, with no IP stack - PoE passes through to the powered device.",
+    "capabilities": [],
+    "interfaces": [
+      {
+        "name": "netA",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "netB",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "monA",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "monB",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.garlandtechnology.com/products/copper-taps"
+  },
+  {
+    "vendor": "garland",
+    "model": "OM4501-40GSR4BiDi",
+    "label": "OM4501 40G-SR4 BiDi passive multimode fibre TAP (1 tap, 50/50, MTP)",
+    "category": "firewall",
+    "description": "Passive 40G tap for OM4 multimode: two MTP/MPO network ports carry the bidirectional 40GBASE-SR4 link through unpowered and two MTP/MPO monitor ports deliver the 50/50 copies. Pure optical split, no power and no management interface.",
+    "capabilities": [],
+    "interfaces": [
+      {
+        "name": "netA",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "netB",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "monA",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "monB",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.garlandtechnology.com/hubfs/Solutions/Generic%20Solutions/GarlandTechnology-Multi-mode%2040G-SR-BiDi%20Passive%20Fiber%20TAPs.pdf"
+  }
+]

@@ -1,0 +1,2267 @@
+[
+  {
+    "vendor": "f5",
+    "model": "BIG-IP i2800",
+    "label": "BIG-IP i2800",
+    "category": "firewall",
+    "description": "F5 BIG-IP i2800 - 1U entry-class iSeries ADC, 10 Gbps L4/L7 throughput class with 4x 1G SFP fiber and 2x 10G SFP+ cages (no copper data ports), plus a 1G RJ45 management port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "1.1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "1.2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "1.3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "1.4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "2.1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "2.2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://wtit.com/f5-products/f5-big-ip-i2600-i2800-hardware-datasheet/"
+  },
+  {
+    "vendor": "f5",
+    "model": "BIG-IP i5800",
+    "label": "BIG-IP i5800",
+    "category": "firewall",
+    "description": "F5 BIG-IP i5800 - 1U iSeries ADC in the 40 Gbps class: 8x 10G SFP+ and 4x 40G QSFP+ fiber cages with a single 1G RJ45 management port and no copper data ports.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "1.1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "2.1",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2.2",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2.3",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2.4",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://techdocs.f5.com/en-us/hw-platforms/platform-guide-i5000i7000i10000i11000-series/title--platform-specifications.html"
+  },
+  {
+    "vendor": "f5",
+    "model": "BIG-IP r2600",
+    "label": "BIG-IP r2600",
+    "category": "firewall",
+    "description": "F5 BIG-IP r2600 - 1U rSeries ADC, 20 Gbps L4 / 13 Gbps L7 class with 4x 10G/1G RJ45 copper ports, 4x 25G/10G/1G SFP28 fiber cages and a 1G RJ45 management port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "1.1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1.4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "2.1",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "2.2",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "2.3",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "2.4",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          1000,
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://wtit.com/f5-products/f5-big-ip-r2600-r2800-hardware-datasheet/"
+  },
+  {
+    "vendor": "citrix",
+    "model": "ADC MPX 8905",
+    "label": "Citrix ADC MPX 8905",
+    "category": "firewall",
+    "description": "Citrix ADC MPX 8905 - 1U ADC in the 5 Gbps class: 4x 10G SFP+ fiber ports and 6x 10/100/1000 copper RJ45 data ports, plus a dedicated 1G RJ45 management port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "0/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "0/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "0/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "0/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "0/5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "0/6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "0/7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "0/8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "0/9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "0/10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://img1.wsimg.com/blobby/go/f7748e26-2d27-4aa6-89fb-b263de90f421/downloads/citrix_adc_vpx_datasheet.pdf"
+  },
+  {
+    "vendor": "a10",
+    "model": "Thunder 3030S",
+    "label": "A10 Thunder 3030S",
+    "category": "firewall",
+    "description": "A10 Thunder 3030S - 1U ADC/application service gateway, 30 Gbps class with 6x 1G RJ45 copper, 2x 1G SFP fiber, 4x 10G SFP+ fiber, plus 1G RJ45 management and LOM ports.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://fccid.io/m/fc6c6b92dc24776c4e77cb179f71be242582f2485f240247f8300f7a6b9fa2f8.pdf"
+  },
+  {
+    "vendor": "radware",
+    "model": "Alteon 5208",
+    "label": "Radware Alteon 5208",
+    "category": "firewall",
+    "description": "Radware Alteon 5208 - 1U ADC with 6/12/26 Gbps licensed throughput, 8x 1G RJ45 copper data ports and 2x 10G SFP+ fiber ports, plus a 1G RJ45 management port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.radware.com/getattachment/1ad0ff84-d587-467d-a11e-5dcb906ad839/Alteon_NG_Tech_Spec.pdf.aspx?disposition=attachment"
+  },
+  {
+    "vendor": "kemp",
+    "model": "LoadMaster LM-4000",
+    "label": "Kemp LoadMaster LM-4000",
+    "category": "firewall",
+    "description": "Progress Kemp LoadMaster LM-4000 - 1U ADC, 6.2 Gbps L4 / 6 Gbps L7 class with 2x 1G RJ45 copper and 2x 10G SFP+ fiber ports; no separate management NIC.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "firewall",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.corporatearmor.com/documents/Kemp_LoadMaster_LM-4000_Datasheet.pdf"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiADC 1000F",
+    "label": "FortiADC 1000F",
+    "category": "firewall",
+    "description": "Fortinet FortiADC 1000F - 1U ADC in the 40 Gbps class: 8x 1G SFP fiber (ports 1-8), 8x 1G RJ45 copper (ports 9-16), 4x 10G SFP+ fiber (ports 17-20) and a dedicated 1G RJ45 management port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "firewall",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://fortinetweb.s3.amazonaws.com/docs.fortinet.com/v2/attachments/80b37cce-2436-11e9-b20a-f8bc1258b856/FortiADC-1000F-QuickStart.pdf"
+  },
+  {
+    "vendor": "barracuda",
+    "model": "Load Balancer ADC 540",
+    "label": "Barracuda Load Balancer ADC 540",
+    "category": "firewall",
+    "description": "Barracuda Load Balancer ADC 540 - 1U ADC, 5 Gbps L4 / 3.6 Gbps L7 class with 8x 1G RJ45 copper data ports and a separate 1G RJ45 management port; no SFP cages.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "firewall",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://campus.barracuda.com/download/pdf/article/4625/"
+  },
+  {
+    "vendor": "a10",
+    "model": "Thunder 4435",
+    "label": "A10 Thunder 4435",
+    "category": "firewall",
+    "description": "A10 Thunder 4435 - 1U high-end ADC, 80 Gbps class with 16x 10G SFP+ and 4x 40G QSFP+ fiber ports, plus 1G RJ45 management and lights-out management ports.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "eth16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "q1",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q2",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q3",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q4",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "lom",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://netboxlabs.com/ndx/a10/a10-thunder-4435/"
+  },
+  {
+    "vendor": "gigamon",
+    "model": "GigaVUE-HC2",
+    "label": "Gigamon GigaVUE-HC2",
+    "category": "firewall",
+    "description": "Gigamon GigaVUE-HC2 packet broker - 2RU chassis with four front module bays (more than 1 Tbps aggregate); as modeled it carries one PRT-HC0-X24 (24x 1G/10G SFP+ fiber) and one PRT-HC0-Q06 (6x 40G QSFP+ fiber) module plus a 1G RJ45 management port.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x23",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x24",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "q1",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q2",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q3",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q4",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q5",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "q6",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://docs.gigamon.com/pdfs/Content/Resources/PDF%20Library/GV-5800-Doc/GigaVUE-HC2-HardwareInstallationGuide-v5800.pdf"
+  },
+  {
+    "vendor": "keysight",
+    "model": "Vision 7300",
+    "label": "Keysight Vision 7300",
+    "category": "firewall",
+    "description": "Keysight (Ixia) Vision 7300 network packet broker - 7U chassis with six line-module slots (up to 288x 1/10G SFP+ or 96x 40G QSFP+); as modeled, one 48-port 1G/10G SFP+ card and one 16-port 40G QSFP+ card plus a 1G RJ45 management port.",
+    "capabilities": [
+      "l2-forward",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "1/1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/9",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/10",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/11",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/12",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/23",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/24",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/25",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/26",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/27",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/28",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/29",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/30",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/31",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/32",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/33",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/34",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/35",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/36",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/37",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/38",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/39",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/40",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/41",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/42",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/43",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/44",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/45",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/46",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/47",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/48",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "2/1",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/2",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/3",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/4",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/5",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/6",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/7",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/8",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/9",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/10",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/11",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/12",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/13",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/14",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/15",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "2/16",
+        "type": "ethernet",
+        "speed": "40G",
+        "connector": "qsfp+",
+        "speedCaps": [
+          40000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tempestns.com/wp-content/uploads/2022/03/keysight-Vision-7300-chassis-family-data.pdf"
+  }
+]

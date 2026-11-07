@@ -1,0 +1,60 @@
+{
+  "vendor": "zte",
+  "model": "F8648P",
+  "label": "ZXHN F8648P XGS-PON ONT",
+  "category": "ont",
+  "description": "ZTE ZXHN F8648P AX6000 XGS-PON gateway: one SC/APC 10G/10G XGS-PON WAN, one 10GE plus four 1GE LAN ports, two FXS voice ports and 4x4 Wi-Fi 6 on both bands (1148M at 2.4GHz, 4800M at 5GHz with 160MHz) - the ONT Orange Spain uses for 10G services, managed by full ITU-T G.988 OMCI.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2g",
+      "type": "wireless",
+      "speed": "1148M"
+    },
+    {
+      "name": "wlan5g",
+      "type": "wireless",
+      "speed": "4800M"
+    }
+  ]
+}

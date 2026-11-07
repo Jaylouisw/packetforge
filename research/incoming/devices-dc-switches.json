@@ -1,0 +1,820 @@
+[
+  {
+    "vendor": "arista",
+    "model": "7050SX3-48YC8",
+    "label": "Arista 7050SX3-48YC8",
+    "category": "l3-switch",
+    "description": "Arista 7050X3 series 1RU leaf: 48x 25G SFP28 (1/10/25G) server ports plus 8x 100G QSFP28 uplinks, 4 Tbps non-blocking. Each QSFP28 uplink also runs 40G or breaks out to 4x 25G/10G or 2x 50G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet49/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet50/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet51/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet52/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet53/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet54/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet55/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet56/1",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf"
+  },
+  {
+    "vendor": "arista",
+    "model": "7050CX3-32S",
+    "label": "Arista 7050CX3-32S",
+    "category": "l3-switch",
+    "description": "Arista 7050X3 series 1RU 100G switch used as a dense 100G leaf or collapsed spine: 32x 100G QSFP28 ports plus 2x 1/10G SFP+ ports, 6.4 Tbps. Every QSFP28 runs 40G/100G or breaks out to 4x 25G/10G or 2x 50G for up to 128x 25G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 32,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N9K-C93180YC-FX3",
+    "label": "Cisco Nexus 93180YC-FX3",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 9300-FX3 1RU leaf/spine: 48x 1/10/25G SFP28 downlinks plus 6x 40/100G QSFP28 uplinks, 1.8 Tbps with MACsec on every port. Each QSFP28 uplink breaks out to 4x 25G/10G or 2x 50G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet1/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/53",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/54",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-744052.html"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N9K-C9336C-FX2",
+    "label": "Cisco Nexus 9336C-FX2",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 9300-FX2 1RU fixed spine/spline: 36x 40/100G QSFP28 ports, 7.2 Tbps. Every port supports breakout to 4x 10/25G or 2x 50G, giving up to 144x 25G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 36,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-742282.html"
+  },
+  {
+    "vendor": "cisco",
+    "model": "N9K-C9364C",
+    "label": "Cisco Nexus 9364C",
+    "category": "l3-switch",
+    "description": "Cisco Nexus 9364C 2RU fixed spine: 64x 40/100G QSFP28 fabric ports plus 2x 1/10G SFP+ supervisor ports, 12.8 Tbps. Breakout on every QSFP28 yields up to 256x 25G or 128x 50G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 64,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet1/65",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Ethernet1/66",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-739886.html"
+  },
+  {
+    "vendor": "juniper",
+    "model": "QFX5120-48Y",
+    "label": "Juniper QFX5120-48Y",
+    "category": "l3-switch",
+    "description": "Juniper QFX5120 1RU leaf: 48x 1/10/25G SFP28 access ports plus 8x 40/100G QSFP28 uplinks, 4 Tbps, EVPN-VXLAN capable. QSFP28 uplinks break out to 4x 25G or 4x 10G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "et-0/0/",
+      "start": 0,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "et-0/0/48",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/53",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/54",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "et-0/0/55",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.juniper.net/us/en/products/switches/qfx-series/qfx5120-data-center-switches/specs.html"
+  },
+  {
+    "vendor": "juniper",
+    "model": "QFX5210-64C",
+    "label": "Juniper QFX5210-64C",
+    "category": "l3-switch",
+    "description": "Juniper QFX5210 2RU lean spine: 64x 50/100G QSFP28 ports, 12.8 Tbps at 750 ns latency. Breakout supports 128x 25G or 128x 50G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "et-0/0/",
+      "start": 0,
+      "count": 64,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [],
+    "sourceUrl": "https://www.juniper.net/us/en/products/switches/qfx-series/qfx5210-data-center-switches/specs.html"
+  },
+  {
+    "vendor": "dell",
+    "model": "S5248F-ON",
+    "label": "Dell PowerSwitch S5248F-ON",
+    "category": "l3-switch",
+    "description": "Dell PowerSwitch S5200-ON series 1RU 25G ToR: 48x 25G SFP28 server ports, 4x 100G QSFP28 uplinks and 2x QSFP28-DD double-density cages carrying 2x 100G each, 2.0 Tbps. All 100G cages break out to 4x 25G or 2x 50G; ships with ONIE for OS10 or SONiC.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/1/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "ethernet1/1/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "ethernet1/1/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "ethernet1/1/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "ethernet1/1/53",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "ethernet1/1/54",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/dell-emc-networking-s5200-on-spec-sheet-en-dl1lj1v-original.pdf"
+  },
+  {
+    "vendor": "aruba",
+    "model": "CX 8360-48Y6C",
+    "label": "HPE Aruba CX 8360-48Y6C",
+    "category": "l3-switch",
+    "description": "HPE Aruba Networking CX 8360-48Y6C 1RU leaf: 48x 1/10/25G SFP28 ports (4 MACsec) plus 6x 40/100G QSFP28 uplinks (2 MACsec). QSFP28 uplinks split 4x 25G/10G or 2x 50G in split mode.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "1/1/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/53",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "1/1/54",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://arubanetworking.hpe.com/techdocs/hardware/switches/8360/IGSG/Aruba_8360_IGSG.pdf"
+  },
+  {
+    "vendor": "mellanox",
+    "model": "SN2410",
+    "label": "NVIDIA Mellanox SN2410",
+    "category": "l3-switch",
+    "description": "NVIDIA Mellanox Spectrum SN2410 1RU open Ethernet leaf: 48x 25G SFP28 downlinks plus 8x 100G QSFP28 uplinks, 4 Tbps, short-depth with redundant PSUs. Ships with Onyx, Cumulus Linux or ONIE; QSFP28 uplinks break out to 4x 25G or 2x 50G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet1/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/53",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/54",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/55",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/56",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      }
+    ],
+    "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2410.pdf"
+  },
+  {
+    "vendor": "celestica",
+    "model": "DS3000",
+    "label": "Celestica DS3000",
+    "category": "l3-switch",
+    "description": "Celestica DS3000 1RU open-networking switch: 32x 100G QSFP28 on Broadcom Trident3-X7, 3.2 Tbps, 32 MB buffer, PHYless. The 32 cages expose 128 sub-rate ports via 4x 25G/10G or 2x 50G breakout; runs SONiC installed through ONIE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 32,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [],
+    "sourceUrl": "https://cls.celestica.com/hardware-platforms/ds3000/"
+  },
+  {
+    "vendor": "arista",
+    "model": "7060CX2-32S",
+    "label": "Arista 7060CX2-32S",
+    "category": "l3-switch",
+    "description": "Arista 7060X2 series 1RU fixed spine: 32x 100G QSFP28 fabric ports plus 2x 10G SFP+ ports, 6.4 Tbps at 450 ns latency. Each QSFP28 breaks out to 4x 25G/10G or 2x 50G for up to 128x 25G.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet",
+      "start": 1,
+      "count": 32,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet33",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Ethernet34",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/7060X_7260X_QL.pdf"
+  }
+]

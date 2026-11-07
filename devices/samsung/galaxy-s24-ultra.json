@@ -1,0 +1,28 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy S24 Ultra",
+  "label": "Samsung Galaxy S24 Ultra smartphone",
+  "category": "phone",
+  "description": "5G sub-6 GHz modem with Wi-Fi 7 (802.11be), 320 MHz EHT channels and 4096-QAM over 2.4, 5 and 6 GHz, 2x2 MIMO at up to about 5.8 Gbps.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

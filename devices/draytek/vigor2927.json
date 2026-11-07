@@ -1,0 +1,56 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2927",
+  "label": "Vigor2927 dual-WAN SMB firewall router",
+  "category": "router",
+  "description": "DrayTek Vigor 2927 - wired dual-Ethernet-WAN SMB firewall router with one fixed 1G WAN, one 1G switchable WAN/LAN port and five 1G LAN ports. There is no radio on the base 2927, which is Wi-Fi-free by design; 802.11ac and 802.11ax live on the 2927ac and 2927ax variants.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#f43f5e"
+}

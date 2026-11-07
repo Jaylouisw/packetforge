@@ -1,0 +1,220 @@
+[
+  {
+    "vendor": "ciena",
+    "model": "6500-S14",
+    "label": "6500 Packet-Optical Platform (S14 shelf)",
+    "category": "switch",
+    "description": "Ciena 6500 packet-optical platform in the 13RU, 14-slot S14 shelf: a single converged shelf for TDM, packet, OTN and coherent DWDM, 100G to 500G per slot, 96 C-band wavelengths and up to 19.2 Tb/s per system. Modelled configuration: 4x 200G coherent line cards (line1-line4, line side) each paired with its 100G/10G client card, giving 4 line ports at 200G (modelled at this engine's 100G ceiling), 8x 100GbE QSFP28 client ports and 20x 10G SFP+ client ports.",
+    "capabilities": ["l2-forward", "cli"],
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "c100g1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c100g8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] }
+    ],
+    "portTemplate": { "prefix": "c10g", "start": 1, "count": 20, "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    "sourceUrl": "https://www.ciena.com/products/6500"
+  },
+  {
+    "vendor": "ciena",
+    "model": "Waveserver Ai",
+    "label": "Waveserver Ai DCI platform",
+    "category": "switch",
+    "description": "1RU coherent data-centre-interconnect platform with three pluggable Waveserver modules, 2.4 Tb/s of client capacity plus 2.4 Tb/s of line capacity. Modelled with three 2x400G modules: 24x 100GbE QSFP28 client ports and 6 line ports (2 per module) each carrying a single-carrier 200G/300G/400G wavelength, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 24, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.ciena.com/products/waveserver"
+  },
+  {
+    "vendor": "nokia",
+    "model": "1830 PSS-24x",
+    "label": "1830 Photonic Service Switch 24x",
+    "category": "switch",
+    "description": "24-slot OTN/packet switch with 1 Tb/s per slot and 24 Tb/s non-blocking switching per shelf (48 Tb/s per shelf pair), multiservice clients from sub-10G to 400GE and coherent uplinks up to 1 Tb/s. Modelled with 4x 10AN1T client cards (client1-client40: 40x QSFP28 100GE/OTU4, two positions per card 400GE-capable) and 2x 1T PSE-Vc line cards (line1-line8: 8x coherent line ports programmable 200G-400G, modelled at this engine's 100G ceiling).",
+    "capabilities": ["l2-forward", "cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 40, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.nokia.com/asset/i/212490/"
+  },
+  {
+    "vendor": "infinera",
+    "model": "GX G30",
+    "label": "Groove (GX) G30 compact modular platform",
+    "category": "switch",
+    "description": "1RU compact modular optical transport chassis with four service slots taking transponder, muxponder and OLS sleds, coherent line rates from 100G to 800G and clients from 1G to 400G. Modelled with two dual-slot CHM2T muxponder sleds: 24x 100GbE QSFP28 client ports (6 positions 400GbE-capable QSFP-DD) and 4 line ports at a 100G-600G programmable line rate, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 24, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://itectra.com/wp-content/uploads/2021/07/Infinera_GX-Series_Muxponder_DS.pdf"
+  },
+  {
+    "vendor": "adva",
+    "model": "FSP 3000",
+    "label": "FSP 3000 DWDM platform (SH12 shelf)",
+    "category": "switch",
+    "description": "ADVA/Adtran FSP 3000 WDM platform, 1RU to 12RU shelves, up to 128 DWDM channels and 32-degree ROADMs, with transponders, muxponders and OTN switchponders. Modelled in the 12RU SH12 shelf (20 traffic slots) with 8x QuadFlex 400G muxponder cards: 32x 100GbE QSFP28 client ports and 16 coherent line ports (two 200G wavelengths per card, modelled at this engine's 100G ceiling).",
+    "capabilities": ["l2-forward", "cli", "http-server"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 32, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line9", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line10", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line11", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line12", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line13", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line14", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line15", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line16", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.adva.com/-/media/adva-main-site/resources/data-sheets/pdfs/fsp-3000-quad-flex-data-sheet.ashx"
+  },
+  {
+    "vendor": "cisco",
+    "model": "NCS 2006",
+    "label": "Network Convergence System 2006",
+    "category": "switch",
+    "description": "6RU DWDM shelf of the NCS 2000 series with eight card slots: two for TNC/TSC controllers and six for line cards, plus ROADM, amplifier and OTDR modules; part of multishelf nodes of up to 50 shelves. Modelled with three double-slot 400G-XP-LC cards: per card six QSFP+ 10G client ports, four QSFP28 100G client ports and two 200G CFP2 coherent trunk (line) ports, i.e. 18x 10G and 12x 100G client ports plus 6 line ports modelled at this engine's 100G ceiling.",
+    "capabilities": ["l2-forward", "cli", "http-server"],
+    "interfaces": [
+      { "name": "c1/1", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/2", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/3", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/4", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/5", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/6", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c1/7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c1/8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c1/9", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c1/10", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c2/1", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/2", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/3", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/4", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/5", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/6", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c2/7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c2/8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c2/9", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c2/10", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c3/1", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/2", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/3", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/4", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/5", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/6", "type": "ethernet", "speed": "10G", "connector": "qsfp+", "speedCaps": [10000] },
+      { "name": "c3/7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c3/8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c3/9", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "c3/10", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/optical/hardware/ncs/guide/b-hig-ncsinstall/b-hig-ncsinstall_chapter_010001.html"
+  },
+  {
+    "vendor": "fujitsu",
+    "model": "1FINITY T600",
+    "label": "1FINITY T600 transport blade",
+    "category": "switch",
+    "description": "1RU disaggregated DCI transponder/muxponder blade with two pluggable PIUs, 2.4 Tb/s per blade and software-provisioned line rates from 200G to 600G on a single wavelength. Modelled fully equipped: 24x 100GbE QSFP28 client ports (12 per PIU) and 4x fixed coherent line ports at 200G-600G, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 24, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp3783.pdf"
+  },
+  {
+    "vendor": "packetlight",
+    "model": "PL-2000M",
+    "label": "PL-2000M 200G muxponder",
+    "category": "switch",
+    "description": "1RU 200G multi-protocol muxponder: up to 20 multi-rate client interfaces (10GbE, 40GbE, 100GbE, 8G/16G/32G Fibre Channel, 12G-SDI, OC-192, OTU2/OTU2e/OTU3/OTU4) aggregated onto one coherent 200G CFP2 uplink. Modelled as 2x 100G QSFP28 client ports + 16x 10G SFP+ client ports plus the single 200G line port, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli", "http-server"],
+    "portTemplate": { "prefix": "client", "start": 3, "count": 16, "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    "interfaces": [
+      { "name": "client1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "client2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.packetlight.com/images/Data-Sheets/PL-2000M.pdf"
+  },
+  {
+    "vendor": "cisco",
+    "model": "NCS 1004",
+    "label": "Network Convergence System 1004",
+    "category": "switch",
+    "description": "2RU modular muxponder/transponder chassis with four line-card slots, used as a compact DCI muxponder and WDM regenerator. Modelled with four OTN-XPonder line cards in 4x100G muxponder mode: 32x 100GbE QSFP28 client ports and 8 coherent trunk (line) ports programmable 100G-400G per slice, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 32, "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [40000, 100000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line3", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line4", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line5", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line6", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line7", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line8", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/optical-networking/network-convergence-system-1000-series/datasheet-c78-743693.html"
+  },
+  {
+    "vendor": "fujitsu",
+    "model": "1FINITY T310",
+    "label": "1FINITY T310 muxponder blade",
+    "category": "switch",
+    "description": "1RU 200G muxponder blade for metro and regional aggregation: 20x 10GbE/OTU2/OC-192 client ports multiplexed onto two 100G/200G CFP2-ACO coherent line ports, DC powered and NEBS level 3. Modelled as 20x SFP+ 10G client ports plus 2 line ports at 100G/200G, modelled at this engine's 100G ceiling.",
+    "capabilities": ["cli"],
+    "portTemplate": { "prefix": "client", "start": 1, "count": 20, "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    "interfaces": [
+      { "name": "line1", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] },
+      { "name": "line2", "type": "ethernet", "speed": "100G", "connector": "qsfp28", "speedCaps": [100000] }
+    ],
+    "sourceUrl": "https://www.fujitsu.com/us/products/network/products/1finity-t300-t310/index-old.html"
+  }
+]

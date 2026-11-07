@@ -1,0 +1,57 @@
+{
+  "vendor": "cisco",
+  "model": "Catalyst 9800-L",
+  "label": "Catalyst 9800-L Wireless Controller",
+  "category": "host",
+  "description": "Cisco IOS-XE hardware WLC appliance for small and midsize campus: 250 APs / 5,000 clients (500 / 10,000 with the Performance license) and up to 5 Gbps of throughput. Copper (9800-L-C) variant carries four 2.5G mGig data ports plus two 10G uplinks and two 1G service/redundancy ports; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-server",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

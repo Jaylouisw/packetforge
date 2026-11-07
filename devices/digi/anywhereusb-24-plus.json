@@ -1,0 +1,50 @@
+{
+  "vendor": "digi",
+  "model": "AnywhereUSB 24 Plus",
+  "label": "AnywhereUSB 24 Plus USB-over-IP hub",
+  "category": "host",
+  "description": "Rackmount USB-over-IP hub presenting 24 USB 3.1 Gen 1 Type A ports to remote hosts over dual 10 M/100 M/1 G/10 G Ethernet or 2 SFP+ sockets, with one RS-232 DB9 console port.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ]
+}

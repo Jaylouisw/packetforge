@@ -1,0 +1,29 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge T360",
+  "label": "PowerEdge T360 tower server",
+  "category": "server",
+  "description": "4.5U-ish tower server for branch and SMB use with 2x 1GbE embedded on the planar LOM and a separate dedicated 1G iDRAC Ethernet port; optional PCIe network cards add 1G/10G ports.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "iDRAC",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eno1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eno2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

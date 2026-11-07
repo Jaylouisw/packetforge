@@ -1,0 +1,19 @@
+{
+  "vendor": "apc",
+  "model": "NetBotz NBRK0250A",
+  "label": "NetBotz Rack Monitor 250 environmental monitor",
+  "category": "host",
+  "description": "1U rack environmental and access-control appliance that polls wired and Zigbee wireless APC sensors for temperature, humidity, spot/rope leak, smoke, vibration and door state, and raises SNMP traps, syslog and email alerts. A single 10/100BASE-T RJ45 public LAN port faces the network; the six RJ45 ports on the unit are APC Universal Sensor (A-Link) ports, not Ethernet.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

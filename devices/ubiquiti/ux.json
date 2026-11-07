@@ -1,0 +1,41 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UX",
+  "label": "UniFi Express (UX) AX3000 cloud gateway",
+  "category": "router",
+  "description": "Ubiquiti UniFi Express (UX) - Wi-Fi 6 AX3000 dual-band cloud gateway with a built-in 2x2 access point (2.4 GHz 574 Mbps, 5 GHz 2.4 Gbps) and exactly two wired ports: one 1G WAN and one 1G LAN. It is managed through UniFi Network rather than a local CLI, and the single LAN port means any switch hangs off that one link.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

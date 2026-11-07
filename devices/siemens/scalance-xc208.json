@@ -1,0 +1,55 @@
+{
+  "vendor": "siemens",
+  "model": "SCALANCE XC208",
+  "label": "SCALANCE XC208 managed IE switch",
+  "category": "switch",
+  "description": "DIN-rail / S7-rail / wall-mount Layer 2 managed industrial Ethernet switch (6GK5208-0BA00-2AC2) with 8 x 10/100 Mbit/s RJ45 ports and a console port; -40 to +70 C, redundant power supply, PROFINET IO device with RSTP/VLAN.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

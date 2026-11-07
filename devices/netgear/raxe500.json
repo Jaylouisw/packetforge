@@ -1,0 +1,65 @@
+{
+  "vendor": "netgear",
+  "model": "RAXE500",
+  "label": "Nighthawk RAXE500 AXE11000 tri-band Wi-Fi 6E router",
+  "category": "router",
+  "description": "Netgear Nighthawk RAXE500 - Wi-Fi 6E AXE11000 tri-band router (2.4 GHz 1.2 Gbps, 5 GHz 4.8 Gbps, 6 GHz 4.8 Gbps, all 4x4) with one 2.5G/1G multi-gig port that can be assigned to WAN or LAN, one 1G WAN and four 1G LAN ports. The 2.5G port is the sole multi-gig interface and doubles as the faster WAN.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "2.5g-multigig",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

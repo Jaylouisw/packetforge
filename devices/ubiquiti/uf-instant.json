@@ -1,0 +1,24 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UF-Instant",
+  "label": "UFiber Instant GPON CPE (SFP form factor)",
+  "category": "switch",
+  "description": "GPON ONU built into an SFP module: an SC/APC PON port (2.488 Gbit/s down, 1.244 Gbit/s up) on the outside, and a 1G SGMII host interface on the SFP edge connector that plugs straight into a switch cage. There is no RJ45 anywhere on the unit.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "gpon0",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

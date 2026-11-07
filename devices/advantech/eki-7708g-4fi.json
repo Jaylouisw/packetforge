@@ -1,0 +1,54 @@
+{
+  "vendor": "advantech",
+  "model": "EKI-7708G-4FI",
+  "label": "EKI-7708G-4FI industrial switch",
+  "category": "switch",
+  "description": "DIN-rail managed industrial switch with 4 x 10/100/1000Base-T RJ45 ports and 4 x Gigabit SFP cages; -40 to 75 C wide-temperature model, redundant 12-48 VDC input, IEC 62443-4-2 SL2 and NEMA TS2 certified.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

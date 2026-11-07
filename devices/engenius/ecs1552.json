@@ -1,0 +1,64 @@
+{
+  "vendor": "engenius",
+  "model": "ECS1552",
+  "label": "EnGenius ECS1552",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS1552 - 48x 1G RJ45 plus 4x 1G/10G SFP+ uplinks. L2+ cloud-managed switch with static routing (63 IPv4 routes), CLI/SSH, 176 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#ef4444"
+}

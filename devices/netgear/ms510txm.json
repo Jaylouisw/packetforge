@@ -1,0 +1,64 @@
+{
+  "vendor": "netgear",
+  "model": "MS510TXM",
+  "label": "Netgear MS510TXM",
+  "category": "l3-switch",
+  "description": "Netgear MS510TXM - 8-port multi-gigabit Smart Managed Pro switch: 4x 100M/1G/2.5G and 4x 100M/1G/2.5G/5G/10G copper ports plus 2x 1G/10G SFP+ uplinks. Layer 3 static routing (32 routes), 140 Gbps non-blocking.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 4,
+    "type": "ethernet",
+    "speed": "2.5G"
+  },
+  "interfaces": [
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

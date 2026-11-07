@@ -1,0 +1,32 @@
+{
+  "vendor": "radwin",
+  "model": "5000 JET",
+  "label": "RADWIN 5000 JET",
+  "category": "ptp",
+  "description": "RADWIN 5000 JET - sub-6 GHz beamforming sector radio, multi-band 3.3-3.8/3.65 GHz or 5.1-5.8 GHz in one unit, up to 1 Gbps per cell (250 Mbps per sector, 40 km range); 1x 1G RJ45 with PoE in plus 1x 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

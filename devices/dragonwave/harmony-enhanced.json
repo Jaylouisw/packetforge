@@ -1,0 +1,42 @@
+{
+  "vendor": "dragonwave",
+  "model": "Harmony Enhanced",
+  "label": "DragonWave Harmony Enhanced",
+  "category": "ptp",
+  "description": "DragonWave Harmony Enhanced - zero-footprint all-outdoor packet microwave radio covering 6-42 GHz licensed/unlicensed bands, up to 2 Gbps per radio (4 Gbps with MIMO/XPIC) at 2048QAM; 2x 1G RJ45 (port 1 PoE++) plus 2x 1G SFP.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

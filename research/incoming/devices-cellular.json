@@ -1,0 +1,632 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUTX50",
+    "label": "Teltonika RUTX50 industrial 5G router",
+    "category": "router",
+    "description": "Industrial 5G router running 5G sub-6 GHz SA/NSA with dual-SIM 4G Cat 20 fallback; the wired side is five Gigabit Ethernet ports (1x WAN, re-taskable as LAN, plus 4x LAN) alongside dual-band Wi-Fi 5 at up to 867 Mbps.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://www.teltonika-networks.com/products/routers/rutx50"
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT956",
+    "label": "Teltonika RUT956 industrial 4G router",
+    "category": "router",
+    "description": "Industrial 4G LTE Cat 4 router with 3G/2G fallback, dual SIM and GNSS, aimed at serial/RS-485 M2M sites; four Fast Ethernet ports (1x WAN + 3x LAN, 10/100 Mbps) and a single 2.4 GHz Wi-Fi 4 access point - no gigabit copper at all.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut956"
+  },
+  {
+    "vendor": "cradlepoint",
+    "model": "E3000",
+    "label": "Cradlepoint E3000 5G branch router",
+    "category": "router",
+    "description": "Branch SD-WAN appliance with an embedded 5G low/mid-band modem and Cat 20 LTE fallback, Wi-Fi 6, and an unusually deep wired side: one 2.5G port, nine GbE ports and a 10G SFP+ cage, all LAN/WAN switchable.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan9",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "10G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://cradlepoint.ericsson.com/products/endpoints/e3000/"
+  },
+  {
+    "vendor": "cradlepoint",
+    "model": "R1900",
+    "label": "Cradlepoint R1900 ruggedized 5G router",
+    "category": "router",
+    "description": "Ruggedized in-vehicle 5G router with a 5G NR FR1 modem that drops to Cat 20 LTE outside 5G coverage, dual-band Wi-Fi 6, and four GbE ports that are all switchable between LAN and WAN roles.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://cradlepoint.ericsson.com/datasheet/r1900-series-5g-ruggedized-router/"
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 20X",
+    "label": "Peplink Balance 20X SD-WAN router",
+    "category": "router",
+    "description": "Small-branch SpeedFusion SD-WAN router whose embedded modem is LTE Cat 4 (Cat 6/7/18/20 and 5G arrive only via the FlexModule Mini slot), with 1x GE WAN, 4x GE LAN and dual-band Wi-Fi 5.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/products/enterprise-routers/balance-20x/"
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX BR1 Pro 5G",
+    "label": "Peplink MAX BR1 Pro 5G mobile router",
+    "category": "router",
+    "description": "5G mobile router with SpeedFusion bonding, dual-band 2x2 Wi-Fi 6, and three Ethernet ports: one 2.5G WAN plus two GbE LAN, with the WAN re-taskable as a third LAN.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/products/mobile-routers/max-br1-pro-5g/"
+  },
+  {
+    "vendor": "digi",
+    "model": "IX20",
+    "label": "Digi IX20 industrial 4G router",
+    "category": "router",
+    "description": "Compact DIN-rail industrial router on 4G LTE Cat 4 (Cat 7 and LTE-M/NB-IoT order codes share the chassis), with RS-232 and only two 10/100 Mbps Ethernet ports - no gigabit and no Wi-Fi radio.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.digi.com/products/models/ix20-00n4"
+  },
+  {
+    "vendor": "sierra-wireless",
+    "model": "AirLink XR90",
+    "label": "Sierra Wireless AirLink XR90 5G vehicle router",
+    "category": "router",
+    "description": "Rugged IP64 vehicle router built around a 5G NR modem (a second 5G radio is an option, adding a fifth Ethernet port) with dual 4x4 Wi-Fi 6, one 5 Gbps Ethernet port and three GbE LAN ports.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://www.sierrawireless.com/router-solutions/xr90"
+  },
+  {
+    "vendor": "robustel",
+    "model": "R3000",
+    "label": "Robustel R3000 industrial 4G router",
+    "category": "router",
+    "description": "Industrial dual-SIM 4G LTE Cat 4 router with 3G/2G fallback and RS-232/RS-485 for serial M2M; the wired side is only two 10/100 Mbps ports (1x WAN + 1x LAN, or 2x LAN) and there is no Wi-Fi radio.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://robustel.com/product/r3000/"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "NR5103",
+    "label": "Zyxel NR5103 5G NR indoor CPE",
+    "category": "router",
+    "description": "Indoor 5G NR fixed-wireless CPE (3GPP Rel. 15, sub-6 GHz 2CC, up to 4.67 Gbps down) with Wi-Fi 6 4x4 and just two 2.5G Ethernet ports, one of which doubles as the LAN/WAN port.",
+    "capabilities": [
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://www.zyxel.com/service-provider/emea/en/products/5g-nr/5g-nr-cpe/idus/nr5103ev3"
+  },
+  {
+    "vendor": "huawei",
+    "model": "5G CPE Pro",
+    "label": "Huawei 5G CPE Pro indoor 5G router",
+    "category": "router",
+    "description": "Indoor 5G CPE built on the Balong 5000 modem (5G NR NSA/SA sub-6, 1.6 Gbps LTE fallback) with Wi-Fi 6 dual-band DBDC; the wired side is minimal, just two Gigabit Ethernet ports (one WAN/LAN, one LAN).",
+    "capabilities": [
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://consumer.huawei.com/sa-en/routers/5g-cpe-pro/specs/"
+  },
+  {
+    "vendor": "nokia",
+    "model": "FastMile 5G Gateway 3.2",
+    "label": "Nokia FastMile 5G Gateway 3.2 FWA gateway",
+    "category": "router",
+    "description": "Indoor 5G fixed-wireless gateway (5G NR with 4G LTE fallback) that ships to operators as a self-install CPE with Wi-Fi 6; both copper ports are Gigabit LAN ports, since the cellular link is the WAN.",
+    "capabilities": [
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "sourceUrl": "https://www.nokia.com/sites/default/files/2022-11/fastmile-5g-gateway-3_2-user-guide.pdf"
+  }
+]

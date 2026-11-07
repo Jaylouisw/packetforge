@@ -1,0 +1,23 @@
+{
+  "vendor": "epson",
+  "model": "EcoTank ET-4850",
+  "label": "EcoTank ET-4850 inkjet all-in-one",
+  "category": "printer",
+  "description": "Refillable-tank colour inkjet all-in-one with ADF, fax and duplex printing, connecting over Fast Ethernet (10/100 Mbps) or 802.11b/g/n Wi-Fi with Wi-Fi Direct.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

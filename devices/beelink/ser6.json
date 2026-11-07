@@ -1,0 +1,27 @@
+{
+  "vendor": "beelink",
+  "model": "SER6",
+  "label": "Beelink SER6 mini PC",
+  "category": "host",
+  "description": "Ryzen 9 6900HX mini PC with one 2.5GbE RJ45 port and a Wi-Fi 6 (2x2, 2.4 Gbps) radio; the chassis also carries USB4, which is not a NIC.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "vendor": "galleon",
+  "model": "NTS-4000",
+  "label": "Galleon NTS-4000 Stratum-1 NTP server",
+  "category": "host",
+  "description": "1U Stratum-1 NTP/SNTP time server (PTPv2 master clock on licensed variants) synchronised from a 32-channel multi-GNSS active antenna or from MSF/DCF77/WWVB radio broadcasts, sized for very large client counts including 100,000 NTP clients. The standard unit ships with two RJ45 10/100BASE-T LAN ports that carry PoE, expandable to six LAN ports; the RS-232 D-Sub ports, 1PPS BNC and the RS-485 antenna inputs are not network ports.",
+  "capabilities": [
+    "host",
+    "cli",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UniFi Dream Machine Pro",
+  "label": "UniFi Dream Machine Pro (UDM-Pro)",
+  "category": "host",
+  "description": "1RU UniFi OS console that is both a 10G router/gateway and the UniFi Network controller (100+ UniFi devices, 1,000+ clients) with a built-in NVR. Eight 1G RJ45 LAN ports, one 1G RJ45 WAN port, and one 10G SFP+ LAN plus one 10G SFP+ WAN port; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ]
+}

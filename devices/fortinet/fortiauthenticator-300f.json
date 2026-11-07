@@ -1,0 +1,34 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiAuthenticator 300F",
+  "label": "FortiAuthenticator 300F RADIUS/TACACS+ appliance",
+  "category": "host",
+  "description": "1U identity and access appliance that acts as a central RADIUS and TACACS+ AAA server for switches, wireless controllers, VPN and firewalls, backed by local, LDAP/Active Directory or certificate stores plus MFA (FortiToken) and built-in CA services. Four 1GbE RJ45 data ports and an RJ45 console port; there is no switch fabric, each port is just a host interface on the appliance.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

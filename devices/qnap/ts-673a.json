@@ -1,0 +1,24 @@
+{
+  "vendor": "qnap",
+  "model": "TS-673A",
+  "label": "QNAP TS-673A 6-bay desktop NAS",
+  "category": "nas",
+  "description": "6-bay desktop NAS with 2x 2.5GbE RJ-45 ports out of the box and 10G/5G available only through the PCIe expansion slot; management runs in-band on the data ports, no dedicated management port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

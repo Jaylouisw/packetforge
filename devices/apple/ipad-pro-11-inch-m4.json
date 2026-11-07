@@ -1,0 +1,28 @@
+{
+  "vendor": "apple",
+  "model": "iPad Pro 11-inch (M4)",
+  "label": "iPad Pro 11-inch (M4) tablet",
+  "category": "tablet",
+  "description": "M4 pro tablet with an optional 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax, 2x2 MIMO) across 2.4, 5 and 6 GHz, with simultaneous dual-band operation.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

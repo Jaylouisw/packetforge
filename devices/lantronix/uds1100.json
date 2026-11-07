@@ -1,0 +1,25 @@
+{
+  "vendor": "lantronix",
+  "model": "UDS1100",
+  "label": "UDS1100 serial-to-Ethernet device server",
+  "category": "host",
+  "description": "Single-port external device server: one DB25 female DCE serial port (RS-232/422/485) bridged to one 10/100 Ethernet port, used to network-enable a lone console or serial device.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

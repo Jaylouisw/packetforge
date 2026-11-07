@@ -1,0 +1,24 @@
+{
+  "vendor": "avaya",
+  "model": "J189",
+  "label": "J189 IP phone",
+  "category": "phone",
+  "description": "Avaya J189 SIP desk phone with two colour displays, 16 feature keys and up to two J100 expansion modules, on dual 10/100/1000 Ethernet ports (network plus PC passthrough). PoE class is set by a hardware slideswitch: class 2 in the L position, class 3 in H.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

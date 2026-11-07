@@ -1,0 +1,24 @@
+{
+  "vendor": "aqara",
+  "model": "Hub M2",
+  "label": "Aqara Hub M2 Zigbee 3.0 home hub",
+  "category": "iot",
+  "description": "Aqara Hub M2 is a Zigbee 3.0 + BLE 5.0 hub with a built-in IR blaster that bridges Aqara sensors, switches and curtains to HomeKit, Alexa, Google Home and Aqara Home. It is dual-homed on the IP side: an RJ45 Ethernet port plus 2.4 GHz 802.11 b/g/n WiFi, so either can be used to reach the LAN; its Zigbee/BLE radios are device-side only and are not modelled.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

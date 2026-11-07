@@ -1,0 +1,135 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-510E-3GTXSFP-T",
+  "label": "EDS-510E industrial managed switch",
+  "category": "switch",
+  "description": "DIN-rail (wall-mount kit optional) Layer 2 managed Fast Ethernet switch with 7 x 10/100BaseT(X) RJ45 ports and 3 combo Gigabit ports that take either 10/100/1000BaseT(X) copper or 100/1000BaseSFP optics; -40 to 75 C extended-temperature model with redundant 12/24/48 VDC inputs and Turbo Ring redundancy.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M",
+      "comboWith": "1-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "1-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M",
+      "comboWith": "2-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "2-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M",
+      "comboWith": "3-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "3-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "3",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

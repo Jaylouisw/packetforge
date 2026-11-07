@@ -1,0 +1,68 @@
+{
+  "vendor": "fiberhome",
+  "model": "AN5516-06",
+  "label": "AN5516-06 OLT",
+  "category": "olt",
+  "description": "Fiberhome AN5516-06 6U 19-inch OLT with a 720 Gbit/s backplane, 6 GPON/EPON service slots (11-16), redundant core switch slots (9-10) and two uplink slots; up to 96 PON ports with 16-port cards. This spec counts one GCOB 16-port GPON card (gpon11/1-16, Class C+ optics, 1:128) plus an HSUC uplink card providing 4x 10GE SFP+ and 4x GE ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon11/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ge1/1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge1/4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

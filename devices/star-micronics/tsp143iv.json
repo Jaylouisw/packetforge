@@ -1,0 +1,23 @@
+{
+  "vendor": "star-micronics",
+  "model": "TSP143IV",
+  "label": "TSP143IV thermal receipt printer",
+  "category": "printer",
+  "description": "80mm thermal receipt printer for POS at 250mm/s with CloudPRNT, whose X4 models combine a 10BASE-T/100Base-TX LAN port with WLAN and Bluetooth radios.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

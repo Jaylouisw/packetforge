@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "PBE-5AC-400",
+  "label": "PowerBeam 5AC 400",
+  "category": "ptp",
+  "description": "5 GHz airMAX ac bridge with a 400 mm, 25 dBi dish, 450+ Mbps TCP and 25 dBm output. One GbE RJ45 fed by 24 V passive PoE, 8 W max; no SFP cage.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

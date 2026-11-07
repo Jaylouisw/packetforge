@@ -1,0 +1,57 @@
+{
+  "vendor": "synology",
+  "model": "WRX560",
+  "label": "WRX560 AX3000 dual-band router",
+  "category": "router",
+  "description": "Synology WRX560 - Wi-Fi 6 AX3000 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 2402 Mbps 4x4) with one 1G WAN, one 2.5GbE port configurable as WAN or LAN, and three 1G LAN ports. Using the 2.5GbE port as WAN leaves only three gigabit LAN ports on the LAN side.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2.5g-wanlan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

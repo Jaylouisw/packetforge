@@ -1,0 +1,29 @@
+{
+  "vendor": "allnet",
+  "model": "ALL-GHN102v2-Coax",
+  "label": "G.hn coax bridge (2x GbE + F-connector)",
+  "category": "switch",
+  "description": "G.hn bridge for existing TV coax: two 100/1000BASE-T RJ45 ports and one F-connector G.hn port rated up to 500 Mbit/s PHY, with a built-in filter so DVB-C/TV signal passes through the same cable. Sold as a point-to-point pair for runs up to about 800 m.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ghn0",
+      "type": "coax",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

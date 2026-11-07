@@ -1,0 +1,96 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Lite-16-PoE",
+  "label": "UniFi Switch Lite 16 PoE",
+  "category": "switch",
+  "description": "Fanless 16-port 1G Layer 2 switch: ports 1-8 are 802.3af/at PoE+ (45 W total budget), ports 9-16 are plain 1G RJ45. No SFP cage; managed by a UniFi console.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#3b82f6"
+}

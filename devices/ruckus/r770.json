@@ -1,0 +1,39 @@
+{
+  "vendor": "ruckus",
+  "model": "R770",
+  "label": "RUCKUS R770 Wi-Fi 7 AP",
+  "category": "wireless",
+  "description": "Wi-Fi 7 tri-radio indoor AP: 2x2 on 2.4 GHz, 4x4 on 5 GHz and 2x2 on 6 GHz with MLO and 320 MHz channels for 12.22 Gbps combined PHY. One 100M/1G/2.5G/5G/10G PoE port plus a secondary 1G port, 802.3af/at/bt.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5G"
+    }
+  ]
+}

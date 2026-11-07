@@ -36,12 +36,48 @@
     {
       "name": "ge1/1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "ge1/1-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "ge1/1-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "ge1/1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "ge1/1-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "ge1/1-sfp-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge1/1-sfp-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "ge1/1-sfp",
+      "comboRole": "sfp"
     },
     {
       "name": "ge1/2",

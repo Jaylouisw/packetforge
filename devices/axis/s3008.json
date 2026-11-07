@@ -1,0 +1,61 @@
+{
+  "vendor": "axis",
+  "model": "S3008",
+  "label": "S3008 recorder with integrated 8-port PoE switch",
+  "category": "nvr",
+  "description": "Compact 8-channel recorder with a 2/4/8 TB surveillance HDD, eight 10/100 PoE camera ports and one gigabit uplink. The integrated switch delivers 802.3af/at with a 65 W total PoE budget on the 2 TB and 4 TB models (60 W on the 8 TB).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

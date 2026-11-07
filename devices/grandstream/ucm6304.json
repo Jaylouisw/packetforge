@@ -1,0 +1,35 @@
+{
+  "vendor": "grandstream",
+  "model": "UCM6304",
+  "label": "UCM6304 IP PBX",
+  "category": "phone",
+  "description": "Grandstream UCM6304 unified communications PBX, Asterisk 16 based, for up to 2000 users and 300 concurrent calls with 4 FXS and 4 FXO ports. Three self-adaptive Gigabit RJ45 ports that can run switched, routed or dual mode, with a NAT router and firewall; 12 V DC powered, no PoE input.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "nat",
+    "firewall",
+    "l3-forward",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

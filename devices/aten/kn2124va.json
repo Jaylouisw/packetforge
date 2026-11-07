@@ -1,0 +1,25 @@
+{
+  "vendor": "aten",
+  "model": "KN2124VA",
+  "label": "ATEN KN2124VA 24-port KVM over IP switch",
+  "category": "host",
+  "description": "1-local/2-remote Cat 5 KVM over IP switch with 24 RJ-45 KVM server ports (expandable to 40 in 1RU) and two 10/100/1000 Mbps NICs for redundant LAN or dual-IP operation.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

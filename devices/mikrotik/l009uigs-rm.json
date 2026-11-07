@@ -28,7 +28,8 @@
       "speedCaps": [
         1000,
         2500
-      ]
+      ],
+      "connector": "sfp+"
     }
   ],
   "icon": "router",

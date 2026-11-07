@@ -1,0 +1,42 @@
+{
+  "vendor": "extreme",
+  "model": "ExtremeCloud IQ Controller E1120",
+  "label": "ExtremeCloud IQ Controller E1120",
+  "category": "host",
+  "description": "Compact fanless ExtremeCloud IQ Controller appliance that manages up to 125 APs standalone (250 in HA) with 3.7 Gbps mixed throughput. Four 10/100/1000BASE-T data ports plus a separate 1G management port; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-server",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

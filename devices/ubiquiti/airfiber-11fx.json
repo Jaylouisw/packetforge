@@ -1,0 +1,31 @@
+{
+  "vendor": "ubiquiti",
+  "model": "airFiber 11FX",
+  "label": "Ubiquiti airFiber 11FX",
+  "category": "ptp",
+  "description": "Ubiquiti airFiber 11FX (AF-11FX) - licensed 10.7-11.7 GHz true full-duplex FDD radio, up to 1.2 Gbps with 1024QAM and reversible high/low-band duplexers; 1x 1G data port (PoE in, 36 W) plus 1x 100M management port.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

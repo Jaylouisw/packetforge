@@ -1,0 +1,50 @@
+{
+  "vendor": "protectli",
+  "model": "Vault Pro VP4670",
+  "label": "Protectli Vault Pro VP4670 (6-port 2.5G)",
+  "category": "host",
+  "description": "Fanless six-port Vault Pro built on an Intel i7-10810U with six Intel i226-V 2.5GbE RJ45 ports and no wireless; the highest-port-count 2.5G Vault Pro.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

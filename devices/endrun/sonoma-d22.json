@@ -1,0 +1,25 @@
+{
+  "vendor": "endrun",
+  "model": "Sonoma D22",
+  "label": "Sonoma D22 GPS NTP/PTP time server",
+  "category": "host",
+  "description": "Fourth-generation Stratum-1 network time server that disciplines from its internal GPS receiver (CDMA or a free-running OCXO/TCXO holdover on other variants) and sustains about 7,500 NTP requests per second with sub-10-microsecond timestamping. Two independent 10/100/1000BASE-T RJ45 ports on the rear panel, each optionally running PTP/IEEE-1588; the console interface is USB and the timing outputs are BNC.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

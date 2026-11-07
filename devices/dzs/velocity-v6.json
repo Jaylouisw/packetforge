@@ -1,0 +1,63 @@
+{
+  "vendor": "dzs",
+  "model": "Velocity V6",
+  "label": "Velocity V6 OLT",
+  "category": "olt",
+  "description": "DZS Velocity V6 6RU chassis OLT with 6 access service slots, 2 fabric-card/network-facing slots and 2 management slots, scaling to 96 GPON/XGS-PON ports (24,000+ subscribers). This spec counts one V2-LC-NGPC16-5 any-PON card - 16 SFP+ PON ports (gpon1/1-16) - plus 2x 100GE QSFP28 and 4x 10GE SFP+ uplinks on the redundant AEHG2/AETG4 fabric card, and 1 management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfp1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "xge1/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "xge1/4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

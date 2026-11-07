@@ -1,0 +1,96 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-G4012-8P-4QGS-LVB-T",
+  "label": "EDS-G4012 8-port PoE industrial switch",
+  "category": "switch",
+  "description": "DIN-rail Layer 2 managed PoE switch: 8 x 10/100/1000BaseT(X) RJ45 ports with IEEE 802.3bt PoE (up to 90 W per port) plus 4 x 1000/2500BaseSFP cages; -40 to 75 C, dual 12/24/48 VDC inputs, 150 W total PoE budget on 24 VDC input (180 W on 48 VDC).",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ]
+}

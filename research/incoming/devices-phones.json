@@ -6,10 +6,22 @@
       "label": "iPhone 12 smartphone",
       "category": "phone",
       "description": "Apple iPhone 12 — 6.1-inch slab smartphone, Wi-Fi 6 (802.11ax, 2x2) and 5G sub-6 GHz with mmWave on US models; Lightning port, no wired Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111876",
       "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 80 MHz, 2.4/5 GHz) — no 6 GHz. Cellular: 5G sub-6 GHz (n1/n2/n3/n5/n7/n8/n12/n20/n25/n28/n38/n40/n41/n66/n77/n78/n79) plus 5G mmWave (n260/n261) on US A2172 only; falls back to LTE Cat 18/19. No usb0: Lightning is USB 2.0 and iOS does not expose it as an Ethernet interface, so tethering is USB/Wi-Fi only. Good baseline 'Wi-Fi 6 client that cannot use 6 GHz' for band-steering and roaming tests."
@@ -20,10 +32,22 @@
       "label": "iPhone 13 smartphone",
       "category": "phone",
       "description": "Apple iPhone 13 — 6.1-inch smartphone with Wi-Fi 6 and 5G (sub-6 GHz, mmWave on US models); Lightning port, no Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111872",
       "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 2.4/5 GHz, 80 MHz) — same radio class as iPhone 12, still no 6 GHz. Cellular: 5G sub-6 GHz plus mmWave on US SKUs, LTE fallback. Lightning = USB 2.0 only, so no usb0 Ethernet interface. Modelled without mmWave-specific port; treat wwan0 as sub-6 with mmWave opportunistically available in US deployments."
@@ -34,10 +58,22 @@
       "label": "iPhone 14 smartphone",
       "category": "phone",
       "description": "Apple iPhone 14 — 6.1-inch smartphone, Wi-Fi 6 (2x2) and 5G sub-6 GHz with mmWave on US models; adds satellite SOS, Lightning port.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111850",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz). Cellular: 5G sub-6 GHz + mmWave (US models), LTE Cat 18 fallback. Lightning is USB 2.0 — no wired Ethernet, hence no usb0. Satellite SOS is a non-IP path and is not modelled as an interface."
@@ -48,11 +84,22 @@
       "label": "iPhone 15 smartphone",
       "category": "phone",
       "description": "Apple iPhone 15 — 6.1-inch smartphone with Wi-Fi 6 and 5G sub-6/mmWave, now with a USB-C port that supports USB-C to Ethernet adapters.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111831",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — the non-Pro iPhone 15 did not move to 6E. Cellular: 5G sub-6 GHz plus mmWave on US models. USB-C is USB 2.0 (480 Mbps) and supports USB-C Ethernet adapters (iOS 17+), so usb0 is modelled at 1G but a real dock NIC negotiates at ~100M; note this when testing tether-over-cable throughput."
@@ -63,10 +110,22 @@
       "label": "iPhone SE (3rd gen) smartphone",
       "category": "phone",
       "description": "Apple iPhone SE (3rd generation) — 4.7-inch home-button smartphone, Wi-Fi 6 and 5G sub-6 GHz only (no mmWave); Lightning, no Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111866",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz, 80 MHz). Cellular: 5G sub-6 GHz only — no mmWave, so it drops to LTE on mmWave-only small cells: useful for testing coverage holes. Lightning = USB 2.0, no usb0. Older 4.7-inch chassis with 2x2 antenna design, slightly worse RSSI than the 6.1-inch models at the same AP."
@@ -77,11 +136,22 @@
       "label": "Galaxy S21 5G smartphone",
       "category": "phone",
       "description": "Samsung Galaxy S21 5G — 6.2-inch flagship, Wi-Fi 6 (2x2) and 5G sub-6/mmWave; USB-C 3.2 port supports DeX docks with Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-s21-5g/specs/",
       "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 2.4/5 GHz, HE160) — Wi-Fi 5 fallback hardware is not present for 6 GHz. Cellular: 5G sub-6 GHz plus mmWave (US models), LTE Cat 20. USB-C 3.2 Gen 1 with Samsung DeX, so a USB-C dock with GbE presents a real Ethernet interface (usb0); Wi-Fi can stay associated while docked, which makes it a good dual-homed client for failover tests."
@@ -92,11 +162,22 @@
       "label": "Galaxy S23 smartphone",
       "category": "phone",
       "description": "Samsung Galaxy S23 — 6.1-inch flagship, Wi-Fi 6E (2.4/5/6 GHz) with 5G sub-6/mmWave; USB-C 3.2 with DeX and dock Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/us/smartphones/galaxy-s23/specs/",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160, 1024-QAM) — first 6 GHz capable S-series for most markets: the interesting case for 6E SSID vs 5 GHz band-steering. Cellular: 5G sub-6 GHz + mmWave (US SKUs), LTE Cat 20. USB-C 3.2 Gen 1, DeX supported, Ethernet via USB-C dock (usb0)."
@@ -107,11 +188,22 @@
       "label": "Galaxy S24 smartphone",
       "category": "phone",
       "description": "Samsung Galaxy S24 — 6.2-inch flagship, Wi-Fi 6E and 5G sub-6/mmWave; USB-C 3.2 with DeX and Ethernet over a dock.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/us/smartphones/galaxy-s24/specs/",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160) — note the S24 and S24+ ship 6E; only the S24 Ultra carries Wi-Fi 7, so do not treat the whole S24 family as 802.11be. Cellular: 5G sub-6 GHz + mmWave (US). USB-C 3.2 Gen 2, DeX, dock Ethernet present (usb0)."
@@ -122,11 +214,22 @@
       "label": "Galaxy A54 5G smartphone",
       "category": "phone",
       "description": "Samsung Galaxy A54 5G — 6.4-inch mid-range phone, Wi-Fi 6 (2.4/5 GHz only) and 5G sub-6 GHz without mmWave; USB-C 2.0 port.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://image-us.samsung.com/SamsungUS/samsungbusiness/pdf/spec-sheets/a54/HHP_A545G_DATA_USCC.pdf",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E, no 160 MHz in some regions. Cellular: 5G sub-6 GHz only (no mmWave), LTE Cat 18 fallback. USB-C is USB 2.0: Ethernet works through an adapter but is capped near 100M in practice; no DeX. Prime candidate for 'cheap client that squats on 2.4 GHz and never roams to 5 GHz' scenarios."
@@ -137,11 +240,22 @@
       "label": "Galaxy Z Flip5 foldable smartphone",
       "category": "phone",
       "description": "Samsung Galaxy Z Flip5 — clamshell foldable with a 6.7-inch inner display, Wi-Fi 6E and 5G sub-6/mmWave; USB-C port, no DeX.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-z-flip5/specs/",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160). Cellular: 5G sub-6 GHz + mmWave (US SKUs). Flip5 has no Samsung DeX, so a USB-C dock gives USB tethering plus Ethernet via adapter only — attenuate usb0 expectations in dock scenarios. Folding chassis means antenna placement changes with lid state; the simulator can model the closed state as a 3-6 dB RSSI penalty."
@@ -152,11 +266,22 @@
       "label": "Galaxy Z Fold5 foldable smartphone",
       "category": "phone",
       "description": "Samsung Galaxy Z Fold5 — book-style foldable that opens to a 7.6-inch tablet display, Wi-Fi 6E and 5G sub-6/mmWave, USB-C 3.2 with full DeX.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-z-fold5/specs/",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160). Cellular: 5G sub-6 GHz + mmWave. Full Samsung DeX over USB-C 3.2 Gen 1, so a dock with GbE gives a real wired interface (usb0) while Wi-Fi stays up — the classic 'tablet on a dock' endpoint. Large folding chassis, 4.4 mm closed / 6.1 mm open, relevant to antenna efficiency modelling."
@@ -167,11 +292,22 @@
       "label": "Pixel 6 smartphone",
       "category": "phone",
       "description": "Google Pixel 6 — 6.4-inch Tensor phone, Wi-Fi 6E (region-dependent 6 GHz) and 5G sub-6/mmWave; USB-C 3.1 with Ethernet adapter support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.google.com/pixelphone/answer/7158570?hl=en",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160) — Google notes 6 GHz is disabled in Taiwan, Japan and Singapore, where the phone behaves as Wi-Fi 6 only. Cellular: 5G sub-6 GHz (n1/n2/n3/n5/n7/n8/n12/n14/n20/n25/n28/n30/n38/n40/n41/n48/n66/n71/n77/n78) plus mmWave on US carrier models. USB-C 3.1 Gen 1 supports USB-C Ethernet adapters (usb0)."
@@ -182,11 +318,22 @@
       "label": "Pixel 7 smartphone",
       "category": "phone",
       "description": "Google Pixel 7 — 6.3-inch Tensor G2 phone, Wi-Fi 6E and 5G sub-6 GHz (mmWave on US carrier SKUs); USB-C with Ethernet adapter support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.google.com/pixelphone/answer/7158570?hl=en",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160). Cellular: 5G sub-6 GHz by default; mmWave only on the US carrier-locked Pixel 7 SKU, so model EU units as sub-6. USB-C 3.2 Gen 2 supports Ethernet adapters (usb0)."
@@ -197,11 +344,22 @@
       "label": "Pixel 8 smartphone",
       "category": "phone",
       "description": "Google Pixel 8 — 6.2-inch Tensor G3 phone with Wi-Fi 7 (802.11be, 2x2) and 5G sub-6/mmWave on US models; USB-C 3.2 with Ethernet support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://store.google.com/us/product/pixel_8_specs?hl=en-US",
       "notes": "Wi-Fi 7 (802.11be, 2x2 + 2x2, 2.4/5/6 GHz, 320 MHz, MLO) — one of the few phones here that can use multi-link operation, so it must not be modelled as a single-link 802.11ax client. Cellular: 5G sub-6 GHz plus mmWave (US models). USB-C 3.2 Gen 2 supports Ethernet adapters (usb0). Requires a Wi-Fi 7 AP to show any difference versus Pixel 7."
@@ -212,11 +370,22 @@
       "label": "Pixel 8a smartphone",
       "category": "phone",
       "description": "Google Pixel 8a — 6.1-inch mid-range Tensor G3 phone, Wi-Fi 6E and 5G sub-6 GHz only; USB-C 3.2 with Ethernet adapter support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://store.google.com/us/product/pixel_8a_specs?hl=en-US",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz) — no Wi-Fi 7 despite the Pixel 8 nameplate. Cellular: 5G sub-6 GHz only, no mmWave. USB-C 3.2 Gen 2 with Ethernet adapter support (usb0). Useful as the 'same family, lesser radio' counterpart to Pixel 8."
@@ -227,11 +396,22 @@
       "label": "Xiaomi 13 smartphone",
       "category": "phone",
       "description": "Xiaomi 13 — 6.36-inch Snapdragon 8 Gen 2 flagship, Wi-Fi 6E (2x2) and 5G sub-6 GHz; USB-C 2.0 port with OTG Ethernet support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.mi.com/global/product/xiaomi-13/specs/",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz) — Xiaomi's spec page lists Wi-Fi 7/6E/6 support on the platform, but shipping firmware behaves as 6E; model it as 6E. Cellular: 5G sub-6 GHz only (no mmWave), dual-SIM with eSIM on global SKUs. USB-C is USB 2.0, so Ethernet via OTG adapter tops out around 100M though it is declared 1G here for topology purposes."
@@ -242,11 +422,22 @@
       "label": "Xiaomi 14 smartphone",
       "category": "phone",
       "description": "Xiaomi 14 — 6.36-inch Snapdragon 8 Gen 3 flagship with Wi-Fi 7 (802.11be) and 5G sub-6 GHz; USB-C 3.2 Gen 1 with Ethernet over dock.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.mi.com/global/product/xiaomi-14/specs/",
       "notes": "Wi-Fi 7 (802.11be, 2x2, 2.4/5/6 GHz, 320 MHz, MLO). Cellular: 5G sub-6 GHz only, no mmWave; LTE Cat 24 fallback. USB-C 3.2 Gen 1 with DisplayPort alt mode and Ethernet adapter support (usb0). HyperOS; supports Wi-Fi 7 only when the AP advertises 802.11be and MLO."
@@ -257,10 +448,22 @@
       "label": "Redmi Note 12 smartphone",
       "category": "phone",
       "description": "Xiaomi Redmi Note 12 (4G) — 6.67-inch budget phone, Wi-Fi 5 (802.11ac) and LTE only, no 5G radio; USB-C 2.0.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.mi.com/global/product/redmi-note-12/specs/",
       "notes": "Wi-Fi 5 (802.11ac, 1x1 on the 4G model, 2.4/5 GHz, 80 MHz) — no Wi-Fi 6, no OFDMA, no TWT: it drags airtime on a modern AP and is the right device for capacity tests. Cellular: LTE Cat 13 only, no 5G. USB-C 2.0 with no Ethernet support in MIUI, so no usb0 — wired tethering is not available on this model."
@@ -271,11 +474,22 @@
       "label": "OnePlus 12 smartphone",
       "category": "phone",
       "description": "OnePlus 12 — 6.82-inch Snapdragon 8 Gen 3 flagship, Wi-Fi 7 and 5G sub-6 GHz; USB-C 3.2 with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.oneplus.com/us/12/specs",
       "notes": "Wi-Fi 7 (802.11be, 2x2, 2.4/5/6 GHz, 320 MHz, MLO). Cellular: 5G sub-6 GHz (mmWave only on select North American carrier SKUs), LTE Cat 20. USB-C 3.2 Gen 1 with Ethernet adapter support (usb0). OxygenOS keeps Wi-Fi and cellular up simultaneously by default — model as dual-active for failover tests."
@@ -286,11 +500,22 @@
       "label": "Huawei P30 smartphone",
       "category": "phone",
       "description": "Huawei P30 — 6.1-inch 2019 flagship, Wi-Fi 5 (802.11ac, 2x2) and LTE only; USB-C 3.1 port with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://consumer.huawei.com/qa/phones/p302/specs/",
       "notes": "Wi-Fi 5 (802.11ac, 2x2 MIMO, 2.4/5 GHz, 80 MHz) — no Wi-Fi 6, no 160 MHz. Cellular: LTE Cat 21 only, no 5G at all (Kirin 980). USB-C 3.1 Gen 1 supports Ethernet adapters (usb0). Still common in labs as a pre-5G, pre-WPA3 client; EMUI supports WPA2-Enterprise but not WPA3-SAE on this generation."
@@ -301,11 +526,22 @@
       "label": "Huawei P60 Pro smartphone",
       "category": "phone",
       "description": "Huawei P60 Pro — 6.67-inch flagship, Wi-Fi 6 (2.4/5 GHz) but LTE-only cellular; USB-C 3.1 with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://consumer.huawei.com/en/phones/p60-pro/specs/",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E. Cellular: LTE Cat 19 only; the Snapdragon 8+ Gen 1 4G variant has the 5G modem disabled by sanctions, so model wwan0 as LTE despite flagship silicon. USB-C 3.1 Gen 1 with Ethernet adapter support (usb0). No Google services; HarmonyOS handles captive portals differently, worth noting for guest-Wi-Fi onboarding tests."
@@ -316,11 +552,22 @@
       "label": "Moto G Power (2022) smartphone",
       "category": "phone",
       "description": "Motorola Moto G Power (2022) — 6.5-inch budget phone, Wi-Fi 5 (802.11ac) and LTE only; USB-C 2.0 with OTG Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.motorola.com/us/smartphones-moto-g-power-gen-3/p",
       "notes": "Wi-Fi 5 (802.11ac, 1x1, 2.4/5 GHz) — no Wi-Fi 6. Cellular: LTE Cat 13, no 5G. USB-C is USB 2.0; Ethernet works via USB-C OTG adapter but is capped near 100M in practice (declared 1G for topology). Cheap-client profile: single stream, aggressive power-save, rarely roams to 5 GHz."
@@ -331,11 +578,22 @@
       "label": "Nokia XR20 rugged smartphone",
       "category": "phone",
       "description": "Nokia XR20 — 6.67-inch ruggedised phone (MIL-STD-810H, IP68), Wi-Fi 6 and 5G sub-6 GHz; USB-C 3.0 with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.hmd.com/en_int/nokia-xr-20/specs",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — HMD's spec sheet lists 802.11 a/b/g/n/ac/ax. Cellular: 5G sub-6 GHz (Snapdragon 480 5G), LTE Cat 15 fallback, no mmWave. USB-C 3.0 with OTG and Ethernet adapter support (usb0). Field/industrial endpoint: expect it to stay associated at weak RSSI (-85 dBm) far longer than a glass-backed flagship, which is the interesting roaming contrast."
@@ -346,11 +604,22 @@
       "label": "Xperia 1 V smartphone",
       "category": "phone",
       "description": "Sony Xperia 1 V — 6.5-inch 4K flagship, Wi-Fi 6E (2.4/5/6 GHz) and 5G sub-6/mmWave; USB-C 3.2 with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-v-256gb/specifications",
       "notes": "Wi-Fi 6E — Sony's spec lists IEEE802.11a/b/g/n/ac/ax on 2.4/5/6 GHz, 2x2 MIMO. Cellular: 5G sub-6 GHz plus mmWave (n257/n258/n260/n261 on some SKUs), LTE Cat 19. USB-C 3.2 Gen 2 with Ethernet adapter support (usb0) and microSD expansion. Keeps a 3.5 mm jack and a physical shutter button — irrelevant to L2 but characteristic of the model."
@@ -361,11 +630,22 @@
       "label": "Find X6 Pro smartphone",
       "category": "phone",
       "description": "OPPO Find X6 Pro — 6.82-inch flagship, Wi-Fi 7 (802.11be after OTA) and 5G sub-6 GHz; USB-C 3.2 with Ethernet over dock.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.oppo.com/cn/smartphones/series-find-x/find-x6-pro/specs/",
       "notes": "Wi-Fi 7 (802.11be, 2x2, 2.4/5.1/5.8/6 GHz) — OPPO's spec sheet notes Wi-Fi 7 needs a system OTA to enable, so a fresh unit behaves as Wi-Fi 6 until updated. Cellular: 5G sub-6 GHz only (China-market model, no mmWave), dual-SIM. USB-C 3.2 Gen 1 with DisplayPort alt mode and Ethernet over adapter (usb0). ColorOS; Chinese ROM has no Google services."
@@ -376,11 +656,22 @@
       "label": "X90 Pro smartphone",
       "category": "phone",
       "description": "vivo X90 Pro — 6.78-inch Dimensity 9200 flagship, Wi-Fi 6 (2.4/5 GHz, 2x2) and 5G sub-6 GHz; USB-C with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.vivo.com/en/products/param/x90-pro",
       "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, MU-MIMO, 2.4/5 GHz) — vivo's spec sheet lists Wi-Fi 6/Wi-Fi 5, so no 6 GHz even though the SoC can do more. Cellular: 5G sub-6 GHz only, no mmWave. USB-C with Ethernet adapter support (usb0). Funtouch OS; good example of a flagship that is deliberately a generation behind on Wi-Fi."
@@ -391,11 +682,22 @@
       "label": "Nothing Phone (2) smartphone",
       "category": "phone",
       "description": "Nothing Phone (2) — 6.7-inch glyph-interface phone, Wi-Fi 6 (2x2) and 5G sub-6 GHz; USB-C 2.0 with Ethernet over adapter.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://nothing.tech/products/phone-2",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E/7 despite the Snapdragon 8+ Gen 1 platform. Cellular: 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C is USB 2.0 with Ethernet adapter support (usb0) but real throughput is ~100M. Near-AOSP Nothing OS is handy for reproducible Wi-Fi client behaviour."
@@ -406,11 +708,22 @@
       "label": "iPad (10th gen) tablet",
       "category": "tablet",
       "description": "Apple iPad (10th generation) — 10.9-inch tablet, Wi-Fi 6 and 5G sub-6 GHz on cellular models; USB-C port supports USB-C to Ethernet adapters.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111840",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz. Cellular (optional SKU): 5G sub-6 GHz only, no mmWave; LTE fallback. USB-C is USB 2.0 but iPadOS supports USB-C Ethernet adapters as a real interface (usb0), which makes this the cheapest 'tablet on a dock' endpoint. Wi-Fi-only SKUs should be modelled without wwan0."
@@ -421,11 +734,22 @@
       "label": "iPad Air (5th gen) tablet",
       "category": "tablet",
       "description": "Apple iPad Air (5th generation, M1) — 10.9-inch tablet, Wi-Fi 6 and 5G sub-6/mmWave on cellular models; USB-C 3.1 Gen 2 with Ethernet support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111887",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz). Cellular (optional SKU): 5G sub-6 GHz plus mmWave (US models), LTE fallback. USB-C 3.1 Gen 2 up to 10 Gbps with Ethernet adapter support (usb0) and DisplayPort. M1 tablet: the endpoint most likely to be running a full remote-desktop session, so bandwidth-heavy."
@@ -436,11 +760,22 @@
       "label": "iPad Pro 12.9-inch (6th gen) tablet",
       "category": "tablet",
       "description": "Apple iPad Pro 12.9-inch (6th generation, M2) — 12.9-inch mini-LED tablet, Wi-Fi 6E and 5G sub-6/mmWave; Thunderbolt/USB 4 port with Ethernet support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.apple.com/en-us/111841",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz) — the only iPad here that uses 6 GHz. Cellular (optional SKU): 5G sub-6 GHz plus mmWave (US models), LTE fallback. Thunderbolt/USB 4 port also works as a 10GbE Ethernet host with an adapter (modelled as usb0 at 1G). Highest-throughput wireless client in this set; use it to exercise 6 GHz and 160 MHz channels."
@@ -451,11 +786,22 @@
       "label": "Galaxy Tab S9 tablet",
       "category": "tablet",
       "description": "Samsung Galaxy Tab S9 — 11-inch AMOLED tablet, Wi-Fi 6E (2.4/5/6 GHz, HE160) and 5G sub-6 GHz on cellular models; USB-C 3.2 with DeX and dock Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://www.samsung.com/in/tablets/galaxy-tab-s/galaxy-tab-s9-wi-fi-beige-128gb-sm-x710nzeainu/",
       "notes": "Wi-Fi 6E — Samsung lists 802.11a/b/g/n/ac/ax on 2.4/5/6 GHz, HE160, MIMO, 1024-QAM. Cellular (5G SKU SM-X716B): 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C 3.2 Gen 1 with full DeX, so a dock gives a wired interface (usb0) alongside Wi-Fi — the canonical 'tablet docked on a desk while still on Wi-Fi' model."
@@ -466,11 +812,22 @@
       "label": "Surface Pro 9 (5G) tablet",
       "category": "tablet",
       "description": "Microsoft Surface Pro 9 (5G, SQ3) — 13-inch detachable Windows tablet, Wi-Fi 6E and 5G sub-6 GHz; USB-C Thunderbolt 4 and Surface Connect dock with Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://support.microsoft.com/en-us/surface/surface-pro-9-features-and-specs-f3f523e6-4f0e-487d-a95c-6115ab55477d",
       "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz). Cellular: 5G sub-6 GHz only (SQ3/ARM model — the Intel i5/i7 Surface Pro 9 is Wi-Fi only and should be modelled without wwan0); nano-SIM or eSIM. Ethernet arrives via the Surface Connect dock or a USB-C/Thunderbolt 4 adapter (usb0). Full Windows endpoint: supports WPA3-Enterprise, 802.1X and IPv6 privacy extensions, so use it where client-OS behaviour matters."
@@ -481,11 +838,22 @@
       "label": "Lenovo Tab P11 (2nd Gen) tablet",
       "category": "tablet",
       "description": "Lenovo Tab P11 (2nd Gen) — 11.5-inch Android tablet, Wi-Fi 6 (2.4/5 GHz) and LTE on cellular SKUs; USB-C 2.0 port with OTG Ethernet.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"},
-        {"name": "wwan0", "type": "wireless", "speed": "100M", "connector": "antenna"},
-        {"name": "usb0", "type": "ethernet", "speed": "1G"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://psref.lenovo.com/syspool/Sys/PDF/Lenovo_Tablets/Tab_P11_2nd_Gen/Tab_P11_2nd_Gen_Spec.html",
       "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz. Cellular: LTE Cat 13 on the LTE SKU (no 5G); Wi-Fi-only SKUs have no wwan0. USB-C is USB 2.0, so Ethernet via OTG adapter works but is capped near 100M (declared 1G for topology). Lenovo PSREF is the authoritative source for per-SKU radio loadout."
@@ -496,9 +864,16 @@
       "label": "Fire HD 10 (13th gen) tablet",
       "category": "tablet",
       "description": "Amazon Fire HD 10 (13th generation, 2023) — 10.1-inch budget tablet, Wi-Fi 5 (802.11ac) only, no cellular; USB-C 2.0 charge/data port with no Ethernet support.",
-      "capabilities": ["wireless-client"],
+      "capabilities": [
+        "wireless-client"
+      ],
       "interfaces": [
-        {"name": "wlan0", "type": "wireless", "speed": "1G", "connector": "antenna"}
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
       ],
       "sourceUrl": "https://developer.amazon.com/docs/device-specs/ft-device-specifications-firehd-models.html",
       "notes": "Wi-Fi 5 (802.11ac, 2x2, 2.4/5 GHz) — no Wi-Fi 6, no 6 GHz. Cellular: none at all, so no wwan0. USB-C is USB 2.0 and Fire OS provides no Ethernet interface, so no usb0: this endpoint is wireless-only and will lose connectivity if the SSID disappears. Fire OS is Android-based but locked down; expect no 802.1X EAP-TLS and no WPA3-SAE on older builds."

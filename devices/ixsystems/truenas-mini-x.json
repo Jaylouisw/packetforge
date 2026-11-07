@@ -1,0 +1,29 @@
+{
+  "vendor": "ixsystems",
+  "model": "TrueNAS Mini X+",
+  "label": "TrueNAS Mini X+ 5+2 bay NAS",
+  "category": "nas",
+  "description": "5+2 bay desktop/mini-tower NAS with 2x RJ-45 1/10GBase-T LAN ports as standard plus a dedicated RJ45 IPMI port for out-of-band hardware management; an optional 2x SFP+ 10G add-on card fits the spare slot.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "IPMI",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "enp1s0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "enp2s0",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

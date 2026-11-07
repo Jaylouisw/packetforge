@@ -1,0 +1,55 @@
+{
+  "vendor": "linksys",
+  "model": "MR9600",
+  "label": "MR9600 AX6000 dual-band mesh router",
+  "category": "router",
+  "description": "Linksys MR9600 - Wi-Fi 6 AX6000 dual-band mesh router (2.4 GHz 1147 Mbps 4x4, 5 GHz 4804 Mbps 4x4) with one 1G WAN and four 1G LAN ports. It has no multi-gig port and no dual-WAN or link aggregation, so every cabled link tops out at 1G.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

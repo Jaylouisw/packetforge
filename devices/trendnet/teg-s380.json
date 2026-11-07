@@ -1,0 +1,19 @@
+{
+  "vendor": "trendnet",
+  "model": "TEG-S380",
+  "label": "TRENDnet TEG-S380",
+  "category": "switch",
+  "description": "TRENDnet TEG-S380 - 8x 100M/1G/2.5G RJ45 unmanaged switch, fanless metal desktop housing, 40 Gbps switching capacity. No SFP, no PoE, no management.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "2.5G"
+  },
+  "icon": "switch",
+  "color": "#f97316"
+}

@@ -1,0 +1,30 @@
+{
+  "vendor": "zima",
+  "model": "ZimaBoard 832",
+  "label": "ZimaBoard 832 single-board server",
+  "category": "host",
+  "description": "Credit-card-sized x86 single-board server with Intel Celeron N3450, two gigabit Ethernet ports and no wireless, plus a PCIe x4 slot for an add-in NIC.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

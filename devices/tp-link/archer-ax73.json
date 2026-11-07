@@ -1,0 +1,55 @@
+{
+  "vendor": "tp-link",
+  "model": "Archer AX73",
+  "label": "Archer AX73 AX5400 dual-band router",
+  "category": "router",
+  "description": "TP-Link Archer AX73 - Wi-Fi 6 AX5400 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 4804 Mbps 4x4) with 1x 1G WAN and 4x 1G LAN. Every Ethernet port is gigabit, so a 2.5G or 10G uplink needs a faster model.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

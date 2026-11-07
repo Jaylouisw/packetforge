@@ -1,0 +1,61 @@
+{
+  "vendor": "cisco",
+  "model": "CBS350-24P-4G",
+  "label": "Cisco Business 350 CBS350-24P-4G",
+  "category": "l3-switch",
+  "description": "Cisco Business 350 CBS350-24P-4G - 24x 1G RJ45 PoE+ (802.3at, 30 W per port, 195 W budget) plus 4x Gigabit SFP uplinks (ports 25-28). Managed L3 switch with IPv4/IPv6 static routing and CLI.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/25",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Gi1/0/26",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Gi1/0/27",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Gi1/0/28",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#ef4444"
+}

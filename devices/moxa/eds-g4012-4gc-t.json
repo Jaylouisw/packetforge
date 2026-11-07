@@ -1,0 +1,168 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-G4012-4GC-T",
+  "label": "EDS-G4012 industrial managed switch",
+  "category": "switch",
+  "description": "DIN-rail full-Gigabit Layer 2 managed switch with 8 x 10/100/1000BaseT(X) RJ45 ports plus 4 combo ports usable as 10/100/1000BaseT(X) copper or 100/1000BaseSFP cages; -40 to 75 C wide-temperature model, dual redundant power input, Turbo Ring/Turbo Chain.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "1-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "1-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "2-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "2-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "3-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "3-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "3",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "4-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "4-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "4",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

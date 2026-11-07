@@ -1,0 +1,18 @@
+{
+  "vendor": "ring",
+  "model": "Video Doorbell Pro 2",
+  "label": "Ring Video Doorbell Pro 2 (Wired Doorbell Pro)",
+  "category": "iot",
+  "description": "Ring Video Doorbell Pro 2 - now sold as Wired Doorbell Pro - is a hardwired 1536p doorbell camera with 3D motion detection, Bird's Eye View and two-way talk. It is WiFi-only for networking: 802.11 a/b/g/n/ac on 2.4 or 5 GHz; the only wiring it accepts is 16-24 VAC doorbell power, so there is no Ethernet drop and it cannot be cabled into a switch.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ]
+}

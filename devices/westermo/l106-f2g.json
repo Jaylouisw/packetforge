@@ -1,0 +1,44 @@
+{
+  "vendor": "westermo",
+  "model": "L106-F2G",
+  "label": "Lynx L106-F2G industrial switch",
+  "category": "switch",
+  "description": "Compact DIN-rail Layer 2 industrial switch (WeOS) with 4 x 10/100 Mbit/s RJ45 ports and 2 x 1 Gbit/s SFP cages; -40 to +70 C fanless housing, dual 19-60 VDC input, FRNT ring recovery.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

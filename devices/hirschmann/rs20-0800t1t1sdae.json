@@ -1,0 +1,54 @@
+{
+  "vendor": "hirschmann",
+  "model": "RS20-0800T1T1SDAE",
+  "label": "RS20 OpenRail compact managed switch",
+  "category": "switch",
+  "description": "Compact DIN-rail Layer 2 Enhanced managed Fast Ethernet switch, 8 x 10/100BASE-TX RJ45 ports, fanless store-and-forward design, HIPER-Ring/MRP/RSTP redundancy, 12/24/48 VDC; standard temperature variant rated 0 to 60 C.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

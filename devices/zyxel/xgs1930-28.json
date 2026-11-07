@@ -1,0 +1,64 @@
+{
+  "vendor": "zyxel",
+  "model": "XGS1930-28",
+  "label": "Zyxel XGS1930-28",
+  "category": "l3-switch",
+  "description": "Zyxel XGS1930-28 - 24x 1G RJ45 with 4x 1G/10G SFP+ uplinks. Lite-L3 smart managed switch (static routing), 128 Gbps switching capacity, fanless.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

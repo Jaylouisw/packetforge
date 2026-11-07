@@ -4,17 +4,97 @@
   "label": "CRS309-1G-8S+IN",
   "category": "switch",
   "description": "MikroTik CRS309-1G-8S+IN — 8x 10G SFP+, 1x 1G RJ45, compact desktop 10G switch.",
-  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
   "interfaces": [
-    { "name": "ether1", "type": "ethernet", "speed": "1G" },
-    { "name": "sfp-sfpplus1", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus2", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus3", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus4", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus5", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus6", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus7", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus8", "type": "ethernet", "speed": "10G" }
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
   ],
   "icon": "switch",
   "color": "#14b8a6"

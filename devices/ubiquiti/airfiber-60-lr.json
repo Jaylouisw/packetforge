@@ -1,0 +1,26 @@
+{
+  "vendor": "ubiquiti",
+  "model": "airFiber 60 LR",
+  "label": "Ubiquiti airFiber 60 LR",
+  "category": "ptp",
+  "description": "Ubiquiti airFiber 60 LR (AF60-LR) - 57-71 GHz long-range point-to-point radio with 38 dBi dish, 2 Gbps aggregate over 2160/1080 MHz channels to 12+ km; 1x 1G RJ45 with passive PoE in (22 W).",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

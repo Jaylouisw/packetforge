@@ -1,0 +1,18 @@
+{
+  "vendor": "google",
+  "model": "Chromecast with Google TV (4K)",
+  "label": "Chromecast with Google TV (4K) streaming dongle",
+  "category": "iot",
+  "description": "Chromecast with Google TV (4K) is an HDMI dongle running Google TV with Chromecast casting, 4K HDR output and a voice remote. It is WiFi-only: 802.11ac on 2.4 and 5 GHz plus Bluetooth 4.2, powered over USB-C; there is no RJ45 on the device and Ethernet only appears if you buy Google's separate Ethernet power adapter, so out of the box it cannot be cabled.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

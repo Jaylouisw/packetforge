@@ -1,0 +1,23 @@
+{
+  "vendor": "brother",
+  "model": "QL-820NWB",
+  "label": "QL-820NWB network label printer",
+  "category": "printer",
+  "description": "Desktop label printer for DK rolls up to 62mm with cutter, black/red printing, LCD and AirPrint, wired via 10BASE-T/100BASE-TX Ethernet and also 802.11b/g/n Wi-Fi.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

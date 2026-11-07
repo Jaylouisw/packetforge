@@ -1,0 +1,24 @@
+{
+  "vendor": "tp-link",
+  "model": "MC220L",
+  "label": "MC220L gigabit SFP media converter",
+  "category": "switch",
+  "description": "Two-port gigabit media converter: one 10/100/1000BASE-T RJ45 port and one gigabit SFP slot. The cage is 1G only (1000BASE-SX/LX or a 1000BASE-T copper module) - 100BASE-FX optics are not supported.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

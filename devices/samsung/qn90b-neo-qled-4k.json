@@ -1,0 +1,24 @@
+{
+  "vendor": "samsung",
+  "model": "QN90B Neo QLED 4K",
+  "label": "Samsung QN90B Neo QLED 4K smart TV",
+  "category": "iot",
+  "description": "Samsung QN90B is a Neo QLED 4K Tizen smart TV with 4 HDMI 2.1 ports, SmartThings hub support and an IP control / web API. It has both network paths: a real RJ45 LAN port (100M Ethernet, wired to the one-connect style input panel) plus built-in Wi-Fi 5 802.11ac, so it can be cabled or associated; the HDMI, USB and optical ports are not network interfaces.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

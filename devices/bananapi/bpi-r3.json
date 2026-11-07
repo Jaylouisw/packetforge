@@ -1,0 +1,76 @@
+{
+  "vendor": "bananapi",
+  "model": "BPI-R3",
+  "label": "Banana Pi BPI-R3 router board",
+  "category": "host",
+  "description": "OpenWrt-oriented MediaTek MT7986 (Filogic 830) router board: 5x gigabit RJ45 plus 2x 2.5GbE SFP cages, with 4x4 Wi-Fi 6 radios on both 2.4 GHz and 5 GHz.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

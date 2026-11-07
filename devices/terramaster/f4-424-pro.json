@@ -1,0 +1,24 @@
+{
+  "vendor": "terramaster",
+  "model": "F4-424 Pro",
+  "label": "TerraMaster F4-424 Pro 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with 2x RJ-45 2.5GbE network jacks and no 1GbE or 10GbE ports in the base configuration; it has no dedicated management port, so TOS is reached in-band over the 2.5G links.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

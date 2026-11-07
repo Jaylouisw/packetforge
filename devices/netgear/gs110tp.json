@@ -1,0 +1,65 @@
+{
+  "vendor": "netgear",
+  "model": "GS110TP",
+  "label": "GS110TP 8-port gigabit PoE smart switch + 2 SFP",
+  "category": "switch",
+  "description": "Eight 10/100/1000BASE-T RJ45 ports with 802.3af PoE (15.4 W per port, 46 W total budget) plus two separate dedicated 1G SFP uplinks - the SFP slots are their own positions, not combo cages shared with copper.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

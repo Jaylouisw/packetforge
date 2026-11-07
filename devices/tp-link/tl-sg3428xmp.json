@@ -1,0 +1,65 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG3428XMP",
+  "label": "TP-Link TL-SG3428XMP",
+  "category": "l3-switch",
+  "description": "TP-Link Omada JetStream TL-SG3428XMP - 24x 1G RJ45 PoE+ (802.3af/at, 30 W per port, 384 W budget) plus 4x 1G/10G SFP+ uplinks. L2+ managed with static routing, 128 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "Gi0/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#22c55e"
+}

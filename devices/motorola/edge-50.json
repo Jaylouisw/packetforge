@@ -1,0 +1,28 @@
+{
+  "vendor": "motorola",
+  "model": "Edge 50",
+  "label": "Motorola Edge 50 smartphone",
+  "category": "phone",
+  "description": "Mid-range Motorola with a Snapdragon 7 Gen 1 5G sub-6 GHz modem and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

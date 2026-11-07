@@ -1,0 +1,68 @@
+{
+  "vendor": "aruba",
+  "model": "7210 Mobility Controller",
+  "label": "Aruba 7210 Mobility Controller",
+  "category": "host",
+  "description": "1RU ArubaOS campus WLC for up to 512 APs and 16,384 clients with 20 Gbps of firewall throughput. Four 10G SFP+ ports for AP/network traffic plus two dual-media (10/100/1000BASE-T or SFP) ports used for HA and management; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-server",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

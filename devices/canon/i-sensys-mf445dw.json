@@ -1,0 +1,23 @@
+{
+  "vendor": "canon",
+  "model": "i-SENSYS MF445dw",
+  "label": "i-SENSYS MF445dw mono laser MFP",
+  "category": "printer",
+  "description": "Mono laser multifunction (print/copy/scan/fax) at 38ppm with duplex ADF, offering Gigabit Ethernet plus 802.11b/g/n Wi-Fi with direct connection.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

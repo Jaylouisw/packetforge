@@ -1,0 +1,164 @@
+[
+  {
+    "vendor": "brother",
+    "model": "HL-L2350DW",
+    "label": "HL-L2350DW compact mono laser printer",
+    "category": "printer",
+    "description": "Compact A4 mono laser printer, 30ppm with automatic duplex, that is wireless-only: its sole network port is an 802.11b/g/n radio, with Ethernet deliberately absent from this chassis.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.brother.eu/-/media/pdf/buk/product-downloads/datasheets/hl-l2350dw_datasheet.pdf"
+  },
+  {
+    "vendor": "hp",
+    "model": "LaserJet Pro M404dn",
+    "label": "LaserJet Pro M404dn mono laser printer",
+    "category": "printer",
+    "description": "Workgroup mono laser printer rated 38-40ppm with automatic duplex, wired-only networking over a single Gigabit Ethernet port and no wireless radio.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "1G"}
+    ],
+    "sourceUrl": "https://pcb.inc.hp.com/dc/api/spec-sheet/ww-en/19203838/pdf/W1A53A.pdf"
+  },
+  {
+    "vendor": "canon",
+    "model": "i-SENSYS MF445dw",
+    "label": "i-SENSYS MF445dw mono laser MFP",
+    "category": "printer",
+    "description": "Mono laser multifunction (print/copy/scan/fax) at 38ppm with duplex ADF, offering Gigabit Ethernet plus 802.11b/g/n Wi-Fi with direct connection.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.canon-europe.com/business/products/office-printers/multifunction/black-and-white/i-sensys-mf440-series/specifications/"
+  },
+  {
+    "vendor": "xerox",
+    "model": "VersaLink C405",
+    "label": "VersaLink C405 colour laser MFP",
+    "category": "printer",
+    "description": "Colour laser multifunction at 35ppm with a 50-sheet single-pass duplex ADF, networked through a single 10/100/1000Base-T Ethernet port (Wi-Fi needs the optional kit).",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "1G"}
+    ],
+    "sourceUrl": "https://www.office.xerox.com/latest/VC4SS-022.PDF"
+  },
+  {
+    "vendor": "hp",
+    "model": "Color LaserJet Pro MFP M479fdw",
+    "label": "Color LaserJet Pro MFP M479fdw colour laser MFP",
+    "category": "printer",
+    "description": "Colour laser multifunction at 28ppm with duplex ADF, fax and 4.3-inch touchscreen, networked via Gigabit Ethernet or 802.11b/g/n dual-band Wi-Fi.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://pcb.inc.hp.com/dc/api/spec-sheet/ww-en/19202523/pdf/W1A80A.pdf"
+  },
+  {
+    "vendor": "epson",
+    "model": "EcoTank ET-4850",
+    "label": "EcoTank ET-4850 inkjet all-in-one",
+    "category": "printer",
+    "description": "Refillable-tank colour inkjet all-in-one with ADF, fax and duplex printing, connecting over Fast Ethernet (10/100 Mbps) or 802.11b/g/n Wi-Fi with Wi-Fi Direct.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.epson.com.au/products/inkjet-printers/workforce-pro/et-4850"
+  },
+  {
+    "vendor": "epson",
+    "model": "EcoTank ET-2850",
+    "label": "EcoTank ET-2850 inkjet all-in-one",
+    "category": "printer",
+    "description": "Consumer refillable-tank colour inkjet all-in-one with duplex printing that ships with wireless only: 802.11b/g/n Wi-Fi and Wi-Fi Direct, no Ethernet port at all.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.epson.com.au/products/inkjet-printers/ecotank/et-2850"
+  },
+  {
+    "vendor": "zebra",
+    "model": "ZD421",
+    "label": "ZD421 desktop thermal label printer",
+    "category": "printer",
+    "description": "Desktop 4-inch direct-thermal/thermal-transfer label printer up to 6ips, with a 10/100 Ethernet module (field-installable 802.11ac Wi-Fi is the alternative option).",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.zebra.com/content/dam/zebra_dam/en/tech-specs/zd421-tech-specs-en-us.pdf"
+  },
+  {
+    "vendor": "brother",
+    "model": "QL-820NWB",
+    "label": "QL-820NWB network label printer",
+    "category": "printer",
+    "description": "Desktop label printer for DK rolls up to 62mm with cutter, black/red printing, LCD and AirPrint, wired via 10BASE-T/100BASE-TX Ethernet and also 802.11b/g/n Wi-Fi.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://support.brother.com/g/b/spec.aspx?c=eu_ot&lang=en&prod=lpql820nwbeuk"
+  },
+  {
+    "vendor": "epson",
+    "model": "TM-m30III",
+    "label": "TM-m30III mPOS receipt printer",
+    "category": "printer",
+    "description": "Compact 80mm thermal receipt printer at 300mm/s for mPOS, with a 10BASE-T/100BASE-TX Ethernet port on the standard model; the Wi-Fi + Bluetooth variant uses its radio instead of the LAN port.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"}
+    ],
+    "sourceUrl": "https://files.support.epson.com/pdf/pos/bulk/tm-m30iii_trg_en_revb.pdf"
+  },
+  {
+    "vendor": "epson",
+    "model": "TM-T88VII",
+    "label": "TM-T88VII thermal receipt printer",
+    "category": "printer",
+    "description": "High-speed 500mm/s 80mm thermal receipt printer with built-in 10/100Base-T/TX Ethernet and USB, where Wi-Fi is only added via an optional USB wireless dongle.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"}
+    ],
+    "sourceUrl": "https://www.epson.co.nz/products/receipt-printers/receipt-printers/tmt88vii/"
+  },
+  {
+    "vendor": "star-micronics",
+    "model": "TSP143IV",
+    "label": "TSP143IV thermal receipt printer",
+    "category": "printer",
+    "description": "80mm thermal receipt printer for POS at 250mm/s with CloudPRNT, whose X4 models combine a 10BASE-T/100Base-TX LAN port with WLAN and Bluetooth radios.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "100M"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://starmicronics.com/product/tsp143iv-thermal-receipt-printer"
+  },
+  {
+    "vendor": "epson",
+    "model": "SureColor T5170",
+    "label": "SureColor T5170 36-inch large-format printer",
+    "category": "printer",
+    "description": "36-inch wide-format pigment-ink plotter producing an A1/D-size print in 31 seconds, networked over Gigabit Ethernet (1000Base-T/100Base-TX/10Base-T) plus 802.11b/g/n Wi-Fi and Wi-Fi Direct.",
+    "capabilities": ["host", "http-server"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "wlan0", "type": "wireless", "speed": "100M"}
+    ],
+    "sourceUrl": "https://mediaserver.goepson.com/ImConvServlet/imconv/3d3de06a3ce5a901c8db5970ace22f8385179cfc/original?assetDescr=SureColor_T5170_"
+  }
+]

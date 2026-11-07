@@ -1,0 +1,25 @@
+{
+  "vendor": "meinberg",
+  "model": "LANTIME M300",
+  "label": "LANTIME M300 NTP time server",
+  "category": "host",
+  "description": "1U rackmount Stratum-1 NTP server that disciplines its clock from a built-in GPS/GLONASS, DCF77, MSF, WWVB or IRIG reference receiver, or from up to seven upstream NTP servers in Stratum-2 mode, and answers NTP/SNTP for the LAN. Two 10/100 RJ45 ports are fitted as standard and the chassis can take up to six, including 1GbE or fibre modules; PPS, 10 MHz and IRIG outputs are BNC and the two RS-232 management ports are D-Sub, so neither is a network port.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

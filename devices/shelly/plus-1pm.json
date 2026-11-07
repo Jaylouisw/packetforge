@@ -1,0 +1,19 @@
+{
+  "vendor": "shelly",
+  "model": "Plus 1PM",
+  "label": "Shelly Plus 1PM smart relay",
+  "category": "iot",
+  "description": "Shelly Plus 1PM (SNSW-001P16EU) is a DIN-box-sized smart relay with power metering that switches one 16 A load, controlled from the Shelly app, MQTT, or its own embedded web UI. WiFi-only: 2.4 GHz 802.11 b/g/n plus Bluetooth 4.2 for provisioning - there is no Ethernet port, so in a lab it can only be attached through an access point, never cabled.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

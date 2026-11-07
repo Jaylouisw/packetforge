@@ -1,0 +1,19 @@
+{
+  "vendor": "home-assistant",
+  "model": "Green",
+  "label": "Home Assistant Green home automation hub",
+  "category": "iot",
+  "description": "Home Assistant Green is the plug-and-play Home Assistant appliance (Rockchip RK3566, 4 GB RAM, 32 GB eMMC) with the web UI and local APIs on port 8123. It has exactly one network interface - a Gigabit Ethernet port - and no WiFi at all, so it must be cabled; it ships without any Zigbee/Thread radio (a Connect ZBT-2 USB dongle is needed for that), and USB is not modelled here.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

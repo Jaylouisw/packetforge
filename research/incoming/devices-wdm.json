@@ -1,0 +1,522 @@
+[
+  {
+    "vendor": "fs",
+    "model": "CWDM Mux Demux 4CH 1510-1570nm",
+    "label": "4-channel CWDM mux/demux, LC/UPC, FMU plug-in",
+    "category": "splitter",
+    "description": "4-channel dual-fibre CWDM mux/demux on the ITU-T G.694.2 20 nm grid, covering 1510/1530/1550/1570 nm, with a duplex LC/UPC line port and one duplex LC/UPC port per channel. Passive thin-film-filter module: insertion loss <=2.2 dB across the passband, adjacent-channel isolation >=30 dB, return loss >=45 dB, no power or software.",
+    "capabilities": [],
+    "splitRatio": "1:4",
+    "channelCount": 4,
+    "channelPlan": "1510 / 1530 / 1550 / 1570 nm, 20 nm spacing, +/-6.5 nm passband",
+    "insertionLossDb": 2.2,
+    "returnLossDb": 45,
+    "technology": "TFF",
+    "formFactor": "FMU plug-in module (2-slot 1U chassis)",
+    "interfaces": [
+      {
+        "name": "line",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1510",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1530",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1550",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1570",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      }
+    ],
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/4ch-cwdm-mux-demux-1510-1570.pdf"
+  },
+  {
+    "vendor": "fs",
+    "model": "CWDM Mux Demux 8CH 1470-1610nm w/ MON+EXP",
+    "label": "8-channel CWDM mux/demux with monitor and expansion port, LC/UPC",
+    "category": "splitter",
+    "description": "8-channel dual-fibre CWDM mux/demux on 1470/1490/1510/1530/1550/1570/1590/1610 nm (20 nm ITU-T G.694.2 grid), duplex LC/UPC line, per-channel, expansion and monitor ports. Free-space (not TFF) design: insertion loss <=2.4 dB including the EXP port, monitor tap 24.3 dB, adjacent-channel isolation >=30 dB, return loss >=45 dB, fully passive.",
+    "capabilities": [],
+    "splitRatio": "1:8",
+    "channelCount": 8,
+    "channelPlan": "1470 / 1490 / 1510 / 1530 / 1550 / 1570 / 1590 / 1610 nm, 20 nm spacing, +/-6.5 nm passband",
+    "insertionLossDb": 2.4,
+    "monitorTapDb": 24.3,
+    "returnLossDb": 45,
+    "technology": "free-space",
+    "formFactor": "FMU plug-in module (2-slot 1U chassis)",
+    "interfaces": [
+      {
+        "name": "line",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "exp",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "mon",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1470",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1490",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1510",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1530",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1550",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1570",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1590",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "ch1610",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      }
+    ],
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/8ch--cwdm-mux-demux-1470-1610nm-with-mon-and-exp.pdf"
+  },
+  {
+    "vendor": "fs",
+    "model": "FMU-D402160M3",
+    "label": "40-channel DWDM mux/demux C21-C60, 100GHz, LC/UPC, 1U",
+    "category": "splitter",
+    "description": "40-channel dual-fibre DWDM mux/demux on the 100 GHz C-band grid C21-C60 (1560.61 nm down to 1529.55 nm, 0.8 nm spacing), with 40 duplex LC/UPC channel ports, a duplex LC/UPC line port and a 1310 nm band-pass port for 40G/100G LR4 optics. Flat-top AWG: insertion loss <=5.5 dB per channel (4.5 dB typical), 1310 nm port <=1.5 dB, return loss >=40 dB, passive.",
+    "capabilities": [],
+    "splitRatio": "1:40",
+    "channelCount": 40,
+    "channelPlan": "C21-C60, 100 GHz spacing, 1560.61 nm (C21) to 1529.55 nm (C60), 192.1-196.0 THz, +/-0.11 nm passband",
+    "insertionLossDb": 5.5,
+    "insertionLossTypicalDb": 4.5,
+    "returnLossDb": 40,
+    "technology": "AWG (flat-top)",
+    "formFactor": "1U 19-inch rack mount",
+    "portTemplate": {
+      "prefix": "ch",
+      "start": 21,
+      "count": 40,
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [10000, 25000, 40000, 100000]
+    },
+    "interfaces": [
+      {
+        "name": "line",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 25000, 40000, 100000]
+      },
+      {
+        "name": "p1310",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "lc",
+        "speedCaps": [40000, 100000]
+      }
+    ],
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/flat-top-40ch-dwdm-mux-demux-c21-c60-with-mon-and-1310.pdf"
+  },
+  {
+    "vendor": "fs",
+    "model": "FBT Splitter 1x2 SC/APC",
+    "label": "1x2 FBT fibre coupler, 50:50, SC/APC",
+    "category": "splitter",
+    "description": "1x2 fused-biconical-taper coupler, 50:50 split, dual-window 1310/1490 nm, SC/APC connectors on the common and both leg ports. Insertion loss <=3.9 dB per leg with connectors (3.6 dB bare fibre + 0.3 dB connector allowance), return loss >=55 dB (APC), PDL <=0.1 dB, bidirectional and unpowered.",
+    "capabilities": [],
+    "splitRatio": "1:2",
+    "insertionLossDb": 3.9,
+    "insertionLossBareDb": 3.6,
+    "uniformityDb": 0.8,
+    "returnLossDb": 55,
+    "technology": "FBT",
+    "wavelengthNm": [1310, 1490],
+    "bidirectional": true,
+    "interfaces": [
+      {
+        "name": "in",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      },
+      {
+        "name": "out1",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      },
+      {
+        "name": "out2",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      }
+    ],
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/single-mode-abs-module-fbt-couplers-splitters-datasheet.pdf"
+  },
+  {
+    "vendor": "fs",
+    "model": "FHD-PLC1x81SCA",
+    "label": "1x8 PLC splitter, SC/APC, FHD cassette",
+    "category": "splitter",
+    "description": "1x8 balanced planar-lightwave-circuit splitter in an FHD cassette, operating 1260-1650 nm with SC/APC connectors on the common input and all 8 output legs. Insertion loss <=10.5 dB, PDL <=0.2 dB, return loss >=55 dB (APC); fully passive, carries GPON and XGS-PON wavelengths transparently.",
+    "capabilities": [],
+    "splitRatio": "1:8",
+    "insertionLossDb": 10.5,
+    "pdlDb": 0.2,
+    "returnLossDb": 55,
+    "technology": "PLC",
+    "wavelengthNm": [1260, 1650],
+    "bidirectional": true,
+    "formFactor": "FHD cassette (fits 1U/2U/4U FHD enclosures)",
+    "portTemplate": {
+      "prefix": "out",
+      "start": 1,
+      "count": 8,
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [1244, 2488, 9953]
+    },
+    "interfaces": [
+      {
+        "name": "in",
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488, 9953]
+      }
+    ],
+    "sourceUrl": "https://www.fs.com/products/189506.html"
+  },
+  {
+    "vendor": "fs",
+    "model": "FMU-MDA0121",
+    "label": "1-channel DWDM OADM, C21, dual fibre east/west, LC/UPC",
+    "category": "splitter",
+    "description": "Single-channel 100 GHz DWDM optical add/drop multiplexer for C21 (1560.61 nm), dual-fibre east-and-west configuration: two duplex LC/UPC line ports, plus one add and one drop port. Thin-film-filter module with add/drop insertion loss <=1.2 dB, express channels pass through untouched; passive, so it drops one lambda out of a lit line without interrupting the rest.",
+    "capabilities": [],
+    "splitRatio": "1:1",
+    "channelCount": 1,
+    "channelPlan": "C21 = 1560.61 nm (192.1 THz), 100 GHz spacing",
+    "insertionLossDb": 1.2,
+    "technology": "TFF",
+    "formFactor": "FMU plug-in module (2-slot 1U chassis)",
+    "interfaces": [
+      {
+        "name": "west-in",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "west-out",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "east-in",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "east-out",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "add",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "drop",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      }
+    ],
+    "sourceUrl": "https://www.fs.com/products/57509.html"
+  },
+  {
+    "vendor": "fs",
+    "model": "FMU-MCA044753",
+    "label": "4-channel CWDM OADM, 1470-1530nm, dual fibre east/west, LC/UPC",
+    "category": "splitter",
+    "description": "4-channel CWDM optical add/drop multiplexer on 1470/1490/1510/1530 nm, dual-fibre east-and-west configuration with two duplex LC/UPC line ports plus an add and a drop port per channel (12 LC/UPC ports). Thin-film-filter design: add/drop insertion loss <2.4 dB, express bypass loss <3.0 dB, adjacent-channel isolation >=30 dB, return loss >=45 dB, passive.",
+    "capabilities": [],
+    "splitRatio": "1:4",
+    "channelCount": 4,
+    "channelPlan": "1470 / 1490 / 1510 / 1530 nm, 20 nm spacing, +/-6.5 nm passband",
+    "insertionLossDb": 2.4,
+    "bypassInsertionLossDb": 3.0,
+    "returnLossDb": 45,
+    "technology": "TFF",
+    "formFactor": "FMU plug-in module (2-slot 1U chassis)",
+    "interfaces": [
+      {
+        "name": "lineW-in",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "lineW-out",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "lineE-in",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "lineE-out",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "add1470",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "drop1470",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "add1490",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "drop1490",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "add1510",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "drop1510",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "add1530",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      },
+      {
+        "name": "drop1530",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "lc",
+        "speedCaps": [1000, 2500, 10000]
+      }
+    ],
+    "sourceUrl": "https://img-en.fs.com/images/PDF/fs-cwdm-oadm-series.pdf"
+  },
+  {
+    "vendor": "fs",
+    "model": "FHD-1U-PP-24LC",
+    "label": "24-port LC/UPC fibre patch panel / ODF, 1U",
+    "category": "splitter",
+    "description": "1U rack-mount optical distribution frame holding 12 x LC/UPC duplex adapters (24 fibres), used to terminate outside-plant cable and cross-connect it to the equipment side. Passive pass-through: <=0.2 dB insertion loss per mated LC/UPC pair (0.1 dB typical), >=50 dB return loss, ceramic split sleeves; the enclosure takes four such panels for 96 fibres in 1U.",
+    "capabilities": [],
+    "insertionLossDb": 0.2,
+    "returnLossDb": 50,
+    "technology": "mechanical splice / adapter panel",
+    "formFactor": "1U 19-inch FHD enclosure, 12 x LC duplex adapter panel",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "lc",
+      "speedCaps": [1000, 10000, 25000, 40000, 100000]
+    },
+    "interfaces": [],
+    "sourceUrl": "https://www.fs.com/products/35488.html"
+  },
+  {
+    "vendor": "fs",
+    "model": "FS-FWDM-1310-1490",
+    "label": "1310/1490nm GPON WDM coupler, SC/APC",
+    "category": "splitter",
+    "description": "Three-port filter WDM coupler for GPON ODN work: 1310 nm upstream passes to the reflection/upstream port while 1490 nm downstream (and 1550 nm RF overlay) crosses to the PON port, letting an OTDR or upstream receiver be inserted on a live branch. Thin-film filter, SC/APC on all three ports, insertion loss <=0.7 dB, channel isolation >30 dB, return loss >=55 dB, passive.",
+    "capabilities": [],
+    "insertionLossDb": 0.7,
+    "isolationDb": 30,
+    "returnLossDb": 55,
+    "technology": "TFF filter WDM",
+    "wavelengthNm": [1310, 1490, 1550],
+    "interfaces": [
+      {
+        "name": "com",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      },
+      {
+        "name": "pass1310",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      },
+      {
+        "name": "refl1490",
+        "type": "pon",
+        "speed": "2.5G",
+        "connector": "sc-apc",
+        "speedCaps": [1244, 2488]
+      }
+    ],
+    "sourceUrl": "https://www.fs.com/products/65811.html"
+  },
+  {
+    "vendor": "fs",
+    "model": "MEMS VOA 0-30dB LC/UPC",
+    "label": "Single-channel MEMS variable optical attenuator, 0-30dB, LC/UPC",
+    "category": "splitter",
+    "description": "Single-channel MEMS variable optical attenuator plug-in card with 0-30 dB continuously adjustable attenuation in 0.1 dB steps, LC/UPC in and out ports, for padding a DWDM span so a receiver sits in its window without touching the amplifier gain. Self insertion loss <=1.5 dB at 0 dB setting, return loss >=50 dB, isolation >=30 dB, wavelength range 1290-1330 / 1525-1568 nm; the card itself is controlled from the managed chassis.",
+    "capabilities": [],
+    "attenuationRangeDb": [0, 30],
+    "attenuationStepDb": 0.1,
+    "insertionLossDb": 1.5,
+    "returnLossDb": 50,
+    "isolationDb": 30,
+    "technology": "MEMS",
+    "formFactor": "plug-in card for 4-slot 1U managed chassis",
+    "interfaces": [
+      {
+        "name": "in",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      },
+      {
+        "name": "out",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "lc",
+        "speedCaps": [10000, 40000, 100000]
+      }
+    ],
+    "sourceUrl": "https://resource.fs.com/mall/doc/20231120160231zkkgjz.pdf"
+  }
+]

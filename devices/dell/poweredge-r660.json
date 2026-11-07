@@ -1,0 +1,29 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R660",
+  "label": "PowerEdge R660 1U rack server",
+  "category": "server",
+  "description": "1U two-socket rack server with 2x 1GbE on the LOM card plus a dedicated 1G iDRAC9 port in the base configuration, leaving the OCP 3.0 slot (up to 4 ports, 1G to 100G) and the PCIe slots for add-in networking.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "iDRAC",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eno1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eno2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

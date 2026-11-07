@@ -1,0 +1,19 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-2CD2087G2-LU",
+  "label": "DS-2CD2087G2-LU 4K ColorVu bullet camera",
+  "category": "camera",
+  "description": "8 MP 4K (3840x2160) ColorVu fixed bullet with 24/7 colour imaging, a built-in microphone and 40 m white-light supplement. One RJ45 10/100 port, PoE 802.3af Class 3 at 8.5 W max.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

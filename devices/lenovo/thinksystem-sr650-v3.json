@@ -1,0 +1,19 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkSystem SR650 V3",
+  "label": "ThinkSystem SR650 V3 2U rack server",
+  "category": "server",
+  "description": "2U two-socket rack server whose base configuration has only the dedicated 1G RJ-45 XCC system management port; the dedicated OCP 3.0 SFF slot (rear or front) and up to 12 PCIe 5.0 slots are free for the 1G/10G/25G LOM and adapter cards.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "XCC",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

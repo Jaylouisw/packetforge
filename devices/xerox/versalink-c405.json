@@ -1,0 +1,18 @@
+{
+  "vendor": "xerox",
+  "model": "VersaLink C405",
+  "label": "VersaLink C405 colour laser MFP",
+  "category": "printer",
+  "description": "Colour laser multifunction at 35ppm with a 50-sheet single-pass duplex ADF, networked through a single 10/100/1000Base-T Ethernet port (Wi-Fi needs the optional kit).",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

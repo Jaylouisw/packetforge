@@ -1,0 +1,19 @@
+{
+  "vendor": "hanwha",
+  "model": "XNV-6081Z",
+  "label": "XNV-6081Z 2MP vandal dome with 4.3x zoom",
+  "category": "camera",
+  "description": "1080p (2 MP) outdoor vandal-resistant dome (IP67/IK10+) with a 2.8-12 mm 4.3x motorised varifocal lens and 60 fps H.265. One RJ45 10/100 port, PoE 802.3af Class 3 at 11 W max (12 VDC and 24 VAC also accepted).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

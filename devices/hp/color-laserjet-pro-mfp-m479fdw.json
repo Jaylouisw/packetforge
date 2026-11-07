@@ -1,0 +1,23 @@
+{
+  "vendor": "hp",
+  "model": "Color LaserJet Pro MFP M479fdw",
+  "label": "Color LaserJet Pro MFP M479fdw colour laser MFP",
+  "category": "printer",
+  "description": "Colour laser multifunction at 28ppm with duplex ADF, fax and 4.3-inch touchscreen, networked via Gigabit Ethernet or 802.11b/g/n dual-band Wi-Fi.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

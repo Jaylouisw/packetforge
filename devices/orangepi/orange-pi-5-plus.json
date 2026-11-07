@@ -1,0 +1,30 @@
+{
+  "vendor": "orangepi",
+  "model": "Orange Pi 5 Plus",
+  "label": "Orange Pi 5 Plus SBC",
+  "category": "host",
+  "description": "Rockchip RK3588 SBC with two independent 2.5GbE ports (RTL8125 on PCIe) plus an M.2 E-key slot for an optional Wi-Fi 6 module - no radio is fitted on the board.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

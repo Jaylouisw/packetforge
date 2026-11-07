@@ -69,7 +69,10 @@ function normaliseCapabilities(list) {
   return out;
 }
 
-const TYPES = ['ethernet', 'wireless', 'console', 'usb', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
+// 'usb' is deliberately absent: a USB port is not a network interface. It was
+// modelled once as a 12 Mbit/s USB console NIC and phones ended up advertising a
+// gigabit over it. A real USB console port should be declared type "console".
+const TYPES = ['ethernet', 'wireless', 'console', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
 const SPEEDS = { '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };

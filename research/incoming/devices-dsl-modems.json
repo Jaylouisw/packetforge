@@ -1,0 +1,559 @@
+{
+  "vendor": "netgear",
+  "generatedBy": "dsl-modem-batch",
+  "devices": [
+    {
+      "vendor": "netgear",
+      "model": "DM200",
+      "label": "NETGEAR DM200 VDSL/ADSL broadband modem",
+      "category": "modem",
+      "description": "Bridge-only VDSL/VDSL2 (up to profile 17a, 100 Mbit/s) and ADSL/ADSL2+ modem with auto-detection of the line mode, one RJ-11 DSL port and a single 10/100 Ethernet LAN port - no switch, no Wi-Fi, no NAT.",
+      "capabilities": [
+        "l2-forward",
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.netgear.com/images/pdf/DM200_DS_01Apr16.pdf",
+      "notes": "Datasheet 'Physical Specifications': One (1) LAN Ethernet RJ-45 port and One (1) VDSL/ADSL RJ-11 port. VDSL2 17a tops out at 100 Mbit/s, so both the line side and the single LAN port are declared 100M; the DSL line is deliberately NOT gigabit."
+    },
+    {
+      "vendor": "draytek",
+      "model": "Vigor166",
+      "label": "DrayTek Vigor166 G.fast / VDSL2 35b modem",
+      "category": "modem",
+      "description": "G.fast (106 MHz, up to 1.3 Gbit/s sync rate) DSL-to-Ethernet bridge that falls back to VDSL2 35b supervectoring at 300 Mbit/s and ADSL2+ at 20 Mbit/s, with one RJ-11 line port and two gigabit LAN ports; also runs as a mini router with NAT/DMZ host.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "300M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.draytek.ie/pdf/10722_Draytek_datasheet_Vigor166.pdf",
+      "notes": "Datasheet: 'Max G.fast Sync Rate: 1.3Gb/s', 'Max VDSL2 35b Sync Rate: 300Mb/s', 'Max VDSL2 17a Sync Rate: 100Mb/s', 'Max ADSL2+ Sync Rate: 20Mb/s'; Physical Interfaces 2 x Gigabit Ethernet + WAN1 G.Fast/VDSL RJ-11. Line side declared 300M = VDSL2 35b rung of the engine's DSL ladder; the 1.3 Gbit/s G.fast figure is a sync rate no 300M/1G port step represents, so it stays in the description."
+    },
+    {
+      "vendor": "draytek",
+      "model": "Vigor167",
+      "label": "DrayTek Vigor167 VDSL2 35b supervectoring modem",
+      "category": "modem",
+      "description": "VDSL2 profile 35b supervectoring modem/router rated at 300 Mbit/s downlink, backward compatible with ADSL2+ at 20 Mbit/s, with one RJ-11 line port and two gigabit Ethernet LAN ports behind an SPI firewall.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "300M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.draytek.gr/datafiles/files/Datasheet%20Vigor167.pdf",
+      "notes": "Datasheet: 1 x VDSL2 35b/ADSL2+ RJ-11, 2 x GbE RJ-45, 'Max. VDSL Speed 300 Mbps', 'Max. ADSL Speed 20 Mbps', VDSL2 profiles 8a/8b/8c/8d/12a/12b/17a/30a/35b. 35b maps to the engine's 300M DSL rung - the two LAN ports are gigabit, the line is not."
+    },
+    {
+      "vendor": "tp-link",
+      "model": "TD-W9970",
+      "label": "TP-Link TD-W9970 300Mbps Wireless N VDSL2 modem router",
+      "category": "modem",
+      "description": "VDSL2 (profile 17a, 100 Mbit/s) / ADSL2+ modem router with a 2.4 GHz 802.11n access point at 300 Mbit/s, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a USB 2.0 port for storage or printer sharing.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "wireless",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "300M"
+        }
+      ],
+      "sourceUrl": "https://static.tp-link.com/res/down/doc/TD-W9970_V1_Datasheet.pdf",
+      "notes": "Datasheet: VDSL2 G.993.2 up to 100 Mbps, '4-port Switch', 300 Mbps 802.11n on 2.4 GHz, one interchangeable LAN/WAN port. USB 2.0 port is intentionally not modelled (USB is not a network interface in this engine)."
+    },
+    {
+      "vendor": "tp-link",
+      "model": "Archer VR600",
+      "label": "TP-Link Archer VR600 AC1600 wireless gigabit VDSL/ADSL modem router",
+      "category": "modem",
+      "description": "AC1600 dual-band VDSL2 (profile 17a, 100 Mbit/s) and ADSL2+ modem router with 300 Mbit/s on 2.4 GHz, 1300 Mbit/s on 5 GHz, one RJ-11 DSL port, three gigabit LAN ports plus a fourth gigabit LAN/WAN port for EWAN, and a USB port.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "wireless",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "1.3G"
+        }
+      ],
+      "sourceUrl": "https://www.tp-link.com/uk/home-networking/dsl-modem-router/archer-vr600/v2/",
+      "notes": "TP-Link spec table: 'Interface: 3 Gigabit LAN Ports, 1 Gigabit LAN/WAN Port, 1 RJ11 Port, 1 USB Port'; VDSL2 'Up to 17a profile (POTS)'; Wi-Fi 300 Mbps (2.4 GHz) + 1300 Mbps (5 GHz). Lan4 is the LAN/WAN combo port, declared as a fourth LAN port. The DSL line is 17a-class 100 Mbit/s, not gigabit."
+    },
+    {
+      "vendor": "avm",
+      "model": "FRITZ!Box 7530",
+      "label": "AVM FRITZ!Box 7530 VDSL2 35b supervectoring router",
+      "category": "modem",
+      "description": "VDSL2 35b supervectoring (up to 300 Mbit/s) and ADSL2+ router with a 2x2 dual-band access point (400 Mbit/s on 2.4 GHz, 866 Mbit/s on 5 GHz), one RJ-11 DSL port, three gigabit LAN ports and a gigabit WAN port that doubles as LAN 1.",
+      "capabilities": [
+        "wireless",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "300M",
+          "connector": "rj11"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "400M"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "866M"
+        }
+      ],
+      "sourceUrl": "https://techinfodepot.shoutwiki.com/wiki/AVM_FRITZ!Box_7530",
+      "notes": "TechInfoDepot teardown/spec: 'Ethernet Port Count 1-1GbE-WAN, 3-1GbE-LAN' (QCA8075 switch), Lantiq VRX518 xDSL AFE for VDSL2 35b/ADSL2+, Wi-Fi 400 Mbps 2.4 GHz + 867 Mbps 5 GHz = AC1300. AVM's own page states 'DSL up to 300 Mbit/s'. Line side declared at the 35b rung (300M), LAN/WAN at 1G."
+    },
+    {
+      "vendor": "avm",
+      "model": "FRITZ!Box 7590",
+      "label": "AVM FRITZ!Box 7590 VDSL2 35b supervectoring router",
+      "category": "modem",
+      "description": "VDSL2 35b supervectoring (up to 300 Mbit/s) and ADSL2+ router with a 4x4 MU-MIMO dual-band access point (800 Mbit/s on 2.4 GHz, 1733 Mbit/s on 5 GHz), one RJ-11 DSL port, four gigabit LAN ports and a separate gigabit WAN port for cable/fibre modems.",
+      "capabilities": [
+        "wireless",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "300M",
+          "connector": "rj11"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "800M"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "1.7G"
+        }
+      ],
+      "sourceUrl": "https://en.avm.de/products/fritzbox/fritzbox-7590/technical-specifications/",
+      "notes": "AVM datasheet: 'All DSL lines with up to 300 Mbit/s', '4 x gigabit Ethernet', '1 x gigabit WAN', '4 x 4 Wireless AC + N with Multi-User MIMO', 1733 Mbit/s (5 GHz) + 800 Mbit/s (2.4 GHz). Corrects the older catalogue entry that pinned this 35b line to 100M: 35b is a 300M rung, and no DSL line here is gigabit."
+    },
+    {
+      "vendor": "billion",
+      "model": "BiPAC 8800NL R2",
+      "label": "Billion BiPAC 8800NL R2 Wireless-N VDSL2/ADSL2+ router",
+      "category": "modem",
+      "description": "VDSL2 (profiles up to 17a, 100 Mbit/s down / 50 Mbit/s up) and ADSL2+ firewall router with a 2.4 GHz 802.11n access point at 300 Mbit/s, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a fifth gigabit port that works as LAN 5 or as an EWAN uplink.",
+      "capabilities": [
+        "wireless",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "300M"
+        }
+      ],
+      "sourceUrl": "https://images-eu.ssl-images-amazon.com/images/I/D1DJW32FbbS.pdf",
+      "notes": "Official user manual, Hardware Specifications / Physical Interface: 'Ethernet: 4-port 10/100 Mbps auto-crossover (MDI/MDI-X) Switch' and 'EWAN: 1 Gigabit Ethernet port (port#5) ... also serving as an Ethernet port#5 when not in EWAN use'. VDSL2 compliance lists profiles 8a-17a only (no 30a/35b), so the line is 100M. The four LAN ports really are Fast Ethernet - a common source of the 'gigabit DSL modem' defect."
+    },
+    {
+      "vendor": "zyxel",
+      "model": "VMG3625-T20A",
+      "label": "Zyxel VMG3625-T20A dual-band AC1200 VDSL2 gateway",
+      "category": "modem",
+      "description": "VDSL2 (profiles up to 30a, 100 Mbit/s) and ADSL2+ combo-WAN gateway with 802.11ac AC1200 dual-band Wi-Fi (300 Mbit/s on 2.4 GHz, 866 Mbit/s on 5 GHz), one RJ-11 DSL port, four gigabit LAN ports and a gigabit Ethernet WAN port for fibre migrations.",
+      "capabilities": [
+        "wireless",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "866M"
+        }
+      ],
+      "sourceUrl": "https://www.192-168-1-1-ip.co/datasheet/8519.pdf",
+      "notes": "Zyxel datasheet: WAN 'One RJ-11 interface for VDSL/ADSL2 (over POTS)' + 'One RJ-45 connector for Giga-Ethernet WAN port'; LAN '4 auto-sensing 10/100/1000 Mbps Ethernet LAN ports'; VDSL profiles '8a/b/c/d, 12a/b, 17a, 30a' (17a/30a cap the line at ~100 Mbit/s - no 35b); Wi-Fi 802.11n 2.4 GHz + 802.11ac 5 GHz up to 866 Mbps."
+    },
+    {
+      "vendor": "huawei",
+      "model": "HG612",
+      "label": "Huawei EchoLife HG612 Openreach VDSL2 modem",
+      "category": "modem",
+      "description": "BT Openreach VDSL2 (profile 17a, 100 Mbit/s) and ADSL2+ bridge modem with one RJ-11 line port and two 10/100 Ethernet LAN ports, LAN1 for the bridged PPPoE path to the router and LAN2 for management access to its web and telnet interfaces.",
+      "capabilities": [
+        "l2-forward",
+        "host",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://support.aa.net.uk/Router_-_EchoLife_HG612",
+      "notes": "AAISP support documentation: the HG612 has LAN1 (bridge to the router's WAN, PPPoE bridged) and LAN2 (management, default 192.168.1.1), both Fast Ethernet; stock firmware is locked, unlocked firmware exposes web UI + telnet ('xdslcmd'). Openreach FTTC lines are VDSL2 17a, so both LAN ports and the line are 100M - the line is not gigabit."
+    },
+    {
+      "vendor": "draytek",
+      "model": "Vigor130",
+      "label": "DrayTek Vigor130 VDSL2/ADSL2+ bridge modem",
+      "category": "modem",
+      "description": "Compact VDSL2 (profiles up to 30a, 100 Mbit/s downlink) / ADSL2+ modem that runs as a full DSL-to-Ethernet bridge in front of a third-party firewall or router, with one RJ-11 line port and a single gigabit Ethernet LAN port.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "firewall",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "100M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://support.draytek.no/Firmware/Vigor130/Document/Vigor130_datasheet-V2-130808.pdf",
+      "notes": "DrayTek datasheet: '1 x VDSL2/ADSL2/2+ port, RJ-11 (Annex A) or RJ-45 (Annex B)', '1 x 10/100/1000 Base-Tx LAN port', VDSL2 profiles 8a/8b/8c/8d/12a/12b/17a/30a (no 35b), 'Router/Bridge Configurable'. One-gigabit LAN port next to a 100M 30a line is correct: the Ethernet port is gigabit, the DSL line is not."
+    },
+    {
+      "vendor": "zyxel",
+      "model": "VMG4005-B50A",
+      "label": "Zyxel VMG4005-B50A VDSL2 35b single-line bridge modem",
+      "category": "modem",
+      "description": "Pure VDSL2 bridge modem delivering 300 Mbit/s on a 35b single line (200 Mbit/s with 17a bonding) with ADSL2+ fallback, one RJ-11 line port and one 10/100/1000 Ethernet LAN port, transparently bridging PPPoE to the router behind it.",
+      "capabilities": [
+        "l2-forward",
+        "host",
+        "dhcp-server",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "dsl0",
+          "type": "dsl",
+          "speed": "300M",
+          "connector": "rj11"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.zyxel.com/global/en/products/fixed-broadband-access/vmg4005-b50a/specifications",
+      "notes": "Zyxel specs: 'Support VDSL profiles: 8a/b/c/d, 12a/b, 17a, and 35b', G.vector, G.INP; LAN 'One 10/100/1000 Mbps Ethernet RJ-45 ports'; bridge features 802.1D transparent bridging plus PPPoE/PPPoA, DHCP client/server/relay, CLI over SSH/telnet. Product page rates it 300 Mbps on 35b single line / 200 Mbps on 17a bonding. Line declared at the 300M 35b rung, LAN at 1G."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1930 24G",
+  "label": "Aruba Instant On 1930 24G 4SFP/SFP+ (JL682A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1930 24G 4SFP/SFP+ (JL682A) - 24x 1G RJ45 plus 4x 1G/10G SFP+ uplinks. Fanless smart-managed switch with IPv4 static routing (32 routes), web/cloud GUI only (no CLI).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b"
+}

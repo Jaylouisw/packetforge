@@ -1,0 +1,102 @@
+{
+  "vendor": "opengear",
+  "model": "OM1208",
+  "label": "OM1208 Operations Manager console server",
+  "category": "host",
+  "description": "Compact Smart OOB appliance with 8 RJ45 RS-232 Cisco-straight serial console ports (50-230.4 kbps) and 2 combo 10/100/1000 Ethernet/SFP ports; used to reach edge-site routers, switches and servers without a truck roll.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial2",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial3",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial4",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial5",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial6",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial7",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial8",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "net1-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "net1-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "net1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "net2-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "net2-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "net2",
+      "comboRole": "sfp"
+    }
+  ]
+}

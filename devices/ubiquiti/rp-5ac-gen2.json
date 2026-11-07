@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "RP-5AC-Gen2",
+  "label": "airMAX Rocket Prism 5AC Gen2",
+  "category": "ptp",
+  "description": "5 GHz airPrism 2x2 base-station/backhaul radio for external sector or dish antennas (2x RP-SMA), 500+ Mbps, 28 dBm and 9.5 W max from 24 V passive PoE. One GbE RJ45 only; no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

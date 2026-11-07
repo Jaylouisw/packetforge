@@ -1,0 +1,18 @@
+{
+  "vendor": "epson",
+  "model": "TM-m30III",
+  "label": "TM-m30III mPOS receipt printer",
+  "category": "printer",
+  "description": "Compact 80mm thermal receipt printer at 300mm/s for mPOS, with a 10BASE-T/100BASE-TX Ethernet port on the standard model; the Wi-Fi + Bluetooth variant uses its radio instead of the LAN port.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

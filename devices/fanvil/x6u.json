@@ -1,0 +1,24 @@
+{
+  "vendor": "fanvil",
+  "model": "X6U",
+  "label": "X6U IP phone",
+  "category": "phone",
+  "description": "Fanvil X6U enterprise desk phone with a 4.3-inch main colour screen plus two 2.4-inch side screens, 20 SIP lines, dual Gigabit ports (network plus PC passthrough) and integrated 802.3af PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

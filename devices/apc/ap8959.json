@@ -1,0 +1,19 @@
+{
+  "vendor": "apc",
+  "model": "AP8959",
+  "label": "APC Rack PDU 2G Switched 20A/208V (21xC13 3xC19)",
+  "category": "host",
+  "description": "Zero-U switched rack PDU with 21x C13 and 3x C19 outlets on a 20A/208V (16A/230V) C20 input, giving per-outlet power switching plus branch and total current metering for a rack. One 10/100BASE-T RJ45 network port provides Web, SNMP and Telnet management, and network port sharing lets up to four 8000-series PDUs be managed behind one IP address; the DB9/RJ12 serial port is configuration only.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

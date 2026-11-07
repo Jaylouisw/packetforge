@@ -1,0 +1,52 @@
+{
+  "vendor": "antaira",
+  "model": "LNP-0800G-24-T",
+  "label": "LNP-0800G 8-port industrial PoE+ switch",
+  "category": "switch",
+  "description": "DIN-rail unmanaged industrial Gigabit PoE+ switch with 8 x 10/100/1000Base-TX RJ45 ports, all IEEE 802.3af/at PSE at up to 30 W per port; -40 to 75 C extended-temperature model, 9-55 VDC redundant input, 240 W PoE budget on 48-55 VDC (150 W at 24 VDC).",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

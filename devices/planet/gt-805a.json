@@ -1,0 +1,24 @@
+{
+  "vendor": "planet",
+  "model": "GT-805A",
+  "label": "GT-805A 10/100/1000T to SFP media converter",
+  "category": "switch",
+  "description": "Standalone media converter with one 10/100/1000BASE-T RJ45 port and one SFP (mini-GBIC) slot that accepts 100BASE-FX or 1000BASE-SX/LX optics. Reach and wavelength come entirely from the pluggable, so a 100M pair of SFPs gives a 100M link and 1G SFPs give 1G.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

@@ -1,0 +1,64 @@
+{
+  "vendor": "dlink",
+  "model": "DGS-1210-28",
+  "label": "D-Link DGS-1210-28",
+  "category": "l3-switch",
+  "description": "D-Link DGS-1210-28 - 24x 1G RJ45 plus 4x Gigabit RJ45/SFP combo ports (ports 25-28, one medium per cage). Smart managed with L2+ static routing, fanless, 56 Gbps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G"
+  },
+  "interfaces": [
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "26-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "27-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "28-sfp",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9"
+}

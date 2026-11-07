@@ -1,0 +1,55 @@
+{
+  "vendor": "nokia",
+  "model": "G-1425G-A",
+  "label": "G-1425G-A GPON ONT",
+  "category": "ont",
+  "description": "Nokia 7368 ISAM ONT G-1425G-A GPON dual-band residential gateway: G.984/G.988 GPON uplink on SC/APC with 2.488G downstream and 1.244G upstream, four 1GE UNI ports, one POTS port and concurrent 2x2 802.11n 2.4GHz plus 2x2 802.11ac 5GHz Wi-Fi on internal antennas.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2g",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan5g",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

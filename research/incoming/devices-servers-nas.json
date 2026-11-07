@@ -1,180 +1,174 @@
 [
   {
-    "vendor": "dell",
-    "model": "PowerEdge R760",
-    "label": "PowerEdge R760 2U rack server",
+    "vendor": "hpe",
+    "model": "ProLiant ML350 Gen11",
+    "label": "HPE ProLiant ML350 Gen11 4U tower server",
     "category": "server",
-    "description": "2U two-socket rack server whose base configuration ships with the 2x 1GbE LOM card and a dedicated 1G iDRAC9 port; the OCP 3.0 slot and up to eight PCIe slots are free for 10/25/100G adapters.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "4U two-socket tower server with no embedded LOM: the default configuration carries a Broadcom BCM5719 1Gb 4-port BASE-T OCP 3.0 adapter plus a dedicated 1GbE iLO 6 management port, and a second OCP 3.0 slot plus up to 10 PCIe 5.0 slots stay free for faster NICs.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "iDRAC", "type": "ethernet", "speed": "1G"},
-      {"name": "eno1", "type": "ethernet", "speed": "1G"},
-      {"name": "eno2", "type": "ethernet", "speed": "1G"}
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "eth1", "type": "ethernet", "speed": "1G"},
+      {"name": "eth2", "type": "ethernet", "speed": "1G"},
+      {"name": "eth3", "type": "ethernet", "speed": "1G"},
+      {"name": "ilo", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/poweredge-r760-spec-sheet-en-dl1lkoo-original.pdf"
-  },
-  {
-    "vendor": "dell",
-    "model": "PowerEdge R660",
-    "label": "PowerEdge R660 1U rack server",
-    "category": "server",
-    "description": "1U two-socket rack server with 2x 1GbE on the LOM card plus a dedicated 1G iDRAC9 port in the base configuration, leaving the OCP 3.0 slot (up to 4 ports, 1G to 100G) and the PCIe slots for add-in networking.",
-    "capabilities": ["host", "http-server", "cli"],
-    "interfaces": [
-      {"name": "iDRAC", "type": "ethernet", "speed": "1G"},
-      {"name": "eno1", "type": "ethernet", "speed": "1G"},
-      {"name": "eno2", "type": "ethernet", "speed": "1G"}
-    ],
-    "sourceUrl": "https://www.dell.com/support/manuals/en-us/poweredge-r660/r660_ism_pub/nic-port-specifications?guid=guid-29a0704e-235f-43bb-a8a6-25fbc60ca3b9&lang=en-us"
-  },
-  {
-    "vendor": "dell",
-    "model": "PowerEdge T360",
-    "label": "PowerEdge T360 tower server",
-    "category": "server",
-    "description": "4.5U-ish tower server for branch and SMB use with 2x 1GbE embedded on the planar LOM and a separate dedicated 1G iDRAC Ethernet port; optional PCIe network cards add 1G/10G ports.",
-    "capabilities": ["host", "http-server", "cli"],
-    "interfaces": [
-      {"name": "iDRAC", "type": "ethernet", "speed": "1G"},
-      {"name": "eno1", "type": "ethernet", "speed": "1G"},
-      {"name": "eno2", "type": "ethernet", "speed": "1G"}
-    ],
-    "sourceUrl": "https://www.delltechnologies.com/asset/en-ph/products/servers/technical-support/poweredge-t360-spec-sheet.pdf"
+    "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004308enw.html"
   },
   {
     "vendor": "hpe",
-    "model": "ProLiant DL380 Gen11",
-    "label": "HPE ProLiant DL380 Gen11 2U rack server",
+    "model": "ProLiant DL20 Gen11",
+    "label": "HPE ProLiant DL20 Gen11 1U short-depth server",
     "category": "server",
-    "description": "2U two-socket rack server with no embedded networking: the standard configuration carries a Broadcom BCM5719 1Gb 4-port BASE-T OCP 3.0 adapter plus a dedicated 1G iLO 6 management port, and a second OCP 3.0 slot and up to 8 PCIe 5.0 slots stay free for 10/25/100G cards.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "1U short-depth single-socket rack server with an embedded Broadcom BCM5719 1Gb 4-port BASE-T controller; iLO 6 shares embedded port 1 by default, and a separate dedicated 1GbE iLO port only exists if the optional Serial Port/iLO/M.2 enablement kit is fitted.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "iLO", "type": "ethernet", "speed": "1G"},
-      {"name": "eno1", "type": "ethernet", "speed": "1G"},
-      {"name": "eno2", "type": "ethernet", "speed": "1G"},
-      {"name": "eno3", "type": "ethernet", "speed": "1G"},
-      {"name": "eno4", "type": "ethernet", "speed": "1G"}
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "eth1", "type": "ethernet", "speed": "1G"},
+      {"name": "eth2", "type": "ethernet", "speed": "1G"},
+      {"name": "eth3", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004307enw.html"
+    "sourceUrl": "https://www.hpe.com/int/en/collaterals/collateral.a50007009enw.html"
   },
   {
-    "vendor": "hpe",
-    "model": "ProLiant DL360 Gen11",
-    "label": "HPE ProLiant DL360 Gen11 1U rack server",
+    "vendor": "dell",
+    "model": "PowerEdge R360",
+    "label": "PowerEdge R360 1U rack server",
     "category": "server",
-    "description": "1U two-socket rack server with no embedded networking: the default configuration populates OCP slot 2 with a Broadcom BCM5719 1Gb 4-port BASE-T OCP 3.0 adapter and adds a dedicated 1G iLO 6 management port, with the second OCP 3.0 slot and the PCIe 5.0 slots free for faster NICs.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "1U single-socket rack server with 2x 1GbE LOM ports on the system board (port 1 doubles as the local management port) plus a separate dedicated 1GbE iDRAC Ethernet port; the two PCIe slots take optional 4x 1GbE or 2x/4x 10GbE network cards.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "iLO", "type": "ethernet", "speed": "1G"},
-      {"name": "eno1", "type": "ethernet", "speed": "1G"},
-      {"name": "eno2", "type": "ethernet", "speed": "1G"},
-      {"name": "eno3", "type": "ethernet", "speed": "1G"},
-      {"name": "eno4", "type": "ethernet", "speed": "1G"}
+      {"name": "eth0", "type": "ethernet", "speed": "1G"},
+      {"name": "eth1", "type": "ethernet", "speed": "1G"},
+      {"name": "idrac", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004306enw.html"
+    "sourceUrl": "https://www.dell.com/support/manuals/en-si/poweredge-r360/r360_ism/nic-port-specifications?guid=guid-7be6485b-7c21-4030-9f52-d3a10af9cc8e&lang=en-us"
   },
   {
     "vendor": "lenovo",
-    "model": "ThinkSystem SR650 V3",
-    "label": "ThinkSystem SR650 V3 2U rack server",
+    "model": "ThinkSystem SR665 V3",
+    "label": "ThinkSystem SR665 V3 2U rack server",
     "category": "server",
-    "description": "2U two-socket rack server whose base configuration has only the dedicated 1G RJ-45 XCC system management port; the dedicated OCP 3.0 SFF slot (rear or front) and up to 12 PCIe 5.0 slots are free for the 1G/10G/25G LOM and adapter cards.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "2U two-socket AMD EPYC rack server whose base configuration has only the dedicated 1GbE RJ-45 XCC systems-management port; the optional OCP 3.0 module adds 2 or 4 Ethernet ports and up to 12 PCIe 5.0 slots remain free for stand-up adapters.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "XCC", "type": "ethernet", "speed": "1G"}
+      {"name": "xcc", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://pubs.lenovo.com/sr650-v3/server_rear_view"
+    "sourceUrl": "https://pubs.lenovo.com/sr665-v3/server_rear_view"
   },
   {
     "vendor": "supermicro",
-    "model": "SYS-6029P-WTR",
-    "label": "SuperServer 6029P-WTR 2U rack server",
+    "model": "AS-2015HS-TNR",
+    "label": "Hyper A+ AS-2015HS-TNR 2U rack server",
     "category": "server",
-    "description": "2U dual-socket WIO rack server with 2x 1GbE RJ45 LAN ports from the Intel C621 chipset and a separate dedicated RJ45 IPMI 2.0 port; the six PCIe 3.0 slots are free for 10G/25G add-in cards.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "2U single-socket AMD EPYC 9004/9005 Hyper server with no onboard data NICs: the base configuration has only the 1x RJ45 1GbE dedicated BMC LAN port, while data networking comes from the single PCIe 5.0 x16 AIOM slot (OCP NIC 3.0 compatible) plus the optional PCIe slots.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "IPMI", "type": "ethernet", "speed": "1G"},
-      {"name": "lan1", "type": "ethernet", "speed": "1G"},
-      {"name": "lan2", "type": "ethernet", "speed": "1G"}
+      {"name": "bmc", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.supermicro.com/en/products/system/2U/6029/SYS-6029P-WTR.php"
+    "sourceUrl": "https://www.supermicro.com/en/products/system/hyper/2u/as-2015hs-tnr"
   },
   {
-    "vendor": "synology",
-    "model": "RackStation RS1221+",
-    "label": "Synology RackStation RS1221+ 2U 8-bay NAS",
-    "category": "nas",
-    "description": "2U 8-bay rackmount NAS with 4x 1GbE RJ-45 LAN ports in the base configuration and a single PCIe 3.0 x8 slot free for a 10GbE or 25GbE network card; there is no dedicated management port, DSM is managed in-band.",
-    "capabilities": ["host", "http-server", "cli"],
+    "vendor": "cisco",
+    "model": "UCS C240 M7",
+    "label": "Cisco UCS C240 M7 2U rack server",
+    "category": "server",
+    "description": "2U two-socket rack server whose base server ships with a single dedicated 1Gbase-T RJ-45 management port for the CIMC; the one modular mLOM/OCP 3.0 slot (x16) and up to 8 PCIe 4.0 or 4 PCIe 5.0 slots are free for 10/25/50/100/200G VIC or OCP adapters.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "lan1", "type": "ethernet", "speed": "1G"},
-      {"name": "lan2", "type": "ethernet", "speed": "1G"},
-      {"name": "lan3", "type": "ethernet", "speed": "1G"},
-      {"name": "lan4", "type": "ethernet", "speed": "1G"}
+      {"name": "cimc", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.synology.com/en-global/products/RS1221+"
+    "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/hw/C240M7/install/b-cisco-c240-m7-install/m-system-overview.html"
+  },
+  {
+    "vendor": "cisco",
+    "model": "UCS C220 M7",
+    "label": "Cisco UCS C220 M7 1U rack server",
+    "category": "server",
+    "description": "1RU two-socket rack server with a single 1Gbase-T RJ-45 dedicated management port for the CIMC as its only base network port; one modular mLOM/OCP 3.0 slot provides up to 2x 100GbE and up to 3 PCIe 4.0 or 2 PCIe 5.0 slots remain free.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
+    "interfaces": [
+      {"name": "cimc", "type": "ethernet", "speed": "1G"}
+    ],
+    "sourceUrl": "https://www.cisco.com/c/dam/en/us/products/collateral/servers-unified-computing/ucs-c-series-rack-servers/c220m7-sff-specsheet.pdf"
   },
   {
     "vendor": "qnap",
-    "model": "TS-464",
-    "label": "QNAP TS-464 4-bay desktop NAS",
+    "model": "TS-453E",
+    "label": "QNAP TS-453E 4-bay desktop NAS",
     "category": "nas",
-    "description": "4-bay desktop NAS with 2x 2.5GbE RJ-45 ports (2.5G/1G/100M) as standard and a PCIe slot for an optional 5G or 10G adapter; management is in-band over the same ports, with no dedicated management interface.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "4-bay long-life-cycle desktop NAS with 2x 2.5GbE RJ-45 ports (2.5G/1G/100M) and no separate management interface, so QTS administration runs in-band over the 2.5G links.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
       {"name": "eth0", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
       {"name": "eth1", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]}
     ],
-    "sourceUrl": "https://www.qnap.com/en/product/ts-464/specs"
+    "sourceUrl": "https://www.qnap.com/en/product/ts-453e/specs"
   },
   {
     "vendor": "qnap",
-    "model": "TS-673A",
-    "label": "QNAP TS-673A 6-bay desktop NAS",
+    "model": "TS-832PX",
+    "label": "QNAP TS-832PX 8-bay desktop NAS with 10GbE",
     "category": "nas",
-    "description": "6-bay desktop NAS with 2x 2.5GbE RJ-45 ports out of the box and 10G/5G available only through the PCIe expansion slot; management runs in-band on the data ports, no dedicated management port.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "8-bay desktop NAS with 2x 2.5GbE RJ-45 ports plus 2x 10GbE SFP+ ports on board, and no dedicated management port - QTS is managed in-band over any of the data ports.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
       {"name": "eth0", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
-      {"name": "eth1", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]}
+      {"name": "eth1", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
+      {"name": "sfp1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [10000]},
+      {"name": "sfp2", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [10000]}
     ],
-    "sourceUrl": "https://www.qnap.com/en/product/ts-673a/specs"
+    "sourceUrl": "https://www.qnap.com/en/product/ts-832px/specs"
+  },
+  {
+    "vendor": "qnap",
+    "model": "TS-433",
+    "label": "QNAP TS-433 4-bay desktop NAS",
+    "category": "nas",
+    "description": "4-bay ARM-based desktop NAS with 1x 1GbE RJ-45 port and 1x 2.5GbE RJ-45 port (2.5G/1G/100M) out of the box; there is no dedicated management port, QTS runs in-band.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
+    "interfaces": [
+      {"name": "eth0", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
+      {"name": "eth1", "type": "ethernet", "speed": "1G"}
+    ],
+    "sourceUrl": "https://www.qnap.com/en/product/ts-433/specs"
   },
   {
     "vendor": "asustor",
-    "model": "Lockerstor 4 Gen2 AS6704T",
-    "label": "ASUSTOR LOCKERSTOR 4 Gen2 (AS6704T) 4-bay NAS",
+    "model": "Flashstor 6 FS6706T",
+    "label": "ASUSTOR FLASHSTOR 6 (FS6706T) 6-bay M.2 NVMe NAS",
     "category": "nas",
-    "description": "4-bay desktop NAS with 2x 2.5-Gigabit RJ-45 Ethernet ports as standard and one PCIe 3.0 slot that can take an optional 10GbE card; management is in-band, there is no dedicated management port.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "6-bay all-flash M.2 NVMe desktop NAS with dual 2.5-Gigabit Ethernet ports and no dedicated management port, so ADM is administered in-band over the 2.5G links.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
       {"name": "eth0", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
       {"name": "eth1", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]}
     ],
-    "sourceUrl": "https://www.asustor.com/en/product/?p_id=77"
+    "sourceUrl": "https://www.asustor.com/en/product?p_id=79"
   },
   {
-    "vendor": "terramaster",
-    "model": "F4-424 Pro",
-    "label": "TerraMaster F4-424 Pro 4-bay NAS",
+    "vendor": "truenas",
+    "model": "R50",
+    "label": "TrueNAS R50 4U hybrid storage appliance",
     "category": "nas",
-    "description": "4-bay desktop NAS with 2x RJ-45 2.5GbE network jacks and no 1GbE or 10GbE ports in the base configuration; it has no dedicated management port, so TOS is reached in-band over the 2.5G links.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "4U (scalable to 12U) hybrid storage appliance whose base configuration has 2x SFP+ 10/25/40/100GbE ports plus a dedicated 1GBase-T OOBM management port; copper 10GBase-T and 32Gb Fibre Channel are optional add-in cards.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "eth0", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]},
-      {"name": "eth1", "type": "ethernet", "speed": "2.5G", "speedCaps": [100, 1000, 2500]}
+      {"name": "enp1s0f0", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [10000, 25000, 40000, 100000]},
+      {"name": "enp1s0f1", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [10000, 25000, 40000, 100000]},
+      {"name": "oobm", "type": "ethernet", "speed": "1G"}
     ],
-    "sourceUrl": "https://www.terra-master.com/products/f4-424-pro"
+    "sourceUrl": "https://www.truenas.com/r-series/"
   },
   {
-    "vendor": "ixsystems",
-    "model": "TrueNAS Mini X+",
-    "label": "TrueNAS Mini X+ 5+2 bay NAS",
+    "vendor": "truenas",
+    "model": "Mini R",
+    "label": "TrueNAS Mini R 12-bay rackmount NAS",
     "category": "nas",
-    "description": "5+2 bay desktop/mini-tower NAS with 2x RJ-45 1/10GBase-T LAN ports as standard plus a dedicated RJ45 IPMI port for out-of-band hardware management; an optional 2x SFP+ 10G add-on card fits the spare slot.",
-    "capabilities": ["host", "http-server", "cli"],
+    "description": "12-bay rackmount NAS with 2x RJ-45 1/10GBase-T Ethernet LAN ports as standard plus a dedicated RJ45 IPMI port for out-of-band hardware management.",
+    "capabilities": ["host", "dhcp-client", "http-server", "cli"],
     "interfaces": [
-      {"name": "IPMI", "type": "ethernet", "speed": "1G"},
+      {"name": "ipmi", "type": "ethernet", "speed": "1G"},
       {"name": "enp1s0", "type": "ethernet", "speed": "10G", "speedCaps": [1000, 10000]},
       {"name": "enp2s0", "type": "ethernet", "speed": "10G", "speedCaps": [1000, 10000]}
     ],

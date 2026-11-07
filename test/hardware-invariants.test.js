@@ -39,8 +39,14 @@ const all = materialise();
 // A description may legitimately say "no SFP cages"; that is documentation, not
 // a promise. Strip the denials before looking for an optics claim.
 function claimsOptics(desc) {
+  // A clause that calls the optics optional, unfitted or an extra-cost module is
+  // not a promise that this box has them: plenty of platforms sell uplinks as
+  // field-fitted modules. Strip such clauses before looking for a real claim.
+  const clauses = String(desc || '').split(/[.;:]/).filter(function (c) {
+    return !/\b(option|optional|unfitted|unpopulated|not fitted|blank|without)\b/i.test(c);
+  });
   return /\b(sfp|qsfp|xfp)\b/i.test(
-    String(desc || '')
+    clauses.join(' ; ')
       .replace(/\b(no|without|zero|none|not)\b[^.;,]{0,24}\b(sfp|qsfp|xfp)\b/gi, ' ')
       .replace(/\b(sfp|qsfp|xfp)\b[^.;,]{0,16}\b(none|n\/a|-)\b/gi, ' ')
   );
@@ -238,6 +244,25 @@ console.log('\nEvery device can be plugged into a copy of itself:');
   }
   ok(splitterDeadEnds.length === 0, 'every PON splitter leg can accept an ONT' +
     (splitterDeadEnds.length ? ' (' + splitterDeadEnds.slice(0, 3).join('; ') + ')' : ''));
+}
+
+console.log('\nUSB is not a network interface:');
+{
+  // This has now been fixed twice: once when 28 tablets advertised a gigabit on a
+  // 12 Mbit/s "USB console" cage, and again when a DOCSIS batch quietly added
+  // usb1 to two more. A USB port is not something you patch a topology into, so
+  // the rule is mechanical from here: no device may declare one. A genuine USB
+  // console port belongs under type "console", not as a NIC.
+  const usbDevices = [];
+  for (const x of all) {
+    for (const i of x.ifaces) {
+      if (i.type === 'usb' || /^usb/i.test(String(i.name || ''))) {
+        usbDevices.push(x.spec.vendor + '/' + x.spec.model + ' ' + i.name);
+      }
+    }
+  }
+  ok(usbDevices.length === 0, 'no device models a USB port as a network interface' +
+    (usbDevices.length ? ' (' + usbDevices.slice(0, 3).join(', ') + ')' : ''));
 }
 
 console.log('\nVendor and model identity is unique:');

@@ -1,0 +1,20 @@
+{
+  "vendor": "synology",
+  "model": "DVA1622",
+  "label": "DVA1622 deep-learning NVR, 2 bays",
+  "category": "nvr",
+  "description": "Two-bay desktop NVR with on-board deep-learning analytics, 8 bundled camera licences (16 channels of 1080p) and a single RJ-45 1GbE port. No PoE: each camera needs its own power source.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

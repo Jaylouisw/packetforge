@@ -1,0 +1,27 @@
+{
+  "vendor": "raspberrypi",
+  "model": "Raspberry Pi 5",
+  "label": "Raspberry Pi 5 SBC",
+  "category": "host",
+  "description": "BCM2712 quad-core Cortex-A76 SBC with a single gigabit Ethernet port fed by the RP1 I/O controller, plus dual-band 2x2 802.11ac Wi-Fi and Bluetooth 5.0.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

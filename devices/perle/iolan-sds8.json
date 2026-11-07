@@ -1,0 +1,61 @@
+{
+  "vendor": "perle",
+  "model": "IOLAN SDS8",
+  "label": "Perle IOLAN SDS8 secure device server",
+  "category": "host",
+  "description": "1RU secure serial-to-Ethernet device/terminal server with 8 RJ45 serial ports (software-selectable RS-232/422/485) and one 10/100/1000 Ethernet port; doubles as a console server for 8 console ports.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial2",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial3",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial4",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial5",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial6",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial7",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial8",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

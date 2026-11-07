@@ -1,0 +1,48 @@
+{
+  "vendor": "nokia",
+  "model": "7360 ISAM FX-4",
+  "label": "7360 ISAM FX-4 OLT",
+  "category": "olt",
+  "description": "Nokia 7360 ISAM FX-4 access node/OLT: 5RU shelf with 4 line-termination (LT) slots and 2 NT controller slots on a 2x 100G/slot backplane, 64 GPON ports at 16 ports/slot and ready for XGS-PON/TWDM-PON line cards. This spec models one 16-port GPON LT card in slot 1 (1/1/1-16) plus the four configurable 10G/1G SFP+ network links on the FANT-F controller (1/9/1-4).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "1/9/1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "1/9/4",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

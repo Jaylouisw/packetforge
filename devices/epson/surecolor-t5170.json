@@ -1,0 +1,23 @@
+{
+  "vendor": "epson",
+  "model": "SureColor T5170",
+  "label": "SureColor T5170 36-inch large-format printer",
+  "category": "printer",
+  "description": "36-inch wide-format pigment-ink plotter producing an A1/D-size print in 31 seconds, networked over Gigabit Ethernet (1000Base-T/100Base-TX/10Base-T) plus 802.11b/g/n Wi-Fi and Wi-Fi Direct.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "vendor": "raritan",
+  "model": "Dominion KX III KX3-864",
+  "label": "Raritan Dominion KX III KX3-864 KVM-over-IP switch",
+  "category": "host",
+  "description": "2RU KVM-over-IP switch for up to 64 servers over UTP cabling with 8 simultaneous remote users, dual 10/100/1000 Ethernet access and a DB9 RS-232 modem/serial port.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

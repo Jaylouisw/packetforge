@@ -1,0 +1,28 @@
+{
+  "vendor": "fairphone",
+  "model": "Fairphone 5",
+  "label": "Fairphone 5 smartphone",
+  "category": "phone",
+  "description": "Repairable QCM6490 phone with a 5G modem (up to 2.3 Gbps) and Wi-Fi 6E (802.11ax) on 2.4, 5 and 6 GHz, 2x2 MIMO.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

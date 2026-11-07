@@ -1,0 +1,36 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT241",
+  "label": "Teltonika RUT241 industrial 4G/LTE IoT router",
+  "category": "iot",
+  "description": "Teltonika RUT241 is a compact DIN-rail industrial 4G LTE Cat 4 router for IoT/M2M and remote-site gateways, running RutOS (OpenWrt) with firewall, NAT, VLANs, IPsec/OpenVPN, MQTT and RMS remote management. It has a real two-port Ethernet switch side: 1x WAN and 1x LAN, both 10/100 Mbps RJ45, plus a 2.4 GHz 802.11 b/g/n access point; the cellular link is LTE, not WiFi, and is described here rather than modelled as an 802.11 interface.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

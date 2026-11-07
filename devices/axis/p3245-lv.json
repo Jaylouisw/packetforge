@@ -1,0 +1,19 @@
+{
+  "vendor": "axis",
+  "model": "P3245-LV",
+  "label": "P3245-LV 1080p fixed dome camera",
+  "category": "camera",
+  "description": "HDTV 1080p (2 MP, 1920x1080) indoor fixed dome with a 3.4-8.9 mm varifocal lens, Forensic WDR and OptimizedIR. One RJ45 10/100 port, powered only by PoE 802.3af/802.3at Type 1 Class 3 (10.7 W max).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

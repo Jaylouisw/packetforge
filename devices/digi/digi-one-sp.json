@@ -1,0 +1,25 @@
+{
+  "vendor": "digi",
+  "model": "Digi One SP",
+  "label": "Digi One SP serial-to-Ethernet device server",
+  "category": "host",
+  "description": "Compact single-port serial server: one DB9M RS-232/422/485 port bridged to a 10/100Base-T Ethernet port - the classic one-console-port-to-Ethernet adapter.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

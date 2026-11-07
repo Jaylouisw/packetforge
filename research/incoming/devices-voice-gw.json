@@ -1,0 +1,246 @@
+{
+  "devices": [
+    {
+      "vendor": "grandstream",
+      "model": "HT814",
+      "label": "HT814 4-port FXS ATA",
+      "category": "modem",
+      "description": "Analog telephone adapter with 4 RJ-11 FXS ports driven by 2 SIP profiles, sitting behind an integrated gigabit NAT router fed by two 10/100/1000 RJ-45 ports wired as a WAN/LAN pair.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server",
+        "nat",
+        "firewall",
+        "l3-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/datasheet_ht814_english.pdf",
+      "notes": "Datasheet interfaces: four (4) RJ-11 FXS ports, two (2) 10/100/1000 Mbps RJ-45 ports. The four FXS lines are analog telephony and are not modelled as interfaces; only the WAN/LAN pair is. The LAN side is a switched NAT router, hence dhcp-server/nat/firewall on top of the voice stack. T.38 fax relay, G.711/G.722/G.723.1/G.729A/B/G.726-32, TLS/SRTP, TR-069 and XML provisioning, 3-way conferencing per port."
+    },
+    {
+      "vendor": "grandstream",
+      "model": "GXW4216",
+      "label": "GXW4216 16-port FXS gateway",
+      "category": "modem",
+      "description": "High-density analog VoIP gateway with 16 RJ-11 FXS ports (plus a 50-pin Telco connector on the same lines) and a single 10/100/1000 auto-sensing RJ-45 network port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://documentation.grandstream.com/knowledge-base/gxw4200-series-user-manual/",
+      "notes": "Grandstream GXW4200 series manual, hardware specification table: network interface is a single LAN 10/100/1000BASE-TX RJ-45 (the GXW4216 v2 datasheet likewise lists 1 x 10M/100M/1000M auto-sensing RJ45), while the telephone interface is 16 FXS ports. Some Grandstream FAQ text claims dual gigabit ports for the series, but the datasheet and hardware spec say one, so only one interface is modelled. 16 FXS ports are analog-only and deliberately absent from interfaces. Supports Opus/iLBC/G.722 HD voice, T.38 fax, 802.1P/Q VLAN tagging, LLDP, TR-069."
+    },
+    {
+      "vendor": "cisco",
+      "model": "ATA 191",
+      "label": "ATA 191 2-port analog telephone adapter",
+      "category": "modem",
+      "description": "Two-port handset-to-Ethernet adapter with 2 RJ-11 FXS ports, each an independent SIP registration, and one 10/100BASE-T RJ-45 network port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/unified-communications/ata-190-series-analog-telephone-adapters/datasheet-c78-740013.html",
+      "notes": "Datasheet hardware: two RJ-11 FXS ports, one 10/100 Mbps RJ-45 Ethernet port; admin guide calls it an RJ-45 10/100BASE-T WAN port with autonegotiation, no gigabit. Each FXS port has its own MAC address but is analog telephony, so it is not modelled. SLIC drives 3 REN ring load, 40-90 Vpk ring voltage. IPv4 only on the 191 (the 192 adds IPv6). 802.1p/Q, DiffServ, CDP, LLDP, SNTP, 5 VDC power (no PoE)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "VG310",
+      "label": "VG310 24-port FXS voice gateway",
+      "category": "modem",
+      "description": "1U Cisco IOS-based analog voice gateway with 24 FXS voice ports presented on an RJ-21 connector, two 10/100/1000BASE-T gigabit Ethernet ports and one EHWIC slot for PSTN or WAN uplinks.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "ge0/0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge0/1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/access/vg310_vg320/hardware/installation/guide/bm_vg310_vg_320_voice/bm_vg310_vg_320_voice_chapter_01.html",
+      "notes": "Cisco hardware installation guide: chassis provides two 10/100/1000BASE-T gigabit Ethernet ports, an EHWIC slot plus VIC/VWIC slots, external compact flash, AC and DC power inputs on the VG310. The 24 FXS ports (RJ-21) are analog and not modelled; the VG320 is the 48-port sibling. Runs Cisco IOS with CLI/SNMPv3, PVDM3 DSP for transcoding and conferencing, T.38 fax, SRTP/TLS. The EHWIC/VIC slots are empty by default and cannot be modelled as fixed ports."
+    },
+    {
+      "vendor": "audiocodes",
+      "model": "Mediant 1000B",
+      "label": "Mediant 1000B modular voice gateway / eSBC",
+      "category": "modem",
+      "description": "Modular 19-inch voice gateway and eSBC whose six telephony slots take 4-port FXS, FXO or BRI modules (up to 24 FXS, 24 FXO or 20 BRI ports) alongside three 10/100/1000BASE-T LAN ports on the CRMX module, expandable to seven with SWX LAN expansion modules.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "ge0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.audiocodes.com/media/12700/ltrt-41441-mediant-1000b-gateway-and-e-sbc-hardware-installation-manual.pdf",
+      "notes": "AudioCodes hardware installation manual (LTRT-41441): up to six FXS modules of four RJ-11 ports each (24 FXS), up to six FXO modules of four ports (24 FXO), up to five BRI modules of four BRI ports each; the telephony mix depends on the ordered configuration. Up to seven LAN Ethernet interfaces - three on the CRMX module plus the SWX LAN expansion modules - which can be paired into Ethernet Groups for 1+1 port redundancy. Only the three on-board CRMX gigabit ports are modelled as fixed. E1/T1 PRI trunks are optional modules and are not modelled as Ethernet."
+    },
+    {
+      "vendor": "sangoma",
+      "model": "Vega 60G",
+      "label": "Vega 60G analog/BRI VoIP gateway",
+      "category": "modem",
+      "description": "Compact standalone analog VoIP gateway available with 2, 4 or 8 RJ-11 FXS ports (also 4/8 FXO, 4 FXO + 4 FXS, or 2/4 BRI variants), connected to the LAN by a single 10/100/1000BASE-T RJ-45 port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://sangoma.com/wp-content/uploads/Vega-60G-Gateway-Datasheet-10-1-25.pdf",
+      "notes": "Datasheet LAN interfaces: 1 x RJ-45 gigabit Ethernet 1000BaseT. Port mix is an ordering option - 2/4/8 FXS, 4/8 FXO, 4 FXO + 4 FXS, or 2 BRI (4 calls) / 4 BRI (8 calls) with each BRI interface configurable as network or terminal side. This spec models the FXS variant (up to 8 analog ports); the analog and BRI ports are not Ethernet interfaces. Managed via web GUI, no local CLI. Sangoma knowledge base notes only the 4- and 8-FXS variants had shipped at time of writing."
+    },
+    {
+      "vendor": "patton",
+      "model": "SmartNode SN4141E",
+      "label": "SmartNode SN4141E VoIP gateway",
+      "category": "modem",
+      "description": "Ruggedized DIN-rail SmartNode gateway with 4 RJ-11 FXS ports (also offered as 2 FXS + 2 FXO, or 8 FXS) and one 10/100/1000BASE-T gigabit Ethernet port for the IP side.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.patton.com/voip-gateway/sn4140e/",
+      "notes": "Patton ordering table: SN4141E/4JS4V/DC is 4 FXS, 4 VoIP calls, 1x Gig Ethernet; the /2JS2V/DC, /4JS4JO8V/DC and /8JS8V/DC variants also carry 1x Gig Ethernet, while the /2ETH... SKUs add a second gigabit port. This spec models the 4 FXS / 1x Gig Ethernet build. FXS/FXO ports are analog telephony and not modelled. Powered by 12-48 VDC terminal block (no PoE), eSBC upgradeable to 200 SIP calls, T.38 fax, SIP-TLS/SRTP optional, managed by web GUI, SNMP and CLI."
+    },
+    {
+      "vendor": "portech",
+      "model": "MV-372",
+      "label": "MV-372 2-channel GSM VoIP gateway",
+      "category": "modem",
+      "description": "SIP-to-GSM gateway with 2 GSM channels (2 SIMs, 1 antenna) for VoIP-to-mobile and mobile-to-VoIP calls, no analog FXS/FXO ports, and a single 10/100 RJ-45 LAN port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.portech.com.tw/data/mv-372%20user%20manual.pdf",
+      "notes": "PORTech user manual: MV-370 is 1 channel, MV-372 is 2 channels; 2 SIM slots, one antenna connector, one LAN RJ-45 (10/100BaseT, no gigabit). No FXS or FXO ports at all - the PSTN side is the cellular radio, so this box is 1 Ethernet port and nothing else. SIP based (RFC3261) and Asterisk-compatible; call termination and origination, 50 mobile-to-LAN and 50 LAN-to-mobile route entries. The radio is a GSM voice modem, not a wireless data interface, so no 'wireless' capability."
+    },
+    {
+      "vendor": "poly",
+      "model": "OBi302",
+      "label": "OBi302 2-port FXS ATA",
+      "category": "modem",
+      "description": "Small-office analog telephone adapter with 2 RJ-11 FXS ports registering up to 4 SIP/OBiTALK services, connected through two 10/100BASE-T Ethernet ports (Internet plus a LAN passthrough).",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.poly.com/us/en/products/phones/obi/obi302",
+      "notes": "Included as the verified stand-in for the Yealink SIP-T31P in the request: the T31P is a 2-line entry-level desk IP phone (132x64 LCD, PoE, 2 VoIP accounts), not a gateway or ATA, so it cannot be specced in this batch. Poly OBi302 spec sheet: Internet (WAN) 2 x 10/100BaseT Ethernet, Phone 2 x RJ-11 FXS, plus a USB 2.0 port that is not modelled. No gigabit, no PoE (USB power or adapter). FXS ports are analog and not modelled."
+    },
+    {
+      "vendor": "yeastar",
+      "model": "TB200",
+      "label": "TB200 2-port BRI VoIP gateway",
+      "category": "modem",
+      "description": "BRI gateway with 2 ISDN BRI ports (4 B-channels) that bridges ISDN BRI lines to SIP, with no analog FXS/FXO ports and a single 10/100 Mbps LAN port.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.yeastar.com/bri-voip-gateway/",
+      "notes": "Yeastar TB series spec table: TB200 = 2 BRI ports, LAN = 1 x 10/100 Mbps (the TB400 doubles BRI to 4; neither has gigabit). BRI ports are RJ-45 physically but carry ISDN S0/T0 telephony, not Ethernet, so they are excluded from interfaces - this device therefore models exactly one network port. SIP over UDP/TCP/TLS/SRTP, G.711/G.722/G.726/G.729A/GSM/ADPCM, RFC2833/SIP INFO/in-band DTMF, DHCP/DDNS/firewall/static route."
+    }
+  ]
+}

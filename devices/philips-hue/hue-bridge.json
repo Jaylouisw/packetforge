@@ -1,0 +1,18 @@
+{
+  "vendor": "philips-hue",
+  "model": "Hue Bridge",
+  "label": "Philips Hue Bridge smart lighting hub",
+  "category": "iot",
+  "description": "The Hue Bridge is the Zigbee hub for Hue bulbs, sensors and cameras (up to 50 lights and 12 accessories), exposing a local HTTPS/REST API and Matter bridging to the LAN. It is wired-only on the network side: a single 100M Ethernet port to the router (Hue's setup guide requires a free LAN port and the bundled Ethernet cable) and no WiFi radio at all - the 2.4 GHz link it runs is Zigbee to the bulbs, which is not an IP interface.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

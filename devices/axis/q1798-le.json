@@ -1,0 +1,19 @@
+{
+  "vendor": "axis",
+  "model": "Q1798-LE",
+  "label": "Q1798-LE 4K/10 MP box camera",
+  "category": "camera",
+  "description": "4K / 10 MP (3712x2784) box camera on a 4/3-inch sensor with a 12-48 mm Canon lens and 4x optical zoom. One shielded RJ45 10/100/1000 port, powered by PoE 802.3at Type 2 Class 4 (24 W max).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

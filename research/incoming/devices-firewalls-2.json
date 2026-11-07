@@ -1,0 +1,1125 @@
+[
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 90G",
+    "label": "FortiGate 90G firewall",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 90G - branch NGFW (2.5 Gbps NGFW / 2.2 Gbps threat protection): 8x GE RJ45 internal ports plus 2 shared 'WAN1/WAN2' combo positions that accept either 2.5G RJ45 or 10G SFP+. WAN = wan1/wan2 on copper or sfp1/sfp2 on fiber (same positions, shared media).",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "comboWith": "sfp1",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "comboWith": "sfp2",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ],
+        "comboWith": "wan1",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ],
+        "comboWith": "wan2",
+        "comboRole": "sfp"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-90g-series.pdf"
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiGate 200G",
+    "label": "FortiGate 200G firewall",
+    "category": "firewall",
+    "description": "Fortinet FortiGate 200G - campus/edge NGFW (7 Gbps NGFW / 6 Gbps threat protection): 8x GE RJ45 + 8x 5G/2.5G/1G RJ45 + 8x 10G SFP+ FortiLink slots + 4x GE SFP slots, plus dedicated MGMT and HA copper ports. No fixed WAN silk-screen: wan1/wan2 are assigned in FortiOS, normally to port1/port2 (or any port/SFP).",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "x1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x7",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "x8",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.boll.ch/datasheets/fortigate-200g-series.pdf"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-1420",
+    "label": "Palo Alto PA-1420 firewall",
+    "category": "firewall",
+    "description": "Palo Alto Networks PA-1420 - branch-class ML-powered NGFW: 12x copper (4x 1G + 8x 1G/2.5G/5G, four of them PoE) + 2x 1G SFP + 8x 1G/10G SFP/SFP+ + dedicated HSCI 10G HA port and 1G management. WAN is any ethernet1/x port (typically ethernet1/1-1/4 copper or the SFP+ ports 1/15-1/22).",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "ethernet1/5",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/6",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/7",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/8",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/9",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/10",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/11",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ethernet1/12",
+        "type": "ethernet",
+        "speed": "5G"
+      },
+      {
+        "name": "ha1-a",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-b",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "management",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "ethernet1/14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "ethernet1/15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "hsci",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/datasheets/pa-1400-series/pa-1400-series.pdf"
+  },
+  {
+    "vendor": "paloalto",
+    "model": "PA-3410",
+    "label": "Palo Alto PA-3410 firewall",
+    "category": "firewall",
+    "description": "Palo Alto Networks PA-3410 - campus/aggregation-class NGFW: 12x 1G/2.5G/5G/10G copper + 10x 1G/10G SFP/SFP+ + 4x 25G SFP28, plus dedicated HSCI 10G HA port, 1G management and a/b HA copper ports. WAN is any ethernet1/x (commonly the copper 1/1-1/4 or the SFP+/SFP28 uplinks 1/13-1/26).",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "ethernet1/",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    "interfaces": [
+      {
+        "name": "ha1-a",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ha1-b",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "management",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "ethernet1/13",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/14",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/15",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/20",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/21",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/22",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "ethernet1/23",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "ethernet1/24",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "ethernet1/25",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "ethernet1/26",
+        "type": "ethernet",
+        "speed": "25G",
+        "connector": "sfp28",
+        "speedCaps": [
+          10000,
+          25000
+        ]
+      },
+      {
+        "name": "hsci",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/datasheets/pa-3400/pa-3400-series.pdf"
+  },
+  {
+    "vendor": "sophos",
+    "model": "XGS 2100",
+    "label": "Sophos XGS 2100 firewall",
+    "category": "firewall",
+    "description": "Sophos XGS 2100 - branch/edge NGFW: 8x GbE RJ45 (Port1/Port2 are a hardware bypass pair) + 2x 1G SFP fiber ports F1/F2 + 1x GbE MGMT, with one expansion bay. Any copper port can be zoned as WAN; F1/F2 are 1G fiber WAN/uplink options.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "Port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "MGMT",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "F1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "F2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://docs.sophos.com/nsg/hardware/operatinginstructions/xgs/sophos-operating-instructions-xgs-2100-2300-3100-3300.pdf"
+  },
+  {
+    "vendor": "checkpoint",
+    "model": "Quantum 3600",
+    "label": "Check Point Quantum 3600 firewall",
+    "category": "firewall",
+    "description": "Check Point Quantum 3600 - small-office/desktop security gateway (780 Mbps threat prevention, 1.5 Gbps NGFW, 3.3 Gbps firewall): 5x 1GbE RJ45 data ports + 1x 1GbE RJ45 management port; no SFP cages. WAN is any of the 5 copper data ports (typically eth1).",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "eth",
+      "start": 1,
+      "count": 5,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.checkpoint.com/downloads/products/3600-security-gateway-datasheet.pdf"
+  },
+  {
+    "vendor": "watchguard",
+    "model": "Firebox M290",
+    "label": "WatchGuard Firebox M290 firewall",
+    "category": "firewall",
+    "description": "WatchGuard Firebox M290 - mid-range branch firewall: 8x 1GbE RJ45 and no SFP cages as shipped (the open module bay accepts optional 4x1G copper, 4x1G SFP, 2x10G SFP+ or 4-port multispeed modules). Default WAN is eth0, eth1-eth7 are LAN/optional ports.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "eth",
+      "start": 0,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "ZyWALL ATP500",
+    "label": "Zyxel ZyWALL ATP500 firewall",
+    "category": "firewall",
+    "description": "Zyxel ZyWALL ATP500 - SMB ATP/NGFW (2.6 Gbps SPI firewall, 1.7 Gbps IDP): 7x 1G RJ45 configurable LAN/DMZ/WAN/OPT ports + 1x 1G SFP cage, with DB9 console and no dedicated management port. One copper port is the default WAN; SFP1 is the fiber WAN/uplink option.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 7,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.zyxel.com/global/en/products/firewall-ngfw/zywall-atp500/license-and-spec"
+  },
+  {
+    "vendor": "juniper",
+    "model": "SRX380",
+    "label": "Juniper SRX380 firewall",
+    "category": "firewall",
+    "description": "Juniper SRX380 - large-branch/campus services gateway: 16x 1G RJ45 PoE+ ports (ge-0/0/0-15) + 4x 1G/10G SFP/SFP+ ports (xe-0/0/16-19), all MACsec-capable, plus a dedicated 1G MGMT port and 4 Mini-PIM slots. WAN is normally carried on the four SFP/SFP+ ports, LAN on the 16 copper PoE ports.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "ge-0/0/",
+      "start": 0,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "xe-0/0/16",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/0/17",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/0/18",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/0/19",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.juniper.net/documentation/us/en/hardware/srx380/srx380.pdf"
+  },
+  {
+    "vendor": "cisco",
+    "model": "Firepower 2110",
+    "label": "Cisco Firepower 2110 firewall",
+    "category": "firewall",
+    "description": "Cisco Firepower 2110 (FPR-2110) - 1RU branch NGFW for FTD/ASA: 12x 1G RJ45 (Ethernet1/1-1/12) + 4x 1G SFP (Ethernet1/13-1/16) + 1x 1G management, with one network-module slot for 10G/40G or bypass modules. WAN is any Ethernet1/x port - typically Ethernet1/1 on copper or Ethernet1/13 on fiber.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "Ethernet1/13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Ethernet1/14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Ethernet1/15",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Ethernet1/16",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/security/firepower/2100/hw/guide/b_install_guide_2100/overview.html"
+  },
+  {
+    "vendor": "sonicwall",
+    "model": "NSa 4700",
+    "label": "SonicWall NSa 4700 firewall",
+    "category": "firewall",
+    "description": "SonicWall NSa 4700 (Gen 7) - enterprise branch NGFW: 24x 1GbE copper (X0-X23) + 6x 10G/5G/2.5G/1G SFP+ cages + 1x 1GbE MGMT port. Default WAN is X1 and X0 is LAN; the SFP+ cages are normally used for WAN/aggregation uplinks.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "X",
+      "start": 0,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    "interfaces": [
+      {
+        "name": "MGT",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+5",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "SFP+6",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://www.sonicwallonline.co.uk/media/downloads/sonicwall-gen-7-nsa-series-datasheet.pdf"
+  },
+  {
+    "vendor": "netgate",
+    "model": "8200",
+    "label": "Netgate 8200 security gateway",
+    "category": "firewall",
+    "description": "Netgate 8200 - mid-range pfSense Plus security gateway: 4x 2.5G RJ45 LAN, 2x shared WAN combo positions (each is either a 1G RJ45 or a 1G SFP cage) and 2x 10G SFP+ (WAN3/WAN4). WAN1/WAN2 are the combo ports, WAN3/WAN4 the SFP+ ports; all labels are defaults and any port can be reassigned.",
+    "capabilities": [
+      "cli",
+      "dhcp-client",
+      "dhcp-server",
+      "firewall",
+      "http-server",
+      "l3-forward",
+      "nat"
+    ],
+    "portTemplate": {
+      "prefix": "LAN",
+      "start": 1,
+      "count": 4,
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    "interfaces": [
+      {
+        "name": "WAN1",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "WAN1-SFP",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "WAN2",
+        "type": "ethernet",
+        "speed": "1G",
+        "comboWith": "WAN2-SFP",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "WAN1-SFP",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "WAN1",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "WAN2-SFP",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "sfp",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "WAN2",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "WAN3",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "WAN4",
+        "type": "ethernet",
+        "speed": "10G",
+        "connector": "sfp+",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "icon": "firewall",
+    "color": "#ef4444",
+    "sourceUrl": "https://docs.netgate.com/pfsense/en/latest/solutions/netgate-8200/io-ports.html"
+  }
+]

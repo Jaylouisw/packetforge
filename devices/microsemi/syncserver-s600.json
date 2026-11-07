@@ -1,0 +1,35 @@
+{
+  "vendor": "microsemi",
+  "model": "SyncServer S600",
+  "label": "SyncServer S600 GNSS NTP/PTP server",
+  "category": "host",
+  "description": "1U enterprise Stratum-1 time server that disciplines from a multi-constellation GNSS receiver (GPS/GLONASS/BeiDou/Galileo) with TCXO, OCXO or rubidium holdover, and handles more than 10,000 hardware-timestamped NTP requests per second. Four isolated 100/1000BASE-T RJ45 LAN ports as standard; the GNSS antenna input, 1PPS output and DB9 console/timing serial ports are not Ethernet, and two 10GbE SFP+ ports are an option module.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

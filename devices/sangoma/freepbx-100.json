@@ -1,0 +1,30 @@
+{
+  "vendor": "sangoma",
+  "model": "FreePBX 100",
+  "label": "FreePBX 100 appliance",
+  "category": "phone",
+  "description": "Sangoma FreePBX 100 purpose-built 1U PBX appliance running the FreePBX Distro, sized for 100 users / 60 concurrent calls, with three Gigabit RJ45 network ports plus a serial console. Mains powered, no PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

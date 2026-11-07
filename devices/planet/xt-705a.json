@@ -1,0 +1,29 @@
+{
+  "vendor": "planet",
+  "model": "XT-705A",
+  "label": "XT-705A 10G copper to SFP+ media converter",
+  "category": "switch",
+  "description": "10G media converter with one 100M/1G/2.5G/5G/10G auto-negotiating RJ45 port and one 10GBASE-X SFP+ slot. The cage is 10G only (10GBASE-SR/LR, up to 300 m multimode or 60 km single-mode), so multi-gig copper can be carried onto fibre without a 10G switch.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

@@ -1,0 +1,24 @@
+{
+  "vendor": "snom",
+  "model": "D785",
+  "label": "D785 IP phone",
+  "category": "phone",
+  "description": "Snom D785 Linux-based desk phone with a dual display (main colour plus SmartDisplay labels), 12 SIP identities and two Gigabit RJ45 sockets labelled NET and PC. PoE IEEE 802.3af class 3, or the optional 5 V adapter.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

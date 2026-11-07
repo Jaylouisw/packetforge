@@ -1,0 +1,18 @@
+{
+  "vendor": "amazon",
+  "model": "Echo (4th Gen)",
+  "label": "Amazon Echo (4th gen) smart speaker with hub",
+  "category": "iot",
+  "description": "Amazon Echo (4th gen) is a spherical Alexa smart speaker that doubles as a smart-home hub with built-in Zigbee, Thread and Bluetooth Low Energy mesh radios. Network side is WiFi-only: dual-band 802.11 a/b/g/n/ac on 2.4 and 5 GHz, with no Ethernet port anywhere on the device, so it must be associated to an SSID even when it is acting as a Thread border router for Matter devices.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

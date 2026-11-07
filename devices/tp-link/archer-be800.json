@@ -1,0 +1,65 @@
+{
+  "vendor": "tp-link",
+  "model": "Archer BE800",
+  "label": "Archer BE800 BE19000 tri-band Wi-Fi 7 router",
+  "category": "router",
+  "description": "TP-Link Archer BE800 - Wi-Fi 7 BE19000 tri-band router (2.4 GHz 1376 Mbps, 5 GHz 5760 Mbps, 6 GHz 11520 Mbps, 4x4 each) with two 10G WAN/LAN ports, one plain RJ45 and one Ethernet/fibre combo cage, plus four 2.5G LAN ports. The 2.5G ports support 5 Gbps aggregation in pairs.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "10g-wanlan",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10g-combo",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2.5g1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "2.5g2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "2.5g3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "2.5g4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.4G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5.8G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "11.5G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

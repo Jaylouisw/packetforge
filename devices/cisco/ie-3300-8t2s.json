@@ -1,0 +1,65 @@
+{
+  "vendor": "cisco",
+  "model": "IE-3300-8T2S",
+  "label": "Catalyst IE3300 rugged switch",
+  "category": "switch",
+  "description": "DIN-rail or wall-mount ruggedized Layer 2/3 industrial switch with 8 x 10/100/1000 RJ45 copper ports and 2 x 100/1000 SFP uplinks, expandable to 26 Gigabit ports via a media module; -40 to +75 C, IOS-XE with static/RIP routing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

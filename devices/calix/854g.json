@@ -1,0 +1,55 @@
+{
+  "vendor": "calix",
+  "model": "854G",
+  "label": "854G GigaCenter GPON ONT",
+  "category": "ont",
+  "description": "Calix 854G-1 GigaCenter residential GPON gateway with RF video output: 2.5G GPON uplink (SC/APC), four 1GE LAN ports, two POTS lines, dual-band Wi-Fi 5 (2x2 802.11n at 2.4GHz plus 4x4 MU-MIMO 802.11ac at 5GHz, 80MHz/DFS) and TR-069/Compass management for FTTH triple play.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2g",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan5g",
+      "type": "wireless",
+      "speed": "1733M"
+    }
+  ]
+}

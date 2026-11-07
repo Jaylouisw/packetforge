@@ -1,0 +1,37 @@
+{
+  "vendor": "cambium",
+  "model": "PTP 820C",
+  "label": "Cambium PTP 820C",
+  "category": "ptp",
+  "description": "Cambium PTP 820C - all-outdoor licensed 6-38 GHz microwave radio, QPSK to 2048QAM with ACM, up to 2 Gbps in 2+0 configurations; 1x 1G RJ45 traffic port (PoE-capable), 1x 1G SFP and 1x 100M management RJ45.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

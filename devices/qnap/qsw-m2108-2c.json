@@ -1,0 +1,42 @@
+{
+  "vendor": "qnap",
+  "model": "QSW-M2108-2C",
+  "label": "QNAP QSW-M2108-2C",
+  "category": "switch",
+  "description": "QNAP QSW-M2108-2C - 8x 2.5G RJ45 plus 2x 10GbE SFP+/RJ45 combo ports (ports 9-10, one medium per cage, 10G/5G/2.5G/1G/100M on copper). Layer 2 web-managed desktop switch, 80 Gbps.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "2.5G"
+  },
+  "interfaces": [
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "9-sfp",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10-sfp",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#a855f7"
+}

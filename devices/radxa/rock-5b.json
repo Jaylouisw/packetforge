@@ -1,0 +1,21 @@
+{
+  "vendor": "radxa",
+  "model": "ROCK 5B",
+  "label": "Radxa ROCK 5B SBC",
+  "category": "host",
+  "description": "Rockchip RK3588 SBC with a single 2.5GbE port (PoE with an add-on HAT) and an M.2 E-key slot for a Wi-Fi module; the base 5B ships without a radio.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

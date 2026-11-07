@@ -1,0 +1,39 @@
+{
+  "vendor": "oneidentity",
+  "model": "syslog-ng Store Box 3000",
+  "label": "syslog-ng Store Box 3000 log collector",
+  "category": "host",
+  "description": "1U purpose-built log collection appliance running syslog-ng that ingests syslog over UDP/TCP/TLS from network devices and servers, indexes and stores it in a compressed encrypted archive with retention policies, then forwards it onward. Four 1GbE RJ45 data ports carry the external, management, internal and HA roles, with an additional dedicated IPMI LAN port and a serial console.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

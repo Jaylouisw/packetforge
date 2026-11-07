@@ -4,13 +4,57 @@
   "label": "CRS305-1G-4S+IN",
   "category": "switch",
   "description": "MikroTik CRS305-1G-4S+IN — 4x 10G SFP+, 1x 1G RJ45 (ETH/BOOT), compact desktop switch.",
-  "capabilities": ["l2-forward", "l3-forward", "cli"],
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
   "interfaces": [
-    { "name": "ether1", "type": "ethernet", "speed": "1G" },
-    { "name": "sfp-sfpplus1", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus2", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus3", "type": "ethernet", "speed": "10G" },
-    { "name": "sfp-sfpplus4", "type": "ethernet", "speed": "10G" }
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp-sfpplus1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp-sfpplus4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
   ],
   "icon": "switch",
   "color": "#14b8a6"

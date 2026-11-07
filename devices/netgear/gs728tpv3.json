@@ -1,0 +1,45 @@
+{
+  "vendor": "netgear",
+  "model": "GS728TPv3",
+  "label": "Netgear GS728TPv3",
+  "category": "l3-switch",
+  "description": "Netgear GS728TPv3 - 24x 1G RJ45 PoE+ (802.3at, 30 W per port, 190 W budget) plus 4x dedicated 1G SFP uplinks. Smart Cloud switch with IPv4/IPv6 static routing (32 routes), 56 Gbps fabric.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

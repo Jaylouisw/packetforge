@@ -328,42 +328,50 @@
       {
         "name": "port9",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port10",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port11",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port12",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port13",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port14",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port15",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       },
       {
         "name": "port16",
         "type": "ethernet",
-        "speed": "1G"
+        "speed": "1G",
+        "poeOut": 0
       }
     ],
     "poe": {

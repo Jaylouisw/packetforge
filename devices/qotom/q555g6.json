@@ -1,0 +1,50 @@
+{
+  "vendor": "qotom",
+  "model": "Q555G6",
+  "label": "Qotom Q555G6 6-LAN mini PC",
+  "category": "host",
+  "description": "Fanless 6-LAN industrial mini PC on an Intel i5-7200U (Skylake-U) with six Intel I210/I211 gigabit RJ45 ports and no wireless.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

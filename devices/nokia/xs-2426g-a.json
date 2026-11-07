@@ -1,0 +1,55 @@
+{
+  "vendor": "nokia",
+  "model": "XS-2426G-A",
+  "label": "XS-2426G-A XGS-PON ONT",
+  "category": "ont",
+  "description": "Nokia XS-2426G-A indoor XGS-PON gateway (ITU-T G.9807.1, 10G/10G symmetric, SC/APC): four 1GE UNI ports, two POTS ports and dual-band Wi-Fi 6 (2x2 802.11n at 2.4GHz, 2x2 802.11ax at 5GHz) with EasyMesh, managed through OMCI and Nokia AMS.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan2g",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan5g",
+      "type": "wireless",
+      "speed": "1200M"
+    }
+  ]
+}

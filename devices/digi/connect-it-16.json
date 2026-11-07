@@ -1,0 +1,116 @@
+{
+  "vendor": "digi",
+  "model": "Connect IT 16",
+  "label": "Digi Connect IT 16 console access server",
+  "category": "host",
+  "description": "1RU console access server with 16 RJ45 RS-232 serial ports (standard/reversed pinout selectable), a separate RS-232 console port, 2 x 10/100/1000 RJ45 Ethernet and 2 SFP+ cages.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial2",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial3",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial4",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial5",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial6",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial7",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial8",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial9",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial10",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial11",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial12",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial13",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial14",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial15",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial16",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

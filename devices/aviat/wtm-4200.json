@@ -1,0 +1,52 @@
+{
+  "vendor": "aviat",
+  "model": "WTM 4200",
+  "label": "Aviat WTM 4200",
+  "category": "ptp",
+  "description": "Aviat WTM 4200 - all-outdoor licensed 6-42 GHz microwave radio, QPSK to 4096QAM with hitless ACM, up to 2.5 Gbps per link; 2x 1G RJ45 traffic ports (one with 48 VDC PoE) plus 2x SFP cages supporting 1/2.5/10G optics or copper.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#f97316"
+}

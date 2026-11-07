@@ -1,0 +1,24 @@
+{
+  "vendor": "startech",
+  "model": "ET91000SM20",
+  "label": "ET91000SM20 gigabit copper-to-fibre converter (SM LC, 20 km)",
+  "category": "switch",
+  "description": "Gigabit copper-to-fibre converter with one 10/100/1000BASE-T RJ45 port and one SFP cage shipped with a 1000BASE-LX single-mode LC module good for 20 km at 1310 nm. The module is removable, so SX/LX/EX/ZX or a 1000BASE-T SFP can be swapped in instead.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

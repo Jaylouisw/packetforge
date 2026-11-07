@@ -1,0 +1,24 @@
+{
+  "vendor": "tp-link",
+  "model": "FC311A-20",
+  "label": "FC311A-20 gigabit WDM media converter (single fibre, 20 km)",
+  "category": "switch",
+  "description": "Gigabit WDM converter with one 10/100/1000BASE-T RJ45 port and a single-fibre SC port (TX 1310 nm / RX 1550 nm) that reaches 20 km on one single-mode strand. It occupies one core only because the A side transmits on 1310 and receives on 1550, so it must pair with the B-side unit (FC311B-20).",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "scupc1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b"
+}

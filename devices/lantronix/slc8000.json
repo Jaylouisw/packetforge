@@ -1,0 +1,106 @@
+{
+  "vendor": "lantronix",
+  "model": "SLC8000",
+  "label": "SLC8000 modular advanced console manager (16-port)",
+  "category": "host",
+  "description": "Modular 1RU console manager starting at 16 RS-232 RJ45 device ports and expandable to 48 via swappable 8/16-port RS-232 or 16-port USB modules, with dual 1 Gigabit Ethernet ports (bonding supported).",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial2",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial3",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial4",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial5",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial6",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial7",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial8",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial9",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial10",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial11",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial12",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial13",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial14",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial15",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "serial16",
+      "type": "console",
+      "speed": "100M"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

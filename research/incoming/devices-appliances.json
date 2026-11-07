@@ -1,0 +1,150 @@
+{
+  "devices": [
+    {
+      "vendor": "meinberg",
+      "model": "LANTIME M300",
+      "label": "LANTIME M300 NTP time server",
+      "category": "host",
+      "description": "1U rackmount Stratum-1 NTP server that disciplines its clock from a built-in GPS/GLONASS, DCF77, MSF, WWVB or IRIG reference receiver, or from up to seven upstream NTP servers in Stratum-2 mode, and answers NTP/SNTP for the LAN. Two 10/100 RJ45 ports are fitted as standard and the chassis can take up to six, including 1GbE or fibre modules; PPS, 10 MHz and IRIG outputs are BNC and the two RS-232 management ports are D-Sub, so neither is a network port.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "eth1", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://www.meinbergglobal.com/english/archive/lantime-m300.htm",
+      "notes": "Meinberg datasheet: 'Standard: 2 x 10/100 MBit with RJ45 connector'; options add 2 or 4 more 10/100 ports, or 1x 10/100 + 1x/3x 10/100/1000 (1GE/3GE). Max 6 Ethernet ports total. Discontinued and replaced by LANTIME M320, which is the same 2x 10/100 chassis. Management is Web/SSH/Telnet/SNMPv1-3, all over eth0/eth1."
+    },
+    {
+      "vendor": "meinberg",
+      "model": "LANTIME M600",
+      "label": "LANTIME M600 high-end NTP time server",
+      "category": "host",
+      "description": "High-end 1U Stratum-1 NTP server with a 256x64 VFD front panel, disciplining from a GPS/GLONASS satellite receiver or a built-in DCF77/MSF/WWVB radio clock and serving large NTP client populations at high packet rates. Four 10/100 RJ45 ports are standard (ETH0-ETH3), with an option for one 10/100 plus three 10/100/1000 ports; PPS, 10 MHz and the frequency synthesiser are BNC and IRIG/time-code output is BNC.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "eth1", "type": "ethernet", "speed": "100M" },
+        { "name": "eth2", "type": "ethernet", "speed": "100M" },
+        { "name": "eth3", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://www.meinbergglobal.com/english/archive/lantime-m600.htm",
+      "notes": "Meinberg datasheet: 'Network Interface Standard: 4 x 10/100 MBit with RJ45 connector', option '1 x 10/100 MBit and 3 x 10/100/1000 MBit (3GE) with RJ45 jack'. M600 MRS manual labels the rear connectors ETH0-ETH3, 10/100 Mbit RJ45. PTP/IEEE-1588 grandmaster is an option on one port."
+    },
+    {
+      "vendor": "endrun",
+      "model": "Sonoma D22",
+      "label": "Sonoma D22 GPS NTP/PTP time server",
+      "category": "host",
+      "description": "Fourth-generation Stratum-1 network time server that disciplines from its internal GPS receiver (CDMA or a free-running OCXO/TCXO holdover on other variants) and sustains about 7,500 NTP requests per second with sub-10-microsecond timestamping. Two independent 10/100/1000BASE-T RJ45 ports on the rear panel, each optionally running PTP/IEEE-1588; the console interface is USB and the timing outputs are BNC.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://endruntechnologies.com/pdf/Sonoma-NTP-Server_GPS.pdf",
+      "notes": "Datasheet 'Network I/O': two rear-panel RJ-45 jacks, 10/100/1000Base-T Ethernet, ports are independent (separate subnets/isolated networks) and can be licensed for PTP. Sonoma manual lists exactly three interface ports: two Ethernet plus one USB console. 1PPS/10 MHz are BNC."
+    },
+    {
+      "vendor": "microsemi",
+      "model": "SyncServer S600",
+      "label": "SyncServer S600 GNSS NTP/PTP server",
+      "category": "host",
+      "description": "1U enterprise Stratum-1 time server that disciplines from a multi-constellation GNSS receiver (GPS/GLONASS/BeiDou/Galileo) with TCXO, OCXO or rubidium holdover, and handles more than 10,000 hardware-timestamped NTP requests per second. Four isolated 100/1000BASE-T RJ45 LAN ports as standard; the GNSS antenna input, 1PPS output and DB9 console/timing serial ports are not Ethernet, and two 10GbE SFP+ ports are an option module.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" },
+        { "name": "eth2", "type": "ethernet", "speed": "1G" },
+        { "name": "eth3", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://ww1.microchip.com/downloads/aemdocuments/documents/ftd/productdocuments/brochures/syncserver-s600-data-sheet-2903.pdf",
+      "notes": "Rear panel: 'Four RJ-45 100/1000BASE-T Ethernet, speed/duplex: Auto, 100/1000 full'. Each port has its own ACL and its own hardware timestamping; NTP/PTP can be served on all four (six if the 10GbE option is fitted). Console is DB9-F RS-232, GNSS is BNC L1/B1."
+    },
+    {
+      "vendor": "galleon",
+      "model": "NTS-4000",
+      "label": "Galleon NTS-4000 Stratum-1 NTP server",
+      "category": "host",
+      "description": "1U Stratum-1 NTP/SNTP time server (PTPv2 master clock on licensed variants) synchronised from a 32-channel multi-GNSS active antenna or from MSF/DCF77/WWVB radio broadcasts, sized for very large client counts including 100,000 NTP clients. The standard unit ships with two RJ45 10/100BASE-T LAN ports that carry PoE, expandable to six LAN ports; the RS-232 D-Sub ports, 1PPS BNC and the RS-485 antenna inputs are not network ports.",
+      "capabilities": ["host", "cli", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "eth1", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://www.ion.org/ptti/upload/files/1392_NTS-4000.pdf",
+      "notes": "Galleon datasheet: 'Std. version of product incl. 2x LAN (PoE) Ethernet (RJ45) dedicated for NTP/SNTP. Optionally NTS-4000 can be equipped with max. 6x LAN interfaces'. Physical I/O line: '2-6 LAN Ethernet 10/100 Base-T (RJ45), 2x RS232C (D-SUB9), 1PPS (BNC)'. The older NTS-4000-S/-GPS-R single-port variants are configured from a Windows utility and support DHCP or static addressing."
+    },
+    {
+      "vendor": "fortinet",
+      "model": "FortiAuthenticator 300F",
+      "label": "FortiAuthenticator 300F RADIUS/TACACS+ appliance",
+      "category": "host",
+      "description": "1U identity and access appliance that acts as a central RADIUS and TACACS+ AAA server for switches, wireless controllers, VPN and firewalls, backed by local, LDAP/Active Directory or certificate stores plus MFA (FortiToken) and built-in CA services. Four 1GbE RJ45 data ports and an RJ45 console port; there is no switch fabric, each port is just a host interface on the appliance.",
+      "capabilities": ["host", "cli", "http-server"],
+      "interfaces": [
+        { "name": "port1", "type": "ethernet", "speed": "1G" },
+        { "name": "port2", "type": "ethernet", "speed": "1G" },
+        { "name": "port3", "type": "ethernet", "speed": "1G" },
+        { "name": "port4", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAuthenticator.pdf",
+      "notes": "Datasheet hardware table, FAC-300F: '10/100/1000 Interfaces (Copper, RJ-45): 4', SFP interfaces 0 (the 800F/3000F add 2x SFP). QuickStart: 'Ethernet Ports 1 to 4 (RJ45) 1GE network connections' plus a Console (RJ45). Port1 is normally the management port. Management via CLI, DB9 console CLI and HTTPS."
+    },
+    {
+      "vendor": "oneidentity",
+      "model": "syslog-ng Store Box 3000",
+      "label": "syslog-ng Store Box 3000 log collector",
+      "category": "host",
+      "description": "1U purpose-built log collection appliance running syslog-ng that ingests syslog over UDP/TCP/TLS from network devices and servers, indexes and stores it in a compressed encrypted archive with retention policies, then forwards it onward. Four 1GbE RJ45 data ports carry the external, management, internal and HA roles, with an additional dedicated IPMI LAN port and a serial console.",
+      "capabilities": ["host", "cli", "http-server"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "eth1", "type": "ethernet", "speed": "1G" },
+        { "name": "eth2", "type": "ethernet", "speed": "1G" },
+        { "name": "eth3", "type": "ethernet", "speed": "1G" },
+        { "name": "ipmi", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://support-public.cfm.quest.com/75547_SSB_7.4.0_InstallationGuide.pdf",
+      "notes": "Installation guide: 'NIC: 2 x 1GBase-T Ethernet ports via onboard Intel I210-AT' + '4 x 1GBase-T Ethernet ports via Supermicro AOC-SGP-i4', plus 'Dedicated IPMI LAN port'. One Identity port-mapping KB: on the SSB 3000, ports 1-4 map to eth0 (external), eth1 (management), eth2 (internal, unused) and eth3 (HA); the remaining two onboard RJ45 ports are unused. The SSB 3500 adds 2x 10G SFP+."
+    },
+    {
+      "vendor": "apc",
+      "model": "AP9641",
+      "label": "APC Network Management Card 3 (UPS NMC)",
+      "category": "host",
+      "description": "SmartSlot network management card for APC Smart-UPS/SRT units that publishes UPS state, runs battery self-tests and scheduled shutdowns, and exposes SNMP, Modbus TCP and BACnet/IP to a monitoring system. One 10/100/1000BASE-T RJ45 uplink connects it to the network; the two USB-A ports are for firmware/Wi-Fi dongle and the micro-USB port is a local console, so neither is a network port.",
+      "capabilities": ["host", "cli", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://iportal.se.com/Contents/docs/UPS%20NETWORK%20MANAGEMENT%20CARD%203_USER%20GUIDE.PDF",
+      "notes": "User guide (990-91148D-001, covers AP9640/AP9641/AP9643): front panel item 4 is a '10/100/1000 Base-T connector - Connects the NMC to the Ethernet network', link LED marked 'Link-RX/TX (10/100/1000)', and speed can be forced to 10 or 100 Mbps half/full duplex. Two Universal I/O ports take AP9335T/AP9335TH temperature and humidity sensors or the AP9810 dry-contact accessory. Same card minus USB/UIO is the AP9640."
+    },
+    {
+      "vendor": "apc",
+      "model": "AP8959",
+      "label": "APC Rack PDU 2G Switched 20A/208V (21xC13 3xC19)",
+      "category": "host",
+      "description": "Zero-U switched rack PDU with 21x C13 and 3x C19 outlets on a 20A/208V (16A/230V) C20 input, giving per-outlet power switching plus branch and total current metering for a rack. One 10/100BASE-T RJ45 network port provides Web, SNMP and Telnet management, and network port sharing lets up to four 8000-series PDUs be managed behind one IP address; the DB9/RJ12 serial port is configuration only.",
+      "capabilities": ["host", "cli", "http-server"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://www.se.com/us/en/product/AP8959/rack-pdu-2g-switched-20a-208v-16a-230v-21-c13-3-c19/",
+      "notes": "APC rack PDU family spec: '9000 series PDUs provide Gigabit Ethernet... All other models provide 10/100 ethernet connectivity' - the AP8959 is an 8000-series unit, hence Fast Ethernet. Network port sharing chains up to 4 PDUs on 8000 series (32 on 9000 series) over the RJ45 link port, which is a PDU-to-PDU bus and not an Ethernet segment. Discontinued Nov 2024."
+    },
+    {
+      "vendor": "apc",
+      "model": "NetBotz NBRK0250A",
+      "label": "NetBotz Rack Monitor 250 environmental monitor",
+      "category": "host",
+      "description": "1U rack environmental and access-control appliance that polls wired and Zigbee wireless APC sensors for temperature, humidity, spot/rope leak, smoke, vibration and door state, and raises SNMP traps, syslog and email alerts. A single 10/100BASE-T RJ45 public LAN port faces the network; the six RJ45 ports on the unit are APC Universal Sensor (A-Link) ports, not Ethernet.",
+      "capabilities": ["host", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://www.se.com/us/en/product/NBRK0250A/rack-mount-security-and-environmental-appliance-netbotz-250a/",
+      "notes": "NetBotz family brochure connector row for NBRK0250A: '(1) 10/100 Base-T Public LAN, (6) APC Universal Sensor, (2) Access Control Handles, (2) Door Contact, ... (1) Mini-USB Console Port'; protocols A-Link, DHCP, DNS, HTTPS, SMTP, SNMP v1/v3, SSHv2, TCP/IP, TLS 1.2. Supports 42 wired / 47 wireless sensors. The 750-series (NBRK0750, NBWL0755/0756) is the Gigabit variant."
+    }
+  ]
+}

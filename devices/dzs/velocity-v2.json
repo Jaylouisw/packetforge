@@ -1,0 +1,43 @@
+{
+  "vendor": "dzs",
+  "model": "Velocity V2",
+  "label": "Velocity V2 OLT",
+  "category": "olt",
+  "description": "DZS Velocity V2 compact chassis OLT (2RU, ETSI EN 300 hardened): 2 multi-service subscriber slots plus 2 management/network-facing slots, scaling to 32 GPON/XGS-PON ports. This spec counts one V2-LC-NGPC16-5 any-PON service card - 16 SFP+ ports (gpon1/1-16) that each run GPON, XGS-PON or combo PON - together with that card's 2x 100GE QSFP28 on-board uplinks and 1 management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfp1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

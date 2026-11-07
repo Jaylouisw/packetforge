@@ -1,0 +1,24 @@
+{
+  "vendor": "roku",
+  "model": "Ultra",
+  "label": "Roku Ultra 4K streaming player",
+  "category": "iot",
+  "description": "Roku Ultra is a 4K HDR streaming player with Wi-Fi 6 and a wired option, controlled locally through the Roku ECP HTTP API on port 8060. It is the rare streaming box with a real port: 10/100 Base-T Ethernet on the back plus dual-band 802.11ax WiFi 6 (2.4/5 GHz), so a lab can wire it when WiFi is deliberately broken; its USB 3.0 port is storage, not networking.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ]
+}

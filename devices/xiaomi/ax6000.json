@@ -1,0 +1,50 @@
+{
+  "vendor": "xiaomi",
+  "model": "AX6000",
+  "label": "Router AX6000 (Mi AX6000) dual-band router",
+  "category": "router",
+  "description": "Xiaomi Router AX6000 - Wi-Fi 6 AX6000 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 4804 Mbps 4x4) with one 2.5GbE adaptive WAN/LAN port and three 1G LAN ports. Four wired ports in total, and only the first one is multi-gig.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "2.5g-wanlan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

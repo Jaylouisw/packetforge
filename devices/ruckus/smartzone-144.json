@@ -1,0 +1,58 @@
+{
+  "vendor": "ruckus",
+  "model": "SmartZone 144",
+  "label": "RUCKUS SmartZone 144 (SZ144) controller",
+  "category": "host",
+  "description": "1RU SmartZone WLAN controller managing up to 2,000 RUCKUS APs (6,000 in a 3+1 active-active cluster) with built-in DHCP and NAT services. Four 1GbE ports and four 10GbE ports for control/data traffic; no radios.",
+  "capabilities": [
+    "cli",
+    "dhcp-server",
+    "host",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

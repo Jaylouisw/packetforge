@@ -1,0 +1,30 @@
+{
+  "vendor": "yealink",
+  "model": "T54W",
+  "label": "T54W IP phone",
+  "category": "phone",
+  "description": "Yealink SIP-T54W prime business desk phone with a 4.3-inch adjustable colour display, 16 SIP accounts and built-in dual-band Wi-Fi plus Bluetooth, sitting on a dual-port Gigabit Ethernet switch whose second RJ45 is a PC passthrough. Powered by 802.3af PoE class 3 or an optional 5 V adapter.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ]
+}

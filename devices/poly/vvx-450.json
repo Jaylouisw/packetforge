@@ -1,0 +1,24 @@
+{
+  "vendor": "poly",
+  "model": "VVX 450",
+  "label": "VVX 450 IP phone",
+  "category": "phone",
+  "description": "Polycom VVX 450 12-line business media desk phone with a 4.3-inch colour display and a two-port 10/100/1000 switch wired as LAN plus PC passthrough. PoE 802.3af class 0 at up to 13 W, or the optional 5 V DC adapter.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

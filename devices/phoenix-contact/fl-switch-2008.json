@@ -1,0 +1,55 @@
+{
+  "vendor": "phoenix-contact",
+  "model": "FL SWITCH 2008",
+  "label": "FL SWITCH 2008 managed switch",
+  "category": "switch",
+  "description": "Managed Switch 2000 series DIN-rail switch (2702324) with 8 x 10/100 Mbps RJ45 ports, IP20 metal housing, 18-32 VDC supply; 0 to 60 C ambient, PROFINET Conformance Class A, IEC 62443-4-2 certified.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

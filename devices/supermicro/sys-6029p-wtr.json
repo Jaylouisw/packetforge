@@ -1,0 +1,29 @@
+{
+  "vendor": "supermicro",
+  "model": "SYS-6029P-WTR",
+  "label": "SuperServer 6029P-WTR 2U rack server",
+  "category": "server",
+  "description": "2U dual-socket WIO rack server with 2x 1GbE RJ45 LAN ports from the Intel C621 chipset and a separate dedicated RJ45 IPMI 2.0 port; the six PCIe 3.0 slots are free for 10G/25G add-in cards.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "IPMI",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

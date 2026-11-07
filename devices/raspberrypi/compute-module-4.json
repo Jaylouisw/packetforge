@@ -1,0 +1,27 @@
+{
+  "vendor": "raspberrypi",
+  "model": "Compute Module 4",
+  "label": "Raspberry Pi Compute Module 4",
+  "category": "host",
+  "description": "SO-DIMM-format BCM2711 module whose gigabit MAC/PHY and optional dual-band 802.11ac radio are only usable through a carrier board that exposes the RJ45 and antenna connectors.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

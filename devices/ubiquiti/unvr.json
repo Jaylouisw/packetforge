@@ -1,0 +1,30 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UNVR",
+  "label": "UniFi Protect Network Video Recorder",
+  "category": "nvr",
+  "description": "1U UniFi Protect recorder with one 10/100/1000 RJ45 port and one 1/10G SFP+ uplink. It has no PoE outputs at all, so every camera must be powered from a separate PoE switch.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ]
+}

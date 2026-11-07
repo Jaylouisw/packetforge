@@ -1,0 +1,455 @@
+[
+  {
+    "vendor": "ruckus",
+    "model": "R550",
+    "label": "RUCKUS R550",
+    "category": "wireless",
+    "description": "Dual-band Wi-Fi 6 (802.11ax) 2x2:2 indoor AP for medium-density offices and classrooms, with BeamFlex+ adaptive antennas and onboard BLE/Zigbee. Two 1GbE ports (the uplink is 1G, not 2.5G) and two radios: 2.4 GHz and 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r550/ds-commscope-r550.html",
+    "notes": "802.3at PoE+ PD. The datasheet power table is explicit: on 802.3at the second Ethernet port, onboard IoT and USB are disabled. No USB port modelled."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "R650",
+    "label": "RUCKUS R650",
+    "category": "wireless",
+    "description": "Dual-band Wi-Fi 6 (802.11ax) indoor AP with 4x4:4 in 5 GHz and 2x2:2 in 2.4 GHz, BeamFlex+ adaptive antennas and onboard BLE/Zigbee. One 2.5GbE port plus one 1GbE port, and two radios: 2.4 GHz and 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r650/ds-commscope-r650.html",
+    "notes": "802.3at PoE+ PD; the 2.5G port is required to avoid backhaul limiting the 4x4 5 GHz radio. On 802.3at the second Ethernet port and onboard IoT/USB are disabled."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "R760",
+    "label": "RUCKUS R760",
+    "category": "wireless",
+    "description": "Tri-radio Wi-Fi 6E indoor AP with 4x4:4 in 6 GHz, 5 GHz and 2.4 GHz (12 spatial streams) and onboard BLE/Zigbee. One 10GbE PoE-in port plus one 1GbE port, and three radios: 2.4, 5 and 6 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "10G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.8G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r760/ds-commscope-r760.html",
+    "notes": "Full function needs 802.3bt / PoH (uPoE, 36W); on 802.3at 25.5W it runs 10GbE but drops the 1GbE port, USB, IoT and TX power. Modelled at 25.5W as the minimum 802.3at class."
+  },
+  {
+    "vendor": "aruba",
+    "model": "AP-515",
+    "label": "HPE Aruba Networking AP-515",
+    "category": "wireless",
+    "description": "Dual-radio Wi-Fi 6 (802.11ax) campus AP with 4x4:4 MIMO in 5 GHz and 2x2:2 in 2.4 GHz, plus an 802.15.4/Zigbee radio for IoT. E0 is a 2.5GBASE-T HPE Smart Rate PoE-in port and E1 is 10/100/1000BASE-T, with two Wi-Fi radios (2.4 and 5 GHz).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://www.arubanetworks.com/assets/ds/DS_AP510Series.pdf",
+    "notes": "PoE-PD 802.3af/at/bt (class 3 or higher); at/bt runs unrestricted, 802.3af class 3 runs only with IPM restrictions. Doc ID a00058595enw. E1 is a plain 1G data port."
+  },
+  {
+    "vendor": "aruba",
+    "model": "AP-635",
+    "label": "HPE Aruba Networking AP-635",
+    "category": "wireless",
+    "description": "Tri-radio Wi-Fi 6E campus AP with 2x2:2 MIMO in 2.4, 5 and 6 GHz (3.9 Gbps aggregate) and dual 2.5Gbps Ethernet for hitless failover. Both E0 and E1 are 100/1000/2500BASE-T PoE ports, and there are three radios: 2.4, 5 and 6 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "2.5G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.arubanetworks.com/assets/ds/DS_AP630Series.pdf",
+    "notes": "PoE-PD 802.3at/bt (class 4 or higher); either port can be the active PoE source. 802.3af class 3 is not supported. Doc ID a00114648enw."
+  },
+  {
+    "vendor": "cisco-meraki",
+    "model": "MR46",
+    "label": "Cisco Meraki MR46",
+    "category": "wireless",
+    "description": "Cloud-managed dual-radio 802.11ax AP with 4x4:4 on both 2.4 and 5 GHz (2.98 Gbps aggregate), plus dedicated WIDS/WIPS and BLE radios. It has a single 100/1000/2.5GBASE-T RJ45 port with 802.3at PoE-in and two client-serving radios (2.4 and 5 GHz).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://documentation.meraki.com/Wireless/Product_Information/Overviews_and_Datasheets/MR46_Datasheet",
+    "notes": "Only one Ethernet port - no second RJ45 and no USB. The third (WIDS/WIPS + spectrum) and fourth (BLE) radios are management radios, not client-serving bands, so they are not modelled as wireless interfaces. Needs a 2.5G switch port to avoid capping the 4x4 radios."
+  },
+  {
+    "vendor": "cisco-meraki",
+    "model": "MR56",
+    "label": "Cisco Meraki MR56",
+    "category": "wireless",
+    "description": "Cloud-managed high-density dual-band 802.11ax AP with 4x4:4 in 2.4 GHz and 8x8:8 in 5 GHz (5.38 Gbps aggregate). It has a single 100/1000/2.5G/5GBASE-T RJ45 port with 802.3at PoE-in and two client-serving radios (2.4 and 5 GHz).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://documentation.meraki.com/Wireless/Install_and_Get_Started/Installation_Guides/MR56_Installation_Guide",
+    "notes": "Port is 1/2.5/5GBASE-T (802.3bz) - modelled at its 5G maximum; a 2.5G or 1G switch port will cap it. 30W max on 802.3at; the separate WIDS/WIPS and BLE radios are not modelled. Single Ethernet port, no USB."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U6-Pro",
+    "label": "UniFi U6 Pro",
+    "category": "wireless",
+    "description": "Dual-band Wi-Fi 6 ceiling AP with 4x4 MU-MIMO in 5 GHz and 2x2 in 2.4 GHz (4.8 Gbps aggregate). It has one GbE RJ45 port with 802.3af PoE-in and two radios: 2.4 and 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-pro",
+    "notes": "Only 1GbE and only 802.3af (13W max) - the 5 GHz 4x4 radio is hard-capped by the 1G uplink. No second port, no USB port on the AP itself."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U7-Pro",
+    "label": "UniFi U7 Pro",
+    "category": "wireless",
+    "description": "Tri-band Wi-Fi 7 (802.11be) ceiling AP with 2x2 MU-MIMO on 2.4, 5 and 6 GHz (6 spatial streams, up to 5.8 Gbps in 6 GHz). It has one 1/2.5GbE RJ45 port with 802.3at PoE+ and three radios: 2.4, 5 and 6 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "688M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.9G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "5.8G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro",
+    "notes": "PoE+ (802.3at), 21W max consumption. Single 2.5GbE port; 320 MHz channels and the 5.8 Gbps 6 GHz rate are far beyond a 2.5G uplink, so it is backhaul-limited."
+  },
+  {
+    "vendor": "cambium",
+    "model": "XV2-2",
+    "label": "Cambium Networks XV2-2",
+    "category": "wireless",
+    "description": "Dual-radio Wi-Fi 6 (802.11ax) 2x2 indoor enterprise AP managed by XMS-Cloud, cnMaestro or standalone. It has a single 10/100/1000/2500 Mbps RJ45 port with 802.3at PoE-in and two radios: 2.4 and 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.cambiumnetworks.com/wp-content/uploads/2021/03/Cambium_Networks_data_sheet_WiFi-6_XV2-2_AP.pdf",
+    "notes": "21W max, 802.3at PD; on 802.3af (15.4W) it runs only with reduced function. One data port only - the AP's USB 2.0 and 4-pin serial console are not modelled as network interfaces."
+  },
+  {
+    "vendor": "engenius",
+    "model": "EWS377AP",
+    "label": "EnGenius EWS377AP",
+    "category": "wireless",
+    "description": "Dual-radio Wi-Fi 6 (802.11ax) 4x4 indoor AP with OFDMA and MU-MIMO, up to 2400 Mbps in 5 GHz and 1148 Mbps in 2.4 GHz. It has one 10/100/1000/2500 BASE-T RJ45 port with 802.3at PoE-in and two radios: 2.4 and 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "2.5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "sourceUrl": "https://www.engeniustech.com/apac/wp-content/uploads/EWS377AP_11ax_DataSheet_20200901.pdf",
+    "notes": "Single 2.5G PoE port plus a DC jack (DC input is not an Ethernet port). 802.3at or proprietary 54V adapter."
+  },
+  {
+    "vendor": "juniper",
+    "model": "AP45",
+    "label": "Juniper Mist AP45",
+    "category": "wireless",
+    "description": "Flagship tri-band Wi-Fi 6E indoor AP with 4x4:4 on 2.4, 5 and 6 GHz (8.3 Gbps aggregate) plus a dedicated fourth radio for WIDS/WIPS, spectrum analysis and vBLE location. Eth0 is 100/1000/2500/5000BASE-T PoE-PD and Eth1 is 10/100/1000BASE-T, with three client-serving radios (2.4, 5 and 6 GHz).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "5G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "2.4G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://www.juniper.net/us/en/products/access-points/ap45-datasheet.html",
+    "notes": "Eth0 supports 2.5G and 5GBASE-T (802.3bz) - modelled at its 5G maximum. Cloud-only (Mist) management, no local CLI. Eth1 can run a 15.4W PoE-out PSE mode only when Eth0 is fed by 802.3bt; that PSE mode is deliberately not modelled. The 4th radio is a sensor/monitor radio, not a service band."
+  }
+]

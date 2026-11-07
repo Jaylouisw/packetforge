@@ -1,0 +1,18 @@
+{
+  "vendor": "epson",
+  "model": "TM-T88VII",
+  "label": "TM-T88VII thermal receipt printer",
+  "category": "printer",
+  "description": "High-speed 500mm/s 80mm thermal receipt printer with built-in 10/100Base-T/TX Ethernet and USB, where Wi-Fi is only added via an optional USB wireless dongle.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

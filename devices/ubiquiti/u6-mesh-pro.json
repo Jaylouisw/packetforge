@@ -1,0 +1,30 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-Mesh-Pro",
+  "label": "UniFi U6 Mesh Pro",
+  "category": "wireless",
+  "description": "Outdoor Wi-Fi 6 mesh AP, IPX6: 2x2 5 GHz at 2.4 Gbps plus 2x2 2.4 GHz at 573 Mbps, 250+ clients. Two GbE RJ45 ports (GbE uplink, 9 W max from PoE, 42.5-57 V); no SFP and no PoE passthrough.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

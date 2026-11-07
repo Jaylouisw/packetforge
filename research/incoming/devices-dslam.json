@@ -1,0 +1,2652 @@
+{
+  "devices": [
+    {
+      "vendor": "nokia",
+      "model": "7302 ISAM",
+      "label": "7302 ISAM DSLAM (48-port VDSL2 LT)",
+      "category": "olt",
+      "description": "Nokia/Alcatel-Lucent 7302 ISAM 16-slot copper access node. This spec models one 48-line VDSL2 LT line card in slot 1 (ports 1/1/1-48, VDSL2 17a/8b, 100 Mbps class) plus the four GE uplinks carried on the ECNT-C network-termination board (3x GE optical SFP + 1x GE optical/RJ45 combo) = 52 ports. The shelf takes up to 16 LTs and, with a 48b-bonding card, 100+ Mbps per line.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "combo",
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.scribd.com/document/283781374/7302-7330-ISAM-R2-5-Product-Information",
+      "notes": "ECNT-C NT board: four GE links on the front panel, 3x GE optical SFP plus 1x GE optical/electrical selectable. LT cards are 48 lines each (16 LT slots)."
+    },
+    {
+      "vendor": "nokia",
+      "model": "7330 ISAM FTTN",
+      "label": "7330 ISAM FTTN node (48-port VDSL2 LT)",
+      "category": "olt",
+      "description": "Nokia/Alcatel-Lucent 7330 ISAM FTTN, the compact 19-inch 10-slot cabinet/remote variant of the ISAM family. Counted here: one 48-line VDSL2 LT card shared with the 7302 (ports 1/1/1-48, 17a/8b with vectoring and pair bonding) plus the four GE uplinks on the NANT controller (2x GE SFP + 1x GE SFP + 1x GE SFP/RJ45 combo) = 52 ports. The 7330 can subtend up to 24 sealed remote modules.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "combo",
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://carritech.com/products/alcatel-lucent/alcatel-isam-asam/alcatel-7330-isam-2/",
+      "notes": "7330 shelf: up to 10 slots for DSL / P2P fibre / aggregation modules, same ISAM LT cards as the 7302 (48 lines per LT). NANT: 2 SFP user/network/subtending links plus 1 GE optical SFP and 1 switchable GE SFP/RJ45."
+    },
+    {
+      "vendor": "huawei",
+      "model": "MA5600T",
+      "label": "SmartAX MA5600T DSLAM (H805VDMF 48-port VDSL2)",
+      "category": "olt",
+      "description": "Huawei SmartAX MA5600T 16-service-slot all-in-one copper/fibre access platform. Counted here: one H805VDMF 48-port VDSL2-over-POTS board in slot 1 (ports 0/1/0-47, VDSL2 17a/8b, MELT, G.INP, ADSL2+ backwards compatible) plus the SCUN control board's 4x GE optical uplinks (SFP) = 52 ports. An H801X2CS uplink board adds 2x 10GE SFP+ and 64-port VDPD/VDQM boards raise the line side to 64.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "0/1/0",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "ge0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.scribd.com/presentation/520286987/MA5600T-Product-Introduction",
+      "notes": "SCUN provides four GE upstream optical ports (SFP). Board table: 48-channel VDSL2 boards VDJM (over ISDN), VDMF/VCMM (over POTS), VSNL/VSNF splitters."
+    },
+    {
+      "vendor": "huawei",
+      "model": "MA5616",
+      "label": "SmartAX MA5616 mini-DSLAM (H83BCVLE 32-port VDSL2)",
+      "category": "olt",
+      "description": "Huawei SmartAX MA5616 2U multi-dwelling-unit box that doubles as a mini-DSLAM/MSAN. Counted here: one H83BCVLE 32-channel VDSL2 + POTS combo board (ports 0/1/0-31, profiles up to 17a, 600-ohm embedded splitters, vectoring/ SuperVector) plus the 2x GE SFP uplinks on the upstream board = 34 ports. GPON uplink variants swap those two GE cages for 2x GPON.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "0/1/0",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "0/1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "ge0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://router-switch.com/media/upload/product-pdf/huawei-smartax-ma5616-mdu-and-board-datasheet.pdf",
+      "notes": "MA5616 offers two GPON or two GE upstream ports. VDSL2 boards: H83BCVLE 32-ch VDSL2+POTS combo, H835VDGE 16-ch over POTS, H835VDTH 24-ch over ISDN; ADSL2+ boards up to 64-ch (H836ADPE). Subscriber connector is Champ 64-pin."
+    },
+    {
+      "vendor": "zte",
+      "model": "FSAP 9800",
+      "label": "FSAP 9800 IP-DSLAM (48-line VDSL2 card)",
+      "category": "olt",
+      "description": "ZTE FSAP 9800 full-service IP-DSLAM with a total-GE backplane. Counted here: one 48-line VDSL2 card (VINK/VSNV, ports 1-1-1-1 to 1-1-1-48, G.993.2 Annex A/B, 100 Mbps symmetric class) plus the CSC control/switch card's 6x GE uplinks (optical and electrical uplink sub-cards) = 54 ports. The 64-line VNVNA VDSL2 card and four 2xGE Ethernet cards push the shelf higher.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1-1-1-1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1-1-1-48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge4",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge5",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "ge6",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.manualslib.com/manual/1179687/Zte-Fsap-9800.html",
+      "notes": "FSAP 9800: VDSL2 cards of 48 or 64 lines, ADSL2/2+ cards of 32/64 lines. Uplinks: 6x GE on the CSC board (2 sub-cards, electrical/optical mix) and up to 4 Ethernet cards with 2x GE each, i.e. 14 GE maximum; FE/GE/10GE/ATM network interfaces."
+    },
+    {
+      "vendor": "zte",
+      "model": "ZXDSL 9806H",
+      "label": "ZXDSL 9806H mini-DSLAM (24-port ADSL2+ card)",
+      "category": "olt",
+      "description": "ZTE ZXDSL 9806H 2U mini-DSLAM: one control & switching slot plus four line-card slots, 96 ADSL2+ or 64 VDSL2 lines fully loaded. Counted here: one 24-port ADSL2+ over POTS card (ports 1-1-1-1 to 1-1-1-24, 24 Mbps class, Annex A/M) plus the SCCB card's 2x GE uplink/subtending ports = 26 ports. A VDSL2 build uses 16-port VSTDC cards instead.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1-1-1-1",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-2",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-3",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-4",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-5",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-6",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-7",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-8",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-9",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-10",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-11",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-12",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-13",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-14",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-15",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-16",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-17",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-18",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-19",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-20",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-21",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-22",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-23",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1-1-1-24",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.scribd.com/document/300082582/Manual-Hardware-9806H",
+      "notes": "9806H: 4 user slots; 24-port ADSL/ADSL2+ card, 16-port VDSL2 card, 24-port SHDSL card. SCCB control card gives 2x GE/FE electrical/fibre uplink, or 1x GE + 1x GPON/EPON with an uplink subcard."
+    },
+    {
+      "vendor": "calix",
+      "model": "C7",
+      "label": "C7 multiservice access platform (ADSL2-24 card)",
+      "category": "olt",
+      "description": "Calix C7 multiservice access platform with 20 universal line-card slots (up to 2,400 ADSL lines per 7-foot bay). Counted here: one ADSL2-24 plug-in card (ports 1/1-1/24, 24 Mbps ADSL2+/Annex M, G.992.5, ATM PVC per line over rear RJ-21) plus the GE-2p/FE-4p uplink card 2x GE SFP optical + 4x 10/100BaseT = 30 ports. VDSL2 builds use the E3-48C style 48-port combo cards.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/2",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/3",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/4",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/5",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/6",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/7",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/8",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/9",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/10",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/11",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/12",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/13",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/14",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/15",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/16",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/17",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/18",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/19",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/20",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/21",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/22",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/23",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "1/24",
+          "type": "dsl",
+          "speed": "24M"
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "fe1",
+          "type": "ethernet",
+          "speed": "100M",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100
+          ]
+        },
+        {
+          "name": "fe2",
+          "type": "ethernet",
+          "speed": "100M",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100
+          ]
+        },
+        {
+          "name": "fe3",
+          "type": "ethernet",
+          "speed": "100M",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100
+          ]
+        },
+        {
+          "name": "fe4",
+          "type": "ethernet",
+          "speed": "100M",
+          "connector": null,
+          "speedCaps": [
+            10,
+            100
+          ]
+        }
+      ],
+      "sourceUrl": "https://infiniumnet.com/PublicDocs/clxds/C7_ADSL2-24.pdf",
+      "notes": "ADSL2-24: 24 ADSL ports per card, up to 20 cards per 14-inch C7 shelf. Uplinks come from the GE-2p / GE-2p-FE-4p card: 2x GE on front-panel SFPs plus 4x 10/100BaseT through the rear RJ-21 adaptor."
+    },
+    {
+      "vendor": "calix",
+      "model": "E3-48C",
+      "label": "E3-48C sealed ESAN (48 combo VDSL2/POTS)",
+      "category": "olt",
+      "description": "Calix E3-48C sealed Ethernet Service Access Node for pole, pedestal and cabinet FTTN deployments. The sealed unit is itself the fixed line assembly: 48 combo VDSL2/ADSL2+ + POTS subscriber ports (17a/8b with ADSL2+ fallback, bonding and vectoring-capable), plus 2x 10GE/1GE SFP+ and 3x 1GE/2.5GE SFP uplinks = 53 ports. Pairs with B-, C- and E-series shelves; up to two 10GE and four 2.5/1GE feeds per chassis.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "xge1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "xge2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "ge1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "ge3",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.scribd.com/document/800701034/MDU-CALIX-E3-48C",
+      "notes": "E3-48C: 48x combo DSL and POTS ports, two 1GE/2.5GE SFP MSA sockets and two 1GE/10GE SFP+ MSA sockets. The three 1GE cages are 2.5GE-capable (modelled at 1G here because the SFP cage media set tops out at 1000BASE-X)."
+    },
+    {
+      "vendor": "adtran",
+      "model": "Total Access 1148V",
+      "label": "Total Access 1148V vectored VDSL2 node",
+      "category": "olt",
+      "description": "ADTRAN Total Access 1148V sealed, span- or locally-powered vectored VDSL2 FTTC/FTTN node. Counted here: 48 ports of vectored VDSL2 with integrated POTS splitters (17a, 100 Mbps service class, board- and system-level vectoring to 192 ports across four nodes) plus 4x 1/2.5/10GE SFP uplinks = 52 ports. T1/EoDMT bonded-copper backhaul variants exist for reach-limited sites.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "xge1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "xge2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "xge3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "xge4",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://assets.unilogcorp.com/267/ITEM/DOC/ADTRAN_1179779G1_Catalog.pdf",
+      "notes": "1148V: 48 ports vectored VDSL2 + POTS with integrated splitters, 4x 1/2.5/10GE SFP interfaces, ERPS G.8032 ring, non-blocking 10GE switching. The 2.5GE rate is modelled inside the SFP+ cage's 1G/10G capability."
+    },
+    {
+      "vendor": "keymile",
+      "model": "MileGate 2310",
+      "label": "MileGate 2310 subrack (SUV51 48-port VDSL2 card)",
+      "category": "olt",
+      "description": "KEYMILE (now DZS) MileGate 2310 4U subrack: 8 slots, 7 usable for service line cards, 2 for redundant core units, 336 VDSL2 lines fully loaded. Counted here: one MileGate SUV51 48-port VDSL2 over POTS/ISDN line card (ports 1/1/1-48, 8/12/17 MHz profiles, board-level vectoring for all 48 lines, system-level vectoring to 384) plus the 40G core unit's 2x 40GE QSFP+ and 3x 10GE SFP+ uplinks = 53 ports.",
+      "capabilities": [
+        "l2-forward",
+        "l3-forward",
+        "cli",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1/1/1",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/2",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/3",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/4",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/5",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/6",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/7",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/8",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/9",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/10",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/11",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/12",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/13",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/14",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/15",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/16",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/17",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/18",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/19",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/20",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/21",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/22",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/23",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/24",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/25",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/26",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/27",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/28",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/29",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/30",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/31",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/32",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/33",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/34",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/35",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/36",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/37",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/38",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/39",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/40",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/41",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/42",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/43",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/44",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/45",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/46",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/47",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "1/1/48",
+          "type": "dsl",
+          "speed": "100M"
+        },
+        {
+          "name": "xge1",
+          "type": "ethernet",
+          "speed": "40G",
+          "connector": "qsfp+",
+          "speedCaps": [
+            40000
+          ]
+        },
+        {
+          "name": "xge2",
+          "type": "ethernet",
+          "speed": "40G",
+          "connector": "qsfp+",
+          "speedCaps": [
+            40000
+          ]
+        },
+        {
+          "name": "te1",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "te2",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "te3",
+          "type": "ethernet",
+          "speed": "10G",
+          "connector": "sfp+",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        }
+      ],
+      "sourceUrl": "https://zhone.com/wp-content/uploads/MileGate-SUV51_Datasheet.pdf",
+      "notes": "SUV51: 48-port VDSL2 line card, 8/12/17 MHz, board-level vectoring of 48 lines, MELT/DELT/SELT, 1/10 Gbps backplane. MileGate 2310/2510 core unit offers two 40GE (QSFP+) and three 10GE (SFP+) uplinks; 2310 supports up to 336 VDSL2 ports, 2510 up to 960."
+    }
+  ]
+}

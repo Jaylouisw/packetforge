@@ -1,0 +1,84 @@
+{
+  "vendor": "netonix",
+  "model": "WS-12-250-AC",
+  "label": "Netonix WS-12-250-AC WISP Switch",
+  "category": "switch",
+  "description": "Managed WISP PoE switch: 12x 1G RJ45 with per-port passive PoE (24 V/48 V, 1-2 A, current sensing, 250 W total budget) plus 2x 1G SFP uplinks, 14 Gbps non-blocking. AC powered, fan-cooled, -25 to 55 C.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

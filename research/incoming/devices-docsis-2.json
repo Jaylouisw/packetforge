@@ -1,0 +1,240 @@
+{
+  "devices": [
+    {
+      "vendor": "arris",
+      "model": "S33",
+      "label": "SURFboard S33 DOCSIS 3.1 cable modem",
+      "category": "modem",
+      "description": "DOCSIS 3.1 cable modem bonding 32x8 SC-QAM plus 2x2 OFDM/OFDMA channels, presented as one 2.5GBASE-T port and one 1GBASE-T port from a single F-connector coax drop.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "2.5G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.surfboard.com/products/cable-modems/s33/",
+      "notes": "Vendor spec table: 'One 2.5 Gigabit Ethernet Port and One 1 Gigabit Ethernet Port', 2 DS x 2 US OFDM DOCSIS 3.1 channels, 32 x 8 DOCSIS 3.0 bonded channels, 'Built-in Wi-Fi: NO', 'Digital Voice: NO'. RF side carries the DOCSIS 3.1 class (10G), the Ethernet pair stays asymmetric so a 2.5G client can exceed 1 Gbps. Both LAN ports are bridged - one client-side MAC domain, no NAT, no routing."
+    },
+    {
+      "vendor": "arris",
+      "model": "CM8200",
+      "label": "Touchstone CM8200 DOCSIS 3.1 cable modem",
+      "category": "modem",
+      "description": "DOCSIS 3.1 Touchstone modem with 2x192 MHz OFDM downstream and 2x96 MHz OFDMA upstream plus 32x8 SC-QAM fallback, bridged to two Gigabit Ethernet ports.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://amt.com/wp-content/uploads/2023/09/CM8200-Product-specifications.pdf",
+      "notes": "Arris spec sheet: '32x8/2x2 DOCSIS 3.1 Cable Modem', 2x192 MHz OFDM downstream and 2x96 MHz OFDMA upstream, 32x8 SC-QAM at 108-1002 MHz, 'supports 2 Gigabit Ethernet ports for enhanced data throughput', up to 2.5 Gbps of broadband data. Operator-spec model (Cox Gigablast roll-out): no Wi-Fi, no voice ports on this variant."
+    },
+    {
+      "vendor": "netgear",
+      "model": "CM2050V",
+      "label": "NETGEAR Nighthawk CM2050V 2.5 Gbps DOCSIS 3.1 cable telephony modem",
+      "category": "modem",
+      "description": "DOCSIS 3.1 cable modem with 32x8 SC-QAM plus 2 OFDM and 2 OFDMA channels, exposing a single 2.5GBASE-T port; the two RJ11 telephone jacks are FXS voice lines, not data ports.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/cm2050v.pdf",
+      "notes": "Datasheet technical specifications: '32x8 SC-QAM + 2 OFDM & 2 OFDMA', '1 x 2.5G Ethernet Port', 'Two Telephone Ports' that prioritize voice (FXS - deliberately excluded from interfaces, a phone jack is not a data port). One wired data port only, so no bridging decisions to make."
+    },
+    {
+      "vendor": "netgear",
+      "model": "C7000",
+      "label": "NETGEAR Nighthawk AC1900 cable modem router (C7000)",
+      "category": "modem",
+      "description": "Two-in-one DOCSIS 3.0 24x8 cable modem and 4-port gigabit router with dual-band 802.11ac Wi-Fi, all behind one coax F-connector.",
+      "capabilities": ["l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "host", "wireless", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "1G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" },
+        { "name": "lan3", "type": "ethernet", "speed": "1G" },
+        { "name": "lan4", "type": "ethernet", "speed": "1G" },
+        { "name": "wifi24", "type": "wireless", "speed": "600M" },
+        { "name": "wifi5", "type": "wireless", "speed": "1.3G" }
+      ],
+      "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/c7000.pdf",
+      "notes": "Datasheet (C7000v2): '24 downstream & 8 upstream channels' DOCSIS 3.0 bonding (960 Mbps DS class), 'Four (4) 10/100/1000 Mbps (4 LAN) Gigabit Ethernet ports', IEEE 802.11 b/g/n 2.4 GHz + 802.11 a/n/ac 5 GHz. The single USB 2.0 port is excluded per batch rule. Unlike the plain modems this one carries the full routed stack: NAT, SPI firewall, DHCP server, web UI."
+    },
+    {
+      "vendor": "motorola",
+      "model": "MB7621",
+      "label": "Motorola MB7621 24x8 DOCSIS 3.0 cable modem",
+      "category": "modem",
+      "description": "DOCSIS 3.0 cable modem with 24 bonded downstream and 8 bonded upstream channels and exactly one Gigabit Ethernet port; no Wi-Fi, no telephone jacks.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "1G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://en-us.support.motorola.com/ci/fattach/get/82899625/1703007604/redirect/1/filename/MB7621-DataSheet-25717.pdf",
+      "notes": "Datasheet: 24x8 DOCSIS 3.0, 1029/246 Mbps nominal DS/US, 'Gigabit Ethernet port for a high-speed plug-in connection to a router, computer, or other Internet-capable device'. Explicitly 'does not have a built-in wireless router and does not have telephone jacks', so the port list is one F-connector and one RJ45."
+    },
+    {
+      "vendor": "hitron",
+      "model": "CODA56",
+      "label": "Hitron CODA56 DOCSIS 3.1 cable modem",
+      "category": "modem",
+      "description": "DOCSIS 3.1 cable modem with 2x2 OFDM/OFDMA plus 32x8 SC-QAM bonding, presenting a single 2.5GBASE-T port off one F-connector.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://us.hitrontech.com/wp-content/uploads/2023/01/CODA56-DS.pdf",
+      "notes": "Datasheet key features: 'DOCSIS 3.1 2x2 OFDM/OFDMA', 'DOCSIS 3.0 32x8 Channel Bonding', 2.5 Gigabit Ethernet port; user manual rates service up to 6 Gbps. Single wired port, no Wi-Fi, no voice - a pure bridge."
+    },
+    {
+      "vendor": "technicolor",
+      "model": "TC4400",
+      "label": "Technicolor TC4400 DOCSIS 3.1 cable modem",
+      "category": "modem",
+      "description": "DOCSIS 3.1 cable modem with 2x2 OFDM(A) bonded channels and 32x8 DOCSIS 3.0 bonding, driving two 10/100/1000BASE-T LAN ports.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://katalog.vector.net/wp-content/uploads/import/170218_technicolor_tc4400_datasheet_kk.pdf",
+      "notes": "Datasheet: '2 x 2 OFDM(A) bonded channels in DOCSIS 3.1 mode', '32 x 8 bonded channels in DOCSIS 3.0 mode', DOCSIS 3.1 downstream up to 3.6 Gbps (3.0 mode 1372 Mbps theoretical), 'Interfaces LAN: 2 10/100/1000 Base-T Ethernet ports', DS 54-1002 MHz / up to 204 MHz split. Discontinued but still widely deployed by MSOs, so the two-port bridge shape matters for topologies."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UCI",
+      "label": "Ubiquiti UniFi Cable Internet (UCI) DOCSIS 3.1 cable modem",
+      "category": "modem",
+      "description": "1U rack-mountable DOCSIS 3.1/3.0 cable modem with dual OFDM plus 32 SC-QAM downstream and dual OFDMA plus 8 SC-QAM upstream, wired as a single 2.5GbE RJ45 port.",
+      "capabilities": ["l2-forward", "host", "dhcp-client", "http-server", "cli"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "2.5G" }
+      ],
+      "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uci",
+      "notes": "Ubiquiti tech specs: 'Networking interface: (1) 2.5 GbE RJ45 port'; 'RF interface: (1) Bluetooth v4.1, Upload: Dual OFDMA/(8) SC-QAM 5-42 MHz switchable 5-85 MHz, Download: Dual OFDM/(32) SC-QAM 108-1002 MHz'; 'DOCSIS interface: (1) DOCSIS 3.1/3.0'. Managed from UniFi Network (8.0.7+) through an upstream cloud gateway; acts as an unmanaged bridge once activated. The model code is UCI - this is the box sold as the Ubiquiti cable modem for UISP/UniFi ISP deployments."
+    },
+    {
+      "vendor": "hitron",
+      "model": "CODA6021",
+      "label": "Hitron CODA6021 DOCSIS 4.0 cable gateway",
+      "category": "modem",
+      "description": "DOCSIS 4.0 gateway with 5 configurable OFDM and 7 OFDMA channels plus 32x8 DOCSIS 3.0 fallback, tri-band Wi-Fi 7, and two 10GBASE-T plus two 2.5GBASE-T LAN ports.",
+      "capabilities": ["l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "host", "wireless", "http-server"],
+      "interfaces": [
+        { "name": "coax", "type": "coax", "speed": "10G", "connector": "f" },
+        { "name": "lan1", "type": "ethernet", "speed": "10G" },
+        { "name": "lan2", "type": "ethernet", "speed": "10G" },
+        { "name": "lan3", "type": "ethernet", "speed": "2.5G" },
+        { "name": "lan4", "type": "ethernet", "speed": "2.5G" },
+        { "name": "wifi24", "type": "wireless", "speed": "1.1G" },
+        { "name": "wifi5", "type": "wireless", "speed": "5.8G" },
+        { "name": "wifi6", "type": "wireless", "speed": "11.5G" }
+      ],
+      "sourceUrl": "https://us.hitrontech.com/wp-content/uploads/2025/09/DS-CODA6021.pdf",
+      "notes": "Datasheet: 'DOCSIS 4.0 5x7 OFDM/OFDMA', 'DOCSIS 3.0 32x8 Channel Bonding', switchable upstream 5-85 / 5-204 / 5-85 + 108-396 MHz, downstream up to 1794 MHz, and interfaces '1 x RF F-Type 75 ohm female', '2 x RJ-45 100M/1G/2.5G/5G/10G BASE-T', '2 x RJ-45 100M/1G/2.5G BASE-T'. Wi-Fi 7 is 4x4 on 2.4/5/6 GHz; wireless speeds here are per-band 4x4 802.11be (40/160/320 MHz) approximations. Voice-capable gateway, so its RJ11 FXS jacks are omitted. This is the only DOCSIS 4.0 CPE I could verify from a vendor datasheet, and it ships as a gateway rather than a bare modem."
+    },
+    {
+      "vendor": "draytek",
+      "model": "Vigor167",
+      "label": "DrayTek Vigor167 VDSL2 35b Supervectoring modem router",
+      "category": "modem",
+      "description": "VDSL2 35b Supervectoring / ADSL2+ bridge-router with one RJ11 DSL port and two Gigabit Ethernet LAN ports, no Wi-Fi.",
+      "capabilities": ["l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "host", "http-server", "cli"],
+      "interfaces": [
+        { "name": "dsl0", "type": "dsl", "speed": "100M", "connector": "rj11" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" }
+      ],
+      "sourceUrl": "https://www.draytek.com/products/vigor167/",
+      "notes": "Vendor page: 'Vigor167 is a VDSL2 35b modem/router. It's equipped with 1 RJ-11 port and 2 GbE LAN ports', download up to 300 Mbps, built-in DSL modem backward compatible with ADSL2+. Datasheet drawing shows 1 x VDSL2 35b WAN (RJ-11) + 2 x GbE RJ-45. Two operation modes - VDSL2/ADSL2+ bridging or router - so both l2-forward and the routed stack are modelled. VDSL2 35b is a 100M-class line in engine terms."
+    },
+    {
+      "vendor": "avm",
+      "model": "FRITZ!Box 7530",
+      "label": "AVM FRITZ!Box 7530 VDSL2 Supervectoring DSL router",
+      "category": "modem",
+      "description": "DSL router with an integrated VDSL2 35b Supervectoring / ADSL2+ modem on one DSL jack, four gigabit LAN ports (LAN 1 can act as WAN) and dual-band Wi-Fi 5.",
+      "capabilities": ["l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "host", "wireless", "http-server"],
+      "interfaces": [
+        { "name": "dsl0", "type": "dsl", "speed": "100M", "connector": "rj11" },
+        { "name": "lan1", "type": "ethernet", "speed": "1G" },
+        { "name": "lan2", "type": "ethernet", "speed": "1G" },
+        { "name": "lan3", "type": "ethernet", "speed": "1G" },
+        { "name": "lan4", "type": "ethernet", "speed": "1G" },
+        { "name": "wifi24", "type": "wireless", "speed": "400M" },
+        { "name": "wifi5", "type": "wireless", "speed": "867M" }
+      ],
+      "sourceUrl": "https://assets.avm.de/files/docs/fritzbox/fritzbox-7530/fritzbox-7530_man_de_DE.pdf",
+      "notes": "AVM datasheet/manual: interfaces 'VDSL or ADSL connection', '4 x gigabit Ethernet; WAN via LAN 1 port', Wi-Fi AC up to 866 Mbit/s (5 GHz) + Wi-Fi N up to 400 Mbit/s (2.4 GHz), DECT base and analogue telephone ports. Per batch rule the FXS telephone ports and the USB 2.0 socket are excluded. Note the DSL socket is physically an RJ45 with TAE/RJ11 adapters in the box - modelled as the engine's dsl/rj11 line. Managed by web UI and TR-069, no CLI."
+    },
+    {
+      "vendor": "casa",
+      "model": "C3200",
+      "label": "Casa Systems C3200 CMTS (3RU, 1x SMM + 3x DQM16 + 3x DCU16)",
+      "category": "modem",
+      "description": "3RU CMTS chassis with one Switch & Management Module carrying 12 gigabit Ethernet uplinks, fully populated with 3x DQM16 downstream modules (48 QAM channels on 12 F-connectors) and 3x DCU16 upstream modules (48 channels on 24 F-connectors).",
+      "capabilities": ["l3-forward", "cli"],
+      "interfaces": [
+        { "name": "ds1", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds2", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds3", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds4", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds5", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds6", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds7", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds8", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds9", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds10", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds11", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "ds12", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us1", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us2", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us3", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us4", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us5", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us6", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us7", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us8", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us9", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us10", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us11", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us12", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us13", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us14", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us15", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us16", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us17", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us18", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us19", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us20", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us21", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us22", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us23", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "us24", "type": "coax", "speed": "100M", "connector": "f" },
+        { "name": "uplink1", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink2", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink3", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink4", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink5", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink6", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink7", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink8", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink9", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink10", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink11", "type": "ethernet", "speed": "1G" },
+        { "name": "uplink12", "type": "ethernet", "speed": "1G" },
+        { "name": "mgmt", "type": "ethernet", "speed": "100M" },
+        { "name": "console", "type": "console" }
+      ],
+      "sourceUrl": "https://docsis.org/files/C3200_datasheet_v24.pdf",
+      "notes": "Casa C3200 datasheet: 3RU chassis, 'one Switch and Management Module slot and six slots for DOCSIS interface modules'. SMM = '12-port GbE copper or fiber' uplinks plus '10/100BaseT management port' and 'RS232 serial port (DB9)'. DQM16 = 16 downstream QAM channels over 4 F-type 75 ohm ports (4 channels/port, ~152 Mbps per port); DCU16 = 16 upstream channels in 8 F-type ports (2 channels/port, ~61 Mbps per port). Fully populated 3 x DQM16 + 3 x DCU16 gives the datasheet's headline 48DS x 48US density: 12 downstream and 24 upstream service-group F-connectors, each rated 100M in engine terms rather than the chassis aggregate. Category is 'modem' per batch convention - the repo's other CMTS entries (E6000, cBR-8, C100G) use 'router'."
+    }
+  ]
+}

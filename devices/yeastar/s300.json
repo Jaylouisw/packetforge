@@ -1,0 +1,29 @@
+{
+  "vendor": "yeastar",
+  "model": "S300",
+  "label": "S300 IP PBX (Yeastar)",
+  "category": "phone",
+  "description": "Yeastar S300 modular IP PBX for 300 users (500 licensed), 60 concurrent calls, in a 1U rack case with two 10/100/1000 RJ45 ports that run in Single, Bridge or Dual Ethernet mode. AC powered, no PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "nat",
+    "firewall",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

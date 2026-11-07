@@ -1,0 +1,20 @@
+{
+  "vendor": "apc",
+  "model": "AP9641",
+  "label": "APC Network Management Card 3 (UPS NMC)",
+  "category": "host",
+  "description": "SmartSlot network management card for APC Smart-UPS/SRT units that publishes UPS state, runs battery self-tests and scheduled shutdowns, and exposes SNMP, Modbus TCP and BACnet/IP to a monitoring system. One 10/100/1000BASE-T RJ45 uplink connects it to the network; the two USB-A ports are for firmware/Wi-Fi dongle and the micro-USB port is a local console, so neither is a network port.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

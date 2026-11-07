@@ -1,0 +1,24 @@
+{
+  "vendor": "shelly",
+  "model": "Pro 4PM",
+  "label": "Shelly Pro 4PM DIN-rail 4-channel smart switch",
+  "category": "iot",
+  "description": "Shelly Pro 4PM is a DIN-rail four-channel smart switch (16 A per channel, 40 A total) with per-channel power metering, a 1.8-inch colour display, embedded web UI, MQTT and KNXnet/IP support. Unlike the Plus line it has a real RJ45 LAN port (100M Ethernet) alongside 2.4 GHz 802.11 b/g/n WiFi and Bluetooth, so it can be wired straight into a switch or run wireless.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

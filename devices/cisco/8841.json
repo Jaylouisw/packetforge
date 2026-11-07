@@ -1,0 +1,24 @@
+{
+  "vendor": "cisco",
+  "model": "8841",
+  "label": "IP Phone 8841",
+  "category": "phone",
+  "description": "Cisco IP Phone 8841 five-inch colour SIP/Unified CM desk phone with an internal two-port 10/100/1000 switch for the phone and a co-located PC. Sized as 802.3af class 2, accepting 802.3at switch ports and CDP/LLDP-PoE power negotiation.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

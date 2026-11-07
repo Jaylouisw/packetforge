@@ -1,0 +1,24 @@
+{
+  "vendor": "grandstream",
+  "model": "GXP2170",
+  "label": "GXP2170 IP phone",
+  "category": "phone",
+  "description": "Grandstream GXP2170 enterprise desk phone for high-volume users, 12 lines and 4.3-inch colour LCD, with dual switched 10/100/1000 ports (LAN plus PC passthrough) and integrated 802.3af PoE. Max 5.4 W on its own, 9.2 W when four GXP2200EXT modules are cascaded off it.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

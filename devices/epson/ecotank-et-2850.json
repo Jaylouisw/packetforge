@@ -1,0 +1,18 @@
+{
+  "vendor": "epson",
+  "model": "EcoTank ET-2850",
+  "label": "EcoTank ET-2850 inkjet all-in-one",
+  "category": "printer",
+  "description": "Consumer refillable-tank colour inkjet all-in-one with duplex printing that ships with wireless only: 802.11b/g/n Wi-Fi and Wi-Fi Direct, no Ethernet port at all.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

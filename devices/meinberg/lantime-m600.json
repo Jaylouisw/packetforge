@@ -1,0 +1,35 @@
+{
+  "vendor": "meinberg",
+  "model": "LANTIME M600",
+  "label": "LANTIME M600 high-end NTP time server",
+  "category": "host",
+  "description": "High-end 1U Stratum-1 NTP server with a 256x64 VFD front panel, disciplining from a GPS/GLONASS satellite receiver or a built-in DCF77/MSF/WWVB radio clock and serving large NTP client populations at high packet rates. Four 10/100 RJ45 ports are standard (ETH0-ETH3), with an option for one 10/100 plus three 10/100/1000 ports; PPS, 10 MHz and the frequency synthesiser are BNC and IRIG/time-code output is BNC.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -208,7 +208,7 @@
         "speed": "1G"
       },
       {
-        "name": "fiber0",
+        "name": "scupc1",
         "type": "ethernet",
         "speed": "1G",
         "connector": "sc-upc",
@@ -375,7 +375,7 @@
         ]
       },
       {
-        "name": "sgmii0",
+        "name": "sfp0",
         "type": "ethernet",
         "speed": "1G",
         "connector": "sfp",
@@ -404,7 +404,7 @@
         "speed": "100M"
       },
       {
-        "name": "fiber0",
+        "name": "scupc1",
         "type": "ethernet",
         "speed": "100M",
         "connector": "sc-upc",
@@ -472,7 +472,7 @@
         "name": "dsl0",
         "type": "dsl",
         "speed": "100M",
-        "connector": "rj11"
+        "connector": "dsl"
       }
     ],
     "sourceUrl": "https://www.planet.com.tw/storage/products/49032/EM-VC-231G%20Series%20Ethernet%20over%20VDSL2%20Brdige_v1.4.pdf",

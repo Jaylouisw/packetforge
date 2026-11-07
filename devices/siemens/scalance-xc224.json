@@ -1,0 +1,135 @@
+{
+  "vendor": "siemens",
+  "model": "SCALANCE XC224",
+  "label": "SCALANCE XC224 managed IE switch",
+  "category": "switch",
+  "description": "DIN-rail / S7-rail / wall-mount Layer 2 managed industrial Ethernet switch (6GK5224-0BA00-2AC2) with 24 x 10/100 Mbit/s RJ45 ports and a console port; -40 to +70 C, redundant power supply, PROFINET IO device.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

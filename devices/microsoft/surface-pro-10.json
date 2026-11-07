@@ -1,0 +1,28 @@
+{
+  "vendor": "microsoft",
+  "model": "Surface Pro 10",
+  "label": "Microsoft Surface Pro 10 tablet",
+  "category": "tablet",
+  "description": "Windows 2-in-1: the Wi-Fi-only SKU has Wi-Fi 6E (802.11ax) and the Wi-Fi+5G SKU adds Wi-Fi 7 (802.11be) alongside a 5G sub-6 GHz modem, both on 2.4, 5 and 6 GHz.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

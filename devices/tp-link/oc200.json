@@ -1,0 +1,24 @@
+{
+  "vendor": "tp-link",
+  "model": "OC200",
+  "label": "Omada Hardware Controller OC200",
+  "category": "host",
+  "description": "Fanless Omada SDN hardware controller managing up to 100 Omada APs, 20 switches and 10 routers. Two Fast Ethernet RJ45 ports (10/100) with 802.3af/at PoE input on the LAN port; no radios.",
+  "capabilities": [
+    "dhcp-client",
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

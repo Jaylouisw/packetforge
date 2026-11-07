@@ -1,0 +1,24 @@
+{
+  "vendor": "yealink",
+  "model": "T33G",
+  "label": "T33G IP phone",
+  "category": "phone",
+  "description": "Yealink SIP-T33G entry-level colour-screen desk phone for 4 SIP lines with a dual-port Gigabit Ethernet switch, the second port being a PC passthrough, and integrated 802.3af PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

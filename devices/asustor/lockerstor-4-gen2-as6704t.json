@@ -1,0 +1,24 @@
+{
+  "vendor": "asustor",
+  "model": "Lockerstor 4 Gen2 AS6704T",
+  "label": "ASUSTOR LOCKERSTOR 4 Gen2 (AS6704T) 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with 2x 2.5-Gigabit RJ-45 Ethernet ports as standard and one PCIe 3.0 slot that can take an optional 10GbE card; management is in-band, there is no dedicated management port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

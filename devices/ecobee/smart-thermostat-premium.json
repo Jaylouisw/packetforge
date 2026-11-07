@@ -1,0 +1,18 @@
+{
+  "vendor": "ecobee",
+  "model": "Smart Thermostat Premium",
+  "label": "Ecobee Smart Thermostat Premium",
+  "category": "iot",
+  "description": "Ecobee Smart Thermostat Premium controls 24 VAC HVAC (up to 2H/2C plus heat pump), adds occupancy radar, air-quality monitoring and an ecobee Smart Security hub role. It is WiFi-only: dual-band 802.11 b/g/n at 2.4 GHz and 802.11 a/n/ac at 5 GHz plus Bluetooth 5.0; the wall wiring is HVAC control (Rc, C, W, Y, G), not Ethernet, so it has no RJ45 and must join a wireless SSID.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ]
+}

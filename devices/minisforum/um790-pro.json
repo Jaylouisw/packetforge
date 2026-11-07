@@ -1,0 +1,27 @@
+{
+  "vendor": "minisforum",
+  "model": "UM790 Pro",
+  "label": "Minisforum Venus UM790 Pro mini PC",
+  "category": "host",
+  "description": "Ryzen 9 7940HS mini PC with a single 2.5GbE RJ45 port, Wi-Fi 6E (2x2 160 MHz) and Bluetooth 5.3, plus two USB4 ports.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ]
+}

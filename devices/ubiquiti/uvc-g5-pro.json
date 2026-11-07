@@ -1,0 +1,19 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G5-Pro",
+  "label": "UniFi Protect G5 Pro camera",
+  "category": "camera",
+  "description": "4K 8 MP (3840x2160) indoor/outdoor PoE camera with 3x optical zoom and IR to 25 m. One 10/100 RJ45 port and PoE-only power: 10 W alone, 12.95 W with the Vision Enhancer fitted.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "home-assistant",
+  "model": "Yellow",
+  "label": "Home Assistant Yellow home automation appliance",
+  "category": "iot",
+  "description": "Home Assistant Yellow is a Raspberry Pi Compute Module 4 based home-automation appliance that runs Home Assistant OS and hosts the whole local automation stack (web UI on 8123, REST/WebSocket API, MQTT broker add-ons). It is wired-only: one Gigabit Ethernet port (PoE+ on the PoE kit variant) and no WiFi, with an on-board Zigbee 3.0 / Thread radio for devices - that radio is not an Ethernet or WiFi interface, so the box is cabled, never associated.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "sonoff",
+  "model": "Zigbee Bridge Pro",
+  "label": "Sonoff Zigbee Bridge Pro (ZBBridge-P)",
+  "category": "iot",
+  "description": "Sonoff Zigbee Bridge Pro (ZBBridge-P) is a Zigbee 3.0 coordinator that pairs up to 128 Sonoff/eWeLink Zigbee sub-devices and runs local smart scenes and alarms for them. It is WiFi-only on the network side: 2.4 GHz 802.11 b/g/n powered from a 5 V USB supply, with no Ethernet port - the Zigbee 3.0 radio faces the sensors and is not modelled as an IP interface.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ]
+}

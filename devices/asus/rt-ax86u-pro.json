@@ -1,0 +1,61 @@
+{
+  "vendor": "asus",
+  "model": "RT-AX86U Pro",
+  "label": "RT-AX86U Pro AX5700 dual-band gaming router",
+  "category": "router",
+  "description": "ASUS RT-AX86U Pro - Wi-Fi 6 AX5700 dual-band gaming router (2.4 GHz 861 Mbps 3x3, 5 GHz 4804 Mbps 4x4) with one 2.5G WAN/LAN port, one 1G WAN and four 1G LAN ports. The 2.5G port is the only multi-gig one, so it is the port to use for a multi-gig uplink.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2.5g-wanlan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "861M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb"
+}

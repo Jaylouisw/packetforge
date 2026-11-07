@@ -1,0 +1,210 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "U6 Mesh",
+    "label": "UniFi U6 Mesh",
+    "category": "wireless",
+    "description": "Wi-Fi 6 mesh access point: 4x4 5 GHz plus 2x2 2.4 GHz, meshing on the 5 GHz client radio because there is no dedicated backhaul radio. Single GbE RJ45 uplink fed by 802.3af PoE (12.95 W), IPX5 housing for indoor/outdoor mounting.",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 12.95 },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-mesh"
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U6-IW",
+    "label": "UniFi U6 In-Wall",
+    "category": "wireless",
+    "description": "In-wall Wi-Fi 6 AP (4x4 5 GHz + 2x2 2.4 GHz, no dedicated backhaul radio) with a built-in 4-port GbE switch: one data-in GbE uplink plus four data-out GbE ports, one of which can pass 802.3af PoE through. Powered by 802.3at PoE+ (25.5 W, required for the PoE output).",
+    "capabilities": ["wireless", "l2-forward", "http-server"],
+    "interfaces": [
+      { "name": "eth0", "type": "ethernet", "speed": "1G", "poeIn": 25.5 },
+      { "name": "eth1", "type": "ethernet", "speed": "1G" },
+      { "name": "eth2", "type": "ethernet", "speed": "1G" },
+      { "name": "eth3", "type": "ethernet", "speed": "1G" },
+      { "name": "eth4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-iw"
+  },
+  {
+    "vendor": "amazon",
+    "model": "eero Pro 6E",
+    "label": "eero Pro 6E",
+    "category": "router",
+    "description": "Wi-Fi 6E tri-band mesh router, 2x2 on 2.4, 5 and 6 GHz (AXE5400 class); the 6 GHz band carries both clients and mesh traffic, so there is no dedicated backhaul radio. Two auto-sensing ports per unit, one 2.5GbE and one 1GbE, so a 2.5G wired backhaul is possible on the primary node.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://www.eero.com/shop/eero-pro-6e"
+  },
+  {
+    "vendor": "google",
+    "model": "Nest Wifi Pro",
+    "label": "Google Nest Wifi Pro",
+    "category": "router",
+    "description": "Wi-Fi 6E tri-band mesh unit (AXE5400, 2x2 on 2.4, 5 and 6 GHz) where the 6 GHz band doubles as the mesh backhaul, with no dedicated backhaul radio. Two GbE ports per point for WAN/LAN, so wired backhaul tops out at 1G; the primary point routes with NAT/DHCP and there is no local web UI.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://store.google.com/product/nest_wifi_pro_specs"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "Deco XE75",
+    "label": "TP-Link Deco XE75",
+    "category": "router",
+    "description": "AXE5400 tri-band Wi-Fi 6E mesh: 2x2 on 2.4, 5 and 6 GHz, with the 6 GHz radio (radio2) used as the dedicated wireless backhaul between Deco units. Three GbE auto-sensing ports per unit, so wired backhaul is 1G only unless you step up to the XE75 Pro variant with its 2.5G port.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/deco-mesh-wifi/product-family/deco-xe75/"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "Deco BE85",
+    "label": "TP-Link Deco BE85",
+    "category": "router",
+    "description": "BE22000 tri-band Wi-Fi 7 mesh (2.4 GHz 1376, 5 GHz 8640, 6 GHz 11520 Mbps) that bonds all three bands with MLO instead of a separate backhaul radio. Two 10G ports (one RJ45, one Ethernet/fibre combo) plus two 2.5G ports per unit, any of which can carry 10G or 2.5G wired backhaul.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "10g-wanlan", "type": "ethernet", "speed": "10G" },
+      { "name": "10g-combo", "type": "ethernet", "speed": "10G" },
+      { "name": "2.5g1", "type": "ethernet", "speed": "2.5G" },
+      { "name": "2.5g2", "type": "ethernet", "speed": "2.5G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "10G" },
+      { "name": "radio2", "type": "wireless", "speed": "10G" }
+    ],
+    "sourceUrl": "https://www.tp-link.com/en/home-networking/deco/deco-be85/"
+  },
+  {
+    "vendor": "netgear",
+    "model": "RBK852",
+    "label": "NETGEAR Orbi RBK852 (RBR850 + RBS850)",
+    "category": "router",
+    "description": "Orbi 850 tri-band Wi-Fi 6 mesh: 2.4 GHz and 5 GHz for clients plus a dedicated 5 GHz backhaul radio (radio2) linking router and satellites. The router has a 2.5Gbps Internet port and four GbE LAN, each satellite adds four more GbE LAN.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" },
+      { "name": "radio2", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://www.netgear.com/images/datasheet/orbi/rbk852.pdf"
+  },
+  {
+    "vendor": "netgear",
+    "model": "RBKE963",
+    "label": "NETGEAR Orbi RBKE963 (RBRE960 + 2x RBSE960)",
+    "category": "router",
+    "description": "Orbi 960 quad-band Wi-Fi 6E (AXE11000): 2.4, 5 and 6 GHz serve clients while a fourth, dedicated 5 GHz radio (radio3) is the mesh backhaul to the satellites. The RBRE960 router has a 10G Internet port, one 2.5G LAN and three GbE LAN; each RBSE960 satellite has a 2.5G LAN port that can also take wired backhaul.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "10G" },
+      { "name": "2.5g-lan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "5G" },
+      { "name": "radio2", "type": "wireless", "speed": "5G" },
+      { "name": "radio3", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/RBKE963/RBKE963_DS.pdf"
+  },
+  {
+    "vendor": "linksys",
+    "model": "MX5300",
+    "label": "Linksys Velop MX5300 (MX5 Velop AX)",
+    "category": "router",
+    "description": "Velop MX5 tri-band Wi-Fi 6 (AX5300): a 2.4 GHz radio, a 4x4 5 GHz client radio at 2402 Mbps and a second 4x4 5 GHz radio at 1733 Mbps used as the mesh backhaul (radio2). Five GbE ports (one WAN, four LAN), all gigabit - this model has no 2.5G port.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "lan4", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "2.5G" },
+      { "name": "radio2", "type": "wireless", "speed": "2.5G" }
+    ],
+    "sourceUrl": "https://downloads.linksys.com/support/assets/userguide/Velop_MX5300_USERGUIDE_INTL_RevA01.pdf"
+  },
+  {
+    "vendor": "asus",
+    "model": "ZenWiFi ET8",
+    "label": "ASUS ZenWiFi ET8 (AXE6600)",
+    "category": "router",
+    "description": "ZenWiFi ET8 AXE6600 tri-band Wi-Fi 6E mesh: 574 Mbps on 2.4 GHz, 1201 Mbps on 5 GHz and 4804 Mbps on 6 GHz, with the 6 GHz band usable as the dedicated wireless backhaul (radio2). One 2.5G WAN plus three GbE LAN per unit - the 2.5G port is the only multi-gig link and can be reassigned to LAN/backhaul.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "2.5G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "1G" },
+      { "name": "radio2", "type": "wireless", "speed": "5G" }
+    ],
+    "sourceUrl": "https://www.asus.com/us/networking-iot-servers/whole-home-mesh-systems/asus-zenwifi/asus-zenwifi-et8/techspec/"
+  },
+  {
+    "vendor": "zyxel",
+    "model": "Multy M1",
+    "label": "Zyxel Multy M1 (WSM20)",
+    "category": "router",
+    "description": "Multy M1 AX1800 dual-band Wi-Fi 6 mesh node: 2x2 2.4 GHz at 574 Mbps and 2x2 5 GHz at 1201 Mbps, meshing on the 5 GHz client radio with no dedicated backhaul radio. Four GbE ports per unit (one WAN plus three LAN) and no multi-gig port.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "lan2", "type": "ethernet", "speed": "1G" },
+      { "name": "lan3", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "1G" },
+      { "name": "radio1", "type": "wireless", "speed": "1G" }
+    ],
+    "sourceUrl": "https://download.zyxel.com/Multy_M1_(WSM20)/user_guide/Multy%20M1%20(WSM20)_V2.40_Ed2.pdf"
+  },
+  {
+    "vendor": "tp-link",
+    "model": "Deco P9",
+    "label": "TP-Link Deco P9 powerline mesh",
+    "category": "router",
+    "description": "AC1200 dual-band Wi-Fi 5 mesh with a HomePlug AV1000 powerline backhaul: units bridge over the mains wiring on plc0, so interior walls and distance do not cut the mesh. Two GbE auto-sensing ports per unit and no dedicated wireless backhaul radio.",
+    "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "firewall", "dhcp-server", "dhcp-client", "http-server"],
+    "interfaces": [
+      { "name": "wan", "type": "ethernet", "speed": "1G" },
+      { "name": "lan1", "type": "ethernet", "speed": "1G" },
+      { "name": "radio0", "type": "wireless", "speed": "100M" },
+      { "name": "radio1", "type": "wireless", "speed": "1G" },
+      { "name": "plc0", "type": "powerline", "speed": "1G" }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/deco-mesh-wifi/product-family/deco-p9/"
+  }
+]

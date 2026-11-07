@@ -1,0 +1,104 @@
+{
+  "vendor": "belden",
+  "model": "GRS1042",
+  "label": "Hirschmann GREYHOUND GRS1042 rack switch",
+  "category": "switch",
+  "description": "19-inch 1U rack-mount (not DIN-rail) Hirschmann GREYHOUND backbone switch: 6 x 10/100/1000 RJ45 TX ports, 4 x 1/2.5 Gbit/s SFP slots and 2 x 100/1000 SFP slots, expandable with two media modules to 28 ports; 0 to +60 C in the standard temperature code, -40 to +70 C with the T/E code.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ]
+}

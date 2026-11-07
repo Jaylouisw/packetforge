@@ -1,0 +1,19 @@
+{
+  "vendor": "yealink",
+  "model": "W70B",
+  "label": "W70B DECT base station",
+  "category": "phone",
+  "description": "Yealink W70B single-cell DECT IP base station (CAT-iq2.0) that registers up to 10 handsets and bridges them to SIP over one 10/100 RJ45 port. PoE IEEE 802.3af class 1, or a 5 V/0.6 A adapter.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}
