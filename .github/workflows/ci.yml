@@ -22,10 +22,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
       - name: Syntax check (all JS)
         run: node scripts/syntax-check.js
-      - name: Engine + CLI + physical-layer tests
+      - name: Engine + CLI + physical-layer + L2 tests
         run: npm test
       - name: Build & verify example labs
         run: node examples/build-examples.js
@@ -46,6 +45,7 @@ jobs:
             sleep 0.5
           done
           curl -fsS http://127.0.0.1:8123/api/catalog | grep -q '"specs"'
+          curl -fsS http://127.0.0.1:8123/api/media | grep -q '"media"'
           curl -fsS http://127.0.0.1:8123/ | grep -qi 'PacketForge'
           echo "smoke test passed"
 
