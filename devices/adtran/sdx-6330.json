@@ -1,0 +1,63 @@
+{
+  "vendor": "adtran",
+  "model": "SDX 6330",
+  "label": "SDX 6330 Combo PON OLT",
+  "category": "olt",
+  "description": "Adtran SDX 6330 disaggregated 10G Combo PON OLT, 2.5RU hardened fixed-configuration box (no card slots): 48 combo PON ports that each carry GPON and XGS-PON simultaneously, 2x 200GbE QSFP-DD, 2x 100GbE QSFP28 and 2x 10/25GbE SFP28 uplinks, 1 out-of-band management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 48,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfpdd1/1",
+      "type": "ethernet",
+      "speed": "200G"
+    },
+    {
+      "name": "qsfpdd1/2",
+      "type": "ethernet",
+      "speed": "200G"
+    },
+    {
+      "name": "qsfp1/1",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "qsfp1/2",
+      "type": "ethernet",
+      "speed": "100G"
+    },
+    {
+      "name": "xge1/1",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "xge1/2",
+      "type": "ethernet",
+      "speed": "25G"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

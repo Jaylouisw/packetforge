@@ -31,6 +31,7 @@
       'sfp+': 'SFP+ cage',
       sfp28: 'SFP28 cage',
       'qsfp+': 'QSFP+ cage',
+      qsfpdd: 'QSFP-DD cage',
       qsfp28: 'QSFP28 cage',
       combo: 'combo RJ45/SFP',
       console: 'console',
@@ -183,7 +184,7 @@
     const CAGE_TINT = {
       rj45: '#94a3b8',
       sfp: '#fbbf24', 'sfp+': '#fbbf24', sfp28: '#fbbf24',
-      'qsfp+': '#f59e0b', qsfp28: '#f59e0b',
+      'qsfp+': '#f59e0b', qsfp28: '#f59e0b', qsfpdd: '#f59e0b',
       'sc-apc': '#22d3ee', 'sc-upc': '#22d3ee',
       combo: '#e879f9',
       console: '#a78bfa',

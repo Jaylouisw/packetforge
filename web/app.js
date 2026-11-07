@@ -585,6 +585,7 @@
   function cageLabel(c) {
     const known = {
       rj45: 'RJ45', sfp: 'SFP', 'sfp+': 'SFP+', sfp28: 'SFP28',
+      qsfpdd: 'QSFP-DD cage (200/400G)',
       'qsfp+': 'QSFP+', qsfp28: 'QSFP28', console: 'Console',
       usb: 'USB', antenna: 'Antenna'
     };

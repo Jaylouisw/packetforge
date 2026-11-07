@@ -82,6 +82,12 @@ const MEDIA = {
   // ---- fiber, 100G ----
   '100gbase-sr4': { name: '100GBASE-SR4', family: 'fiber', connector: 'mpo', speedMbps: 100000, maxRangeM: 100, fiber: 'mmf', wavelengthNm: 850 },
   '100gbase-lr4': { name: '100GBASE-LR4', family: 'fiber', connector: 'lc', speedMbps: 100000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
+  // 200G/400G ride in QSFP-DD cages. DR4/FR4 are the short and metro reaches;
+  // an 800G class exists but no hardware in this catalogue uses it yet.
+  '200gbase-dr4': { name: '200GBASE-DR4', family: 'fiber', connector: 'mpo', speedMbps: 200000, maxRangeM: 500, fiber: 'smf', wavelengthNm: 1311 },
+  '200gbase-fr4': { name: '200GBASE-FR4', family: 'fiber', connector: 'lc', speedMbps: 200000, maxRangeM: 2000, fiber: 'smf', wavelengthNm: 1311 },
+  '400gbase-dr4': { name: '400GBASE-DR4', family: 'fiber', connector: 'mpo', speedMbps: 400000, maxRangeM: 500, fiber: 'smf', wavelengthNm: 1311 },
+  '400gbase-fr4': { name: '400GBASE-FR4', family: 'fiber', connector: 'lc', speedMbps: 400000, maxRangeM: 2000, fiber: 'smf', wavelengthNm: 1311 },
 
   // ---- subscriber access: coax, twisted pair, mains ----
   // These are SHARED mediums in reality: an HFC segment, a binder group, a ring
@@ -147,6 +153,7 @@ const CAGES = {
   // it as two logical interfaces that are mutually exclusive.
   combo: { name: 'Combo', family: 'combo', label: 'Combo RJ45 / SFP' },
   'qsfp+': { name: 'QSFP+', family: 'optical', label: 'QSFP+ cage (40G)' },
+  qsfpdd: { name: 'QSFP-DD', family: 'optical', label: 'QSFP-DD cage (200/400G)' },
   qsfp28: { name: 'QSFP28', family: 'optical', label: 'QSFP28 cage (100G)' },
   // SC is the PON connector. APC and UPC are separate cages deliberately: an
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
@@ -171,8 +178,12 @@ const CAGE_MATE = {
   sfp: ['sfp', 'sfp+', 'sfp28', 'combo'],
   'sfp+': ['sfp', 'sfp+', 'sfp28', 'combo'],
   sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
-  'qsfp+': ['qsfp+', 'qsfp28'],
-  qsfp28: ['qsfp+', 'qsfp28'],
+  'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd'],
+  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd'],
+  // A QSFP-DD cage takes a QSFP28 or QSFP+ module and negotiates down to that
+  // module's rate. Refusing the pair would make a 400G port unable to accept the
+  // 100G optic most labs actually have.
+  qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+'],
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
@@ -244,6 +255,11 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  qsfpdd: function () {
+    return ['200gbase-dr4', '200gbase-fr4', '400gbase-dr4', '400gbase-fr4',
+            // backward-compatible modules, which run at their own rate
+            '100gbase-sr4', '100gbase-lr4', '40gbase-sr4', '40gbase-lr4', 'dac-100g'];
+  },
   'sc-apc': function (maxMbps) {
     const out = ['gpon-sc-apc'];
     if (maxMbps >= 9000) out.push('xgspon-sc-apc');
@@ -289,6 +305,10 @@ const CAGE_SPEEDS = {
   sfp28: function () { return [10000, 25000]; },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
+  qsfpdd: function (maxMbps) {
+    const out = [40000, 100000, 200000, 400000];
+    return out.filter(function (v) { return v <= maxMbps; });
+  },
   'sc-apc': function (maxMbps) {
     const out = [1244, 2488];
     if (maxMbps >= 9000) out.push(9953);
@@ -352,6 +372,11 @@ function inferCage(ifaceSpec, maxMbps) {
 
   if (!optical) return 'rj45';
 
+  // A port named for its cage wins over its rate: qsfpdd1/1 carrying 200G is a
+  // QSFP-DD cage, not a QSFP28 that happens to be fast.
+  if (/qsfp-?dd|qsfpdd/.test(name)) return 'qsfpdd';
+
+  if (maxMbps >= 200000) return 'qsfpdd';
   if (maxMbps >= 100000) return 'qsfp28';
   if (maxMbps >= 40000) return 'qsfp+';
   if (maxMbps >= 25000) return 'sfp28';

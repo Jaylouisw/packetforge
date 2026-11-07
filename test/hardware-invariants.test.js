@@ -52,7 +52,7 @@ function claimsOptics(desc) {
   );
 }
 
-const OPTICAL = ['sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'sc-apc', 'sc-upc'];
+const OPTICAL = ['sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd', 'sc-apc', 'sc-upc'];
 
 console.log('Every device exposes ports it can actually cable:');
 {

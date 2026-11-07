@@ -1,0 +1,57 @@
+{
+  "corrections": [
+    {
+      "vendor": "truenas",
+      "model": "R50",
+      "sourceUrl": "https://www.truenas.com/docs/files/RSeriesPUM/R50BM/R50BMPUM.pdf",
+      "confidence": "medium",
+      "ports": [
+        {
+          "name": "enp1s0f0",
+          "connector": "qsfp28",
+          "speed": "100G",
+          "speedCaps": [10000, 25000, 40000, 100000]
+        },
+        {
+          "name": "enp1s0f1",
+          "connector": "qsfp28",
+          "speed": "100G",
+          "speedCaps": [10000, 25000, 40000, 100000]
+        },
+        {
+          "name": "oobm",
+          "connector": "rj45",
+          "speed": "1G",
+          "speedCaps": [1000]
+        }
+      ],
+      "notes": "R50 (R50BM) high-speed pair is optical 10/25/40/100GbE (SR4 = QSFP28 for 40/100G and 4x10G breakout, SFP28 SR card for 10/25G) plus a 1G RJ45 OOBM port; caveat: iX's product manual lists this pair as 'Additional Networking 1 (Optional) 2x 10/25/40/100 GbE' with 'Onboard Networking 2x 10 GbE', and the R50B rear panel labels those onboard ports '10Gb RJ-45 x2' - the R-Series datasheet headline ('Networking 2x 10/25/40/100 GbE') is what our description follows, so ports are modelled as the optical pair; 10GBase-T and 2x32Gb FC are separate optional add-in cards."
+    }
+  ],
+  "verification": [
+    {
+      "device": "fortinet/FortiADC 1000F",
+      "verdict": "RIGHT",
+      "detail": "FortiADC 1000F QuickStart Device Guide labels 8x GE SFP ports 1-8, 8x GE RJ45 ports 9-16, 4x 10G SFP+ ports 17-20 and a dedicated 1G GE RJ45 MGMT port; datasheet FAD-1000F agrees (4x 10 GE SFP+, 8x GE SFP, 8x GE RJ45, 1x GE RJ45 mgmt). Spec matches port-for-port; only nit is speedCaps [100,1000] on the 1G SFP cages (100BASE-X is not a listed rate).",
+      "sourceUrl": "https://fortinetweb.s3.amazonaws.com/docs.fortinet.com/v2/attachments/80b37cce-2436-11e9-b20a-f8bc1258b856/FortiADC-1000F-QuickStart.pdf"
+    },
+    {
+      "device": "cisco/ASR 1001-X (devices/cisco/asr-1001-x.json)",
+      "verdict": "RIGHT",
+      "detail": "Cisco ASR 1001-X Hardware Installation Guide: six built-in 1 GE SFP-only interfaces (do not support SFP+) and two built-in 10 GE SFP+ interfaces, numbered 10GE 0/0/0-0/0/1 and GE 0/0/0-0/0/5 -> Gi0/0/0-5 = 1G SFP, Te0/0/0-1 = 10G SFP+ as specified. Nits: Te speedCaps include 1000 although Cisco says those ports are 10-GE rate only, and the file carries a stray 'Gi0' 1G interface that no Cisco numbering defines.",
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/1001-x/asr1hig-book/router_overview.html"
+    },
+    {
+      "device": "cisco/ASR1001-X (devices/cisco/asr1001-x.json - duplicate of the model above)",
+      "verdict": "WRONG",
+      "detail": "This second file for the same model still models all eight built-in ports as 10G SFP+ with speedCaps [1000,10000]; the datasheet says six of them (Gi0/0/0-5) are 1 GE SFP-only cages, so a 10G optic on Gi0/0/2 must be refused. The duplicate model key means the catalogue holds both the fixed and the unfixed ASR 1001-X spec; one file needs deleting.",
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/1001-x/asr1hig-book/router_overview.html"
+    },
+    {
+      "device": "paloalto/PA-1420",
+      "verdict": "RIGHT",
+      "detail": "PA-1400 Series datasheet Table 3: PA-1420 I/O = 10/100/1000 (4), 1G/2.5G/5G (4), 1G/2.5G/5G PoE (4), 1G SFP (2), 1G/10G SFP/SFP+ (8); hardware reference confirms ports 13-14 = 1 Gbps SFP and ports 15-22 = 1 Gbps/10 Gbps SFP/SFP+ under one cage label 'SFP+ ports 13 through 22'. Spec matches exactly. Nits: speedCaps [100,1000] on 13-14 (cages are 1G) and the 10G HSCI port still has no connector, so it derives as RJ45 copper although it is an SFP+ cage.",
+      "sourceUrl": "https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/datasheets/pa-1400-series/pa-1400-series.pdf"
+    }
+  ]
+}

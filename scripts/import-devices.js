@@ -78,7 +78,7 @@ function normaliseCapabilities(list) {
 const TYPES = ['ethernet', 'wireless', 'console', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
-const SPEEDS = { '8M': 8, '24M': 24, '50M': 50, '200M': 200, '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000 };
+const SPEEDS = { '8M': 8, '24M': 24, '50M': 50, '200M': 200, '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000, '200G': 200000, '400G': 400000 };
 
 // Levenshtein distance, used only to tell a typo from a descriptive label. Two
 // edits apart is close enough to be a slip of the fingers ("l3-foward"), and far
