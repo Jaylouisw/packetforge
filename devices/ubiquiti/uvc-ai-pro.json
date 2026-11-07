@@ -1,0 +1,19 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-AI-Pro",
+  "label": "UniFi AI Pro 4K camera with PoE+",
+  "category": "camera",
+  "description": "4K (8 MP) AI bullet camera with a gigabit RJ45 port and on-board licence-plate/face detection. Needs PoE+ 802.3at: 11 W alone, 22 W with the AI Theta enhancer attached.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

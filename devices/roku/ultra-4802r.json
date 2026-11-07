@@ -1,0 +1,25 @@
+{
+  "vendor": "roku",
+  "model": "Ultra (4802R)",
+  "label": "4K HDR streaming player, wired + wireless",
+  "category": "iot",
+  "description": "2022 Roku Ultra streaming player with 4K/HDR10+/Dolby Vision, Wi-Fi 5 and a 10/100 Ethernet port, plus USB 3.0 and a lost-remote finder. Mains powered, no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

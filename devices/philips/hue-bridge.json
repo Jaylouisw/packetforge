@@ -1,0 +1,19 @@
+{
+  "vendor": "philips",
+  "model": "Hue Bridge",
+  "label": "Zigbee lighting hub, Ethernet only",
+  "category": "iot",
+  "description": "Square white Zigbee 3.0 bridge that controls up to 50 Hue lights and 12 accessories. It has a single 10/100 Ethernet port and no Wi-Fi radio at all; its only wireless role is Zigbee coordinator.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

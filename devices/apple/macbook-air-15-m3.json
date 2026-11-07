@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Air 15 (M3)",
+  "label": "MacBook Air 15-inch (M3)",
+  "category": "laptop",
+  "description": "15.3-inch version of the fanless M3 Air, same port set: two Thunderbolt/USB 4, MagSafe 3, Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

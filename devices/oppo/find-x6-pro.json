@@ -1,0 +1,22 @@
+{
+  "vendor": "oppo",
+  "model": "Find X6 Pro",
+  "label": "Find X6 Pro smartphone",
+  "category": "phone",
+  "description": "OPPO Find X6 Pro — 6.82-inch flagship, Wi-Fi 7 (802.11be after OTA) and 5G sub-6 GHz; USB-C 3.2 with Ethernet over dock.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

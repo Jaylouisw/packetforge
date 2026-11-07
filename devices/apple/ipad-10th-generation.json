@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPad (10th generation)",
+  "label": "iPad (10th gen) tablet",
+  "category": "tablet",
+  "description": "Apple iPad (10th generation) — 10.9-inch tablet, Wi-Fi 6 and 5G sub-6 GHz on cellular models; USB-C port supports USB-C to Ethernet adapters.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

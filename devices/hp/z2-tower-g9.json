@@ -1,0 +1,18 @@
+{
+  "vendor": "hp",
+  "model": "Z2 Tower G9",
+  "label": "HP Z2 Tower G9 workstation",
+  "category": "desktop",
+  "description": "Entry workstation tower, 12th/13th-gen Core or Xeon W, 1GbE RJ45, 500W or 700W PSU.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

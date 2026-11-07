@@ -39,13 +39,23 @@
 
   // ---------- palette ----------
   const CAT_LABELS = {
-    router: 'Routers', switch: 'Switches', 'l3-switch': 'L3 Switches', firewall: 'Firewalls', ont: 'ONT / CPE',
-    host: 'End Devices', server: 'Servers', wireless: 'Wireless APs', ptp: 'PTP Radios', cloud: 'Cloud / WAN'
+    router: 'Routers', switch: 'Switches', 'l3-switch': 'L3 Switches', firewall: 'Firewalls',
+    wireless: 'Wireless APs', ptp: 'PTP Radios', olt: 'OLTs (PON headend)', ont: 'ONT / ONU',
+    modem: 'Modems (DOCSIS / DSL)', powerline: 'Powerline / MoCA',
+    host: 'End Devices', server: 'Servers', nas: 'NAS', desktop: 'Desktops', laptop: 'Laptops',
+    phone: 'Phones', tablet: 'Tablets', printer: 'Printers', camera: 'IP Cameras',
+    nvr: 'NVR / DVR', iot: 'IoT / Smart Home', cloud: 'Cloud / WAN'
   };
-  const CAT_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server', 'wireless', 'ptp', 'cloud'];
+  // Network gear first, then the things that plug into it.
+  const CAT_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'wireless', 'ptp',
+    'olt', 'ont', 'modem', 'powerline', 'host', 'server', 'nas', 'desktop', 'laptop',
+    'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot', 'cloud'];
   const BADGE_LABELS = {
     router: 'Router', switch: 'Switch', 'l3-switch': 'L3 Switch', firewall: 'Firewall',
-    ont: 'ONT', host: 'Host', server: 'Server', wireless: 'AP', ptp: 'PTP', cloud: 'WAN'
+    wireless: 'AP', ptp: 'PTP', olt: 'OLT', ont: 'ONT', modem: 'Modem', powerline: 'Powerline',
+    host: 'Host', server: 'Server', nas: 'NAS', desktop: 'Desktop', laptop: 'Laptop',
+    phone: 'Phone', tablet: 'Tablet', printer: 'Printer', camera: 'Camera', nvr: 'NVR',
+    iot: 'IoT', cloud: 'WAN'
   };
   const VENDOR_LABELS = {
     'cisco': 'Cisco', 'juniper': 'Juniper', 'arista': 'Arista', 'mikrotik': 'MikroTik',
@@ -158,7 +168,13 @@
   }
 
   function iconFor(s) {
-    const m = { router: '🧭', switch: '🔀', 'l3-switch': '🔀', host: '🖥️', server: '🗄️', firewall: '🛡️', wireless: '📶', ptp: '📻', cloud: '☁️', ont: '📡', ap: '📶' };
+    const m = {
+      router: '🧭', switch: '🔀', 'l3-switch': '🔀', firewall: '🛡️', wireless: '📶', ptp: '📻',
+      olt: '🏢', ont: '📡', modem: '📞', powerline: '🔌',
+      host: '🖥️', server: '🗄️', nas: '💾', desktop: '🖥️', laptop: '💻',
+      phone: '📱', tablet: '📲', printer: '🖨️', camera: '📷', nvr: '🎥', iot: '🏠',
+      cloud: '☁️', ap: '📶'
+    };
     return m[s.category] || m[s.icon] || '📦';
   }
 

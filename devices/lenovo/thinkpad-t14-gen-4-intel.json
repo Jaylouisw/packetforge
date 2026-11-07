@@ -1,0 +1,24 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkPad T14 Gen 4 (Intel)",
+  "label": "ThinkPad T14 Gen 4",
+  "category": "laptop",
+  "description": "14-inch business workhorse, 13th-gen Core U/P with vPro, onboard RJ45 plus Thunderbolt 4 and Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

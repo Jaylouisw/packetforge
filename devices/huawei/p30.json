@@ -1,0 +1,22 @@
+{
+  "vendor": "huawei",
+  "model": "P30",
+  "label": "Huawei P30 smartphone",
+  "category": "phone",
+  "description": "Huawei P30 — 6.1-inch 2019 flagship, Wi-Fi 5 (802.11ac, 2x2) and LTE only; USB-C 3.1 port with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

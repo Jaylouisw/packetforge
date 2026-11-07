@@ -1,0 +1,30 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkSystem SR650 V2",
+  "label": "ThinkSystem SR650 V2 2U rack server",
+  "category": "server",
+  "description": "2U two-socket rack server whose LOM is an OCP-format 2-port 1GbE adapter, supplemented by a dedicated 1GbE XClarity Controller port. Up to eight PCIe 4.0 slots provide room for 10/25GbE stand-up cards.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "xcc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

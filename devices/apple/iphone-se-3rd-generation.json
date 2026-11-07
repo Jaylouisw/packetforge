@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPhone SE (3rd generation)",
+  "label": "iPhone SE (3rd gen) smartphone",
+  "category": "phone",
+  "description": "Apple iPhone SE (3rd generation) — 4.7-inch home-button smartphone, Wi-Fi 6 and 5G sub-6 GHz only (no mmWave); Lightning, no Ethernet.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

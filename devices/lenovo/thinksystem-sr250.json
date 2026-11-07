@@ -1,0 +1,30 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkSystem SR250",
+  "label": "ThinkSystem SR250 1U rack server",
+  "category": "server",
+  "description": "1U single-socket entry rack server with two embedded 1GbE ports (Broadcom 5720) and a 1GbE port dedicated to the XClarity Controller. Expansion is two PCIe Gen4 slots - a 10GbE NIC would be a stand-up card.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "xcc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

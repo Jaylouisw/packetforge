@@ -1,0 +1,18 @@
+{
+  "vendor": "nzxt",
+  "model": "Player: Three",
+  "label": "NZXT Player: Three",
+  "category": "desktop",
+  "description": "Prebuilt gaming tower on an NZXT N7 B650E board (Ryzen 7 9800X3D, RTX 50-series on current builds).",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

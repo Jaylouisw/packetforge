@@ -1,0 +1,25 @@
+{
+  "vendor": "hp",
+  "model": "OfficeJet Pro 9015e",
+  "label": "Inkjet all-in-one, wired + wireless",
+  "category": "printer",
+  "description": "Colour inkjet all-in-one (print/scan/copy/fax) with 10/100 Ethernet and dual-band 802.11b/g/n Wi-Fi. Both interfaces are active at once, so the printer holds two IPs on two subnets unless one is disabled.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

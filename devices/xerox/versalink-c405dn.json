@@ -1,0 +1,19 @@
+{
+  "vendor": "xerox",
+  "model": "VersaLink C405dn",
+  "label": "Colour laser MFP, wired only",
+  "category": "printer",
+  "description": "36 ppm colour multifunction printer with 10/100/1000Base-T Ethernet and no built-in Wi-Fi. The 'dn' configuration is wired-only; wireless needs the optional Xerox adapter.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

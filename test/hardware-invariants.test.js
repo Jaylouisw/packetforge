@@ -121,18 +121,41 @@ console.log('\nCages and media agree with each other:');
 
   // The advertised speed must be the fastest the cage is known to support,
   // otherwise the picker offers links the hardware cannot run at.
-  const slow = [];
+  //
+  // Console ports are exempt: a USB or serial console genuinely runs at 12 Mbps
+  // or 115.2 kbps and is not a data path. Anything else under 100 Mbps is a
+  // modelling error - and so is a port whose declared line rate outruns the
+  // medium under it, which is exactly how 28 tablets ended up advertising a
+  // gigabit on a USB 1.1 console port.
+  function isConsoleOnly(hw) {
+    const list = hw.media || [];
+    if (!list.length) return false;
+    return list.every(function (id) {
+      const def = mediaLib.mediaById(id);
+      return def && (def.family === 'console' || def.family === 'management');
+    });
+  }
+
+  const slow = [], overreach = [];
   for (const x of all) {
     for (const i of x.ifaces) {
       const caps = i.hardware.speedCaps;
       if (!caps || !caps.length) continue;
-      const top = Math.max.apply(null, caps);
       if (!i.hardware.media) continue;
+      if (isConsoleOnly(i.hardware)) continue;
+      const top = Math.max.apply(null, caps);
       if (top < 100) slow.push(x.spec.model + '/' + i.name + ' top ' + top + ' Mbps');
+      const declared = i.speedMbps || 0;
+      if (declared && top && declared > top) {
+        overreach.push(x.spec.model + '/' + i.name + ' claims ' + declared +
+          ' Mbps on a ' + top + ' Mbps ' + i.hardware.cage + ' cage');
+      }
     }
   }
-  ok(slow.length === 0, 'no port advertises a sub-100 Mbps-only cage' +
+  ok(slow.length === 0, 'no data port advertises a sub-100 Mbps-only cage' +
     (slow.length ? ' (' + slow.slice(0, 3).join(', ') + ')' : ''));
+  ok(overreach.length === 0, 'no port claims a line rate its cage cannot carry' +
+    (overreach.length ? ' (' + overreach.slice(0, 3).join(', ') + ')' : ''));
 }
 
 console.log('\nPoE claims are internally consistent:');

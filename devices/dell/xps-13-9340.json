@@ -1,0 +1,19 @@
+{
+  "vendor": "dell",
+  "model": "XPS 13 9340",
+  "label": "XPS 13 (9340) ultraportable",
+  "category": "laptop",
+  "description": "13.4-inch ultraportable, Intel Core Ultra (Meteor Lake), two Thunderbolt 4 ports and Wi-Fi 7; no onboard Ethernet.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

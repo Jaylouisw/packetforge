@@ -1,0 +1,22 @@
+{
+  "vendor": "sony",
+  "model": "Xperia 1 V",
+  "label": "Xperia 1 V smartphone",
+  "category": "phone",
+  "description": "Sony Xperia 1 V — 6.5-inch 4K flagship, Wi-Fi 6E (2.4/5/6 GHz) and 5G sub-6/mmWave; USB-C 3.2 with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

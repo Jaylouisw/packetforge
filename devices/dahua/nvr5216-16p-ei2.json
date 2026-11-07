@@ -1,0 +1,101 @@
+{
+  "vendor": "dahua",
+  "model": "NVR5216-16P-EI2",
+  "label": "16-channel WizSense NVR with 16-port PoE",
+  "category": "nvr",
+  "description": "16-channel WizSense NVR with two HDD bays, one gigabit uplink and sixteen 10/100 PoE ports (ports 1-8 also do Dahua ePoE for long runs). 802.3af/at with a 130 W total PoE budget.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 10",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 11",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 12",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 13",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 14",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 15",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 16",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

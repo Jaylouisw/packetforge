@@ -1,0 +1,60 @@
+{
+  "vendor": "reolink",
+  "model": "RLN8-410",
+  "label": "8-channel PoE NVR",
+  "category": "nvr",
+  "description": "8-channel 4K NVR with one SATA bay, one 10/100 RJ45 uplink and eight 10/100 PoE camera ports. Supports 802.3af/at at up to 25 W per port; Reolink does not publish an aggregate PoE budget.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

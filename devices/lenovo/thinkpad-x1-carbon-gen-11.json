@@ -1,0 +1,19 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkPad X1 Carbon Gen 11",
+  "label": "ThinkPad X1 Carbon Gen 11",
+  "category": "laptop",
+  "description": "1.12 kg 14-inch carbon-fibre ultrabook, 13th-gen Core U/P, two Thunderbolt 4 and Wi-Fi 6E; no RJ45.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

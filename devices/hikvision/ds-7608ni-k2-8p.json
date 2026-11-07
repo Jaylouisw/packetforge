@@ -1,0 +1,61 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-7608NI-K2/8P",
+  "label": "8-channel NVR with 8-port PoE switch",
+  "category": "nvr",
+  "description": "8-channel 4K NVR with two SATA bays, one gigabit LAN port and eight 10/100 PoE camera ports on a private subnet. The built-in PoE switch supplies 802.3af/at with an 80 W total budget and hands the cameras DHCP from the NVR itself.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

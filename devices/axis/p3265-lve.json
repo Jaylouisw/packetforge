@@ -1,0 +1,19 @@
+{
+  "vendor": "axis",
+  "model": "P3265-LVE",
+  "label": "2MP outdoor IR dome IP camera",
+  "category": "camera",
+  "description": "2 MP outdoor vandal-resistant dome with OptimizedIR and deep-learning analytics, 10/100 RJ45. PoE 802.3af/802.3at Type 1 Class 3, 4.8 W typical, 10.7 W max with IR on.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy A54 5G",
+  "label": "Galaxy A54 5G smartphone",
+  "category": "phone",
+  "description": "Samsung Galaxy A54 5G — 6.4-inch mid-range phone, Wi-Fi 6 (2.4/5 GHz only) and 5G sub-6 GHz without mmWave; USB-C 2.0 port.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "vendor": "qnap",
+  "model": "TVS-672XT",
+  "label": "TVS-672XT 6-bay NAS",
+  "category": "nas",
+  "description": "6-bay desktop NAS with three network ports - one 10GbE RJ45 and two 1GbE RJ45 - plus two Thunderbolt 3 ports. A PCIe Gen3 x16 slot is free for a further adapter.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

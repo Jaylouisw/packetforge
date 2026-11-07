@@ -1,0 +1,22 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy S24",
+  "label": "Galaxy S24 smartphone",
+  "category": "phone",
+  "description": "Samsung Galaxy S24 — 6.2-inch flagship, Wi-Fi 6E and 5G sub-6/mmWave; USB-C 3.2 with DeX and Ethernet over a dock.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "apple",
+  "model": "Apple TV 4K (3rd gen, 128GB)",
+  "label": "4K streaming box, wired + wireless",
+  "category": "iot",
+  "description": "Third-generation Apple TV 4K with the A15 Bionic, 128 GB of storage, Gigabit Ethernet and Wi-Fi 6. The 128 GB model is the one that ships with the Ethernet port; the 64 GB model is Wi-Fi only.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

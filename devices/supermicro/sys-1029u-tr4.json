@@ -1,0 +1,40 @@
+{
+  "vendor": "supermicro",
+  "model": "SYS-1029U-TR4",
+  "label": "SuperServer SYS-1029U-TR4 1U server",
+  "category": "server",
+  "description": "1U dual-socket Ultra server with four 1GbE RJ45 ports supplied by the AOC-UR-i4G card (Intel i350-AM4) in the Ultra riser, plus one dedicated 1GbE IPMI LAN port. PCIe 3.0 risers take 10/25GbE add-in cards.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

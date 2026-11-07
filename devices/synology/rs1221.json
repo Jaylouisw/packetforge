@@ -1,0 +1,35 @@
+{
+  "vendor": "synology",
+  "model": "RS1221+",
+  "label": "RackStation RS1221+ 2U 8-bay NAS",
+  "category": "nas",
+  "description": "2U 8-bay rackmount NAS with four 1GbE RJ45 ports and one PCIe 3.0 x8 (x4 link) slot. That slot takes 10GbE or 25GbE network cards, which are add-in and not part of the onboard count.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

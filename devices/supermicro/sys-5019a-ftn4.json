@@ -1,0 +1,40 @@
+{
+  "vendor": "supermicro",
+  "model": "SYS-5019A-FTN4",
+  "label": "SuperServer SYS-5019A-FTN4 1U server",
+  "category": "server",
+  "description": "Short-depth 1U embedded server on an Intel Atom C3758 SoC with four 1GbE RJ45 LAN ports straight off the SoC and one dedicated 1GbE IPMI LAN port. One PCIe 3.0 x8 slot (low-profile) plus a Mini-PCIe slot for expansion.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

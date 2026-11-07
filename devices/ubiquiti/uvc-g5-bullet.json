@@ -1,0 +1,19 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G5-Bullet",
+  "label": "UniFi G5 Bullet 2K camera",
+  "category": "camera",
+  "description": "4 MP (2K) UniFi Protect bullet with a 10/100 MbE RJ45 port, IP55 and IK04. PoE-powered, 4 W max, 37-57 VDC - an 802.3af load.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

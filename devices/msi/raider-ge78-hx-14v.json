@@ -1,0 +1,24 @@
+{
+  "vendor": "msi",
+  "model": "Raider GE78 HX 14V",
+  "label": "MSI Raider GE78 HX 14V",
+  "category": "laptop",
+  "description": "17-inch gaming laptop, 14th-gen Core HX with RTX 40, Killer 2.5GbE RJ45 and Wi-Fi 7.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

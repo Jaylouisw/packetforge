@@ -1,0 +1,22 @@
+{
+  "vendor": "huawei",
+  "model": "P60 Pro",
+  "label": "Huawei P60 Pro smartphone",
+  "category": "phone",
+  "description": "Huawei P60 Pro — 6.67-inch flagship, Wi-Fi 6 (2.4/5 GHz) but LTE-only cellular; USB-C 3.1 with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

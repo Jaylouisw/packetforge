@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "HomePod mini",
+  "label": "Smart speaker, Wi-Fi only",
+  "category": "iot",
+  "description": "Compact Siri smart speaker with a full-range driver and four-microphone array. 802.11n 2.4/5 GHz Wi-Fi, Bluetooth 5.0 and a U1 chip for nearby handoff; no wired interface.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

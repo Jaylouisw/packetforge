@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPad Air (5th generation)",
+  "label": "iPad Air (5th gen) tablet",
+  "category": "tablet",
+  "description": "Apple iPad Air (5th generation, M1) — 10.9-inch tablet, Wi-Fi 6 and 5G sub-6/mmWave on cellular models; USB-C 3.1 Gen 2 with Ethernet support.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

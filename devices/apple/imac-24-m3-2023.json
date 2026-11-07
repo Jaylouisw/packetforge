@@ -1,0 +1,24 @@
+{
+  "vendor": "apple",
+  "model": "iMac 24 (M3, 2023)",
+  "label": "Apple iMac 24-inch (M3)",
+  "category": "desktop",
+  "description": "24-inch all-in-one with Apple M3, Wi-Fi 6E and Gigabit Ethernet built into the external power adapter.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

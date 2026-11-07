@@ -1,0 +1,25 @@
+{
+  "vendor": "synology",
+  "model": "DS220+",
+  "label": "DiskStation DS220+ 2-bay NAS",
+  "category": "nas",
+  "description": "2-bay desktop NAS with two 1GbE RJ45 ports that support link aggregation and failover. There is no PCIe slot and no management port - both NICs are data ports.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

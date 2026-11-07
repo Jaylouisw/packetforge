@@ -1,0 +1,19 @@
+{
+  "vendor": "hp",
+  "model": "EliteBook 840 G10",
+  "label": "HP EliteBook 840 14-inch G10",
+  "category": "laptop",
+  "description": "14-inch aluminium business ultrabook, 13th-gen Core U/P, two Thunderbolt 4 plus HDMI 2.1 and Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

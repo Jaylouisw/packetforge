@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R750",
+  "label": "PowerEdge R750 2U rack server",
+  "category": "server",
+  "description": "2U two-socket rack server with two 1GbE LOM ports, one OCP 3.0 slot on x8 PCIe lanes and a dedicated 1GbE iDRAC9 port. Up to eight PCIe Gen4 slots are available through riser and SNAP I/O options.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

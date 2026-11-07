@@ -1,0 +1,19 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkPad X1 Extreme Gen 6",
+  "label": "ThinkPad X1 Extreme Gen 6",
+  "category": "laptop",
+  "description": "16-inch performance ThinkPad with 13th-gen Core HX and RTX 40 graphics, two Thunderbolt 4, SD Express and Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

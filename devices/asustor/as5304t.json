@@ -1,0 +1,25 @@
+{
+  "vendor": "asustor",
+  "model": "AS5304T",
+  "label": "AS5304T 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports for link aggregation. No PCIe slot, so there is no 10GbE upgrade path.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

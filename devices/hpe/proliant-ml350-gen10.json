@@ -1,0 +1,40 @@
+{
+  "vendor": "hpe",
+  "model": "ProLiant ML350 Gen10",
+  "label": "ProLiant ML350 Gen10 tower server",
+  "category": "server",
+  "description": "Tower two-socket server with four embedded 1GbE ports (HPE 369i) and a 1GbE dedicated iLO 5 port. There is no FlexibleLOM bay; extra NICs go in the PCIe stand-up slots.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ilo",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

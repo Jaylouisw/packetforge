@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPhone 15",
+  "label": "iPhone 15 smartphone",
+  "category": "phone",
+  "description": "Apple iPhone 15 — 6.1-inch smartphone with Wi-Fi 6 and 5G sub-6/mmWave, now with a USB-C port that supports USB-C to Ethernet adapters.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

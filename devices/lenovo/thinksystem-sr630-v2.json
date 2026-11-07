@@ -1,0 +1,30 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkSystem SR630 V2",
+  "label": "ThinkSystem SR630 V2 1U rack server",
+  "category": "server",
+  "description": "1U two-socket rack server with a selectable 2-port LOM (1GbE or 10GbE) and a second selectable bay for an OCP 3.0 adapter up to 25GbE. The 1GbE XClarity Controller port is dedicated.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "xcc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

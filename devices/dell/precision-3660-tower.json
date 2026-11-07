@@ -1,0 +1,18 @@
+{
+  "vendor": "dell",
+  "model": "Precision 3660 Tower",
+  "label": "Dell Precision 3660 Tower workstation",
+  "category": "desktop",
+  "description": "Mid-tower workstation, 13th-gen Core K-series or Xeon W-3400, one 1GbE RJ45, up to 4 PCIe slots.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

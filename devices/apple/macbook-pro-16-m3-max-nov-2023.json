@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Pro 16 (M3 Max, Nov 2023)",
+  "label": "MacBook Pro 16-inch (M3 Max)",
+  "category": "laptop",
+  "description": "16.2-inch M3 Max workstation laptop with three Thunderbolt 4 ports, HDMI and SDXC; Wi-Fi 6E and Bluetooth 5.3.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "hanwha",
+  "model": "XNV-8080R",
+  "label": "Wisenet X 5MP vandal dome IP camera",
+  "category": "camera",
+  "description": "5 MP vandal-resistant outdoor dome from the Wisenet X series with a 10/100/1000 RJ45 port. PoE 802.3af Class 3, max 12.95 W, with 12 VDC and 24 VAC alternatives.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

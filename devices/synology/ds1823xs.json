@@ -1,0 +1,35 @@
+{
+  "vendor": "synology",
+  "model": "DS1823xs+",
+  "label": "DiskStation DS1823xs+ 8-bay NAS",
+  "category": "nas",
+  "description": "8-bay desktop NAS with 10GbE built in: two 1GbE RJ45 ports plus one 10GBASE-T port, and a dedicated 1GbE out-of-band management port. A PCIe 3.0 slot takes 10/25GbE or Fibre Channel cards.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

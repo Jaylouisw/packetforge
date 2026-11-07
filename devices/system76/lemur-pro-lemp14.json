@@ -1,0 +1,19 @@
+{
+  "vendor": "system76",
+  "model": "Lemur Pro (lemp14)",
+  "label": "System76 Lemur Pro",
+  "category": "laptop",
+  "description": "14/16-inch Linux ultrabook (Intel Core Ultra, up to 73Wh battery); System76 lists only the Intel BE200 Wi-Fi 7 card.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "epson",
+  "model": "EcoTank ET-4760",
+  "label": "Inkjet supertank all-in-one, wired + wireless",
+  "category": "printer",
+  "description": "Cartridge-free colour inkjet all-in-one (15/8 ISO ppm) with 10/100 Ethernet and 802.11b/g/n Wi-Fi. Wireless setup often leaves the wired port idle but link-up.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

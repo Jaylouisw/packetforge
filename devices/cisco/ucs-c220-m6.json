@@ -1,0 +1,30 @@
+{
+  "vendor": "cisco",
+  "model": "UCS C220 M6",
+  "label": "UCS C220 M6 1U rack server",
+  "category": "server",
+  "description": "1U two-socket UCS rack server with two motherboard LAN ports that run 1GbE or 10GbE depending on the link partner, plus a 1GbE dedicated CIMC management port. A modular LOM (mLOM) bay accepts a VIC without using a PCIe slot.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "cimc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

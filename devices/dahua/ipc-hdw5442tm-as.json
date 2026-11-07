@@ -1,0 +1,19 @@
+{
+  "vendor": "dahua",
+  "model": "IPC-HDW5442TM-AS",
+  "label": "4MP WizMind eyeball IP camera",
+  "category": "camera",
+  "description": "4 MP starlight eyeball camera with WDR and AI perimeter protection, RJ45 10/100Base-T. PoE 802.3af, roughly 7 W maximum; 12 VDC also supported.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

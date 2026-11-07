@@ -1,0 +1,22 @@
+{
+  "vendor": "nokia",
+  "model": "XR20",
+  "label": "Nokia XR20 rugged smartphone",
+  "category": "phone",
+  "description": "Nokia XR20 — 6.67-inch ruggedised phone (MIL-STD-810H, IP68), Wi-Fi 6 and 5G sub-6 GHz; USB-C 3.0 with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

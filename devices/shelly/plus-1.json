@@ -1,0 +1,19 @@
+{
+  "vendor": "shelly",
+  "model": "Plus 1",
+  "label": "Wi-Fi relay module, 16 A",
+  "category": "iot",
+  "description": "DIN-adjacent Wi-Fi relay module with a potential-free 16 A contact, dry/wet input and Bluetooth provisioning. 2.4 GHz 802.11b/g/n only, no Ethernet, powered from 110-240 VAC or 12 VDC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

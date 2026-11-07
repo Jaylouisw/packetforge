@@ -1,0 +1,25 @@
+{
+  "vendor": "canon",
+  "model": "Color imageCLASS MF743Cdw",
+  "label": "Colour laser all-in-one, wired + wireless",
+  "category": "printer",
+  "description": "28 ppm colour laser all-in-one with 10/100/1000Base-T Ethernet and 802.11b/g/n Wi-Fi. Gigabit wired plus wireless, both live at the same time.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

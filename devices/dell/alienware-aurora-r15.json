@@ -1,0 +1,24 @@
+{
+  "vendor": "dell",
+  "model": "Alienware Aurora R15",
+  "label": "Alienware Aurora R15 gaming desktop",
+  "category": "desktop",
+  "description": "Gaming tower, 13th-gen Core i7/i9 with RTX 40 graphics, Killer 2.5GbE RJ45 and Killer Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

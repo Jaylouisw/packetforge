@@ -1,0 +1,22 @@
+{
+  "vendor": "oneplus",
+  "model": "OnePlus 12",
+  "label": "OnePlus 12 smartphone",
+  "category": "phone",
+  "description": "OnePlus 12 — 6.82-inch Snapdragon 8 Gen 3 flagship, Wi-Fi 7 and 5G sub-6 GHz; USB-C 3.2 with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

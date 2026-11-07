@@ -1,0 +1,30 @@
+{
+  "vendor": "asus",
+  "model": "RS500A-E11-RS12U",
+  "label": "ASUS RS500A-E11-RS12U 1U rack server",
+  "category": "server",
+  "description": "1U single-socket AMD EPYC rack server with two 1GbE ports (Intel i350-AM2) and a 1GbE management port on the ASMB10/AST2600 BMC. One OCP 3.0 socket and three PCIe 4.0 slots carry 10/25GbE adapters.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

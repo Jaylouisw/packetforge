@@ -1,0 +1,40 @@
+{
+  "vendor": "hpe",
+  "model": "ProLiant DL360 Gen10",
+  "label": "ProLiant DL360 Gen10 1U rack server",
+  "category": "server",
+  "description": "1U two-socket rack server with four embedded 1GbE ports (HPE 331i) and a 1GbE dedicated iLO 5 port. One FlexibleLOM slot takes the primary 10/25GbE adapter without consuming a PCIe slot.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ilo",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

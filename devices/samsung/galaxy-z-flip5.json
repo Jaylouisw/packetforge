@@ -1,0 +1,22 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy Z Flip5",
+  "label": "Galaxy Z Flip5 foldable smartphone",
+  "category": "phone",
+  "description": "Samsung Galaxy Z Flip5 — clamshell foldable with a 6.7-inch inner display, Wi-Fi 6E and 5G sub-6/mmWave; USB-C port, no DeX.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

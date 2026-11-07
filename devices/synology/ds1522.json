@@ -1,0 +1,35 @@
+{
+  "vendor": "synology",
+  "model": "DS1522+",
+  "label": "DiskStation DS1522+ 5-bay NAS",
+  "category": "nas",
+  "description": "5-bay desktop NAS with four 1GbE RJ45 ports and a PCIe 3.0 x2 network upgrade slot for a 10GbE module. No out-of-band management port.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-2DE4A425IW-DE",
+  "label": "4MP 25x IR PTZ speed dome",
+  "category": "camera",
+  "description": "4 MP outdoor PTZ with 25x optical zoom, 100 m IR and auto-tracking, on a single RJ45 10/100 port. Demands PoE+ 802.3at and draws up to 18 W when the motors and IR are both running.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

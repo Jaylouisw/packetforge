@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R760",
+  "label": "PowerEdge R760 2U rack server",
+  "category": "server",
+  "description": "2U two-socket rack server where the 2x 1GbE LOM card and the OCP 3.0 card are both optional factory items; the dedicated 1GbE iDRAC9 port is always present. Up to eight PCIe Gen5/Gen4 slots, plus an optional DPU management interface card.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Air 13 (M2, 2022)",
+  "label": "MacBook Air 13-inch (M2, 2022)",
+  "category": "laptop",
+  "description": "Fanless 13.6-inch ultraportable with the Apple M2 SoC (2022); two Thunderbolt/USB 4 ports, Wi-Fi 6 and Bluetooth 5.0 only.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

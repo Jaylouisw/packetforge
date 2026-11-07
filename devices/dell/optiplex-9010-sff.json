@@ -1,0 +1,18 @@
+{
+  "vendor": "dell",
+  "model": "OptiPlex 9010 SFF",
+  "label": "Dell OptiPlex 9010 small form factor",
+  "category": "desktop",
+  "description": "2012 Ivy Bridge-era SFF desktop, Core i5/i7 3000-series, Intel 82579LM Gigabit RJ45, no Wi-Fi.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy Z Fold5",
+  "label": "Galaxy Z Fold5 foldable smartphone",
+  "category": "phone",
+  "description": "Samsung Galaxy Z Fold5 — book-style foldable that opens to a 7.6-inch tablet display, Wi-Fi 6E and 5G sub-6/mmWave, USB-C 3.2 with full DeX.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

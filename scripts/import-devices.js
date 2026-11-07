@@ -28,9 +28,47 @@ const DEVICES = process.env.PF_DEVICES
   : path.join(ROOT, 'devices');
 
 // Vocabulary accepted by the registry and the UI.
-const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server', 'wireless', 'ptp', 'cloud'];
+const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server',
+  'wireless', 'ptp', 'cloud', 'olt', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
+  'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot'];
 const CAPABILITIES = ['cli', 'dhcp-client', 'dhcp-server', 'firewall', 'host', 'http-server',
   'l2-forward', 'l3-forward', 'nat', 'wireless'];
+// Researchers describe endpoints in the vocabulary of the device, not of this
+// engine ("ipv4-host", "wifi-client"). Map those onto the capabilities the
+// simulator actually implements rather than losing an otherwise good spec.
+const CAPABILITY_ALIASES = {
+  'ipv4-host': 'host',
+  'ip6-host': 'host',
+  'host-stack': 'host',
+  'wifi-client': 'wireless',
+  'wireless-client': 'wireless',
+  'wifi-ap': 'wireless',
+  'access-point': 'wireless',
+  'routing': 'l3-forward',
+  'routing-engine': 'l3-forward',
+  'switching': 'l2-forward',
+  'l2-switch': 'l2-forward',
+  'l3-switch': 'l3-forward',
+  'bridge': 'l2-forward',
+  'dhcp': 'dhcp-server',
+  'dhcp-client-v4': 'dhcp-client',
+  'http': 'http-server',
+  'web-ui': 'http-server',
+  'management': 'cli',
+  'ssh': 'cli',
+  'console': 'cli'
+};
+
+function normaliseCapabilities(list) {
+  const out = [];
+  for (const raw of (list || [])) {
+    const c = String(raw).toLowerCase().trim();
+    const mapped = CAPABILITY_ALIASES[c] || c;
+    if (out.indexOf(mapped) === -1) out.push(mapped);
+  }
+  return out;
+}
+
 const TYPES = ['ethernet', 'wireless', 'console', 'usb'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
@@ -56,6 +94,7 @@ function validateSpec(spec) {
   if (!Array.isArray(spec.capabilities) || !spec.capabilities.length) {
     errors.push('capabilities must be a non-empty array');
   } else {
+    spec.capabilities = normaliseCapabilities(spec.capabilities);
     for (const c of spec.capabilities) {
       if (CAPABILITIES.indexOf(c) === -1) errors.push('unknown capability "' + c + '"');
     }
@@ -131,7 +170,13 @@ function validateSpec(spec) {
 
 function readIncoming() {
   if (!fs.existsSync(INCOMING)) return [];
-  const files = fs.readdirSync(INCOMING).filter(function (f) { return /\.json$/i.test(f); }).sort();
+  const all = fs.readdirSync(INCOMING).filter(function (f) { return /\.json$/i.test(f); }).sort();
+  // research/incoming also holds research artefacts - PoE budget tables, port
+  // split tables, optics catalogues. Those are not device specs and reading them
+  // as such buries the real rejections in noise. Device batches are named
+  // devices-*.json; anything else is opt-in via --all.
+  const onlyDevices = process.argv.indexOf('--all') === -1;
+  const files = onlyDevices ? all.filter(function (f) { return /^devices-.*\.json$/i.test(f); }) : all;
   const out = [];
   for (const f of files) {
     const full = path.join(INCOMING, f);

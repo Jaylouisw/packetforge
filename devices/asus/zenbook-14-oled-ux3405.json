@@ -1,0 +1,19 @@
+{
+  "vendor": "asus",
+  "model": "Zenbook 14 OLED (UX3405)",
+  "label": "ASUS Zenbook 14 OLED (UX3405)",
+  "category": "laptop",
+  "description": "14-inch 3K OLED ultrabook, Intel Core Ultra, two Thunderbolt 4 plus USB-A and HDMI, Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

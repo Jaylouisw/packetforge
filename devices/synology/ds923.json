@@ -1,0 +1,25 @@
+{
+  "vendor": "synology",
+  "model": "DS923+",
+  "label": "DiskStation DS923+ 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with two 1GbE RJ45 ports and one PCIe 3.0 x2 network upgrade slot. That slot is the only route to 10GbE, via Synology's E10G22-T1-Mini module.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

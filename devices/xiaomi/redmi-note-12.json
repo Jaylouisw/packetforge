@@ -1,0 +1,22 @@
+{
+  "vendor": "xiaomi",
+  "model": "Redmi Note 12",
+  "label": "Redmi Note 12 smartphone",
+  "category": "phone",
+  "description": "Xiaomi Redmi Note 12 (4G) — 6.67-inch budget phone, Wi-Fi 5 (802.11ac) and LTE only, no 5G radio; USB-C 2.0.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

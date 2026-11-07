@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-464",
+  "label": "TS-464 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports (2.5G/1G/100M) and one PCIe Gen3 x2 slot. 5GbE/10GbE are optional add-in cards, not onboard.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

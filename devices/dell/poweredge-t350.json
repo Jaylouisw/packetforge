@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge T350",
+  "label": "PowerEdge T350 tower server",
+  "category": "server",
+  "description": "Tower (4.5U-class) single-socket server with two embedded 1GbE LOM ports and a dedicated 1GbE iDRAC9 port. There is no OCP slot; networking beyond the LOM comes from two PCIe Gen4 and two PCIe Gen3 slots.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

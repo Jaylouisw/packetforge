@@ -1,0 +1,19 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G5-Dome",
+  "label": "UniFi G5 Dome 2K camera",
+  "category": "camera",
+  "description": "4 MP (2K) indoor/outdoor dome with two-way audio, 10/100 MbE RJ45 and IK08 impact rating. PoE 802.3af, 5 W max.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

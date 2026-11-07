@@ -1,0 +1,18 @@
+{
+  "vendor": "dell",
+  "model": "OptiPlex 7010 Plus SFF",
+  "label": "Dell OptiPlex 7010 Plus small form factor",
+  "category": "desktop",
+  "description": "Small-form-factor business desktop, 13th-gen Core, one 1GbE RJ45 on the rear panel, 180W internal PSU.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

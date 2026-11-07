@@ -1,0 +1,22 @@
+{
+  "vendor": "lenovo",
+  "model": "Tab P11 (2nd Gen)",
+  "label": "Lenovo Tab P11 (2nd Gen) tablet",
+  "category": "tablet",
+  "description": "Lenovo Tab P11 (2nd Gen) — 11.5-inch Android tablet, Wi-Fi 6 (2.4/5 GHz) and LTE on cellular SKUs; USB-C 2.0 port with OTG Ethernet.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R650",
+  "label": "PowerEdge R650 1U rack server",
+  "category": "server",
+  "description": "1U two-socket rack server with two embedded 1GbE LOM ports, an OCP 3.0 slot on x8 PCIe lanes and a dedicated 1GbE iDRAC9 port. Up to three PCIe Gen4 low-profile slots carry stand-up adapters.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

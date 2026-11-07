@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-873A",
+  "label": "TS-873A 8-bay NAS",
+  "category": "nas",
+  "description": "8-bay desktop NAS with two 2.5GbE RJ45 ports and two PCIe Gen3 x4 slots. 10GbE comes from an add-in card in one of those slots, not from the motherboard.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

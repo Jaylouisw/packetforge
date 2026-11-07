@@ -1,0 +1,18 @@
+{
+  "vendor": "dell",
+  "model": "OptiPlex 7010 Micro",
+  "label": "Dell OptiPlex 7010 Micro",
+  "category": "desktop",
+  "description": "1.2-litre micro desktop with 13th-gen Core T-series, external 90W adapter and a single 1GbE RJ45.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "brother",
+  "model": "MFC-L2750DW",
+  "label": "Mono laser all-in-one, wired + wireless",
+  "category": "printer",
+  "description": "36 ppm monochrome all-in-one with 10/100Base-TX Ethernet plus 802.11b/g/n 2.4 GHz Wi-Fi. Either path can carry print jobs, and both can be up simultaneously.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

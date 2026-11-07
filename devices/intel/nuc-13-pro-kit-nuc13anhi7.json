@@ -1,0 +1,24 @@
+{
+  "vendor": "intel",
+  "model": "NUC 13 Pro Kit NUC13ANHi7",
+  "label": "Intel NUC 13 Pro (NUC13ANHi7)",
+  "category": "desktop",
+  "description": "4x4-inch mini PC, 13th-gen Core i7-1360P, one 2.5GbE RJ45 plus Wi-Fi 6E and two Thunderbolt 4 ports.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

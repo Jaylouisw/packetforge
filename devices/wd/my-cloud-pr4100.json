@@ -1,0 +1,25 @@
+{
+  "vendor": "wd",
+  "model": "My Cloud PR4100",
+  "label": "My Cloud Pro Series PR4100 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with two Gigabit Ethernet RJ45 ports for failover or link aggregation. There is no expansion slot and no management port.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

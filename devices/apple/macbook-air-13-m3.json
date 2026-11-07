@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Air 13 (M3)",
+  "label": "MacBook Air 13-inch (M3)",
+  "category": "laptop",
+  "description": "13.6-inch fanless ultraportable with Apple M3 (2024), Wi-Fi 6E, two Thunderbolt/USB 4 ports.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

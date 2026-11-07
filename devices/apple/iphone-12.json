@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPhone 12",
+  "label": "iPhone 12 smartphone",
+  "category": "phone",
+  "description": "Apple iPhone 12 — 6.1-inch slab smartphone, Wi-Fi 6 (802.11ax, 2x2) and 5G sub-6 GHz with mmWave on US models; Lightning port, no wired Ethernet.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "vendor": "hpe",
+  "model": "ProLiant DL380 Gen10",
+  "label": "ProLiant DL380 Gen10 2U rack server",
+  "category": "server",
+  "description": "2U two-socket rack server with four embedded 1GbE ports (HPE 331i) plus a 1GbE dedicated iLO 5 port. The single FlexibleLOM slot is the primary 10/25GbE bay and does not consume a PCIe slot.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ilo",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

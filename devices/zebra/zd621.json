@@ -1,0 +1,19 @@
+{
+  "vendor": "zebra",
+  "model": "ZD621",
+  "label": "4-inch desktop thermal label printer",
+  "category": "printer",
+  "description": "4-inch desktop thermal transfer/direct thermal label printer with 10/100 Ethernet, RS-232 and USB 2.0 standard; 802.11ac is an optional factory radio. Wired by default in a warehouse lab.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "motorola",
+  "model": "Moto G Power (2022)",
+  "label": "Moto G Power (2022) smartphone",
+  "category": "phone",
+  "description": "Motorola Moto G Power (2022) — 6.5-inch budget phone, Wi-Fi 5 (802.11ac) and LTE only; USB-C 2.0 with OTG Ethernet.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

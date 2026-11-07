@@ -1,0 +1,19 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Pro 14 (M3, Nov 2023)",
+  "label": "MacBook Pro 14-inch (M3)",
+  "category": "laptop",
+  "description": "14.2-inch pro laptop, Apple M3, HDMI plus SDXC and two Thunderbolt 4 ports; Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

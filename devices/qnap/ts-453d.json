@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-453D",
+  "label": "TS-453D 4-bay NAS",
+  "category": "nas",
+  "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports and a single PCIe Gen2 x2 slot. A 10GbE card fits that slot but the x2 link caps its throughput.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

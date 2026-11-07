@@ -1,0 +1,18 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkStation P3 Tower",
+  "label": "Lenovo ThinkStation P3 Tower",
+  "category": "desktop",
+  "description": "Workstation tower with 13th-gen Core K or Xeon W, 1GbE RJ45 and up to four PCIe expansion slots.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

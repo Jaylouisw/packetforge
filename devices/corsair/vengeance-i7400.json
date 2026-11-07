@@ -1,0 +1,18 @@
+{
+  "vendor": "corsair",
+  "model": "Vengeance i7400",
+  "label": "Corsair Vengeance i7400 gaming PC",
+  "category": "desktop",
+  "description": "Prebuilt ATX gaming tower (i9-13900K / RTX 4080 on the review SKU) built on an MSI PRO Z690-A DDR5 board.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ]
+}

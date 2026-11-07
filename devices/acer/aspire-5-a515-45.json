@@ -1,0 +1,24 @@
+{
+  "vendor": "acer",
+  "model": "Aspire 5 A515-45",
+  "label": "Acer Aspire 5 (A515-45)",
+  "category": "laptop",
+  "description": "15.6-inch budget laptop (Ryzen 5000 U-series) that still includes a Gigabit RJ45 port plus Wi-Fi 6.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

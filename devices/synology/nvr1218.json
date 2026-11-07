@@ -1,0 +1,20 @@
+{
+  "vendor": "synology",
+  "model": "NVR1218",
+  "label": "12-channel desktop NVR, 2 bays",
+  "category": "nvr",
+  "description": "12-channel desktop network video recorder with two drive bays, one gigabit RJ45 port and no PoE. Cameras are licensed per channel and must be powered separately.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

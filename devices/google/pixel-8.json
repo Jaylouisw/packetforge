@@ -1,0 +1,22 @@
+{
+  "vendor": "google",
+  "model": "Pixel 8",
+  "label": "Pixel 8 smartphone",
+  "category": "phone",
+  "description": "Google Pixel 8 — 6.2-inch Tensor G3 phone with Wi-Fi 7 (802.11be, 2x2) and 5G sub-6/mmWave on US models; USB-C 3.2 with Ethernet support.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

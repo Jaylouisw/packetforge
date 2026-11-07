@@ -1,0 +1,19 @@
+{
+  "vendor": "reolink",
+  "model": "RLC-810A",
+  "label": "4K PoE bullet IP camera",
+  "category": "camera",
+  "description": "8 MP (4K) bullet camera with smart person/vehicle detection and 30 m IR, single RJ45 10/100 port. Powered by PoE 802.3af, 12 W max, and it has no Wi-Fi radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

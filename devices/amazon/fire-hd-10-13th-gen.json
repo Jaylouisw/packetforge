@@ -1,0 +1,17 @@
+{
+  "vendor": "amazon",
+  "model": "Fire HD 10 (13th Gen)",
+  "label": "Fire HD 10 (13th gen) tablet",
+  "category": "tablet",
+  "description": "Amazon Fire HD 10 (13th generation, 2023) — 10.1-inch budget tablet, Wi-Fi 5 (802.11ac) only, no cellular; USB-C 2.0 charge/data port with no Ethernet support.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

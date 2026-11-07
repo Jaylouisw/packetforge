@@ -1,0 +1,19 @@
+{
+  "vendor": "axis",
+  "model": "M3086-V",
+  "label": "4MP indoor mini dome IP camera",
+  "category": "camera",
+  "description": "Compact 4 MP indoor mini dome streaming H.264/H.265 over a 10/100 RJ45 port. Powered only by PoE 802.3af/802.3at Type 1 Class 2, drawing 3.6 W typical and 4.2 W max.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

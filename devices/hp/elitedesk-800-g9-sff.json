@@ -1,0 +1,18 @@
+{
+  "vendor": "hp",
+  "model": "EliteDesk 800 G9 SFF",
+  "label": "HP EliteDesk 800 G9 small form factor",
+  "category": "desktop",
+  "description": "Small-form-factor business desktop, 12th-gen Core, one 1GbE RJ45 plus USB-C and DisplayPort.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

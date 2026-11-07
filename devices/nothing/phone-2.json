@@ -1,0 +1,22 @@
+{
+  "vendor": "nothing",
+  "model": "Phone (2)",
+  "label": "Nothing Phone (2) smartphone",
+  "category": "phone",
+  "description": "Nothing Phone (2) — 6.7-inch glyph-interface phone, Wi-Fi 6 (2x2) and 5G sub-6 GHz; USB-C 2.0 with Ethernet over adapter.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

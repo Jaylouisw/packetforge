@@ -1,0 +1,22 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy S23",
+  "label": "Galaxy S23 smartphone",
+  "category": "phone",
+  "description": "Samsung Galaxy S23 — 6.1-inch flagship, Wi-Fi 6E (2.4/5/6 GHz) with 5G sub-6/mmWave; USB-C 3.2 with DeX and dock Ethernet.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

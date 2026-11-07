@@ -1,0 +1,30 @@
+{
+  "vendor": "dell",
+  "model": "PowerEdge R450",
+  "label": "PowerEdge R450 1U rack server",
+  "category": "server",
+  "description": "1U single-socket rack server with two 1GbE LOM ports on the motherboard and a separate dedicated 1GbE iDRAC9 port. One OCP 3.0 mezzanine slot and two PCIe Gen4 slots take any additional network card.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "idrac",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

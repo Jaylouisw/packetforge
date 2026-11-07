@@ -1,0 +1,24 @@
+{
+  "vendor": "apple",
+  "model": "Mac mini (M2, 2023)",
+  "label": "Apple Mac mini (M2)",
+  "category": "desktop",
+  "description": "Compact desktop with Apple M2, Gigabit Ethernet RJ45 standard (10GbE a build option) plus Wi-Fi 6E.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

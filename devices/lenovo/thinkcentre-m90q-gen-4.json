@@ -1,0 +1,18 @@
+{
+  "vendor": "lenovo",
+  "model": "ThinkCentre M90q Gen 4",
+  "label": "Lenovo ThinkCentre M90q Gen 4",
+  "category": "desktop",
+  "description": "1-litre tiny desktop, 13th-gen Core, external adapter and one 1GbE RJ45 on the rear.",
+  "capabilities": [
+    "host",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "dell",
+  "model": "XPS 15 9530",
+  "label": "XPS 15 (9530)",
+  "category": "laptop",
+  "description": "15.6-inch creator laptop with 13th-gen Core H and RTX 40 graphics, Thunderbolt 4 and Wi-Fi 6E; no RJ45.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}

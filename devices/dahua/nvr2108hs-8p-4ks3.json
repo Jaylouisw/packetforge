@@ -1,0 +1,61 @@
+{
+  "vendor": "dahua",
+  "model": "NVR2108HS-8P-4KS3",
+  "label": "8-channel Lite NVR with 8-port PoE",
+  "category": "nvr",
+  "description": "8-channel 4K Lite NVR in a 1U chassis with one HDD bay, one gigabit RJ45 uplink and eight 10/100 PoE camera ports. PoE budget is 72 W total with 25.5 W per port (802.3af/at).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UNVR-Pro",
+  "label": "UniFi Protect NVR Pro, 7 bays",
+  "category": "nvr",
+  "description": "2U rackmount UniFi Protect recorder with seven 2.5/3.5-inch bays, one gigabit RJ45 management port and one 10G SFP+ uplink. It has no PoE outputs at all - cameras must be powered from a separate UniFi PoE switch.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+ 1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ]
+}

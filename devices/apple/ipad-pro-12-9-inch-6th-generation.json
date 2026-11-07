@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "iPad Pro 12.9-inch (6th generation)",
+  "label": "iPad Pro 12.9-inch (6th gen) tablet",
+  "category": "tablet",
+  "description": "Apple iPad Pro 12.9-inch (6th generation, M2) — 12.9-inch mini-LED tablet, Wi-Fi 6E and 5G sub-6/mmWave; Thunderbolt/USB 4 port with Ethernet support.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

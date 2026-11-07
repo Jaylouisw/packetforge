@@ -1,0 +1,22 @@
+{
+  "vendor": "google",
+  "model": "Pixel 6",
+  "label": "Pixel 6 smartphone",
+  "category": "phone",
+  "description": "Google Pixel 6 — 6.4-inch Tensor phone, Wi-Fi 6E (region-dependent 6 GHz) and 5G sub-6/mmWave; USB-C 3.1 with Ethernet adapter support.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ]
+}

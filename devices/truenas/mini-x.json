@@ -1,0 +1,30 @@
+{
+  "vendor": "truenas",
+  "model": "Mini X+",
+  "label": "TrueNAS Mini X+ 5-bay NAS",
+  "category": "nas",
+  "description": "5-bay desktop NAS with two RJ45 1/10GBASE-T ports as standard and a dedicated RJ45 IPMI port for out-of-band management. A PCIe slot can take an optional 2-port 10GbE card.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "reolink",
+  "model": "RLC-511WA",
+  "label": "5MP Wi-Fi bullet camera with backup Ethernet",
+  "category": "camera",
+  "description": "5 MP bullet camera with 5x optical zoom that joins 802.11a/b/g/n on 2.4 or 5 GHz and also carries a 10/100 RJ45 pigtail. Powered from a 12 VDC barrel jack; there is no PoE front end at all.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ]
+}
