@@ -28,6 +28,13 @@ class Interface {
     this.parent = spec.parent || null;      // physical interface name
     this.encapVid = spec.encapVid || null;  // 802.1Q VLAN id
 
+    // Combo ports: this interface shares one physical cage position with
+    // another. Cabling either half occupies the cage, so the other half cannot
+    // be used. Real switches expose the pair as two interfaces exactly like
+    // this, and configuring one disables the other.
+    this.comboWith = spec.comboWith || null;   // sibling interface name
+    this.comboRole = spec.comboRole || null;   // 'rj45' | 'sfp'
+
     // L2 configuration (802.1Q)
     this.vlan = {
       mode: 'access',         // 'access' | 'trunk'

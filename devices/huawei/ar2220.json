@@ -3,7 +3,7 @@
   "model": "AR2220",
   "label": "AR2220 Router",
   "category": "router",
-  "description": "Huawei AR2220 enterprise router: 3x GE fixed ports (one GE combo RJ45/SFP), 4x SIC + 2x WSIC slots, 1Mpps forwarding.",
+  "description": "Huawei AR2220 enterprise router: 3x GE fixed ports (Gi0/0/3 is a combo RJ45/SFP cage, modelled as two mutually exclusive interfaces), 4x SIC + 2x WSIC slots, 1Mpps forwarding.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -26,13 +26,21 @@
       "name": "Gi0/0/3",
       "type": "ethernet",
       "speed": "1G",
+      "comboWith": "Gi0/0/3-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Gi0/0/3-sfp",
+      "type": "ethernet",
+      "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
         1000
-      ]
+      ],
+      "comboWith": "Gi0/0/3",
+      "comboRole": "sfp"
     }
   ],
   "icon": "router",
-  "color": "#f43f5e",
-  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: one GE combo RJ45/SFP modelled on the SFP side."
+  "color": "#f43f5e"
 }

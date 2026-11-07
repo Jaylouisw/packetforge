@@ -94,6 +94,29 @@ class Topology {
     let V = null;
     try { V = require('./validation'); } catch (e) { V = null; }
 
+    // A combo port shares one physical cage with a sibling interface: cabling
+    // either half occupies the cage, so the other half is unusable until that
+    // cable is pulled. Checked here (not in connect()) so the dry-run endpoint
+    // reports it exactly like a real link attempt.
+    const comboSides = [{ dev: a, iface: ai }, { dev: b, iface: bi }];
+    for (const side of comboSides) {
+      if (!side.iface || !side.iface.comboWith) continue;
+      const sib = side.dev.interfaces.get(side.iface.comboWith);
+      if (sib && sib.peer && !opts.force) {
+        return {
+          ok: false,
+          errors: [{
+            code: 'E_COMBO_OCCUPIED',
+            message: side.dev.name + '/' + side.iface.name + ' cannot be cabled: it shares one ' +
+              'physical combo cage with ' + side.iface.comboWith + ', which is already in use.',
+            port: side.iface.name,
+            partner: side.iface.comboWith
+          }],
+          warnings: []
+        };
+      }
+    }
+
     if (V && typeof V.validateConnection === 'function') {
       return V.validateConnection({
         portA: ai && ai.hardware,

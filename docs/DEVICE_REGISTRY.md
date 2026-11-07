@@ -63,6 +63,43 @@ The engine branches on capabilities only. So:
 The template expands to `Fa0/1 … Fa0/24`. Use `start: 0` for Cisco-style
 zero-based ports (`Gi0/0/0`).
 
+### Optical cages
+
+A port is copper RJ45 unless you say otherwise. For an optical port set
+`connector` — `sfp`, `sfp+`, `sfp28`, `qsfp+` or `qsfp28` — and give the speeds
+the cage accepts in `speedCaps`:
+
+```json
+{ "name": "Gi1/1/1", "type": "ethernet", "speed": "10G",
+  "connector": "sfp+", "speedCaps": [1000, 10000] }
+```
+
+Getting this wrong is the most common spec bug: a switch described as having
+SFP+ uplinks but modelled with all-copper ports will *refuse* a fibre link that
+the real hardware accepts, and *offer* copper where it does not fit. CI checks
+every description against the ports it declares.
+
+### Combo ports
+
+Some hardware (common on Cisco, HPE, Huawei and Juniper) has a **combo** cage: one
+physical port position that accepts either an RJ45 plug or an SFP module, never
+both at once. Model it as two interfaces that name each other:
+
+```json
+{ "name": "Gi0/0/3", "type": "ethernet", "speed": "1G",
+  "comboWith": "Gi0/0/3-sfp", "comboRole": "rj45" },
+{ "name": "Gi0/0/3-sfp", "type": "ethernet", "speed": "1G", "connector": "sfp",
+  "speedCaps": [1000], "comboWith": "Gi0/0/3", "comboRole": "sfp" }
+```
+
+Both halves accept a cable on their own, in their own medium. Once one is
+cabled, the other is refused with `E_COMBO_OCCUPIED` naming the port in use, so
+a lab cannot plug two links into one cage. Pull the cable and the sibling frees
+up again. `AR2220` is the reference implementation.
+
+Because a combo port costs two interfaces, a device with combo ports has *more*
+interfaces than physical ports — that is correct, not a miscount.
+
 ## Example: adding a new vendor
 
 To add a "Northbound NFX-9000" router, create

@@ -115,6 +115,10 @@ const CAGES = {
   sfp: { name: 'SFP', family: 'optical', label: 'SFP cage' },
   'sfp+': { name: 'SFP+', family: 'optical', label: 'SFP+ cage (10G)' },
   sfp28: { name: 'SFP28', family: 'optical', label: 'SFP28 cage (25G)' },
+  // A combo port is one physical cage position that takes EITHER an RJ45
+  // copper port or an SFP module - never both at once. Real switches present
+  // it as two logical interfaces that are mutually exclusive.
+  combo: { name: 'Combo', family: 'combo', label: 'Combo RJ45 / SFP' },
   'qsfp+': { name: 'QSFP+', family: 'optical', label: 'QSFP+ cage (40G)' },
   qsfp28: { name: 'QSFP28', family: 'optical', label: 'QSFP28 cage (100G)' },
   console: { name: 'Console', family: 'management', label: 'Console (RS-232)' },
@@ -124,10 +128,11 @@ const CAGES = {
 
 // Which cages can physically mate with which.
 const CAGE_MATE = {
-  rj45: ['rj45'],
-  sfp: ['sfp', 'sfp+', 'sfp28'],
-  'sfp+': ['sfp', 'sfp+', 'sfp28'],
-  sfp28: ['sfp', 'sfp+', 'sfp28'],
+  rj45: ['rj45', 'combo'],
+  combo: ['combo', 'rj45', 'sfp', 'sfp+', 'sfp28'],
+  sfp: ['sfp', 'sfp+', 'sfp28', 'combo'],
+  'sfp+': ['sfp', 'sfp+', 'sfp28', 'combo'],
+  sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
   'qsfp+': ['qsfp+', 'qsfp28'],
   qsfp28: ['qsfp+', 'qsfp28'],
   console: ['console'],
@@ -150,6 +155,14 @@ const CAGE_MEDIA = {
     if (maxMbps >= 5000) out.push('5gbase-t');
     if (maxMbps >= 10000) out.push('10gbase-t');
     return out.filter(function (id) { return MEDIA[id].speedMbps <= maxMbps; });
+  },
+  // A combo port accepts either the copper side or the optical side, so its
+  // media set is the union of both. Whether the RJ45 or the SFP half is in use
+  // is decided by the cable plugged in, not by the cage.
+  combo: function (maxMbps) {
+    const copper = CAGE_MEDIA.rj45(maxMbps);
+    const optical = CAGE_MEDIA.sfp();
+    return copper.concat(optical.filter(function (id) { return copper.indexOf(id) === -1; }));
   },
   sfp: function () {
     // '1000base-t-sfp' is the copper SFP module, which is legitimate in this
@@ -178,6 +191,12 @@ const CAGE_SPEEDS = {
     if (maxMbps >= 5000) out.push(5000);
     if (maxMbps >= 10000) out.push(10000);
     return out.filter(function (s) { return s <= maxMbps; });
+  },
+  // A combo port runs either at copper rates or at the optical module's rate.
+  combo: function (maxMbps) {
+    const out = [10, 100, 1000];
+    if (maxMbps >= 10000) out.push(10000);
+    return out.filter(function (v) { return v <= maxMbps; });
   },
   sfp: function () { return [1000]; },
   'sfp+': function () { return [1000, 10000]; },

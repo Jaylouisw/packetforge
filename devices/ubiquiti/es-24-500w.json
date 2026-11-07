@@ -3,7 +3,7 @@
   "model": "ES-24-500W",
   "label": "EdgeSwitch 24 PoE (500W)",
   "category": "switch",
-  "description": "Ubiquiti EdgeSwitch ES-24-500W - 24x 1GbE RJ45 with 802.3af/at and 24V passive PoE (500W budget), 2x 1G SFP.",
+  "description": "Ubiquiti EdgeSwitch 24 PoE (500W) - 24x 1G RJ45 with 802.3at PoE+ plus 2x 1G SFP cages. The 500 W figure is the power-supply and total-consumption rating; Ubiquiti publishes no PoE budget for this model.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -133,12 +133,20 @@
     {
       "name": "SFP 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "SFP 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "switch",
