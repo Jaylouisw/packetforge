@@ -33,12 +33,22 @@
     {
       "name": "Te1/0/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "Te1/0/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "ap",

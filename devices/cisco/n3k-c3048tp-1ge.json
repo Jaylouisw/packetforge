@@ -20,22 +20,38 @@
     {
       "name": "Eth1/49",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Eth1/50",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Eth1/51",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Eth1/52",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
   "icon": "switch",

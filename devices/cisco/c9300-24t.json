@@ -20,42 +20,74 @@
     {
       "name": "Gi1/1/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/7",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "Gi1/1/8",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
   "icon": "switch",

@@ -1,0 +1,170 @@
+{
+  "ports": [
+    {
+      "vendor": "hpe",
+      "model": "2530-24G",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111414",
+      "notes": "J9776A: 24x 1G RJ45 + 4 dedicated 1G SFP uplink cages (J4858/J4859 class); SFP cages are 1G only, no 10G."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2530-48G-PoE+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111414",
+      "notes": "J9772A: 48x 1G PoE+ RJ45 + 4 dedicated 1G SFP uplink cages; 1G optics only."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2620-24",
+      "rj45Count": 26,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111491",
+      "notes": "J9623A: 24x 100M FE RJ45 + 2x 1G RJ45 + 2x 1G SFP (separate uplinks, not combo) = 28; QuickSpecs: 'two 10/100/1000BASE-T ports and two SFP slots'."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2620-48",
+      "rj45Count": 50,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111491",
+      "notes": "J9626A: 48x 100M FE RJ45 + 2x 1G RJ45 + 2x 1G SFP (separate uplinks) = 52; SFP 1G only."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2920-24G",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111401",
+      "notes": "J9726A: counted cages are the 4 built-in 10G SFP+ uplinks (rear module slot); ports 21-24 are dual-personality 1G SFP and are modelled as RJ45 to hit 28."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2920-48G-PoE+",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111401",
+      "notes": "J9729A: 48x 1G PoE+ RJ45 + 4x 10G SFP+ (1000/10000) in the rear 10GbE uplink module; ports 45-48 dual-personality 1G SFP modelled as RJ45."
+    },
+    {
+      "vendor": "aruba",
+      "model": "3810M 48G PoE+ 1-slot",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04843019",
+      "notes": "JL074A: 48x 1G PoE+ RJ45 + 4 fixed 1000/10000 SFP/SFP+ ports on the faceplate (module slot A empty) = 52."
+    },
+    {
+      "vendor": "extreme",
+      "model": "VSP 4450GSX-PWR+",
+      "rj45Count": 12,
+      "sfpCount": 38,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        100,
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://documentation.extremenetworks.com/VOSS/VSP4000/HW/9035361_InstallingVSP4450GSX_IG.pdf",
+      "notes": "Mixed fibre per Extreme HW guide: 12x 1G PoE+ RJ45 + 36x 100/1000 SFP (1:13-1:48) + 2x 1/10G SFP+ (1:49-1:50) = 50; sfpType shows the max cage (SFP+), majority are 1G SFP."
+    },
+    {
+      "vendor": "extreme",
+      "model": "X440-G2-48t-10GE4",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://documentation.extremenetworks.com/extremeswitching/GUID-42CD917D-7F4D-4CE2-BD0F-92D24B553A55.shtml",
+      "notes": "Part 16534: 48x 1G RJ45 (4 of them sit next to 4 combo 1G SFP cages, hence shared=true) + 4 rear 1GBASE-X SFP+ cages (10G needs licence) = 52 counted."
+    },
+    {
+      "vendor": "extreme",
+      "model": "X460-G2-48t-10GE4",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://documentation.extremenetworks.com/summit/GUID-C1D031BC-6601-4B8A-978A-87197F659E4C.shtml",
+      "notes": "Part 16702: 48x 10/100/1000BASE-T (1:1-1:48) + 4x 10GBASE-X SFP+ (1:49-1:52, two can stack) = 52; rear VIM slot unused."
+    },
+    {
+      "vendor": "extreme",
+      "model": "X620-16x",
+      "rj45Count": 0,
+      "sfpCount": 16,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        100,
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://documentation.extremenetworks.com/extremeswitching/GUID-59279C4B-E2E5-4481-813F-3D00A5BE0089.shtml",
+      "notes": "All-fibre: 16x front-panel 100M/1G/10GBASE-X SFP+ (1:1-1:16), zero RJ45 data ports (separate 10/100/1000 mgmt + console not counted)."
+    },
+    {
+      "vendor": "mikrotik",
+      "model": "CRS312-4C+8XG-RM",
+      "rj45Count": 9,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://mikrotik.com/product/crs312_4c_8xg_rm",
+      "notes": "9 RJ45 = 8x 10G RJ45 + 1x 100M mgmt; 4 combo cages counted as SFP+ (each combo is RJ45 *or* SFP+, software-selected, so shared=true); 9+4=13."
+    }
+  ]
+}

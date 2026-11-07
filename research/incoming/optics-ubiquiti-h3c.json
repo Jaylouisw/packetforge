@@ -1,0 +1,169 @@
+{
+  "ports": [
+    {
+      "vendor": "ubiquiti",
+      "model": "EdgeRouter-4",
+      "rj45Count": 3,
+      "sfpCount": 1,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-4",
+      "notes": "Confirmed: (3) 10/100/1000 RJ45 + (1) 1 Gbps SFP (eth3) - 1G optics only, no SFP+."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UCG-Max",
+      "rj45Count": 5,
+      "sfpCount": 0,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://techspecs.ui.com/unifi/wifi/ucg-max",
+      "notes": "Genuinely no SFP: 5x 2.5GbE RJ45 (1 WAN + 4 LAN); existing spec is already correct."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF-5",
+      "rj45Count": 3,
+      "sfpCount": 0,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wireless/af-5",
+      "notes": "NO SFP: (1) GbE RJ45 data + (1) 10/100 MbE RJ45 mgmt; desc's '1x SFP DATA' is wrong. 3rd sim port is radio0 (wireless)."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF-5XHD",
+      "rj45Count": 3,
+      "sfpCount": 0,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wireless/airfiber-5xhd-1",
+      "notes": "NO SFP: (2) GbE RJ45 dual redundant PoE; desc's 'SFP DATA' is wrong. 3rd sim port is radio0 (wireless)."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF60-XG",
+      "rj45Count": 3,
+      "sfpCount": 1,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wireless/af60-xg",
+      "notes": "Real: (1) GbE RJ45 + (1) 1/10G SFP+; other 2 sim ports are radio0/radio1 (wireless, no cage) so they land in the RJ45 remainder."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "GBE-Plus",
+      "rj45Count": 3,
+      "sfpCount": 0,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://dl-origin.ubnt.com/ds/gbe-plus_ds.pdf",
+      "notes": "airMAX GigaBeam Plus 60GHz radio, NOT a PoE adapter: 1x 10/100/1000 RJ45 PoE-in, zero SFP - desc's '10G SFP+ data port' is fabricated."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR2600-6-X1",
+      "rj45Count": 4,
+      "sfpCount": 1,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Routers/Products/WAN_Routers/MSR/H3C_MSR2600/",
+      "notes": "Real SKU = 1x GE copper WAN + 1x GE SFP + 4x GE RJ45 LAN = 6 distinct ports (SFP not combo); sim declares 5, so one copper is dropped."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR3610-X1",
+      "rj45Count": 4,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Routers/Products/WAN_Routers/MSR/H3C_MSR3600/",
+      "notes": "SKU text '4GE(2Combo)+2SFP' = 6: 2 dedicated SFP plus 2 RJ45/SFP combos, so up to 4 fibre ports in practice."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR3620-X1",
+      "rj45Count": 16,
+      "sfpCount": 6,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Routers/Products/WAN_Routers/MSR/H3C_MSR3600/",
+      "notes": "SKU = 6x 10GE SFP+ + 16x GE RJ45 = 22; sim only declares the 6 SFP+ (Te0/16-21), module ports are modular slots."
+    },
+    {
+      "vendor": "h3c",
+      "model": "S5130S-28P-EI",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/",
+      "notes": "24x 10/100/1000BASE-T + 4x 1000BASE-X SFP = 28; sim's Gi1/0/25-28 are exactly the 4 SFP uplinks."
+    },
+    {
+      "vendor": "h3c",
+      "model": "S5560X-30C-EI",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Aggregation/S5500/H3C_S5560X-EI/",
+      "notes": "24x GE-T (8 of them RJ45/SFP combo) + 4x 10G/1G SFP+ = 28; 12 fibre-capable cages total, combos are one-at-a-time."
+    },
+    {
+      "vendor": "radwin",
+      "model": "RADWIN 5000 JET",
+      "rj45Count": 2,
+      "sfpCount": 1,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://tools.radwin.com/documentation/duo/",
+      "notes": "JET HBS: 2x 10/100/1000 RJ45 (data + mgmt, PoE in) plus optional 1G SFP that carries data/mgmt only, no power; sim's 3rd port is radio0."
+    },
+    {
+      "vendor": "siklu",
+      "model": "EtherHaul 8010FX",
+      "rj45Count": 2,
+      "sfpCount": 1,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://www.ceragon.com/hubfs/Product%20Briefs/PB_Unified%20E-band%20FAMILY.pdf",
+      "notes": "ETH1 1G RJ45 + ETH2 combo 10G (RJ45 or SFP+, one at a time); only 2 physical cages exist, sim's 3rd port is radio0."
+    }
+  ]
+}

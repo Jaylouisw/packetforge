@@ -152,10 +152,15 @@ for (const entry of (input.ports || [])) {
     if (!isSfp && !port._fromTemplate) continue;   // explicit copper port stays copper
     if (isSfp) {
       port._real.connector = String(type).toLowerCase();
-      const mbps = speeds ? speeds[Math.min(i - rj45, speeds.length - 1)] : null;
-      if (mbps) {
-        port._real.speed = mbps >= 1000 ? (mbps / 1000) + 'G' : mbps + 'M';
-        port._real.speedCaps = [mbps];
+      // sfpSpeedsMbps is the set of speeds the cage accepts, not one speed per
+      // port: a 1G/10G SFP+ cage reports [1000,10000]. Record the whole set as
+      // the cap so we do not wrongly refuse a 1G optic, and negotiate at the
+      // highest rate the cage is known to support.
+      if (speeds) {
+        const caps = Array.from(new Set(speeds)).sort(function (a, b) { return a - b; });
+        const top = caps[caps.length - 1];
+        port._real.speed = top >= 1000 ? (top / 1000) + 'G' : top + 'M';
+        port._real.speedCaps = caps;
       }
     }
   }

@@ -20,22 +20,38 @@
     {
       "name": "Gi0/25",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "Gi0/26",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "Gi0/27",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "Gi0/28",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "switch",

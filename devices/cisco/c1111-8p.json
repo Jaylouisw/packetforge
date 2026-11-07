@@ -27,9 +27,14 @@
     {
       "name": "Gi0/0/1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "router",
-  "color": "#2563eb"
+  "color": "#2563eb",
+  "comboPorts": 1
 }
