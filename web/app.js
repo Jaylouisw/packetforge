@@ -5,6 +5,7 @@
   let catalog = { specs: [], categories: {} };
   let topo = null;
   let selectedId = null;
+  let selectedLink = null;
   let placing = null;
   const consoleLog = {}; // deviceId -> { lines: [], prompt: '>' }
 
@@ -180,6 +181,7 @@
   };
 
   PFCanvas.on.select = function (id) { select(id); };
+  PFCanvas.on.selectLink = function (id) { selectLink(id); };
 
   PFCanvas.on.move = async function (id, x, y) {
     if (!topo.layout) topo.layout = {};
@@ -303,6 +305,7 @@
   // ---------- selection + inspector ----------
   function select(id) {
     selectedId = id;
+    selectedLink = null;
     PFCanvas.setSelected(id);
     renderDeviceTab();
     renderSimulateTab();
@@ -314,6 +317,19 @@
     }
   }
 
+  function selectLink(id) {
+    selectedLink = id;
+    selectedId = null;
+    PFCanvas.setSelectedLink(id);
+    renderDeviceTab();
+    const l = (topo.links || []).find(function (x) { return x.id === id; });
+    if (l) {
+      const da = deviceById(l.a.deviceId), db = deviceById(l.b.deviceId);
+      setStatus('Link: ' + (da ? da.name : '?') + ':' + l.a.iface + ' ↔ ' +
+        (db ? db.name : '?') + ':' + l.b.iface);
+    }
+  }
+
   function switchTab(name) {
     document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.getAttribute('data-tab') === name); });
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + name); });
@@ -321,6 +337,7 @@
 
   function renderDeviceTab() {
     const wrap = $('#tab-device');
+    if (selectedLink) { renderLinkInspector(wrap); return; }
     const d = deviceById(selectedId);
     if (!d) {
       wrap.innerHTML = '<div class="field-label">No device selected</div><div style="color:var(--muted);font-size:13px">Click a device on the canvas to inspect and configure it.</div>';
@@ -338,27 +355,30 @@
     for (const c of (d.capabilities || [])) html += '<span class="chip">' + c + '</span>';
     html += '</div>';
 
+    // PoE: report the real budget, and say so when we do not have one rather
+    // than pretending it is 0 W.
+    const psePorts = d.interfaces.filter(function (i) { return i.poeOut; }).length;
+    if (d.poeBudget) {
+      html += '<div class="kv"><span class="k">PoE budget</span><span>' + d.poeBudget + ' W' +
+        (psePorts ? ' · ' + psePorts + ' PSE ports' : '') + '</span></div>';
+    } else if (psePorts) {
+      html += '<div class="kv"><span class="k">PoE</span><span class="muted">' + psePorts +
+        ' PSE ports · budget not modelled</span></div>';
+    }
+
     // hostname editor
     html += '<div class="field-label">Hostname</div>';
     html += '<input type="text" id="hostname-input" style="width:100%;background:var(--bg-2);border:1px solid var(--border-2);color:var(--text);border-radius:5px;padding:6px 8px" value="' + (d.name || '') + '">';
 
-    // interfaces
-    html += '<div class="field-label">Interfaces</div>';
-    html += '<table class="iface-table"><thead><tr><th>Port</th><th>IP</th><th>Mask</th><th>Link</th></tr></thead><tbody>';
-    for (const i of d.interfaces) {
-      const connected = i.peer || (topo.links || []).some(function (l) {
-        return (l.a.deviceId === d.id && l.a.iface === i.name) || (l.b.deviceId === d.id && l.b.iface === i.name);
-      });
-      html += '<tr>' +
-        '<td style="font-family:var(--mono)">' + i.name + '</td>' +
-        '<td><input type="text" data-iface="' + i.name + '" data-field="ip" value="' + (i.ip || '') + '" placeholder="—"></td>' +
-        '<td><input type="text" data-iface="' + i.name + '" data-field="mask" value="' + (i.mask || '') + '" placeholder="255.255.255.0"></td>' +
-        '<td><span class="port-toggle" data-iface="' + i.name + '" data-field="toggle" title="Toggle admin state" style="color:' + (i.enabled ? 'var(--green)' : 'var(--red)') + '">' + (i.enabled ? '▲ up' : '▼ down') + '</span>' +
-        (connected ? '<span style="color:var(--green);font-size:10px"> ●</span>' : '') + '</td>' +
-        '</tr>';
-    }
-    html += '</tbody></table>';
-    html += '<div class="hint" style="margin-top:6px">Set IP + mask then press Enter. Toggle ▲/▼ to shutdown an interface.</div>';
+    // interfaces — hardware-aware, filterable, expandable
+    const upCount = d.interfaces.filter(function (i) { return i.enabled; }).length;
+    html += '<div class="field-label">Interfaces <span class="iface-count">' +
+      d.interfaces.length + ' ports · ' + upCount + ' up</span></div>';
+    html += '<input id="iface-filter" class="iface-filter" type="search" placeholder="filter ports by name, media or IP…" autocomplete="off" spellcheck="false">';
+    html += '<div class="iface-list" id="iface-list">';
+    for (const i of d.interfaces) html += ifaceRowHTML(d, i);
+    html += '</div>';
+    html += '<div class="hint" style="margin-top:6px">Click a port to edit its IP and admin state, and to see its real hardware. Toggle ▲/▼ to shut it down.</div>';
 
     // routes
     html += '<div class="field-label">Routes</div>';
@@ -372,6 +392,28 @@
     }
 
     wrap.innerHTML = html;
+
+    // interface rows: expand on click, filter by text
+    const listEl = wrap.querySelector('#iface-list');
+    if (listEl) {
+      listEl.addEventListener('click', function (e) {
+        const head = e.target.closest ? e.target.closest('.iface-head') : null;
+        if (!head) return;
+        const row = head.parentElement;
+        const wasOpen = row.classList.contains('open');
+        listEl.querySelectorAll('.iface-row.open').forEach(function (r) { r.classList.remove('open'); });
+        if (!wasOpen) row.classList.add('open');
+      });
+    }
+    const filt = wrap.querySelector('#iface-filter');
+    if (filt && listEl) {
+      filt.addEventListener('input', function () {
+        const q = filt.value.trim().toLowerCase();
+        listEl.querySelectorAll('.iface-row').forEach(function (row) {
+          row.style.display = (!q || row.textContent.toLowerCase().indexOf(q) >= 0) ? '' : 'none';
+        });
+      });
+    }
 
     // wire interface editors
     wrap.querySelectorAll('input[data-field]').forEach(function (inp) {
@@ -424,6 +466,126 @@
   function consoleState(devId) {
     if (!consoleLog[devId]) consoleLog[devId] = { lines: [], prompt: '>' };
     return consoleLog[devId];
+  }
+
+  // ---------- inspector helpers ----------
+  function fmtSpeed(mbps) {
+    if (!mbps) return '—';
+    if (mbps >= 1000) {
+      const g = mbps / 1000;
+      return (g % 1 === 0 ? g : g.toFixed(1)) + 'G';
+    }
+    return mbps + 'M';
+  }
+
+  function cageLabel(c) {
+    const known = {
+      rj45: 'RJ45', sfp: 'SFP', 'sfp+': 'SFP+', sfp28: 'SFP28',
+      'qsfp+': 'QSFP+', qsfp28: 'QSFP28', console: 'Console',
+      usb: 'USB', antenna: 'Antenna'
+    };
+    return known[c] || String(c || '').toUpperCase();
+  }
+
+  function vlanSummary(i) {
+    const v = i.vlan || {};
+    if (v.mode === 'trunk') {
+      const allowed = v.allowedVlans === 'all' ? 'all'
+        : (Array.isArray(v.allowedVlans) ? v.allowedVlans.join(',') : v.allowedVlans);
+      return 'trunk · native ' + (v.nativeVlan || 1) + ' · allowed ' + allowed;
+    }
+    return 'access ' + (v.accessVlan || 1);
+  }
+
+  // One interface, collapsed to a single line with its hardware visible.
+  function ifaceRowHTML(d, i) {
+    const connected = (topo.links || []).some(function (l) {
+      return (l.a.deviceId === d.id && l.a.iface === i.name) ||
+             (l.b.deviceId === d.id && l.b.iface === i.name);
+    });
+    const hw = i.cage ? cageLabel(i.cage) + ' ' + fmtSpeed(i.speed) : fmtSpeed(i.speed);
+    const ipText = i.ip ? i.ip + '/' + maskBits(i.mask) : '—';
+    const caps = (i.speedCaps && i.speedCaps.length)
+      ? i.speedCaps.slice().sort(function (a, b) { return a - b; }).map(fmtSpeed).join(' / ')
+      : fmtSpeed(i.speed);
+
+    let html = '<div class="iface-row" data-iface="' + i.name + '">';
+    html += '<div class="iface-head">' +
+      '<span class="dot ' + (i.enabled ? 'up' : 'down') + '"></span>' +
+      '<span class="port-name">' + i.name + '</span>' +
+      '<span class="port-media">' + hw + '</span>' +
+      '<span class="port-ip' + (i.ip ? ' has' : '') + '">' + ipText + '</span>' +
+      (connected ? '<span class="port-link" title="cabled">●</span>' : '') +
+      '</div>';
+
+    html += '<div class="iface-body">';
+    html += '<div class="iface-edit">' +
+      '<input type="text" data-iface="' + i.name + '" data-field="ip" value="' + (i.ip || '') + '" placeholder="IP">' +
+      '<input type="text" data-iface="' + i.name + '" data-field="mask" value="' + (i.mask || '') + '" placeholder="mask">' +
+      '<span class="port-toggle" data-iface="' + i.name + '" data-field="toggle" title="Toggle admin state" style="color:' +
+        (i.enabled ? 'var(--green)' : 'var(--red)') + '">' + (i.enabled ? '▲ up' : '▼ down') + '</span>' +
+      '</div>';
+    html += '<div class="hw-grid">';
+    html += '<span class="k">Cage</span><span>' + (i.cage ? cageLabel(i.cage) + ' <span class="mono muted">(' + i.cage + ')</span>' : '—') + '</span>';
+    html += '<span class="k">Speeds</span><span>' + caps + '</span>';
+    html += '<span class="k">Media</span><span class="mono">' + ((i.media || []).join(', ') || '—') + '</span>';
+    if (i.poeOut) html += '<span class="k">PoE</span><span>PSE, ' + i.poeOut + ' W out</span>';
+    if (i.poeIn) html += '<span class="k">PoE</span><span>PD, powered by the cable</span>';
+    html += '<span class="k">VLAN</span><span>' + vlanSummary(i) + '</span>';
+    if (i.lagId) html += '<span class="k">LAG</span><span>group ' + i.lagId + '</span>';
+    if (i.encapVid) html += '<span class="k">Sub-if</span><span>802.1Q encap ' + i.encapVid + '</span>';
+    html += '</div></div></div>';
+    return html;
+  }
+
+  function endpointHTML(d, ifaceName, iface) {
+    if (!d) return '';
+    let h = '<div class="endpoint">';
+    h += '<div class="ep-head"><strong>' + d.name + '</strong> <span class="muted">' +
+      d.vendor + ' ' + d.model + '</span></div>';
+    h += '<div class="kv"><span class="k">Port</span><span class="mono">' + ifaceName + '</span></div>';
+    if (iface) {
+      h += '<div class="kv"><span class="k">Cage</span><span>' + (iface.cage ? cageLabel(iface.cage) : '—') + '</span></div>';
+      h += '<div class="kv"><span class="k">Port rate</span><span>' + fmtSpeed(iface.speed) + '</span></div>';
+      h += '<div class="kv"><span class="k">Admin</span><span style="color:' +
+        (iface.enabled ? 'var(--green)' : 'var(--red)') + '">' + (iface.enabled ? 'up' : 'down') + '</span></div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  // Inspector for a selected cable: media, negotiated rate, both ends.
+  function renderLinkInspector(wrap) {
+    const link = (topo.links || []).find(function (l) { return l.id === selectedLink; });
+    if (!link) {
+      wrap.innerHTML = '<div class="field-label">That cable no longer exists</div>';
+      return;
+    }
+    const da = deviceById(link.a.deviceId), db = deviceById(link.b.deviceId);
+    const ia = da && da.interfaces.find(function (i) { return i.name === link.a.iface; });
+    const ib = db && db.interfaces.find(function (i) { return i.name === link.b.iface; });
+
+    let html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+      '<span class="vendor-badge" style="background:#2f6f4f">LINK</span>' +
+      '<strong>Physical cable</strong></div>';
+    html += '<div class="kv"><span class="k">Type</span><span>' + (link.type || 'ethernet') + '</span></div>';
+    html += '<div class="kv"><span class="k">Media</span><span class="mono">' + (link.mediaId || '—') + '</span></div>';
+    html += '<div class="kv"><span class="k">Rate</span><span>' +
+      (link.speedMbps ? fmtSpeed(link.speedMbps) + ' (' + link.speedMbps + ' Mbps)' : '—') + '</span></div>';
+    html += '<div class="kv"><span class="k">Duplex</span><span>' + (link.duplex || '—') + '</span></div>';
+    if (link.lengthM) html += '<div class="kv"><span class="k">Length</span><span>' + link.lengthM + ' m</span></div>';
+    if (link.lagId) html += '<div class="kv"><span class="k">LAG</span><span>group ' + link.lagId + '</span></div>';
+    html += '<div class="kv"><span class="k">State</span><span>' + (link.state || 'up') + '</span></div>';
+
+    html += '<div class="field-label">Endpoints</div>';
+    html += endpointHTML(da, link.a.iface, ia);
+    html += endpointHTML(db, link.b.iface, ib);
+
+    html += '<div class="verdict">Cages mate and the media is supported at both ends — ' +
+      'this cable passed the physical-layer check when it was created. An impossible ' +
+      'combination is refused at that moment, not silently accepted.</div>';
+
+    wrap.innerHTML = html;
   }
 
   function renderConsole() {
@@ -718,4 +880,17 @@
   }
 
   document.addEventListener('DOMContentLoaded', boot);
+
+  // Small surface for the UI render tests (also handy in the devtools console).
+  window.__pf = {
+    setTopology: function (t) { topo = t; },
+    selectDevice: function (id) { selectedId = id; selectedLink = null; },
+    selectLink: function (id) { selectedLink = id; selectedId = null; },
+    renderDeviceTab: renderDeviceTab,
+    renderLinkInspector: renderLinkInspector,
+    ifaceRowHTML: ifaceRowHTML,
+    fmtSpeed: fmtSpeed,
+    cageLabel: cageLabel,
+    vlanSummary: vlanSummary
+  };
 })();

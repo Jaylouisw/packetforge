@@ -355,9 +355,19 @@ function preferredMedia(mediaIds) {
   return best;
 }
 
+// Budget encoded in a model name ("... PoE+ 370W", "740W") is the only source
+// most datasheets give us in the model string itself.
+function parsePoeBudget(model) {
+  if (!model) return 0;
+  const m = String(model).match(/(\d{2,4})\s*W\b/i);
+  if (!m) return 0;
+  const w = parseInt(m[1], 10);
+  return (w >= 30 && w <= 2000) ? w : 0;
+}
+
 module.exports = {
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
-  parseSpeedMbps, formatSpeedMbps, mediaById,
+  parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, negotiateSpeed, canMate, preferredMedia,
   inferCage, isPoePse, isPoePd
 };

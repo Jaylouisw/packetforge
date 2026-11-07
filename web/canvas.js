@@ -75,7 +75,13 @@
       const a = portWorld(link.a.deviceId, link.a.iface);
       const b = portWorld(link.b.deviceId, link.b.iface);
       if (!a || !b) continue;
-      el('line', { class: 'link', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
+      const sel = state.selectedLink === link.id;
+      // wide invisible hit target so a 2px line is actually clickable
+      el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
+      el('line', {
+        class: 'link' + (sel ? ' selected' : ''),
+        x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id
+      }, world);
     }
 
     // devices
@@ -206,6 +212,15 @@
       if (on.select) on.select(id);
       drag = { mode: 'device', id: id, moved: false, startSx: sx, startSy: sy };
       svg.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      return;
+    }
+
+    // link click → inspect the cable
+    const linkEl = target.closest ? target.closest('[data-link-id]') : null;
+    if (linkEl) {
+      const lid = linkEl.getAttribute('data-link-id');
+      if (on.selectLink) on.selectLink(lid);
       e.preventDefault();
       return;
     }
@@ -344,13 +359,16 @@
 
   function setPlacing(spec) { state.placing = spec; }
   function setConnecting(c) { state.connecting = c; render(state.topology); }
-  function setSelected(id) { state.selected = id; render(state.topology); }
+  function setSelected(id) { state.selected = id; state.selectedLink = null; render(state.topology); }
+  function setSelectedLink(id) { state.selectedLink = id; state.selected = null; render(state.topology); }
   function setTopology(t) { state.topology = t; render(t); }
 
   window.PFCanvas = {
     render: render,
     setTopology: setTopology,
     setSelected: setSelected,
+    setSelectedLink: setSelectedLink,
+    getSelectedLink: function () { return state.selectedLink; },
     setPlacing: setPlacing,
     setConnecting: setConnecting,
     getConnecting: function () { return state.connecting; },

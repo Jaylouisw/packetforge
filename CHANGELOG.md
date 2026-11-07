@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Hardware-aware inspector.** The Device tab only showed port / IP / mask,
+  hiding the entire physical layer it was built on. Each port is now a row with
+  cage, negotiated rate, admin state and a cabled marker, expanding to an IP
+  editor plus a hardware grid (cage, speed caps, supported media, PoE, VLAN
+  mode/access/native/allowed, LAG, sub-interface encap). A port filter handles
+  52-port switches, and PoE switches report their real power budget.
+- **Link inspection.** Cables were previously unselectable. Clicking one opens
+  an inspector with the media id, negotiated rate, duplex, length and both
+  endpoints' cage and port state — and states that the cable passed the
+  physical-layer check rather than implying it.
+- **PoE budget bug.** 27 devices exposed PSE-capable ports but every one had a
+  0 W budget, because nothing populated it — including an Aruba whose model name
+  says `370W`. The budget is now derived from the model name when the spec does
+  not carry one, and the inspector says "budget not modelled" rather than
+  displaying a misleading 0 W.
+- `test/ui-render.test.js` — loads the real `web/app.js` in a stub DOM and
+  asserts on the HTML it produces, so the inspector is tested rather than
+  assumed.
 - **IPv6 in the forwarding path.** Interfaces take `ipv6 address <addr>/<len>`;
   every interface derives an EUI-64 link-local from its MAC; neighbour discovery
   runs over the wire (NS to the solicited-node multicast MAC `33:33:ff:…`, NA

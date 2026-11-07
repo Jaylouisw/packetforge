@@ -92,7 +92,8 @@ class Device {
     });
 
     // PoE budget on the PSE side, in watts. 0 = does not source PoE.
-    this.poeBudget = spec.poeBudget || (spec.poe && spec.poe.budgetW) || 0;
+    this.poeBudget = spec.poeBudget || (spec.poe && spec.poe.budgetW) ||
+      require('./media').parsePoeBudget(spec.model) || 0;
 
     // runtime forwarding state
     // VLAN 1 keeps the flat legacy table (also used by `show mac address-table`);
