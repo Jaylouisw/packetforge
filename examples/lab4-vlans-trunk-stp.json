@@ -1,0 +1,863 @@
+{
+  "format": "packetforge-topology",
+  "version": 1,
+  "devices": [
+    {
+      "id": "d1",
+      "vendor": "generic",
+      "model": "generic-switch",
+      "label": "Switch (L2)",
+      "category": "switch",
+      "color": "#14b8a6",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "cli"
+      ],
+      "name": "SW1",
+      "poeBudget": 0,
+      "config": {
+        "hostname": "SW1",
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null,
+        "vlans": {
+          "10": {
+            "name": "USERS"
+          },
+          "20": {
+            "name": "GUEST"
+          }
+        },
+        "lags": {}
+      },
+      "interfaces": [
+        {
+          "name": "Fa0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 10,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/5",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/6",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/7",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "trunk",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": [
+              10,
+              20
+            ]
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/8",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "trunk",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": [
+              10,
+              20
+            ]
+          },
+          "lagId": null
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "vendor": "generic",
+      "model": "generic-switch",
+      "label": "Switch (L2)",
+      "category": "switch",
+      "color": "#14b8a6",
+      "icon": "switch",
+      "capabilities": [
+        "l2-forward",
+        "cli"
+      ],
+      "name": "SW2",
+      "poeBudget": 0,
+      "config": {
+        "hostname": "SW2",
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null,
+        "vlans": {
+          "10": {
+            "name": "USERS"
+          },
+          "20": {
+            "name": "GUEST"
+          }
+        },
+        "lags": {}
+      },
+      "interfaces": [
+        {
+          "name": "Fa0/1",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 10,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/2",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 20,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/3",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/4",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/5",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/6",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/7",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "trunk",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": [
+              10,
+              20
+            ]
+          },
+          "lagId": null
+        },
+        {
+          "name": "Fa0/8",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "trunk",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": [
+              10,
+              20
+            ]
+          },
+          "lagId": null
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC1",
+      "poeBudget": 0,
+      "config": {
+        "hostname": "PC1",
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null,
+        "vlans": {},
+        "lags": {}
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "192.168.10.10",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        }
+      ]
+    },
+    {
+      "id": "d4",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC2",
+      "poeBudget": 0,
+      "config": {
+        "hostname": "PC2",
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null,
+        "vlans": {},
+        "lags": {}
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "192.168.10.20",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        }
+      ]
+    },
+    {
+      "id": "d5",
+      "vendor": "generic",
+      "model": "generic-pc",
+      "label": "PC",
+      "category": "host",
+      "color": "#3b82f6",
+      "icon": "pc",
+      "capabilities": [
+        "host",
+        "cli",
+        "dhcp-client"
+      ],
+      "name": "PC3",
+      "poeBudget": 0,
+      "config": {
+        "hostname": "PC3",
+        "defaultGateway": null,
+        "routes": [],
+        "motd": null,
+        "vlans": {},
+        "lags": {}
+      },
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": "192.168.10.30",
+          "mask": "255.255.255.0",
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l6",
+      "a": {
+        "deviceId": "d1",
+        "iface": "Fa0/8"
+      },
+      "b": {
+        "deviceId": "d2",
+        "iface": "Fa0/8"
+      },
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
+    },
+    {
+      "id": "l7",
+      "a": {
+        "deviceId": "d1",
+        "iface": "Fa0/7"
+      },
+      "b": {
+        "deviceId": "d2",
+        "iface": "Fa0/7"
+      },
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
+    },
+    {
+      "id": "l8",
+      "a": {
+        "deviceId": "d3",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d1",
+        "iface": "Fa0/1"
+      },
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
+    },
+    {
+      "id": "l9",
+      "a": {
+        "deviceId": "d4",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d2",
+        "iface": "Fa0/1"
+      },
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
+    },
+    {
+      "id": "l10",
+      "a": {
+        "deviceId": "d5",
+        "iface": "eth0"
+      },
+      "b": {
+        "deviceId": "d2",
+        "iface": "Fa0/2"
+      },
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
+    }
+  ],
+  "layout": {
+    "d3": {
+      "x": 80,
+      "y": 620
+    },
+    "d1": {
+      "x": 300,
+      "y": 440
+    },
+    "d2": {
+      "x": 720,
+      "y": 440
+    },
+    "d5": {
+      "x": 560,
+      "y": 620
+    },
+    "d4": {
+      "x": 860,
+      "y": 620
+    }
+  }
+}

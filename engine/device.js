@@ -87,9 +87,15 @@ class Device {
     this.poeBudget = spec.poeBudget || (spec.poe && spec.poe.budgetW) || 0;
 
     // runtime forwarding state
-    this.macTable = new Map();   // mac -> iface name
+    // VLAN 1 keeps the flat legacy table (also used by `show mac address-table`);
+    // other VLANs get their own table because VLANs are separate broadcast domains.
+    this.macTable = new Map();   // mac -> iface name (VLAN 1)
+    this.macTables = new Map();  // vid -> Map(mac -> iface)
     this.arp = new Map();        // ip -> mac
     this.pending = new Map();    // nextHopIp -> [ {egress, frame} ] awaiting ARP
+
+    // STP state, populated by Simulator.computeStp()
+    this.stp = { blocked: new Set(), states: {}, roles: {} };
 
     // persistent configuration
     this.config = {
@@ -127,6 +133,27 @@ class Device {
   isHost() { return this.hasCap('host'); }
   isL2() { return this.hasCap('l2-forward'); }
   isL3() { return this.hasCap('l3-forward'); }
+
+  // MAC table for a given VLAN (VLAN 1 keeps the legacy flat map).
+  macTableFor(vid) {
+    const v = Number(vid) || 1;
+    if (v === 1) return this.macTable;
+    let m = this.macTables.get(v);
+    if (!m) { m = new Map(); this.macTables.set(v, m); }
+    return m;
+  }
+
+  // The LAG group a port belongs to, or null.
+  lagFor(ifaceName) {
+    const lags = this.config.lags || {};
+    for (const id of Object.keys(lags)) {
+      const lag = lags[id] || {};
+      if ((lag.members || []).indexOf(ifaceName) !== -1) {
+        return { id: id, mode: lag.mode, hashPolicy: lag.hashPolicy, members: lag.members };
+      }
+    }
+    return null;
+  }
 
   // Total PoE draw currently sourced by this device (watts).
   poeDraw() {

@@ -151,9 +151,9 @@ every valid medium, which is what the UI's media picker is built from.
 
 ---
 
-## 5. VLANs (802.1Q)
+## 5. VLANs (802.1Q) — enforced in the data path
 
-`engine/vlan.js` — per-port configuration:
+`engine/vlan.js` implements per-port configuration:
 
 ```js
 { mode: 'access' | 'trunk', accessVlan: 10, nativeVlan: 1, allowedVlans: 'all' | [10, 20] }
@@ -163,31 +163,52 @@ every valid medium, which is what the UI's media picker is built from.
 - **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN;
   ingress maps untagged → `nativeVlan`, tagged → VID when allowed, else drops.
 
-`classifyEgress` / `classifyIngress` are pure functions returning
-`{action, vlanId}` so the simulator can tag/untag frames without special cases.
+The simulator calls `classifyIngress` on every received frame and `classifyEgress`
+before every transmission, so:
+
+- **MAC tables are per VLAN** (`Device.macTableFor(vid)`), because VLANs are separate
+  broadcast domains. VLAN 1 keeps the flat legacy table.
+- **Flooding is scoped to the VLAN**: a broadcast never crosses a VLAN boundary.
+- **Trunks tag real frames** — inspect the event log and you will see 802.1Q-tagged
+  frames on trunk links and untagged frames on access ports.
+- Frames that a port's VLAN rules reject are dropped with a `vlan-drop` event.
 
 VLANs 1–4094 are valid; 1002–1005 are reserved and rejected.
 
----
-
-## 6. Link aggregation (LACP)
+## 6. Link aggregation (LACP) — enforced in the data path
 
 `engine/lag.js` — modes `lacp-active`, `lacp-passive`, `static`; hash policies
-`l2`, `l3`, `l3l4`. `hashFrame` is a deterministic hash, `selectMember` maps a
+`l2`, `l3`, `l3l4`. `hashFrame` is a deterministic hash and `selectMember` maps a
 frame onto a member (order-independent, skips disabled members).
+
+In the simulator a LAG is **one logical port**:
+
+- Spanning tree sees a single edge, so it does **not** block member links.
+- Exactly one member carries each frame (a `lag` event records which).
+- A frame that arrived on a member is **never sent back out the same group** —
+  that would hairpin the frame and loop.
 
 `validateLag` enforces: ≥ 2 members, identical speed, identical duplex, identical
 VLAN configuration.
 
----
-
-## 7. Spanning tree (802.1D)
+## 7. Spanning tree (802.1D) — enforced in the data path
 
 `engine/stp.js` — `runStp({bridges})` performs a deterministic root election and
 returns per-port roles (`root` / `designated` / `alternate`) and states
 (`forwarding` / `blocking`), plus the list of blocked ports.
 
-This is what turns a physical loop into a functional one rather than a broadcast storm.
+`Simulator.computeStp()` builds the bridge graph from the live topology (including
+LAG collapsing) and is run before every ping. Blocked ports **drop both ingress and
+egress traffic** (`stp-block` events), which is what turns a physical loop into a
+working topology instead of a broadcast storm.
+
+Check it from the console:
+
+```
+switch# show spanning-tree
+switch# show etherchannel summary
+switch# show vlan brief
+```
 
 ---
 

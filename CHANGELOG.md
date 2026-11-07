@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **VLANs, LAG and STP are now enforced in the data path**, not just modelled:
+  - per-VLAN MAC tables and VLAN-scoped flooding; broadcast never crosses a VLAN
+  - 802.1Q tagging on trunks, untagging on access ports (visible in the event log)
+  - spanning tree blocks ports in both directions, turning a physical loop into a
+    working topology instead of a broadcast storm
+  - LAG groups act as one logical port: STP does not block members, one member
+    carries each frame, and frames never hairpin back out the ingress group
+- `switchport` CLI family: `mode access|trunk`, `access vlan`, `trunk native vlan`,
+  `trunk allowed vlan`, plus `channel-group` and `vlan <id>` configuration.
+- `show vlan brief`, `show spanning-tree`, `show etherchannel summary`, and a
+  VLAN-aware `show mac address-table`.
+- `test/l2.test.js` (28 assertions) proving the behaviour above end to end.
 - Physical-layer model: 32 media types (copper / fiber / DAC / console / wireless),
   9 cage types, per-port media + speed capabilities, and PoE source/sink budgets.
 - Live cabling feasibility engine — 11 blocking rules and 5 warnings. Impossible

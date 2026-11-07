@@ -282,3 +282,4 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .media-opt .mo-name { flex: 1; }
 .media-opt .mo-meta { font-size: 11px; color: var(--muted); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.ev.lag { color: #34d399; }

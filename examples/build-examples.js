@@ -88,10 +88,54 @@ function lab3() {
   return t;
 }
 
+// ---------------- Lab 4: VLANs, a trunk and a redundant loop ----------------
+function lab4() {
+  const t = new Topology();
+  const sw1 = t.addDevice(spec('generic', 'generic-switch'));
+  const sw2 = t.addDevice(spec('generic', 'generic-switch'));
+  const pc1 = t.addDevice(spec('generic', 'generic-pc'));
+  const pc2 = t.addDevice(spec('generic', 'generic-pc'));
+  const pc3 = t.addDevice(spec('generic', 'generic-pc'));
+
+  // Two links between the switches: together they are a physical loop, which
+  // spanning tree must break, otherwise broadcasts would storm forever.
+  t.connect(sw1.id, 'Fa0/8', sw2.id, 'Fa0/8');
+  t.connect(sw1.id, 'Fa0/7', sw2.id, 'Fa0/7');
+  t.connect(pc1.id, 'eth0', sw1.id, 'Fa0/1');   // VLAN 10
+  t.connect(pc2.id, 'eth0', sw2.id, 'Fa0/1');   // VLAN 10
+  t.connect(pc3.id, 'eth0', sw2.id, 'Fa0/2');   // VLAN 20
+
+  function swBase(name) {
+    return [
+      'enable', 'configure terminal', 'hostname ' + name,
+      'vlan 10 USERS', 'vlan 20 GUEST',
+      'interface Fa0/7', 'switchport mode trunk', 'switchport trunk allowed vlan 10,20', 'exit',
+      'interface Fa0/8', 'switchport mode trunk', 'switchport trunk allowed vlan 10,20', 'exit'
+    ];
+  }
+  cfg(t, sw1, swBase('SW1').concat([
+    'interface Fa0/1', 'switchport mode access', 'switchport access vlan 10'
+  ]));
+  cfg(t, sw2, swBase('SW2').concat([
+    'interface Fa0/1', 'switchport mode access', 'switchport access vlan 10', 'exit',
+    'interface Fa0/2', 'switchport mode access', 'switchport access vlan 20'
+  ]));
+
+  cfg(t, pc1, ['configure terminal', 'hostname PC1', 'interface eth0', 'ip address 192.168.10.10 255.255.255.0']);
+  cfg(t, pc2, ['configure terminal', 'hostname PC2', 'interface eth0', 'ip address 192.168.10.20 255.255.255.0']);
+  cfg(t, pc3, ['configure terminal', 'hostname PC3', 'interface eth0', 'ip address 192.168.10.30 255.255.255.0']);
+
+  place(t, pc1, 80, 620);
+  place(t, sw1, 300, 440); place(t, sw2, 720, 440);
+  place(t, pc3, 560, 620); place(t, pc2, 860, 620);
+  return t;
+}
+
 const labs = [
   ['lab1-two-pcs-switch.json', lab1()],
   ['lab2-router-two-subnets.json', lab2()],
-  ['lab3-multi-vendor-campus.json', lab3()]
+  ['lab3-multi-vendor-campus.json', lab3()],
+  ['lab4-vlans-trunk-stp.json', lab4()]
 ];
 
 for (const [name, topo] of labs) {
@@ -107,6 +151,7 @@ for (const [name] of labs) {
   let src, dst;
   if (name.indexOf('lab1') === 0) { src = t.devices.values().next().value; dst = '192.168.1.20'; }
   else if (name.indexOf('lab2') === 0) { src = t.devices.values().next().value; dst = '10.0.2.20'; }
+  else if (name.indexOf('lab4') === 0) { src = Array.from(t.devices.values()).find(d => d.name === 'PC1'); dst = '192.168.10.20'; }
   else { src = Array.from(t.devices.values()).find(d => d.name === 'PC1'); dst = '10.0.0.30'; }
   const sim = new Simulator(t);
   const res = sim.ping(src.id, dst, { count: 1 });

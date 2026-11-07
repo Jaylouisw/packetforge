@@ -1,10 +1,21 @@
 'use strict';
-// simulator.js — event-driven packet simulation (L2 MAC learning, ARP, IPv4 routing, ICMP).
+// simulator.js -- event-driven packet simulation.
+//
+// Layers: physical (media/speed, already modelled on the Link), L2 (802.1Q VLANs,
+// MAC learning per VLAN, flooding within a VLAN, LAG egress selection, 802.1D
+// spanning-tree blocking), and L3 (ARP, IPv4 longest-prefix routing, ICMP).
 const net = require('./net');
+const vlanLib = require('./vlan');
+const lagLib = require('./lag');
+const stpLib = require('./stp');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
-  return { dstMac: dstMac, srcMac: srcMac, etherType: etherType, ip: ip || null, icmp: icmp || null, arp: arp || null };
+  return {
+    dstMac: dstMac, srcMac: srcMac, etherType: etherType,
+    ip: ip || null, icmp: icmp || null, arp: arp || null,
+    vid: 1, wireTagged: false, wireVid: null
+  };
 }
 
 function arpRequest(senderMac, senderIp, targetIp) {
@@ -21,6 +32,24 @@ function arpReply(request, senderMac, senderIp) {
   );
 }
 
+// The untagged/native VLAN a port belongs to before ingress classification.
+function portPvid(iface) {
+  if (!iface || !iface.vlan) return 1;
+  if (iface.vlan.mode === 'trunk') return Number(iface.vlan.nativeVlan) || 1;
+  return Number(iface.vlan.accessVlan) || 1;
+}
+
+// STP path cost from a link's negotiated speed.
+function speedToCost(mbps) {
+  if (!mbps) return 20000;
+  if (mbps >= 100000) return 200;
+  if (mbps >= 40000) return 400;
+  if (mbps >= 25000) return 800;
+  if (mbps >= 10000) return 2000;
+  if (mbps >= 1000) return 20000;
+  return 200000;
+}
+
 class Simulator {
   constructor(topology) {
     this.topo = topology;
@@ -34,6 +63,8 @@ class Simulator {
     this.maxSteps = 8000;
     this.icmpReplies = [];    // {dst, id, seq, step}
     this._icmpId = 0x1000;
+    this._stpDirty = true;
+    this.stpResult = null;
   }
 
   _emit(ev) {
@@ -47,6 +78,8 @@ class Simulator {
     opts = opts || {};
     const count = opts.count || 4;
     this.reset();
+    // Recompute spanning tree before the run so blocked ports are honoured.
+    this.computeStp();
     const src = this.topo.getDevice(srcId);
     if (!src) throw new Error('Unknown device: ' + srcId);
 
@@ -70,7 +103,108 @@ class Simulator {
     return { events: this.events, replies: replies, step: this.step, success: replies.some(function (r) { return r.success; }) };
   }
 
-  // --- send an ICMP packet from a source device toward dstIp ---
+  // ---------------------------------------------------------------------
+  // Spanning tree (802.1D)
+  // ---------------------------------------------------------------------
+
+  // The link attached to (devId, iface), or null.
+  _linkAt(devId, ifaceName) {
+    for (const l of this.topo.links.values()) {
+      const e = l.endpoint(devId, ifaceName);
+      if (e) return l;
+    }
+    return null;
+  }
+
+  // Logical port name for a physical port: LAG members collapse into one port.
+  _logicalPortName(dev, ifaceName) {
+    const lag = dev.lagFor ? dev.lagFor(ifaceName) : null;
+    return lag ? ('lag-' + lag.id) : ifaceName;
+  }
+
+  // Build the STP graph and mark blocking ports on each device.
+  computeStp() {
+    const bridges = [];
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.isL2()) continue;
+
+      // Group physical ports into logical ports (one per LAG).
+      const groups = {};
+      for (const iface of dev.interfaces.values()) {
+        if (!iface.peer) continue;
+        const key = this._logicalPortName(dev, iface.name);
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(iface);
+      }
+
+      const ports = [];
+      for (const key of Object.keys(groups)) {
+        const members = groups[key];
+        const first = members[0];
+        const peerDev = this.topo.getDevice(first.peer.deviceId);
+        const link = this._linkAt(dev.id, first.name);
+        let cost = speedToCost(link ? link.speedMbps : null);
+        if (members.length > 1) cost = Math.round(cost / members.length); // aggregate
+        ports.push({
+          name: key,
+          cost: cost,
+          to: (peerDev && peerDev.isL2())
+            ? { bridge: peerDev.id, port: this._logicalPortName(peerDev, first.peer.iface) }
+            : null
+        });
+      }
+
+      let mac = null;
+      for (const iface of dev.interfaces.values()) {
+        if (iface.mac && (!mac || iface.mac < mac)) mac = iface.mac;
+      }
+
+      bridges.push({
+        key: dev.id,
+        priority: (dev.config && dev.config.stpPriority) || stpLib.STP_DEFAULT_PRIORITY,
+        mac: mac || '00:00:00:00:00:00',
+        ports: ports
+      });
+    }
+
+    const res = stpLib.runStp({ bridges: bridges });
+    this.stpResult = res;
+
+    // Reset, then apply decisions back onto physical ports.
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.isL2()) continue;
+      dev.stp = { blocked: new Set(), states: {}, roles: {} };
+    }
+    for (const bridgeKey of Object.keys(res.ports || {})) {
+      const dev = this.topo.getDevice(bridgeKey);
+      if (!dev || !dev.stp) continue;
+      const portMap = res.ports[bridgeKey];
+      for (const logicalName of Object.keys(portMap)) {
+        const info = portMap[logicalName];
+        dev.stp.states[logicalName] = info.state;
+        dev.stp.roles[logicalName] = info.role;
+        if (info.state === 'blocking') {
+          // mark every physical member of this logical port as blocked
+          for (const iface of dev.interfaces.values()) {
+            if (this._logicalPortName(dev, iface.name) === logicalName) {
+              dev.stp.blocked.add(iface.name);
+            }
+          }
+        }
+      }
+    }
+    this._stpDirty = false;
+    return res;
+  }
+
+  _isBlocked(dev, ifaceName) {
+    return !!(dev.stp && dev.stp.blocked && dev.stp.blocked.has(ifaceName));
+  }
+
+  // ---------------------------------------------------------------------
+  // L3 origination
+  // ---------------------------------------------------------------------
+
   _sendIcmp(src, dstIp, icmp) {
     const route = src.routeTo(dstIp);
     if (!route) {
@@ -91,33 +225,54 @@ class Simulator {
     this._sendL3(src, egress, nextHopIp, ip, icmp);
   }
 
-  // --- send an IP packet out `egress` toward `nextHopIp`, doing ARP if needed ---
-  _sendL3(dev, egress, nextHopIp, ip, icmp) {
+  _sendL3(dev, egress, nextHopIp, ip, icmp, vid) {
+    const v = (vid === undefined || vid === null) ? portPvid(egress) : vid;
     const mac = dev.arp.get(nextHopIp);
     if (mac) {
-      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache' });
-      this._enqueue(dev.id, egress.name, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null));
+      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache', vlan: v });
+      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null), v);
       return;
     }
     // ARP resolution
-    this._emit({ type: 'arp-request', dev: dev.id, iface: egress.name, targetIp: nextHopIp });
-    this._enqueue(dev.id, egress.name, arpRequest(egress.mac, egress.ip, nextHopIp));
+    this._emit({ type: 'arp-request', dev: dev.id, iface: egress.name, targetIp: nextHopIp, vlan: v });
+    this._emitFrame(dev, egress, arpRequest(egress.mac, egress.ip, nextHopIp), v);
     // stash the pending packet until the ARP reply arrives
     let list = dev.pending.get(nextHopIp);
     if (!list) { list = []; dev.pending.set(nextHopIp, list); }
-    list.push({ egress: egress.name, ip: ip, icmp: icmp });
+    list.push({ egress: egress.name, ip: ip, icmp: icmp, vid: v });
   }
 
-  _flushPending(dev, ip, mac) {
+  _flushPending(dev, ip, mac, vid) {
     const list = dev.pending.get(ip);
     if (!list) return;
     dev.pending.delete(ip);
     for (const item of list) {
       const egress = dev.interfaces.get(item.egress);
       if (!egress) continue;
-      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: ip, mac: mac, via: 'arp-resolved' });
-      this._enqueue(dev.id, egress.name, ethFrame(mac, egress.mac, net.ETH_IPV4, item.ip, item.icmp, null));
+      const v = (vid === undefined || vid === null) ? item.vid : vid;
+      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: ip, mac: mac, via: 'arp-resolved', vlan: v });
+      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, item.ip, item.icmp, null), v);
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Transmission / egress tagging
+  // ---------------------------------------------------------------------
+
+  // Apply egress VLAN rules to a frame leaving `iface` in `vid`, then queue it.
+  _emitFrame(dev, iface, frame, vid) {
+    const v = (vid === undefined || vid === null) ? portPvid(iface) : vid;
+    const egress = vlanLib.classifyEgress(iface.vlan, v);
+    if (egress.action === 'drop') {
+      this._emit({ type: 'vlan-drop', dev: dev.id, iface: iface.name, vlan: v, reason: 'VLAN ' + v + ' not allowed on egress' });
+      return;
+    }
+    const out = Object.assign({}, frame, {
+      vid: v,
+      wireTagged: egress.action === 'tagged',
+      wireVid: egress.action === 'tagged' ? v : null
+    });
+    this._enqueue(dev.id, iface.name, out);
   }
 
   _enqueue(devId, iface, frame) {
@@ -155,34 +310,60 @@ class Simulator {
     this._processFrame(peerDev, tx.frame, peer.iface);
   }
 
+  // ---------------------------------------------------------------------
+  // Ingress
+  // ---------------------------------------------------------------------
+
   _processFrame(dev, frame, inIface) {
-    // 1. MAC learning
-    if (inIface) dev.macTable.set(frame.srcMac, inIface);
+    const inI = inIface ? dev.interfaces.get(inIface) : null;
 
-    const bcast = net.isBroadcastMac(frame.dstMac);
-    const mine = dev.interfaceWithMac(frame.dstMac); // unicast to one of our interfaces
-
-    // Bridge / switch: forward at L2. An L3-capable switch may also terminate
-    // frames addressed to its own MAC (routing / management).
-    if (dev.isL2()) {
-      if (mine && !bcast && dev.hasCap('l3-forward')) {
-        if (this._tryProcessL3(dev, frame, inIface)) return;
-      }
-      this._forwardL2(dev, frame, inIface, bcast);
+    // 1. Spanning tree: a blocking port does not forward (either direction).
+    if (inIface && this._isBlocked(dev, inIface)) {
+      this._emit({ type: 'stp-block', dev: dev.id, iface: inIface, reason: 'port in STP blocking state' });
       return;
     }
 
-    // Host / router / firewall: only act on frames addressed to us (unicast)
-    // or broadcast. Routers never flood broadcasts across subnets.
+    // 2. VLAN ingress classification: resolve the internal VLAN of this frame.
+    let vid = frame.vid || 1;
+    if (inI) {
+      const res = vlanLib.classifyIngress(inI.vlan, {
+        tagged: !!frame.wireTagged,
+        vid: frame.wireVid
+      });
+      if (res.action === 'drop') {
+        this._emit({ type: 'vlan-drop', dev: dev.id, iface: inIface, vlan: frame.wireVid, reason: res.reason || 'VLAN not allowed on ingress' });
+        return;
+      }
+      vid = res.vlanId;
+    }
+
+    const f = (frame.vid === vid) ? frame : Object.assign({}, frame, { vid: vid });
+
+    // 3. MAC learning, scoped to the VLAN.
+    if (inIface) dev.macTableFor(vid).set(f.srcMac, inIface);
+
+    const bcast = net.isBroadcastMac(f.dstMac);
+    const mine = dev.interfaceWithMac(f.dstMac);
+
+    // 4. Bridge / switch: forward at L2. An L3-capable switch may also
+    //    terminate frames addressed to its own MAC (routing / management).
+    if (dev.isL2()) {
+      if (mine && !bcast && dev.hasCap('l3-forward')) {
+        if (this._tryProcessL3(dev, f, inIface)) return;
+      }
+      this._forwardL2(dev, f, inIface, bcast, vid);
+      return;
+    }
+
+    // 5. Host / router / firewall: only act on frames addressed to us or broadcast.
     if (!mine && !bcast) {
       this._emit({ type: 'drop', reason: 'not addressed to this device', dev: dev.id, iface: inIface });
       return;
     }
 
-    this._tryProcessL3(dev, frame, inIface);
+    this._tryProcessL3(dev, f, inIface);
   }
 
-  // Attempt to terminate (or route) a frame at L3. Returns true if handled.
   _tryProcessL3(dev, frame, inIface) {
     if (frame.etherType === net.ETH_ARP) { this._handleArp(dev, frame, inIface); return true; }
     if (frame.etherType === net.ETH_IPV4) {
@@ -194,29 +375,84 @@ class Simulator {
     return false;
   }
 
-  _forwardL2(dev, frame, inIface, bcast) {
-    const egresses = [];
+  // ---------------------------------------------------------------------
+  // L2 forwarding (VLAN-scoped, STP-aware, LAG-aware)
+  // ---------------------------------------------------------------------
+
+  _forwardL2(dev, frame, inIface, bcast, vid) {
+    const table = dev.macTableFor(vid);
+    const candidates = [];
+
     if (bcast) {
-      for (const iface of dev.activeInterfaces()) if (iface.name !== inIface) egresses.push(iface.name);
+      for (const iface of dev.activeInterfaces()) {
+        if (iface.name !== inIface) candidates.push(iface.name);
+      }
     } else {
-      const out = dev.macTable.get(frame.dstMac);
-      if (out && out !== inIface) egresses.push(out);
-      else if (out === inIface) {
-        // frame looped back to ingress port -> drop (no STP yet)
+      const out = table.get(frame.dstMac);
+      if (out && out !== inIface) {
+        candidates.push(out);
+      } else if (out === inIface) {
         this._emit({ type: 'drop', reason: 'loop: egress equals ingress', dev: dev.id, iface: inIface });
         return;
       } else {
-        // unknown unicast -> flood
-        for (const iface of dev.activeInterfaces()) if (iface.name !== inIface) egresses.push(iface.name);
+        // unknown unicast -> flood within the VLAN
+        for (const iface of dev.activeInterfaces()) {
+          if (iface.name !== inIface) candidates.push(iface.name);
+        }
       }
     }
+
+    // A frame that arrived on a LAG member never leaves by the same LAG: the
+    // whole group is one logical port, so hairpinning it would create a loop.
+    const inLag = (dev.lagFor && inIface) ? dev.lagFor(inIface) : null;
+    const inLagId = inLag ? inLag.id : null;
+
+    // Filter: blocked ports, ports outside this VLAN, and the ingress LAG.
+    const usable = [];
+    for (const name of candidates) {
+      if (this._isBlocked(dev, name)) {
+        this._emit({ type: 'stp-block', dev: dev.id, iface: name, vlan: vid, reason: 'STP blocking' });
+        continue;
+      }
+      const iface = dev.interfaces.get(name);
+      if (!iface) continue;
+      const lag = dev.lagFor ? dev.lagFor(name) : null;
+      if (inLagId && lag && lag.id === inLagId) continue;
+      if (vlanLib.classifyEgress(iface.vlan, vid).action === 'drop') continue; // not a member of this VLAN
+      usable.push(name);
+    }
+
+    // Collapse LAG members: one frame leaves one member of each group.
+    const byLag = {};
+    const egresses = [];
+    for (const name of usable) {
+      const lag = dev.lagFor ? dev.lagFor(name) : null;
+      if (!lag) { egresses.push(name); continue; }
+      if (!byLag[lag.id]) byLag[lag.id] = [];
+      byLag[lag.id].push(name);
+    }
+    for (const id of Object.keys(byLag)) {
+      const members = byLag[id].slice().sort();
+      const cfg = (dev.config.lags && dev.config.lags[id]) || {};
+      const picked = lagLib.selectMember(members, frame, cfg.hashPolicy || 'l2') || members[0];
+      egresses.push(picked);
+      if (members.length > 1) {
+        this._emit({ type: 'lag', dev: dev.id, lag: id, members: members, picked: picked, vlan: vid });
+      }
+    }
+
     if (!egresses.length) {
-      this._emit({ type: 'drop', reason: 'no egress ports', dev: dev.id, iface: inIface });
+      this._emit({ type: 'drop', reason: 'no egress ports in VLAN ' + vid, dev: dev.id, iface: inIface, vlan: vid });
       return;
     }
+
     for (const e of egresses) {
-      this._emit({ type: 'switch', dev: dev.id, iface: e, action: bcast ? 'flood' : (dev.macTable.has(frame.dstMac) ? 'forward' : 'flood') });
-      this._enqueue(dev.id, e, frame);
+      this._emit({
+        type: 'switch', dev: dev.id, iface: e, vlan: vid,
+        action: bcast ? 'flood' : (table.has(frame.dstMac) ? 'forward' : 'flood')
+      });
+      const iface = dev.interfaces.get(e);
+      this._emitFrame(dev, iface, frame, vid);
     }
   }
 
@@ -238,50 +474,50 @@ class Simulator {
     }
     const nextHopIp = route.via;
     this._emit({ type: 'route', dev: dev.id, dst: frame.ip.dst, via: nextHopIp, iface: egress.name, ttl: frame.ip.ttl });
-    // Plain routing: preserve the original source IP, decrement TTL, and
-    // rewrite only the L2 header. (Source-NAT is a separate future feature.)
+    // Plain routing: preserve the original source IP, decrement TTL, rewrite
+    // only the L2 header. The frame leaves in the egress port's native VLAN.
     const newIp = { src: frame.ip.src, dst: frame.ip.dst, ttl: frame.ip.ttl, proto: frame.ip.proto, id: frame.ip.id };
-    this._sendL3(dev, egress, nextHopIp, newIp, frame.icmp);
+    this._sendL3(dev, egress, nextHopIp, newIp, frame.icmp, portPvid(egress));
   }
 
   _handleArp(dev, frame, inIface) {
     const arp = frame.arp;
+    const vid = frame.vid || 1;
     if (arp.op === 'request') {
       const iface = dev.interfaceWithIp(arp.targetIp);
       if (iface) {
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
-        this._emit({ type: 'arp-reply', dev: dev.id, iface: iface.name, targetIp: arp.targetIp, mac: iface.mac });
-        this._enqueue(dev.id, iface.name, arpReply(frame, iface.mac, iface.ip));
+        this._emit({ type: 'arp-reply', dev: dev.id, iface: iface.name, targetIp: arp.targetIp, mac: iface.mac, vlan: vid });
+        this._emitFrame(dev, iface, arpReply(frame, iface.mac, iface.ip), vid);
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
       dev.arp.set(arp.senderIp, arp.senderMac);
-      this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac });
-      this._flushPending(dev, arp.senderIp, arp.senderMac);
+      this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac, vlan: vid });
+      this._flushPending(dev, arp.senderIp, arp.senderMac, vid);
     }
   }
 
   _handleLocalIp(dev, frame, inIface) {
     const icmp = frame.icmp;
     if (!icmp) return;
+    const vid = frame.vid || 1;
     if (icmp.type === net.ICMP_ECHO_REQUEST) {
-      // The interface that owns the destination IP is the correct reply interface.
       const iface = dev.interfaceWithIp(frame.ip.dst);
       if (!iface) {
         this._emit({ type: 'drop', reason: 'echo for unknown local IP', dev: dev.id });
         return;
       }
-      this._emit({ type: 'icmp-echo', dev: dev.id, iface: iface.name, from: frame.ip.src, seq: icmp.seq });
+      this._emit({ type: 'icmp-echo', dev: dev.id, iface: iface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
-      // reply directly out the ingress interface (we already know the source MAC)
-      this._emit({ type: 'icmp-reply', dev: dev.id, iface: iface.name, to: frame.ip.src, seq: icmp.seq });
-      this._enqueue(dev.id, iface.name, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV4, replyIp, replyIcmp, null));
+      this._emit({ type: 'icmp-reply', dev: dev.id, iface: iface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
+      this._emitFrame(dev, iface, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
-      this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq });
+      this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });
     }
   }
 }
 
-module.exports = { Simulator, ethFrame, arpRequest, arpReply };
+module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost };

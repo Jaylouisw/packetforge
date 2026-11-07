@@ -72,6 +72,18 @@ class CliSession {
     if (head === 'hostname') {
       this.device.config.hostname = tokens[1] || null;
       if (tokens[1]) this.device.name = tokens[1];
+    } else if (head === 'vlan') {
+      const id = parseInt(tokens[1], 10);
+      const chk = require('./vlan').validatePortConfig({ accessVlan: id });
+      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      if (!this.device.config.vlans) this.device.config.vlans = {};
+      const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
+      this.device.config.vlans[id] = { name: name };
+      out.push('VLAN ' + id + ' created (name: ' + name + ')');
+    } else if (head === 'no' && tokens[1] === 'vlan') {
+      const id = parseInt(tokens[2], 10);
+      if (this.device.config.vlans) delete this.device.config.vlans[id];
+      out.push('VLAN ' + id + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
       if (!this.device.interfaces.has(tokens[1])) return ['% Interface not found: ' + tokens[1]];
@@ -135,6 +147,14 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'switchport') {
+      out.push.apply(out, this._switchport(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'switchport') {
+      out.push.apply(out, this._switchport(['reset'], iface));
+    } else if (head === 'channel-group') {
+      out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'channel-group') {
+      out.push.apply(out, this._channelGroup(['remove'], iface));
     } else if (head === 'description') {
       iface.description = tokens.slice(1).join(' ');
       out.push('Description set');
@@ -148,6 +168,93 @@ class CliSession {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else {
       out.push('% Unrecognized interface command: ' + tokens.join(' '));
+    }
+    return out;
+  }
+
+  // ---------- switchport / VLAN membership ----------
+  _switchport(tokens, iface) {
+    const vlanLib = require('./vlan');
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+
+    if (t[0] === 'reset') {
+      iface.vlan = vlanLib.normalizePortConfig({});
+      return ['Switchport reset to defaults on ' + iface.name + ' (access VLAN 1)'];
+    }
+    if (t[0] === 'mode') {
+      const mode = t[1];
+      if (mode !== 'access' && mode !== 'trunk') return ['% Usage: switchport mode access|trunk'];
+      const next = Object.assign({}, iface.vlan, { mode: mode });
+      // A trunk with no explicit allowed list must carry everything, otherwise
+      // it would silently carry no VLANs at all.
+      if (mode === 'trunk' && next.allowedVlans === undefined) next.allowedVlans = 'all';
+      iface.vlan = vlanLib.normalizePortConfig(next);
+      return ['Switchport mode ' + mode + ' on ' + iface.name];
+    }
+    if (t[0] === 'access' && t[1] === 'vlan') {
+      const id = parseInt(t[2], 10);
+      const chk = vlanLib.validatePortConfig({ accessVlan: id });
+      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: id }));
+      return ['Access VLAN ' + id + ' on ' + iface.name];
+    }
+    if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
+      const id = parseInt(t[3], 10);
+      const chk = vlanLib.validatePortConfig({ nativeVlan: id });
+      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: id }));
+      return ['Trunk native VLAN ' + id + ' on ' + iface.name];
+    }
+    if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
+      const spec = t.slice(3).join('');
+      if (!spec) return ['% Incomplete command'];
+      if (spec === 'all') {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
+        return ['Trunk on ' + iface.name + ' allows all VLANs'];
+      }
+      const parsed = vlanLib.parseVlanList(spec);
+      if (!parsed.ok) return ['% ' + (parsed.message || 'invalid VLAN list')];
+      const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
+      if (bad.length) return ['% VLAN out of range: ' + bad[0]];
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
+      return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
+    }
+    return ['% Unrecognized switchport command: ' + t.join(' ')];
+  }
+
+  // ---------- link aggregation ----------
+  _channelGroup(tokens, iface) {
+    const lagLib = require('./lag');
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (!dev.config.lags) dev.config.lags = {};
+
+    if (t[0] === 'remove') {
+      for (const id of Object.keys(dev.config.lags)) {
+        const l = dev.config.lags[id];
+        l.members = (l.members || []).filter(function (m) { return m !== iface.name; });
+        if (!l.members.length) delete dev.config.lags[id];
+      }
+      return ['Removed ' + iface.name + ' from any channel group'];
+    }
+
+    const id = t[0];
+    if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
+    let mode = 'active';
+    const mi = t.indexOf('mode');
+    if (mi !== -1 && t[mi + 1]) mode = t[mi + 1];
+    if (['active', 'passive', 'on', 'static'].indexOf(mode) === -1) {
+      return ['% Invalid mode: ' + mode + ' (use active|passive|on)'];
+    }
+    const g = dev.config.lags[id] || { mode: mode, hashPolicy: 'l2', members: [] };
+    g.mode = mode;
+    if (g.members.indexOf(iface.name) === -1) g.members.push(iface.name);
+    dev.config.lags[id] = g;
+
+    const out = ['Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + mode + ')'];
+    const chk = lagLib.validateLag ? lagLib.validateLag(g) : null;
+    if (chk && chk.ok === false && chk.errors && chk.errors.length) {
+      out.push('% Warning: ' + chk.errors[0].message);
     }
     return out;
   }
@@ -198,16 +305,87 @@ class CliSession {
       for (const r of dev.routesTable()) {
         out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
       }
+    } else if (what === 'vlan') {
+      out.push('VLAN Name                             Status    Ports');
+      const byVlan = new Map();
+      for (const i of dev.interfaces.values()) {
+        const v = i.vlan || { mode: 'access', accessVlan: 1 };
+        if (v.mode === 'trunk') {
+          const ids = (v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans))
+            ? [Number(v.nativeVlan) || 1]
+            : v.allowedVlans;
+          for (const id of ids) {
+            if (!byVlan.has(id)) byVlan.set(id, []);
+            byVlan.get(id).push(i.name + (id === (Number(v.nativeVlan) || 1) ? '(n)' : '(t)'));
+          }
+          if (v.allowedVlans === 'all') {
+            const anyKey = 'all';
+            if (!byVlan.has(anyKey)) byVlan.set(anyKey, []);
+            byVlan.get(anyKey).push(i.name + '(trunk)');
+          }
+        } else {
+          const id = Number(v.accessVlan) || 1;
+          if (!byVlan.has(id)) byVlan.set(id, []);
+          byVlan.get(id).push(i.name);
+        }
+      }
+      const keys = Array.from(byVlan.keys()).sort(function (a, b) {
+        if (a === 'all') return 1;
+        if (b === 'all') return -1;
+        return a - b;
+      });
+      for (const id of keys) {
+        if (id === 'all') {
+          out.push(pad(1, 8) + pad((dev.config.vlans && dev.config.vlans[1] && dev.config.vlans[1].name) || 'default', 33) + pad('active', 10) + byVlan.get(id).join(', '));
+          continue;
+        }
+        const name = (dev.config.vlans && dev.config.vlans[id] && dev.config.vlans[id].name) || ('VLAN' + String(id).padStart(4, '0'));
+        out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + byVlan.get(id).join(', '));
+      }
+    } else if (what === 'spanning-tree') {
+      const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
+      const names = Object.keys(st.states || {}).sort();
+      out.push('Spanning tree enabled protocol ieee');
+      if (!names.length) {
+        out.push('  No bridged ports: this device is not part of any L2 loop.');
+      } else {
+        out.push('Port          Role          State');
+        for (const n of names) {
+          const role = (st.roles || {})[n] || '-';
+          out.push(pad(n, 14) + pad(role, 14) + st.states[n] +
+            (st.states[n] === 'blocking' ? '   (traffic dropped)' : ''));
+        }
+      }
+    } else if (what === 'etherchannel') {
+      const lags = dev.config.lags || {};
+      const ids = Object.keys(lags).sort();
+      if (!ids.length) {
+        out.push('% No link aggregation groups configured');
+      } else {
+        out.push('Group  Protocol   Ports');
+        for (const id of ids) {
+          const l = lags[id] || {};
+          const members = (l.members || []).map(function (m) {
+            const blocked = dev.stp && dev.stp.blocked && dev.stp.blocked.has(m);
+            return m + '(' + (blocked ? 'D' : 'P') + ')';
+          });
+          out.push(pad(id, 7) + pad(l.mode || 'static', 11) + members.join(' '));
+        }
+      }
     } else if (what === 'arp') {
       out.push('Protocol  Address          Age (min)  Hardware Addr   Interface');
       for (const [ip, mac] of dev.arp.entries()) {
         out.push('Internet  ' + pad(ip, 15) + '-          ' + mac);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
-      out.push('Destination Address     Type        Interface');
-      for (const [mac, iface] of dev.macTable.entries()) {
-        out.push(pad(mac, 23) + 'DYNAMIC     ' + iface);
+      out.push('Vlan    Mac Address         Type        Ports');
+      const rows = [];
+      for (const [mac, iface] of dev.macTable.entries()) rows.push([1, mac, iface]);
+      for (const [vid, table] of (dev.macTables || new Map()).entries()) {
+        for (const [mac, iface] of table.entries()) rows.push([vid, mac, iface]);
       }
+      rows.sort(function (a, b) { return (a[0] - b[0]) || String(a[1]).localeCompare(String(b[1])); });
+      for (const r of rows) out.push(pad(r[0], 8) + pad(r[1], 20) + 'DYNAMIC     ' + r[2]);
     } else if (what === 'interfaces' || what === 'interface') {
       for (const i of dev.interfaces.values()) {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
@@ -223,6 +401,23 @@ class CliSession {
         if (i.description) out.push('  description ' + i.description);
         if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
         else if (i.dhcp) out.push('  ip address dhcp');
+        if (i.vlan) {
+          if (i.vlan.mode === 'trunk') {
+            out.push('  switchport mode trunk');
+            out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
+            const av = i.vlan.allowedVlans;
+            out.push('  switchport trunk allowed vlan ' +
+              (av === 'all' || !Array.isArray(av) ? 'all' : av.join(',')));
+          } else {
+            const av = Number(i.vlan.accessVlan) || 1;
+            if (av !== 1) {
+              out.push('  switchport mode access');
+              out.push('  switchport access vlan ' + av);
+            }
+          }
+        }
+        const lag = dev.lagFor ? dev.lagFor(i.name) : null;
+        if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
         if (!i.enabled) out.push('  shutdown');
       }
       for (const r of dev.config.routes) {
@@ -247,8 +442,15 @@ class CliSession {
       '  hostname <name>          ip address <ip> <mask>',
       '  ip route <dest> <mask> <gw> [iface]',
       '  ip default-gateway <gw>  shutdown / no shutdown',
+      '  vlan <id> [name]                       (config mode)',
+      '  switchport mode access|trunk            (interface mode)',
+      '  switchport access vlan <id>',
+      '  switchport trunk native vlan <id>',
+      '  switchport trunk allowed vlan <list|all>',
+      '  channel-group <id> mode active|passive|on',
       '  ping <ip> [count]',
       '  show version | ip interface brief | ip route | arp',
+      '  show vlan [brief] | spanning-tree | etherchannel summary',
       '  show mac address-table | interfaces | running-config'
     ];
   }

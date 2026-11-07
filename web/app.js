@@ -505,7 +505,9 @@
     const log = $('#event-log');
     if (!log) return;
     const rows = events.map(function (e) {
-      const cls = e.type === 'frame' ? 'frame' : (e.type === 'drop' ? 'drop' : '');
+      const cls = e.type === 'frame' ? 'frame'
+        : (e.type === 'drop' || e.type === 'vlan-drop' || e.type === 'stp-block') ? 'drop'
+        : (e.type === 'lag') ? 'lag' : '';
       return '<div class="ev ' + cls + '">' + String(e.step).padStart(3, '0') + ' ' + describeEvent(e) + '</div>';
     });
     log.innerHTML = rows.join('\n');
@@ -520,16 +522,23 @@
       case 'arp-cache': return e.dev + ' cached ' + e.ip + ' → ' + e.mac;
       case 'frame': {
         const f = e.frame || {};
-        if (f.etherType === 'arp') return e.from + ' → ' + e.to + '  ARP ' + (f.arp ? f.arp.op : '');
-        if (f.etherType === 'ipv4') return e.from + ' → ' + e.to + '  IPv4 ' + (f.ip ? f.ip.src + '→' + f.ip.dst : '') + (f.icmp ? ' ICMP type ' + f.icmp.type : '');
-        return e.from + ' → ' + e.to + '  frame';
+        const tag = f.wireTagged ? '  [802.1Q vlan ' + f.wireVid + ']' : '';
+        if (f.etherType === 'arp') return e.from + ' → ' + e.to + '  ARP ' + (f.arp ? f.arp.op : '') + tag;
+        if (f.etherType === 'ipv4') return e.from + ' → ' + e.to + '  IPv4 ' + (f.ip ? f.ip.src + '→' + f.ip.dst : '') + (f.icmp ? ' ICMP type ' + f.icmp.type : '') + tag;
+        return e.from + ' → ' + e.to + '  frame' + tag;
       }
       case 'route': return e.dev + ' routes ' + e.dst + ' via ' + e.via + ' out ' + e.iface;
-      case 'switch': return e.dev + ' ' + e.action + ' out ' + e.iface;
+      case 'switch': return e.dev + ' ' + e.action + ' out ' + e.iface + (e.vlan ? ' (vlan ' + e.vlan + ')' : '');
       case 'icmp-echo': return e.dev + ' received echo from ' + e.from;
       case 'icmp-reply': return e.dev + ' sending echo-reply to ' + e.to;
       case 'icmp-received': return e.dev + ' got echo-reply from ' + e.from;
       case 'drop': return 'DROP (' + (e.reason || '') + ')';
+      case 'vlan-drop': return 'VLAN DROP ' + (e.dev || '') + '/' + (e.iface || '') +
+        ' vlan ' + (e.vlan == null ? '?' : e.vlan) + ' — ' + (e.reason || 'not a member');
+      case 'stp-block': return 'STP BLOCK ' + (e.dev || '') + '/' + (e.iface || '') +
+        (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
+      case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
+        ' of [' + (e.members || []).join(', ') + ']';
       case 'limit': return 'simulation limit: ' + e.reason;
       default: return e.type;
     }
