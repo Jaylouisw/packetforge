@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { Topology, runCommands } = require('../engine');
+const { Topology, Simulator, runCommands } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -165,6 +165,34 @@ pf.selectLink('does-not-exist');
 const bw = makeWrap();
 pf.renderLinkInspector(bw);
 ok(/no longer exists/.test(bw.innerHTML), 'a stale selection says so instead of throwing');
+
+console.log('\nThe PoE display agrees with the engine:');
+const t5 = new Topology();
+const sw5 = t5.addDevice(spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'));
+const q1 = t5.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const q2 = t5.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+sw5.name = 'SW5'; q1.name = 'P1'; q2.name = 'P2';
+t5.connect(q1.id, 'port1', sw5.id, '1/1/1');
+t5.connect(q2.id, 'port1', sw5.id, '1/1/2');
+sw5.poeBudget = 25;                       // 2 x 12.95 W cannot both fit
+const t5s = JSON.parse(JSON.stringify(t5.serialize()));
+const sim5 = new Simulator(t5);
+const enginePoe = sim5.computePoe()[0];
+pf.setTopology(t5s);
+pf.selectDevice(sw5.id);
+const uiPoe = pf.poeSummary(t5s.devices.find(function (d) { return d.id === sw5.id; }));
+ok(uiPoe.budget === enginePoe.budget, 'budget matches (' + uiPoe.budget + ' W)');
+ok(uiPoe.used === enginePoe.used, 'power in use matches the engine (' + uiPoe.used + ' W)');
+ok(uiPoe.denied === enginePoe.ports.filter(function (p) { return !p.powered; }).length,
+   'denied port count matches (' + uiPoe.denied + ')');
+pf.renderDeviceTab();
+ok(/PoE in use/.test(mainWrap.innerHTML), 'the inspector shows power in use');
+ok(/DENIED/.test(mainWrap.innerHTML), 'and flags the port that missed out');
+sw5.poeBudget = 370;
+pf.setTopology(JSON.parse(JSON.stringify(t5.serialize())));
+pf.selectDevice(sw5.id);
+pf.renderDeviceTab();
+ok(!/DENIED/.test(mainWrap.innerHTML), 'with enough budget nothing is flagged');
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

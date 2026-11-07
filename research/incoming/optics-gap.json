@@ -1,0 +1,412 @@
+{
+  "devices": [
+    {
+      "vendor": "cisco",
+      "model": "ASR1001-X",
+      "ports": 8,
+      "desc": "Cisco ASR 1001-X - 6x 1G SFP + 2x 10G SFP+ built in, 1 RU, 2.5 Gbps ESP (up to 20 Gbps licensed)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "ASR1002-X",
+      "ports": 6,
+      "desc": "Cisco ASR 1002-X - 2 RU chassis, 6x 1G SFP built in plus 3 SIP/SPA slots for I/O expansion."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C1111-8P",
+      "ports": 10,
+      "desc": "Cisco ISR 1100 8P - 8x 1G LAN (PoE-capable switch ports), 1x 1G WAN, 1x GE/SFP combo WAN."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR2600-6-X1",
+      "ports": 5,
+      "desc": "H3C MSR2600-6-X1 branch router (Comware 7) - 1x GE WAN copper + 1x GE SFP combo WAN, 4x GE RJ45 LAN, 2x SIC slots."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR3610-X1",
+      "ports": 6,
+      "desc": "H3C MSR3610-X1 integrated services router (Comware 7) - 4x GE WAN (2 copper combo) + 2x SFP, 4x SIC slots, no fixed LAN ports."
+    },
+    {
+      "vendor": "h3c",
+      "model": "MSR3620-X1",
+      "ports": 22,
+      "desc": "H3C MSR3620-X1 integrated services router (Comware 7) - 8x GE WAN + 8x GE LAN/WAN copper ports + 6x 10GE SFP+, 2x HMIM and 4x SIC slots."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AR2220",
+      "ports": 3,
+      "desc": "Huawei AR2220 enterprise router: 3x GE fixed ports (one GE combo RJ45/SFP), 4x SIC + 2x WSIC slots, 1Mpps forwarding."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AR651",
+      "ports": 10,
+      "desc": "Huawei AR651 branch router: 2x GE combo WAN (RJ45/SFP) + 8x GE RJ45 LAN, 1x USB 2.0, 1x MIC slot."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AR6300",
+      "ports": 24,
+      "desc": "Huawei NetEngine AR6300 modular aggregation router with SRU-400H: 14x 10GE SFP+ (GE-capable) plus 10x GE RJ45, all ports configurable as WAN or LAN; 4"
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "EdgeRouter-4",
+      "ports": 4,
+      "desc": "Ubiquiti EdgeRouter 4 — 3x 1G RJ45 + 1x 1G SFP (eth3)."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UCG-Max",
+      "ports": 5,
+      "desc": "Ubiquiti UCG-Max - compact fanless 2.5G cloud gateway with NVR: 5x 2.5GbE RJ45 (1 WAN + 4 LAN), no SFP cages."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C2960X-24TS-L",
+      "ports": 28,
+      "desc": "Cisco Catalyst 2960-X - 24x 1G non-PoE downlinks, 4x 1G SFP fixed uplinks, LAN Base, stackable to 8 units."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C2960X-48FPS-L",
+      "ports": 52,
+      "desc": "Cisco Catalyst 2960-X full PoE+ - 48x 1G PoE+ downlinks (740 W budget), 4x 1G SFP fixed uplinks."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9200L-24P-4G",
+      "ports": 28,
+      "desc": "Cisco Catalyst 9200L - 24x 1G PoE+ (370 W budget) downlinks, 4x 1G SFP fixed uplinks, StackWise-80."
+    },
+    {
+      "vendor": "extreme",
+      "model": "VSP 4450GSX-PWR+",
+      "ports": 50,
+      "desc": "Extreme VSP 4450GSX-PWR+ - 1RU Fabric Connect edge switch (VOSS, VSP 4000 series): 12x 10/100/1000BASE-T PoE+ (1:1-1:12), 36x 100/1000BASE-X SFP (1:13"
+    },
+    {
+      "vendor": "extreme",
+      "model": "X440-G2-48t-10GE4",
+      "ports": 52,
+      "desc": "ExtremeSwitching X440-G2-48t-10GE4 (16702) - 1RU edge switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48, four of which double as 1G SFP c"
+    },
+    {
+      "vendor": "extreme",
+      "model": "X460-G2-48t-10GE4",
+      "ports": 52,
+      "desc": "ExtremeSwitching X460-G2-48t-10GE4 (16702) - 1RU scalable edge/aggregation switch, ExtremeXOS: 48x 10/100/1000BASE-T RJ45 (ports 1:1-1:48) plus 4x 10G"
+    },
+    {
+      "vendor": "h3c",
+      "model": "S5130S-28P-EI",
+      "ports": 28,
+      "desc": "H3C S5130S-28P-EI - 24x 10/100/1000BASE-T ports + 4x 1000BASE-X SFP uplinks, fanless EI access switch."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2530-24G",
+      "ports": 28,
+      "desc": "HP ProCurve/HPE 2530-24G - 24x 1G RJ45 plus 4x 1G SFP uplinks. Fanless L2 access switch (ArubaOS-Switch)."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2530-48G-PoE+",
+      "ports": 52,
+      "desc": "HP ProCurve/HPE 2530-48G-PoE+ - 48x 1G PoE+ RJ45 plus 4x 1G SFP uplinks. L2 access switch (ArubaOS-Switch)."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2620-24",
+      "ports": 28,
+      "desc": "HP ProCurve 2620-24 - 24x 100M RJ45 plus 2x 1G RJ45 and 2x 1G SFP uplinks. Fast Ethernet L2 access switch."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2620-48",
+      "ports": 52,
+      "desc": "HP ProCurve 2620-48 - 48x 100M RJ45 plus 2x 1G RJ45 and 2x 1G SFP uplinks. Fast Ethernet L2 access switch."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5735-L24T4S",
+      "ports": 28,
+      "desc": "Huawei S5735-L24T4S — 24x 1G RJ45 + 4x 1G SFP uplinks, Lite access switch."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5735-L48T4X-A1",
+      "ports": 52,
+      "desc": "Huawei CloudEngine S5735-L48T4X-A1 - 48x 10/100/1000BASE-T ports + 4x 10GE SFP+ uplinks, fanless Lite access switch."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5736-S24T4XC",
+      "ports": 28,
+      "desc": "Huawei CloudEngine S5736-S24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot (standard multi-GE access family)."
+    },
+    {
+      "vendor": "zyxel",
+      "model": "GS1900-8",
+      "ports": 8,
+      "desc": "Zyxel GS1900-8 - 8x 1G RJ45 web-managed smart switch, fanless desktop unit (no SFP)."
+    },
+    {
+      "vendor": "aruba",
+      "model": "3810M 48G PoE+ 1-slot",
+      "ports": 52,
+      "desc": "Aruba 3810M 48G PoE+ 1-slot - 48x 1G PoE+ RJ45 with a 4-port 10G SFP+ uplink module in slot A. ArubaOS-Switch stackable L3 switch."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3560CX-8PC-S",
+      "ports": 12,
+      "desc": "Cisco Catalyst 3560-CX compact L3 switch - 8x 1G PoE+ (240 W), 2x 1G SFP and 2x 1G copper uplinks, fanless."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3560G-24TS-S",
+      "ports": 28,
+      "desc": "Cisco Catalyst 3560G - 24x 1G downlinks and 4x 1G SFP uplinks, multilayer (routing) fixed-configuration switch."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3750G-24TS-S",
+      "ports": 28,
+      "desc": "Cisco Catalyst 3750G - 24x 1G downlinks, 4x 1G SFP uplinks, StackWise stacking with multilayer routing."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-24T",
+      "ports": 32,
+      "desc": "Cisco Catalyst 9300 - 24x 1G data ports, one network module slot (C9300-NM-8X: 8x 10G SFP+ shown), StackWise-480."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-24UX",
+      "ports": 32,
+      "desc": "Cisco Catalyst 9300 - 24x Multigigabit 100M/1G/2.5G/5G/10G copper (UPOE 90 W), network module slot with 8x 10G SFP+."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-48P",
+      "ports": 56,
+      "desc": "Cisco Catalyst 9300 - 48x 1G PoE+ (437 W budget) data ports, network module slot populated with C9300-NM-8X 8x 10G SFP+."
+    },
+    {
+      "vendor": "cisco",
+      "model": "N3K-C3048TP-1GE",
+      "ports": 52,
+      "desc": "Cisco Nexus 3048 - 48x 1G RJ45 downlinks plus 4x 10G SFP+ uplinks, low-latency 1RU ToR."
+    },
+    {
+      "vendor": "extreme",
+      "model": "X620-16x",
+      "ports": 16,
+      "desc": "ExtremeSwitching X620-16x (17401) - compact 1RU 10G edge switch, ExtremeXOS: 16x 100M/1G/10GBASE-X SFP+ ports (ports 1:1-1:16), hot-swappable PSU and "
+    },
+    {
+      "vendor": "h3c",
+      "model": "S5560X-30C-EI",
+      "ports": 28,
+      "desc": "H3C S5560X-30C-EI - 24x 10/100/1000BASE-T ports (8 of them combo SFP) + 4x 10G/1G SFP+ ports, 1 expansion slot, 2 power module slots."
+    },
+    {
+      "vendor": "hpe",
+      "model": "2920-24G",
+      "ports": 28,
+      "desc": "HP ProCurve 2920-24G - 24x 1G RJ45 (last 4 dual-personality with 1G SFP) plus 4x 10G SFP+ in the rear expansion module. ArubaOS-Switch L3 access switc"
+    },
+    {
+      "vendor": "hpe",
+      "model": "2920-48G-PoE+",
+      "ports": 52,
+      "desc": "HP ProCurve 2920-48G-PoE+ - 48x 1G PoE+ RJ45 (last 4 dual-personality with 1G SFP) plus 4x 10G SFP+ in the rear expansion module. ArubaOS-Switch L3 ac"
+    },
+    {
+      "vendor": "huawei",
+      "model": "S12704",
+      "ports": 24,
+      "desc": "Huawei S12700 Agile Switch S12704 chassis - 4 LPU slots, 2 MPU, 2 SFU, 4 power modules; listed with one 24-port 10GE SFP+ line card (LST7X24BX6E0) in "
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5731-H24T4XC",
+      "ports": 28,
+      "desc": "Huawei CloudEngine S5731-H24T4XC - 24x 10/100/1000BASE-T + 4x 10GE SFP+ uplinks, 1 extended slot, dual pluggable power."
+    },
+    {
+      "vendor": "mikrotik",
+      "model": "CRS312-4C+8XG-RM",
+      "ports": 13,
+      "desc": "MikroTik CRS312-4C+8XG-RM - 8x 10G RJ45, 4x 10G combo ports (RJ45 or SFP+ cage, one at a time), 1x 100M management port, dual PSU, RouterOS or SwOS."
+    },
+    {
+      "vendor": "fortinet",
+      "model": "FortiGate 40F",
+      "ports": 5,
+      "desc": "Fortinet FortiGate 40F - 5x GE RJ45 (1x WAN, 1x FortiLink, 3x internal), fanless desktop; no SFP cages."
+    },
+    {
+      "vendor": "fortinet",
+      "model": "FortiGate 60F",
+      "ports": 10,
+      "desc": "Fortinet FortiGate 60F - 10x GE RJ45 (2x WAN, 1x DMZ, 5x internal, 2x FortiLink); no SFP cages."
+    },
+    {
+      "vendor": "huawei",
+      "model": "USG6510E",
+      "ports": 12,
+      "desc": "Huawei HiSecEngine USG6510E next-gen firewall - 10x GE RJ45 + 2x GE SFP, 1.2 Gbit/s firewall throughput, 1U desktop."
+    },
+    {
+      "vendor": "huawei",
+      "model": "USG6555E",
+      "ports": 12,
+      "desc": "Huawei HiSecEngine USG6555E next-gen firewall - 2x GE WAN + 8x GE combo + 2x 10GE SFP+, 4 Gbit/s firewall throughput, 1U."
+    },
+    {
+      "vendor": "juniper",
+      "model": "SRX300",
+      "ports": 8,
+      "desc": "Juniper SRX300 - branch firewall: 8x 1G (6x RJ45 ge-0/0/0-5, 2x SFP ge-0/0/6-7), 2x mini-PIM slots."
+    },
+    {
+      "vendor": "juniper",
+      "model": "SRX345",
+      "ports": 16,
+      "desc": "Juniper SRX345 - branch firewall: 16x 1G (8x RJ45 + 8x SFP, ge-0/0/0-15), 4x mini-PIM slots."
+    },
+    {
+      "vendor": "paloalto",
+      "model": "PA-220",
+      "ports": 9,
+      "desc": "Palo Alto PA-220 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; fanless desktop, no SFP."
+    },
+    {
+      "vendor": "paloalto",
+      "model": "PA-3220",
+      "ports": 24,
+      "desc": "Palo Alto PA-3220 - 12x 1G RJ45 (1/1-1/12), 4x 1G SFP (1/13-1/16), 4x 10G SFP+ (1/17-1/20), 1x 1G MGMT, 2x 1G HA + 1x 10G HA."
+    },
+    {
+      "vendor": "paloalto",
+      "model": "PA-440",
+      "ports": 9,
+      "desc": "Palo Alto PA-440 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; desktop, no SFP cages."
+    },
+    {
+      "vendor": "paloalto",
+      "model": "PA-450",
+      "ports": 9,
+      "desc": "Palo Alto PA-450 - 8x 1G RJ45 (ethernet1/1-1/8) + 1x 1G MGMT RJ45; same chassis as PA-440, no SFP cages."
+    },
+    {
+      "vendor": "paloalto",
+      "model": "PA-820",
+      "ports": 15,
+      "desc": "Palo Alto PA-820 - 4x 1G RJ45 (1/1-1/4), 8x 1G SFP (1/5-1/12), 1x 1G MGMT, 2x 1G HA."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 116",
+      "ports": 9,
+      "desc": "Sophos XGS 116 - 8x 1G RJ45 (Port1-Port8, Port8 PoE) + 1x 1G SFP (PortF1); 1 Flexi Port bay."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 136",
+      "ports": 14,
+      "desc": "Sophos XGS 136 - 10x 1G RJ45 (Port1-Port10) + 2x 2.5G RJ45 PoE + 2x 1G SFP (PortF1-PortF2); 1 Flexi Port bay."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 2100",
+      "ports": 11,
+      "desc": "Sophos XGS 2100 - 8x 1G RJ45 (Port1-Port8, 1 bypass pair) + 2x 1G SFP (PortF1-PortF2) + 1x 1G MGMT; 1U, 1 expansion bay."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 3100",
+      "ports": 13,
+      "desc": "Sophos XGS 3100 - 8x 1G RJ45 (Port1-Port8) + 2x 10G SFP+ (PortF1-PortF2) + 2x 1G SFP (PortF3-PortF4) + 1x 1G MGMT; 1U, 1 expansion bay."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 4300",
+      "ports": 13,
+      "desc": "Sophos XGS 4300 - 4x 1G RJ45 (Port1-Port4) + 4x 2.5G RJ45 (Port5-Port8) + 4x 10G SFP+ (PortF1-PortF4) + 1x 1G MGMT; 1U, 2 expansion bays."
+    },
+    {
+      "vendor": "sophos",
+      "model": "XGS 87",
+      "ports": 5,
+      "desc": "Sophos XGS 87 - 4x 1G RJ45 (Port1-Port4) + 1x 1G SFP (PortF1); desktop, no dedicated MGMT port."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S800E",
+      "ports": 2,
+      "desc": "Huawei OptiXstar S800E — XGS-PON SFP ONU stick, 1x XGS-PON (SC/APC, 9.953G symmetric) + 1x GE/2.5/5/10G host port. ITU-T G.9807."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9800-40-K9",
+      "ports": 5,
+      "desc": "Cisco Catalyst 9800-40 appliance - 4x 1/10G SFP+ data ports plus 1x 1G RJ45 service port, up to 2000 APs / 32,000 clients."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9800-L-F-K9",
+      "ports": 6,
+      "desc": "Cisco Catalyst 9800-L wireless controller (fiber uplinks) - 4x 1/2.5G Multigigabit RJ45 + 2x 1/10G SFP+ data ports, up to 500 APs."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AirEngine6760-X1",
+      "ports": 5,
+      "desc": "Huawei AirEngine 6760-X1 indoor Wi-Fi 6 AP - 4+6 streams (10 spatial streams, RTU to 12), 1x 10GE electrical (PoE in) + 1x GE + 1x 10GE SFP+, USB, IoT"
+    },
+    {
+      "vendor": "radwin",
+      "model": "RADWIN 5000 JET",
+      "ports": 3,
+      "desc": "RADWIN 5000 JET - 5 GHz PtP/PtMP base station radio with smart beamforming, 250 Mbps per link (750 Mbps with dual carriers); 2x 1G RJ45, optional 1G S"
+    },
+    {
+      "vendor": "siklu",
+      "model": "EtherHaul 8010FX",
+      "ports": 3,
+      "desc": "Siklu EtherHaul 8010FX - 71-86 GHz E-band radio, up to 10 Gbps full duplex; combo 10G port (RJ45 CAT6a or SFP+) plus a separate 1G RJ45 port."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF-5",
+      "ports": 3,
+      "desc": "Legacy 5 GHz point-to-point radio, up to 1.2 Gbps aggregate; 1x GigE MGMT + 1x SFP DATA."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF-5XHD",
+      "ports": 3,
+      "desc": "5 GHz point-to-point backhaul radio, up to 2 Gbps aggregate with GPS sync; 1x GigE MGMT + 1x SFP DATA."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "AF60-XG",
+      "ports": 4,
+      "desc": "60 GHz point-to-point radio with 5 GHz failover, up to 5.4 Gbps; 1x GigE MGMT + 1x 10G SFP+ DATA."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "GBE-Plus",
+      "ports": 3,
+      "desc": "60 GHz point-to-point radio, up to 2 Gbps; 1x GigE + 1x 10G SFP+ data port."
+    }
+  ]
+}

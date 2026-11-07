@@ -355,12 +355,18 @@
     for (const c of (d.capabilities || [])) html += '<span class="chip">' + c + '</span>';
     html += '</div>';
 
-    // PoE: report the real budget, and say so when we do not have one rather
-    // than pretending it is 0 W.
+    // PoE: report the real budget and what is actually being drawn. Denials are
+    // the point - a budget nobody can exceed is decoration.
+    const poe = poeSummary(d);
     const psePorts = d.interfaces.filter(function (i) { return i.poeOut; }).length;
-    if (d.poeBudget) {
-      html += '<div class="kv"><span class="k">PoE budget</span><span>' + d.poeBudget + ' W' +
+    if (poe && !poe.unknown) {
+      html += '<div class="kv"><span class="k">PoE budget</span><span>' + poe.budget + ' W' +
         (psePorts ? ' · ' + psePorts + ' PSE ports' : '') + '</span></div>';
+      html += '<div class="kv"><span class="k">PoE in use</span><span' +
+        (poe.denied ? ' style="color:var(--red)"' : '') + '>' +
+        (Math.round(poe.used * 100) / 100) + ' W' +
+        (poe.denied ? ' · ' + poe.denied + ' port' + (poe.denied > 1 ? 's' : '') + ' DENIED' : '') +
+        '</span></div>';
     } else if (psePorts) {
       html += '<div class="kv"><span class="k">PoE</span><span class="muted">' + psePorts +
         ' PSE ports · budget not modelled</span></div>';
@@ -502,6 +508,51 @@
       return 'trunk · native ' + (v.nativeVlan || 1) + ' · allowed ' + allowed;
     }
     return 'access ' + (v.accessVlan || 1);
+  }
+
+  // Display mirror of Simulator.computePoe(): a PSE serves powered devices in
+  // port-name order until its budget runs out. ui-render.test.js asserts this
+  // agrees with the engine, so the two cannot drift apart silently.
+  function poeSummary(d) {
+    const psePorts = d.interfaces
+      .filter(function (i) { return i.poeOut; })
+      .map(function (i) { return i.name; })
+      .sort();
+    if (!d.poeBudget && !psePorts.length) return null;
+    if (!d.poeBudget) {
+      return { budget: 0, used: 0, unknown: true, ports: [], denied: 0, psePorts: psePorts.length };
+    }
+
+    let remaining = d.poeBudget;
+    const ports = [];
+    for (const name of psePorts) {
+      const link = (topo.links || []).find(function (l) {
+        return (l.a.deviceId === d.id && l.a.iface === name) ||
+               (l.b.deviceId === d.id && l.b.iface === name);
+      });
+      if (!link) continue;
+      const other = (link.a.deviceId === d.id)
+        ? { id: link.b.deviceId, iface: link.b.iface }
+        : { id: link.a.deviceId, iface: link.a.iface };
+      const peer = deviceById(other.id);
+      const peerIface = peer && peer.interfaces.find(function (i) { return i.name === other.iface; });
+      if (!peerIface || !peerIface.poeIn) continue;      // not a powered device
+      const draw = peerIface.poeIn;
+      if (remaining >= draw) {
+        remaining -= draw;
+        ports.push({ name: name, pd: peer.name, draw: draw, powered: true });
+      } else {
+        ports.push({ name: name, pd: peer.name, draw: draw, powered: false });
+      }
+    }
+    return {
+      budget: d.poeBudget,
+      used: d.poeBudget - remaining,
+      unknown: false,
+      ports: ports,
+      denied: ports.filter(function (p) { return !p.powered; }).length,
+      psePorts: psePorts.length
+    };
   }
 
   // One interface, collapsed to a single line with its hardware visible.
@@ -903,6 +954,7 @@
     renderDeviceTab: renderDeviceTab,
     renderLinkInspector: renderLinkInspector,
     ifaceRowHTML: ifaceRowHTML,
+    poeSummary: poeSummary,
     fmtSpeed: fmtSpeed,
     cageLabel: cageLabel,
     vlanSummary: vlanSummary
