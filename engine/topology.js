@@ -3,6 +3,7 @@
 const { Device } = require('./device');
 const { Link } = require('./link');
 const media = require('./media');
+const ifaceName = require('./iface-name');
 const net = require('./net');
 
 // Expand a device spec's interfaces into a flat list. A spec may provide an
@@ -98,6 +99,12 @@ class Topology {
     opts = opts || {};
     const a = this.devices.get(aId);
     const b = this.devices.get(bId);
+    // Placeholders so the rest of the function reads the resolved names, not the typed
+    // ones: validateLink must agree with connect() about which socket 'ether1' is.
+    const aIfaceResolved = (a && ifaceName.resolvePortName(a, aIface)) || aIface;
+    const bIfaceResolved = (b && ifaceName.resolvePortName(b, bIface)) || bIface;
+    aIface = aIfaceResolved;
+    bIface = bIfaceResolved;
     const ai = a && a.interfaces.get(aIface);
     const bi = b && b.interfaces.get(bIface);
 
@@ -162,6 +169,8 @@ class Topology {
   mediaOptions(aId, aIface, bId, bIface) {
     const a = this.devices.get(aId);
     const b = this.devices.get(bId);
+    aIface = (a && ifaceName.resolvePortName(a, aIface)) || aIface;
+    bIface = (b && ifaceName.resolvePortName(b, bIface)) || bIface;
     const ai = a && a.interfaces.get(aIface);
     const bi = b && b.interfaces.get(bIface);
     if (!ai || !bi) return [];
@@ -191,10 +200,17 @@ class Topology {
     const b = this.devices.get(bId);
     if (!a) throw new Error('Unknown device: ' + aId);
     if (!b) throw new Error('Unknown device: ' + bId);
+    // A caller may use the console spelling ('ether1'), an old lab file may predate a
+    // catalogue rename, or it may type the panel name. All of them mean one socket
+    // (issue #39), so resolve first and store the device's own name on the link.
+    const aName = ifaceName.resolvePortName(a, aIface);
+    const bName = ifaceName.resolvePortName(b, bIface);
+    if (!aName) throw new Error('Unknown interface ' + aIface + ' on ' + aId);
+    if (!bName) throw new Error('Unknown interface ' + bIface + ' on ' + bId);
+    aIface = aName;
+    bIface = bName;
     const ai = a.interfaces.get(aIface);
     const bi = b.interfaces.get(bIface);
-    if (!ai) throw new Error('Unknown interface ' + aIface + ' on ' + aId);
-    if (!bi) throw new Error('Unknown interface ' + bIface + ' on ' + bId);
     if (ai.peer) throw new Error(aId + '/' + aIface + ' is already connected');
     if (bi.peer) throw new Error(bId + '/' + bIface + ' is already connected');
 
