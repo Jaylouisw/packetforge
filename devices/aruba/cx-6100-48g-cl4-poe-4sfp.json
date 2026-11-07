@@ -56,5 +56,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6100series.pdf",
+    "note": "JL675A: 370 W Class 4 PoE. A separate 740 W SKU (R9Y04A) exists; this is the base model."
+  }
 }

@@ -1,0 +1,92 @@
+{
+  "poe": [
+    {
+      "vendor": "aruba",
+      "model": "2930F 48G PoE+ 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c05052929",
+      "confidence": "high",
+      "notes": "JL256A; 2930F QuickSpecs 'PoE power 370 W PoE+' (internal fixed PSU, 459 W max rating)."
+    },
+    {
+      "vendor": "aruba",
+      "model": "2930F 8G PoE+ 2SFP+",
+      "poeBudgetW": 125,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c05052929",
+      "confidence": "high",
+      "notes": "JL258A; 2930F QuickSpecs 'PoE power 125 W PoE+' from internal fixed PSU."
+    },
+    {
+      "vendor": "aruba",
+      "model": "3810M 48G PoE+ 1-slot",
+      "poeBudgetW": 1440,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04843019",
+      "confidence": "medium",
+      "notes": "JL074A; QuickSpecs 'PoE Power (Max Possible) 1440W' = chassis cap with both PSU slots filled (2x JL087A 1050W); PSUs are ordered separately (min 1), so no included-PSU base figure exists."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 12G CL4 PoE 2SFP+",
+      "poeBudgetW": 139,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00021859enw",
+      "confidence": "high",
+      "notes": "JL679A (12G Class4 PoE 2G/2SFP+ 139W); fixed 165 W PSU, 'Up to 139W of Class 4 PoE Power'."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 24G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00021859enw",
+      "confidence": "high",
+      "notes": "JL677A (24G Class4 PoE 4SFP+ 370W); fixed 500 W PSU, 'Up to 370W of Class 4 PoE Power'."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 48G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00021859enw",
+      "confidence": "high",
+      "notes": "JL675A (48G Class4 PoE 4SFP+ 370W); fixed 500 W PSU, 'Up to 370W of Class 4 PoE Power'."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 24G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00059762enw",
+      "confidence": "high",
+      "notes": "JL725A (CX 6200F 24G Class 4 PoE 4SFP+ 370W); fixed PSU, 'Fixed power supply - Up to 370W of Class 4 PoE power'."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 48G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00059762enw",
+      "confidence": "high",
+      "notes": "JL727A (CX 6200F 48G Class 4 PoE 4SFP+ 370W); fixed PSU, 'Up to 370W of Class 4 PoE power'."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6300M 48G CL4 PoE 4SFP56",
+      "poeBudgetW": 1600,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a00073540enw",
+      "confidence": "medium",
+      "notes": "JL661A; current QuickSpecs 'Max PoE power: 1600W' (supports JL086A/JL087A/JL670A 1600W PSUs, min 1 ordered separately); older CX 6300 datasheet quoted 1440W for 2x JL087A."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a50002592enw",
+      "confidence": "high",
+      "notes": "R8N87A; CX 6000 QuickSpecs 'Up to 370W of Class 4 PoE' on the fixed internal PSU (24p Class4 PoE 4p SFP 1G 370W SKU)."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/a50002592enw",
+      "confidence": "high",
+      "notes": "R8N85A; CX 6000 QuickSpecs 'Up to 370W of Class 4 PoE' on the fixed internal PSU (48p Class4 PoE 4p SFP 1G 370W SKU); the 740W variant is a different SKU (R9Y03A)."
+    }
+  ]
+}

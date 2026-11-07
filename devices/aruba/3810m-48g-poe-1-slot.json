@@ -273,5 +273,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://media.bechtle.com/asrc/180712/1c4b3d4ee288fc9434f5175bf56070570/c3/-/01158435a66c46f48541bb5aa2a95391/hpe-aruba-3810m-48g-switch-data-sheet-2",
+    "note": "JL074A: chassis has 2 modular PSU slots (supplied separately). 370 W is one 680 W JL086A; one 1050 W JL087A gives 740 W and two give the published 1440 W max. Conservative single-PSU figure recorded."
+  }
 }

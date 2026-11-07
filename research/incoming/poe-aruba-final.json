@@ -1,0 +1,89 @@
+{
+  "_note": "Aruba PoE budgets from the swarm lane's datasheet research. Where a chassis has modular PSUs the CONSERVATIVE single-PSU figure is recorded, because over-stating a budget lets impossible power configurations through - the exact failure this simulator exists to prevent. The published maximum is stated in each note.",
+  "poe": [
+    {
+      "vendor": "aruba",
+      "model": "2930F 48G PoE+ 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.router-switch.com/media/upload/product-pdf/hpe-aruba-2930f-switches-datasheet.pdf",
+      "notes": "JL256A: 370 W PoE+ from the fixed internal PSU. Optional X372 external supply raises it."
+    },
+    {
+      "vendor": "aruba",
+      "model": "2930F 8G PoE+ 2SFP+",
+      "poeBudgetW": 125,
+      "sourceUrl": "https://www.router-switch.com/media/upload/product-pdf/hpe-aruba-2930f-switches-datasheet.pdf",
+      "notes": "JL258A: 125 W PoE+ budget, fanless 8-port model running from an external adapter, no EPS option."
+    },
+    {
+      "vendor": "aruba",
+      "model": "3810M 48G PoE+ 1-slot",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://media.bechtle.com/asrc/180712/1c4b3d4ee288fc9434f5175bf56070570/c3/-/01158435a66c46f48541bb5aa2a95391/hpe-aruba-3810m-48g-switch-data-sheet-2",
+      "notes": "JL074A: chassis has 2 modular PSU slots (supplied separately). 370 W is one 680 W JL086A; one 1050 W JL087A gives 740 W and two give the published 1440 W max. Conservative single-PSU figure recorded."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 12G CL4 PoE 2SFP+",
+      "poeBudgetW": 139,
+      "sourceUrl": "https://download.axilogi.com/HPE/Datasheet/JL679A.pdf",
+      "notes": "JL679A: 139 W Class 4 PoE budget from the fixed PSU, fanless 12-port model."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 24G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6100series.pdf",
+      "notes": "JL677A: up to 370 W Class 4 PoE from the fixed power supply."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 48G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6100series.pdf",
+      "notes": "JL675A: 370 W Class 4 PoE. A separate 740 W SKU (R9Y04A) exists; this is the base model."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 24G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6200series.pdf",
+      "notes": "JL725A: up to 370 W Class 4 PoE from the fixed 500 W PSU."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6200F 48G CL4 PoE 4SFP+",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6200series.pdf",
+      "notes": "JL727A: 370 W (fixed 500 W PSU) is the base SKU; JL728A is the 740 W variant with a 950 W PSU."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6300M 48G CL4 PoE 4SFP56",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.jjnet.com.tw/hubfs/File%20Download/Products/HPE%20Aruba/%E5%AD%90%E7%94%A2%E5%93%81/Aruba%206300M%2048G%20CL4%20PoE%204SFP56%20Swch%20(JL661A)_DS.pdf",
+      "notes": "JL661A: 2 modular PSU slots. 370 W is one 680 W JL086A; one 1050 W gives 740 W and two give the published 1440 W max. Conservative single-PSU figure recorded."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 24G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.arubanetworks.com/en-in/access/6000-series/",
+      "notes": "R8N87A: 'PoE capability 370 W Class 4' confirmed against the vendor series page; the wattage in the name is the PoE budget, not the PSU rating (max power 455 W with PoE)."
+    },
+    {
+      "vendor": "aruba",
+      "model": "CX 6000 48G CL4 PoE 4SFP 370W",
+      "poeBudgetW": 370,
+      "sourceUrl": "https://www.arubanetworks.com/en-in/access/6000-series/",
+      "notes": "R8N85A: 370 W Class 4 PoE confirmed; the 740 W figure in the series blurb belongs to R9Y03A, not this model."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "ES-24-500W",
+      "poeBudgetW": null,
+      "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-500w",
+      "notes": "NO PUBLISHED POE BUDGET. The spec sheet lists only 'Power supply: internal 500 W' and 'max power consumption 500 W including PoE' - 500 W is the PSU rating, not an allocation to powered devices, and with 30 W internal draw at most ~470 W is deliverable. Unlike ES-24-250W and ES-48-500W, whose sheets explicitly state 'Total PoE available', this one has no such row. The earlier 500 W was a model-name guess and is withdrawn."
+    }
+  ]
+}

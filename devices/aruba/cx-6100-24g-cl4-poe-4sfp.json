@@ -56,5 +56,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6100series.pdf",
+    "note": "JL677A: up to 370 W Class 4 PoE from the fixed power supply."
+  }
 }

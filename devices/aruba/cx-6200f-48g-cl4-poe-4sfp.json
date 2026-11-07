@@ -56,5 +56,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6200series.pdf",
+    "note": "JL727A: 370 W (fixed 500 W PSU) is the base SKU; JL728A is the 740 W variant with a 950 W PSU."
+  }
 }

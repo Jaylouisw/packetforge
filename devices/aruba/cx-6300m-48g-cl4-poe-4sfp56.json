@@ -40,5 +40,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.jjnet.com.tw/hubfs/File%20Download/Products/HPE%20Aruba/%E5%AD%90%E7%94%A2%E5%93%81/Aruba%206300M%2048G%20CL4%20PoE%204SFP56%20Swch%20(JL661A)_DS.pdf",
+    "note": "JL661A: 2 modular PSU slots. 370 W is one 680 W JL086A; one 1050 W gives 740 W and two give the published 1440 W max. Conservative single-PSU figure recorded."
+  }
 }

@@ -142,5 +142,11 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "poe": {
+    "budgetW": null,
+    "budgetUnknown": true,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-500w",
+    "note": "NO PUBLISHED POE BUDGET. The spec sheet lists only 'Power supply: internal 500 W' and 'max power consumption 500 W including PoE' - 500 W is the PSU rating, not an allocation to powered devices, and with 30 W internal draw at most ~470 W is"
+  }
 }

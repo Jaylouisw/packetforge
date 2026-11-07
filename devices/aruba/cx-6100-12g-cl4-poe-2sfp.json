@@ -3,7 +3,7 @@
   "model": "CX 6100 12G CL4 PoE 2SFP+",
   "label": "Aruba CX 6100 12G Class4 PoE 2G/2SFP+ 139W (JL679A)",
   "category": "l3-switch",
-  "description": "Aruba CX 6100 12G Class 4 PoE 2G/2SFP+ 139W - 12x 1G PoE+ RJ45 plus 2x 10G SFP+ uplinks, fanless.",
+  "description": "Aruba CX 6100 12G CL4 PoE 2SFP+ - 12x 1G RJ45 PoE+ access ports (139 W) plus 2x 1G copper uplinks and 2x 1G/10G SFP+ cages.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -13,13 +13,13 @@
   "portTemplate": {
     "prefix": "1/1/",
     "start": 1,
-    "count": 12,
+    "count": 14,
     "type": "ethernet",
     "speed": "1G"
   },
   "interfaces": [
     {
-      "name": "1/1/13",
+      "name": "1/1/15",
       "type": "ethernet",
       "speed": "1G",
       "connector": "sfp+",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "1/1/14",
+      "name": "1/1/16",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -38,5 +38,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 139,
+    "sourceUrl": "https://download.axilogi.com/HPE/Datasheet/JL679A.pdf",
+    "note": "JL679A: 139 W Class 4 PoE budget from the fixed PSU, fanless 12-port model."
+  }
 }

@@ -289,5 +289,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.router-switch.com/media/upload/product-pdf/hpe-aruba-2930f-switches-datasheet.pdf",
+    "note": "JL256A: 370 W PoE+ from the fixed internal PSU. Optional X372 external supply raises it."
+  }
 }

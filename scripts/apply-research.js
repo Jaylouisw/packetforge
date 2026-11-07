@@ -101,11 +101,13 @@ for (const entry of (input.poe || [])) {
   }
   if (w === null) {
     spec.poe = Object.assign({}, spec.poe, { budgetW: null, budgetUnknown: true, sourceUrl: entry.sourceUrl });
+    if (entry.notes) spec.poe.note = String(entry.notes).slice(0, 240);
     report.push('  ~ ' + label + '  budget NOT FOUND (recorded as unknown)');
     skipped++;
   } else {
     spec.poe = Object.assign({}, spec.poe, { budgetW: w, sourceUrl: entry.sourceUrl });
     delete spec.poe.budgetUnknown;
+    if (entry.notes) spec.poe.note = String(entry.notes).slice(0, 240);
     report.push('  + ' + label + '  ' + w + ' W' + (existing !== null ? ' (was ' + existing + ')' : ''));
     applied++;
   }

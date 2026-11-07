@@ -1,0 +1,18 @@
+{
+  "ports": [
+    {
+      "vendor": "aruba",
+      "model": "CX 6100 12G CL4 PoE 2SFP+",
+      "rj45Count": 14,
+      "sfpCount": 2,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://cdn.blueally.com/securewirelessworks/datasheets/switches/ds_6100series.pdf",
+      "notes": "JL679A: 12x PoE+ copper plus 2x 1G copper uplinks = 14 RJ45, plus 2x SFP+."
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "ports": [
+    {
+      "vendor": "cisco",
+      "model": "ASR1001-X",
+      "rj45Count": 0,
+      "sfpCount": 8,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/1001-x/asr1hig-book/router_overview.html",
+      "notes": "All 8 built-in data ports are optical: 6x 1G SFP-only (Gi0/0/0-5) + 2x 10G SFP+ (Te0/0/0-1); copper only via EPA/SPA module slots, so no RJ45 cages."
+    },
+    {
+      "vendor": "cisco",
+      "model": "ASR1002-X",
+      "rj45Count": 0,
+      "sfpCount": 6,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/asr1routers/asr-1000-series-hig/asr-hig-1002x.html",
+      "notes": "Built-in 6x1GE SPA = six SFP Gigabit Ethernet ports (Gi0/0/0-5); the 3 SIP/SPA bays are empty module slots, not ports."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C1111-8P",
+      "rj45Count": 9,
+      "sfpCount": 1,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/routers/1000-series-integrated-services-routers-isr/datasheet-c78-739512.html",
+      "notes": "8x GE LAN copper (Gi0/1/0-7) + 1x GE WAN copper (Gi0/0/0) + 1x GE WAN/SFP combo (Gi0/0/1) - the SFP sleeve shares the combo WAN port with its RJ45."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C2960X-24TS-L",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-2960-x-series-switches/datasheet_c78-728232.html",
+      "notes": "24x 1G non-PoE downlinks (Gi1/0/1-24) + 4x dedicated 1G SFP uplinks (Gi1/0/25-28); 'TS' downlinks, SFP uplinks are separate cages, not combo."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C2960X-48FPS-L",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-2960-x-series-switches/datasheet_c78-728232.html",
+      "notes": "48x 1G PoE+ (740 W) downlinks (Gi1/0/1-48) + 4x dedicated 1G SFP uplinks (Gi1/0/49-52)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9200L-24P-4G",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9200-series-switches/nb-06-cat9200-ser-data-sheet-cte-en.html",
+      "notes": "'4G' suffix = 4x fixed 1G SFP uplinks (Gi1/0/25-28) alongside 24x 1G PoE+ (370 W) downlinks."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3560CX-8PC-S",
+      "rj45Count": 10,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-3560-cx-series-switches/datasheet-c78-733229.html",
+      "notes": "8x 1G PoE+ downlinks (Gi1/0/1-8) + 2x 1G copper uplinks (Gi1/0/9-10) + 2x separate 1G SFP uplinks (Gi1/0/11-12); SFP cages are dedicated, not combo."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3560G-24TS-S",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3560/hardware/installation/guide/3560hig/higoverview.html",
+      "notes": "Table 1-1: 3560G-24TS = 24x 10/100/1000 ports + 4x SFP module slots (Gi0/25-28); '-S' = SMI software image, SFP uplinks are fixed cages."
+    },
+    {
+      "vendor": "cisco",
+      "model": "WS-C3750G-24TS-S",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-3750-series-switches/product_data_sheet0900aecd80371991.html",
+      "notes": "3750G-24TS: 24x 10/100/1000 ports + four SFP uplinks (Gi1/0/25-28); no copper combo, uplinks are SFP-only."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-24T",
+      "rj45Count": 24,
+      "sfpCount": 8,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html",
+      "notes": "24x 1G copper downlinks (Gi1/0/1-24) + 8x 10G SFP+ from the populated C9300-NM-8X network module (Gi1/1/1-8); SFP+ cages also accept 1G SFP."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-24UX",
+      "rj45Count": 24,
+      "sfpCount": 8,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html",
+      "notes": "24x mGig 100M/1G/2.5G/5G/10G copper (UPOE 90 W) downlinks + 8x 10G SFP+ in the C9300-NM-8X module (Gi1/1/1-8)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9300-48P",
+      "rj45Count": 48,
+      "sfpCount": 8,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html",
+      "notes": "48x 1G PoE+ (437 W) downlinks (Gi1/0/1-48) + 8x 10G SFP+ in the populated C9300-NM-8X network module (Gi1/1/1-8)."
+    },
+    {
+      "vendor": "cisco",
+      "model": "N3K-C3048TP-1GE",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-3000-series-switches/data_sheet_c78-685363.html",
+      "notes": "48 fixed 10/100/1000 RJ45 ports (Eth1/1-48) + 4 fixed 10G SFP+ uplinks (Eth1/49-52); only 10G optics/Twinax listed for the SFP+ cages."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9800-40-K9",
+      "rj45Count": 1,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/9800-40/installation-guide/b-wlc-ig-9800-40/overview.html",
+      "notes": "4x built-in 1G/10G SFP+ data ports (TE0-3) + 1x RJ45 10/100/1000 management port (Gi0/0); console/HA RJ45s are not data ports so excluded."
+    },
+    {
+      "vendor": "cisco",
+      "model": "C9800-L-F-K9",
+      "rj45Count": 4,
+      "sfpCount": 2,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/wireless/catalyst-9800-series-wireless-controllers/datasheet-c78-742434.html",
+      "notes": "'-F' fiber-uplink variant: 4x 2.5G/1G Multigigabit RJ45 (Gi1/0/1-4) + 2x 1/10G SFP+ fiber uplinks (Te1/0/1-2); the copper twin C9800-L-C-K9 has 2x 10G copper uplinks instead."
+    }
+  ]
+}

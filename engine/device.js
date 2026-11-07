@@ -92,8 +92,17 @@ class Device {
     });
 
     // PoE budget on the PSE side, in watts. 0 = does not source PoE.
-    this.poeBudget = spec.poeBudget || (spec.poe && spec.poe.budgetW) ||
-      require('./media').parsePoeBudget(spec.model) || 0;
+    // A PoE budget can come from the spec, from research, from the model name,
+    // or be explicitly unknown. An explicit "unknown" must NOT fall through to
+    // the name parser: 'ES-24-500W' would otherwise be credited with 500 W of
+    // PoE when 500 W is only its PSU rating and no budget is published.
+    const mediaLib = require('./media');
+    let budget;
+    if (spec.poeBudget !== undefined && spec.poeBudget !== null) budget = spec.poeBudget;
+    else if (spec.poe && spec.poe.budgetW !== undefined && spec.poe.budgetW !== null) budget = spec.poe.budgetW;
+    else if (spec.poe && spec.poe.budgetUnknown) budget = 0;
+    else budget = mediaLib.parsePoeBudget(spec.model) || 0;
+    this.poeBudget = budget;
 
     // runtime forwarding state
     // VLAN 1 keeps the flat legacy table (also used by `show mac address-table`);

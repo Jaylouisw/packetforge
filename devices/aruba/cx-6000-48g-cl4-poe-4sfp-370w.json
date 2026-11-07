@@ -55,5 +55,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.arubanetworks.com/en-in/access/6000-series/",
+    "note": "R8N85A: 370 W Class 4 PoE confirmed; the 740 W figure in the series blurb belongs to R9Y03A, not this model."
+  }
 }

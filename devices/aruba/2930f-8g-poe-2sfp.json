@@ -71,5 +71,10 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "poe": {
+    "budgetW": 125,
+    "sourceUrl": "https://www.router-switch.com/media/upload/product-pdf/hpe-aruba-2930f-switches-datasheet.pdf",
+    "note": "JL258A: 125 W PoE+ budget, fanless 8-port model running from an external adapter, no EPS option."
+  }
 }
