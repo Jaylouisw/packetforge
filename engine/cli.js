@@ -84,9 +84,27 @@ class CliSession {
       const id = parseInt(tokens[2], 10);
       if (this.device.config.vlans) delete this.device.config.vlans[id];
       out.push('VLAN ' + id + ' removed');
+    } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
+      const name = tokens[2];
+      const vi = name ? this.device.interfaces.get(name) : null;
+      if (!vi) return ['% Interface not found: ' + (name || '')];
+      if (!vi.parent) return ['% ' + name + ' is a physical interface and cannot be removed'];
+      this.device.interfaces.delete(name);
+      out.push('Subinterface ' + name + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
-      if (!this.device.interfaces.has(tokens[1])) return ['% Interface not found: ' + tokens[1]];
+      if (!this.device.interfaces.has(tokens[1])) {
+        // 'interface Gi0/0.10' creates a router subinterface on Gi0/0.
+        const m = /^(.+)\.(\d+)$/.exec(tokens[1]);
+        if (m && this.device.interfaces.has(m[1])) {
+          const vid = parseInt(m[2], 10);
+          if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + m[2]];
+          this.device.addSubinterface(m[1], vid);
+          out.push('Created subinterface ' + tokens[1] + ' (parent ' + m[1] + ')');
+        } else {
+          return ['% Interface not found: ' + tokens[1]];
+        }
+      }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
     } else if (head === 'ip' && tokens[1] === 'route') {
@@ -147,6 +165,8 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'encapsulation') {
+      out.push.apply(out, this._encap(tokens.slice(1), iface));
     } else if (head === 'switchport') {
       out.push.apply(out, this._switchport(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'switchport') {
@@ -170,6 +190,24 @@ class CliSession {
       out.push('% Unrecognized interface command: ' + tokens.join(' '));
     }
     return out;
+  }
+
+  // ---------- 802.1Q encapsulation on a router subinterface ----------
+  _encap(tokens, iface) {
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (t[0] !== 'dot1q') return ['% Unsupported encapsulation: ' + (t[0] || '')];
+    if (!iface.isSubinterface || !iface.isSubinterface()) {
+      return ['% encapsulation dot1q is only valid on a subinterface (e.g. ' + iface.name + '.10)'];
+    }
+    const vid = parseInt(t[1], 10);
+    if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + (t[1] || '')];
+    iface.encapVid = vid;
+    const parent = this.device.interfaces.get(iface.parent);
+    if (parent) {
+      const vlanLib = require('./vlan');
+      parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
+    }
+    return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
   }
 
   // ---------- switchport / VLAN membership ----------
@@ -399,6 +437,7 @@ class CliSession {
       for (const i of dev.interfaces.values()) {
         out.push('interface ' + i.name);
         if (i.description) out.push('  description ' + i.description);
+        if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
         if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
         else if (i.dhcp) out.push('  ip address dhcp');
         if (i.vlan) {
@@ -443,6 +482,8 @@ class CliSession {
       '  ip route <dest> <mask> <gw> [iface]',
       '  ip default-gateway <gw>  shutdown / no shutdown',
       '  vlan <id> [name]                       (config mode)',
+      '  interface <parent>.<vlan>              (creates a subinterface)',
+      '  encapsulation dot1q <vlan>             (interface mode)',
       '  switchport mode access|trunk            (interface mode)',
       '  switchport access vlan <id>',
       '  switchport trunk native vlan <id>',

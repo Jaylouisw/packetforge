@@ -23,6 +23,11 @@ class Interface {
     this.description = '';
     this.peer = null;         // { deviceId, iface }
 
+    // Router subinterface (802.1Q router-on-a-stick). A subinterface has no
+    // link of its own: it borrows its parent's MAC and carries exactly one VLAN.
+    this.parent = spec.parent || null;      // physical interface name
+    this.encapVid = spec.encapVid || null;  // 802.1Q VLAN id
+
     // L2 configuration (802.1Q)
     this.vlan = {
       mode: 'access',         // 'access' | 'trunk'
@@ -43,6 +48,9 @@ class Interface {
   get poeIn() { return this.hardware.poeIn; }
 
   get status() { return this.enabled ? 'up' : 'admin down'; }
+
+  // A subinterface is virtual: it rides on a parent physical port.
+  isSubinterface() { return !!this.parent; }
   get cidr() {
     if (!this.ip || !this.mask) return null;
     return this.ip + '/' + net.prefixOf(this.mask);
@@ -109,6 +117,35 @@ class Device {
   }
 
   interface(name) { return this.interfaces.get(name); }
+
+  // Create (or return) a router subinterface, e.g. Gi0/0.10 for VLAN 10.
+  // The physical parent automatically becomes an 802.1Q trunk.
+  addSubinterface(parentName, vid) {
+    const parent = this.interfaces.get(parentName);
+    if (!parent) throw new Error('Unknown parent interface: ' + parentName);
+    const name = parentName + '.' + vid;
+    const existing = this.interfaces.get(name);
+    if (existing) return existing;
+
+    const iface = new Interface(
+      { name: name, type: 'subinterface', speed: parent.speed, parent: parentName, encapVid: vid },
+      this.interfaces.size,
+      {}
+    );
+    iface.mac = parent.mac;          // subinterfaces borrow the physical MAC
+    iface.hardware = parent.hardware; // and its media capabilities
+    iface.enabled = parent.enabled;
+
+    const vlanLib = require('./vlan');
+    parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
+
+    this.interfaces.set(name, iface);
+    return iface;
+  }
+
+  subinterfacesOf(parentName) {
+    return Array.from(this.interfaces.values()).filter(function (i) { return i.parent === parentName; });
+  }
 
   activeInterfaces() {
     return Array.from(this.interfaces.values()).filter(function (i) { return i.enabled; });
@@ -275,7 +312,10 @@ class Device {
             nativeVlan: i.vlan.nativeVlan,
             allowedVlans: i.vlan.allowedVlans
           },
-          lagId: i.lagId
+          lagId: i.lagId,
+          // router subinterface (null for physical ports)
+          parent: i.parent || null,
+          encapVid: i.encapVid || null
         };
       })
     };
@@ -299,7 +339,11 @@ class Device {
       }
       if (Array.isArray(state.interfaces)) {
         for (const is of state.interfaces) {
-          const iface = d.interfaces.get(is.name);
+          let iface = d.interfaces.get(is.name);
+          if (!iface && is.parent && is.encapVid) {
+            // subinterfaces are not part of the device spec: recreate them
+            try { iface = d.addSubinterface(is.parent, is.encapVid); } catch (e) { iface = null; }
+          }
           if (!iface) continue;
           iface.ip = is.ip || null;
           iface.mask = is.mask || null;

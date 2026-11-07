@@ -55,7 +55,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -112,7 +114,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -170,7 +174,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "Gi0/1",
@@ -201,7 +207,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "Gi0/2",
@@ -232,7 +240,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     }

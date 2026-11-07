@@ -11,6 +11,11 @@ const validation = require('./validation');
 const vlan = require('./vlan');
 const lag = require('./lag');
 const stp = require('./stp');
+const dhcp = require('./dhcp');
+const nat = require('./nat');
+const acl = require('./acl');
+const vrrp = require('./vrrp');
+const ospf = require('./ospf');
 
 module.exports = {
   net,
@@ -19,6 +24,11 @@ module.exports = {
   vlan,
   lag,
   stp,
+  dhcp,
+  nat,
+  acl,
+  vrrp,
+  ospf,
   Device,
   Interface,
   Link,

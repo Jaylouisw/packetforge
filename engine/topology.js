@@ -57,8 +57,15 @@ class Topology {
     this._macBase += 0x100;
     let i = 0;
     for (const iface of dev.interfaces.values()) {
+      // Subinterfaces have no MAC of their own: they share the parent's.
+      if (iface.parent) continue;
       iface.mac = net.intToMac(base + i);
       i++;
+    }
+    for (const iface of dev.interfaces.values()) {
+      if (!iface.parent) continue;
+      const parent = dev.interfaces.get(iface.parent);
+      if (parent) iface.mac = parent.mac;
     }
   }
 
@@ -208,7 +215,9 @@ class Topology {
       const spec = {
         vendor: d.vendor, model: d.model, label: d.label, category: d.category,
         capabilities: d.capabilities,
-        interfaces: (d.interfaces || []).map(function (i) {
+        interfaces: (d.interfaces || []).filter(function (i) {
+          return !i.parent;   // subinterfaces are rebuilt by Device.hydrate
+        }).map(function (i) {
           return { name: i.name, type: i.type, speed: i.speed };
         })
       };

@@ -61,7 +61,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -126,7 +128,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "Gi0/0/1",
@@ -157,7 +161,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "Gi0/0/2",
@@ -188,7 +194,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -245,7 +253,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether2",
@@ -276,7 +286,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether3",
@@ -307,7 +319,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether4",
@@ -338,7 +352,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether5",
@@ -369,7 +385,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether6",
@@ -400,7 +418,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether7",
@@ -431,7 +451,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether8",
@@ -462,7 +484,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether9",
@@ -493,7 +517,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether10",
@@ -524,7 +550,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether11",
@@ -555,7 +583,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether12",
@@ -586,7 +616,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether13",
@@ -617,7 +649,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether14",
@@ -648,7 +682,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether15",
@@ -679,7 +715,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether16",
@@ -710,7 +748,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether17",
@@ -741,7 +781,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether18",
@@ -772,7 +814,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether19",
@@ -803,7 +847,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether20",
@@ -834,7 +880,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether21",
@@ -865,7 +913,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether22",
@@ -896,7 +946,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether23",
@@ -927,7 +979,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "ether24",
@@ -958,7 +1012,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "sfp-sfpplus1",
@@ -994,7 +1050,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "sfp-sfpplus2",
@@ -1030,7 +1088,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -1087,7 +1147,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/2",
@@ -1118,7 +1180,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/3",
@@ -1149,7 +1213,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/4",
@@ -1180,7 +1246,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/5",
@@ -1211,7 +1279,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/6",
@@ -1242,7 +1312,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/7",
@@ -1273,7 +1345,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/8",
@@ -1304,7 +1378,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/9",
@@ -1335,7 +1411,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/10",
@@ -1366,7 +1444,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/11",
@@ -1397,7 +1477,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/12",
@@ -1428,7 +1510,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/13",
@@ -1459,7 +1543,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/14",
@@ -1490,7 +1576,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/15",
@@ -1521,7 +1609,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/16",
@@ -1552,7 +1642,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/17",
@@ -1583,7 +1675,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/18",
@@ -1614,7 +1708,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/19",
@@ -1645,7 +1741,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/20",
@@ -1676,7 +1774,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/21",
@@ -1707,7 +1807,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/22",
@@ -1738,7 +1840,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/23",
@@ -1769,7 +1873,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/24",
@@ -1800,7 +1906,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/25",
@@ -1831,7 +1939,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/26",
@@ -1862,7 +1972,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/27",
@@ -1893,7 +2005,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "GE0/0/28",
@@ -1924,7 +2038,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -1980,7 +2096,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port2",
@@ -2011,7 +2129,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port3",
@@ -2042,7 +2162,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port4",
@@ -2073,7 +2195,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port5",
@@ -2104,7 +2228,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port6",
@@ -2135,7 +2261,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port7",
@@ -2166,7 +2294,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port8",
@@ -2197,7 +2327,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port9",
@@ -2228,7 +2360,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port10",
@@ -2259,7 +2393,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port11",
@@ -2290,7 +2426,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port12",
@@ -2321,7 +2459,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port13",
@@ -2352,7 +2492,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port14",
@@ -2383,7 +2525,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port15",
@@ -2414,7 +2558,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "port16",
@@ -2445,7 +2591,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "SFP1",
@@ -2478,7 +2626,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         },
         {
           "name": "SFP2",
@@ -2511,7 +2661,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -2568,7 +2720,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -2625,7 +2779,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     },
@@ -2683,7 +2839,9 @@
             "nativeVlan": 1,
             "allowedVlans": "all"
           },
-          "lagId": null
+          "lagId": null,
+          "parent": null,
+          "encapVid": null
         }
       ]
     }

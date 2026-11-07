@@ -34,7 +34,9 @@ function arpReply(request, senderMac, senderIp) {
 
 // The untagged/native VLAN a port belongs to before ingress classification.
 function portPvid(iface) {
-  if (!iface || !iface.vlan) return 1;
+  if (!iface) return 1;
+  if (iface.encapVid) return Number(iface.encapVid);   // router subinterface
+  if (!iface.vlan) return 1;
   if (iface.vlan.mode === 'trunk') return Number(iface.vlan.nativeVlan) || 1;
   return Number(iface.vlan.accessVlan) || 1;
 }
@@ -260,11 +262,24 @@ class Simulator {
   // ---------------------------------------------------------------------
 
   // Apply egress VLAN rules to a frame leaving `iface` in `vid`, then queue it.
+  // A subinterface has no link of its own: the frame leaves the parent physical
+  // port, tagged with the subinterface's VLAN.
   _emitFrame(dev, iface, frame, vid) {
-    const v = (vid === undefined || vid === null) ? portPvid(iface) : vid;
-    const egress = vlanLib.classifyEgress(iface.vlan, v);
+    if (!iface) return;
+    let port = iface;
+    let v = (vid === undefined || vid === null) ? portPvid(iface) : vid;
+    if (iface.parent) {
+      port = dev.interfaces.get(iface.parent);
+      if (!port || !port.enabled) {
+        this._emit({ type: 'drop', reason: 'parent interface down for ' + iface.name, dev: dev.id, iface: iface.name });
+        return;
+      }
+      v = Number(iface.encapVid) || v;
+    }
+
+    const egress = vlanLib.classifyEgress(port.vlan, v);
     if (egress.action === 'drop') {
-      this._emit({ type: 'vlan-drop', dev: dev.id, iface: iface.name, vlan: v, reason: 'VLAN ' + v + ' not allowed on egress' });
+      this._emit({ type: 'vlan-drop', dev: dev.id, iface: port.name, vlan: v, reason: 'VLAN ' + v + ' not allowed on egress' });
       return;
     }
     const out = Object.assign({}, frame, {
@@ -272,7 +287,7 @@ class Simulator {
       wireTagged: egress.action === 'tagged',
       wireVid: egress.action === 'tagged' ? v : null
     });
-    this._enqueue(dev.id, iface.name, out);
+    this._enqueue(dev.id, port.name, out);
   }
 
   _enqueue(devId, iface, frame) {
@@ -385,6 +400,7 @@ class Simulator {
 
     if (bcast) {
       for (const iface of dev.activeInterfaces()) {
+        if (iface.parent) continue;               // subinterfaces are not bridged ports
         if (iface.name !== inIface) candidates.push(iface.name);
       }
     } else {
@@ -397,6 +413,7 @@ class Simulator {
       } else {
         // unknown unicast -> flood within the VLAN
         for (const iface of dev.activeInterfaces()) {
+          if (iface.parent) continue;             // subinterfaces are not bridged ports
           if (iface.name !== inIface) candidates.push(iface.name);
         }
       }
