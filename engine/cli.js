@@ -75,7 +75,11 @@ class CliSession {
       // (issue #19) - the box was fine, the parser was eating the rest of the line.
       const name = tokens.slice(1).join(' ').trim();
       this.device.config.hostname = name || null;
-      if (tokens[1]) this.device.name = tokens[1];
+      // device.name is what the UI renders: the canvas label, the inspector header, the
+      // status bar. Setting only config.hostname left a device that reported
+      // "hostname THE BIFROST" while every surface still said "THE" (issue #21). Both are
+      // set from the same text, so they cannot disagree.
+      if (name) this.device.name = name;
     } else if (head === 'vlan') {
       const id = parseInt(tokens[1], 10);
       const chk = require('./vlan').validatePortConfig({ accessVlan: id });
