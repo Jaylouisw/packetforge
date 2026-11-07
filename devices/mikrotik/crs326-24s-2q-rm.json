@@ -3,7 +3,7 @@
   "model": "CRS326-24S+2Q+RM",
   "label": "CRS326-24S+2Q+RM",
   "category": "switch",
-  "description": "MikroTik CRS326-24S+2Q+RM - 24x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (ether1), RouterOS or SwOS.",
+  "description": "MikroTik CRS326-24S+2Q+RM - 24x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (eth1), RouterOS or SwOS.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -11,7 +11,7 @@
     "dhcp-client"
   ],
   "portTemplate": {
-    "prefix": "sfp-sfpplus",
+    "prefix": "SFP+",
     "start": 1,
     "count": 24,
     "type": "ethernet",
@@ -19,17 +19,17 @@
   },
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "100M"
     },
     {
-      "name": "qsfpplus1",
+      "name": "QSFP+1",
       "type": "ethernet",
       "speed": "40G"
     },
     {
-      "name": "qsfpplus2",
+      "name": "QSFP+2",
       "type": "ethernet",
       "speed": "40G"
     }

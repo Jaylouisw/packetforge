@@ -14,7 +14,7 @@
     "dhcp-client"
   ],
   "portTemplate": {
-    "prefix": "sfp-sfpplus",
+    "prefix": "SFP+",
     "start": 1,
     "count": 12,
     "type": "ethernet",
@@ -22,17 +22,17 @@
   },
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp28-1",
+      "name": "SFP28-1",
       "type": "ethernet",
       "speed": "25G"
     },
     {
-      "name": "sfp28-2",
+      "name": "SFP28-2",
       "type": "ethernet",
       "speed": "25G"
     }

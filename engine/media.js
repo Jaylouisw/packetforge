@@ -296,8 +296,16 @@ const CAGE_MEDIA = {
   sfp28: function () {
     // An SFP28 cage takes 25G, 10G and 1G modules. Without the 1G optics an SFP28 port
     // refused a plain 1G SFP uplink, which the hardware accepts without complaint.
-    return ['25gbase-sr', '25gbase-lr', '10gbase-sr', '10gbase-lr', 'dac-25g', 'dac-10g',
-            '1000base-sx', '1000base-lx', '1000base-t-sfp', 'dac-1g'];
+    //
+    // The reaches are the whole module class, not a sample of it: a 1000BASE-EX/ZX SFP
+    // and a 10GBASE-ER SFP+ plug into this cage and work exactly as they do in an SFP+
+    // slot, so offering only SX/LX left those links unrepresentable. 100M is left out
+    // on purpose (see CAGE_SPEEDS.sfp28); AOC and active-DAC assemblies stay in the
+    // SFP+ entry because no catalogue part pairs them with a 25G cage yet.
+    return ['25gbase-sr', '25gbase-lr', '10gbase-sr', '10gbase-lr', '10gbase-er',
+            'dac-25g', 'dac-10g',
+            '1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx',
+            '1000base-t-sfp', 'dac-1g'];
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
@@ -380,7 +388,43 @@ const CAGE_SPEEDS = {
   },
   sfp: function () { return [1000]; },
   'sfp+': function () { return [1000, 10000]; },
-  sfp28: function () { return [10000, 25000]; },
+  // An SFP28 cage takes 1G SFP and 10G SFP+ modules as well as 25G SFP28 ones, and
+  // the link runs at the module's own rate (issue #17).
+  //
+  // This is one part, not three: SFP28 (SFF-8402) keeps the SFP+ cage and mating
+  // interface, "Backwards-compatibility: Shares same mating interface and cage
+  // dimensions with the SFP+ connector" (TE zSFP+ 28 Gb/s I/O datasheet). Every
+  // vendor that ships 25G ports documents the 1G case in its own words:
+  //   Cisco Nexus 93180YC-FX: "48 10/25-Gigabit SFP+ downlink ports that support
+  //     1-Gigabit, 10-Gigabit, and 25-Gigabit Ethernet connections".
+  //   Arista 7050X3 Q&A: "The 25G SFP ports accommodate a wide range of 25G, 10GbE
+  //     and 1GbE SFP transceivers and cables".
+  //   Juniper QFX5120: "48 25GbE, 10GbE, or 1GbE SFP28 ports".
+  //
+  // The rate is the module's, never the cage's: a 1G SFP in this slot comes up at
+  // 1G, and it only does so because the far end is 1G too - which is what the
+  // speed intersection below produces. Two 25G ports still meet at 25G.
+  //
+  // Two real-world constraints are NOT modelled here, because neither changes what
+  // will mate: the port does not autonegotiate down, it has to be set ("You can set
+  // the downlink port speeds on a port-by-port basis" - Cisco), and on several
+  // platforms that setting is per group of ports ("The set of 4 ports in each group
+  // have a single port speed setting - 1/10G or 25G" - Arista; Aruba's 8325 needs
+  // "interface groups (groups of 12 ports) to enable use of 1G or 10G transceivers
+  // or DACs in the SFP28 ports").
+  //
+  // Nor is 1G universal: Aruba's transceiver guide warns that "although 10G and 1G
+  // transceiver products may 'fit' into an SFP28 port, the particular switch model
+  // or module may be limited in supporting lower speeds", and the 8325P and 9300
+  // do not do 1G in this cage at all. That is why this is a DEFAULT and not a rule:
+  // a device that knows better lists its own speedCaps and this table never runs.
+  //
+  // 100M is deliberately absent: a 25G port does not take a 100BASE-FX/T SFP, and
+  // none of the three vendors above lists 100M among its SFP28 port speeds.
+  sfp28: function (maxMbps) {
+    const out = [1000, 10000, 25000];
+    return out.filter(function (v) { return v <= maxMbps; });
+  },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
   qsfpdd: function (maxMbps) {

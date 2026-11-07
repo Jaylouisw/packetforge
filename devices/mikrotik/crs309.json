@@ -11,12 +11,12 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp-sfpplus1",
+      "name": "SFP+1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus2",
+      "name": "SFP+2",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -36,7 +36,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus3",
+      "name": "SFP+3",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus4",
+      "name": "SFP+4",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus5",
+      "name": "SFP+5",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus6",
+      "name": "SFP+6",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus7",
+      "name": "SFP+7",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -86,7 +86,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus8",
+      "name": "SFP+8",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",

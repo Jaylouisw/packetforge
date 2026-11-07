@@ -3,7 +3,7 @@
   "model": "L009UiGS-RM",
   "label": "L009UiGS-RM",
   "category": "router",
-  "description": "MikroTik L009UiGS-RM - 8x 1G RJ45 (PoE-out on ether8) and 1x SFP cage that also accepts 2.5G modules, ARM dual-core.",
+  "description": "MikroTik L009UiGS-RM - 8x 1G RJ45 (PoE-out on eth8) and 1x SFP cage that also accepts 2.5G modules, ARM dual-core.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,7 +14,7 @@
     "dhcp-client"
   ],
   "portTemplate": {
-    "prefix": "ether",
+    "prefix": "eth",
     "start": 1,
     "count": 8,
     "type": "ethernet",
@@ -22,7 +22,7 @@
   },
   "interfaces": [
     {
-      "name": "sfp1",
+      "name": "SFP1",
       "type": "ethernet",
       "speed": "2.5G",
       "speedCaps": [

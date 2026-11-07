@@ -10,6 +10,73 @@ const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
 
+// ---------------------------------------------------------------------------
+// Port-name aliases (issue #27)
+//
+// A spec names a port the way the vendor prints it on the box, because the
+// canvas, the inspector and the faceplate must show what a person standing in
+// front of the hardware sees. The vendor's own console sometimes spells the
+// same socket differently: MikroTik silkscreens "eth1" and "SFP+1" while
+// RouterOS calls them "ether1" and "sfp-sfpplus1". An engineer types whichever
+// spelling they learned, so the CLI resolves both onto the one physical port.
+// The spec still decides what is DRAWN - aliases never rename anything.
+//
+// Each rule rewrites the console spelling onto the panel spelling, and the
+// panel spelling onto itself, so one lowercase key covers both directions and
+// the case difference (RouterOS is lowercase, the silkscreen is not).
+const PORT_NAME_RULES = [
+  [/^ether(\d+)$/, 'eth$1'],           // RouterOS ether1  <-> panel eth1
+  [/^sfp-sfpplus(\d+)$/, 'sfp+$1'],    // RouterOS sfp-sfpplus1 <-> panel SFP+1
+  [/^sfpplus(\d+)$/, 'sfp+$1'],        // tolerant of sfpplus1
+  [/^qsfp-qsfpplus(\d+)$/, 'qsfp+$1'], // RouterOS qsfp-qsfpplus1 <-> QSFP+1
+  [/^qsfpplus(\d+)$/, 'qsfp+$1'],      // RouterOS qsfpplus1 <-> panel QSFP+1
+  [/^sfp(\d+)$/, 'sfp$1'],             // RouterOS sfp1 <-> panel SFP1
+  [/^sfp28-(\d+)$/, 'sfp28-$1'],       // RouterOS sfp28-1 <-> panel SFP28-1
+  [/^qsfp28-(\d+)$/, 'qsfp28-$1'],     // RouterOS qsfp28-1 <-> panel QSFP28-1
+  [/^combo(\d+)$/, 'combo$1'],         // RouterOS combo1 <-> panel COMBO1
+  [/^mgmt(\d*)$/, 'mgmt$1']            // RouterOS mgmt <-> panel MGMT
+];
+
+// The comparison key for a port name: case-insensitive, with every known
+// console spelling folded onto the panel spelling.
+function portKey(name) {
+  let s = String(name === undefined || name === null ? '' : name).trim().toLowerCase();
+  for (const rule of PORT_NAME_RULES) {
+    if (rule[0].test(s)) { s = s.replace(rule[0], rule[1]); break; }
+  }
+  return s;
+}
+
+// Resolve a name the operator typed onto the device's own interface name.
+// Returns null when the device has no such port, so callers can say so.
+function resolvePortName(device, typed) {
+  const map = device && device.interfaces;
+  if (!map || !typed) return null;
+  const t = String(typed).trim();
+  if (map.has(t)) return t;                          // exact panel spelling
+  const lower = t.toLowerCase();
+  for (const name of map.keys()) {
+    if (String(name).toLowerCase() === lower) return name;      // case only
+  }
+  // A subinterface inherits its parent's spelling: 'ether1.10' -> 'eth1.10'.
+  const sub = /^(.+)\.(\d+)$/.exec(t);
+  if (sub) {
+    const parent = resolvePortName(device, sub[1]);
+    const wanted = parent ? parent + '.' + sub[2] : null;
+    if (wanted && map.has(wanted)) return wanted;
+  }
+  const key = portKey(t);
+  let alias = null;
+  for (const name of map.keys()) {
+    if (portKey(name) === key) {
+      if (alias === null) alias = name;
+      else if (alias !== name) return null;          // ambiguous: refuse to guess
+    }
+  }
+  return alias;
+}
+
+
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
 class CliSession {
@@ -93,10 +160,11 @@ class CliSession {
       if (this.device.config.vlans) delete this.device.config.vlans[id];
       out.push('VLAN ' + id + ' removed');
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
-      const name = tokens[2];
+      const typed = tokens[2];
+      const name = resolvePortName(this.device, typed);
       const vi = name ? this.device.interfaces.get(name) : null;
-      if (!vi) return ['% Interface not found: ' + (name || '')];
-      if (!vi.parent) return ['% ' + name + ' is a physical interface and cannot be removed'];
+      if (!vi) return ['% Interface not found: ' + (typed || '')];
+      if (!vi.parent) return ['% ' + typed + ' is a physical interface and cannot be removed'];
       this.device.interfaces.delete(name);
       out.push('Subinterface ' + name + ' removed');
     } else if (head === 'access-list') {
@@ -112,19 +180,24 @@ class CliSession {
       out.push('Access list ' + n + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
-      if (!this.device.interfaces.has(tokens[1])) {
+      // Both spellings of a port resolve here: the panel name from the spec and
+      // the vendor-console name the operator may have typed (issue #27).
+      let name = resolvePortName(this.device, tokens[1]);
+      if (!name) {
         // 'interface Gi0/0.10' creates a router subinterface on Gi0/0.
         const m = /^(.+)\.(\d+)$/.exec(tokens[1]);
-        if (m && this.device.interfaces.has(m[1])) {
+        const parent = m ? resolvePortName(this.device, m[1]) : null;
+        if (m && parent) {
           const vid = parseInt(m[2], 10);
           if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + m[2]];
-          this.device.addSubinterface(m[1], vid);
-          out.push('Created subinterface ' + tokens[1] + ' (parent ' + m[1] + ')');
+          this.device.addSubinterface(parent, vid);
+          name = parent + '.' + vid;
+          out.push('Created subinterface ' + name + ' (parent ' + parent + ')');
         } else {
           return ['% Interface not found: ' + tokens[1]];
         }
       }
-      this.iface = tokens[1];
+      this.iface = name;
       this.mode = MODE_IFACE;
     } else if (head === 'scion') {
       const scionLib2 = require('./scion');
@@ -1131,4 +1204,6 @@ function runCommands(device, topology, simulator, commands) {
   return { output: lines.join('\n'), lines: lines, session: session };
 }
 
-module.exports = { CliSession, runCommands };
+// resolvePortName / portKey are exported so the naming test can pin the alias
+// rules directly, rather than only through the commands that use them.
+module.exports = { CliSession, runCommands, resolvePortName, portKey };

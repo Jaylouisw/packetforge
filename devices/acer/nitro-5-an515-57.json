@@ -1,0 +1,28 @@
+{
+  "vendor": "acer",
+  "model": "Nitro 5 AN515-57",
+  "label": "Acer Nitro 5 (AN515-57)",
+  "category": "laptop",
+  "description": "15.6-inch 11th-gen Intel Core H gaming laptop with a real Gigabit RJ45 port plus Wi-Fi 6 (Killer AX1650i).",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.acer.com/ae-en/laptops/nitro/nitro-5/pdp/NH.QELEM.007",
+  "notes": "Acer's AN515-57 tech-spec table lists 'Ethernet Technology: Gigabit Ethernet' with 'Network (RJ-45): Yes', and 'Wireless LAN Model: Wi-Fi 6 AX 1650i' at 'IEEE 802.11 a/b/g/n/ac/ax'. Acer's AN515-57 datasheet names the wired controller Killer Ethernet E2600 (10/100/1000 Mbps, Wake-on-LAN). The AX1650i is a 2x2 dual-band radio (2.4/5 GHz, 160 MHz) - no 6 GHz, so model exactly one wireless interface."
+}

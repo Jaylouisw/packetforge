@@ -15,75 +15,15 @@
     "http-server"
   ],
   "portTemplate": {
-    "prefix": "ether",
+    "prefix": "eth",
     "start": 1,
-    "count": 13,
+    "count": 12,
     "type": "ethernet",
     "speed": "1G"
   },
   "interfaces": [
     {
-      "name": "ether1",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether2",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether3",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether4",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether5",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether6",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether7",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether8",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether9",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether10",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether11",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "ether12",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp-sfpplus1",
+      "name": "SFP+1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -92,7 +32,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus2",
+      "name": "SFP+2",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -101,7 +41,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus3",
+      "name": "SFP+3",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -110,7 +50,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus4",
+      "name": "SFP+4",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -121,6 +61,6 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "notes": "MikroTik product page: \"four 10G SFP+ ports ... connected to the Marvell Aldrin family switch chip. Then we have Gigabit Ethernet ports. 12 of them are running through the Marvell chip.\" Port labels are ether1-ether12 and sfp-sfpplus1-4 as shown in RouterOS. No PoE, no USB data ports (M.2 PCIe slot and 1x RJ-45 serial console only).",
+  "notes": "MikroTik product page: \"four 10G SFP+ ports ... connected to the Marvell Aldrin family switch chip. Then we have Gigabit Ethernet ports. 12 of them are running through the Marvell chip.\" Port labels are eth1-eth12 and SFP+1 to SFP+4 on the panel (RouterOS calls them ether1-ether12 and sfp-sfpplus1-4). No PoE, no USB data ports (M.2 PCIe slot and 1x RJ-45 serial console only).",
   "sourceUrl": "https://mikrotik.com/product/ccr2116_12g_4splus"
 }

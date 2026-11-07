@@ -3,7 +3,7 @@
   "model": "C52iG-5HaxD2HaxD",
   "label": "hAP ax2",
   "category": "wireless",
-  "description": "Wi-Fi 6 dual-band AP with five Gigabit ports, IPQ-6010 CPU and PoE-in/PoE-out on ether1.",
+  "description": "Wi-Fi 6 dual-band AP with five Gigabit ports, IPQ-6010 CPU and PoE-in/PoE-out on eth1.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -15,27 +15,27 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether2",
+      "name": "eth2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether3",
+      "name": "eth3",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether4",
+      "name": "eth4",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether5",
+      "name": "eth5",
       "type": "ethernet",
       "speed": "1G"
     },

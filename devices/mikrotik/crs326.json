@@ -10,7 +10,7 @@
     "cli"
   ],
   "portTemplate": {
-    "prefix": "ether",
+    "prefix": "eth",
     "start": 1,
     "count": 24,
     "type": "ethernet",
@@ -18,7 +18,7 @@
   },
   "interfaces": [
     {
-      "name": "sfp-sfpplus1",
+      "name": "SFP+1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus2",
+      "name": "SFP+2",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",

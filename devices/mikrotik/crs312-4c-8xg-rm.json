@@ -14,7 +14,7 @@
     "dhcp-server"
   ],
   "portTemplate": {
-    "prefix": "ether",
+    "prefix": "eth",
     "start": 1,
     "count": 8,
     "type": "ethernet",
@@ -22,12 +22,12 @@
   },
   "interfaces": [
     {
-      "name": "ether9",
+      "name": "eth9",
       "type": "ethernet",
       "speed": "100M"
     },
     {
-      "name": "combo1",
+      "name": "COMBO1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "name": "combo2",
+      "name": "COMBO2",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "name": "combo3",
+      "name": "COMBO3",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "name": "combo4",
+      "name": "COMBO4",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",

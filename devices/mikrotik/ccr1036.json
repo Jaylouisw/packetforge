@@ -5,7 +5,7 @@
   "category": "router",
   "description": "MikroTik CCR1036 — 8x 1G, 2x 10G router.",
   "capabilities": ["l3-forward", "cli", "nat", "dhcp-server"],
-  "portTemplate": { "prefix": "ether", "start": 1, "count": 8, "type": "ethernet", "speed": "1G" },
+  "portTemplate": { "prefix": "eth", "start": 1, "count": 8, "type": "ethernet", "speed": "1G" },
   "icon": "router",
   "color": "#f43f5e"
 }

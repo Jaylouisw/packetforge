@@ -6,7 +6,7 @@
   "description": "60 GHz point-to-point radio with 5 GHz fallback, 1 Gbps; 1x GigE port, RouterOS.",
   "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
   "interfaces": [
-    { "name": "ether1", "type": "ethernet", "speed": "1G" },
+    { "name": "eth1", "type": "ethernet", "speed": "1G" },
     { "name": "radio0", "type": "wireless", "speed": "1G" },
     { "name": "radio1", "type": "wireless", "speed": "867M" }
   ],

@@ -3,7 +3,7 @@
   "model": "RB4011iGS",
   "label": "RB4011iGS+RM",
   "category": "router",
-  "description": "Rackmount router with ten Gigabit ports, one 10G SFP+, PoE-out on ether10 and strong IPSec throughput.",
+  "description": "Rackmount router with ten Gigabit ports, one 10G SFP+, PoE-out on eth10 and strong IPSec throughput.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -15,57 +15,57 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether2",
+      "name": "eth2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether3",
+      "name": "eth3",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether4",
+      "name": "eth4",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether5",
+      "name": "eth5",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether6",
+      "name": "eth6",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether7",
+      "name": "eth7",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether8",
+      "name": "eth8",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether9",
+      "name": "eth9",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether10",
+      "name": "eth10",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp-sfpplus1",
+      "name": "SFP+1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",

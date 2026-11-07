@@ -15,27 +15,27 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether2",
+      "name": "eth2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether3",
+      "name": "eth3",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether4",
+      "name": "eth4",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether5",
+      "name": "eth5",
       "type": "ethernet",
       "speed": "1G"
     },

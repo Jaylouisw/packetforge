@@ -14,7 +14,7 @@
     "dhcp-server"
   ],
   "portTemplate": {
-    "prefix": "qsfp28-",
+    "prefix": "QSFP28-",
     "start": 1,
     "count": 16,
     "type": "ethernet",
@@ -22,32 +22,32 @@
   },
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "10G"
     },
     {
-      "name": "ether2",
+      "name": "eth2",
       "type": "ethernet",
       "speed": "10G"
     },
     {
-      "name": "sfp28-1",
+      "name": "SFP28-1",
       "type": "ethernet",
       "speed": "25G"
     },
     {
-      "name": "sfp28-2",
+      "name": "SFP28-2",
       "type": "ethernet",
       "speed": "25G"
     },
     {
-      "name": "sfp28-3",
+      "name": "SFP28-3",
       "type": "ethernet",
       "speed": "25G"
     },
     {
-      "name": "sfp28-4",
+      "name": "SFP28-4",
       "type": "ethernet",
       "speed": "25G"
     }

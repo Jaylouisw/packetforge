@@ -3,7 +3,7 @@
   "model": "CRS354-48G-4S+2Q+RM",
   "label": "CRS354-48G-4S+2Q+RM",
   "category": "l3-switch",
-  "description": "MikroTik CRS354-48G-4S+2Q+RM - 48x 1G RJ45, 4x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (ether49), L3 hardware offload.",
+  "description": "MikroTik CRS354-48G-4S+2Q+RM - 48x 1G RJ45, 4x 10G SFP+ cages, 2x 40G QSFP+ cages and 1x 100M management port (eth49), L3 hardware offload.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,7 +14,7 @@
     "dhcp-server"
   ],
   "portTemplate": {
-    "prefix": "ether",
+    "prefix": "eth",
     "start": 1,
     "count": 48,
     "type": "ethernet",
@@ -22,12 +22,12 @@
   },
   "interfaces": [
     {
-      "name": "ether49",
+      "name": "eth49",
       "type": "ethernet",
       "speed": "100M"
     },
     {
-      "name": "sfp-sfpplus1",
+      "name": "SFP+1",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus2",
+      "name": "SFP+2",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus3",
+      "name": "SFP+3",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "name": "sfp-sfpplus4",
+      "name": "SFP+4",
       "type": "ethernet",
       "speed": "10G",
       "connector": "sfp+",
@@ -67,12 +67,12 @@
       ]
     },
     {
-      "name": "qsfpplus1",
+      "name": "QSFP+1",
       "type": "ethernet",
       "speed": "40G"
     },
     {
-      "name": "qsfpplus2",
+      "name": "QSFP+2",
       "type": "ethernet",
       "speed": "40G"
     }

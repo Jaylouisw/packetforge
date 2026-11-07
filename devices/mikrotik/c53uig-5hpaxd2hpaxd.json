@@ -3,7 +3,7 @@
   "model": "C53UiG+5HPaxD2HPaxD",
   "label": "hAP ax3 (C53UiG+5HPaxD2HPaxD) dual-band router",
   "category": "router",
-  "description": "MikroTik hAP ax3 - RouterOS Wi-Fi 6 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 1201 Mbps 2x2) with one 2.5G port that also does PoE in and out, plus four 1G LAN ports. The 2.5G port is ether1, which is also where the device is powered from PoE.",
+  "description": "MikroTik hAP ax3 - RouterOS Wi-Fi 6 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 1201 Mbps 2x2) with one 2.5G port that also does PoE in and out, plus four 1G LAN ports. The 2.5G port is eth1, which is also where the device is powered from PoE.",
   "capabilities": [
     "wireless",
     "l2-forward",
@@ -17,27 +17,27 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "2.5G"
     },
     {
-      "name": "ether2",
+      "name": "eth2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether3",
+      "name": "eth3",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether4",
+      "name": "eth4",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ether5",
+      "name": "eth5",
       "type": "ethernet",
       "speed": "1G"
     },

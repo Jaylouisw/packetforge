@@ -16,7 +16,7 @@
   ],
   "interfaces": [
     {
-      "name": "ether1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G",
       "poeIn": 12.95
