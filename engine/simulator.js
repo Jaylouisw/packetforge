@@ -1285,7 +1285,9 @@ class Simulator {
     const f = (frame.vid === vid) ? frame : Object.assign({}, frame, { vid: vid });
 
     // 3. MAC learning, scoped to the VLAN.
-    if (inIface) dev.macTableFor(vid).set(f.srcMac, inIface);
+    // A passive coupler has no table to learn into: it forwards everything both
+    // ways regardless of what it has seen before.
+    if (inIface && !dev.isSplitter()) dev.macTableFor(vid).set(f.srcMac, inIface);
 
     // 3b. Inbound access list.
     const aclIn = this._aclCheck(dev, inIface, 'in', f);
@@ -1320,13 +1322,38 @@ class Simulator {
     //    path. The result was that no multilayer switch in the catalogue could
     //    answer for its own IP - it routed traffic for everyone else but its own
     //    management address was dead.
+    // 3b. Passive optical splitter: replicate to every other leg, unchanged.
+    //     Downstream the OLT's frame reaches every ONT on the branch (which is
+    //     why GPON downstream is encrypted); upstream one ONT's frame reaches the
+    //     OLT and every sibling, which is why a PON needs time slots. No learning,
+    //     no filtering, no VLAN rewrite - a coupler cannot do any of those.
+    if (dev.isSplitter()) {
+      let legs = 0;
+      for (const port of dev.activeInterfaces()) {
+        if (port.name === inIface.name) continue;
+        if (inIface.peer && port.peer === inIface.peer) continue;
+        legs++;
+        this._emitFrame(dev, port, Object.assign({}, f), vid);
+      }
+      this._emit({ type: 'split', dev: dev.id, iface: inIface.name, legs: legs, vlan: vid });
+      return;
+    }
+
     if (dev.isL2()) {
       const l3 = dev.hasCap('l3-forward');
       const isArp = f.etherType === net.ETH_ARP;
       const isNd = f.etherType === net.ETH_ND;
-      if (l3 && mine && !flood) {
+      // Owning an address is a HOST function, not a routing one. Plenty of
+      // hardware bridges user traffic and still has a management stack on the
+      // same chip - an ONT, an AP in bridge mode, an unmanaged switch with a
+      // management IP. Requiring l3-forward for them meant such a device could
+      // never answer ARP for the address printed on its own label, so the whole
+      // PON branch was unreachable even though every cable was right.
+      const canTerminate = l3 || dev.isHost();
+      const forOurIp = !!(f.ip && dev.interfaceWithIp(f.ip.dst));
+      if (canTerminate && mine && !flood) {
         if (this._tryProcessL3(dev, f, inIface)) return;
-      } else if (l3 && (isArp || isNd)) {
+      } else if (canTerminate && (isArp || isNd || forOurIp)) {
         // Offer it locally first - _handleArp only replies when the target
         // address is actually ours - then flood it like any switch would.
         this._tryProcessL3(dev, f, inIface);

@@ -215,6 +215,11 @@ class Device {
   hasCap(c) { return this.capabilities.indexOf(c) !== -1; }
   isHost() { return this.hasCap('host'); }
   isL2() { return this.hasCap('l2-forward'); }
+  // A passive optical splitter has no MAC table, no power and no configuration.
+  // It is a coupler: whatever arrives on one leg leaves on every other leg, in
+  // both directions. Modelling it as a switch would be wrong - a switch learns
+  // and filters, a splitter cannot.
+  isSplitter() { return String(this.spec.category || '') === 'splitter'; }
   isL3() { return this.hasCap('l3-forward'); }
 
   // MAC table for a given VLAN (VLAN 1 keeps the legacy flat map).

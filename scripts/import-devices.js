@@ -29,7 +29,7 @@ const DEVICES = process.env.PF_DEVICES
 
 // Vocabulary accepted by the registry and the UI.
 const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server',
-  'wireless', 'ptp', 'cloud', 'olt', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
+  'wireless', 'ptp', 'cloud', 'olt', 'splitter', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
   'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot'];
 const CAPABILITIES = ['cli', 'dhcp-client', 'dhcp-server', 'firewall', 'host', 'http-server',
   'l2-forward', 'l3-forward', 'nat', 'wireless'];
@@ -91,7 +91,11 @@ function validateSpec(spec) {
   }
   if (!spec.category) errors.push('missing category');
 
-  if (!Array.isArray(spec.capabilities) || !spec.capabilities.length) {
+  // A passive splitter is unpowered and has no software stack, so an empty
+  // capability list is correct for it rather than an omission.
+  if (spec.category === 'splitter') {
+    spec.capabilities = Array.isArray(spec.capabilities) ? spec.capabilities : [];
+  } else if (!Array.isArray(spec.capabilities) || !spec.capabilities.length) {
     errors.push('capabilities must be a non-empty array');
   } else {
     spec.capabilities = normaliseCapabilities(spec.capabilities);

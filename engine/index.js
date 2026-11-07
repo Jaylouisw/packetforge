@@ -7,6 +7,7 @@ const { Topology, expandInterfaces } = require('./topology');
 const { Simulator } = require('./simulator');
 const { CliSession, runCommands } = require('./cli');
 const media = require('./media');
+const optical = require('./optical');
 const validation = require('./validation');
 const vlan = require('./vlan');
 const lag = require('./lag');
@@ -24,6 +25,7 @@ const ipv6 = require('./ipv6');
 module.exports = {
   net,
   media,
+  optical,
   validation,
   vlan,
   lag,

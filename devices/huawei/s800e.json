@@ -6,7 +6,8 @@
   "description": "Huawei OptiXstar S800E — XGS-PON SFP ONU stick, 1x XGS-PON (SC/APC, 9.953G symmetric) + 1x GE/2.5/5/10G host port. ITU-T G.9807.",
   "capabilities": [
     "l2-forward",
-    "cli"
+    "cli",
+    "host"
   ],
   "interfaces": [
     {

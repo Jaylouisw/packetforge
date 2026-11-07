@@ -1,0 +1,43 @@
+{
+  "vendor": "generic",
+  "model": "PON Splitter 1:4",
+  "label": "Passive optical splitter 1:4",
+  "category": "splitter",
+  "description": "Passive PLC optical splitter, 1:4 balanced, SC/APC. One upstream leg facing the OLT and 4 downstream legs facing ONTs. Unpowered, no MAC table: every frame leaves on all other legs, and the coupler costs up to 7.6 dB of the PON budget.",
+  "capabilities": [],
+  "insertionLossDb": 7.6,
+  "splitRatio": "1:4",
+  "interfaces": [
+    {
+      "name": "uplink",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    },
+    {
+      "name": "leg1",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    },
+    {
+      "name": "leg2",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    },
+    {
+      "name": "leg3",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    },
+    {
+      "name": "leg4",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    }
+  ],
+  "sourceUrl": "https://en.wikipedia.org/wiki/Passive_optical_network"
+}
