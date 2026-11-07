@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-v-256gb/specifications",
+  "notes": "Wi-Fi 6E — Sony's spec lists IEEE802.11a/b/g/n/ac/ax on 2.4/5/6 GHz, 2x2 MIMO. Cellular: 5G sub-6 GHz plus mmWave (n257/n258/n260/n261 on some SKUs), LTE Cat 19. USB-C 3.2 Gen 2 with Ethernet adapter support (usb0) and microSD expansion. Keeps a 3.5 mm jack and a physical shutter button — irrelevant to L2 but characteristic of the model."
 }

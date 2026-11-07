@@ -61,5 +61,6 @@
     }
   ],
   "icon": "router",
-  "color": "#2563eb"
+  "color": "#2563eb",
+  "sourceUrl": "https://www.netgear.com/images/datasheet/networking/wifirouter/RAXE500.pdf"
 }

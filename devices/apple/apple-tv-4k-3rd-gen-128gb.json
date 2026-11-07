@@ -19,7 +19,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111839",
+  "notes": "Both wired (gigabit Ethernet) and wireless (Wi-Fi 6 802.11ax 2.4/5 GHz) - the 128 GB SKU is the wired variant, the 64 GB SKU is not. No PoE. Prefers Ethernet when both are up and keeps the Wi-Fi association as a standby path."
 }

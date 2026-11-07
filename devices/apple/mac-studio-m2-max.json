@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.apple.com/mac-studio/specs/",
+  "notes": "10GbE RJ45 (NBASE-T, negotiates 1G/2.5G/5G/10G) is built in on every Mac Studio - the only 10G-capable endpoint in this set. Wi-Fi 6E as the secondary path; the natural host for a 10G access-layer demo."
 }

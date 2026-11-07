@@ -19,7 +19,12 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -51,5 +56,6 @@
       "type": "wireless",
       "speed": "1300M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.router-switch.com/pdf2html/pdf/an5506-04-fat-datasheet.pdf"
 }

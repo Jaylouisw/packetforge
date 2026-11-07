@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.zimaspace.com/docs/hardware/zimaboard-hardware-overview",
+  "notes": "Dual 1G (both gigabit, not 2.5G) and no Wi-Fi at all. The exposed PCIe x4 slot is usually populated with a 2.5G card in router builds - add eth2 at 2.5G in the lab if that card is modelled; the slot itself is not a port."
 }

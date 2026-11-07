@@ -16,12 +16,15 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "300M"
+      "speed": "300M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.zyxel.com/global/en/products/fixed-broadband-access/vmg4005-b50a/specifications",
+  "notes": "Zyxel specs: 'Support VDSL profiles: 8a/b/c/d, 12a/b, 17a, and 35b', G.vector, G.INP; LAN 'One 10/100/1000 Mbps Ethernet RJ-45 ports'; bridge features 802.1D transparent bridging plus PPPoE/PPPoA, DHCP client/server/relay, CLI over SSH/telnet. Product page rates it 300 Mbps on 35b single line / 200 Mbps on 17a bonding. Line declared at the 300M 35b rung, LAN at 1G."
 }

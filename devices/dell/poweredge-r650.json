@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://i.dell.com/sites/csdocuments/Product_Docs/en/poweredge-r650-spec-sheet.pdf",
+  "notes": "Onboard: 2x 1GbE LOM. OCP 3.0 (x8 lanes) is the slot for a 10/25GbE mezzanine NIC; 3x PCIe Gen4 LP (or 2x full-height) for stand-up cards. Dedicated iDRAC port is 1GbE and separate from the data plane."
 }

@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/poweredge-r760-spec-sheet-en-dl1lkoo-original.pdf",
+  "notes": "Modelled as the common 2x 1GbE LOM build. Dell allows either LOM card, an OCP 3.0 card, or both: OCP 3.0 is the 10/25GbE path and the LOM card is copper only. Up to 8x PCIe slots. Dedicated iDRAC Ethernet port is separate."
 }

@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.asus.com/desktops/for-work/expertcenter/expertcenter-d700se/techspec/",
+  "notes": "1GbE Realtek RTL8111 RJ45 standard; Wi-Fi 6 is an optional module, not fitted by default, so the stock node is wired-only at 1G."
 }

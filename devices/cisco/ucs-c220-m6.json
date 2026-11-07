@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/hw/c220m6/install/c220m6/m_overview.html",
+  "notes": "Onboard: 2x RJ45 LAN1/LAN2 rated 1G/10G (10GBASE-T copper) - the port speed follows the link partner, so a 1G switch yields 1G. 3x PCIe 4.0 slots plus the mLOM bay for a VIC 1440/1480 (10/25/40/100GbE). CIMC 1GbE port is dedicated out-of-band."
 }

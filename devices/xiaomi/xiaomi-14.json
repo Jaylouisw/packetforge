@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.mi.com/global/product/xiaomi-14/specs/",
+  "notes": "Wi-Fi 7 (802.11be, 2x2, 2.4/5/6 GHz, 320 MHz, MLO). Cellular: 5G sub-6 GHz only, no mmWave; LTE Cat 24 fallback. USB-C 3.2 Gen 1 with DisplayPort alt mode and Ethernet adapter support (usb0). HyperOS; supports Wi-Fi 7 only when the AP advertises 802.11be and MLO."
 }

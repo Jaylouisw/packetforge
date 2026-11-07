@@ -14,27 +14,47 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "ipmi",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.truenas.com/docs/files/MSeriesPUM.pdf",
+  "notes": "Only one controller's ports are modelled. Data NICs are 2x 10/25/40GbE SFP28 cages (modelled at 10/25G - the 40GbE mode needs a QSFP+ optic, which this model does not represent) plus 2x 10GBASE-T copper. Management is a dedicated 1GbE port with IPMI. MTU/jumbo frames and LACP are standard."
 }

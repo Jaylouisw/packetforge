@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uci",
+  "notes": "Ubiquiti tech specs: 'Networking interface: (1) 2.5 GbE RJ45 port'; 'RF interface: (1) Bluetooth v4.1, Upload: Dual OFDMA/(8) SC-QAM 5-42 MHz switchable 5-85 MHz, Download: Dual OFDM/(32) SC-QAM 108-1002 MHz'; 'DOCSIS interface: (1) DOCSIS 3.1/3.0'. Managed from UniFi Network (8.0.7+) through an upstream cloud gateway; acts as an unmanaged bridge once activated. The model code is UCI - this is the box sold as the Ubiquiti cable modem for UISP/UniFi ISP deployments."
 }

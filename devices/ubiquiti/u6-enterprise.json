@@ -13,7 +13,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 22
     },
     {
       "name": "radio0",
@@ -30,5 +31,6 @@
       "type": "wireless",
       "speed": "5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-enterprise"
 }

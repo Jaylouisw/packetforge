@@ -15,7 +15,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -27,5 +28,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.surfboard.com/uk/products/cable-modems/s33/",
+  "notes": "Vendor page lists 'One 2.5 Gigabit Ethernet Port and One 1 Gigabit Ethernet Port', 2 OFDM x 2 OFDMA DOCSIS 3.1 channels and 32x8 DOCSIS 3.0 bonding. The asymmetrical port pair is the point: a 2.5G client can exceed 1 Gbps while the second port stays gigabit."
 }

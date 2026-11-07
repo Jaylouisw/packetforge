@@ -13,7 +13,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 36
     },
     {
       "name": "eth1",
@@ -27,5 +28,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://dl.ui.com/datasheets/airfiber/airFiber_AF-11FX_DS.pdf"
 }

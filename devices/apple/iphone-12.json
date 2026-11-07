@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111876",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 80 MHz, 2.4/5 GHz) — no 6 GHz. Cellular: 5G sub-6 GHz (n1/n2/n3/n5/n7/n8/n12/n20/n25/n28/n38/n40/n41/n66/n77/n78/n79) plus 5G mmWave (n260/n261) on US A2172 only; falls back to LTE Cat 18/19. No usb0: Lightning is USB 2.0 and iOS does not expose it as an Ethernet interface, so tethering is USB/Wi-Fi only. Good baseline 'Wi-Fi 6 client that cannot use 6 GHz' for band-steering and roaming tests."
 }

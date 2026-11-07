@@ -102,5 +102,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.lantronix.com/products/lantronix-slc-8000/",
+  "notes": "Base 16-port RS-232 (RJ45) configuration; add up to two I/O modules for 32 or 48 device ports (FRRJ451601 16-port RS-232, FRUSB1601 16-port USB). Dual 10/100/1000 Ethernet with bonding, software-programmable DTE/DCE pins, FIPS 140-2 mode. USB device ports are deliberately not modelled."
 }

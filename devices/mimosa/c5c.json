@@ -3,7 +3,7 @@
   "model": "C5c",
   "label": "Mimosa C5c",
   "category": "ptp",
-  "description": "Mimosa C5c - 5 GHz 2x2 connectorized client radio, up to 700 Mbps IP (866 Mbps PHY) in PtP or PtMP; single 1G RJ45.",
+  "description": "5 GHz (4.9-6.4 GHz) 2x2:2 connectorized client radio with 2x RP-SMA, 500 Mbps PTMP / 700 Mbps PTP and 27 dBm. Single 1G RJ45, 9.2 W max from passive PoE (24-56 V); no SFP.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,14 +14,14 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "867M"
     }
   ],
-  "icon": "ptp",
-  "color": "#8b5cf6"
+  "sourceUrl": "https://mimosa.co/sites/default/files/2024-06/Mimosa-Radisys-C5c-Datasheet_DS-2024-01.pdf"
 }

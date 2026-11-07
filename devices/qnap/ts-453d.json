@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.qnap.com/en/product/ts-453d/specs/hardware",
+  "notes": "Onboard: 2x 2.5GbE RJ45. PCIe Gen2 x2 slot - QNAP warns the x2 bandwidth limits 10GbE performance. No management port."
 }

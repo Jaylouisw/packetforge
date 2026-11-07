@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/",
+  "notes": "Wireless/BT are absent on the cheaper SKUs sold as 'Pi 4 Model B (no wireless)'; this spec models the standard board. Single RJ45, so router duties are limited to VLAN trunking."
 }

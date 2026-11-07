@@ -16,9 +16,14 @@
     {
       "name": "scupc1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "sourceUrl": "https://www.tp-link.com/uk/business-networking/omada-accessory-media-converter/fc311a-20/v2.20/",
   "icon": "switch",
   "color": "#64748b"
 }

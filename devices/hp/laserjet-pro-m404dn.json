@@ -1,14 +1,12 @@
 {
   "vendor": "hp",
   "model": "LaserJet Pro M404dn",
-  "label": "Mono laser printer, 40 ppm, duplex",
+  "label": "LaserJet Pro M404dn mono laser printer",
   "category": "printer",
-  "description": "Monochrome A4 laser printer rated 40 ppm with automatic duplex and a 10/100/1000Base-T Ethernet port. Wired-only: no Wi-Fi radio is fitted, so it is a pure DHCP client on the office LAN.",
+  "description": "Workgroup mono laser printer rated 38-40ppm with automatic duplex, wired-only networking over a single Gigabit Ethernet port and no wireless radio.",
   "capabilities": [
     "host",
-    "dhcp-client",
-    "http-server",
-    "l2-forward"
+    "http-server"
   ],
   "interfaces": [
     {
@@ -16,5 +14,6 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://pcb.inc.hp.com/dc/api/spec-sheet/ww-en/19203838/pdf/W1A53A.pdf"
 }

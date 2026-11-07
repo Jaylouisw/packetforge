@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.raspberrypi.com/products/raspberry-pi-5/",
+  "notes": "1x 1GbE only - no 2.5GbE on the Pi 5 despite many RK3588 competitors having it. USB ports are not modelled. Existing catalogue entry 'RaspberryPi5' declares eth0 only and omits the onboard radio."
 }

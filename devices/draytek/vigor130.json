@@ -18,12 +18,15 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.draytek.no/Firmware/Vigor130/Document/Vigor130_datasheet-V2-130808.pdf",
+  "notes": "DrayTek datasheet: '1 x VDSL2/ADSL2/2+ port, RJ-11 (Annex A) or RJ-45 (Annex B)', '1 x 10/100/1000 Base-Tx LAN port', VDSL2 profiles 8a/8b/8c/8d/12a/12b/17a/30a (no 35b), 'Router/Bridge Configurable'. One-gigabit LAN port next to a 100M 30a line is correct: the Ethernet port is gigabit, the DSL line is not."
 }

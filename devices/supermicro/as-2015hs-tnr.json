@@ -16,5 +16,6 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.supermicro.com/en/products/system/hyper/2u/as-2015hs-tnr"
 }

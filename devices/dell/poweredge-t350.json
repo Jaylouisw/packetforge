@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/dell-emc-poweredge-t350-spec-sheet.pdf",
+  "notes": "Onboard: 2x 1GbE LOM. No OCP bay at all - a 10GbE upgrade needs a PCIe stand-up card (2x Gen4 + 2x Gen3 slots). Dedicated iDRAC9 port on the rear."
 }

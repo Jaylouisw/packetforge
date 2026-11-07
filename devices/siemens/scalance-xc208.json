@@ -51,5 +51,6 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.industry.siemens.com/teddatasheet/?format=pdf&mlfbs=6GK5208-0BA00-2AC2&language=en&caller=SIOS"
 }

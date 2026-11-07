@@ -11,7 +11,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://developer.amazon.com/docs/device-specs/ft-device-specifications-firehd-models.html",
+  "notes": "Wi-Fi 5 (802.11ac, 2x2, 2.4/5 GHz) — no Wi-Fi 6, no 6 GHz. Cellular: none at all, so no wwan0. USB-C is USB 2.0 and Fire OS provides no Ethernet interface, so no usb0: this endpoint is wireless-only and will lose connectivity if the SSID disappears. Fire OS is Android-based but locked down; expect no 802.1X EAP-TLS and no WPA3-SAE on older builds."
 }

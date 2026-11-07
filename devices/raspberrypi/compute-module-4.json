@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.raspberrypi.com/products/compute-module-4/",
+  "notes": "No connectors on the module itself: eth0 assumes a carrier board with an RJ45 (most do), wlan0 assumes a wireless SKU (CM4 has 'Lite' and non-wireless variants). Nice for modelling custom multi-NIC carrier boards."
 }

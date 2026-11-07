@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.apple.com/macbook-air/specs/",
+  "notes": "No RJ45 and no onboard Ethernet controller; wired requires a Thunderbolt/USB-C dongle (1GbE typical). Wi-Fi 6E is the default path, so a lab link to this node is wireless unless a dongle is modelled."
 }

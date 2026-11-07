@@ -31,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://kb.synology.com/en-us/HIGs/DS1823xsp_HIG/1",
+  "notes": "Onboard per Synology's port table: 1GbE (RJ-45) x2, 10GbE (RJ-45) x1, 1GbE (RJ-45) for OOB x1. The 10G port is 10GBASE-T copper, not a cage. The OOB port is management-only - it is a separate network and cannot carry storage traffic. PCIe 3.0 slot for further 10/25GbE cards."
 }

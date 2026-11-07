@@ -27,17 +27,28 @@
     {
       "name": "xge2/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "xge2/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://fiberm.pl/zasoby/import/z/zxa10_c320_product_introduction-@0000000834.pdf"
 }

@@ -16,9 +16,15 @@
     {
       "name": "sfp0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
   ],
+  "sourceUrl": "https://store.cmsdistribution.com/media/catalog/product/attachments/datasheet/GT805A_355670.pdf",
   "icon": "switch",
   "color": "#64748b"
 }

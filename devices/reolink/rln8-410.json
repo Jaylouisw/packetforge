@@ -19,42 +19,52 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://reolink.com/product/rln8-410/",
+  "notes": "PoE out: 802.3af/at, 25 W per port (declared as 25.5 W per port here), but no published total budget - left out deliberately; do not assume 8 x 25 W is available. Uplink is only 10/100, so eight 4K streams will saturate it. Wired only."
 }

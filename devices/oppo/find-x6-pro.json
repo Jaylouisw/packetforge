@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.oppo.com/cn/smartphones/series-find-x/find-x6-pro/specs/",
+  "notes": "Wi-Fi 7 (802.11be, 2x2, 2.4/5.1/5.8/6 GHz) — OPPO's spec sheet notes Wi-Fi 7 needs a system OTA to enable, so a fresh unit behaves as Wi-Fi 6 until updated. Cellular: 5G sub-6 GHz only (China-market model, no mmWave), dual-SIM. USB-C 3.2 Gen 1 with DisplayPort alt mode and Ethernet over adapter (usb0). ColorOS; Chinese ROM has no Google services."
 }

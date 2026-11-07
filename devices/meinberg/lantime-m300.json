@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.meinbergglobal.com/english/archive/lantime-m300.htm",
+  "notes": "Meinberg datasheet: 'Standard: 2 x 10/100 MBit with RJ45 connector'; options add 2 or 4 more 10/100 ports, or 1x 10/100 + 1x/3x 10/100/1000 (1GE/3GE). Max 6 Ethernet ports total. Discontinued and replaced by LANTIME M320, which is the same 2x 10/100 chassis. Management is Web/SSH/Telnet/SNMPv1-3, all over eth0/eth1."
 }

@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Cameras/Pro-Series-EasyIP-/ds-2cd2143g2-i-s-/",
+  "notes": "PoE class 802.3af Class 3, 12.95 W reserved at the switch, 6.5 W drawn. Wired only. Has a 12 VDC barrel jack as an alternative, so it can be powered without a PoE switch."
 }

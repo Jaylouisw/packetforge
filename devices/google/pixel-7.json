@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.google.com/pixelphone/answer/7158570?hl=en",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160). Cellular: 5G sub-6 GHz by default; mmWave only on the US carrier-locked Pixel 7 SKU, so model EU units as sub-6. USB-C 3.2 Gen 2 supports Ethernet adapters (usb0)."
 }

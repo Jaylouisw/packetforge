@@ -19,5 +19,6 @@
       "type": "wireless",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://pcb.inc.hp.com/dc/api/spec-sheet/ww-en/19202523/pdf/W1A80A.pdf"
 }

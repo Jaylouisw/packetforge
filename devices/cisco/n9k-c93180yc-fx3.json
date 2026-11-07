@@ -27,32 +27,63 @@
     {
       "name": "Ethernet1/49",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet1/50",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet1/51",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet1/52",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet1/53",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet1/54",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-744052.html"
 }

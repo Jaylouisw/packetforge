@@ -29,34 +29,77 @@
     {
       "name": "SFP+1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "SFP+2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "SFP+3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "SFP+4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "SFP+5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "SFP+6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.sonicwallonline.co.uk/media/downloads/sonicwall-gen-7-nsa-series-datasheet.pdf"
 }

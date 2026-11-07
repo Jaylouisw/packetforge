@@ -35,6 +35,14 @@ jobs:
       - name: Build & verify example labs
         run: node examples/build-examples.js
 
+      # The labs are the specification for the catalogue: if a topology names a
+      # model that is not under devices/, the maintainer rule says build it. Until
+      # someone does, this step fails and prints the model, the labs that ask for
+      # it and the skeleton to fill in -- so a lab can never quietly render
+      # hardware that does not exist.
+      - name: Every lab model exists in the catalogue
+        run: node scripts/missing-devices.js examples --no-issues
+
   smoke:
     name: Server smoke test
     runs-on: ubuntu-latest

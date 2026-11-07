@@ -17,7 +17,9 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4
     }
-  ]
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/antenna-and-accessory/tl-poe150s/"
 }

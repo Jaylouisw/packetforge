@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 6.49
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.yealink.com/docs/sip-t33p-g/yealink-sip-t33g-datasheet/469b3c31217a48d1b17f5f52e6c2844a",
+  "notes": "2.4-inch 320x240 colour display, 4 SIP accounts, local 5-way conference, dual-port Gigabit. PoE class is inconsistently documented: the current Yealink datasheet says IEEE 802.3af class 1, while the same sheet quotes 3.5-5 W PoE draw (class 1 caps the PD at 3.84 W), so this entry budgets class 2 (6.49 W) to stay safe. Wired only, no Wi-Fi or Bluetooth. RJ9 headset/handset and EHS35 not modelled."
 }

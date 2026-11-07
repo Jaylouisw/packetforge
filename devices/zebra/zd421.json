@@ -14,5 +14,6 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.zebra.com/content/dam/zebra_dam/en/tech-specs/zd421-tech-specs-en-us.pdf"
 }

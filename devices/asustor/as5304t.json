@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.asustor.com/materials/datasheet/Datasheet_AS5304T_US%20ENG.pdf",
+  "notes": "Onboard: 2x 2.5GbE RJ45 only. No PCIe slot and no management port. WOL supported."
 }

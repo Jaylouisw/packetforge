@@ -15,7 +15,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -27,5 +28,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.surfboard.com/products/cable-modems/sb8200/",
+  "notes": "Vendor spec table: two 1 GB Ethernet ports, 32 DS x 8 US DOCSIS 3.0 + 2x2 OFDM(A); datasheet rates the RF side at 10 Gbps DS / 2 Gbps US over 108-1218 MHz. Both LAN ports are bridged, so the pair shares one client-side MAC domain (no NAT, no routing)."
 }

@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-s21-5g/specs/",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 2.4/5 GHz, HE160) — Wi-Fi 5 fallback hardware is not present for 6 GHz. Cellular: 5G sub-6 GHz plus mmWave (US models), LTE Cat 20. USB-C 3.2 Gen 1 with Samsung DeX, so a USB-C dock with GbE presents a real Ethernet interface (usb0); Wi-Fi can stay associated while docked, which makes it a good dual-homed client for failover tests."
 }

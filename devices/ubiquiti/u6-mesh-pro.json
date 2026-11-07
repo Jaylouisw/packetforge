@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "eth1",
@@ -26,5 +27,6 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-mesh-pro"
 }

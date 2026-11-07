@@ -3,7 +3,7 @@
   "model": "Force 300-25",
   "label": "Cambium ePMP Force 300-25",
   "category": "ptp",
-  "description": "Cambium ePMP Force 300-25 - 5 GHz 802.11ac Wave 2 dish subscriber radio, up to 600 Mbps; single 1G RJ45 with PoE.",
+  "description": "5 GHz 802.11ac Wave 2 subscriber module with a 25 dBi integrated dish, up to 600 Mbps and 27 dBm. Single 1G RJ45, powered by 30 V passive PoE (14-30 V), 12 W max; no SFP.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,14 +14,14 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "867M"
     }
   ],
-  "icon": "ptp",
-  "color": "#f97316"
+  "sourceUrl": "https://www.cambiumnetworks.com/resource/epmp-force-300-series-data-sheet/"
 }

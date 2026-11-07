@@ -1,24 +1,36 @@
 {
   "vendor": "nokia",
   "model": "XS-010X-Q",
-  "label": "XS-010X-Q XGS-PON SFU ONT",
+  "label": "XS-010X-Q XGS-PON ONT",
   "category": "ont",
-  "description": "Nokia XS-010X-Q single-port XGS-PON SFU ONT (ITU-T G.9807.1, 10G/10G symmetric, SC/APC BOSA): one auto-sensing 100M/1G/2.5G/5G/10G RJ-45 Ethernet port, Layer 2 bridging only, no Wi-Fi or voice, managed by OMCI/AMS - used to feed a router or mesh base unit from a 10G PON drop.",
+  "description": "Nokia XS-010X-Q single-family-unit XGS-PON ONT (ITU-T G.9807, 10G/10G symmetric) with one SC/APC PON port and one multi-rate 100M/1G/2.5G/5G/10G Ethernet port. Bridge-mode data service only - no WiFi, no voice, no routing.",
   "capabilities": [
     "host",
-    "l2-forward",
-    "http-server"
+    "l2-forward"
   ],
   "interfaces": [
     {
       "name": "pon",
       "type": "pon",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
     },
     {
       "name": "lan1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ],
+      "connector": "rj45"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.nokia.com/asset/i/210704/"
 }

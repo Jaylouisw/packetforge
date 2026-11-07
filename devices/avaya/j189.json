@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 6.49
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.avaya.com/content/dam/aem-avaya-portal/en_us/documents/fs-ip-phone-j189-dv15518en.pdf",
+  "notes": "Avaya specs: 'Gigabit Ethernet (10/100/1000 Mbps) line interface', 'Secondary Gigabit Ethernet (10/100/1000 Mbps) interface ... for a PC', 'PoE Class 2 IEEE 802.3af when PoE Slideswitch is in L position, and PoE Class 3 IEEE 802.3af when ... in H position'. Modelled at class 2 (6.49 W); flip the slideswitch to H and the switch has to find 12.95 W, which is a nice mis-configuration scenario. Some Avaya marketing sheets call the J189 a 'PoE Class 1 design' - the documentation's class 2/3 statement is used here. Optional Wi-Fi/Bluetooth via USB dongles, so no built-in wireless; USB-A/USB-C and headset ports not modelled."
 }

@@ -27,17 +27,28 @@
     {
       "name": "qsfp1/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "qsfp1/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/ff/af/4b/62/624bafff06de6ea8aa834968/texts/6e/af/bd/62/62bdaf6eea7cabde0045d040/DZS%20V-CHASSIS-V2_Datasheet.pdf"
 }

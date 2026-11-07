@@ -16,162 +16,292 @@
     {
       "name": "100GE1/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE1/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE1/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE1/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE2/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE2/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE2/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE2/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE3/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE3/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE3/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE3/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE4/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE4/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE4/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE4/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE5/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE5/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE5/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE5/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE6/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE6/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE6/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE6/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE7/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE7/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE7/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE7/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE8/0/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE8/0/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE8/0/3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "100GE8/0/4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.ycict.net/products/huawei-ne40e-x8a-router/",
+  "notes": "NE40E-X8A platform table: 51.2 Tbit/s switching, 7232 Mpps, 2 MPU slots, 4 SFU slots, 8 LPU slots, 930 x 442 x 650 mm (21 U), 4770 W max. Huawei's slot map numbers LPUs 1-8 and SRUs 9-10, which is why port names use 100GE<slot>/0/<port>. Interface types supported: E1, POS, CPOS, FE, GE, 10GE, 40GE and 100GE; the 32 x 100GE list is one fully-populated build (8 LPUs x 4 x 100GE), not a fixed port count."
 }

@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.shelly.com/products/shelly-plus-1-x1",
+  "notes": "Wireless only - 2.4 GHz 802.11b/g/n, no RJ45, no PoE; powered from the mains circuit it switches (or 12 VDC). Very low traffic but it exposes an HTTP/MQTT endpoint and can act as a Wi-Fi AP during provisioning."
 }

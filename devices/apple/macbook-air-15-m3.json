@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.apple.com/macbook-air/specs/",
+  "notes": "No Ethernet port on any Air model. Wired only through a USB-C/Thunderbolt Ethernet adapter at 1GbE (2.5GbE with a faster dongle); Wi-Fi 6E is the built-in uplink."
 }

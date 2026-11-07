@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.samsung.com/us/smartphones/galaxy-s24/specs/",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160) — note the S24 and S24+ ship 6E; only the S24 Ultra carries Wi-Fi 7, so do not treat the whole S24 family as 802.11be. Cellular: 5G sub-6 GHz + mmWave (US). USB-C 3.2 Gen 2, DeX, dock Ethernet present (usb0)."
 }

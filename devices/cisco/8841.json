@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 6.49
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/collaboration-endpoints/unified-ip-phone-8800-series/datasheet-c78-731638.html",
+  "notes": "Datasheet: 'An internal 2-port Cisco Ethernet switch ... 10/100/1000BASE-T ... single LAN connectivity for both the phone and a co-located PC', 'IEEE Power over Ethernet class 2', compatible with 802.3af and 802.3at blades, CDP and LLDP-PoE. Power input rating 0.917 A at 48 V DC, under 6.49 W. Separate 802.1Q VLANs can be set per PC and voice port, which is the interesting bit in a lab. No Wi-Fi or Bluetooth; the aux and headset ports are not modelled."
 }

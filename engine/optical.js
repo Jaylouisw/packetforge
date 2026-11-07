@@ -10,6 +10,8 @@
 // 1:64 split at 20 km does not fit inside a class B+ budget, and no amount of
 // configuration will make it work. Modelling it means the simulator can say why.
 
+const mediaModel = require('./media');
+
 // ---------------------------------------------------------------------------
 // Splitters
 // ---------------------------------------------------------------------------
@@ -89,6 +91,7 @@ const SPLICE_LOSS_DB = 0.1;
 //   splitters        array of ratios, e.g. ['1:8'] or ['1:4','1:8'] for cascaded
 //   splices          number of fusion splices in the path
 //   connectorPairs   number of mated connector pairs (default 2: OLT and ONT)
+//   patchCordLossDb  insertion loss of a declared patch cord part (default 0)
 //   ponClass         'B+', 'C+', 'N1', 'N2' ...
 //
 // Returns a structured verdict with the breakdown, so a failure can say which
@@ -123,8 +126,12 @@ function ponBudget(opts) {
   }
   const spliceDb = splices * SPLICE_LOSS_DB;
   const connectorDb = connectorPairs * CONNECTOR_LOSS_DB;
+  // A declared patch cord is a real part with a real insertion loss. Absent (the
+  // normal case) it is zero, so a link that declares no cord budgets exactly as
+  // it did before; declaring one charges what the vendor specifies.
+  const patchCordDb = Number(o.patchCordLossDb) || 0;
 
-  const lossDb = fibreDb + splitterDb + spliceDb + connectorDb;
+  const lossDb = fibreDb + splitterDb + spliceDb + connectorDb + patchCordDb;
   const headroomDb = cls.budgetDb - lossDb;
   const ok = lossDb <= cls.budgetDb;
 
@@ -141,7 +148,8 @@ function ponBudget(opts) {
       splitters: splitterBreakdown,
       splitterTotalDb: Math.round(splitterDb * 100) / 100,
       splices: { count: splices, lossDb: Math.round(spliceDb * 100) / 100 },
-      connectors: { pairs: connectorPairs, lossDb: Math.round(connectorDb * 100) / 100 }
+      connectors: { pairs: connectorPairs, lossDb: Math.round(connectorDb * 100) / 100 },
+      patchCord: { lossDb: Math.round(patchCordDb * 100) / 100 }
     },
     message: ok
       ? 'Path loss ' + (Math.round(lossDb * 100) / 100) + ' dB fits the ' + className +
@@ -254,11 +262,87 @@ function catalogueSplitterLossDb(ratio) {
   return (typeof loss === 'number') ? loss : (Number(loss.max) || null);
 }
 
+// ---------------------------------------------------------------------------
+// Patch cords: the hybrid UPC/APC escape hatch
+// ---------------------------------------------------------------------------
+// A single cable with an SC/APC ferrule on one end and an SC/UPC ferrule on the
+// other is still not a thing - the flat endface and the 8-degree one do not seat
+// against each other. What exists, and what every OLT-to-ODN run actually uses, is
+// a *hybrid patch cord*: a factory-terminated assembly with one polish on each
+// end, so the transition happens inside the lead rather than at a mated pair.
+//
+// That is why this is a part lookup and not a loosened rule. Ordinary fibre still
+// has one polish and still fails against the other; only a catalogue part that
+// declares both ends can bridge them.
+
+function patchCords() {
+  return odnParts().filter(function (p) { return String(p.kind || '') === 'patch-cord'; });
+}
+
+function patchCord(partNumber) {
+  const want = String(partNumber || '').trim().toLowerCase();
+  if (!want) return null;
+  // Either the vendor part number a technician orders (SMSCSX) or the catalogue's
+  // stable id (patch-cord-hybrid-sc-upc-apc) identifies the part.
+  return patchCords().filter(function (p) {
+    return String(p.partNumber || '').toLowerCase() === want ||
+      String(p.id || '').toLowerCase() === want;
+  })[0] || null;
+}
+
+// Worst-case insertion loss of a cord, accepting either a plain number or the
+// {min,max} shape the splitter entries use.
+function cordLossDb(part) {
+  if (!part) return 0;
+  const loss = part.insertionLossDb;
+  if (typeof loss === 'number' && isFinite(loss)) return loss;
+  if (loss && typeof loss === 'object') {
+    const max = Number(loss.max);
+    if (isFinite(max)) return max;
+    const min = Number(loss.min);
+    if (isFinite(min)) return min;
+  }
+  return 0;
+}
+
+function cageIdOf(c) {
+  const id = String(c || '');
+  return mediaModel.CAGE_ALIAS[id] || id;
+}
+
+// The hybrid cord that can join these two cages, or null.
+//
+// Returns a part only when the two cages are the same connector *shape* with
+// different polishes (the pair that is otherwise impossible) AND the catalogue
+// has a cord terminated one way on each end. Both argument orders work, because
+// which port is A and which is B is an accident of how the link was drawn.
+function hybridCord(a, b) {
+  const ca = cageIdOf(a), cb = cageIdOf(b);
+  if (!ca || !cb || ca === cb) return null;
+  const fa = mediaModel.ferrule(ca), fb = mediaModel.ferrule(cb);
+  if (!fa || !fb || fa.shape !== fb.shape || fa.polish === fb.polish) return null;
+  const hit = patchCords().filter(function (p) {
+    const ea = cageIdOf(p.endA), eb = cageIdOf(p.endB);
+    return (ea === ca && eb === cb) || (ea === cb && eb === ca);
+  })[0];
+  return hit || null;
+}
+
+// Does this cord terminate in exactly these two connectors? A hybrid SC lead on
+// an LC port is the wrong part, not a working link.
+function cordFits(cord, a, b) {
+  if (!cord) return false;
+  const ca = cageIdOf(a), cb = cageIdOf(b);
+  const ea = cageIdOf(cord.endA), eb = cageIdOf(cord.endB);
+  return (ea === ca && eb === cb) || (ea === cb && eb === ca);
+}
+
 
 module.exports = {
   SPLITTERS, PON_CLASSES, FIBRE_DB_PER_KM,
   transceivers, transceiverByPart, transceiversForCage, biDiPairsWith,
   odnParts, catalogueSplitterLossDb,
+  patchCords, patchCord, hybridCord, cordFits, cordLossDb,
   CONNECTOR_LOSS_DB, SPLICE_LOSS_DB,
   splitterById, splitterLossDb, fibreLossDbPerKm, ponBudget
 };

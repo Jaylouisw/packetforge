@@ -5,6 +5,14 @@
   "category": "splitter",
   "description": "40-channel dual-fibre DWDM mux/demux on the 100 GHz C-band grid C21-C60 (1560.61 nm down to 1529.55 nm, 0.8 nm spacing), with 40 duplex LC/UPC channel ports, a duplex LC/UPC line port and a 1310 nm band-pass port for 40G/100G LR4 optics. Flat-top AWG: insertion loss <=5.5 dB per channel (4.5 dB typical), 1310 nm port <=1.5 dB, return loss >=40 dB, passive.",
   "capabilities": [],
+  "splitRatio": "1:40",
+  "channelCount": 40,
+  "channelPlan": "C21-C60, 100 GHz spacing, 1560.61 nm (C21) to 1529.55 nm (C60), 192.1-196.0 THz, +/-0.11 nm passband",
+  "insertionLossDb": 5.5,
+  "insertionLossTypicalDb": 4.5,
+  "returnLossDb": 40,
+  "technology": "AWG (flat-top)",
+  "formFactor": "1U 19-inch rack mount",
   "portTemplate": {
     "prefix": "ch",
     "start": 21,
@@ -23,12 +31,25 @@
     {
       "name": "line",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "p1310",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "lc",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://img-en.fs.com/file/datasheet/flat-top-40ch-dwdm-mux-demux-c21-c60-with-mon-and-1310.pdf"
 }

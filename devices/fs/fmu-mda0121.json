@@ -5,36 +5,79 @@
   "category": "splitter",
   "description": "Single-channel 100 GHz DWDM optical add/drop multiplexer for C21 (1560.61 nm), dual-fibre east-and-west configuration: two duplex LC/UPC line ports, plus one add and one drop port. Thin-film-filter module with add/drop insertion loss <=1.2 dB, express channels pass through untouched; passive, so it drops one lambda out of a lit line without interrupting the rest.",
   "capabilities": [],
+  "splitRatio": "1:1",
+  "channelCount": 1,
+  "channelPlan": "C21 = 1560.61 nm (192.1 THz), 100 GHz spacing",
+  "insertionLossDb": 1.2,
+  "technology": "TFF",
+  "formFactor": "FMU plug-in module (2-slot 1U chassis)",
   "interfaces": [
     {
       "name": "west-in",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "west-out",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "east-in",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "east-out",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "add",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "drop",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        10000,
+        40000,
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.fs.com/products/57509.html"
 }

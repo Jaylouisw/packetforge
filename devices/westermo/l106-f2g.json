@@ -33,12 +33,21 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.westermo.com/products/ethernet-switches/layer-2/l106-f2g"
 }

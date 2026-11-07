@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.intel.com/content/dam/support/us/en/documents/intel-nuc/NUC13AN_TechProdSpec.pdf",
+  "notes": "2.5GbE RJ45 (Intel i226) on a 4x4-inch chassis - a compact host that can actually use a 2.5G access port. Wi-Fi 6E AX211 onboard; common as a lab broker/VM host node."
 }

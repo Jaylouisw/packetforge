@@ -112,5 +112,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.digi.com/products/models/it16-1002",
+  "notes": "IT16-1002: (2) RJ45 10/100/1G Ethernet, (2) SFP+ sockets (used at 1G here - cage type only, no 10G optics assumed), (16) RS-232 device ports plus (1) RS-232 console port for local setup (not modelled as a device port). Optional Digi CORE LTE Cat 4 module, dual redundant field-replaceable power. 48-port sibling is Connect IT 48."
 }

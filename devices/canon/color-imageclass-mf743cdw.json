@@ -19,7 +19,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.usa.canon.com/support/p/color-imageclass-mf743cdw",
+  "notes": "Wired is gigabit (10/100/1000Base-T) while wireless is 802.11b/g/n - asymmetric links are realistic here. No PoE, mains powered."
 }

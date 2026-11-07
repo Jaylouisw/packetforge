@@ -1,22 +1,23 @@
 {
   "vendor": "aruba",
   "model": "AP-635",
-  "label": "Aruba AP-635",
+  "label": "Aruba AP-635 Campus AP",
   "category": "wireless",
-  "description": "Aruba AP-635 - Wi-Fi 6E tri-radio 2x2 AP (2.4/5/6 GHz) with two 2.5G SmartRate Ethernet ports (E0/E1) for hitless PoE failover.",
+  "description": "Wi-Fi 6E tri-radio 2x2:2 indoor campus AP covering 2.4, 5 and 6 GHz concurrently for 3.9 Gbps aggregate. Two 2.5G Smart Rate RJ45 ports (E0/E1) for hitless failover on data and power, 802.3af/at/bt PoE-PD.",
   "capabilities": [
-    "l2-forward",
     "wireless",
-    "cli"
+    "l2-forward",
+    "http-server"
   ],
   "interfaces": [
     {
-      "name": "E0",
+      "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 22.5
     },
     {
-      "name": "E1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "2.5G"
     },
@@ -24,8 +25,17 @@
       "name": "radio0",
       "type": "wireless",
       "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "2.5G"
     }
   ],
-  "icon": "ap",
-  "color": "#f59e0b"
+  "sourceUrl": "https://apps.juniper.net/hct/product/AP-635/hwspecs"
 }

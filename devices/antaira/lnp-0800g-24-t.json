@@ -11,42 +11,54 @@
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     }
-  ]
+  ],
+  "poe": {
+    "budgetW": 240
+  },
+  "sourceUrl": "https://www.antaira.com/products/gigabit-unmanaged-poe/LNP-0800G-24-T"
 }

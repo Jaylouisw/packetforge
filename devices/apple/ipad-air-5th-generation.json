@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111887",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz). Cellular (optional SKU): 5G sub-6 GHz plus mmWave (US models), LTE fallback. USB-C 3.1 Gen 2 up to 10 Gbps with Ethernet adapter support (usb0) and DisplayPort. M1 tablet: the endpoint most likely to be running a full remote-desktop session, so bandwidth-heavy."
 }

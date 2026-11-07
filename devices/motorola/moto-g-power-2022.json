@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.motorola.com/us/smartphones-moto-g-power-gen-3/p",
+  "notes": "Wi-Fi 5 (802.11ac, 1x1, 2.4/5 GHz) — no Wi-Fi 6. Cellular: LTE Cat 13, no 5G. USB-C is USB 2.0; Ethernet works via USB-C OTG adapter but is capped near 100M in practice (declared 1G for topology). Cheap-client profile: single stream, aggressive power-save, rarely roams to 5 GHz."
 }

@@ -31,5 +31,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.meinbergglobal.com/english/archive/lantime-m600.htm",
+  "notes": "Meinberg datasheet: 'Network Interface Standard: 4 x 10/100 MBit with RJ45 connector', option '1 x 10/100 MBit and 3 x 10/100/1000 MBit (3GE) with RJ45 jack'. M600 MRS manual labels the rear connectors ETH0-ETH3, 10/100 Mbit RJ45. PTP/IEEE-1588 grandmaster is an option on one port."
 }

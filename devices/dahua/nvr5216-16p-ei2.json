@@ -20,82 +20,100 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 9",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 10",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 11",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 12",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 13",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 14",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 15",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 16",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/wizsense-series/nvr-5-ei2-series/nvr5216-16p-ei2",
+  "notes": "PoE out: 802.3af/at, 25.5 W per port, 130 W total - notably less per-camera headroom than the 16-port Hikvision. Ports 1-8 support ePoE (extended-distance) which changes the cable-length assumptions in a lab."
 }

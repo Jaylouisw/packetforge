@@ -1,34 +1,19 @@
 {
   "vendor": "fortinet",
   "model": "FortiGate 100F",
-  "label": "FortiGate 100F",
-  "category": "firewall",
-  "description": "Fortinet FortiGate 100F - 22x GE RJ45 (2x WAN, 1x DMZ, 1x MGMT, 2x HA, 16x switch incl. 4 RJ45/SFP shared), 4x GE SFP, 2x 10G SFP+ FortiLink.",
+  "label": "FortiGate 100F secure SD-WAN gateway",
+  "category": "router",
+  "description": "1 RU secure SD-WAN appliance with 20 Gbps firewall and 11.5 Gbps IPsec throughput on the purpose-built SD-WAN ASIC: 18 x 1G RJ-45 ports (MGMT/DMZ, WAN1-WAN2, HA1-HA2 and port1-12), four 1G SFP cages (13-16), four RJ-45/SFP shared pairs (17-20) where only one half of each pair can be used, and two 10G SFP+ FortiLink ports (X1-X2). No expansion slots.",
   "capabilities": [
     "l3-forward",
-    "firewall",
     "nat",
+    "firewall",
+    "cli",
     "dhcp-server",
-    "cli"
+    "dhcp-client",
+    "http-server"
   ],
-  "portTemplate": {
-    "prefix": "internal",
-    "start": 1,
-    "count": 16,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
-    {
-      "name": "wan1",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "wan2",
-      "type": "ethernet",
-      "speed": "1G"
-    },
     {
       "name": "mgmt",
       "type": "ethernet",
@@ -36,6 +21,16 @@
     },
     {
       "name": "dmz",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
       "type": "ethernet",
       "speed": "1G"
     },
@@ -50,36 +45,192 @@
       "speed": "1G"
     },
     {
-      "name": "sfp1",
+      "name": "port1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp2",
+      "name": "port2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp3",
+      "name": "port3",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "sfp4",
+      "name": "port4",
       "type": "ethernet",
       "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "port17-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port17-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port17",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "port18-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port18-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port18",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "port19-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port19-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port19",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "port20-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port20-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port20",
+      "comboRole": "sfp"
     },
     {
       "name": "x1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "x2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
-  "icon": "firewall",
-  "color": "#ef4444"
+  "sourceUrl": "https://docs.fortinet.com/document/fortigate/8.0.2/hardware-acceleration/47902/fortigate-100f-and-101f-fast-path-architecture",
+  "notes": "FortiGate 100F/101F fast-path architecture doc: \"Two 10/100/1000BASE-T Copper (DMZ, MGMT). Sixteen 10/100/1000BASE-T Copper (WAN1, WAN2, HA1, HA2, 1 to 12). Two 10 GigE SFP+ (X1 and X2) ... Four 1GigE SFP (13 to 16). Four shared interfaces (17 to 20) that can be either 10/100/1000BASE-T Copper or 1GE SFP.\" Ports 17-20 are therefore modelled as combo pairs: \"there are two sets of physical interfaces numbered 17 to 20 but only one of each can be connected to a network\". Interface names follow FortiOS (port1-port20, wan1/wan2, ha1/ha2, dmz, mgmt, x1/x2) with the SFP half of a shared pair suffixed -sfp because FortiOS gives both halves the same name."
 }

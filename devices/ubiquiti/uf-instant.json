@@ -11,14 +11,24 @@
     {
       "name": "gpon0",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "sfp0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "sourceUrl": "https://dl.ui.com/qsg/UF-Instant/UF-Instant_EN.html",
   "icon": "switch",
   "color": "#64748b"
 }

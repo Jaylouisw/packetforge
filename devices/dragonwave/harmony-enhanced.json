@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 60
     },
     {
       "name": "eth1",
@@ -24,12 +25,20 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "radio0",
@@ -38,5 +47,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://dragonwavex.com/system/files/harmony_enhanced_product_sheet_2021.pdf"
 }

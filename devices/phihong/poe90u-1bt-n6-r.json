@@ -16,7 +16,14 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90
     }
+  ],
+  "sourceUrl": "https://www.phihong.com/products/power-over-ethernet/poe90u-1bt-n6-r/",
+  "role": [
+    "midspan",
+    "802.3bt-type-4",
+    "managed"
   ]
 }

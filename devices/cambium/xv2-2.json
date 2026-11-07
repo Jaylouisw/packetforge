@@ -15,7 +15,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
@@ -27,5 +28,7 @@
       "type": "wireless",
       "speed": "1.2G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cambiumnetworks.com/wp-content/uploads/2021/03/Cambium_Networks_data_sheet_WiFi-6_XV2-2_AP.pdf",
+  "notes": "21W max, 802.3at PD; on 802.3af (15.4W) it runs only with reduced function. One data port only - the AP's USB 2.0 and 4-pin serial console are not modelled as network interfaces."
 }

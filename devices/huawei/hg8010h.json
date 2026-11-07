@@ -1,19 +1,22 @@
 {
   "vendor": "huawei",
   "model": "HG8010H",
-  "label": "HG8010H ONT",
+  "label": "HG8010H GPON ONT",
   "category": "ont",
-  "description": "Huawei EchoLife HG8010H — single-GE PON bridge ONT, 1x PON (SC/APC) + 1x GbE LAN. Class B+ optics.",
+  "description": "Single-port GPON bridge ONT (ITU-T G.984.2 Class B+) with one 10/100/1000Base-T LAN port and one SC/APC PON port; no WiFi, no voice, purely Layer 2 bridging for FTTH.",
   "capabilities": [
-    "l2-forward",
-    "cli",
-    "host"
+    "l2-forward"
   ],
   "interfaces": [
     {
       "name": "pon",
-      "type": "ethernet",
-      "speed": "2.5G"
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -21,6 +24,5 @@
       "speed": "1G"
     }
   ],
-  "icon": "ont",
-  "color": "#ef4444"
+  "sourceUrl": "https://support.huawei.com/enterprise/en/optical-access/echolife-hg8010h-pid-8380489"
 }

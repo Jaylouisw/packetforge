@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/product/ThinkCentre/ThinkCentre_M90q_Gen_4",
+  "notes": "1GbE RJ45 standard (Intel I219-LM); Wi-Fi 6E is an optional M.2 card, so the stock unit is wired-only. Tiny footprint makes it the usual 'one PC per desk' node in dense topologies."
 }

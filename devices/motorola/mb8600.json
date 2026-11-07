@@ -15,7 +15,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -37,5 +38,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://en-us.support.motorola.com/ci/fattach/get/68386861/1579624442/redirect/1/filename/MB8600-DataSheet-28317.pdf",
+  "notes": "Datasheet: 'Four (4) 10/100/1000 Gigabit Ethernet LAN ports, with Auto-MDI/MDIX' and an F-type female 75 ohm service interface. Four ports exist because the modem is limited to 1 Gbps per port; 2-port bonding gives ~2 Gbps, 4-port ~3.8 Gbps."
 }

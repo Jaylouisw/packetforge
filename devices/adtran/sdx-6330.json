@@ -27,37 +27,68 @@
     {
       "name": "qsfpdd1/1",
       "type": "ethernet",
-      "speed": "200G"
+      "speed": "200G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000
+      ]
     },
     {
       "name": "qsfpdd1/2",
       "type": "ethernet",
-      "speed": "200G"
+      "speed": "200G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000
+      ]
     },
     {
       "name": "qsfp1/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "qsfp1/2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "xge1/1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "xge1/2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-6000-series.pdf"
 }

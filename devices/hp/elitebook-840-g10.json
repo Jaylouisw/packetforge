@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.hp.com/us-en/document/ish_7775077-7775121-16",
+  "notes": "No RJ45 on the 840 G10: HP moved wired connectivity to the dock (2x Thunderbolt 4, 2x USB-A, HDMI only). Wired needs a USB-C dock/dongle at 1GbE; Wi-Fi 6E AX211 plus optional 5G WWAN onboard."
 }

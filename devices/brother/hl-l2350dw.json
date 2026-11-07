@@ -1,19 +1,19 @@
 {
   "vendor": "brother",
   "model": "HL-L2350DW",
-  "label": "Compact mono laser printer, wireless only",
+  "label": "HL-L2350DW compact mono laser printer",
   "category": "printer",
-  "description": "32 ppm monochrome laser printer with 802.11b/g/n 2.4 GHz Wi-Fi and USB; there is no Ethernet port at all. Purely a wireless client.",
+  "description": "Compact A4 mono laser printer, 30ppm with automatic duplex, that is wireless-only: its sole network port is an 802.11b/g/n radio, with Ethernet deliberately absent from this chassis.",
   "capabilities": [
     "host",
-    "dhcp-client",
-    "wireless"
+    "http-server"
   ],
   "interfaces": [
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.brother.eu/-/media/pdf/buk/product-downloads/datasheets/hl-l2350dw_datasheet.pdf"
 }

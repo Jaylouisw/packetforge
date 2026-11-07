@@ -19,7 +19,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -56,5 +57,7 @@
       "type": "wireless",
       "speed": "11.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://us.hitrontech.com/wp-content/uploads/2025/09/DS-CODA6021.pdf",
+  "notes": "Datasheet: 'DOCSIS 4.0 5x7 OFDM/OFDMA', 'DOCSIS 3.0 32x8 Channel Bonding', switchable upstream 5-85 / 5-204 / 5-85 + 108-396 MHz, downstream up to 1794 MHz, and interfaces '1 x RF F-Type 75 ohm female', '2 x RJ-45 100M/1G/2.5G/5G/10G BASE-T', '2 x RJ-45 100M/1G/2.5G BASE-T'. Wi-Fi 7 is 4x4 on 2.4/5/6 GHz; wireless speeds here are per-band 4x4 802.11be (40/160/320 MHz) approximations. Voice-capable gateway, so its RJ11 FXS jacks are omitted. This is the only DOCSIS 4.0 CPE I could verify from a vendor datasheet, and it ships as a gateway rather than a bare modem."
 }

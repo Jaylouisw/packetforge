@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://en-us.support.motorola.com/ci/fattach/get/82899625/1703007604/redirect/1/filename/MB7621-DataSheet-25717.pdf",
+  "notes": "Datasheet: 24x8 DOCSIS 3.0, 1029/246 Mbps nominal DS/US, 'Gigabit Ethernet port for a high-speed plug-in connection to a router, computer, or other Internet-capable device'. Explicitly 'does not have a built-in wireless router and does not have telephone jacks', so the port list is one F-connector and one RJ45."
 }

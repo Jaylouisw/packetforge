@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.office.xerox.com/latest/VC4SS-027.PDF",
+  "notes": "Wired only (gigabit). Wi-Fi is an optional accessory, not standard - model it as Ethernet-only. No PoE; 100-240 VAC."
 }

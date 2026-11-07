@@ -14,7 +14,10 @@
 //     warnings: [ { code, message } ],   // advisory, empty when none
 //     media:    [ mediaId ],             // media both ports can carry
 //     mediaId:  string|null,             // the medium that would be used
-//     speedMbps: number|null             // negotiated (and media-capped) rate
+//     speedMbps: number|null,            // negotiated (and media-capped) rate
+//     patchCord: string|null,            // catalogue part declared for the link
+//     patchCordLossDb: number,           // that part's insertion loss
+//     polishWeakened: boolean            // a hybrid cord is carrying a polish change
 //   }
 //
 // Codes are stable strings: the UI switches on them, so never rename one
@@ -22,7 +25,11 @@
 //
 // Caller input (all optional except the two ports):
 //   { portA, portB, devA, devB, ifaceA, ifaceB, mediaId, lengthM,
-//     duplexA, duplexB }
+//     duplexA, duplexB, patchCord }
+//
+// patchCord is a catalogue part number (or catalogue id) from
+// catalogue/optics/odn.json. Omitting it means ordinary cable, which is what
+// every link was before hybrid UPC/APC cords existed.
 //
 // A "port" may be a derived hardware descriptor (the object returned by
 // media.derivePortHardware) or a raw interface spec; both are normalised to
@@ -31,6 +38,7 @@
 // device's interface collection (Map, array or plain object).
 
 const mediaModel = require('./media');
+const optical = require('./optical');
 
 const MEDIA = mediaModel.MEDIA;
 const CAGES = mediaModel.CAGES;
@@ -64,6 +72,19 @@ const RULES = [
   {
     code: 'E_CONNECTOR_MISMATCH', severity: 'error',
     description: 'The two cages cannot physically mate (for example RJ45 to an optical SFP cage).'
+  },
+  {
+    code: 'E_POLISH_MISMATCH', severity: 'error',
+    description: 'The same connector shape with different polishes (SC/APC against SC/UPC). ' +
+      'An 8-degree angled ferrule does not seat against a flat one; only a hybrid cord joins them.'
+  },
+  {
+    code: 'E_PATCH_CORD_UNKNOWN', severity: 'error',
+    description: 'The patch cord part number the link declares is not in the optics catalogue.'
+  },
+  {
+    code: 'E_PATCH_CORD_ENDS', severity: 'error',
+    description: 'The declared patch cord is not terminated in the two connectors it is joining.'
   },
   {
     code: 'E_NO_COMMON_MEDIA', severity: 'error',
@@ -112,6 +133,11 @@ const RULES = [
   {
     code: 'W_COPPER_LONGRUN', severity: 'warning',
     description: 'Copper link is longer than the 90 m horizontal-run limit.'
+  },
+  {
+    code: 'W_HYBRID_CORD', severity: 'warning',
+    description: 'A hybrid UPC/APC patch cord is joining two different polishes; it is legal ' +
+      'but costs its insertion loss and cannot be replaced by a plain lead.'
   }
 ];
 
@@ -380,7 +406,13 @@ function validateConnection(input) {
     warnings: warnings,
     media: [],
     mediaId: null,
-    speedMbps: null
+    speedMbps: null,
+    // Which patch cord the link declares, and whether it is a hybrid one carrying
+    // a polish change. Both default to "ordinary cable", so a caller that never
+    // mentions a cord gets exactly the behaviour it always had.
+    patchCord: null,
+    patchCordLossDb: 0,
+    polishWeakened: false
   };
 
   const devA = inp.devA || null;
@@ -463,12 +495,75 @@ function validateConnection(input) {
     });
   }
 
+  // -- hybrid patch cord (issue #18) ----------------------------------------
+  // The polish rule stays a refusal, but it has an escape hatch that is real
+  // hardware rather than a loosened rule: a factory hybrid lead has UPC on one
+  // end and APC on the other, so an SC/UPC OLT module can reach an SC/APC ODN
+  // without pretending either end has the ferrule it does not.
+  //
+  // The link has to *declare* that cord - the part number travels with the link
+  // record - because without one the pair is still two ferrules that do not seat.
+  const cordWanted = (inp.patchCord === undefined || inp.patchCord === null)
+    ? null : String(inp.patchCord).trim() || null;
+  let cord = null;
+  if (cordWanted) {
+    cord = optical.patchCord(cordWanted);
+    if (!cord) {
+      errors.push({
+        code: 'E_PATCH_CORD_UNKNOWN',
+        message: 'Patch cord "' + cordWanted + '" is not in the optics catalogue ' +
+          '(catalogue/optics/odn.json).'
+      });
+    } else if (!optical.cordFits(cord, portA.cage, portB.cage)) {
+      errors.push({
+        code: 'E_PATCH_CORD_ENDS',
+        message: cord.partNumber + ' is terminated ' + cord.endA + ' to ' + cord.endB +
+          ' and cannot join ' + portA.cageName + ' (' + portA.cage + ') to ' +
+          portB.cageName + ' (' + portB.cage + ').'
+      });
+      cord = null;   // a wrong part bridges nothing
+    }
+  }
+  const cordLossDb = optical.cordLossDb(cord);
+  verdict.patchCord = cord ? cord.partNumber : null;
+  verdict.patchCordLossDb = cordLossDb;
+
   // -- connector / media / speed verdicts (delegated to canMate) ------------
-  const mate = canMate(portA, portB);
+  let mate = canMate(portA, portB);
+  if (!mate.ok && mate.code === 'E_POLISH_MISMATCH' && cord) {
+    // Same shape, different polish, and the cord carries exactly those two ends:
+    // the run is possible, with the cord - not the ports - as the medium.
+    const bridgedMedia = mediaModel.commonMediaBridged(portA, portB);
+    if (bridgedMedia.length) {
+      mate = {
+        ok: true, code: 'OK',
+        media: bridgedMedia,
+        speedMbps: negotiateSpeed(portA, portB)
+      };
+      verdict.polishWeakened = true;
+      warnings.push({
+        code: 'W_HYBRID_CORD',
+        message: lblA + ' <-> ' + lblB + ' is joined by hybrid cord ' + cord.partNumber +
+          ' (' + cord.endA + ' one end, ' + cord.endB + ' the other). The polish change is ' +
+          'inside a factory assembly, so it is legal, but it costs ' + cordLossDb +
+          ' dB of insertion loss and this lead cannot be swapped for a plain patch cord.'
+      });
+    }
+  }
   if (!mate.ok && !consoleToData) {
+    let msg = mate.message;
+    // If a hybrid lead exists for this pair, say so: the refusal is correct, but
+    // the user needs to know the link is buildable rather than impossible.
+    if (mate.code === 'E_POLISH_MISMATCH' && !cord) {
+      const couldBridge = optical.hybridCord(portA.cage, portB.cage);
+      if (couldBridge) {
+        msg += ' A hybrid patch cord (' + couldBridge.partNumber + ', ' + couldBridge.endA +
+          ' to ' + couldBridge.endB + ') is what joins these two polishes.';
+      }
+    }
     errors.push({
       code: mate.code,
-      message: lblA + ' <-> ' + lblB + ': ' + mate.message
+      message: lblA + ' <-> ' + lblB + ': ' + msg
     });
   }
 
@@ -517,7 +612,6 @@ function validateConnection(input) {
     return c === 'sc-apc' || c === 'sc-upc' || c === 'lc-upc' || c === 'lc-apc';
   };
   if (isPonCage(portA.cage) && isPonCage(portB.cage)) {
-    const optical = require('./optical');
     const ratios = [];
     for (const d of [devA, devB]) {
       const spec = d && d.spec;
@@ -530,8 +624,11 @@ function validateConnection(input) {
     const ponClass = (devA && devA.spec && devA.spec.ponClass) ||
       (devB && devB.spec && devB.spec.ponClass) || 'B+';
     const lengthM = (inp.lengthM === undefined || inp.lengthM === null) ? 0 : Number(inp.lengthM);
-    const down = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1490, splitters: ratios, ponClass: ponClass });
-    const up = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1310, splitters: ratios, ponClass: ponClass });
+    // A declared cord is part of the path, so its insertion loss is part of the
+    // budget. Undeclared cords add nothing, which keeps every pre-existing link
+    // planning exactly as it did.
+    const down = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1490, splitters: ratios, ponClass: ponClass, patchCordLossDb: cordLossDb });
+    const up = optical.ponBudget({ lengthM: lengthM, wavelengthNm: 1310, splitters: ratios, ponClass: ponClass, patchCordLossDb: cordLossDb });
     const bad = !down.ok ? down : (!up.ok ? up : null);
     if (bad) {
       const dir = !down.ok ? 'downstream at 1490 nm' : 'upstream at 1310 nm';

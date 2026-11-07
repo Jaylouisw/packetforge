@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.acer.com/us-en/laptops/aspire/aspire-5-amd/pdp/NX.ABKAA.001",
+  "notes": "Gigabit Ethernet RJ45 is genuinely onboard (Acer lists 'Ethernet Technology: Gigabit Ethernet'), unusual at this price. Wi-Fi 6 (802.11ax) secondary - a cheap lab host that can be cabled without a dongle."
 }

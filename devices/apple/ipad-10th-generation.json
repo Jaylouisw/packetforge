@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111840",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz. Cellular (optional SKU): 5G sub-6 GHz only, no mmWave; LTE fallback. USB-C is USB 2.0 but iPadOS supports USB-C Ethernet adapters as a real interface (usb0), which makes this the cheapest 'tablet on a dock' endpoint. Wi-Fi-only SKUs should be modelled without wwan0."
 }

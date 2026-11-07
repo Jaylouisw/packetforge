@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://store.google.com/product/nest_hub_2nd_gen_specs?hl=en-US",
+  "notes": "Wireless only, 802.11ac 2.4/5 GHz plus Bluetooth 5.0. Mains powered via 15 W adapter, no PoE. Uses mDNS and Google Cast, so multicast behaviour matters on the WLAN."
 }

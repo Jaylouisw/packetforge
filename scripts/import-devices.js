@@ -78,7 +78,10 @@ function normaliseCapabilities(list) {
 const TYPES = ['ethernet', 'wireless', 'console', 'coax', 'dsl', 'adsl', 'vdsl', 'powerline', 'plc', 'mains', 'pon'];
 // media.parseSpeedMbps is deliberately permissive ("7G" parses to 7000), so the
 // importer validates against the explicit set of line rates the engine supports.
-const SPEEDS = { '8M': 8, '24M': 24, '50M': 50, '200M': 200, '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '10G': 10000, '25G': 25000, '40G': 40000, '100G': 100000, '200G': 200000, '400G': 400000 };
+// Fibre Channel rates are not Ethernet rates, but they are real line rates and a SAN
+// switch has to state them honestly rather than rounding an 8G port up to 10G - which
+// also made the port claim a rate its cage cannot carry.
+const SPEEDS = { '8M': 8, '24M': 24, '50M': 50, '200M': 200, '300M': 300, '100M': 100, '1G': 1000, '2.5G': 2500, '5G': 5000, '8G': 8000, '10G': 10000, '16G': 16000, '25G': 25000, '32G': 32000, '40G': 40000, '64G': 64000, '100G': 100000, '200G': 200000, '400G': 400000 };
 
 // Levenshtein distance, used only to tell a typo from a descriptive label. Two
 // edits apart is close enough to be a slip of the fingers ("l3-foward"), and far
@@ -254,13 +257,77 @@ function main() {
   // means an agent has to type --apply on purpose, and a stray invocation prints what
   // it would have done instead of doing it.
   const apply = argv.indexOf('--apply') !== -1 || argv.indexOf('--write') !== -1;
+  // --upgrade repairs an existing entry when the incoming spec carries more detail than
+  // the one on disk. Still opt-in: it rewrites catalogue files, so it must be asked for.
+  const upgrade = argv.indexOf('--upgrade') !== -1;
   const dryRun = !apply;
   const asJson = argv.indexOf('--json') !== -1;
 
   // Existing catalogue, keyed by vendor|model so we never overwrite vetted data.
   const existing = loadCatalog(DEVICES);
+  function vendorDir(vendor) { return path.join(DEVICES, String(vendor)); }
+
+  function writeSpec(spec, dir, model) {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const out = path.join(dir, slug(model) + '.json');
+    fs.writeFileSync(out, JSON.stringify(spec, null, 2) + String.fromCharCode(10));
+    return out;
+  }
+
+  // Where each existing spec actually lives. A repair must overwrite THAT file: re-deriving
+  // the name from the model would create a second file beside an existing one with different
+  // capitalisation ('U7-Pro.json' vs 'u7-pro.json') and the catalogue would load both.
+  const existingPathByKey = (function () {
+    const map = Object.create(null);
+    function walk(dir) {
+      let entries;
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return; }
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) { walk(full); continue; }
+        if (!/\.json$/i.test(e.name)) continue;
+        try {
+          const spec = JSON.parse(fs.readFileSync(full, 'utf8'));
+          if (spec && spec.vendor && spec.model) {
+            map[String(spec.vendor) + '|' + String(spec.model).toLowerCase()] = full;
+          }
+        } catch (e) { /* a broken file is another script's problem */ }
+      }
+    }
+    walk(DEVICES);
+    return map;
+  })();
+
+  function writeSpecTo(spec, fullPath) {
+    fs.writeFileSync(fullPath, JSON.stringify(spec, null, 2) + String.fromCharCode(10));
+    return fullPath;
+  }
+
   const known = Object.create(null);
-  for (const s of existing) known[String(s.vendor) + '|' + String(s.model).toLowerCase()] = true;
+  const existingByKey = Object.create(null);
+  for (const s of existing) {
+    const k = String(s.vendor) + '|' + String(s.model).toLowerCase();
+    known[k] = true;
+    existingByKey[k] = s;
+  }
+
+  // How much hardware detail a spec actually carries. Used by --upgrade, which repairs a
+  // damaged entry only when the incoming spec says strictly more than the one on disk -
+  // so re-running the importer over a research file cannot quietly replace a carefully
+  // corrected catalogue entry with a thinner one.
+  function detailScore(spec) {
+    if (!spec) return 0;
+    let n = 0;
+    const keep = ['connector', 'cage', 'speedCaps', 'poeIn', 'poeOut', 'comboWith', 'comboRole',
+      'dualRole', 'role', 'bridgeGroup', 'description', 'duplex', 'mac'];
+    for (const i of (spec.interfaces || [])) {
+      for (const k of keep) if (i[k] !== undefined && i[k] !== null) n++;
+    }
+    for (const k of ['poe', 'notes', 'sourceUrl', 'portSplitNote', 'splitRatio', 'insertionLossDb', 'radios']) {
+      if (spec[k] !== undefined && spec[k] !== null) n++;
+    }
+    return n;
+  }
 
   const groups = readIncoming();
   if (!groups.length) {
@@ -281,35 +348,57 @@ function main() {
         continue;
       }
       if (known[key]) {
-        report.duplicates.push({ file: g.file, vendor: spec.vendor, model: spec.model });
+        const onDisk = existingByKey[key];
+        // Repair only an entry that carries NO hardware detail at all - the exact
+        // signature of one this importer flattened. An entry with any connector,
+        // speedCap, PoE figure or note on it is left alone, because a research file
+        // being longer is not evidence that it is more correct than a corrected entry.
+        const richer = detailScore(onDisk) === 0 && detailScore(spec) > 0;
+        if (upgrade && richer) {
+          // Repair in place. The existing file is the one to rewrite, so the catalogue
+          // keeps its path and any hand-written corrections that are still richer win.
+          const target = existingPathByKey[key];
+          if (!dryRun && target) writeSpecTo(spec, target);
+          report.upgraded = report.upgraded || [];
+          report.upgraded.push({ vendor: spec.vendor, model: spec.model, was: detailScore(onDisk), now: detailScore(spec) });
+        } else {
+          report.duplicates.push({ file: g.file, vendor: spec.vendor, model: spec.model });
+        }
         continue;
       }
       known[key] = true;   // also guards duplicates inside the incoming batch
       if (v.warnings.length) report.warnings.push({ vendor: spec.vendor, model: spec.model, warnings: v.warnings });
 
-      const clean = {
-        vendor: spec.vendor,
-        model: spec.model,
+      // Preserve the spec.
+      //
+      // This used to rebuild each interface as {name, type, speed} and drop everything
+      // else - connector, cage, speedCaps, poeIn, poeOut, comboWith, comboRole, dualRole,
+      // role, bridgeGroup - plus the top-level poe, notes, sourceUrl, portSplitNote,
+      // splitRatio and insertionLossDb. The loss was silent: the engine infers a cage from
+      // the port name, so a spec that had lost its connector still produced a plausible
+      // port, and nothing failed. 684 of 878 devices ended up as name/type/speed only and
+      // 170 described PoE while carrying no budget at all (issue #22).
+      //
+      // Copying the spec through means a new field a contributor adds survives the import
+      // without anyone having to remember to whitelist it here.
+      const clean = Object.assign({}, spec, {
         label: spec.label || spec.model,
-        category: spec.category,
         description: spec.description || (spec.vendor + ' ' + spec.model),
-        capabilities: spec.capabilities.slice()
-      };
-      if (spec.portTemplate) clean.portTemplate = spec.portTemplate;
+        capabilities: (spec.capabilities || []).slice()
+      });
       if (Array.isArray(spec.interfaces)) {
         clean.interfaces = spec.interfaces.map(function (i) {
-          return { name: i.name, type: i.type || 'ethernet', speed: i.speed };
+          // Keep every declared property; only normalise the ones the engine requires
+          // and refuse a USB interface, which is not a network port.
+          const out = Object.assign({}, i);
+          out.name = i.name;
+          out.type = i.type || 'ethernet';
+          out.speed = i.speed;
+          return out;
         });
       }
-      if (spec.icon) clean.icon = spec.icon;
-      if (spec.color) clean.color = spec.color;
 
-      if (!dryRun) {
-        const dir = path.join(DEVICES, clean.vendor);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        const out = path.join(dir, slug(clean.model) + '.json');
-        fs.writeFileSync(out, JSON.stringify(clean, null, 2) + '\n');
-      }
+      if (!dryRun) writeSpec(clean, vendorDir(clean.vendor), clean.model);
       report.added.push({ vendor: clean.vendor, model: clean.model, category: clean.category });
     }
   }
@@ -324,7 +413,13 @@ function main() {
 
   console.log('Scanned ' + report.files + ' file(s), ' + report.seen + ' spec(s)');
   console.log((dryRun ? 'Would add: ' : 'Added: ') + report.added.length +
-    '  duplicates: ' + report.duplicates.length + '  rejected: ' + report.rejected.length);
+    '  duplicates: ' + report.duplicates.length + '  rejected: ' + report.rejected.length +
+    ((report.upgraded || []).length ? '  upgraded: ' + report.upgraded.length : ''));
+  if ((report.upgraded || []).length) {
+    console.log(dryRun ? 'Would repair (incoming spec carries more detail):' : 'Repaired from a richer spec:');
+    for (const u of report.upgraded.slice(0, 20)) console.log('  ' + u.vendor + '/' + u.model + '  detail ' + u.was + ' -> ' + u.now);
+    if (report.upgraded.length > 20) console.log('  ... and ' + (report.upgraded.length - 20) + ' more');
+  }
   if (report.added.length) {
     console.log('  by vendor: ' + Object.keys(byVendor).sort().map(function (v) {
       return v + '=' + byVendor[v];

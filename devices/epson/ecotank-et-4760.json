@@ -19,7 +19,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://epson.com/For-Work/Printers/Inkjet/EcoTank-ET-4760-All-in-One-Cartridge-Free-Supertank-Printer---Black/p/C11CG19203",
+  "notes": "Both wired (10/100) and wireless (2.4 GHz 802.11b/g/n). No PoE, external 100-240 VAC supply. Wi-Fi Direct AP mode is also available, so it can act as a soft AP in isolation."
 }

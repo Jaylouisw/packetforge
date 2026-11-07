@@ -23,22 +23,39 @@
     {
       "name": "line1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp3783.pdf"
 }

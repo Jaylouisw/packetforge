@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_X1_Carbon_Gen_11",
+  "notes": "No onboard Ethernet - Lenovo expects a USB-C/USB-A Ethernet dongle or dock (1GbE). Wi-Fi 6E AX211 is the only native link, so this node's uplink is wireless unless a dongle is modelled."
 }

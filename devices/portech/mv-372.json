@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.portech.com.tw/data/mv-372%20user%20manual.pdf",
+  "notes": "PORTech user manual: MV-370 is 1 channel, MV-372 is 2 channels; 2 SIM slots, one antenna connector, one LAN RJ-45 (10/100BaseT, no gigabit). No FXS or FXO ports at all - the PSTN side is the cellular radio, so this box is 1 Ethernet port and nothing else. SIP based (RFC3261) and Asterisk-compatible; call termination and origination, 50 mobile-to-LAN and 50 LAN-to-mobile route entries. The radio is a GSM voice modem, not a wireless data interface, so no 'wireless' capability."
 }

@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.mi.com/global/product/redmi-note-12/specs/",
+  "notes": "Wi-Fi 5 (802.11ac, 1x1 on the 4G model, 2.4/5 GHz, 80 MHz) — no Wi-Fi 6, no OFDMA, no TWT: it drags airtime on a modern AP and is the right device for capacity tests. Cellular: LTE Cat 13 only, no 5G. USB-C 2.0 with no Ethernet support in MIUI, so no usb0 — wired tethering is not available on this model."
 }

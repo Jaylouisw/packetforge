@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.qnap.com/en/product/ts-464/specs/hardware",
+  "notes": "Onboard: 2x 2.5GbE RJ45. PCIe Gen3 x2 slot takes a 5GbE or 10GbE card (low profile, 190 mm). No management/OOB port. WOL supported on the 2.5G ports."
 }

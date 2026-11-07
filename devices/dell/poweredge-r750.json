@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/poweredge-r750-technical-guide.pdf",
+  "notes": "Onboard: 2x 1GbE LOM. OCP 3.0 (x8) for a 10/25GbE mezzanine card; up to 8x PCIe Gen4 slots for stand-up NICs/GPUs. Dedicated iDRAC9 Ethernet port."
 }

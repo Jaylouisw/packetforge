@@ -3,61 +3,210 @@
   "model": "Velocity V6",
   "label": "Velocity V6 OLT",
   "category": "olt",
-  "description": "DZS Velocity V6 6RU chassis OLT with 6 access service slots, 2 fabric-card/network-facing slots and 2 management slots, scaling to 96 GPON/XGS-PON ports (24,000+ subscribers). This spec counts one V2-LC-NGPC16-5 any-PON card - 16 SFP+ PON ports (gpon1/1-16) - plus 2x 100GE QSFP28 and 4x 10GE SFP+ uplinks on the redundant AEHG2/AETG4 fabric card, and 1 management port.",
+  "description": "DZS Velocity V6 (6U: 6 access service slots, 2 fabric/network-facing slots, 2 management slots) with one NGPC16-5 GPON/XGS-PON combo card in service slot 1 - 16 PON ports on the card. The same card carries its two 100GE uplinks as ports 17 and 18, so no separate fabric card is needed for this configuration.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "dhcp-server",
-    "dhcp-client"
+    "dhcp-server"
   ],
-  "portTemplate": {
-    "prefix": "gpon1/",
-    "start": 1,
-    "count": 16,
-    "type": "pon",
-    "speed": "10G",
-    "connector": "sc-apc",
-    "speedCaps": [
-      2488,
-      9953
-    ]
-  },
   "interfaces": [
     {
-      "name": "qsfp1/1",
-      "type": "ethernet",
-      "speed": "100G"
+      "name": "olt1/1",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "qsfp1/2",
-      "type": "ethernet",
-      "speed": "100G"
+      "name": "olt1/2",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "xge1/1",
-      "type": "ethernet",
-      "speed": "10G"
+      "name": "olt1/3",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "xge1/2",
-      "type": "ethernet",
-      "speed": "10G"
+      "name": "olt1/4",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "xge1/3",
-      "type": "ethernet",
-      "speed": "10G"
+      "name": "olt1/5",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "xge1/4",
-      "type": "ethernet",
-      "speed": "10G"
+      "name": "olt1/6",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
     },
     {
-      "name": "mgmt0",
+      "name": "olt1/7",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/8",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/9",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/10",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/11",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/12",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/13",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/14",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/15",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "olt1/16",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "100ge1/1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "100ge1/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://amt.com/wp-content/uploads/2024/10/V6_Datasheet-1.pdf"
 }

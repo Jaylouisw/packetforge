@@ -36,5 +36,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.supermicro.com/en/products/system/1u/1029/sys-1029u-tr4.php",
+  "notes": "The 4x 1GbE RJ45 ports are NOT on the motherboard: they come from the AOC-UR-i4G (i350AM4) riser card. 10GbE requires a different AOC in the Ultra riser or a PCIe slot (up to 3x PCIe 3.0 x16). IPMI is a dedicated RJ45 port (ASPEED BMC) - separate network."
 }

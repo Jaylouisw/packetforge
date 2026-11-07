@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.amazon.com/dp/B09B8V1LZ3",
+  "notes": "Wireless only - 2.4/5 GHz 802.11a/b/g/n/ac, no RJ45, no PoE; 15 W USB-C power adapter. Always-on cloud sessions keep a NAT mapping and a steady trickle of traffic, which is the realistic background load in a home lab."
 }

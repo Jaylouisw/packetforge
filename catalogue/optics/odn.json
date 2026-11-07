@@ -304,5 +304,63 @@
     "technology": "splice tray + pigtail + adapter",
     "sourceUrl": "https://www.fs.com/products/168839.html",
     "note": "Fusion splice ~0.1 dB plus SC/APC adapter 0.2 dB; use 0.3 dB per ODF pass-through in loss budgets"
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-upc-apc",
+    "partNumber": "SMSCSX",
+    "model": "FS SMSCSX fiber patch cable, 1 fiber, SC/UPC simplex to SC/APC simplex, OS2 9/125um, 2.0mm, riser",
+    "endA": "sc-upc",
+    "endB": "sc-apc",
+    "connector": "sc",
+    "fiber": "smf",
+    "fiberGrade": "G.657.A1 (compatible with G.652.D)",
+    "lengthM": [
+      1,
+      2,
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.fs.com/products/96103.html",
+    "note": "Hybrid UPC/APC assembly: SC/UPC (flat, blue) on one end, SC/APC (8 degree, green) on the other. It exists because the OLT PON module is SC/UPC (FS GSFP-43-20C, XGS-SFP-52-20N2I ship UPC) while the ODN side is SC/APC, and those two ferrules cannot be mated directly. Factory-terminated, so the polish change happens inside the assembly and is specified at <=0.3 dB insertion loss (UPC return loss >=50 dB, APC >=60 dB). Stocked in 1/2/3 m, longer and mixed-polish lengths made to order."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-upc-apc",
+    "partNumber": "SMLCSX",
+    "model": "FS SMLCSX fiber patch cable, 1 fiber, LC/UPC simplex to LC/APC simplex, OS2 9/125um, 2.0mm, riser",
+    "endA": "lc-upc",
+    "endB": "lc-apc",
+    "connector": "lc",
+    "fiber": "smf",
+    "fiberGrade": "G.657.A1 (compatible with G.652.D)",
+    "lengthM": [
+      1,
+      2,
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.fs.com/products/123906.html",
+    "note": "The LC equivalent of SMSCSX, for SFP/SFP+ PON ports (some OLT and ONT modules are LC) meeting an APC ODN. Same argument: one flat and one angled endface on a single factory assembly, <=0.3 dB IL, UPC >=50 dB / APC >=60 dB return loss. Stocked in 1/2/3 m, made to order beyond that."
   }
 ]

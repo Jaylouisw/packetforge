@@ -17,7 +17,12 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeOut": 60
     }
+  ],
+  "sourceUrl": "https://www.phihong.com/products/power-over-ethernet/poe60u-1bt-2-r/",
+  "role": [
+    "802.3bt-type-3"
   ]
 }

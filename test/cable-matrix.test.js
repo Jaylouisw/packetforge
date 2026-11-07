@@ -180,9 +180,9 @@ const EXPECTED_ROWS = [
   ['lc-upc', 'lc-apc', 'refuse:polish'],
 
   // ---- LC/UPC patch-panel ferrule: same geometry as lc-upc ----
-  ['lc', 'lc', 'accept'],
-  ['lc', 'lc-upc', 'accept'],
-  ['lc', 'lc-apc', 'refuse:polish'],
+  // NOTE: there is deliberately no 'lc' row. 'lc' is the CONNECTOR a datasheet names; the
+  // cages are lc-upc and lc-apc, because the polish decides what mates. CAGE_ALIAS resolves
+  // the bare token, so a spec declaring connector:"lc" presents an lc-upc cage.
 
   // ---- subscriber access: each class has its own connector, all self-mating ----
   ['coax', 'coax', 'accept'],
@@ -214,7 +214,7 @@ const EXPECTED_ROWS = [
   ['sc-upc', '*', 'refuse'],
   ['lc-upc', '*', 'refuse'],
   ['lc-apc', '*', 'refuse'],
-  ['lc', '*', 'refuse'],
+
   ['coax', '*', 'refuse'],        // F-connector: not an RJ45, not a ferrule
   ['dsl', '*', 'refuse'],         // RJ11: narrower than RJ45, keyed differently
   ['powerline', '*', 'refuse'],   // mains pins meet nothing on a network box
@@ -687,7 +687,12 @@ console.log('  unused cages         : ' + (unusedCages.length ? unusedCages.join
 
 const failed = findings > 0 || unprobed.length > 0;
 console.log('');
-console.log(failed
-  ? 'FAILED: ' + findings + ' finding(s) against the specification.'
-  : 'OK: every pair matches the specification.');
+if (failed) {
+  const reasons = [];
+  if (findings > 0) reasons.push(findings + ' finding(s) against the specification');
+  if (unprobed.length) reasons.push(unprobed.length + ' cage(s) with no representative device: ' + unprobed.join(', '));
+  console.log('FAILED: ' + reasons.join('; ') + '.');
+} else {
+  console.log('OK: every pair matches the specification.');
+}
 process.exit(failed ? 1 : 0);

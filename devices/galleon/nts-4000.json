@@ -20,5 +20,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.ion.org/ptti/upload/files/1392_NTS-4000.pdf",
+  "notes": "Galleon datasheet: 'Std. version of product incl. 2x LAN (PoE) Ethernet (RJ45) dedicated for NTP/SNTP. Optionally NTS-4000 can be equipped with max. 6x LAN interfaces'. Physical I/O line: '2-6 LAN Ethernet 10/100 Base-T (RJ45), 2x RS232C (D-SUB9), 1PPS (BNC)'. The older NTS-4000-S/-GPS-R single-port variants are configured from a Windows utility and support DHCP or static addressing."
 }

@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/access/vg310_vg320/hardware/installation/guide/bm_vg310_vg_320_voice/bm_vg310_vg_320_voice_chapter_01.html",
+  "notes": "Cisco hardware installation guide: chassis provides two 10/100/1000BASE-T gigabit Ethernet ports, an EHWIC slot plus VIC/VWIC slots, external compact flash, AC and DC power inputs on the VG310. The 24 FXS ports (RJ-21) are analog and not modelled; the VG320 is the 48-port sibling. Runs Cisco IOS with CLI/SNMPv3, PVDM3 DSP for transcoding and conferencing, T.38 fax, SRTP/TLS. The EHWIC/VIC slots are empty by default and cannot be modelled as fixed ports."
 }

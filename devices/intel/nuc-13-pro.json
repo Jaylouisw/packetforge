@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.asus.com/us/displays-desktops/nucs/nuc-mini-pcs/asus-nuc-13-pro/techspec/",
+  "notes": "One 2.5G RJ45 only; the second Thunderbolt 4 port can carry a 10G/2.5G Thunderbolt NIC but that adapter is not modelled. Kit model NUC13ANHi7 already exists in the catalogue with wlan0 at 1G - AX211 is a 2x2 160 MHz Wi-Fi 6E part, so 2.5G is the more accurate radio figure."
 }

@@ -18,12 +18,14 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "radio0",
       "type": "wireless",
       "speed": "867M"
     }
-  ]
+  ],
+  "sourceUrl": "https://dl.ui.com/qsg/PBE-5AC-400/PBE-5AC-400_EN.html"
 }

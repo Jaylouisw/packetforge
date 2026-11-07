@@ -13,72 +13,144 @@
     {
       "name": "A-10g0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "A-10g1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "B-10g0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "B-10g1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "A0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "A1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "A2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "A3",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "B0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "B1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "B2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "B3",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "mgmt-a",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "mgmt-b",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://downloads.dell.com/topicspdf/pwrstr-500t-hwg_en-us.pdf",
+  "notes": "Per the Hardware Information Guide each embedded module = 1 x 4-port card + 2 fixed 10GbE optical ports + system-management and service RJ-45 LAN connectors (+ 2 I/O module slots per node). Front-end card choice is 4-port 25GbE SFP28, 4-port 10GBase-T or 4-port 16/32G FC; 25GbE modelled. The per-node service port is a support-only interface and is not modelled."
 }

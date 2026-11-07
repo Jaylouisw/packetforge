@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://lenovopress.lenovo.com/lp1391.pdf",
+  "notes": "Modelled with the 2x 1GbE LOM selection. The LOM connector and the OCP 3.0 slot are both factory-selectable, so a 10GbE LOM or a 10/25GbE OCP card can replace eth0/eth1 - the onboard copper ports are what is drawn here. Up to 3x PCIe 4.0 slots. XCC has its own 1GbE RJ-45 port."
 }

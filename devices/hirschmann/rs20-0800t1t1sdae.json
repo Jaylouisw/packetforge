@@ -50,5 +50,6 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.farnell.com/datasheets/1733221.pdf"
 }

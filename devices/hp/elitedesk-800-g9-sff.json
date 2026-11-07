@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www8.hp.com/h20195/v2/GetDocument.aspx?docname=c08017769",
+  "notes": "1GbE (Intel I219-LM) RJ45 on the rear, standard across 800 G9 SFF SKUs. Wi-Fi 6E is an optional M.2 module; base builds are wired-only, so no wlan0 is modelled."
 }

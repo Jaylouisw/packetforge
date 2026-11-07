@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
@@ -26,5 +27,7 @@
       "type": "wireless",
       "speed": "4.8G"
     }
-  ]
+  ],
+  "sourceUrl": "https://documentation.meraki.com/Wireless/Install_and_Get_Started/Installation_Guides/MR56_Installation_Guide",
+  "notes": "Port is 1/2.5/5GBASE-T (802.3bz) - modelled at its 5G maximum; a 2.5G or 1G switch port will cap it. 30W max on 802.3at; the separate WIDS/WIPS and BLE radios are not modelled. Single Ethernet port, no USB."
 }

@@ -15,7 +15,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": 25.5
     },
     {
       "name": "eth1",
@@ -37,5 +38,7 @@
       "type": "wireless",
       "speed": "4.8G"
     }
-  ]
+  ],
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r760/ds-commscope-r760.html",
+  "notes": "Full function needs 802.3bt / PoH (uPoE, 36W); on 802.3at 25.5W it runs 10GbE but drops the 1GbE port, USB, IoT and TX power. Modelled at 25.5W as the minimum 802.3at class."
 }

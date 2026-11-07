@@ -13,32 +13,64 @@
     {
       "name": "e0c",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "e0d",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "e0e",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "e0f",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "mgmt-a",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "mgmt-b",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://docs.netapp.com/us-en/ontap-systems/a250/overview.html",
+  "notes": "NetApp lists onboard I/O as 4 x 25GbE and 2 x 1GbE management ports per system (per-system totals: 20 x 25GbE / 16 x 32G FC / 4 x 100GbE / 8 x 12Gb SAS once the 4 PCIe slots are populated). Storage-side SAS ports and the cluster-interconnect ports are internal to the HA pair and not modelled."
 }

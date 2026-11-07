@@ -3,7 +3,7 @@
   "model": "EtherHaul 1200FX",
   "label": "Siklu EtherHaul 1200FX",
   "category": "ptp",
-  "description": "Siklu EtherHaul 1200FX - 71-86 GHz E-band radio, 1 Gbps full duplex; 2x 1G RJ45 copper ports with PoE.",
+  "description": "Siklu EtherHaul 1200FX - 71-76/81-86 GHz E-band FDD radio, 1 Gbps full duplex with hitless adaptive bandwidth/coding/modulation; 2x 1G RJ45 copper ports (PoE powered, usable for cascade or ring).",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 40
     },
     {
       "name": "eth1",
@@ -28,5 +29,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#06b6d4"
+  "color": "#f97316",
+  "sourceUrl": "https://www.winncom.com/pdf/Siklu_EtherHaul_1200T_F/Siklu_EtherHaul-1200_Datasheet.pdf"
 }

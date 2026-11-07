@@ -19,7 +19,12 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -51,5 +56,6 @@
       "type": "wireless",
       "speed": "1200M"
     }
-  ]
+  ],
+  "sourceUrl": "https://sg.store.ui.com/sg/en/category/all-fiber/products/ufiber-wifi6-gpon-cpe"
 }

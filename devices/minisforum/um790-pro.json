@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://store.minisforum.com/products/minisforum-um790-pro-mini-pc",
+  "notes": "One 2.5G RJ45, no second wired NIC. USB4/Thunderbolt adapters ignored per the no-USB-NIC rule."
 }

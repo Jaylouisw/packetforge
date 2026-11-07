@@ -5,66 +5,147 @@
   "category": "splitter",
   "description": "4-channel CWDM optical add/drop multiplexer on 1470/1490/1510/1530 nm, dual-fibre east-and-west configuration with two duplex LC/UPC line ports plus an add and a drop port per channel (12 LC/UPC ports). Thin-film-filter design: add/drop insertion loss <2.4 dB, express bypass loss <3.0 dB, adjacent-channel isolation >=30 dB, return loss >=45 dB, passive.",
   "capabilities": [],
+  "splitRatio": "1:4",
+  "channelCount": 4,
+  "channelPlan": "1470 / 1490 / 1510 / 1530 nm, 20 nm spacing, +/-6.5 nm passband",
+  "insertionLossDb": 2.4,
+  "bypassInsertionLossDb": 3,
+  "returnLossDb": 45,
+  "technology": "TFF",
+  "formFactor": "FMU plug-in module (2-slot 1U chassis)",
   "interfaces": [
     {
       "name": "lineW-in",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "lineW-out",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "lineE-in",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "lineE-out",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "add1470",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "drop1470",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "add1490",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "drop1490",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "add1510",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "drop1510",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "add1530",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "drop1530",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://img-en.fs.com/images/PDF/fs-cwdm-oadm-series.pdf"
 }

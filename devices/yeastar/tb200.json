@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.yeastar.com/bri-voip-gateway/",
+  "notes": "Yeastar TB series spec table: TB200 = 2 BRI ports, LAN = 1 x 10/100 Mbps (the TB400 doubles BRI to 4; neither has gigabit). BRI ports are RJ-45 physically but carry ISDN S0/T0 telephony, not Ethernet, so they are excluded from interfaces - this device therefore models exactly one network port. SIP over UDP/TCP/TLS/SRTP, G.711/G.722/G.726/G.729A/GSM/ADPCM, RFC2833/SIP INFO/in-band DTMF, DHCP/DDNS/firewall/static route."
 }

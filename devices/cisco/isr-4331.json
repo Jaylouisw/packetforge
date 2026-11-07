@@ -22,32 +22,58 @@
     {
       "name": "Gi0/0/0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "Gi0/0/0-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "Gi0/0/0-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi0/0/0",
+      "comboRole": "sfp"
     },
     {
       "name": "Gi0/0/1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "Gi0/0/1-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "Gi0/0/1-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi0/0/1",
+      "comboRole": "sfp"
     },
     {
       "name": "Gi0/0/2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "Gi0/0/2-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "Gi0/0/2-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi0/0/2",
+      "comboRole": "sfp"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/routers/4000-series-integrated-services-routers-isr/data_sheet-c78-732542.pdf",
+  "notes": "ISR4331/K9: \"3 onboard GE, 2 NIM slots, 1 ISC slot, 1 SM slot\". Hardware installation guide, \"Dual Mode GE or SFP Ports\": the SFP cage shares the physical port with the RJ-45 of the same number and only one media can be active, so each GE port is modelled as a combo pair. GigabitEthernet0 is the separate 10/100/1000 management port. The SFP cages accept 1000BASE-SX/LX/ZX and 100 Mb/s SFPs; PoE+ is not fitted on the 4331 (only 4451-X and 4351 have front-panel PoE+)."
 }

@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://frame.work/laptop13?tab=specs",
+  "notes": "Ethernet exists only as an Expansion Card: the 2.5GbE RJ45 card occupies one of the four slots, so the port is present only if the card is fitted. Wi-Fi 7 (RZ717) is always onboard - perfect for modelling a host whose wired port is optional hardware."
 }

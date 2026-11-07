@@ -23,32 +23,57 @@
     {
       "name": "line1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line5",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line6",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.ciena.com/products/waveserver"
 }

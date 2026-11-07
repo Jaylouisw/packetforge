@@ -19,7 +19,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hp.com/us-en/shop/pdp/hp-officejet-pro-9015e-all-in-one-printer",
+  "notes": "Both wired (10/100) and wireless (2.4/5 GHz 802.11b/g/n) - the classic dual-homed endpoint that breaks naive one-IP-per-device models. No PoE; 100-240 VAC external adapter."
 }

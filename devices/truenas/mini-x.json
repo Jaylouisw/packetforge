@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.truenas.com/wp-content/uploads/2026/02/TrueNAS_Mini_Data_Sheet_January_2026.pdf",
+  "notes": "Onboard: 2x RJ45 1/10GBASE-T (copper, speed follows the link partner) + 1x dedicated RJ45 IPMI port. The optional 2x SFP+ 10G add-on card is NOT modelled because it is an option, not onboard. IPMI is a separate management network (ASPEED BMC, iKVM over HTML5)."
 }

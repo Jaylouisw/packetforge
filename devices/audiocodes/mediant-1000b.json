@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.audiocodes.com/media/12700/ltrt-41441-mediant-1000b-gateway-and-e-sbc-hardware-installation-manual.pdf",
+  "notes": "AudioCodes hardware installation manual (LTRT-41441): up to six FXS modules of four RJ-11 ports each (24 FXS), up to six FXO modules of four ports (24 FXO), up to five BRI modules of four BRI ports each; the telephony mix depends on the ordered configuration. Up to seven LAN Ethernet interfaces - three on the CRMX module plus the SWX LAN expansion modules - which can be paired into Ethernet Groups for 1+1 port redundancy. Only the three on-board CRMX gigabit ports are modelled as fixed. E1/T1 PRI trunks are optional modules and are not modelled as Ethernet."
 }

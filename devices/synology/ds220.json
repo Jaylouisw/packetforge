@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/DiskStation/20-year/DS220+/enu/Product_Spec_DS220+_enu.pdf",
+  "notes": "Onboard: 2x 1GbE RJ45, no expansion slot at all (10GbE impossible). Both ports are data-plane; there is no separate BMC/OOB port. Link aggregation (802.3ad) and failover are supported."
 }

@@ -19,7 +19,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
+      "connector": "antenna",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.brother.com/g/b/spec.aspx?c=us&lang=en&prod=mfcl2750dw_us_eu_as",
+  "notes": "Wired (10/100) and wireless (2.4 GHz only) together. No PoE. Wireless is 2.4 GHz 802.11b/g/n, so it cannot join a 5 GHz-only SSID."
 }

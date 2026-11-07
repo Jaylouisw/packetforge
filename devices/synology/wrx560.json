@@ -53,5 +53,6 @@
     }
   ],
   "icon": "router",
-  "color": "#2563eb"
+  "color": "#2563eb",
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/DataSheet/Router/22-year/WRX560/enu/Datasheet_WRX560_enu.pdf"
 }

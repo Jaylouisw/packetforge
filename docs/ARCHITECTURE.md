@@ -89,6 +89,27 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### Transport flows
+
+A ping proves a path carries one packet; a flow proves it carries a conversation.
+`engine/flow.js` is the data model (header arithmetic, an MSS derived from the
+path MTU, a small TCP state machine, and what each device listens on) and
+`Simulator.openFlow()` drives it through the same forwarding path a ping uses, so
+every SYN and every segment can be ACL-denied, NAT-translated or left unpowered.
+
+- `POST /api/topologies/:name/flows` — `{ proto, srcDevice, dstDevice, srcPort, dstPort, bytes }`.
+  `201` with `{ flow, mss, mtu, segments, events, counters, runtime }`; `400` with
+  `{ code, reason }` when the flow could not open (`E_NO_ROUTE`, `E_ACL_DENY`,
+  `E_POE`, `E_REFUSED`, `E_UNREACHABLE`, ...).
+- `GET /api/topologies/:name/flows` — `{ flows, counters }`.
+- `GET /api/topologies/:name/flows/:id` — one flow.
+- `DELETE /api/topologies/:name/flows/:id` — four-way close (FIN, FIN-ACK, ACK).
+
+Per-device `bytesIn/bytesOut/packetsIn/packetsOut` ride along in
+`state.runtime[deviceId].counters`, so throughput can be drawn without a second
+call. The flow table belongs to the topology and dies with it (`/reset` clears it
+too).
+
 ## The UI
 
 `web/` is vanilla JavaScript + SVG with **no build step** — load it and it works.

@@ -36,5 +36,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hpe.com/psnow/doc/a00008159enw.html",
+  "notes": "Onboard: 4x 1GbE HPE 331i embedded. 'Network Choice' (NC) SKUs ship with no embedded LOM and require a FlexibleLOM instead - this spec is the embedded-LOM CTO build. FlexibleLOM is the 10/25GbE uplink slot; 3x PCIe 3.0 slots for stand-up cards. iLO 5 port is 1GbE dedicated."
 }

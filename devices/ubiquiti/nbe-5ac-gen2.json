@@ -3,12 +3,29 @@
   "model": "NBE-5AC-Gen2",
   "label": "NanoBeam 5AC Gen2",
   "category": "ptp",
-  "description": "Compact 5 GHz airMAX AC CPE/point-to-point radio, 450+ Mbps; 1x GigE port, dedicated airOS management radio.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
-  "interfaces": [
-    { "name": "eth0", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  "description": "5 GHz airMAX ac CPE / PtP radio, 19 dBi, 450+ Mbps TCP, 8.5 W max from 24 V passive PoE. Networking interface is one GbE RJ45 with PoE in plus a GbE passthrough jack; no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
   ],
-  "icon": "ptp",
-  "color": "#3b82f6"
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://dl.ubnt.com/datasheets/NanoBeam_ac/NanoBeam_AC_Gen2_DS.pdf"
 }

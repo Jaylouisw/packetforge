@@ -16,5 +16,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://iportal.se.com/Contents/docs/UPS%20NETWORK%20MANAGEMENT%20CARD%203_USER%20GUIDE.PDF",
+  "notes": "User guide (990-91148D-001, covers AP9640/AP9641/AP9643): front panel item 4 is a '10/100/1000 Base-T connector - Connects the NMC to the Ethernet network', link LED marked 'Link-RX/TX (10/100/1000)', and speed can be forced to 10 or 100 Mbps half/full duplex. Two Universal I/O ports take AP9335T/AP9335TH temperature and humidity sensors or the AP9810 dry-contact accessory. Same card minus USB/UIO is the AP9640."
 }

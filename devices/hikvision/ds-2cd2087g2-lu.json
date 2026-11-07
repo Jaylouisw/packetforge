@@ -13,7 +13,9 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000002/S000000003/S000000025/OFR000043/M000041482/Data_Sheet/DS-2CD2087G2-LU_Datasheet_V5.5.154_20201202.pdf"
 }

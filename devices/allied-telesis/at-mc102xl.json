@@ -16,9 +16,14 @@
     {
       "name": "scupc1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "sc-upc",
+      "speedCaps": [
+        100
+      ]
     }
   ],
+  "sourceUrl": "https://www.alliedtelesis.com/us/en/products/media-converters/unmanaged/mc100-series/mc102xl",
   "icon": "switch",
   "color": "#64748b"
 }

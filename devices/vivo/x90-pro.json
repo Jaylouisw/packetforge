@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.vivo.com/en/products/param/x90-pro",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, MU-MIMO, 2.4/5 GHz) — vivo's spec sheet lists Wi-Fi 6/Wi-Fi 5, so no 6 GHz even though the SoC can do more. Cellular: 5G sub-6 GHz only, no mmWave. USB-C with Ethernet adapter support (usb0). Funtouch OS; good example of a flagship that is deliberately a generation behind on Wi-Fi."
 }

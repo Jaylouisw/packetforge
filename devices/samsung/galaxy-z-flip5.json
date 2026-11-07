@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.samsung.com/uk/smartphones/galaxy-z-flip5/specs/",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160). Cellular: 5G sub-6 GHz + mmWave (US SKUs). Flip5 has no Samsung DeX, so a USB-C dock gives USB tethering plus Ethernet via adapter only — attenuate usb0 expectations in dock scenarios. Folding chassis means antenna placement changes with lid state; the simulator can model the closed state as a 3-6 dB RSSI penalty."
 }

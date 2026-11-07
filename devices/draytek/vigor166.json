@@ -1,9 +1,9 @@
 {
   "vendor": "draytek",
   "model": "Vigor166",
-  "label": "Vigor166 G.fast & VDSL2 35b supervectoring modem",
+  "label": "DrayTek Vigor166 G.fast / VDSL2 35b modem",
   "category": "modem",
-  "description": "G.fast (106/212 MHz, up to 1 Gbps) modem/router that falls back to VDSL2 profile 35b supervectoring and ADSL2+, with one RJ-11 DSL port and two gigabit Ethernet LAN ports.",
+  "description": "G.fast (106 MHz, up to 1.3 Gbit/s sync rate) DSL-to-Ethernet bridge that falls back to VDSL2 35b supervectoring at 300 Mbit/s and ADSL2+ at 20 Mbit/s, with one RJ-11 line port and two gigabit LAN ports; also runs as a mini router with NAT/DMZ host.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -18,7 +18,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "300M"
+      "speed": "300M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
@@ -30,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.draytek.ie/pdf/10722_Draytek_datasheet_Vigor166.pdf",
+  "notes": "Datasheet: 'Max G.fast Sync Rate: 1.3Gb/s', 'Max VDSL2 35b Sync Rate: 300Mb/s', 'Max VDSL2 17a Sync Rate: 100Mb/s', 'Max ADSL2+ Sync Rate: 20Mb/s'; Physical Interfaces 2 x Gigabit Ethernet + WAN1 G.Fast/VDSL RJ-11. Line side declared 300M = VDSL2 35b rung of the engine's DSL ladder; the 1.3 Gbit/s G.fast figure is a sync rate no 300M/1G port step represents, so it stays in the description."
 }

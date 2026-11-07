@@ -19,7 +19,11 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
     },
     {
       "name": "lan1",
@@ -56,5 +60,6 @@
       "type": "wireless",
       "speed": "4800M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f8648p0/zxhn-f8648p.html"
 }

@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dell.com/support/manuals/en-us/alienware-aurora-r15-desktop/alienware-aurora-r15-setup-and-specifications/ports-and-connectors",
+  "notes": "Killer E3100 2.5GbE RJ45 on the standard rear I/O (entry SKUs with the non-K CPU ship a 1GbE Realtek instead) - above-gigabit wired out of the box. Killer AX1675 Wi-Fi 6E included on most configurations, so the host can be dual-homed."
 }

@@ -19,24 +19,43 @@
     {
       "name": "9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "comboWith": "9-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "9-sfp",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "comboWith": "9",
+      "comboRole": "sfp"
     },
     {
       "name": "10",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "comboWith": "10-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "10-sfp",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "comboWith": "10",
+      "comboRole": "sfp"
     }
   ],
   "icon": "switch",
-  "color": "#a855f7"
+  "color": "#a855f7",
+  "sourceUrl": "https://www.qnap.com/en/product/qsw-m2108-2c/specs/hardware"
 }

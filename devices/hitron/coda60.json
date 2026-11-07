@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "10G"
     }
-  ]
+  ],
+  "sourceUrl": "https://us.hitrontech.com/wp-content/uploads/2024/08/DS-CODA60.pdf",
+  "notes": "DOCSIS 4.0 reference point. Datasheet: '1x RF F-Type 75 ohm Female Connector, 1x RJ-45 10GBASE-T Ethernet Port'; D4.0 support for 5 OFDM channels up to 192 MHz and 7 OFDMA channels up to 96 MHz, 32 SC-QAM DS / 8 SC-QAM US bonded; tri-split 108-1794 / 258-1794 / 492-1794 MHz DS. Deploys in DOCSIS 3.1 mode first and upgrades in place."
 }

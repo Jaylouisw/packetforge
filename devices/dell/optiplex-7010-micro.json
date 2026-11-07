@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dell.com/en-us/shop/desktop-computers/optiplex-micro/spd/optiplex-7010-micro",
+  "notes": "1GbE RJ45 (Intel I219-LM) on the rear of a 1.2 L chassis; wired-only by default - Wi-Fi 6E is an optional M.2 card. Compact desktop node for dense lab topologies."
 }

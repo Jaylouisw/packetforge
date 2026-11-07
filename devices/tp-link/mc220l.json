@@ -16,9 +16,14 @@
     {
       "name": "sfp0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/accessory/mc220l/v1/",
   "icon": "switch",
   "color": "#64748b"
 }

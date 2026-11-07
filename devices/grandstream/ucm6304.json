@@ -31,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/Datasheet_UCM6300_Series_English.pdf",
+  "notes": "'Three self-adaptive Gigabit ports (switched, routed or dual mode) with PoE+ and NAT router' - in switched mode the three ports behave as an L2 switch (hence l2-forward), in routed mode as a NAT/firewall edge (nat, l3-forward). Grandstream's 'PoE+' wording refers to the UCM6300 family's power-source capability, but no per-port PSE budget is published, so no poeOut is modelled on these ports. Power: 2 x DC 12 V jacks, 100-240 V AC adapter. Hot-standby HA, GDMS cloud management, UCM RemoteConnect NAT traversal. 4 FXS + 4 FXO RJ11 ports and the USB/SD ports are not modelled."
 }

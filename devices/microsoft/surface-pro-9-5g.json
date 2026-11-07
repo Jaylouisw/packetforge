@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.microsoft.com/en-us/surface/surface-pro-9-features-and-specs-f3f523e6-4f0e-487d-a95c-6115ab55477d",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz). Cellular: 5G sub-6 GHz only (SQ3/ARM model — the Intel i5/i7 Surface Pro 9 is Wi-Fi only and should be modelled without wwan0); nano-SIM or eSIM. Ethernet arrives via the Surface Connect dock or a USB-C/Thunderbolt 4 adapter (usb0). Full Windows endpoint: supports WPA3-Enterprise, 802.1X and IPv6 privacy extensions, so use it where client-OS behaviour matters."
 }

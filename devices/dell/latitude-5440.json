@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dell.com/support/manuals/en-us/latitude-14-5440-laptop/latitude-5440-owners-manual/external-ports-and-slots?guid=guid-1fc91ef3-b5a3-4c62-9229-cbe8084bfd5f&lang=en-us",
+  "notes": "Real RJ45 onboard at 1GbE (Intel I219-LM) - no dongle needed, which is exactly what separates it from the XPS line. Wi-Fi 6E AX211 is the secondary path; ideal 'office laptop that actually has a port' node."
 }

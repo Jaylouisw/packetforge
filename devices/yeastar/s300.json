@@ -25,5 +25,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://help.yeastar.com/en/s-series/installation/s300_overview.html",
+  "notes": "Naming trap: this box is a Yeastar S300 - Yealink does not make a PBX appliance, and several manuals/mirrors mislabel the Yeastar S300 guide as 'Yealink S300'. Ports: 'two 10/100/1000Mbps adaptive RJ45 Ethernet ports', default mode Single (LAN is the uplink, WAN disabled), Bridge (WAN becomes a PC bridge port, i.e. effectively a two-port switch) or Dual (both uplinks). Rack-mount 1U, AC 100-240 V 50/60 Hz, 6.2-59.1 W; no PoE in or out. IP services include static IP, DHCP server, VPN, firewall, VLAN, DDNS, PPPoE, QoS, static NAT, STUN - hence nat/firewall/l3-forward. 3 expansion slots for FXO/FXS/BRI/E1/GSM modules; the analog/PRI ports and the RS232 console and USB/SD ports are not modelled. Asterisk-based firmware."
 }

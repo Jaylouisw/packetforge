@@ -16,9 +16,14 @@
     {
       "name": "sfp0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "sourceUrl": "https://media.startech.com/cms/pdfs/et91000sm20_datasheet.pdf",
   "icon": "switch",
   "color": "#64748b"
 }

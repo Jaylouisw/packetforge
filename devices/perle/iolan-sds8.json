@@ -57,5 +57,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.perle.com/products/iolan-sds-rack-terminal-server.shtml",
+  "notes": "IOLAN SDS series is 8-port (SDS8) and 16-port (SDS16, superset feature set) in 1RU, each with a single 10/100/1000Base-T Ethernet. TrueSerial, SSH/SSL/AES encryption, RADIUS/TACACS+/LDAP/Kerberos auth, Modbus gateway, PPP/SLIP routing. Front, rear or DIN mounting."
 }

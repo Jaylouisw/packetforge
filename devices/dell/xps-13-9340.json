@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dell.com/en-us/shop/dell-laptops/spd/xps-13-9340-laptop",
+  "notes": "No RJ45 and no USB-A, so a USB-C dock or 2.5GbE USB-C adapter is mandatory for wired. Wi-Fi 7 (BE200-class) is the only built-in uplink - the classic thin-and-light that cannot be plugged in."
 }

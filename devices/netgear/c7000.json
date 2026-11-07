@@ -20,7 +20,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -52,5 +53,7 @@
       "type": "wireless",
       "speed": "1.3G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/c7000.pdf",
+  "notes": "Datasheet (C7000v2): '24 downstream & 8 upstream channels' DOCSIS 3.0 bonding (960 Mbps DS class), 'Four (4) 10/100/1000 Mbps (4 LAN) Gigabit Ethernet ports', IEEE 802.11 b/g/n 2.4 GHz + 802.11 a/n/ac 5 GHz. The single USB 2.0 port is excluded per batch rule. Unlike the plain modems this one carries the full routed stack: NAT, SPI firewall, DHCP server, web UI."
 }

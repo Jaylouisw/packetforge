@@ -22,42 +22,76 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeRouter_ER-8-XG_DS.pdf",
+  "notes": "Ubiquiti data sheet: \"eight 10G SFP+ ports and a Gigabit Ethernet RJ45 port for routing\" with 80 Gbps aggregate throughput. The ER-8-XG quick start guide labels the front panel \"SFP+ (eth1-eth8)\" for the hot-swappable 10G cages and \"RJ45 (eth0)\" for the 10/100/1000 port, so the copper port is eth0, not eth8. An RJ-45 serial console sits alongside but is not a data port."
 }

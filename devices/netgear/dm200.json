@@ -1,14 +1,12 @@
 {
   "vendor": "netgear",
   "model": "DM200",
-  "label": "DM200 Broadband High-Speed VDSL/ADSL modem",
+  "label": "NETGEAR DM200 VDSL/ADSL broadband modem",
   "category": "modem",
-  "description": "VDSL/VDSL2 and ADSL/ADSL2+ bridge modem with auto-detection for universal DSL, one RJ-11 DSL port and exactly one 10/100 Ethernet LAN port.",
+  "description": "Bridge-only VDSL/VDSL2 (up to profile 17a, 100 Mbit/s) and ADSL/ADSL2+ modem with auto-detection of the line mode, one RJ-11 DSL port and a single 10/100 Ethernet LAN port - no switch, no Wi-Fi, no NAT.",
   "capabilities": [
     "l2-forward",
-    "l3-forward",
-    "nat",
-    "dhcp-server",
+    "host",
     "dhcp-client",
     "http-server",
     "cli"
@@ -17,12 +15,15 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.netgear.com/images/pdf/DM200_DS_01Apr16.pdf",
+  "notes": "Datasheet 'Physical Specifications': One (1) LAN Ethernet RJ-45 port and One (1) VDSL/ADSL RJ-11 port. VDSL2 17a tops out at 100 Mbit/s, so both the line side and the single LAN port are declared 100M; the DSL line is deliberately NOT gigabit."
 }

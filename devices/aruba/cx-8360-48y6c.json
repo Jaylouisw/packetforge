@@ -1,53 +1,89 @@
 {
   "vendor": "aruba",
   "model": "CX 8360-48Y6C",
-  "label": "Aruba CX 8360-48Y6C",
+  "label": "HPE Aruba CX 8360-48Y6C",
   "category": "l3-switch",
-  "description": "Aruba CX 8360-48Y6C - 48x 25G SFP28 plus 6x 100G QSFP28 uplinks. L3 spine/aggregation switch.",
+  "description": "HPE Aruba Networking CX 8360-48Y6C 1RU leaf: 48x 1/10/25G SFP28 ports (4 MACsec) plus 6x 40/100G QSFP28 uplinks (2 MACsec). QSFP28 uplinks split 4x 25G/10G or 2x 50G in split mode.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "1/1/",
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "25G"
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
   },
   "interfaces": [
     {
       "name": "1/1/49",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/50",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/51",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/52",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/53",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/54",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
   ],
-  "icon": "switch",
-  "color": "#f59e0b"
+  "sourceUrl": "https://arubanetworking.hpe.com/techdocs/hardware/switches/8360/IGSG/Aruba_8360_IGSG.pdf"
 }

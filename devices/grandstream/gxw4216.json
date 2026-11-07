@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://documentation.grandstream.com/knowledge-base/gxw4200-series-user-manual/",
+  "notes": "Grandstream GXW4200 series manual, hardware specification table: network interface is a single LAN 10/100/1000BASE-TX RJ-45 (the GXW4216 v2 datasheet likewise lists 1 x 10M/100M/1000M auto-sensing RJ45), while the telephone interface is 16 FXS ports. Some Grandstream FAQ text claims dual gigabit ports for the series, but the datasheet and hardware spec say one, so only one interface is modelled. 16 FXS ports are analog-only and deliberately absent from interfaces. Supports Opus/iLBC/G.722 HD voice, T.38 fax, 802.1P/Q VLAN tagging, LLDP, TR-069."
 }

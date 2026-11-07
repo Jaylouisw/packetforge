@@ -96,5 +96,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.moxa.com/en/products/industrial-edge-connectivity/serial-device-servers/general-device-servers/nport-5600-series/nport-5650-16",
+  "notes": "NPort 5600 series: 5610 (RS-232), 5630 (RS-422/485), 5650 (RS-232/422/485, 8 or 16 ports). 19-inch rackmount, LCD panel + push buttons, Real COM/TCP Server/Client/UDP/Pair Connection/Reverse Telnet/RFC2217 modes, SNMPv1/v2c/v3, HTTPS (TLS 1.2). Only 10/100 - no gigabit."
 }

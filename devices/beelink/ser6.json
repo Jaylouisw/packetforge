@@ -23,5 +23,7 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://beelink-store.com/beelink-ser6/",
+  "notes": "Single 2.5G port - fine as a virtualisation host or single-legged router, not as a wired multi-port firewall. Several listings advertise '2.5G LAN ports' plural; the SER6 chassis has one RJ45."
 }

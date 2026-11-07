@@ -1,9 +1,9 @@
 {
   "vendor": "tp-link",
   "model": "TD-W9970",
-  "label": "TD-W9970 300Mbps Wireless N USB VDSL2 modem router",
-  "category": "router",
-  "description": "VDSL2/ADSL2+ modem router with a 2.4 GHz 802.11n access point, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a USB 2.0 port for storage or printer sharing.",
+  "label": "TP-Link TD-W9970 300Mbps Wireless N VDSL2 modem router",
+  "category": "modem",
+  "description": "VDSL2 (profile 17a, 100 Mbit/s) / ADSL2+ modem router with a 2.4 GHz 802.11n access point at 300 Mbit/s, one RJ-11 DSL port, four 10/100 Ethernet LAN ports and a USB 2.0 port for storage or printer sharing.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -19,7 +19,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
@@ -46,5 +47,7 @@
       "type": "wireless",
       "speed": "300M"
     }
-  ]
+  ],
+  "sourceUrl": "https://static.tp-link.com/res/down/doc/TD-W9970_V1_Datasheet.pdf",
+  "notes": "Datasheet: VDSL2 G.993.2 up to 100 Mbps, '4-port Switch', 300 Mbps 802.11n on 2.4 GHz, one interchangeable LAN/WAN port. USB 2.0 port is intentionally not modelled (USB is not a network interface in this engine)."
 }

@@ -13,42 +13,84 @@
     {
       "name": "ct0.eth0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ct0.eth1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ct1.eth0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ct1.eth1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ct0.mgmt0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "ct0.mgmt1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "ct1.mgmt0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "ct1.mgmt1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.content.shi.com/cms-content/accelerator/media/pdfs/pure-storage/pure-storage-110624-ds-flasharray-x.pdf",
+  "notes": "Pure data sheet, //X Connectivity: per controller 2 x 1/10/25Gb Ethernet/replication, 2 x 1Gb management ports and 2 x 100GbE DirectFlash shelf ports (the DFS ports are array-internal and not modelled). FC host connectivity comes from optional 2-port 32G FC cards in the three host-I/O slots per controller."
 }

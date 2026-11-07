@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://lenovopress.lenovo.com/ds0126.pdf",
+  "notes": "Onboard-equivalent: 2x 1GbE LOM adapter seated in the OCP 3.0 slot (Lenovo calls this the LOM). 10/25GbE comes from a different OCP 3.0 adapter or a PCIe 4.0 card - not onboard. Dedicated 1GbE XCC port."
 }

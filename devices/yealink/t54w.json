@@ -14,7 +14,8 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "pc",
@@ -24,7 +25,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "867M"
+      "speed": "867M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.yealink.com/docs/sip-t54w/yealink-sip-t54w-datasheet/58992982bf3248b19951ea1d9afa053c",
+  "notes": "Interface section: dual-port Gigabit Ethernet, PoE IEEE 802.3af class 3, 1x RJ9 handset + 1x RJ9 headset (neither modelled). PoE draw 2.2-5.5 W, so the class-3 reservation is what the PSE must budget, not the measured draw. Built-in Wi-Fi 802.11a/b/g/n/ac 2.4/5 GHz (433 Mbps) and Bluetooth 4.2; DECT only via the DD10K dongle, so the phone acts as a Wi-Fi or wired endpoint but not a DECT base. VLAN via 802.1p/Q, LLDP/CDP/DHCP-VLAN, 802.1X, OpenVPN, TR-069. The USB 2.0 port is not modelled."
 }

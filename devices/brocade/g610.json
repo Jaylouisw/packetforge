@@ -13,127 +13,278 @@
     {
       "name": "0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "9",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "10",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "11",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "12",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "13",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "14",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "15",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "16",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "17",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "18",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "19",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "20",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "21",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "22",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "23",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        8000,
+        16000,
+        32000
+      ]
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://docs.broadcom.com/doc/GA-DS-6231",
+  "notes": "32G Fibre Channel is not an allowed speed step, so ports are modelled at the nearest step (25G) with the real 8/16/32G rates in speedCaps. SFP+ cages carry 8/16/32G FC optics only - no copper RJ45 data port on this box; the RJ45 is management."
 }

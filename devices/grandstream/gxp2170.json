@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 6.49
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/datasheet_gxp2170_english.pdf",
+  "notes": "Datasheet: 'Dual switched auto-sensing 10/100/1000 Mbps Gigabit Ethernet ports with integrated PoE', 'Integrated Power-over-Ethernet (802.3af)', business power adapter 12 V 1 A optional. Grandstream publishes no PoE class; 5.4 W fits class 2 (6.49 W) so that is what is budgeted here - with four cascaded GXP2200EXT sidecars the same phone pulls 9.2 W and would need class 3. Built-in Bluetooth for headsets and mobile contact sync; no Wi-Fi. RJ9 headset and EHS not modelled."
 }

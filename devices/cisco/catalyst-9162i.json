@@ -13,7 +13,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
@@ -30,5 +31,6 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/wireless/catalyst-9100ax-access-points/cat-9162-series-access-points-ds.html"
 }

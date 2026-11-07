@@ -51,5 +51,6 @@
     }
   ],
   "icon": "router",
-  "color": "#2563eb"
+  "color": "#2563eb",
+  "sourceUrl": "https://download.zyxel.com/NBG6604/user_guide/NBG6604_v1_ed3.pdf"
 }

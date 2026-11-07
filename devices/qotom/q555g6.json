@@ -46,5 +46,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.qotom.net/product/tag/q555g6",
+  "notes": "6x 1G (not 2.5G): Qotom's 2.5G six-port boxes are separate SKUs (e.g. i225-V 4305U models). Also sold in 1U rack ears - modelled as a host/mini-PC since the board is the desktop unit. Sibling Q750G5 (5x 2.5G) is already in the catalogue."
 }

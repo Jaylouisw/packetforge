@@ -19,7 +19,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "wan",
@@ -51,5 +52,7 @@
       "type": "wireless",
       "speed": "300M"
     }
-  ]
+  ],
+  "sourceUrl": "https://images-eu.ssl-images-amazon.com/images/I/D1DJW32FbbS.pdf",
+  "notes": "Official user manual, Hardware Specifications / Physical Interface: 'Ethernet: 4-port 10/100 Mbps auto-crossover (MDI/MDI-X) Switch' and 'EWAN: 1 Gigabit Ethernet port (port#5) ... also serving as an Ethernet port#5 when not in EWAN use'. VDSL2 compliance lists profiles 8a-17a only (no 30a/35b), so the line is 100M. The four LAN ports really are Fast Ethernet - a common source of the 'gigabit DSL modem' defect."
 }

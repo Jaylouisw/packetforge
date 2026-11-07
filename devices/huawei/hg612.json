@@ -16,7 +16,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
@@ -28,5 +29,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.aa.net.uk/Router_-_EchoLife_HG612",
+  "notes": "AAISP support documentation: the HG612 has LAN1 (bridge to the router's WAN, PPPoE bridged) and LAN2 (management, default 192.168.1.1), both Fast Ethernet; stock firmware is locked, unlocked firmware exposes web UI + telnet ('xdslcmd'). Openreach FTTC lines are VDSL2 17a, so both LAN ports and the line are 100M - the line is not gigabit."
 }

@@ -18,7 +18,12 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     }
+  ],
+  "sourceUrl": "https://www.microchip.com/en-us/product/PD-9001GR/AT/AC",
+  "role": [
+    "midspan"
   ]
 }

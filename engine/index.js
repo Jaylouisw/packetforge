@@ -22,6 +22,7 @@ const dns = require('./dns');
 const scion = require('./scion');
 const ipv6 = require('./ipv6');
 const ra = require('./ra');
+const flow = require('./flow');
 
 module.exports = {
   net,
@@ -41,6 +42,7 @@ module.exports = {
   scion,
   ipv6,
   ra,
+  flow,
   Device,
   Interface,
   Link,

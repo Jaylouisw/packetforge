@@ -14,12 +14,18 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "sgmii1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-nokia-g-010s-p/"
 }

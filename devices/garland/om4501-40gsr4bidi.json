@@ -9,22 +9,39 @@
     {
       "name": "netA",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "netB",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "monA",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "monB",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.garlandtechnology.com/hubfs/Solutions/Generic%20Solutions/GarlandTechnology-Multi-mode%2040G-SR-BiDi%20Passive%20Fiber%20TAPs.pdf"
 }

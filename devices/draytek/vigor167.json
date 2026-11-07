@@ -1,9 +1,9 @@
 {
   "vendor": "draytek",
   "model": "Vigor167",
-  "label": "Vigor167 VDSL2 35b supervectoring / ADSL2+ modem",
+  "label": "DrayTek Vigor167 VDSL2 35b supervectoring modem",
   "category": "modem",
-  "description": "VDSL2 profile 35b supervectoring and ADSL2+ modem/router with a single RJ-11 DSL port, two gigabit Ethernet LAN ports and an SPI firewall.",
+  "description": "VDSL2 profile 35b supervectoring modem/router rated at 300 Mbit/s downlink, backward compatible with ADSL2+ at 20 Mbit/s, with one RJ-11 line port and two gigabit Ethernet LAN ports behind an SPI firewall.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -18,7 +18,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "300M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
@@ -30,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.draytek.gr/datafiles/files/Datasheet%20Vigor167.pdf",
+  "notes": "Datasheet: 1 x VDSL2 35b/ADSL2+ RJ-11, 2 x GbE RJ-45, 'Max. VDSL Speed 300 Mbps', 'Max. ADSL Speed 20 Mbps', VDSL2 profiles 8a/8b/8c/8d/12a/12b/17a/30a/35b. 35b maps to the engine's 300M DSL rung - the two LAN ports are gigabit, the line is not."
 }

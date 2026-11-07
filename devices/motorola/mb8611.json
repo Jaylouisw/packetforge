@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://en-us.support.motorola.com/app/answers/detail/a_id/176946/~/mb8611-technical-specifications",
+  "notes": "Motorola support spec page: 'One 2.5 Gigabit Ethernet (GigE) LAN port (supports 10/100/1000/2500 Mbps)', downlink up to 2,500 Mbps / uplink up to 800 Mbps, SNMP v1/v2/v3 management."
 }

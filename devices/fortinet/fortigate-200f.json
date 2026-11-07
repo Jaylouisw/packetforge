@@ -1,95 +1,218 @@
 {
   "vendor": "fortinet",
   "model": "FortiGate 200F",
-  "label": "FortiGate 200F",
-  "category": "firewall",
-  "description": "Fortinet FortiGate 200F - 18x GE RJ45 (1x MGMT, 1x HA, 16x switch), 8x GE SFP, 4x 10G SFP+ (2 data, 2 FortiLink).",
+  "label": "FortiGate 200F secure SD-WAN gateway",
+  "category": "router",
+  "description": "1 RU campus/enterprise-branch secure SD-WAN gateway at 27 Gbps firewall and 13 Gbps IPsec: 16 x 1G RJ-45 switch ports, 8 x 1G SFP cages (17-24), 4 x 10G SFP+ ports (X1-X2 network, X3-X4 FortiLink) and dedicated MGMT and HA RJ-45 ports. Fixed chassis, no expansion slots.",
   "capabilities": [
     "l3-forward",
-    "firewall",
     "nat",
+    "firewall",
+    "cli",
     "dhcp-server",
-    "cli"
+    "dhcp-client",
+    "http-server"
   ],
-  "portTemplate": {
-    "prefix": "internal",
-    "start": 1,
-    "count": 16,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "x3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "x4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
     {
       "name": "mgmt",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "ha1",
+      "name": "ha",
       "type": "ethernet",
       "speed": "1G"
-    },
-    {
-      "name": "sfp1",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp2",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp3",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp4",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp5",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp6",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp7",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "sfp8",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "x1",
-      "type": "ethernet",
-      "speed": "10G"
-    },
-    {
-      "name": "x2",
-      "type": "ethernet",
-      "speed": "10G"
-    },
-    {
-      "name": "fortilink1",
-      "type": "ethernet",
-      "speed": "10G"
-    },
-    {
-      "name": "fortilink2",
-      "type": "ethernet",
-      "speed": "10G"
     }
   ],
-  "icon": "firewall",
-  "color": "#ef4444"
+  "sourceUrl": "https://cdn.blueally.com/avfirewalls/datasheets/fortigate/fortigate-200f-series.pdf",
+  "notes": "FortiGate 200F data sheet: \"18 x GE RJ45 (including 1 x MGMT port, 1 x HA port, 16 x switch ports), 8 x GE SFP slots, 2 x 10GE SFP+ slots, 2 x 10GE SFP+ FortiLink slots\". Front panel callouts: 2x GE RJ45 HA/MGMT, 16x GE RJ45, 2x 10GE SFP+ (X1-X2), 2x 10GE SFP+ FortiLink (X3-X4), 8x GE SFP. No shared media pairs on this model, unlike the 100F."
 }

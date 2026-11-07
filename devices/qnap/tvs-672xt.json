@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://download.qnap.com/TechnicalDocument/Storage/SMB%20NAS/tvs-x72xt/tvs-x72xt-ug-en-us.pdf",
+  "notes": "Onboard: 1x 10GbE (10GBASE-T copper) + 2x 1GbE RJ45. The 10G port is copper, not a cage. 2x Thunderbolt 3 ports are not Ethernet and are not modelled. PCIe Gen3 x16 slot for a 25GbE card. No OOB management port."
 }

@@ -12,182 +12,218 @@
     {
       "name": "ds1",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds2",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds3",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds4",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds5",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds6",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds7",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds8",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds9",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds10",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds11",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "ds12",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us1",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us2",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us3",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us4",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us5",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us6",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us7",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us8",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us9",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us10",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us11",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us12",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us13",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us14",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us15",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us16",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us17",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us18",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us19",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us20",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us21",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us22",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us23",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us24",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "uplink1",
@@ -258,5 +294,7 @@
       "name": "console",
       "type": "console"
     }
-  ]
+  ],
+  "sourceUrl": "https://docsis.org/files/C3200_datasheet_v24.pdf",
+  "notes": "Casa C3200 datasheet: 3RU chassis, 'one Switch and Management Module slot and six slots for DOCSIS interface modules'. SMM = '12-port GbE copper or fiber' uplinks plus '10/100BaseT management port' and 'RS232 serial port (DB9)'. DQM16 = 16 downstream QAM channels over 4 F-type 75 ohm ports (4 channels/port, ~152 Mbps per port); DCU16 = 16 upstream channels in 8 F-type ports (2 channels/port, ~61 Mbps per port). Fully populated 3 x DQM16 + 3 x DCU16 gives the datasheet's headline 48DS x 48US density: 12 downstream and 24 upstream service-group F-connectors, each rated 100M in engine terms rather than the chassis aggregate. Category is 'modem' per batch convention - the repo's other CMTS entries (E6000, cBR-8, C100G) use 'router'."
 }

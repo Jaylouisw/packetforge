@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.samsung.com/in/tablets/galaxy-tab-s/galaxy-tab-s9-wi-fi-beige-128gb-sm-x710nzeainu/",
+  "notes": "Wi-Fi 6E — Samsung lists 802.11a/b/g/n/ac/ax on 2.4/5/6 GHz, HE160, MIMO, 1024-QAM. Cellular (5G SKU SM-X716B): 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C 3.2 Gen 1 with full DeX, so a dock gives a wired interface (usb0) alongside Wi-Fi — the canonical 'tablet docked on a desk while still on Wi-Fi' model."
 }

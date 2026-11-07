@@ -21,9 +21,11 @@
     {
       "name": "ghn0",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "coax"
     }
   ],
+  "sourceUrl": "https://shop-en.allnet.de/Products/Network-active-components/HomePN/G.hn-Coax/",
   "icon": "switch",
   "color": "#64748b"
 }

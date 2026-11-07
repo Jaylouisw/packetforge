@@ -1,15 +1,19 @@
 {
   "vendor": "gl-inet",
   "model": "GL-MT6000",
-  "label": "GL.iNet Flint 2 (GL-MT6000)",
+  "label": "Flint 2 (GL-MT6000) AX6000 dual-band OpenWrt router",
   "category": "router",
-  "description": "Wi-Fi 6 AX6000 home router with two 2.5G ports, four 1G LAN ports and USB 3.0.",
+  "description": "GL.iNet Flint 2 (GL-MT6000) - Wi-Fi 6 AX6000 dual-band OpenWrt router (2.4 GHz 1148 Mbps 4x4, 5 GHz 4804 Mbps 4x4) with two 2.5G ports (one WAN, one LAN) and four 1G LAN ports. Two multi-gig ports make it usable as a 2.5G router between a multigig modem and a 2.5G switch.",
   "capabilities": [
+    "wireless",
+    "l2-forward",
     "l3-forward",
-    "cli",
     "nat",
     "dhcp-server",
-    "wireless"
+    "dhcp-client",
+    "firewall",
+    "http-server",
+    "cli"
   ],
   "interfaces": [
     {
@@ -45,9 +49,15 @@
     {
       "name": "radio0",
       "type": "wireless",
+      "speed": "1.1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
       "speed": "4.8G"
     }
   ],
   "icon": "router",
-  "color": "#0ea5e9"
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.gl-inet.com/products/gl-mt6000/"
 }

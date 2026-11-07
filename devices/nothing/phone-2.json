@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://nothing.tech/products/phone-2",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E/7 despite the Snapdragon 8+ Gen 1 platform. Cellular: 5G sub-6 GHz only, no mmWave; LTE Cat 20 fallback. USB-C is USB 2.0 with Ethernet adapter support (usb0) but real throughput is ~100M. Near-AOSP Nothing OS is handy for reproducible Wi-Fi client behaviour."
 }

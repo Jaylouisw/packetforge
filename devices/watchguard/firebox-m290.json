@@ -22,5 +22,6 @@
   },
   "interfaces": [],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html"
 }

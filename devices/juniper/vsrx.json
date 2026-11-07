@@ -64,5 +64,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.juniper.net/documentation/us/en/software/vsrx/vsrx-vmware/vsrx-vmware.pdf",
+  "notes": "vSRX on VMware specification table: \"vNICs: Up to 10 vNICs (SR-IOV)\"; interface mapping is fxp0 for out-of-band management and ge-0/0/0 for the first traffic vNIC. Cloud variants are smaller (AWS and GCP cap at 8 interfaces, Nutanix 8). Modelled with 10 vNICs at 1G because the link rate is whatever the hypervisor NIC provides, not a fixed optic."
 }

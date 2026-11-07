@@ -8,6 +8,124 @@
     "l2-forward",
     "cli"
   ],
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
+    },
+    {
+      "name": "c100g1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "c100g8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    }
+  ],
   "portTemplate": {
     "prefix": "c10g",
     "start": 1,
@@ -20,66 +138,5 @@
       10000
     ]
   },
-  "interfaces": [
-    {
-      "name": "line1",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "line2",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "line3",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "line4",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g1",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g2",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g3",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g4",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g5",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g6",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g7",
-      "type": "ethernet",
-      "speed": "100G"
-    },
-    {
-      "name": "c100g8",
-      "type": "ethernet",
-      "speed": "100G"
-    }
-  ]
+  "sourceUrl": "https://www.ciena.com/products/6500"
 }

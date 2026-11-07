@@ -19,7 +19,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -44,22 +45,28 @@
     {
       "name": "fxs1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "fxs2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "wlan1",
       "type": "wireless",
-      "speed": "600M"
+      "speed": "600M",
+      "connector": "antenna"
     },
     {
       "name": "wlan2",
       "type": "wireless",
-      "speed": "4.8G"
+      "speed": "4.8G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://gditechnology.com/manuals/Technicolor_CGA4236_specs.pdf",
+  "notes": "Spec sheet: '4 GE LAN ports (1 2.5 Gigabit Ethernet and 3 GE LAN ports optional)', 2x2 OFDM(A) D3.1 / 32x8 D3.0, 2 FXS, 1 USB 3.1 Gen 1, Wi-Fi 6 3x3 @2.4 GHz + 4x4 @5 GHz. Coax rated 5 Gbps DS (3.6 Gbps with 2 OFDM, up to 5 Gbps with 32 SC-QAM added). Unlike the pure modems above this one routes, NATs and serves DHCP, so it terminates the LAN."
 }

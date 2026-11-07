@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://documents.westerndigital.com/content/dam/doc-library/en_us/assets/public/wd/product/nas/my_cloud/pro_pr_4100/product-brief-my-cloud-pro-series-pr4100.pdf",
+  "notes": "Onboard: 2x Gigabit Ethernet RJ45. No PCIe slot, no OOB management port. USB 3.0 expansion ports are for drives only."
 }

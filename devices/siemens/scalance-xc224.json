@@ -131,5 +131,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.industry.siemens.com/teddatasheet/?format=pdf&mlfbs=6GK5224-0BA00-2AC2&language=en&caller=SIOS",
+  "notes": "The XC224-4C G sibling variant adds Gigabit copper and four combo cages; it is a different part number and is not modelled here."
 }

@@ -13,7 +13,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 22
     },
     {
       "name": "radio0",
@@ -22,5 +23,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/af-60-lr"
 }

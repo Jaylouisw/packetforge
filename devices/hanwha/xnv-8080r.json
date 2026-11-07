@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/XNV-8080R",
+  "notes": "PoE class 802.3af Class 3, 12.95 W (the datasheet quotes 12.95 W as the PoE maximum, i.e. it uses the whole class). Wired only, but gigabit. Rare case of a camera that also takes 24 VAC, so legacy installs can bypass the PoE switch entirely."
 }

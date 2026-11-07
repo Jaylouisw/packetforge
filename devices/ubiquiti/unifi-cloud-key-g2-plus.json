@@ -14,7 +14,9 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://dl.ui.com/ds/uck-g2-plus_ds.pdf"
 }

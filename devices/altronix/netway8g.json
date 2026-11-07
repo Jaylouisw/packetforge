@@ -53,42 +53,55 @@
     {
       "name": "poe1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     }
+  ],
+  "sourceUrl": "https://www.altronix.com/products/NetWay8G",
+  "role": [
+    "midspan",
+    "managed"
   ]
 }

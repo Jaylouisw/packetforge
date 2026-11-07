@@ -24,5 +24,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/datasheet_ht814_english.pdf",
+  "notes": "Datasheet interfaces: four (4) RJ-11 FXS ports, two (2) 10/100/1000 Mbps RJ-45 ports. The four FXS lines are analog telephony and are not modelled as interfaces; only the WAN/LAN pair is. The LAN side is a switched NAT router, hence dhcp-server/nat/firewall on top of the voice stack. T.38 fax relay, G.711/G.722/G.723.1/G.729A/B/G.726-32, TLS/SRTP, TR-069 and XML provisioning, 3-way conferencing per port."
 }

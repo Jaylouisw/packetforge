@@ -24,42 +24,75 @@
     {
       "name": "line1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line5",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line6",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line7",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line8",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.nokia.com/asset/i/212490/"
 }

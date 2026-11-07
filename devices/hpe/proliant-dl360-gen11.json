@@ -14,17 +14,29 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ilo",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hpe.com/psnow/doc/a50004306enw.html",
+  "notes": "IMPORTANT: Gen11 has zero onboard data NICs. eth0/eth1 represent the 2x 10/25GbE SFP28 OCP 3.0 adapter in OCP slot 1 (a Broadcom 57414-class card), not motherboard ports. Two OCP 3.0 x16 slots exist; a 1GbE copper OCP card is an alternative. iLO 6 port is 1GbE dedicated."
 }

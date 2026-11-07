@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 13
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.poly.com/content/dam/www/products/phones/vvx/vvx-450/datasheet-vvx-450.pdf",
+  "notes": "Datasheet: 'Two-port Gigabit Ethernet switch 10/100/1000Base-TX across LAN and PC ports', 'built-in auto sensing IEEE 802.3af Power over Ethernet (Class 0) 13 W (maximum)'. Class 0 is the full 13.0 W PD budget - a fat load for an access port and a good test case for a switch that only does 802.3af class 2/3. Up to 34 SIP registrations, LDAP, SRTP/TLS. Wi-Fi only via an optional USB adapter, so no wireless interface is modelled; the two USB 2.0 Type-A ports are not modelled."
 }

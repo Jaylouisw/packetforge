@@ -1,33 +1,48 @@
 {
   "vendor": "arista",
   "model": "7050CX3-32S",
-  "label": "7050CX3-32S",
+  "label": "Arista 7050CX3-32S",
   "category": "l3-switch",
-  "description": "Arista 7050CX3-32S - 1RU 100G spine/leaf: 32x 100G QSFP28 (Ethernet1-32) plus 2x 1/10G SFP+ (Ethernet33-34), 6.4 Tbps.",
+  "description": "Arista 7050X3 series 1RU 100G switch used as a dense 100G leaf or collapsed spine: 32x 100G QSFP28 ports plus 2x 1/10G SFP+ ports, 6.4 Tbps. Every QSFP28 runs 40G/100G or breaks out to 4x 25G/10G or 2x 50G for up to 128x 25G.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "Ethernet",
     "start": 1,
     "count": 32,
     "type": "ethernet",
-    "speed": "100G"
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
   },
   "interfaces": [
     {
       "name": "Ethernet33",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "Ethernet34",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
-  "icon": "switch",
-  "color": "#0ea5e9"
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf"
 }

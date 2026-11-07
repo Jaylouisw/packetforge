@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.samsung.com/us/smartphones/galaxy-s23/specs/",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160, 1024-QAM) — first 6 GHz capable S-series for most markets: the interesting case for 6E SSID vs 5 GHz band-steering. Cellular: 5G sub-6 GHz + mmWave (US SKUs), LTE Cat 20. USB-C 3.2 Gen 1, DeX supported, Ethernet via USB-C dock (usb0)."
 }

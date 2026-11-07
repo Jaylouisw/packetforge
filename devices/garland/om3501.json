@@ -9,22 +9,47 @@
     {
       "name": "netA",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
     },
     {
       "name": "netB",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
     },
     {
       "name": "monA",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
     },
     {
       "name": "monB",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.garlandtechnology.com/products/fiber-taps"
 }

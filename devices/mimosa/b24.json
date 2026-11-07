@@ -14,12 +14,17 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 19.5
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "radio0",
@@ -28,5 +33,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://mimosa.co/sites/default/files/2024-06/Mimosa-Radisys-B24-Datasheet-DS-2023-12.pdf"
 }

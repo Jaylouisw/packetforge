@@ -13,182 +13,339 @@
     {
       "name": "c1/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c1/7",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c1/8",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c1/9",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c1/10",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c2/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c2/7",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c2/8",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c2/9",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c2/10",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c3/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "c3/7",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c3/8",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c3/9",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "c3/10",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "line1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line5",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     },
     {
       "name": "line6",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/optical/hardware/ncs/guide/b-hig-ncsinstall/b-hig-ncsinstall_chapter_010001.html"
 }

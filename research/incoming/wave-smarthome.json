@@ -1,0 +1,250 @@
+{
+  "devices": [
+    {
+      "vendor": "athom",
+      "model": "Homey Pro (2023)",
+      "label": "Athom Homey Pro (2023) smart-home hub",
+      "category": "iot",
+      "description": "Athom Homey Pro (early 2023) is a local-first home-automation controller with Zigbee 3.0, Z-Wave 700, Thread, Matter, Bluetooth LE 5.0, 433 MHz and an IR blaster, serving its own web app on the LAN. Networking is Wi-Fi only as shipped - dual-band 2.4/5 GHz 802.11 b/g/n/ac - because the box has no RJ45 jack; Ethernet is possible only through the separately sold Homey Pro Ethernet Adapter that plugs into its USB-C port.",
+      "capabilities": ["host", "http-server", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "433M" }
+      ],
+      "sourceUrl": "https://homey.app/en-us/homey-pro/"
+    },
+    {
+      "vendor": "athom",
+      "model": "Homey Bridge",
+      "label": "Athom Homey Bridge radio bridge",
+      "category": "iot",
+      "description": "Homey Bridge adds Zigbee, Z-Wave, Bluetooth LE, 433 MHz and infrared radios to Homey Cloud or to a Homey Pro as a satellite, and needs a live internet connection to work at all. Its only network interface is 2.4 GHz Wi-Fi (no 5 GHz support, no Ethernet port, powered from a USB-C supply), so it always appears on the LAN as a wireless client.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://homey.app/en-us/homey-bridge/"
+    },
+    {
+      "vendor": "hubitat",
+      "model": "Elevation C-8",
+      "label": "Hubitat Elevation C-8 home automation hub",
+      "category": "iot",
+      "description": "Hubitat Elevation C-8 is a local automation hub with Zigbee 3.0, Z-Wave 800, Matter and Bluetooth radios plus its own web administration interface. It is dual-homed on the IP side - a 10/100 RJ45 Ethernet port and built-in 2.4 GHz Wi-Fi (C-8 and later) - and Hubitat explicitly warns that the hub does not support PoE, so the Ethernet port must be fed from a normal access port.",
+      "capabilities": ["host", "http-server", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://docs2.hubitat.com/en/user-interface/settings/networking"
+    },
+    {
+      "vendor": "samsung",
+      "model": "SmartThings Station (EP-P9500)",
+      "label": "Samsung SmartThings Station hub and wireless charger",
+      "category": "iot",
+      "description": "SmartThings Station is a 15 W Qi wireless charger that doubles as a SmartThings hub with Matter support and built-in Thread, Zigbee and BLE 5.2 radios. It has no Ethernet and no PoE - the only network interface is dual-band 802.11 a/b/g/n/ac Wi-Fi in infrastructure mode at 2.4 or 5 GHz.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "433M" }
+      ],
+      "sourceUrl": "https://www.samsung.com/sec/support/model/EP-P9500TBEGKR/"
+    },
+    {
+      "vendor": "aqara",
+      "model": "Hub M3",
+      "label": "Aqara Hub M3 multi-protocol hub (PoE)",
+      "category": "iot",
+      "description": "Aqara Hub M3 is a Matter-bridging hub with Zigbee 3.0, Thread (IEEE 802.15.4), Bluetooth 5.1 and a 360-degree IR blaster, good for 127 Zigbee/Thread children. It is the rare smart-home hub with a real wired port: an RJ45 Ethernet jack that also accepts PoE, alongside dual-band 802.11 a/b/g/n/ac Wi-Fi at 2.4/5 GHz, so it can be hung on a PoE switch without a local mains outlet.",
+      "capabilities": ["host", "http-server", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "wlan0", "type": "wireless", "speed": "433M" }
+      ],
+      "sourceUrl": "https://eu.aqara.com/products/aqara-smart-hub-m3"
+    },
+    {
+      "vendor": "sonos",
+      "model": "Era 300",
+      "label": "Sonos Era 300 spatial-audio smart speaker",
+      "category": "iot",
+      "description": "Sonos Era 300 is a six-driver spatial-audio speaker with Dolby Atmos support, Sonos voice control, AirPlay 2 and Bluetooth 5.3. Networking is Wi-Fi only: Wi-Fi 6 on 802.11 a/b/g/n/ac/ax at 2.4 and 5 GHz; the speaker has no RJ45 jack, and Ethernet is reachable only through the sold-separately Sonos USB-C Combo Adapter, so treat it as a wireless client.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "1.2G" }
+      ],
+      "sourceUrl": "https://www.sonos.com/en-us/shop/era-300"
+    },
+    {
+      "vendor": "amazon",
+      "model": "Echo Show 8 (3rd gen)",
+      "label": "Amazon Echo Show 8 (3rd gen) smart display",
+      "category": "iot",
+      "description": "Echo Show 8 (3rd gen, 2023) is an 8-inch Alexa smart display that also acts as a Zigbee hub and Thread border router for Matter. Its only network interface is Wi-Fi 6E (IEEE 802.11ax) at 2.4, 5 or 6 GHz - there is no Ethernet port and no PoE, and the power lead is a USB-C supply rather than a data link.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "1.2G" }
+      ],
+      "sourceUrl": "https://www.amazon.com/dp/B0DC8ZMR1P"
+    },
+    {
+      "vendor": "google",
+      "model": "Nest Hub Max",
+      "label": "Google Nest Hub Max smart display",
+      "category": "iot",
+      "description": "Nest Hub Max is a 10-inch Google Assistant display with Chromecast built in, a camera and a Thread border router (802.15.4 at 2.4 GHz) for Matter. It is wireless-only - 802.11 b/g/n/ac Wi-Fi at 2.4 or 5 GHz plus Bluetooth 5.0 - with no Ethernet jack; the only cable it takes is its power adapter.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "433M" }
+      ],
+      "sourceUrl": "https://store.google.com/product/google_nest_hub_max_tech_specs?hl=en-US"
+    },
+    {
+      "vendor": "reolink",
+      "model": "Video Doorbell PoE",
+      "label": "Reolink Video Doorbell PoE (2K+)",
+      "category": "camera",
+      "description": "Reolink Video Doorbell PoE is a 2K+ wired doorbell camera with two-way audio, person/vehicle detection and a bundled chime. It has exactly one network interface: a single 10/100 Mbps RJ45 port fed by IEEE 802.3af (48 V active) PoE, with no Wi-Fi radio at all - one cable carries both power and the RTSP/ONVIF stream, and the alternative install is 12 V DC or existing doorbell wiring for power only.",
+      "capabilities": ["host", "http-server", "dhcp-client"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" }
+      ],
+      "sourceUrl": "https://reolink.com/us/product/reolink-video-doorbell-poe/"
+    },
+    {
+      "vendor": "aqara",
+      "model": "Smart Video Doorbell G4",
+      "label": "Aqara Smart Video Doorbell G4",
+      "category": "camera",
+      "description": "Aqara Smart Video Doorbell G4 is a 1080p battery-or-wired doorbell camera with on-device face recognition, HomeKit Secure Video and a local chime repeater. Its only network interface is 2.4 GHz 802.11 b/g/n Wi-Fi (1T1R), and it can also repeat Wi-Fi for nearby Aqara devices; there is no Ethernet port, and the USB-C socket is a 5 V/1 A power input rather than a data link.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://www.aqara.com/en/product/smart-video-doorbell-g4/specs/"
+    },
+    {
+      "vendor": "eufy",
+      "model": "Video Doorbell S330",
+      "label": "Eufy Security Video Doorbell S330 (dual camera)",
+      "category": "camera",
+      "description": "Eufy Video Doorbell S330 is a 2K dual-camera doorbell (front 160-degree lens plus a low-angle package camera) with on-device person detection, storing clips on a HomeBase 2/3 rather than in the cloud. It is wireless-only: 2.4 GHz Wi-Fi for the doorbell itself, with no Ethernet and no PoE; the doorbell wiring it accepts is 16-24 VAC for power, otherwise it runs on its battery pack.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://www.eufy.com/products/e8203111"
+    },
+    {
+      "vendor": "nvidia",
+      "model": "Shield TV Pro",
+      "label": "NVIDIA Shield TV Pro streaming box",
+      "category": "iot",
+      "description": "NVIDIA Shield TV Pro is an Android TV streaming box with AI upscaling, Dolby Vision and a Plex server role, and it is one of the few media boxes with a real wired port. It ships with a Gigabit Ethernet jack plus 802.11ac 2x2 MIMO Wi-Fi at 2.4 and 5 GHz and Bluetooth 5.0; the two USB 3.0 ports are for storage and accessories, not networking.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "wlan0", "type": "wireless", "speed": "867M" }
+      ],
+      "sourceUrl": "https://www.nvidia.com/en-us/shield/shield-tv-pro/"
+    },
+    {
+      "vendor": "google",
+      "model": "Google TV Streamer (4K)",
+      "label": "Google TV Streamer (4K) with Thread border router",
+      "category": "iot",
+      "description": "Google TV Streamer (4K) is Google's set-top box with Google TV, Matter and a built-in Thread border router for the home. Unlike the older Chromecast dongles it has a genuine wired option: one 10/100/1000 Mbps Ethernet port beside 802.11ac Wi-Fi on 2.4/5 GHz and Bluetooth 5.1, and its USB-C port is power/data rather than networking.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "1G" },
+        { "name": "wlan0", "type": "wireless", "speed": "867M" }
+      ],
+      "sourceUrl": "https://store.google.com/product/google_tv_streamer_specs?hl=en-US"
+    },
+    {
+      "vendor": "roborock",
+      "model": "S8",
+      "label": "Roborock S8 robot vacuum with LiDAR maps",
+      "category": "iot",
+      "description": "Roborock S8 is a 6000 Pa robot vacuum and sonic mop with PreciSense LiDAR navigation, multi-floor map storage and Reactive 3D obstacle avoidance. It is Wi-Fi only and 2.4 GHz only - Roborock does not support 5 GHz on its robots - with no Ethernet port, so the vacuum and its dock only ever exist on the wireless side of a lab.",
+      "capabilities": ["host", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://us.roborock.com/products/roborock-s8"
+    },
+    {
+      "vendor": "dreame",
+      "model": "X40 Ultra",
+      "label": "Dreame X40 Ultra robot vacuum and mop",
+      "category": "iot",
+      "description": "Dreame X40 Ultra is a 12000 Pa robot vacuum and mop with an extending side brush, a self-cleaning mop dock and multi-floor LiDAR maps managed from the Dreamehome app. Its only network interface is 2.4 GHz Wi-Fi (no 5 GHz support, no Ethernet port and no PoE), so it is a pure wireless client on the IoT SSID.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://global.dreametech.com/products/x40-ultra"
+    },
+    {
+      "vendor": "wallbox",
+      "model": "Pulsar Plus",
+      "label": "Wallbox Pulsar Plus 7.4-22 kW EV charger",
+      "category": "iot",
+      "description": "Wallbox Pulsar Plus is a Mode 3 AC EV charger (7.4, 11 or 22 kW) with dynamic power sharing, OCPP support and control through the myWallbox app and portal. Per Wallbox's own datasheet its connectivity is Wi-Fi plus Bluetooth only - there is no Ethernet port and no PoE, and the only cabling it takes is the supply feed and the Type 2 charge cable.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://support.wallbox.com/wp-content/uploads/2021/12/EN_Pulsar_Plus_Datasheet_English.pdf"
+    },
+    {
+      "vendor": "myenergi",
+      "model": "zappi 2.1",
+      "label": "myenergi zappi v2.1 solar-aware EV charger",
+      "category": "iot",
+      "description": "myenergi zappi v2.1 is a 7 kW single-phase or 22 kW three-phase EV charger that diverts surplus solar generation with ECO and ECO+ modes and a grid current sensor. It is one of the better-connected chargers: an RJ45 Ethernet port plus built-in 2.4 GHz 802.11 b/g/n Wi-Fi up to 150 Mbps, with a separate 868/915 MHz proprietary radio for myenergi sensors and remote monitoring.",
+      "capabilities": ["host", "http-server", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://www.myenergi.com/product/zappi-ev-charger/"
+    },
+    {
+      "vendor": "ohme",
+      "model": "Home Pro",
+      "label": "Ohme Home Pro smart EV charger",
+      "category": "iot",
+      "description": "Ohme Home Pro is a 7 kW / 11 kW tethered smart charger with a colour LCD, three control buttons and tariff-aware scheduling through the Ohme app. Connectivity ships in two variants: a Wi-Fi/Bluetooth model with 2.4 GHz 802.11 b/g/n plus Bluetooth, or a 4G model with a pre-fitted multi-network SIM; neither variant has an Ethernet port or PoE.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://ohme-ev.com/product/ohme-home-pro/"
+    },
+    {
+      "vendor": "aqara",
+      "model": "Presence Sensor FP2",
+      "label": "Aqara Presence Sensor FP2 (mmWave)",
+      "category": "iot",
+      "description": "Aqara Presence Sensor FP2 is a 60 GHz mmWave presence sensor that tracks up to five people, splits a room into zones and also reports lux and distance, exposed to Matter through an Aqara hub or natively over Wi-Fi. It is wireless-only with a 5 V USB-C power input: 2.4 GHz 802.11 b/g/n Wi-Fi plus Bluetooth 4.2 and no RJ45 jack - ceiling-mounted but not PoE-powered, whatever the install photos suggest.",
+      "capabilities": ["host", "wireless"],
+      "interfaces": [
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://www.aqara.com/us/product/presence-sensor-fp2/specs/"
+    },
+    {
+      "vendor": "shelly",
+      "model": "Pro 1PM",
+      "label": "Shelly Pro 1PM DIN-rail smart relay with LAN",
+      "category": "iot",
+      "description": "Shelly Pro 1PM is a single-channel 16 A DIN-rail smart relay with power metering, over-temperature and over-voltage protection, a local web UI, MQTT and KNXnet/IP support. It has one RJ45 Ethernet port (100M) plus 2.4 GHz Wi-Fi and Bluetooth for setup, but it is mains-fed from the DIN rail and is not PoE-powered, so the LAN cable is data only.",
+      "capabilities": ["host", "http-server", "dhcp-client", "wireless"],
+      "interfaces": [
+        { "name": "eth0", "type": "ethernet", "speed": "100M" },
+        { "name": "wlan0", "type": "wireless", "speed": "150M" }
+      ],
+      "sourceUrl": "https://us.shelly.com/products/shelly-pro-1pm/"
+    }
+  ]
+}

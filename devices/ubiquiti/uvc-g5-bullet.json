@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-bullet",
+  "notes": "PoE class 802.3af, 12.95 W reserved, 4 W drawn. Wired only, no Wi-Fi, and only a 10/100 port. Adopts only from a UniFi Protect controller - it will not talk ONVIF to a third-party NVR."
 }

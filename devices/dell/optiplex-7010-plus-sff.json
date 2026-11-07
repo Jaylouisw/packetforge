@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dell.com/en-us/shop/desktop-computers/optiplex-small-form-factor/spd/optiplex-7010-plus-small-ff",
+  "notes": "1GbE Intel I219-LM RJ45 is standard on every SFF configuration - no dongle. No Wi-Fi unless the optional M.2 wireless card is ordered, so model this node as wired-only."
 }

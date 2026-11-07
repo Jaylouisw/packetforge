@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.asus.com/us/laptops/for-home/zenbook/asus-zenbook-14-ux3405/techspec/",
+  "notes": "No RJ45 and no Ethernet controller - wired would need a USB-C 1GbE/2.5GbE dongle. Wi-Fi 6E is standard, so model this host with a wireless uplink only."
 }

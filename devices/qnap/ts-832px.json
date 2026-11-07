@@ -14,22 +14,41 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.qnap.com/en/product/ts-832px/specs"
 }

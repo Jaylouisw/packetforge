@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/Product/ThinkStation/ThinkStation_P3_Tower",
+  "notes": "1GbE RJ45 onboard; Lenovo sells Wi-Fi 6E as an add-in option only. Wired 1G by default - pair it with a 2.5G/10G NIC only if you add a PCIe card, which this model does not ship with."
 }

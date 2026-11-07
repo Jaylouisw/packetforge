@@ -13,127 +13,254 @@
     {
       "name": "fc1/1",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/2",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/3",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/4",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/5",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/6",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/7",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/8",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/9",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/10",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/11",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/12",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/13",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/14",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/15",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/16",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/17",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/18",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/19",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/20",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/21",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/22",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/23",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "fc1/24",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "sfp+",
+      "speedCaps": [
+        32000,
+        64000
+      ]
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/hw/9124v-k9/installation/cisco-mds-9124v-k9-switch-hardware-installation-guide/overview.html",
+  "notes": "64G Fibre Channel is not an allowed speed step, so ports are modelled at the nearest step (40G) with the real 32/64G rates in speedCaps. mgmt1 (analytics Ethernet port) exists on the chassis but is documented as not yet supported, so it is not modelled."
 }

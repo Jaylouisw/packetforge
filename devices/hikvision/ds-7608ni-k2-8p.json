@@ -20,42 +20,52 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7608ni-k2-8p/",
+  "notes": "Recorder + 8-port PoE switch in one box. PoE out: 802.3af/at, 25.5 W per port, 80 W total budget - four 802.3at PTZs will exhaust it. The PoE ports sit on an internal 192.168.254.0/24 with DHCP enabled, so cameras are double-NATed from the LAN unless bridged. Wired only."
 }

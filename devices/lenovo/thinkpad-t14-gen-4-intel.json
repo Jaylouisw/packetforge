@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_T14_Gen_4_Intel",
+  "notes": "1GbE RJ45 (Intel I219-LM) is standard on every T14 Gen 4 - a genuine wired port, not a dongle. Wi-Fi 6E AX211 with optional WWAN; the reference 'dock-free corporate laptop'."
 }

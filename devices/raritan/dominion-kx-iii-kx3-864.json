@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.raritan.com/assets/re/resources/data_sheets/RE-ds-KX_III.pdf",
+  "notes": "64 KVM ports over Cat5/5e/6 with D2CIM dongles (not Ethernet, not modelled); 2 x 10/100/1000 gigabit Ethernet, dual-stack IPv4/IPv6, dual AC power, DVI-D local port, tiering port, 1 x DB9(F) DTE modem/serial port. Serial capacity can be raised to 8 devices with DSAM-4/DSAM-8 Dominion Serial Access Modules - those add RS-232 devices, not network ports, so add serial ports there if a lab uses them."
 }

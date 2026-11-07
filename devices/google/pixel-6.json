@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.google.com/pixelphone/answer/7158570?hl=en",
+  "notes": "Wi-Fi 6E (802.11ax, 2x2, 2.4/5/6 GHz, HE160) — Google notes 6 GHz is disabled in Taiwan, Japan and Singapore, where the phone behaves as Wi-Fi 6 only. Cellular: 5G sub-6 GHz (n1/n2/n3/n5/n7/n8/n12/n14/n20/n25/n28/n30/n38/n40/n41/n48/n66/n71/n77/n78) plus mmWave on US carrier models. USB-C 3.1 Gen 1 supports USB-C Ethernet adapters (usb0)."
 }

@@ -5,31 +5,69 @@
   "category": "splitter",
   "description": "4-channel dual-fibre CWDM mux/demux on the ITU-T G.694.2 20 nm grid, covering 1510/1530/1550/1570 nm, with a duplex LC/UPC line port and one duplex LC/UPC port per channel. Passive thin-film-filter module: insertion loss <=2.2 dB across the passband, adjacent-channel isolation >=30 dB, return loss >=45 dB, no power or software.",
   "capabilities": [],
+  "splitRatio": "1:4",
+  "channelCount": 4,
+  "channelPlan": "1510 / 1530 / 1550 / 1570 nm, 20 nm spacing, +/-6.5 nm passband",
+  "insertionLossDb": 2.2,
+  "returnLossDb": 45,
+  "technology": "TFF",
+  "formFactor": "FMU plug-in module (2-slot 1U chassis)",
   "interfaces": [
     {
       "name": "line",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1510",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1530",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1550",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1570",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://img-en.fs.com/file/datasheet/4ch-cwdm-mux-demux-1510-1570.pdf"
 }

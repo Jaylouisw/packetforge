@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.philips-hue.com/en-us/p/hue-bridge/046677458478/specifications",
+  "notes": "Wired only for IP (10/100 Ethernet, no Wi-Fi, no PoE) but it is a Zigbee coordinator, so it is a wireless gateway for the bulbs. Mains powered. All light traffic is tunnelled over the wired link; the bridge is a single point of failure for the whole lighting VLAN."
 }

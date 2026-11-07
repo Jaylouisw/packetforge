@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/cm1000v2.pdf",
+  "notes": "Datasheet 'Physical Specifications': One (1) LAN Gigabit Ethernet port, One (1) WAN coaxial cable connection. NETGEAR's own footnote caps throughput at the 1G port even though DOCSIS 3.1 allows 10 Gbps DS."
 }

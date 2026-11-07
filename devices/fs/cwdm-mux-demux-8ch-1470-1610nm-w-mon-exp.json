@@ -5,61 +5,136 @@
   "category": "splitter",
   "description": "8-channel dual-fibre CWDM mux/demux on 1470/1490/1510/1530/1550/1570/1590/1610 nm (20 nm ITU-T G.694.2 grid), duplex LC/UPC line, per-channel, expansion and monitor ports. Free-space (not TFF) design: insertion loss <=2.4 dB including the EXP port, monitor tap 24.3 dB, adjacent-channel isolation >=30 dB, return loss >=45 dB, fully passive.",
   "capabilities": [],
+  "splitRatio": "1:8",
+  "channelCount": 8,
+  "channelPlan": "1470 / 1490 / 1510 / 1530 / 1550 / 1570 / 1590 / 1610 nm, 20 nm spacing, +/-6.5 nm passband",
+  "insertionLossDb": 2.4,
+  "monitorTapDb": 24.3,
+  "returnLossDb": 45,
+  "technology": "free-space",
+  "formFactor": "FMU plug-in module (2-slot 1U chassis)",
   "interfaces": [
     {
       "name": "line",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "exp",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "mon",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1470",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1490",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1510",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1530",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1550",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1570",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1590",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "ch1610",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "lc",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://img-en.fs.com/file/datasheet/8ch--cwdm-mux-demux-1470-1610nm-with-mon-and-exp.pdf"
 }

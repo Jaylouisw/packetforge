@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/117735",
+  "notes": "No RJ45: Apple ships HDMI, SDXC and Thunderbolt 4 but no wired Ethernet. A USB-C dock/dongle provides 1GbE (2.5GbE with a 2.5G adapter); out of the box this host is Wi-Fi 6E only."
 }

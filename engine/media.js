@@ -117,6 +117,13 @@ const MEDIA = {
   'gpon-lc-upc': { name: 'GPON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'xgspon-lc-upc': { name: 'XGS-PON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
   'xgspon-sc-upc': { name: 'XGS-PON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
+  // A hybrid cord is its own medium, because the physical run is a factory
+  // assembly with one flat and one 8-degree endface - neither 'SC/APC' nor
+  // 'SC/UPC' describes it. The service is the same GPON/XGS-PON plan as the two
+  // polish-specific ids either side of it, so these are never offered by a cage:
+  // they only appear when a hybrid cord bridges a UPC port and an APC one.
+  'gpon-sc-hybrid': { name: 'GPON (SC hybrid UPC/APC)', family: 'fiber', connector: 'sc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+  'xgspon-sc-hybrid': { name: 'XGS-PON (SC hybrid UPC/APC)', family: 'fiber', connector: 'sc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
 
   // ---- DAC / AOC ----
   'dac-1g': { name: '1G DAC (passive)', family: 'dac', connector: 'sfp', speedMbps: 1000, maxRangeM: 3 },
@@ -180,7 +187,20 @@ const CAGES = {
 // own connector type. Kept deliberately short: anything else that does not resolve to a
 // real cage is reported as unknown rather than guessed at.
 const CAGE_ALIAS = {
-  lc: 'lc-upc'
+  lc: 'lc-upc',
+  // Datasheets name the CONNECTOR, the engine names the CAGE. An F-connector is how
+  // every DOCSIS port is described ("connector: f"), and an RJ11 is how every DSL line
+  // port is described; the cages are coax and dsl. Without these the port resolved to
+  // nothing, and before that it resolved to RJ45 copper - a cable modem's coax socket
+  // presented as an Ethernet port that refused every cable, including its own twin.
+  f: 'coax',
+  'f-connector': 'coax',
+  rj11: 'dsl',
+  sc: 'sc-upc',
+  // MCX is a small coax connector used on CMTS line cards and small-cell gear. A
+  // different shape from an F-connector, but the engine has one coax cage and it is
+  // still coax: leaving it unmapped made 40 CMTS line-card ports uncabliable.
+  mcx: 'coax'
 };
 
 const CAGE_MATE = {
@@ -563,6 +583,40 @@ function commonMedia(pa, pb) {
   return pa.media.filter(function (m) { return setB[m]; });
 }
 
+// The optical *service* a polish-specific media id carries, with the ferrule
+// taken off the end of the id: 'gpon-sc-upc' and 'gpon-sc-apc' are the same GPON
+// wavelength plan, and the only thing that differs is the connector endface.
+function serviceKeyOf(mediaId) {
+  return String(mediaId).replace(/-(?:upc|apc)$/, '');
+}
+
+// Media two ports can share when a hybrid (UPC one end, APC the other) patch cord
+// is what joins them.
+//
+// The cages deliberately do not mate - an 8-degree ferrule against a flat one is
+// the failure this model exists to catch - so commonMedia() returns nothing. With
+// a hybrid cord the *cord* is the medium: each port keeps its own ferrule, the
+// transition happens inside a factory assembly, and the service either side is
+// the same. So the intersection is taken over services rather than over cages,
+// and a service that exists only in per-polish ids resolves to its '-hybrid'
+// medium so the link is named for what is actually on the floor.
+function commonMediaBridged(pa, pb) {
+  const out = [];
+  if (!pa || !pb || !Array.isArray(pa.media) || !Array.isArray(pb.media)) return out;
+  for (const a of pa.media) {
+    for (const b of pb.media) {
+      let id = null;
+      if (a === b) id = a;
+      else if (serviceKeyOf(a) === serviceKeyOf(b)) {
+        const hybridId = serviceKeyOf(a) + '-hybrid';
+        if (MEDIA[hybridId]) id = hybridId;
+      }
+      if (id && out.indexOf(id) === -1) out.push(id);
+    }
+  }
+  return out;
+}
+
 // Highest speed both ports support (ethernet auto-negotiation), or null.
 function negotiateSpeed(pa, pb) {
   const setB = {};
@@ -647,7 +701,7 @@ module.exports = {
   CAGE_ALIAS,
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
   parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
-  cagesMate, derivePortHardware, commonMedia, negotiateSpeed, canMate, preferredMedia,
+  cagesMate, derivePortHardware, commonMedia, commonMediaBridged, negotiateSpeed, canMate, preferredMedia,
   FERRULE, ferrule, polishMismatch,
   inferCage, isPoePse, isPoePd
 };

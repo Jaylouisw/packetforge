@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/DiskStation/23-year/DS923+/enu/Product_Spec_DS923+_enu.pdf",
+  "notes": "Onboard: 2x 1GbE RJ45 only - 10GbE is NOT onboard, it needs the E10G22-T1-Mini in the PCIe 3.0 x2 slot. No OOB management port. Link aggregation supported."
 }

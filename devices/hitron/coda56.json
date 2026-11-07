@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://us.hitrontech.com/wp-content/uploads/2023/01/CODA56-DS.pdf",
+  "notes": "Datasheet key features: 'DOCSIS 3.1 2x2 OFDM/OFDMA', 'DOCSIS 3.0 32x8 Channel Bonding', 2.5 Gigabit Ethernet port; user manual rates service up to 6 Gbps. Single wired port, no Wi-Fi, no voice - a pure bridge."
 }

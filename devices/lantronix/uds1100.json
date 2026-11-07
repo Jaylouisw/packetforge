@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.lantronix.com/products/uds1100-uds1100-poe/",
+  "notes": "1 x DB25F DCE serial (RS-232/422/485, up to 921.6 kbps) + 1 x 10/100Base-T RJ45. PoE variant UDS1100-PoE draws power from the Ethernet port. Configured via HTTP, Telnet, serial or DeviceInstaller; TruPort/Com Port Redirector for virtual COM. Smallest building block for 'one console port, reachable over the LAN'."
 }

@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.se.com/us/en/product/NBRK0250A/rack-mount-security-and-environmental-appliance-netbotz-250a/",
+  "notes": "NetBotz family brochure connector row for NBRK0250A: '(1) 10/100 Base-T Public LAN, (6) APC Universal Sensor, (2) Access Control Handles, (2) Door Contact, ... (1) Mini-USB Console Port'; protocols A-Link, DHCP, DNS, HTTPS, SMTP, SNMP v1/v3, SSHv2, TCP/IP, TLS 1.2. Supports 42 wired / 47 wireless sensors. The 750-series (NBRK0750, NBWL0755/0756) is the Gigabit variant."
 }

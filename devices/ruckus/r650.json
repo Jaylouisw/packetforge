@@ -15,7 +15,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
       "name": "eth1",
@@ -32,5 +33,7 @@
       "type": "wireless",
       "speed": "2.4G"
     }
-  ]
+  ],
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r650/ds-commscope-r650.html",
+  "notes": "802.3at PoE+ PD; the 2.5G port is required to avoid backhaul limiting the 4x4 5 GHz radio. On 802.3at the second Ethernet port and onboard IoT/USB are disabled."
 }

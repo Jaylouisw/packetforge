@@ -254,27 +254,52 @@
     {
       "name": "xge1",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "xge2",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "te1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "te2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "te3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://zhone.com/wp-content/uploads/MileGate-SUV51_Datasheet.pdf",
+  "notes": "SUV51: 48-port VDSL2 line card, 8/12/17 MHz, board-level vectoring of 48 lines, MELT/DELT/SELT, 1/10 Gbps backplane. MileGate 2310/2510 core unit offers two 40GE (QSFP+) and three 10GE (SFP+) uplinks; 2310 supports up to 336 VDSL2 ports, 2510 up to 960."
 }

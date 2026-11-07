@@ -3,7 +3,7 @@
   "model": "A5c",
   "label": "Mimosa A5c",
   "category": "ptp",
-  "description": "Mimosa A5c - 5 GHz 4x4:4 connectorized access point, up to 1.0 Gbps IP (1.7 Gbps PHY), 64 clients; single 1G RJ45 with 802.3at PoE.",
+  "description": "5 GHz (4.9-6.4 GHz) 4x4:4 connectorized sector access point with 4x N female ports, 100 clients and up to 1.0 Gbps IP (1.7 Gbps PHY). Single 1G RJ45 fed by 802.3at, 25 W max; no SFP.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
@@ -22,6 +23,5 @@
       "speed": "1G"
     }
   ],
-  "icon": "ptp",
-  "color": "#8b5cf6"
+  "sourceUrl": "https://www.netmark.com.vn/Upload/files/Mimosa/Mimosa-A5c-Datasheet.pdf"
 }

@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.neocenter.com/img/Sangoma/FreePBX/FreePBX-Series-Datasheet_2025.pdf",
+  "notes": "Sangoma FreePBX Series datasheet (2025): FreePBX 100 = 100 users / 60 calls, 2 PCI Express slots, '3x GB Network / 1x Serial Console (RJ45) / 1x VGA', Intel Celeron quad-core, 4 GB RAM, 250 GB SSD, 1U with rack ears. Earlier FreePBX 100 revisions shipped five Gigabit ports - check the silkscreen before cabling a lab. Ports are eth0/eth1/eth2 in the FreePBX distro; typically one WAN-facing and one or two on the voice VLAN. The RJ45 serial console, VGA and the PCIe telephony card slots are not modelled (analog/PRI trunks are out of scope here). Asterisk + FreePBX web GUI/SSH management, so host + http-server + cli."
 }

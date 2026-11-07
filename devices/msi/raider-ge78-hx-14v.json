@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://us.msi.com/Laptop/Raider-GE78-HX-14VX/Specification",
+  "notes": "Killer E3100 2.5GbE RJ45 onboard - one of the few laptops here that links above 1G, so it can saturate a 2.5G access port. Wi-Fi 7 (BE1750) as the wireless path."
 }

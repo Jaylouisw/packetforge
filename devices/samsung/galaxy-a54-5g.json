@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://image-us.samsung.com/SamsungUS/samsungbusiness/pdf/spec-sheets/a54/HHP_A545G_DATA_USCC.pdf",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E, no 160 MHz in some regions. Cellular: 5G sub-6 GHz only (no mmWave), LTE Cat 18 fallback. USB-C is USB 2.0: Ethernet works through an adapter but is capped near 100M in practice; no DeX. Prime candidate for 'cheap client that squats on 2.4 GHz and never roams to 5 GHz' scenarios."
 }

@@ -137,6 +137,7 @@ class Topology {
         devB: b,
         mediaId: opts.mediaId,
         lengthM: opts.lengthM,
+        patchCord: opts.patchCord,
         duplexA: ai && ai.duplex,
         duplexB: bi && bi.duplex
       });
@@ -175,7 +176,9 @@ class Topology {
 
   // Connect two interfaces. Validates the physical layer first and throws a
   // descriptive error (with .code and .issues) when the cabling is impossible.
-  // `opts` may carry { mediaId, lengthM, duplex, lagId, force }.
+  // `opts` may carry { mediaId, lengthM, duplex, lagId, force, patchCord }.
+  // patchCord is a catalogue part number (a hybrid UPC/APC lead); omitted or null
+  // means ordinary cable.
   connect(aId, aIface, bId, bIface, opts) {
     // Backwards compatibility: a bare string used to mean `type`.
     if (typeof opts === 'string') opts = { type: opts };
@@ -217,7 +220,8 @@ class Topology {
       speedMbps: opts.speedMbps || verdict.speedMbps || null,
       duplex: opts.duplex || 'full',
       lengthM: (opts.lengthM === undefined) ? null : opts.lengthM,
-      lagId: opts.lagId || null
+      lagId: opts.lagId || null,
+      patchCord: opts.patchCord || verdict.patchCord || null
     });
     ai.peer = { deviceId: bId, iface: bIface };
     bi.peer = { deviceId: aId, iface: aIface };
@@ -277,7 +281,11 @@ class Topology {
         interfaces: (d.interfaces || []).filter(function (i) {
           return !i.parent;   // subinterfaces are rebuilt by Device.hydrate
         }).map(function (i) {
-          return { name: i.name, type: i.type, speed: i.speed };
+          // `cage` is saved (see Device.serialize) because it is physical hardware,
+          // not something to re-derive: an OLT whose PON module is SC/UPC would
+          // otherwise reload as SC/APC from the port name alone, and its hybrid
+          // cord would look like it was joining two APC ports.
+          return { name: i.name, type: i.type, speed: i.speed, cage: i.cage };
         })
       };
       const dev = Device.hydrate(d.id, spec, d);
@@ -293,7 +301,10 @@ class Topology {
         topo.connect(l.a.deviceId, l.a.iface, l.b.deviceId, l.b.iface, {
           id: l.id,
           mediaId: l.mediaId, speedMbps: l.speedMbps, duplex: l.duplex,
-          lengthM: l.lengthM, lagId: l.lagId, type: l.type, force: true
+          lengthM: l.lengthM, lagId: l.lagId, type: l.type, force: true,
+          // Absent in every topology saved before hybrid cords existed, which is
+          // exactly what "ordinary fibre" means, so old files load unchanged.
+          patchCord: l.patchCord
         });
       } catch (e) {
         // Skip links that can no longer be made (device/port removed).

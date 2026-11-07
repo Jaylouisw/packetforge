@@ -20,5 +20,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.poly.com/us/en/products/phones/obi/obi302",
+  "notes": "Included as the verified stand-in for the Yealink SIP-T31P in the request: the T31P is a 2-line entry-level desk IP phone (132x64 LCD, PoE, 2 VoIP accounts), not a gateway or ATA, so it cannot be specced in this batch. Poly OBi302 spec sheet: Internet (WAN) 2 x 10/100BaseT Ethernet, Phone 2 x RJ-11 FXS, plus a USB 2.0 port that is not modelled. No gigabit, no PoE (USB power or adapter). FXS ports are analog and not modelled."
 }

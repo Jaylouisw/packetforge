@@ -1,14 +1,31 @@
 {
   "vendor": "mikrotik",
   "model": "RBSXTsqG-5acD",
-  "label": "SXTsq 5 ac",
+  "label": "MikroTik SXTsq 5 ac",
   "category": "ptp",
-  "description": "Compact 5 GHz point-to-point/CPE radio, 16 dBi, 867 Mbps; 1x GigE port, RouterOS.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
-  "interfaces": [
-    { "name": "ether1", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  "description": "Compact 5 GHz 802.11ac dual-chain CPE/backbone radio, 16 dBi, 867 Mbps PHY, RouterOS with full routing and NAT. One GbE port, 7 W max from passive PoE (10-30 V); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
   ],
-  "icon": "ptp",
-  "color": "#14b8a6"
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/sxtsq_5_ac"
 }

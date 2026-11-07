@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://consumer.huawei.com/qa/phones/p302/specs/",
+  "notes": "Wi-Fi 5 (802.11ac, 2x2 MIMO, 2.4/5 GHz, 80 MHz) — no Wi-Fi 6, no 160 MHz. Cellular: LTE Cat 21 only, no 5G at all (Kirin 980). USB-C 3.1 Gen 1 supports Ethernet adapters (usb0). Still common in labs as a pre-5G, pre-WPA3 client; EMUI supports WPA2-Enterprise but not WPA3-SAE on this generation."
 }

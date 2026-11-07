@@ -14,17 +14,29 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        10000,
+        25000
+      ]
     },
     {
       "name": "ilo",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hpe.com/psnow/doc/a50004307enw.html",
+  "notes": "IMPORTANT: no onboard data NICs - eth0/eth1 are the 2x 10/25GbE SFP28 OCP 3.0 adapter. OCP 3.0 is the primary networking bay; additional NICs go in PCIe 5.0 slots. iLO 6 on its own 1GbE port, plus a front iLO service USB port (not modelled)."
 }

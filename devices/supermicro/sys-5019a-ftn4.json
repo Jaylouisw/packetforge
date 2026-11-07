@@ -36,5 +36,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.supermicro.com/en/products/system/1u/5019/sys-5019a-ftn4.php",
+  "notes": "Onboard: 4x 1GbE from the C3000 SoC (RJ45, 10/100/1000). No OCP bay; 1x PCIe 3.0 x8 LP slot + 1x Mini-PCIe for a 10GbE NIC. IPMI uses a Realtek RTL8201N PHY on a dedicated port."
 }

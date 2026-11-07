@@ -19,7 +19,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "lan1",
@@ -51,5 +52,7 @@
       "type": "wireless",
       "speed": "1.3G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.tp-link.com/uk/home-networking/dsl-modem-router/archer-vr600/v2/",
+  "notes": "TP-Link spec table: 'Interface: 3 Gigabit LAN Ports, 1 Gigabit LAN/WAN Port, 1 RJ11 Port, 1 USB Port'; VDSL2 'Up to 17a profile (POTS)'; Wi-Fi 300 Mbps (2.4 GHz) + 1300 Mbps (5 GHz). Lan4 is the LAN/WAN combo port, declared as a fourth LAN port. The DSL line is 17a-class 100 Mbit/s, not gigabit."
 }

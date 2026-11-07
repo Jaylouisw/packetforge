@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://store.google.com/us/product/pixel_8_specs?hl=en-US",
+  "notes": "Wi-Fi 7 (802.11be, 2x2 + 2x2, 2.4/5/6 GHz, 320 MHz, MLO) — one of the few phones here that can use multi-link operation, so it must not be modelled as a single-link 802.11ax client. Cellular: 5G sub-6 GHz plus mmWave (US models). USB-C 3.2 Gen 2 supports Ethernet adapters (usb0). Requires a Wi-Fi 7 AP to show any difference versus Pixel 7."
 }

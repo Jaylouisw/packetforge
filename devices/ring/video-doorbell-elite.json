@@ -12,7 +12,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://ring.com/support/products/doorbells/video-doorbell-elite",
+  "notes": "PoE class 802.3af, 12.95 W - the rare consumer IoT endpoint that is genuinely PoE powered, wired only for IP (its 802.11 radio is not used for the network path). No mains wiring needed, which is why it is the interesting exception in this category."
 }

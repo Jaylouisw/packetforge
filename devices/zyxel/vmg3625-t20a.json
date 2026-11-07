@@ -19,7 +19,8 @@
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj11"
     },
     {
       "name": "wan",
@@ -56,5 +57,7 @@
       "type": "wireless",
       "speed": "866M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.192-168-1-1-ip.co/datasheet/8519.pdf",
+  "notes": "Zyxel datasheet: WAN 'One RJ-11 interface for VDSL/ADSL2 (over POTS)' + 'One RJ-45 connector for Giga-Ethernet WAN port'; LAN '4 auto-sensing 10/100/1000 Mbps Ethernet LAN ports'; VDSL profiles '8a/b/c/d, 12a/b, 17a, 30a' (17a/30a cap the line at ~100 Mbit/s - no 35b); Wi-Fi 802.11n 2.4 GHz + 802.11ac 5 GHz up to 866 Mbps."
 }

@@ -13,7 +13,9 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/b0/7e/a7/datasheet-axis-q1798-le-network-camera-en-US-378444.pdf"
 }

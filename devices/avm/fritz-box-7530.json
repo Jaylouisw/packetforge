@@ -1,25 +1,31 @@
 {
   "vendor": "avm",
   "model": "FRITZ!Box 7530",
-  "label": "AVM FRITZ!Box 7530 VDSL2 Supervectoring DSL router",
+  "label": "AVM FRITZ!Box 7530 VDSL2 35b supervectoring router",
   "category": "modem",
-  "description": "DSL router with an integrated VDSL2 35b Supervectoring / ADSL2+ modem on one DSL jack, four gigabit LAN ports (LAN 1 can act as WAN) and dual-band Wi-Fi 5.",
+  "description": "VDSL2 35b supervectoring (up to 300 Mbit/s) and ADSL2+ router with a 2x2 dual-band access point (400 Mbit/s on 2.4 GHz, 866 Mbit/s on 5 GHz), one RJ-11 DSL port, three gigabit LAN ports and a gigabit WAN port that doubles as LAN 1.",
   "capabilities": [
+    "wireless",
     "l2-forward",
     "l3-forward",
     "nat",
     "firewall",
     "dhcp-server",
     "dhcp-client",
-    "host",
-    "wireless",
-    "http-server"
+    "http-server",
+    "cli"
   ],
   "interfaces": [
     {
       "name": "dsl0",
       "type": "dsl",
-      "speed": "100M"
+      "speed": "300M",
+      "connector": "rj11"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
     },
     {
       "name": "lan1",
@@ -37,19 +43,16 @@
       "speed": "1G"
     },
     {
-      "name": "lan4",
-      "type": "ethernet",
-      "speed": "1G"
-    },
-    {
-      "name": "wifi24",
+      "name": "wlan1",
       "type": "wireless",
       "speed": "400M"
     },
     {
-      "name": "wifi5",
+      "name": "wlan2",
       "type": "wireless",
-      "speed": "867M"
+      "speed": "866M"
     }
-  ]
+  ],
+  "sourceUrl": "https://techinfodepot.shoutwiki.com/wiki/AVM_FRITZ!Box_7530",
+  "notes": "TechInfoDepot teardown/spec: 'Ethernet Port Count 1-1GbE-WAN, 3-1GbE-LAN' (QCA8075 switch), Lantiq VRX518 xDSL AFE for VDSL2 35b/ADSL2+, Wi-Fi 400 Mbps 2.4 GHz + 867 Mbps 5 GHz = AC1300. AVM's own page states 'DSL up to 300 Mbit/s'. Line side declared at the 35b rung (300M), LAN/WAN at 1G."
 }

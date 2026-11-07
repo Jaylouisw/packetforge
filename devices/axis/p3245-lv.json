@@ -13,7 +13,9 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/c3/7b/2d/datasheet-axis-p3245%E2%80%93lv-network-camera-en-US-463432.pdf"
 }

@@ -16,5 +16,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/NetworkVideoRecorder/18-year/NVR1218/enu/Product_Spec_NVR1218_enu.pdf",
+  "notes": "No PoE out and only one 1GbE port, so camera traffic shares the uplink with management. Wired only. Surveillance Station camera licences are per-channel - a lab that assumes 12 free channels is wrong out of the box."
 }

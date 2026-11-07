@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.apple.com/imac/specs/",
+  "notes": "The 1GbE RJ45 physically lives in the external power brick, not the chassis - standard on 10-core GPU configs and optional on the base model. Wi-Fi 6E onboard; worth modelling because the 'port' is not where students expect it."
 }

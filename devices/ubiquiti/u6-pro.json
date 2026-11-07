@@ -3,10 +3,11 @@
   "model": "U6-Pro",
   "label": "UniFi U6 Pro",
   "category": "wireless",
-  "description": "Ubiquiti U6-Pro - Wi-Fi 6 ceiling AP: 4x4 5GHz (4.8 Gbps) + 2x2 2.4GHz (573 Mbps), 1x GbE RJ45 PoE uplink.",
+  "description": "Dual-band Wi-Fi 6 ceiling AP with 4x4 MU-MIMO in 5 GHz and 2x2 in 2.4 GHz (4.8 Gbps aggregate). It has one GbE RJ45 port with 802.3af PoE-in and two radios: 2.4 and 5 GHz.",
   "capabilities": [
-    "l2-forward",
     "wireless",
+    "l2-forward",
+    "dhcp-client",
     "cli",
     "http-server"
   ],
@@ -14,14 +15,20 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
-      "name": "wlan0",
+      "name": "radio0",
       "type": "wireless",
-      "speed": "5G"
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
     }
   ],
-  "icon": "ap",
-  "color": "#3b82f6"
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-pro",
+  "notes": "Only 1GbE and only 802.3af (13W max) - the 5 GHz 4x4 radio is hard-capped by the 1G uplink. No second port, no USB port on the AP itself."
 }

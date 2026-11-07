@@ -5,6 +5,10 @@
   "category": "splitter",
   "description": "1U rack-mount optical distribution frame holding 12 x LC/UPC duplex adapters (24 fibres), used to terminate outside-plant cable and cross-connect it to the equipment side. Passive pass-through: <=0.2 dB insertion loss per mated LC/UPC pair (0.1 dB typical), >=50 dB return loss, ceramic split sleeves; the enclosure takes four such panels for 96 fibres in 1U.",
   "capabilities": [],
+  "insertionLossDb": 0.2,
+  "returnLossDb": 50,
+  "technology": "mechanical splice / adapter panel",
+  "formFactor": "1U 19-inch FHD enclosure, 12 x LC duplex adapter panel",
   "portTemplate": {
     "prefix": "port",
     "start": 1,
@@ -20,5 +24,6 @@
       100000
     ]
   },
-  "interfaces": []
+  "interfaces": [],
+  "sourceUrl": "https://www.fs.com/products/35488.html"
 }

@@ -1,14 +1,31 @@
 {
   "vendor": "mikrotik",
   "model": "RBLHGG-5acD",
-  "label": "LHG 5 ac",
+  "label": "MikroTik LHG 5 ac",
   "category": "ptp",
-  "description": "5 GHz point-to-point dish radio, 26 dBi, 867 Mbps; 1x GigE port, RouterOS.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
-  "interfaces": [
-    { "name": "ether1", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+  "description": "5 GHz 802.11ac dual-chain CPE / point-to-point radio with a 24.5 dBi grid dish, 867 Mbps PHY, RouterOS. One GbE port, 8 W max from passive PoE (10-30 V); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
   ],
-  "icon": "ptp",
-  "color": "#14b8a6"
+  "interfaces": [
+    {
+      "name": "ether1",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/lhg_5_ac"
 }

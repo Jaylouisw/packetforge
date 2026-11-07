@@ -13,7 +13,9 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-pro"
 }

@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/cm2000.pdf",
+  "notes": "Datasheet 'Standards': One (1) LAN 2.5Gbps Gigabit Ethernet port, One (1) WAN coaxial cable connection; 32 DS / 8 US SC-QAM + 2 OFDM + 2 OFDMA. Exactly one LAN port - no aggregation trick available."
 }

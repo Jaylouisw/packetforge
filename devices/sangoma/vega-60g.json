@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://sangoma.com/wp-content/uploads/Vega-60G-Gateway-Datasheet-10-1-25.pdf",
+  "notes": "Datasheet LAN interfaces: 1 x RJ-45 gigabit Ethernet 1000BaseT. Port mix is an ordering option - 2/4/8 FXS, 4/8 FXO, 4 FXO + 4 FXS, or 2 BRI (4 calls) / 4 BRI (8 calls) with each BRI interface configurable as network or terminal side. This spec models the FXS variant (up to 8 analog ports); the analog and BRI ports are not Ethernet interfaces. Managed via web GUI, no local CLI. Sangoma knowledge base notes only the 4- and 8-FXS variants had shipped at time of writing."
 }

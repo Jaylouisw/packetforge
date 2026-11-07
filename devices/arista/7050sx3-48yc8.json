@@ -1,63 +1,109 @@
 {
   "vendor": "arista",
   "model": "7050SX3-48YC8",
-  "label": "7050SX3-48YC8",
+  "label": "Arista 7050SX3-48YC8",
   "category": "l3-switch",
-  "description": "Arista 7050SX3-48YC8 - 1RU 10/25G leaf: 48x 25G SFP28 downlinks (Ethernet1-48) plus 8x 100G QSFP28 uplinks (Ethernet49-56), 4 Tbps.",
+  "description": "Arista 7050X3 series 1RU leaf: 48x 25G SFP28 (1/10/25G) server ports plus 8x 100G QSFP28 uplinks, 4 Tbps non-blocking. Each QSFP28 uplink also runs 40G or breaks out to 4x 25G/10G or 2x 50G.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "Ethernet",
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "25G"
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
   },
   "interfaces": [
     {
-      "name": "Ethernet49",
+      "name": "Ethernet49/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet50",
+      "name": "Ethernet50/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet51",
+      "name": "Ethernet51/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet52",
+      "name": "Ethernet52/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet53",
+      "name": "Ethernet53/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet54",
+      "name": "Ethernet54/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet55",
+      "name": "Ethernet55/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "Ethernet56",
+      "name": "Ethernet56/1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
   ],
-  "icon": "switch",
-  "color": "#0ea5e9"
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf"
 }

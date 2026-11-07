@@ -3,7 +3,7 @@
   "model": "PTP 550",
   "label": "Cambium PTP 550",
   "category": "ptp",
-  "description": "Cambium PTP 550 - 5 GHz 802.11ac Wave 2 point-to-point radio, 1.4 Gbps over two 80 MHz channels; 1x 1G RJ45 (PoE in) plus 1x 1G SFP.",
+  "description": "Cambium PTP 550 - 5.17-5.9 GHz 802.11ac Wave 2 point-to-point radio, 1.4 Gbps aggregate over two 80 MHz channels (4x4 MIMO, 2x2:2 per radio); 1x 1G RJ45 for data plus PoE in, and 1x 1G SFP.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,12 +14,17 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "radio0",
@@ -28,5 +33,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://brandcentral.cambiumnetworks.com/m/39ef3ab6dea49ee1/original/PTP_550_Spec_sheet.pdf"
 }

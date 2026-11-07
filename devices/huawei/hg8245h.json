@@ -18,7 +18,12 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -45,5 +50,6 @@
       "type": "wireless",
       "speed": "300M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hi-network.com/web/pdf/huawei-echolife-hg8245h-brochure-datasheet.pdf"
 }

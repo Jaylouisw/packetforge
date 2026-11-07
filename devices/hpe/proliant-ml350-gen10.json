@@ -36,5 +36,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hpe.com/psnow/doc/a00021852enw.html",
+  "notes": "Onboard: 4x 1GbE 369i standard. No FlexibleLOM - a 10GbE upgrade is a PCIe stand-up adapter. iLO 5 dedicated 1GbE port plus a front iLO service port (USB, not Ethernet - not modelled)."
 }

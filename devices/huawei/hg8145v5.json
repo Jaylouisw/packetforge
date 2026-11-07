@@ -20,7 +20,12 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -52,5 +57,6 @@
       "type": "wireless",
       "speed": "867M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.router-switch.com/hg8145v5.html"
 }

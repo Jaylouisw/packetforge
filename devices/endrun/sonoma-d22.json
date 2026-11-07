@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://endruntechnologies.com/pdf/Sonoma-NTP-Server_GPS.pdf",
+  "notes": "Datasheet 'Network I/O': two rear-panel RJ-45 jacks, 10/100/1000Base-T Ethernet, ports are independent (separate subnets/isolated networks) and can be licensed for PTP. Sonoma manual lists exactly three interface ports: two Ethernet plus one USB console. 1PPS/10 MHz are BNC."
 }

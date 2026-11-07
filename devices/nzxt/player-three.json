@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://nzxt.com/products/player-three",
+  "notes": "2.5GbE RJ45 (Realtek RTL8125) on the N7 B650E; the standard build ships without a Wi-Fi card, so wired is the only path. 2.5G link lets it stress a multi-gig access port without a PCIe NIC."
 }

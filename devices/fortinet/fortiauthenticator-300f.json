@@ -30,5 +30,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAuthenticator.pdf",
+  "notes": "Datasheet hardware table, FAC-300F: '10/100/1000 Interfaces (Copper, RJ-45): 4', SFP interfaces 0 (the 800F/3000F add 2x SFP). QuickStart: 'Ethernet Ports 1 to 4 (RJ45) 1GE network connections' plus a Console (RJ45). Port1 is normally the management port. Management via CLI, DB9 console CLI and HTTPS."
 }

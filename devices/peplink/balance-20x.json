@@ -56,5 +56,6 @@
       "type": "wireless",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.peplink.com/products/enterprise-routers/balance-20x/"
 }

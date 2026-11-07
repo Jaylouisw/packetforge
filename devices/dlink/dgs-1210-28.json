@@ -21,44 +21,77 @@
     {
       "name": "25",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "25-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "25-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "25",
+      "comboRole": "sfp"
     },
     {
       "name": "26",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "26-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "26-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "26",
+      "comboRole": "sfp"
     },
     {
       "name": "27",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "27-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "27-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "27",
+      "comboRole": "sfp"
     },
     {
       "name": "28",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "28-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "28-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "28",
+      "comboRole": "sfp"
     }
   ],
   "icon": "switch",
-  "color": "#0ea5e9"
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.dlink.com/us/en/products/dgs-1210-28mp-28-port-gigabit-smart-managed-poe-switch"
 }

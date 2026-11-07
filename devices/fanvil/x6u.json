@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.fanvil.com/upload/files/20241231/1642066v20.pdf",
+  "notes": "'Dual Gigabit ports, integrated PoE', 10/100/1000 Mbps, 20 SIP lines, built-in Bluetooth, optional 5 V/2 A adapter. Fanvil does not publish a PoE class for the X6U; published dissipation is 1.49 W standby / 6.88 W high, which exceeds the 6.49 W class-2 PD cap, so this entry budgets class 3 (12.95 W) rather than under-powering it. EHS headset, RJ9 handset and the USB port are not modelled."
 }

@@ -31,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/RackStation/21-year/RS1221+/enu/Product_Spec_RS1221+_enu.pdf",
+  "notes": "Onboard: 4x 1GbE RJ45. The 10/25GbE path is a PCIe 3.0 x8 (x4 electrical) slot - E10G18-T1, E10G30-T2/F2 or a 25GbE card - so those ports are add-in, not onboard. Rear console port is serial, not Ethernet. No BMC."
 }

@@ -28,5 +28,6 @@
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.checkpoint.com/downloads/products/3600-security-gateway-datasheet.pdf"
 }

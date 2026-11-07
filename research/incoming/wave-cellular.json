@@ -1,0 +1,724 @@
+{
+  "devices": [
+    {
+      "vendor": "huawei",
+      "model": "5G CPE Pro 2",
+      "label": "Huawei 5G CPE Pro 2 indoor 5G router",
+      "category": "router",
+      "description": "Indoor 5G CPE on the Balong 5000 modem, 5G NR sub-6 NSA/SA rated 3.6 Gbps down / 250 Mbps up (3GPP Rel-15, UE downlink category 19). The wired side is two Gigabit Ethernet ports (1x WAN/LAN plus 1x LAN) with Wi-Fi 6 Plus dual-band at 574 + 2402 Mbps; the cellular uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "574M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G"
+        }
+      ],
+      "sourceUrl": "https://consumer.huawei.com/en/routers/5g-cpe-pro-2/specs/"
+    },
+    {
+      "vendor": "zte",
+      "model": "MC801A",
+      "label": "ZTE MC801A 5G indoor CPE",
+      "category": "router",
+      "description": "ZTE 5G indoor CPE (Snapdragon X55, sub-6 NSA/SA with LTE Cat 22 fallback) quoting 4.6 Gbps peak 5G downlink and 3.8 Gbps in EN-DC. Two Gigabit RJ45 LAN ports, one of which can be switched to WAN mode, plus dual-band Wi-Fi 6; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "574M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G"
+        }
+      ],
+      "sourceUrl": "https://www.4gltemall.com/blog/tag/zte-mc801a/"
+    },
+    {
+      "vendor": "netgear",
+      "model": "Nighthawk M6",
+      "label": "Netgear Nighthawk M6 5G hotspot (MR6150)",
+      "category": "router",
+      "description": "5G sub-6 mobile hotspot (MR6150) rated to 2.5 Gbps downlink with Wi-Fi 6 up to 3.6 Gbps for 32 clients. The only wired port is a single 1 Gigabit Ethernet jack for tethering a router or laptop; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "600M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G"
+        }
+      ],
+      "sourceUrl": "https://www.netgear.com/mobile-wifi/hotspots/mr6150/"
+    },
+    {
+      "vendor": "netgear",
+      "model": "Nighthawk M6 Pro",
+      "label": "Netgear Nighthawk M6 Pro 5G mmWave hotspot (MR6550)",
+      "category": "router",
+      "description": "5G mmWave and sub-6 hotspot (MR6550) with one 2.5 Gigabit Ethernet port and Wi-Fi 6E rated 3.6 Gbps aggregate (the 6 GHz band needs mains power and is indoor-only). Cellular runs over both mmWave and sub-6 carriers, carried here as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "600M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "1.2G"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "1.2G"
+        }
+      ],
+      "sourceUrl": "https://www.netgear.com/mobile-wifi/hotspots/mr6550/"
+    },
+    {
+      "vendor": "teltonika",
+      "model": "RUTM50",
+      "label": "Teltonika RUTM50 industrial 5G router",
+      "category": "router",
+      "description": "Industrial 5G router, 3GPP Rel.16 sub-6 SA/NSA with ~3.4 Gbps downlink and dual-SIM failover. Five Gigabit Ethernet ports (1x WAN plus 4x LAN) and dual-band Wi-Fi 5 at 867 Mbps; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://www.teltonika-networks.com/products/routers/rutm50"
+    },
+    {
+      "vendor": "mikrotik",
+      "model": "Chateau 5G",
+      "label": "MikroTik Chateau 5G home router",
+      "category": "router",
+      "description": "Chateau 5G (D53G-5HacD2HnD-TC&RG502Q-EA) pairs a 5G sub-6 RG502Q-EA modem with five Gigabit Ethernet ports and 2x2 802.11ac dual-band Wi-Fi at 867 + 300 Mbps. The 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "ether1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ether5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://mikrotik.com/product/chateau_5g"
+    },
+    {
+      "vendor": "cudy",
+      "model": "P5",
+      "label": "Cudy P5 5G AX3000 Wi-Fi 6 router",
+      "category": "router",
+      "description": "Cudy P5 2.0, a 5G Rel.16 CPE on the Snapdragon X62 rated 3.4 Gbps downlink in NSA and 2.4 Gbps in SA, with LTE Cat 19 fallback. Four Gigabit Ethernet ports (WAN/LAN switchable) and 4-stream Wi-Fi 6 at 2402 + 574 Mbps; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "574M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G"
+        }
+      ],
+      "sourceUrl": "https://www.cudy.com/products/p5-2-0"
+    },
+    {
+      "vendor": "gl-inet",
+      "model": "Spitz AX",
+      "label": "GL.iNet Spitz AX 5G NR router (GL-X3000)",
+      "category": "router",
+      "description": "GL.iNet Spitz AX (GL-X3000) is a dual-SIM Wi-Fi 6 5G router built on a Quectel RM520N-GL module (5G sub-6, 2.4 Gbps downlink in SA). One 2.5 Gigabit Ethernet WAN port, one Gigabit LAN port and Wi-Fi 6 at 574 + 2402 Mbps; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "574M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G"
+        }
+      ],
+      "sourceUrl": "https://www.gl-inet.com/en-us/products/gl-x3000/"
+    },
+    {
+      "vendor": "huawei",
+      "model": "5G CPE Win",
+      "label": "Huawei 5G CPE Win outdoor 5G CPE (H312-371)",
+      "category": "router",
+      "description": "Outdoor 5G CPE (H312-371) on the Balong 5000, 5G sub-6 NSA/SA rated 1.65 Gbps down / 250 Mbps up with 4G fallback. Its whole wired side is one Gigabit Ethernet port, which also carries the passive PoE feed, so no Wi-Fi radio is declared and the 5G uplink is carried as wan5g.",
+      "capabilities": [
+        "dhcp-client",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.5g-cell.com/product/huawei-5g-cpe-win-h312-371/"
+    },
+    {
+      "vendor": "zte",
+      "model": "MC7010",
+      "label": "ZTE NetBox MC7010 outdoor 5G CPE",
+      "category": "router",
+      "description": "ZTE NetBox outdoor 5G CPE (Snapdragon X55M, sub-6 NSA/SA) rated 3.8 Gbps down / 331 Mbps up with LTE Cat 22/20 fallback. A single 2.5 Gigabit RJ45 port carries the data and the standard PoE feed; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "dhcp-client",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.router-switch.com/pdf2html/pdf/zt:mc7010-datasheet.pdf"
+    },
+    {
+      "vendor": "netgear",
+      "model": "Nighthawk M1",
+      "label": "Netgear Nighthawk M1 LTE Cat 16 hotspot (MR1100)",
+      "category": "router",
+      "description": "LTE Cat 16 mobile router (MR1100) at 1 Gbps down / 150 Mbps up with 4-band carrier aggregation and 4x4 MIMO. One Gigabit Ethernet port plus dual-band 802.11ac Wi-Fi at 867 + 300 Mbps; the LTE uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "867M"
+        }
+      ],
+      "sourceUrl": "https://www.netgear.com/images/datasheet/mobile/MR1100_100NAS.pdf"
+    },
+    {
+      "vendor": "quectel",
+      "model": "RM520N-GL",
+      "label": "Quectel RM520N-GL 5G sub-6 M.2 module",
+      "category": "modem",
+      "description": "5G sub-6 GHz M.2 Key B module (30 x 52 x 2.3 mm, Snapdragon X62, 3GPP Rel.16, no mmWave) at 2.4 Gbps down / 900 Mbps up in SA and 3.4 Gbps / 550 Mbps in NSA. It has no Ethernet of its own - the host data path is modelled as wan5g and a carrier board is needed to wire it into a lab.",
+      "capabilities": [
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.quectel.com/product/5g-rm520n-series/"
+    },
+    {
+      "vendor": "quectel",
+      "model": "EC25-E",
+      "label": "Quectel EC25-E LTE Cat 4 mini PCIe module",
+      "category": "modem",
+      "description": "LTE Cat 4 mini PCIe module (30 x 51 x 4.9 mm) at 150 Mbps down / 50 Mbps up with LTE-FDD/TDD, WCDMA and GSM fallback. The module exposes no ports of its own, so the host-facing data path is modelled as wan5g and a mini PCIe carrier is required.",
+      "capabilities": [
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "200M"
+        }
+      ],
+      "sourceUrl": "https://www.quectel.com/product/lte-ec25-mini-pcie-series/"
+    },
+    {
+      "vendor": "sierra-wireless",
+      "model": "EM9191",
+      "label": "Sierra Wireless EM9191 5G NR sub-6 M.2 module",
+      "category": "modem",
+      "description": "5G NR sub-6 GHz M.2 module (3GPP Rel.15, LTE Cat 20 fallback) with a 4.5 Gbps down / 660 Mbps up peak; mmWave needs the sibling EM9190. No Ethernet port exists on the module, so its host data path is modelled as wan5g.",
+      "capabilities": [
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.sierrawireless.com/iot-modules/5g-modules/em9191/"
+    },
+    {
+      "vendor": "telit",
+      "model": "LM960A18",
+      "label": "Telit LM960A18 LTE Cat 18 mini PCIe card",
+      "category": "modem",
+      "description": "LTE Cat 18 mini PCIe data card at 1.2 Gbps down / 150 Mbps up with up to 5x downlink carrier aggregation and 4x4 MIMO, band 48 (CBRS) included. It has no connectors of its own, so the host data path is modelled as wan5g.",
+      "capabilities": [
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.telit.com/wp-content/uploads/2024/10/TC_LM960A18_Product_Brief.pdf"
+    },
+    {
+      "vendor": "ericsson",
+      "model": "Radio Dot",
+      "label": "Ericsson Radio Dot indoor small cell",
+      "category": "wireless",
+      "description": "Indoor 4G/5G SA small cell of the Radio Dot System, up to 4x4 MIMO and mid-band NR, powered and backhauled over the single Ethernet cable (PoE++) to an Indoor Radio Unit that serves up to eight Dots. Only that 1 Gigabit Ethernet port is modelled: the NR air interface is not a Wi-Fi radio, so no wireless port is declared.",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://cradlepoint.ericsson.com/products/radios/ericsson-radio-dot-system/"
+    },
+    {
+      "vendor": "samsung",
+      "model": "Link Cell",
+      "label": "Samsung Link Cell indoor 5G mmWave small cell",
+      "category": "wireless",
+      "description": "Integrated indoor 5G mmWave small cell with baseband, radio and antenna in one unit, connected to the virtualized CU by a single Cat.6 Ethernet backhaul instead of a fibre fronthaul. That 1 Gigabit Ethernet port is the only modelled interface - the mmWave air interface is not a Wi-Fi radio, so no wireless port is declared.",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.samsung.com/global/business/networks/products/radio-access/indoor-solutions/"
+    },
+    {
+      "vendor": "nokia",
+      "model": "FastMile 5G Gateway 5G-24W-A",
+      "label": "Nokia FastMile 5G Gateway (5G-24W-A)",
+      "category": "router",
+      "description": "Indoor 5G FWA gateway (5G-24W-A) with a 2.5 Gigabit Ethernet WAN port and three Gigabit LAN ports, plus 3x3 802.11n 2.4 GHz and 4x4 802.11ac MU-MIMO 5 GHz Wi-Fi. The 5G NR sub-6 uplink with 4G fallback is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "450M"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "1.7G"
+        }
+      ],
+      "sourceUrl": "https://www.nokia.com/sites/default/files/2022-11/fastmile-5g-r1_0_03-gateway-end-user-guide.pdf"
+    },
+    {
+      "vendor": "teltonika",
+      "model": "TRB501",
+      "label": "Teltonika TRB501 5G IoT gateway with eSIM",
+      "category": "router",
+      "description": "Industrial 5G gateway, 3GPP Rel.16 sub-6 at 2.4 Gbps downlink in SA and 3.4 Gbps in NSA, with eSIM plus bootstrap so a profile can be pulled over the air before an Ethernet WAN exists. One 2.5 Gigabit Ethernet LAN port; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.teltonika-networks.com/products/gateways/trb501"
+    },
+    {
+      "vendor": "moxa",
+      "model": "OnCell G4302-LTE4",
+      "label": "Moxa OnCell G4302-LTE4 industrial LTE gateway",
+      "category": "router",
+      "description": "Industrial LTE Cat 4 cellular secure router with a 2-port Gigabit switch (2x 10/100/1000BaseT(X) RJ45) and dual SIM for failover. The LTE uplink tops out at 150 Mbps downlink and is carried as the Ethernet-class interface wan5g.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "wan5g",
+          "type": "ethernet",
+          "speed": "200M"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/en/products/industrial-network-infrastructure/cellular-gateways-routers/cellular-routers/oncell-g4302-lte4-series"
+    }
+  ]
+}

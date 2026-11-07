@@ -1,22 +1,23 @@
 {
   "vendor": "extreme",
   "model": "AP4000",
-  "label": "AP4000",
+  "label": "Extreme AP4000 Wi-Fi 6E AP",
   "category": "wireless",
-  "description": "Extreme AP4000 - indoor Wi-Fi 6E tri-radio access point (2.4 GHz, 5 GHz and 6 GHz, 2x2:2 each) with Eth0 100/1000/2500 Mbps 802.3at PoE and Eth1 10/100/1000 Mbps.",
+  "description": "Wi-Fi 6E tri-radio 2x2:2 universal indoor AP (3.9 Gbps aggregate) that can run as three data radios or two data radios plus a tri-frequency sensor. ETH0 is a 100/1000/2500 Mbps PoE port, ETH1 a 1G port; 802.3at powered at 13.8 W typical.",
   "capabilities": [
     "wireless",
     "l2-forward",
-    "cli"
+    "http-server"
   ],
   "interfaces": [
     {
-      "name": "Eth0",
+      "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 13.8
     },
     {
-      "name": "Eth1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
@@ -28,14 +29,13 @@
     {
       "name": "radio1",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "2.5G"
     },
     {
       "name": "radio2",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "2.5G"
     }
   ],
-  "icon": "ap",
-  "color": "#e11d48"
+  "sourceUrl": "https://www.extremenetworks.com/products/wi-fi-access-points/universal-aps-indoor/ap4000"
 }

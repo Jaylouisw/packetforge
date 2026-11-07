@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-5-plus.html",
+  "notes": "Dual 2.5G: the cheapest way to get two 2.5G ports in a lab router/firewall role (VyOS/OpenWrt). No onboard Wi-Fi - add a 2230 Wi-Fi 6 module to the M.2 E-key slot and add wlan0 to the model if the lab needs it."
 }

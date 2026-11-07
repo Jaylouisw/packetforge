@@ -1,52 +1,145 @@
 {
   "vendor": "juniper",
   "model": "SRX380",
-  "label": "Juniper SRX380 firewall",
-  "category": "firewall",
-  "description": "Juniper SRX380 - large-branch/campus services gateway: 16x 1G RJ45 PoE+ ports (ge-0/0/0-15) + 4x 1G/10G SFP/SFP+ ports (xe-0/0/16-19), all MACsec-capable, plus a dedicated 1G MGMT port and 4 Mini-PIM slots. WAN is normally carried on the four SFP/SFP+ ports, LAN on the 16 copper PoE ports.",
+  "label": "SRX380 SD-WAN security gateway",
+  "category": "router",
+  "description": "1 RU branch SD-WAN gateway / firewall rated 20 Gbps firewall and 10 Gbps IMIX routing: 16 PoE-enabled 1G RJ-45 access ports, four MACsec-capable SFP/SFP+ ports that run at 1G or 10G, and a dedicated RJ-45 management port. Four mini-PIM slots take additional WAN or copper/fibre modules.",
   "capabilities": [
-    "cli",
-    "dhcp-client",
-    "dhcp-server",
-    "firewall",
-    "http-server",
     "l3-forward",
-    "nat"
+    "nat",
+    "firewall",
+    "cli",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
   ],
-  "portTemplate": {
-    "prefix": "ge-0/0/",
-    "start": 0,
-    "count": 16,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
     {
-      "name": "mgmt",
+      "name": "ge-0/0/0",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "xe-0/0/16",
+      "name": "ge-0/0/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "xe-0/0/17",
+      "name": "ge-0/0/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "xe-0/0/18",
+      "name": "ge-0/0/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "xe-0/0/19",
+      "name": "ge-0/0/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "ge-0/0/16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ge-0/0/17",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ge-0/0/18",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "ge-0/0/19",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "fxp0",
+      "type": "ethernet",
+      "speed": "1G"
     }
   ],
-  "icon": "firewall",
-  "color": "#ef4444"
+  "sourceUrl": "https://apps.juniper.net/hct/product/SRX380/hwspecs",
+  "notes": "Juniper HCT hardware specs for SRX380-P-SYS-JB-AC: RJ-45 port count 16, SFP+ port count 4 (both MACsec), management port 1x RJ-45 (fxp0), 4 mini-PIM slots, 2 console ports. The four SFP+ cages accept 1G or 10G optics per the SRX380 chassis documentation (\"Four 1 or 10-Gigabit Ethernet MACsec-enabled SFP or SFP+ ports\"), hence speedCaps 1000/10000. The 16 copper ports are 802.3at PoE-enabled."
 }

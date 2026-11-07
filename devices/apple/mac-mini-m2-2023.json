@@ -18,7 +18,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.apple.com/mac-mini/specs/",
+  "notes": "1GbE RJ45 is standard on the M2 mini; the 10GbE option is a configure-to-order upgrade, so the default node links at 1G. Wi-Fi 6E + BT 5.3 also onboard - dual-homed host for redundancy tests."
 }

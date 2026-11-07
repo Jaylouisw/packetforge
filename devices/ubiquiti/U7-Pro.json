@@ -1,25 +1,27 @@
 {
   "vendor": "ubiquiti",
   "model": "U7-Pro",
-  "label": "UniFi 7 Pro",
+  "label": "UniFi U7 Pro",
   "category": "wireless",
-  "description": "Tri-band WiFi 7 access point with a 2.5G PoE+ uplink and 6 GHz support.",
+  "description": "Tri-band Wi-Fi 7 (802.11be) ceiling AP with 2x2 MU-MIMO on 2.4, 5 and 6 GHz (6 spatial streams, up to 5.8 Gbps in 6 GHz). It has one 1/2.5GbE RJ45 port with 802.3at PoE+ and three radios: 2.4, 5 and 6 GHz.",
   "capabilities": [
-    "l2-forward",
     "wireless",
+    "l2-forward",
+    "dhcp-client",
     "cli",
     "http-server"
   ],
   "interfaces": [
     {
-      "name": "port1",
+      "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "5.8G"
+      "speed": "688M"
     },
     {
       "name": "radio1",
@@ -29,9 +31,9 @@
     {
       "name": "radio2",
       "type": "wireless",
-      "speed": "688M"
+      "speed": "5.8G"
     }
   ],
-  "icon": "ap",
-  "color": "#3b82f6"
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro",
+  "notes": "PoE+ (802.3at), 21W max consumption. Single 2.5GbE port; 320 MHz channels and the 5.8 Gbps 6 GHz rate are far beyond a 2.5G uplink, so it is backhaul-limited."
 }

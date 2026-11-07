@@ -15,32 +15,64 @@
     {
       "name": "1/1/c1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/c2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/c3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/c4",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/c5",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/c6",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://documentation.nokia.com/sr/24-3/7750-sr/pdf/Interface_Configuration_Guide_24.3.R1.pdf",
+  "notes": "Nokia 7750 SR data sheet: the SR-1 is a \"modular, single-slot system supporting up to 1.5 Tb/s FD\" with QSFP56-DD/QSFP28/SFP28 connectors and 10x10GE, 2x100GE and 4x100GE breakout options. The SR OS interface guides use the SR-1 with the 6-port QSFP28 mda-e-xp as the worked example (connector naming slot/mda/connector, i.e. 1/1/c1). Port list shown is that documented build; a different MDA changes the port mix."
 }

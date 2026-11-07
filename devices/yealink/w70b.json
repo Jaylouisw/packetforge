@@ -13,7 +13,10 @@
     {
       "name": "lan",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 3.84
     }
-  ]
+  ],
+  "sourceUrl": "https://support.yealink.com/docs/w70b/yealink-w70b-datasheet/90719da65c2b4c3089fb13f5ef34c3ce",
+  "notes": "'1 x RJ45 10/100M Ethernet port', 'Power over Ethernet (IEEE 802.3af), Class 1' - one port only, 100M, no PC passthrough (base stations are not daisy-chained). DECT radio 1880-1900 MHz (EU) / 1920-1930 MHz (US), CAT-iq2.0, up to 10 handsets (W73H/W59R/W53H/W56H) and 5 concurrent calls; the DECT air interface and handsets are deliberately not modelled as Ethernet interfaces. Signals the PoE class-1 vs class-3 distinction in a lab: a 3.84 W load that some 802.3af switches misclassify."
 }

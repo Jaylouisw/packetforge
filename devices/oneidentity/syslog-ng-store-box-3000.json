@@ -35,5 +35,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support-public.cfm.quest.com/75547_SSB_7.4.0_InstallationGuide.pdf",
+  "notes": "Installation guide: 'NIC: 2 x 1GBase-T Ethernet ports via onboard Intel I210-AT' + '4 x 1GBase-T Ethernet ports via Supermicro AOC-SGP-i4', plus 'Dedicated IPMI LAN port'. One Identity port-mapping KB: on the SSB 3000, ports 1-4 map to eth0 (external), eth1 (management), eth2 (internal, unused) and eth3 (HA); the remaining two onboard RJ45 ports are unused. The SSB 3500 adds 2x 10G SFP+."
 }

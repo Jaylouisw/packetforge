@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.hp.com/us-en/document/ish_5968940-5969005-16",
+  "notes": "1GbE Intel I219-LM RJ45 standard; HP offers Wi-Fi 6E only as a configure-to-order option. Wired 1G host suited to serving DHCP/TFTP in a lab segment."
 }

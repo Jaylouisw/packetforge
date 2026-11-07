@@ -33,22 +33,30 @@
     {
       "name": "poe1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "poe4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     }
+  ],
+  "sourceUrl": "https://ww1.microchip.com/downloads/en/DeviceDoc/PD-9004G_Datasheet_00003976B.pdf",
+  "role": [
+    "midspan"
   ]
 }

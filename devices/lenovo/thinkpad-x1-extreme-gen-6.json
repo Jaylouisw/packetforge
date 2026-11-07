@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_X1_Extreme_Gen_6",
+  "notes": "No RJ45 - the X1 Extreme dropped the jack, so wired is Thunderbolt-dock only at 1GbE. Wi-Fi 6E AX211 onboard; a heavy host that still cannot be cabled directly."
 }

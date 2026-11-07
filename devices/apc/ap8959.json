@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.se.com/us/en/product/AP8959/rack-pdu-2g-switched-20a-208v-16a-230v-21-c13-3-c19/",
+  "notes": "APC rack PDU family spec: '9000 series PDUs provide Gigabit Ethernet... All other models provide 10/100 ethernet connectivity' - the AP8959 is an 8000-series unit, hence Fast Ethernet. Network port sharing chains up to 4 PDUs on 8000 series (32 on 9000 series) over the RJ45 link port, which is a PDU-to-PDU bus and not an Ethernet segment. Discontinued Nov 2024."
 }

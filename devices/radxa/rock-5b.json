@@ -17,5 +17,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://radxa.com/products/rock5/5b/",
+  "notes": "Single 2.5GbE, no onboard Wi-Fi/BT on the plain 5B (the ROCK 5B+ adds an RTL8852BE Wi-Fi 6 module - model that variant separately if needed). Same RK3588 class as the Orange Pi 5 Plus but half the NICs."
 }

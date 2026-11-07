@@ -17,7 +17,12 @@
     {
       "name": "poe_out",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     }
+  ],
+  "sourceUrl": "https://www.planet.com.tw/en/product/poe-e201-v2",
+  "role": [
+    "poe-extender"
   ]
 }

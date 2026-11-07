@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-ai-pro",
+  "notes": "PoE class 802.3at, 25.5 W at the PSE; 11 W bare, 22 W with the enhancer - over 802.3af's 12.95 W ceiling, so it will not boot on an af port. Wired only, and one of the few cameras here with a gigabit port."
 }

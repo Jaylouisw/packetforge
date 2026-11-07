@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://system76.com/tech-docs/models/lemp14/specs",
+  "notes": "Zero Ethernet: the spec sheet lists no wired NIC at all, only Wi-Fi 7 + BT 5.4. Wired requires a USB-C dock or dongle (1GbE in practice) - the cleanest example of a Linux laptop with no RJ45."
 }

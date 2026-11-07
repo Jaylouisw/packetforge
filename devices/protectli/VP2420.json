@@ -2,14 +2,18 @@
   "vendor": "protectli",
   "model": "VP2420",
   "label": "Protectli Vault Pro VP2420",
-  "category": "firewall",
-  "description": "Fanless Intel Celeron J6412 firewall with four 2.5GbE Intel i225-V/i226-V ports.",
+  "category": "host",
+  "description": "Fanless Intel Celeron J6412 appliance with four Intel 2.5GbE RJ45 ports (i225-V or i226-V depending on build date) and no wireless; the classic quad-2.5G pfSense/OPNsense box.",
   "capabilities": [
-    "l3-forward",
-    "firewall",
+    "host",
     "cli",
-    "nat",
-    "dhcp-server"
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat"
   ],
   "interfaces": [
     {
@@ -33,6 +37,6 @@
       "speed": "2.5G"
     }
   ],
-  "icon": "firewall",
-  "color": "#334155"
+  "sourceUrl": "https://protectli.com/product/vp2420/",
+  "notes": "4x 2.5G, no fans, no Wi-Fi - great WAN/LAN/DMZ/OPT lab corner. Existing catalogue copy of VP2420 is categorised 'firewall'; this batch uses 'host' for all SBC/mini-PC/fanless-appliance entries."
 }

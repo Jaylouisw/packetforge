@@ -15,7 +15,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -32,5 +33,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.downloads.netgear.com/files/GDC/CM3000/CM3000_UM_EN.pdf",
+  "notes": "User manual Table 5 'Technical specifications': Local one 2.5 Gbps RJ-45 port, Aggregate two 1 Gigabit RJ-45 ports, Internet coax DOCSIS 3.1; channels 2 OFDM + 32 SC-QAM DS, 2 OFDMA + 8 SC-QAM US. The two 1G ports bond for ~2 Gbps when the router supports LAG."
 }

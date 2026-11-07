@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/unified-communications/ata-190-series-analog-telephone-adapters/datasheet-c78-740013.html",
+  "notes": "Datasheet hardware: two RJ-11 FXS ports, one 10/100 Mbps RJ-45 Ethernet port; admin guide calls it an RJ-45 10/100BASE-T WAN port with autonegotiation, no gigabit. Each FXS port has its own MAC address but is analog telephony, so it is not modelled. SLIC drives 3 REN ring load, 40-90 Vpk ring voltage. IPv4 only on the 191 (the 192 adds IPv6). 802.1p/Q, DiffServ, CDP, LLDP, SNTP, 5 VDC power (no PoE)."
 }

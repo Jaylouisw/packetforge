@@ -14,7 +14,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
       "name": "radio0",
@@ -26,5 +27,7 @@
       "type": "wireless",
       "speed": "2.4G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.engeniustech.com/apac/wp-content/uploads/EWS377AP_11ax_DataSheet_20200901.pdf",
+  "notes": "Single 2.5G PoE port plus a DC jack (DC input is not an Ethernet port). 802.3at or proprietary 54V adapter."
 }

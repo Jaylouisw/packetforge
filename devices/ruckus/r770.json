@@ -13,7 +13,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": 32
     },
     {
       "name": "eth1",
@@ -35,5 +36,6 @@
       "type": "wireless",
       "speed": "5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.ruckusnetworks.com/products/wireless-access-points/r770/"
 }

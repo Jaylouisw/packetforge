@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://consumer.huawei.com/en/phones/p60-pro/specs/",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz, no Wi-Fi 6E. Cellular: LTE Cat 19 only; the Snapdragon 8+ Gen 1 4G variant has the 5G modem disabled by sanctions, so model wwan0 as LTE despite flagship silicon. USB-C 3.1 Gen 1 with Ethernet adapter support (usb0). No Google services; HarmonyOS handles captive portals differently, worth noting for guest-Wi-Fi onboarding tests."
 }

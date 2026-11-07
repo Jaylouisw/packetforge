@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111872",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2 MIMO, 2.4/5 GHz, 80 MHz) — same radio class as iPhone 12, still no 6 GHz. Cellular: 5G sub-6 GHz plus mmWave on US SKUs, LTE fallback. Lightning = USB 2.0 only, so no usb0 Ethernet interface. Modelled without mmWave-specific port; treat wwan0 as sub-6 with mmWave opportunistically available in US deployments."
 }

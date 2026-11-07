@@ -11,42 +11,52 @@
     {
       "name": "fwd1",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "fwd2",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "fwd3",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "fwd4",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "rtn1",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "rtn2",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "rtn3",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "rtn4",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     }
-  ]
+  ],
+  "sourceUrl": "https://digicomm.com/wp-content/uploads/2023/12/commscope_OM6000-Node-HFC_DS.pdf",
+  "notes": "Counted: 4x4 switchable segmentation => 4 forward + 4 return RF segments; 'provisions for ten optics modules in the lid and four RF modules in the base', 10 application module slots + 2 SG4 auxiliary slots, 6 housing ports total, optical connector SC/APC, 54/85/102/258-1218 MHz DS with upstream to 204 MHz. The optical side is not modelled as a port because the lid modules are ordered separately (analog Rx/Tx, digital return SFP, or an RPD); this node is the RF boundary in the simulator, not an IP host."
 }

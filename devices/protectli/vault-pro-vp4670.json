@@ -46,5 +46,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://protectli.com/product/vp4670/",
+  "notes": "6x 2.5G, i7-10810U, M.2 NVMe + 2.5in SATA, 16GB eMMC, micro-USB console. The VP4600 family are 6-port 2.5G boxes (VP4630/VP4630e/VP4650/VP4670); only CPU differs, so this spec covers the family at the top SKU."
 }

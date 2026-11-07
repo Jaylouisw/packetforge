@@ -133,12 +133,22 @@
     {
       "name": "ge1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ge2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.scribd.com/document/300082582/Manual-Hardware-9806H",
+  "notes": "9806H: 4 user slots; 24-port ADSL/ADSL2+ card, 16-port VDSL2 card, 24-port SHDSL card. SCCB control card gives 2x GE/FE electrical/fibre uplink, or 1x GE + 1x GPON/EPON with an uplink subcard."
 }

@@ -18,5 +18,9 @@
       "type": "ethernet",
       "speed": "1G"
     }
+  ],
+  "sourceUrl": "https://shop.poetexas.com/products/gaf-12v12w",
+  "role": [
+    "poe-splitter"
   ]
 }

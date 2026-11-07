@@ -20,42 +20,52 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/lite-series/nvr2-4ks3-series/nvr2108hs-8p-4ks3",
+  "notes": "PoE out: 802.3af/at, 25.5 W per port, 72 W total from the datasheet. NVR itself draws under 10 W without a disk. Internal PoE ports are a separate L2 domain with DHCP; camera discovery from the LAN needs the NVR's port mapping or a manual route."
 }

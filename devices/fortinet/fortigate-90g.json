@@ -24,24 +24,43 @@
     {
       "name": "wan1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "comboWith": "sfp1",
+      "comboRole": "rj45"
     },
     {
       "name": "wan2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "comboWith": "sfp2",
+      "comboRole": "rj45"
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "comboWith": "wan1",
+      "comboRole": "sfp"
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "comboWith": "wan2",
+      "comboRole": "sfp"
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-90g-series.pdf"
 }

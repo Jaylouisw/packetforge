@@ -13,84 +13,105 @@
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30
     },
     {
       "name": "port9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "port16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     }
   ],
+  "poe": {
+    "budgetW": 45,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lite-16-poe"
+  },
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lite-16-poe"
 }

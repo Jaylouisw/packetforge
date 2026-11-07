@@ -10,7 +10,8 @@ All of it lives in two files:
 
 | File | Holds |
 |------|-------|
-| `engine/media.js` | `MEDIA`, `CAGES`, `CAGE_ALIAS`, `CAGE_MATE`, `CAGE_MEDIA`, `CAGE_SPEEDS`, `FERRULE`, `inferCage`, `derivePortHardware`, `commonMedia`, `negotiateSpeed`, `canMate`, `polishMismatch` |
+| `engine/media.js` | `MEDIA`, `CAGES`, `CAGE_ALIAS`, `CAGE_MATE`, `CAGE_MEDIA`, `CAGE_SPEEDS`, `FERRULE`, `inferCage`, `derivePortHardware`, `commonMedia`, `commonMediaBridged`, `negotiateSpeed`, `canMate`, `polishMismatch` |
+| `engine/optical.js` | the ODN catalogue, `patchCords`/`patchCord`, `hybridCord`, `cordFits`, `cordLossDb`, and `ponBudget` |
 | `engine/validation.js` | `validateConnection`, `validateTopology`, the `RULES` catalogue of error codes |
 
 `engine/media.js` is pure data plus pure functions — no dependency on `Device` or
@@ -241,6 +242,48 @@ Field conventions for the colours are enforced only by comment and by the
 `colour` field: green is APC, blue is UPC, aqua is MPO. Use the colour as your
 sanity check when reading a datasheet — an OLT "green SC" port is APC.
 
+#### The hybrid cord: the one legal way across
+
+Real OLT-to-ODN plant is *made* of this mismatched pair. Vendor OLT PON modules
+ship SC/UPC (FS `GSFP-43-20C`, `XGS-SFP-52-20N2I`) while the ODN side is SC/APC,
+and what joins them is a **hybrid patch cord** — a factory-terminated assembly
+with UPC on one end and APC on the other. The polish change happens inside the
+lead, between two ferrules ground to match each other, so there is no air gap and
+nothing to chip.
+
+The engine models that as a **part**, not as a looser rule:
+
+```js
+optical.hybridCord('sc-upc', 'sc-apc')   // -> the SMSCSX catalogue entry
+optical.hybridCord('sc-apc', 'sc-upc')   // -> the same entry (order does not matter)
+optical.hybridCord('sc-apc', 'sc-apc')   // -> null: a matched pair needs no cord
+```
+
+`hybridCord(a, b)` only answers for the same shape with different polishes, and
+only when `catalogue/optics/odn.json` actually contains a cord terminated that
+way. A link then *declares* the part:
+
+```js
+topo.connect(olt.id, 'gpon0/1', sp.id, 'uplink', { lengthM: 2000, patchCord: 'SMSCSX' });
+```
+
+`validateConnection` returns `ok: true`, `polishWeakened: true`,
+`patchCord: 'SMSCSX'`, `patchCordLossDb: 0.3`, the medium `gpon-sc-hybrid` (the
+cord, not one polish), and a `W_HYBRID_CORD` warning. The 0.3 dB is the cord's
+published insertion loss and is added to the PON budget.
+
+Two things that deliberately do **not** change:
+
+- An **uncorded** `sc-apc` ↔ `sc-upc` link is still `E_POLISH_MISMATCH`. The
+  refusal now also names the hybrid part that would make it buildable.
+- A cord whose ends are not the two cages in front of you is refused with
+  `E_PATCH_CORD_ENDS`, and an unknown part number with `E_PATCH_CORD_UNKNOWN`.
+  The cord is not a permission flag; it is a specific assembly with two specific
+  endfaces, and putting one on two UPC ports is the wrong part.
+
+Absent `patchCord` means ordinary cable, which is what every saved topology
+written before this existed records.
+
 ### 4.3 LC into SC
 
 Different shape (`shape: 'lc'` versus `shape: 'sc'`), so `polishMismatch` is
@@ -401,6 +444,8 @@ Everything the rules engine can emit, and where it comes from:
 | `E_CONSOLE_TO_DATA` | error | validation | Console port paired with a data port |
 | `E_WIRELESS_TO_WIRED` | error | media `canMate` | Radio against a wired cage |
 | `E_POLISH_MISMATCH` | error | media `canMate` | Same ferrule shape, different polish |
+| `E_PATCH_CORD_UNKNOWN` | error | validation | Declared patch cord is not in the catalogue |
+| `E_PATCH_CORD_ENDS` | error | validation | Declared patch cord ends are not the two cages being joined |
 | `E_CONNECTOR_MISMATCH` | error | media `canMate` | Cages cannot physically mate |
 | `E_NO_COMMON_MEDIA` | error | media `canMate` | Cages mate but share no medium |
 | `E_NO_COMMON_SPEED` | error | media `canMate` | Shared medium, no common rate |
@@ -414,6 +459,7 @@ Everything the rules engine can emit, and where it comes from:
 | `W_DUPLEX_MISMATCH` | warning | validation | Ends disagree on duplex |
 | `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of *both* ports |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
+| `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
 
 `RULES` in `validation.js` is the declared catalogue, and `validateTopology`
 uses it for severity. Three codes above are emitted but **not** in `RULES`:

@@ -77,6 +77,30 @@ URL already filled from the issue, plus the path it should be written to. Paste 
 the real interfaces from the datasheet, run `npm test`, and the invariants will
 tell you if the ports and the description disagree.
 
+### What hardware is missing? Ask the labs
+
+The catalogue follows the labs: a topology that names a model we do not have is
+the clearest request the project can receive.
+
+```bash
+node scripts/missing-devices.js              # scan examples/, report only
+node scripts/missing-devices.js lab5.json    # one topology, or a whole directory
+node scripts/missing-devices.js --stubs      # write research/incoming/missing-<vendor>.json
+node scripts/missing-devices.js --json       # machine-readable
+```
+
+It exits 1 as soon as a lab references a model that is not in `devices/`, which
+is why CI runs it over `examples/`: a lab cannot merge alongside hardware the
+simulator does not have. Without `--stubs` it writes nothing at all.
+
+`--stubs` produces a form, not a device. `category` is `unknown` unless the model
+string names the type outright, `capabilities` is the `["host"]` placeholder and
+`interfaces` is empty with a note saying why. That is deliberate — the port list
+is the field the physical layer trusts, and an invented one creates a device that
+refuses cabling the real hardware accepts. Fill the ports in from a datasheet,
+then run `node scripts/import-devices.js --apply`. Re-running `--stubs` never
+overwrites what you have already filled in.
+
 To close the loop on a merged request, reference the issue in the commit
 (`closes #12`) so the requester is notified automatically.
 

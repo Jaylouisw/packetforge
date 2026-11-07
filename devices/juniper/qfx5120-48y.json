@@ -1,63 +1,109 @@
 {
   "vendor": "juniper",
   "model": "QFX5120-48Y",
-  "label": "QFX5120-48Y Switch",
+  "label": "Juniper QFX5120-48Y",
   "category": "l3-switch",
-  "description": "Juniper QFX5120-48Y - 48x 1G/10G/25G SFP28 (et-0/0/0-47) plus 8x 40G/100G QSFP28 (et-0/1/0-7).",
+  "description": "Juniper QFX5120 1RU leaf: 48x 1/10/25G SFP28 access ports plus 8x 40/100G QSFP28 uplinks, 4 Tbps, EVPN-VXLAN capable. QSFP28 uplinks break out to 4x 25G or 4x 10G.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "et-0/0/",
     "start": 0,
     "count": 48,
     "type": "ethernet",
-    "speed": "25G"
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
   },
   "interfaces": [
     {
-      "name": "et-0/1/0",
+      "name": "et-0/0/48",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/1",
+      "name": "et-0/0/49",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/2",
+      "name": "et-0/0/50",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/3",
+      "name": "et-0/0/51",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/4",
+      "name": "et-0/0/52",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/5",
+      "name": "et-0/0/53",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/6",
+      "name": "et-0/0/54",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
-      "name": "et-0/1/7",
+      "name": "et-0/0/55",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
   ],
-  "icon": "switch",
-  "color": "#84cc16"
+  "sourceUrl": "https://www.juniper.net/us/en/products/switches/qfx-series/qfx5120-data-center-switches/specs.html"
 }

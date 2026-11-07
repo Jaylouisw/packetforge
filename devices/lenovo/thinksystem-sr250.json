@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://lenovopress.lenovo.com/ds0066.pdf",
+  "notes": "Onboard: 2x 1GbE (BCM5720) plus 1x 1GbE dedicated XCC management port. No OCP bay on this model; 2x PCIe Gen4 slots (x8/x8 or x16) take any 10GbE adapter. XCC port is a separate management network."
 }

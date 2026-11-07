@@ -19,12 +19,21 @@
     {
       "name": "enp1s0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "enp2s0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.truenas.com/truenas-mini/"
 }

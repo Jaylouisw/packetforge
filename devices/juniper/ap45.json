@@ -1,26 +1,42 @@
 {
   "vendor": "juniper",
   "model": "AP45",
-  "label": "Mist AP45 Access Point",
+  "label": "Juniper Mist AP45",
   "category": "wireless",
-  "description": "Juniper Mist AP45 - indoor Wi-Fi 6E (802.11ax) tri-band 4x4/4x4/2x2 AP: eth0 5G PoE-in, eth1 1G data/PoE-out.",
+  "description": "Flagship tri-band Wi-Fi 6E indoor AP with 4x4:4 on 2.4, 5 and 6 GHz (8.3 Gbps aggregate) plus a dedicated fourth radio for WIDS/WIPS, spectrum analysis and vBLE location. Eth0 is 100/1000/2500/5000BASE-T PoE-PD and Eth1 is 10/100/1000BASE-T, with three client-serving radios (2.4, 5 and 6 GHz).",
   "capabilities": [
-    "l2-forward",
     "wireless",
-    "cli"
+    "l2-forward",
+    "dhcp-client"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "poeIn": 25.5
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "4.8G"
     }
   ],
-  "icon": "ap",
-  "color": "#84cc16"
+  "sourceUrl": "https://www.juniper.net/us/en/products/access-points/ap45-datasheet.html",
+  "notes": "Eth0 supports 2.5G and 5GBASE-T (802.3bz) - modelled at its 5G maximum. Cloud-only (Mist) management, no local CLI. Eth1 can run a 15.4W PoE-out PSE mode only when Eth0 is fed by 802.3bt; that PSE mode is deliberately not modelled. The 4th radio is a sensor/monitor radio, not a service band."
 }

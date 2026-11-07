@@ -26,6 +26,11 @@ class Link {
     this.duplex = o.duplex || 'full';
     this.lengthM = (o.lengthM === undefined) ? null : o.lengthM;
     this.lagId = o.lagId || null;
+    // The patch cord actually installed, by catalogue part number (e.g. the FS
+    // SMSCSX hybrid SC/UPC-to-SC/APC lead). null means ordinary fibre: a saved
+    // topology that predates this field loads as plain cable, and a link that
+    // never mentions a cord is not charged one.
+    this.patchCord = o.patchCord || null;
     this.state = o.state || 'up';         // 'up' | 'down' | 'blocked' (STP)
   }
 
@@ -59,6 +64,7 @@ class Link {
       duplex: this.duplex,
       lengthM: this.lengthM,
       lagId: this.lagId,
+      patchCord: this.patchCord,
       state: this.state
     };
   }

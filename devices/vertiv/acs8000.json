@@ -112,5 +112,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.vertiv.com/49f559/globalassets/products/monitoring-control-and-management/serial-console-and-gateways/vertiv-avocent-acs-8000-serial-consoles/avocent-acs-8000-advanced-console-server-data-sheet.pdf",
+  "notes": "ACS8016 class hardware: 2 Gigabit fiber SFP + 2 x 10/100/1000BT RJ45, 1 RS-232 console port on RJ45 for local management (not counted in the 16 device ports), 8 USB 2.0 Type A (not modelled), environmental sensor port and 4 digital-in sensor inputs. Series also ships in 8/32/48-port and 4G LTE variants; some models include a built-in PSTN modem."
 }

@@ -31,5 +31,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://ww1.microchip.com/downloads/aemdocuments/documents/ftd/productdocuments/brochures/syncserver-s600-data-sheet-2903.pdf",
+  "notes": "Rear panel: 'Four RJ-45 100/1000BASE-T Ethernet, speed/duplex: Auto, 100/1000 full'. Each port has its own ACL and its own hardware timestamping; NTP/PTP can be served on all four (six if the 10GbE option is fitted). Console is DB9-F RS-232, GNSS is BNC L1/B1."
 }

@@ -15,7 +15,8 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
@@ -27,5 +28,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://katalog.vector.net/wp-content/uploads/import/170218_technicolor_tc4400_datasheet_kk.pdf",
+  "notes": "Datasheet: '2 x 2 OFDM(A) bonded channels in DOCSIS 3.1 mode', '32 x 8 bonded channels in DOCSIS 3.0 mode', DOCSIS 3.1 downstream up to 3.6 Gbps (3.0 mode 1372 Mbps theoretical), 'Interfaces LAN: 2 10/100/1000 Base-T Ethernet ports', DS 54-1002 MHz / up to 204 MHz split. Discontinued but still widely deployed by MSOs, so the two-port bridge shape matters for topologies."
 }

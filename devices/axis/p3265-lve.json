@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.axis.com/products/axis-p3265-lve",
+  "notes": "PoE class 802.3af (Type 1 Class 3), 12.95 W. Wired only. IR illuminator pushes draw to 10.7 W, which is the number to use for switch budget planning, not the 4.8 W typical figure."
 }

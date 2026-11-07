@@ -15,5 +15,6 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.home-assistant.io/yellow/"
 }

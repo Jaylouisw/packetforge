@@ -21,5 +21,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.qnap.com/en/product/ts-873a/specs/hardware",
+  "notes": "Onboard: 2x 2.5GbE RJ45. Two PCIe Gen3 x4 slots for 10GbE/25GbE cards or M.2 expansion. No OOB management port."
 }

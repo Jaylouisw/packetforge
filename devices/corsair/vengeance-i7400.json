@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.corsair.com/us/en/p/gaming-computers/cs-9050062-na/corsair-vengeance-i7400-series-gaming-pc-cs-9050062-na",
+  "notes": "2.5GbE RJ45 from the Realtek RTL8125 on the PRO Z690-A DDR5 board (non-WIFI SKU, so no wlan0). Corsair's own port list confirms a single rear Ethernet jack - this node must be cabled to join the lab."
 }

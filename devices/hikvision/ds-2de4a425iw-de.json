@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 25.5
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/PTZ-Cameras/Pro-Series/ds-2de4a425iw-de-s6-/",
+  "notes": "PoE class 802.3at (PoE+), 25.5 W at the PSE, 18 W actual - the device that fails on an 802.3af-only switch. Wired only; 12 VDC alternative. Pan/tilt burst current is the reason to leave headroom on the port."
 }

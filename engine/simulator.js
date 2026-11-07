@@ -16,12 +16,21 @@ const lldp = require('./lldp');
 const ipv6Lib = require('./ipv6');
 const raLib = require('./ra');
 const scionLib = require('./scion');
+const natLib = require('./nat');
+const flowLib = require('./flow');
 
 // --- frame builders ---
-function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
+// `opts` carries the two fields that are not part of an L2/L3 header but are part
+// of this frame on this wire: the transport header (l4) and the simulator-only tag
+// that says which flow the packet belongs to. The tag never crosses a socket in
+// the real world; here it is what lets the return path be attributed to the
+// connection that started it, through NAT, without guessing from a 4-tuple.
+function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp, opts) {
+  const o = opts || {};
   return {
     dstMac: dstMac, srcMac: srcMac, etherType: etherType,
     ip: ip || null, icmp: icmp || null, arp: arp || null,
+    l4: o.l4 || null, flow: o.flow || null,
     vid: 1, wireTagged: false, wireVid: null
   };
 }
@@ -61,10 +70,19 @@ function speedToCost(mbps) {
 }
 
 class Simulator {
-  constructor(topology) {
+  constructor(topology, opts) {
     this.topo = topology;
+    // Flows outlive a run. The server builds a fresh Simulator for every HTTP
+    // request but hands it the same table, so a flow opened in one request is
+    // still there to be listed, closed or counted in the next.
+    const o = opts || {};
+    this.flowState = o.flowState || flowLib.createFlowState();
     this.reset();
   }
+
+  // Flows and interface counters, as a Map plus per-device tallies.
+  get flows() { return this.flowState.flows; }
+  get counters() { return this.flowState.counters; }
 
   reset() {
     this.events = [];
@@ -75,8 +93,12 @@ class Simulator {
     this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
     this.scion = null;        // last computed SCION beaconing state
     this._icmpId = 0x1000;
+    this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
+    // reset() rewinds a run, not the connection table: a ping must not tear down
+    // somebody's TCP session.
+    if (!this.flowState) this.flowState = flowLib.createFlowState();
   }
 
   _emit(ev) {
@@ -1365,6 +1387,10 @@ class Simulator {
 
   // Evaluate an access list bound to (iface, direction) against a frame.
   // ACLs are IP filters: ARP and other non-IP traffic pass untouched.
+  // A transport flow is where extended ACLs earn their keep: `deny tcp any host
+  // 10.0.0.5 eq 80` can only ever match a packet that carries a protocol and a
+  // port, so the check reads them off the frame instead of calling every packet
+  // "ip".
   _aclCheck(dev, ifaceName, dir, frame) {
     const bind = dev.aclBindings && dev.aclBindings[ifaceName];
     if (!bind || bind[dir] == null) return { action: 'permit', acl: null };
@@ -1374,9 +1400,9 @@ class Simulator {
     const pkt = {
       srcIp: frame.ip.src,
       dstIp: frame.ip.dst,
-      protocol: frame.icmp ? 'icmp' : 'ip',
-      srcPort: null,
-      dstPort: null
+      protocol: frame.icmp ? 'icmp' : (frame.l4 ? String(frame.l4.proto) : 'ip'),
+      srcPort: frame.l4 ? frame.l4.srcPort : null,
+      dstPort: frame.l4 ? frame.l4.dstPort : null
     };
     const verdict = aclLib.evaluate(list, pkt);
     verdict.acl = bind[dir];
@@ -1407,12 +1433,52 @@ class Simulator {
     this._sendL3(src, egress, nextHopIp, ip, icmp);
   }
 
-  _sendL3(dev, egress, nextHopIp, ip, icmp, vid) {
+  // Send a transport packet from `dev` to `dstIp`, reusing the exact same
+  // origination checks, ARP resolution and queueing a ping uses. This is the one
+  // door every SYN, data segment, ACK and FIN walks through, which is why a flow
+  // can be ACL-denied or NAT-translated without the flow code knowing about ACLs
+  // or NAT.
+  //   opts.l4    -- the TCP/UDP header
+  //   opts.flow  -- flow id this packet belongs to (the attribution tag)
+  //   opts.srcIp -- reply from the address the peer actually talked to
+  // Returns the egress port name, or null when nothing was sent.
+  _sendTransport(dev, dstIp, l4, opts) {
+    const o = opts || {};
+    const route = dev.routeTo(dstIp);
+    if (!route) {
+      this._emit({ type: 'drop', reason: 'no route to ' + dstIp, dev: dev.id, summary: 'No route to ' + dstIp });
+      return null;
+    }
+    let egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
+    // A reply must come from the address that was addressed, not from whichever
+    // port the routing table happens to pick: this is the same rule ICMP replies
+    // follow, and the reason a server on two subnets answers on the right one.
+    const own = o.srcIp ? dev.interfaceWithIp(o.srcIp) : null;
+    if (own && own.enabled) egress = own;
+    if (!egress || !egress.enabled) {
+      this._emit({ type: 'drop', reason: 'egress interface down', dev: dev.id });
+      return null;
+    }
+    const srcIp = o.srcIp || egress.ip;
+    if (!srcIp) {
+      this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: dev.id });
+      return null;
+    }
+    const ip = {
+      src: srcIp, dst: dstIp, ttl: 64,
+      proto: flowLib.ipProto(l4.proto), id: this._ipId++
+    };
+    this._sendL3(dev, egress, route.via, ip, null, undefined, { l4: l4, flow: o.flow || null });
+    return egress.name;
+  }
+
+  _sendL3(dev, egress, nextHopIp, ip, icmp, vid, opts) {
     const v = (vid === undefined || vid === null) ? portPvid(egress) : vid;
+    const o = opts || {};
     const mac = dev.arp.get(nextHopIp);
     if (mac) {
       this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache', vlan: v });
-      this._sendFromOwnIp(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null), v);
+      this._sendFromOwnIp(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null, o), v);
       return;
     }
     // ARP resolution
@@ -1421,7 +1487,7 @@ class Simulator {
     // stash the pending packet until the ARP reply arrives
     let list = dev.pending.get(nextHopIp);
     if (!list) { list = []; dev.pending.set(nextHopIp, list); }
-    list.push({ egress: egress.name, ip: ip, icmp: icmp, vid: v });
+    list.push({ egress: egress.name, ip: ip, icmp: icmp, vid: v, l4: o.l4 || null, flow: o.flow || null });
   }
 
   _flushPending(dev, ip, mac, vid) {
@@ -1433,7 +1499,8 @@ class Simulator {
       if (!egress) continue;
       const v = (vid === undefined || vid === null) ? item.vid : vid;
       this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: ip, mac: mac, via: 'arp-resolved', vlan: v });
-      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, item.ip, item.icmp, null), v);
+      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, item.ip, item.icmp, null,
+        { l4: item.l4 || null, flow: item.flow || null }), v);
     }
   }
 
@@ -1502,6 +1569,10 @@ class Simulator {
       wireTagged: egress.action === 'tagged',
       wireVid: egress.action === 'tagged' ? v : null
     });
+    // Interface counters. Counted here and not when the packet was built,
+    // because a frame that never left the box -- denied by an ACL above, or
+    // dropped for want of a VLAN -- is not throughput.
+    if (out.l4) flowLib.countPacket(this.flowState, dev.id, 'out', out.l4.bytes || 0);
     this._enqueue(dev.id, port.name, out);
   }
 
@@ -1569,6 +1640,11 @@ class Simulator {
     }
 
     const f = (frame.vid === vid) ? frame : Object.assign({}, frame, { vid: vid });
+
+    // 2b. Interface counters, ingress side. Counted on arrival, before any of the
+    // drop tests below, because that is what a real `show interfaces` counter
+    // does: a frame the ACL throws away was still received.
+    if (f.l4) flowLib.countPacket(this.flowState, dev.id, 'in', f.l4.bytes || 0);
 
     // 3. MAC learning, scoped to the VLAN.
     // A passive coupler has no table to learn into: it forwards everything both
@@ -1684,6 +1760,11 @@ class Simulator {
       return true;
     }
     if (frame.etherType === net.ETH_IPV4) {
+      // The "in" half of NAT: a packet addressed to a global address is rewritten
+      // to the inside local before anyone asks whether the address is ours, which
+      // is the order a real NAT box works in -- otherwise the router would
+      // swallow its own translation.
+      this._natInbound(dev, frame);
       if (dev.ownsIpOn(inIface, frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
       if (dev.isL3()) { this._forwardL3(dev, frame, inIface); return true; }
       this._emit({ type: 'drop', reason: 'packet not for us and not routable', dev: dev.id, iface: inIface });
@@ -1776,6 +1857,10 @@ class Simulator {
   }
 
   _forwardL3(dev, frame, inIface) {
+    // NAT happens before the routing decision on the way in and after it on the
+    // way out; this is the "out" half. A translated packet keeps its identity
+    // (the flow tag) but gets a new source address.
+    if (this._natOutbound(dev, frame) === 'drop') return;
     frame.ip.ttl -= 1;
     if (frame.ip.ttl <= 0) {
       this._emit({ type: 'drop', reason: 'TTL expired', dev: dev.id });
@@ -1796,7 +1881,8 @@ class Simulator {
     // Plain routing: preserve the original source IP, decrement TTL, rewrite
     // only the L2 header. The frame leaves in the egress port's native VLAN.
     const newIp = { src: frame.ip.src, dst: frame.ip.dst, ttl: frame.ip.ttl, proto: frame.ip.proto, id: frame.ip.id };
-    this._sendL3(dev, egress, nextHopIp, newIp, frame.icmp, portPvid(egress));
+    this._sendL3(dev, egress, nextHopIp, newIp, frame.icmp, portPvid(egress),
+      { l4: frame.l4 || null, flow: frame.flow || null });
   }
 
   _handleArp(dev, frame, inIface) {
@@ -1828,6 +1914,9 @@ class Simulator {
   }
 
   _handleLocalIp(dev, frame, inIface) {
+    // A transport packet addressed to one of our addresses is the business of the
+    // transport layer, not of ICMP. Same entry point, different protocol.
+    if (flowLib.isFlowPacket(frame)) { this._handleTransport(dev, frame, inIface); return; }
     const icmp = frame.icmp;
     if (!icmp) return;
     const vid = frame.vid || 1;
@@ -1849,6 +1938,656 @@ class Simulator {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Transport flows (engine/flow.js)
+  // ---------------------------------------------------------------------
+  //
+  // A ping proves a path carries one packet. A flow asks whether the path can
+  // carry a conversation: three packets before a byte moves, every segment
+  // acknowledged, two packets to let go. Nothing here invents a shortcut around
+  // the forwarding path -- a SYN is built as an ordinary IPv4 frame and handed to
+  // the same _sendL3 / _emitFrame / _deliver / _processFrame chain an echo uses,
+  // so it can be ACL-denied at a router, NAT-translated at the edge, or silenced
+  // by a PSE that never powered the box.
+  //
+  // Deliberately NOT modelled, because pretending otherwise would be the lie:
+  //   * congestion window / slow start -- segments go out back to back
+  //   * RTO and retransmission -- a dropped segment stalls the flow (visible as
+  //     bytesDelivered < bytes plus a `stalled` field) instead of being retried
+  //   * SACK, window scaling, TIME_WAIT, path-MTU black holes
+  //   * IP fragmentation -- the MSS is derived from the path MTU, so no segment
+  //     needs to fragment; a path too narrow just yields a smaller MSS
+  //   * UDP has no acknowledgement at all in reality; a datagram flow is reported
+  //     as opened only when the datagram actually arrived, because a flow nobody
+  //     received is not a flow
+
+  // Resolve an API device reference: an id first, then a hostname.
+  _deviceRef(ref) {
+    if (ref === undefined || ref === null || ref === '') return null;
+    const byId = this.topo.getDevice(String(ref));
+    if (byId) return byId;
+    for (const d of this.topo.devices.values()) {
+      if (d.name === ref || d.hostname === ref) return d;
+    }
+    return null;
+  }
+
+  // The device that currently holds an address, or null. Used to follow a path
+  // hop by hop (path MTU) and to name the far end of a flow.
+  ownerOfIp(ip) {
+    if (!ip) return null;
+    for (const d of this.topo.devices.values()) {
+      if (d.interfaceWithIp(ip)) return d;
+    }
+    return null;
+  }
+
+  // Which of the destination's addresses to send to. Prefer one the source can
+  // actually reach: a server with an interface on an unroutable subnet and one on
+  // the lab subnet should be reached on the lab subnet.
+  _pickDestIp(src, dst) {
+    const ips = [];
+    for (const i of dst.activeInterfaces()) if (i.ip) ips.push(i.ip);
+    if (!ips.length) return null;
+    for (const ip of ips) { if (src.routeTo(ip)) return ip; }
+    return ips[0];
+  }
+
+  // Path MTU: the smallest MTU along the hops an IP packet would walk. This is
+  // the honest version of "assume 1500" -- it is 1500 unless a link says
+  // otherwise, and a link that says otherwise is the whole reason MSS exists.
+  pathMtu(src, dstIp) {
+    if (!src || !dstIp) return flowLib.DEFAULT_MTU;
+    const destination = this.ownerOfIp(dstIp);
+    let dev = src;
+    let nextHop = dstIp;
+    let mtu = flowLib.DEFAULT_MTU;
+    let hops = 0;
+    const seen = new Set();
+    while (dev && hops++ < 32) {
+      if (seen.has(dev.id)) break;
+      seen.add(dev.id);
+      const route = dev.routeTo(nextHop);
+      if (!route) break;
+      const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
+      if (egress && egress.mtu) mtu = Math.min(mtu, egress.mtu);
+      if (route.via === dstIp) break;              // the last hop
+      const next = this.ownerOfIp(route.via);
+      if (!next || next === destination || next.id === dev.id) break;
+      dev = next;
+    }
+    return mtu;
+  }
+
+  // A refusal is a real answer, not a throw: the caller gets the same reason
+  // string a ping would have logged, plus a stable code the API can switch on.
+  _refuse(code, reason, info) {
+    const i = info || {};
+    if (i.src) flowLib.counterFor(this.flowState, i.src.id).flowsRefused += 1;
+    this._emit({
+      type: 'flow-refused', dev: i.src ? i.src.id : null, proto: i.proto || null,
+      src: i.srcIp || null, dst: i.dstIp || null,
+      srcPort: i.srcPort || null, dstPort: i.dstPort || null,
+      code: code, reason: reason
+    });
+    return {
+      ok: false, code: code, reason: reason, flow: null,
+      events: this.events, step: this.step
+    };
+  }
+
+  // Attribute a failed open to what the timeline actually shows. The point of
+  // reusing the forwarding path is that the answer is not guessed here: if the
+  // SYN was denied there is an acl-deny event, if the box had no power there is a
+  // poe-deny event, and if nobody answered there is silence and this says so.
+  _flowFailure(rec, from) {
+    const evs = this.events.slice(from || 0);
+    if (rec && rec.resetBy) {
+      return { code: 'E_REFUSED', reason: rec.reason || ('connection refused by ' + rec.resetBy) };
+    }
+    const deny = evs.filter(function (e) { return e.type === 'acl-deny'; })[0];
+    if (deny) {
+      return {
+        code: 'E_ACL_DENY',
+        reason: 'denied by access list ' + deny.acl + ' ' + deny.dir + ' ' + deny.iface + ' on ' + deny.dev
+      };
+    }
+    // A router in the middle with no route for the destination is the same
+    // answer ping gives: "no route to X", not "unreachable".
+    const noRoute = evs.filter(function (e) {
+      return e.type === 'drop' && /^no route to /.test(String(e.reason || ''));
+    })[0];
+    if (noRoute) return { code: 'E_NO_ROUTE', reason: noRoute.reason };
+    const poe = evs.filter(function (e) { return e.type === 'poe-deny'; })[0];
+    if (poe) return { code: 'E_POE', reason: poe.reason || 'no PoE power available' };
+    const vlan = evs.filter(function (e) { return e.type === 'vlan-drop'; })[0];
+    if (vlan) return { code: 'E_VLAN', reason: vlan.reason || 'VLAN not allowed' };
+    const stp = evs.filter(function (e) { return e.type === 'stp-block'; })[0];
+    if (stp) return { code: 'E_STP', reason: stp.reason || 'port is blocked by spanning tree' };
+    const nat = evs.filter(function (e) { return e.type === 'nat-drop'; })[0];
+    if (nat) return { code: nat.code || 'E_NAT', reason: nat.reason || 'NAT could not translate the flow' };
+    return { code: 'E_UNREACHABLE', reason: 'no response from ' + rec.dstIp + ':' + rec.dstPort };
+  }
+
+  // Open a transport flow. Returns { ok, flow, events, step, code?, reason? }.
+  //
+  // The handshake is not computed by a formula: the SYN, the SYN-ACK and the final
+  // ACK each go on the wire and are read back out of the same queue a ping uses.
+  // If the SYN-ACK never arrives, the flow never opens.
+  openFlow(opts) {
+    const o = opts || {};
+    const proto = String(o.proto || 'tcp').toLowerCase();
+    const src = this._deviceRef(o.srcDevice !== undefined ? o.srcDevice : o.src);
+    const dst = this._deviceRef(o.dstDevice !== undefined ? o.dstDevice : o.dst);
+    const dstIp = o.dstIp || (dst && src ? this._pickDestIp(src, dst) : null);
+    const wantSrcPort = Number.isInteger(Number(o.srcPort)) ? Number(o.srcPort) : null;
+    const wantDstPort = Number.isInteger(Number(o.dstPort)) ? Number(o.dstPort) : null;
+    const info = {
+      proto: proto, src: src, dst: dst, srcIp: null,
+      dstIp: dstIp || null, srcPort: wantSrcPort, dstPort: wantDstPort
+    };
+
+    // Same setup a ping does, in the same order: spanning tree, PoE, LLDP, RA,
+    // then the routing protocols. A flow must see the network a ping sees.
+    this.reset();
+    this.computeStp();
+    this.computePoe();
+    this.announceLldp();
+    this.announceRa();
+    this.computeOspf();
+    this.computeBgp();
+
+    if (proto !== flowLib.PROTO.TCP && proto !== flowLib.PROTO.UDP) {
+      return this._refuse('E_PROTO', 'proto must be tcp or udp (got ' + String(o.proto) + ')', info);
+    }
+    if (!src) {
+      throw new Error('Unknown source device: ' + (o.srcDevice !== undefined ? o.srcDevice : o.src));
+    }
+    if (!dst && !dstIp) {
+      throw new Error('Unknown destination device: ' + (o.dstDevice !== undefined ? o.dstDevice : o.dst));
+    }
+    if (!dstIp) return this._refuse('E_NO_ADDRESS', 'destination device has no IP address', info);
+    info.dstIp = dstIp;
+
+    // 1. Power. A box the PSE never powered cannot open a connection any more
+    //    than it can answer an echo; say so instead of blaming the route.
+    if (src.poeUnpowered) {
+      return this._refuse('E_POE', 'no PoE power available - ' + src.name + ' was not powered by its PSE', info);
+    }
+    if (dst && dst !== src && dst.poeUnpowered) {
+      return this._refuse('E_POE', 'no PoE power available - ' + dst.name + ' was not powered by its PSE', info);
+    }
+
+    // 2. Reachability, with the exact reasons ping logs.
+    const route = src.routeTo(dstIp);
+    if (!route) return this._refuse('E_NO_ROUTE', 'no route to ' + dstIp, info);
+    const egress = route.iface ? src.interfaces.get(route.iface) : src.egressFor(route.via);
+    if (!egress || !egress.enabled) return this._refuse('E_IFACE_DOWN', 'egress interface down', info);
+    if (!egress.ip) return this._refuse('E_NO_SOURCE_IP', 'no source IP on ' + egress.name, info);
+    info.srcIp = egress.ip;
+
+    // 3. Segment maths from the path, not from a constant.
+    const mtu = this.pathMtu(src, dstIp);
+    const mss = flowLib.mssForMtu(mtu, proto);
+    const probe = flowLib.createFlow({
+      id: 'probe', proto: proto, srcIp: egress.ip,
+      srcPort: wantSrcPort === null ? flowLib.EPHEMERAL_FIRST : wantSrcPort,
+      dstIp: dstIp, dstPort: wantDstPort,
+      bytes: o.bytes
+    });
+    info.srcPort = probe.srcPort;
+    info.dstPort = probe.dstPort;
+    const segments = flowLib.segmentCount(probe.bytes, mss);
+    // A flow is a run of packets through a queue, and the run has to fit the step
+    // budget or the tail of the transfer would be silently truncated.
+    const MAX_SEGMENTS = 512;
+    if (segments > MAX_SEGMENTS) {
+      return this._refuse('E_FLOW_TOO_LARGE',
+        probe.bytes + ' bytes would need ' + segments + ' segments at MSS ' + mss +
+        ' (path MTU ' + mtu + '); this simulator caps a flow at ' + MAX_SEGMENTS + ' segments',
+        info);
+    }
+
+    const id = flowLib.nextFlowId(this.flowState);
+    const rec = flowLib.createFlow({
+      id: id,
+      proto: proto,
+      srcIp: egress.ip,
+      srcPort: probe.srcPort,
+      dstIp: dstIp,
+      dstPort: probe.dstPort,
+      bytes: probe.bytes,
+      srcDevice: src.id,
+      dstDevice: dst ? dst.id : (this.ownerOfIp(dstIp) || {}).id || null,
+      mss: mss,
+      state: flowLib.STATE.CLOSED
+    });
+    rec.segments = segments;
+    rec.mtu = mtu;
+    rec.iface = egress.name;
+    rec.openedStep = this.step;
+    this.flows.set(rec.id, rec);
+    flowLib.counterFor(this.flowState, src.id).flowsOpened += 1;
+
+    const startedAt = this.events.length;
+    const clientIsn = flowLib.initialSeq(this.flowState.seq * 31 + 7);
+    rec.clientIsn = clientIsn;
+    rec.nextSeq = clientIsn + 1;
+
+    // 4. UDP: one datagram, no state at all. It counts as opened when it arrives.
+    if (proto === flowLib.PROTO.UDP) {
+      flowLib.setState(rec, flowLib.STATE.OPEN);
+      const l4 = flowLib.udpPacket({ srcPort: rec.srcPort, dstPort: rec.dstPort, bytes: rec.bytes });
+      this._emit({
+        type: 'flow-open', flow: rec.id, dev: src.id, proto: 'udp', phase: 'datagram',
+        src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+        bytes: rec.bytes, length: l4.length
+      });
+      this._emit({
+        type: 'flow-data', flow: rec.id, dev: src.id, proto: 'udp', dir: 'out',
+        src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+        bytes: rec.bytes
+      });
+      rec.packets += 1;
+      this._sendTransport(src, rec.dstIp, l4, { flow: rec.id });
+      this._run();
+      if (!rec.delivered) {
+        const why = this._flowFailure(rec, startedAt);
+        rec.state = flowLib.STATE.RESET;
+        rec.code = why.code;
+        rec.reason = why.reason;
+        flowLib.counterFor(this.flowState, src.id).flowsRefused += 1;
+        // A datagram that never arrived leaves no connection behind: the record
+        // is handed back to the caller for its code and reason, but it does not
+        // join the list of flows anybody could close.
+        this.flows.delete(rec.id);
+        return {
+          ok: false, code: why.code, reason: why.reason, flow: rec,
+          events: this.events, step: this.step
+        };
+      }
+      return { ok: true, flow: rec, events: this.events, step: this.step, mtu: mtu, mss: mss, segments: 0 };
+    }
+
+    // 5. TCP three-way handshake, one packet at a time.
+    flowLib.setState(rec, flowLib.STATE.SYN_SENT);
+    this._emit({
+      type: 'flow-open', flow: rec.id, dev: src.id, proto: 'tcp', phase: 'syn', flags: 'SYN',
+      src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+      seq: clientIsn, ack: 0, mss: mss
+    });
+    rec.packets += 1;
+    this._sendTransport(src, rec.dstIp, flowLib.synPacket(rec, clientIsn), { flow: rec.id });
+    this._run();
+
+    if (!rec.synAcked) {
+      const why = this._flowFailure(rec, startedAt);
+      rec.state = flowLib.STATE.RESET;
+      rec.code = why.code;
+      rec.reason = why.reason;
+      flowLib.counterFor(this.flowState, src.id).flowsRefused += 1;
+      // Nothing was established, so nothing is left to close. The record goes
+      // back to the caller; the timeline keeps the refusal.
+      this.flows.delete(rec.id);
+      return {
+        ok: false, code: why.code, reason: why.reason, flow: rec,
+        events: this.events, step: this.step
+      };
+    }
+
+    // The third packet: the client acknowledges the server's ISN. The connection
+    // exists from this moment, and only from this moment.
+    this._emit({
+      type: 'flow-open', flow: rec.id, dev: src.id, proto: 'tcp', phase: 'established', flags: 'ACK',
+      src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+      seq: clientIsn + 1, ack: rec.serverIsn + 1
+    });
+    rec.packets += 1;
+    this._sendTransport(src, rec.dstIp,
+      flowLib.ackPacket(rec.srcPort, rec.dstPort, clientIsn + 1, rec.serverIsn + 1), { flow: rec.id });
+    this._run();
+    flowLib.setState(rec, flowLib.STATE.ESTABLISHED);
+
+    // 6. The body, in segments that fit the path.
+    let seq = clientIsn + 1;
+    let sent = 0;
+    for (let i = 0; i < segments; i++) {
+      const size = Math.min(rec.mss, rec.bytes - sent);
+      const l4 = flowLib.dataPacket(rec.srcPort, rec.dstPort, seq, rec.serverIsn + 1, size);
+      this._emit({
+        type: 'flow-data', flow: rec.id, dev: src.id, proto: 'tcp', dir: 'out',
+        src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+        seq: seq, ack: rec.serverIsn + 1, bytes: size,
+        segment: i + 1, of: segments, mss: rec.mss
+      });
+      rec.packets += 1;
+      this._sendTransport(src, rec.dstIp, l4, { flow: rec.id });
+      this._run();
+      seq += size;
+      rec.nextSeq = seq;
+      sent += size;
+      if ((rec.ackedBytes || 0) < sent) {
+        // Nothing acknowledged this segment, and there is no retransmission here,
+        // so the flow stops where the network stopped carrying it. Saying so beats
+        // reporting bytes that never arrived.
+        rec.stalled = { segment: i + 1, bytesSent: sent, bytesAcked: rec.ackedBytes || 0 };
+        break;
+      }
+    }
+
+    return {
+      ok: true, flow: rec, events: this.events, step: this.step,
+      mtu: mtu, mss: mss, segments: segments
+    };
+  }
+
+  // Close a flow. TCP gets a four-way close (FIN, FIN-ACK, ACK) over the same
+  // path; UDP has nothing to close, so the record is simply retired.
+  closeFlow(id) {
+    const key = String(id);
+    const rec = this.flows.get(key);
+    if (!rec) {
+      return { ok: false, code: 'E_NO_FLOW', reason: 'no such flow: ' + key, events: this.events, step: this.step };
+    }
+    if (rec.state === flowLib.STATE.CLOSED) {
+      return { ok: true, flow: rec, events: this.events, step: this.step, already: true };
+    }
+    const src = this.topo.getDevice(rec.srcDevice);
+    if (!src) {
+      rec.state = flowLib.STATE.CLOSED;
+      rec.closedStep = this.step;
+      return { ok: true, flow: rec, events: this.events, step: this.step, detached: true };
+    }
+    if (rec.proto === flowLib.PROTO.UDP) {
+      this._emit({
+        type: 'flow-close', flow: rec.id, dev: src.id, proto: 'udp', phase: 'closed',
+        src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+        reason: 'connectionless'
+      });
+      rec.state = flowLib.STATE.CLOSED;
+      rec.closedStep = this.step;
+      return { ok: true, flow: rec, events: this.events, step: this.step };
+    }
+
+    flowLib.setState(rec, flowLib.STATE.FIN_WAIT);
+    const finSeq = rec.nextSeq || (rec.clientIsn + 1 + rec.bytes);
+    this._emit({
+      type: 'flow-close', flow: rec.id, dev: src.id, proto: 'tcp', phase: 'fin', flags: 'FIN,ACK',
+      src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+      seq: finSeq, ack: (rec.serverIsn || 0) + 1
+    });
+    rec.packets += 1;
+    this._sendTransport(src, rec.dstIp,
+      flowLib.finPacket(rec.srcPort, rec.dstPort, finSeq, (rec.serverIsn || 0) + 1), { flow: rec.id });
+    const before = this.events.length;
+    this._run();
+
+    if (rec.state !== flowLib.STATE.CLOSED) {
+      // No FIN-ACK came back. The local side closes anyway -- that is what a host
+      // does when the peer vanishes -- but the timeline records why.
+      const why = this._flowFailure(rec, before);
+      rec.teardown = 'fin-timeout';
+      rec.code = why.code;
+      rec.reason = why.reason;
+      this._emit({
+        type: 'flow-close', flow: rec.id, dev: src.id, proto: 'tcp', phase: 'closed',
+        src: rec.srcIp, dst: rec.dstIp, srcPort: rec.srcPort, dstPort: rec.dstPort,
+        reason: why.reason
+      });
+      rec.state = flowLib.STATE.CLOSED;
+    }
+    rec.closedStep = this.step;
+    return { ok: true, flow: rec, events: this.events, step: this.step };
+  }
+
+  // The receiving half of a flow: every TCP and UDP packet addressed to one of
+  // this device's addresses lands here, from the same _handleLocalIp that answers
+  // echoes. Replies go to the ports the packet was received on, not to the flow's
+  // original ones, so a NAT-translated conversation answers where it was asked.
+  _handleTransport(dev, frame, inIface) {
+    const l4 = frame.l4;
+    const rec = frame.flow ? this.flows.get(String(frame.flow)) : null;
+    const vid = frame.vid || 1;
+    const fromClient = !!(rec && rec.srcDevice === dev.id);
+    const bytes = l4.bytes || 0;
+
+    if (l4.proto === flowLib.PROTO.UDP) {
+      if (rec) {
+        rec.delivered = true;
+        rec.bytesDelivered += bytes;
+      }
+      this._emit({
+        type: 'flow-data', flow: rec ? rec.id : null, dev: dev.id, proto: 'udp', dir: 'in',
+        src: frame.ip.src, dst: frame.ip.dst, srcPort: l4.srcPort, dstPort: l4.dstPort,
+        bytes: bytes, vlan: vid
+      });
+      return;
+    }
+
+    const flags = flowLib.flagString(l4);
+
+    // RST: the far end had nothing to say to us -- no listener, or a stale
+    // connection. A refusal is a packet, not an error code invented here.
+    if (flowLib.hasFlag(l4, 'RST')) {
+      if (rec) {
+        rec.resetBy = dev.id;
+        rec.reason = rec.reason ||
+          ('connection refused: nothing listening on ' + frame.ip.dst + ':' + l4.dstPort);
+        flowLib.setState(rec, flowLib.STATE.RESET);
+      }
+      this._emit({
+        type: 'flow-reset', flow: rec ? rec.id : null, dev: dev.id, flags: flags,
+        src: frame.ip.src, dst: frame.ip.dst, srcPort: l4.srcPort, dstPort: l4.dstPort, vlan: vid
+      });
+      return;
+    }
+
+    // SYN with no ACK: a client wants to open a socket here.
+    if (flowLib.hasFlag(l4, 'SYN') && !flowLib.hasFlag(l4, 'ACK')) {
+      if (!flowLib.listensOn(dev, 'tcp', l4.dstPort)) {
+        if (rec) {
+          rec.reason = 'connection refused: nothing listening on ' + frame.ip.dst + ':' + l4.dstPort;
+          rec.packets += 1;
+        }
+        this._emit({
+          type: 'flow-reset', flow: rec ? rec.id : null, dev: dev.id, flags: 'RST,ACK',
+          src: frame.ip.dst, dst: frame.ip.src, srcPort: l4.dstPort, dstPort: l4.srcPort,
+          reason: 'nothing listening on port ' + l4.dstPort, vlan: vid
+        });
+        this._sendTransport(dev, frame.ip.src,
+          flowLib.resetPacket(l4.dstPort, l4.srcPort, 0, l4.seq + 1),
+          { srcIp: frame.ip.dst, flow: rec ? rec.id : null });
+        return;
+      }
+      const serverIsn = flowLib.initialSeq((rec ? Number(String(rec.id).replace(/\D/g, '')) || 1 : 1) + 17);
+      if (rec) {
+        rec.clientIsn = l4.seq;
+        rec.serverIsn = serverIsn;
+        rec.mss = l4.mss || rec.mss;
+        flowLib.setState(rec, flowLib.STATE.SYN_RECEIVED);
+        rec.packets += 1;
+      }
+      this._emit({
+        type: 'flow-open', flow: rec ? rec.id : null, dev: dev.id, proto: 'tcp', phase: 'syn-ack',
+        flags: 'SYN,ACK', src: frame.ip.dst, dst: frame.ip.src,
+        srcPort: l4.dstPort, dstPort: l4.srcPort,
+        seq: serverIsn, ack: l4.seq + 1, mss: rec ? rec.mss : null, vlan: vid
+      });
+      this._sendTransport(dev, frame.ip.src,
+        flowLib.tcpPacket({
+          srcPort: l4.dstPort, dstPort: l4.srcPort,
+          flags: ['SYN', 'ACK'], seq: serverIsn, ack: l4.seq + 1,
+          mss: rec ? rec.mss : null
+        }),
+        { srcIp: frame.ip.dst, flow: rec ? rec.id : null });
+      return;
+    }
+
+    // SYN-ACK reaching the client: the server's ISN is now known.
+    if (flowLib.hasFlag(l4, 'SYN') && flowLib.hasFlag(l4, 'ACK')) {
+      if (rec && fromClient) {
+        rec.synAcked = true;
+        rec.serverIsn = l4.seq;
+        rec.mss = l4.mss || rec.mss;
+        flowLib.setState(rec, flowLib.STATE.ESTABLISHED);
+      }
+      return;
+    }
+
+    // FIN from the client: the server goes to close-wait and answers FIN-ACK.
+    if (flowLib.hasFlag(l4, 'FIN') && rec && !fromClient) {
+      flowLib.setState(rec, flowLib.STATE.CLOSE_WAIT);
+      rec.packets += 1;
+      this._emit({
+        type: 'flow-close', flow: rec.id, dev: dev.id, proto: 'tcp', phase: 'fin-ack',
+        flags: 'FIN,ACK', src: frame.ip.dst, dst: frame.ip.src,
+        srcPort: l4.dstPort, dstPort: l4.srcPort, vlan: vid
+      });
+      this._sendTransport(dev, frame.ip.src,
+        flowLib.tcpPacket({
+          srcPort: l4.dstPort, dstPort: l4.srcPort,
+          flags: ['FIN', 'ACK'], seq: (rec.serverIsn || 0) + 1, ack: l4.seq + 1
+        }),
+        { srcIp: frame.ip.dst, flow: rec.id });
+      return;
+    }
+
+    // FIN-ACK reaching the client: acknowledge it and let the connection go.
+    if (flowLib.hasFlag(l4, 'FIN') && rec && fromClient) {
+      rec.packets += 1;
+      this._emit({
+        type: 'flow-close', flow: rec.id, dev: dev.id, proto: 'tcp', phase: 'ack',
+        flags: 'ACK', src: frame.ip.dst, dst: frame.ip.src,
+        srcPort: l4.dstPort, dstPort: l4.srcPort, vlan: vid
+      });
+      this._sendTransport(dev, frame.ip.src,
+        flowLib.ackPacket(l4.dstPort, l4.srcPort, l4.ack, l4.seq + 1),
+        { srcIp: frame.ip.dst, flow: rec.id });
+      rec.state = flowLib.STATE.CLOSED;
+      rec.closedStep = this.step;
+      return;
+    }
+
+    // Data arriving at the server: count it, then acknowledge cumulatively.
+    if (bytes > 0) {
+      if (!rec) return;
+      rec.bytesDelivered += bytes;
+      rec.ackedBytes = (l4.seq - (rec.clientIsn + 1)) + bytes;
+      this._emit({
+        type: 'flow-data', flow: rec.id, dev: dev.id, proto: 'tcp', dir: 'in',
+        src: frame.ip.src, dst: frame.ip.dst, srcPort: l4.srcPort, dstPort: l4.dstPort,
+        seq: l4.seq, ack: l4.ack, bytes: bytes, vlan: vid
+      });
+      rec.packets += 1;
+      this._sendTransport(dev, frame.ip.src,
+        flowLib.ackPacket(l4.dstPort, l4.srcPort, (rec.serverIsn || 0) + 1, l4.seq + bytes),
+        { srcIp: frame.ip.dst, flow: rec.id });
+      return;
+    }
+
+    // A bare ACK. On the server side it is either the third packet of the
+    // handshake or a cumulative acknowledgement of data; nothing goes back.
+    if (flowLib.hasFlag(l4, 'ACK') && rec && !fromClient) {
+      rec.ackedBytes = Math.max(rec.ackedBytes || 0, l4.ack - (rec.clientIsn + 1));
+      if (rec.state === flowLib.STATE.SYN_RECEIVED) flowLib.setState(rec, flowLib.STATE.ESTABLISHED);
+      else if (rec.state === flowLib.STATE.CLOSE_WAIT) flowLib.setState(rec, flowLib.STATE.CLOSED);
+      return;
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // NAT on the forwarding path
+  // ---------------------------------------------------------------------
+  //
+  // engine/nat.js is a pure library: tables in, verdicts out. It had never been
+  // wired to the data path, which meant a lab could configure NAT and watch every
+  // packet ignore it. A flow is where that shows up first -- a client behind PAT
+  // is only reachable if the translation is applied to the SYN and to every
+  // segment after it -- so the hooks live here, at the two points where a real
+  // router translates: before routing on the way in, after routing on the way out.
+
+  _isNat(dev) {
+    const cfg = dev && dev.config ? (dev.config.nat || null) : null;
+    if (cfg && ((cfg.rules && cfg.rules.length) || (cfg.portForwards && cfg.portForwards.length))) return true;
+    return !!(dev && dev.config && dev.config.natRules && dev.config.natRules.length);
+  }
+
+  // The table is per device and lives with the device, so translations survive
+  // from the SYN to the FIN exactly as they do on real hardware.
+  _natTableOf(dev) {
+    if (!dev.natTable) {
+      const cfg = dev.config.nat || {};
+      const table = natLib.createNatTable();
+      table.rules = ((cfg.rules || dev.config.natRules) || []).slice();
+      for (const fwd of (cfg.portForwards || [])) table.rules.push(fwd);
+      dev.natTable = table;
+    }
+    return dev.natTable;
+  }
+
+  _natPacket(frame) {
+    return {
+      srcIp: frame.ip.src, dstIp: frame.ip.dst,
+      protocol: frame.l4.proto, srcPort: frame.l4.srcPort, dstPort: frame.l4.dstPort
+    };
+  }
+
+  // Inside -> outside. Returns 'translate', 'pass' or 'drop'.
+  _natOutbound(dev, frame) {
+    if (!frame || !frame.l4 || !this._isNat(dev)) return 'pass';
+    const table = this._natTableOf(dev);
+    const res = natLib.translateOutbound(table, this._natPacket(frame), this.step);
+    if (res.action === 'drop') {
+      this._emit({
+        type: 'nat-drop', dev: dev.id, code: res.reason || 'E_NAT',
+        reason: res.message || 'NAT could not translate the packet',
+        src: frame.ip.src, dst: frame.ip.dst, flow: frame.flow || null
+      });
+      return 'drop';
+    }
+    if (res.action !== 'translate') return 'pass';
+    const localIp = frame.ip.src;
+    const localPort = frame.l4.srcPort;
+    frame.ip = Object.assign({}, frame.ip, { src: res.pkt.srcIp });
+    frame.l4 = Object.assign({}, frame.l4, { srcPort: res.pkt.srcPort });
+    frame.nat = {
+      dir: 'out', type: res.entry ? res.entry.type : null,
+      insideLocal: localIp, insideGlobal: res.pkt.srcIp,
+      localPort: localPort, globalPort: res.pkt.srcPort
+    };
+    this._emit({
+      type: 'nat-outbound', dev: dev.id, proto: frame.l4.proto,
+      insideLocal: localIp, insideGlobal: res.pkt.srcIp,
+      localPort: localPort, globalPort: res.pkt.srcPort,
+      dst: frame.ip.dst, dstPort: frame.l4.dstPort, flow: frame.flow || null
+    });
+    return 'translate';
+  }
+
+  // Outside -> inside. Returns true when the packet was rewritten.
+  _natInbound(dev, frame) {
+    if (!frame || !frame.l4 || !this._isNat(dev)) return false;
+    const table = this._natTableOf(dev);
+    const res = natLib.translateInbound(table, this._natPacket(frame), this.step);
+    if (!res || res.action !== 'translate') return false;
+    const globalIp = frame.ip.dst;
+    const globalPort = frame.l4.dstPort;
+    frame.ip = Object.assign({}, frame.ip, { dst: res.pkt.dstIp });
+    frame.l4 = Object.assign({}, frame.l4, { dstPort: res.pkt.dstPort });
+    frame.nat = {
+      dir: 'in', type: res.entry ? res.entry.type : null,
+      insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
+      globalPort: globalPort, localPort: res.pkt.dstPort
+    };
+    this._emit({
+      type: 'nat-inbound', dev: dev.id, proto: frame.l4.proto,
+      insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
+      globalPort: globalPort, localPort: res.pkt.dstPort,
+      src: frame.ip.src, srcPort: frame.l4.srcPort, flow: frame.flow || null
+    });
+    return true;
   }
 }
 

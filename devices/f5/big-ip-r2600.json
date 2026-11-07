@@ -14,47 +14,97 @@
     {
       "name": "1.1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "1.2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "1.3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "1.4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "2.1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "2.2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "2.3",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "2.4",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "mgmt",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://wtit.com/f5-products/f5-big-ip-r2600-r2800-hardware-datasheet/"
 }

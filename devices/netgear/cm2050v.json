@@ -15,12 +15,15 @@
     {
       "name": "coax",
       "type": "coax",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "f"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.netgear.com/images/datasheet/networking/cablemodems/cm2050v.pdf",
+  "notes": "Datasheet technical specifications: '32x8 SC-QAM + 2 OFDM & 2 OFDMA', '1 x 2.5G Ethernet Port', 'Two Telephone Ports' that prioritize voice (FXS - deliberately excluded from interfaces, a phone jack is not a data port). One wired data port only, so no bridging decisions to make."
 }

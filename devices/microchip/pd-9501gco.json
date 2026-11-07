@@ -17,7 +17,13 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 60
     }
+  ],
+  "sourceUrl": "https://www.microchip.com/en-us/product/PD-9501GCO",
+  "role": [
+    "midspan",
+    "802.3bt-type-3"
   ]
 }

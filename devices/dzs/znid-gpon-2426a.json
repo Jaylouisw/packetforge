@@ -17,7 +17,12 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
@@ -44,5 +49,6 @@
       "type": "wireless",
       "speed": "300M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.scribd.com/document/532081518/ZNID-GPON-24x"
 }

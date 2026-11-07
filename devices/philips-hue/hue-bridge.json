@@ -14,5 +14,6 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.philips-hue.com/en-us/explore-hue/faq/controls/how-to-connect-hue-bridge-to-wifi"
 }

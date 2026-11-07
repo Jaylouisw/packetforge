@@ -11,12 +11,18 @@
     {
       "name": "pon",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://files.plytix.com/api/v1.1/file/public_files/pim/assets/ff/af/4b/62/624bafff06de6ea8aa834968/texts/b7/d2/5a/62/625ad2b72b5b5696fc385d33/AdTran-411-Micro-ONT-1287787F1-Datasheet.pdf"
 }

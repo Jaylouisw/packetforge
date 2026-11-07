@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://psref.lenovo.com/syspool/Sys/PDF/Lenovo_Tablets/Tab_P11_2nd_Gen/Tab_P11_2nd_Gen_Spec.html",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — no 6 GHz. Cellular: LTE Cat 13 on the LTE SKU (no 5G); Wi-Fi-only SKUs have no wwan0. USB-C is USB 2.0, so Ethernet via OTG adapter works but is capped near 100M (declared 1G for topology). Lenovo PSREF is the authoritative source for per-SKU radio loadout."
 }

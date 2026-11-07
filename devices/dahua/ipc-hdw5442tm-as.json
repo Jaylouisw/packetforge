@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/asset/upload/uploads/soft/20190506/DH-IPC-HDW5442TM-AS.pdf",
+  "notes": "PoE class 802.3af, 12.95 W. Wired only. 10/100 port - no gigabit even on the 4 MP stream, so bitrate planning matters more than cabling category."
 }

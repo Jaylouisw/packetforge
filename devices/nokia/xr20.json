@@ -11,12 +11,16 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.hmd.com/en_int/nokia-xr-20/specs",
+  "notes": "Wi-Fi 6 (802.11ax, 2x2, 2.4/5 GHz) — HMD's spec sheet lists 802.11 a/b/g/n/ac/ax. Cellular: 5G sub-6 GHz (Snapdragon 480 5G), LTE Cat 15 fallback, no mmWave. USB-C 3.0 with OTG and Ethernet adapter support (usb0). Field/industrial endpoint: expect it to stay associated at weak RSSI (-85 dBm) far longer than a glass-backed flagship, which is the interesting roaming contrast."
 }

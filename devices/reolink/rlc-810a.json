@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://reolink.com/product/rlc-810a/",
+  "notes": "PoE class 802.3af, 12.95 W at the PSE, 12 W drawn - right at the class limit, so it will brown out on a marginal injector. Wired only, no 12 VDC jack on the PoE SKU. No ONVIF-profile-S-only caveat: fully ONVIF compliant."
 }

@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://dlcdnets.asus.com/pub/ASUS/server/RS500A-E11/Datasheet/DataSheet_RS500A-E11-RS12U_20220317.pdf",
+  "notes": "Onboard: 2x 1GbE i350-AM2 (RJ45) only - there is no 10G copper on the board. OCP 3.0 socket (Gen4 x16) is the natural home for a 10/25GbE mezzanine card; 3x PCIe 4.0 slots (1x x16 FH, 1x x16 LP, 1x x8 LP). BMC management port is separate."
 }

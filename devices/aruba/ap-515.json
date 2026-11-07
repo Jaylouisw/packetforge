@@ -1,31 +1,39 @@
 {
   "vendor": "aruba",
   "model": "AP-515",
-  "label": "Aruba AP-515",
+  "label": "HPE Aruba Networking AP-515",
   "category": "wireless",
-  "description": "Aruba AP-515 - Wi-Fi 6 dual-radio AP (4x4 5 GHz / 2x2 2.4 GHz) with a 2.5G SmartRate PoE port (E0) and a 1G port (E1).",
+  "description": "Dual-radio Wi-Fi 6 (802.11ax) campus AP with 4x4:4 MIMO in 5 GHz and 2x2:2 in 2.4 GHz, plus an 802.15.4/Zigbee radio for IoT. E0 is a 2.5GBASE-T HPE Smart Rate PoE-in port and E1 is 10/100/1000BASE-T, with two Wi-Fi radios (2.4 and 5 GHz).",
   "capabilities": [
-    "l2-forward",
     "wireless",
-    "cli"
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
   ],
   "interfaces": [
     {
-      "name": "E0",
+      "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 25.5
     },
     {
-      "name": "E1",
+      "name": "eth1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
     }
   ],
-  "icon": "ap",
-  "color": "#f59e0b"
+  "sourceUrl": "https://www.arubanetworks.com/assets/ds/DS_AP510Series.pdf",
+  "notes": "PoE-PD 802.3af/at/bt (class 3 or higher); at/bt runs unrestricted, 802.3af class 3 runs only with IPM restrictions. Doc ID a00058595enw. E1 is a plain 1G data port."
 }

@@ -16,5 +16,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.patton.com/voip-gateway/sn4140e/",
+  "notes": "Patton ordering table: SN4141E/4JS4V/DC is 4 FXS, 4 VoIP calls, 1x Gig Ethernet; the /2JS2V/DC, /4JS4JO8V/DC and /8JS8V/DC variants also carry 1x Gig Ethernet, while the /2ETH... SKUs add a second gigabit port. This spec models the 4 FXS / 1x Gig Ethernet build. FXS/FXO ports are analog telephony and not modelled. Powered by 12-48 VDC terminal block (no PoE), eSBC upgradeable to 200 SIP calls, T.38 fax, SIP-TLS/SRTP optional, managed by web GUI, SNMP and CLI."
 }

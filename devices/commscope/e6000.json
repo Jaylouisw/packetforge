@@ -15,267 +15,372 @@
     {
       "name": "nsi100g1",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "nsi100g2",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "nsi100g3",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "nsi10g1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g7",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g8",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "nsi10g10",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "ds1",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds2",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds3",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds4",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds5",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds6",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds7",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds8",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds9",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds10",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds11",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds12",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds13",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds14",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds15",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "ds16",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "mcx"
     },
     {
       "name": "us1",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us2",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us3",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us4",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us5",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us6",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us7",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us8",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us9",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us10",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us11",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us12",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us13",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us14",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us15",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us16",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us17",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us18",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us19",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us20",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us21",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us22",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us23",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "us24",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "mcx"
     },
     {
       "name": "mgmt",
@@ -286,5 +391,7 @@
       "name": "console",
       "type": "console"
     }
-  ]
+  ],
+  "sourceUrl": "https://katalog.vector.net/wp-content/uploads/import/ARRIS%20E6000%20Downstream%20Cable%20Access%20Module%202%20karta%20katalogowa.pdf",
+  "notes": "Counted: DCAM-2 = '16 physical ports per slot' (MCX, requires DPIC-2); UCAM-2 = '24 physical ports organized into 12 connector groups', 288 SC-QAMs (12 per port) + 2x 96 MHz OFDMA per port; RSM-2 = 2x 100G QSFP28 + 2x 10G SFP+ on the front panel, RPIC-2Q adds 1x 100G QSFP28 + 8x 10G SFP+ (3x 100G / 10x 10G total per RSM pair), plus 100/1000BASE-T mgmt RJ-45 and an RJ-45 console. One downstream and one upstream module are modelled; the chassis holds many more CAM slots, so per-service-group port maths has to be scaled by the module count an operator fits."
 }

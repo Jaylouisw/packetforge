@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
-const { Topology, Simulator, CliSession } = require('../engine');
+const { Topology, Simulator, CliSession, flow } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
 const media = require('../engine/media');
 const { WebSocketServer } = require('./ws');
@@ -36,14 +36,43 @@ function mapToObject(m) {
   return o;
 }
 
+// A flow record is already plain data (no Maps), so the wire shape is the record
+// plus the one thing a table always wants and has to compute: a summary line.
+function describeFlow(rec) {
+  if (!rec) return null;
+  const out = {};
+  for (const k of Object.keys(rec)) out[k] = rec[k];
+  out.summary = flow.describe(rec);
+  return out;
+}
+
+// The flow table belongs to the topology, not to a request. The server builds a
+// fresh Simulator for every call, but the conversations it opened have to still be
+// there when the UI asks for them a moment later -- and they have to die with the
+// topology, because a flow to a device that no longer exists is a stale handle.
+function flowStateFor(topo) {
+  if (!topo.flowState) topo.flowState = flow.createFlowState();
+  return topo.flowState;
+}
+
+function simForFlows(topo) {
+  return new Simulator(topo, { flowState: flowStateFor(topo) });
+}
+
 function fullState(topo) {
   const s = topo.serialize();
   const runtime = {};
+  const counters = (topo.flowState && topo.flowState.counters) || {};
   for (const d of topo.devices.values()) {
     runtime[d.id] = {
       macTable: mapToObject(d.macTable),
       arp: mapToObject(d.arp),
-      routes: d.routesTable()
+      routes: d.routesTable(),
+      // Throughput, so a table or a sparkline can be drawn without a second call.
+      counters: counters[d.id] || {
+        bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
+        flowsOpened: 0, flowsRefused: 0
+      }
     };
   }
   s.runtime = runtime;
@@ -204,6 +233,7 @@ async function handleApi(req, res, urlPath) {
             lengthM: body.lengthM,
             duplex: body.duplex,
             lagId: body.lagId,
+            patchCord: body.patchCord,
             force: !!body.force,
             type: body.type
           });
@@ -228,7 +258,8 @@ async function handleApi(req, res, urlPath) {
       const body = await readBody(req);
       const verdict = topo.validateLink(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, {
         mediaId: body.mediaId,
-        lengthM: body.lengthM
+        lengthM: body.lengthM,
+        patchCord: body.patchCord
       });
       const options = topo.mediaOptions(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface);
       return sendJSON(res, 200, { verdict: verdict, mediaOptions: options });
@@ -309,6 +340,72 @@ async function handleApi(req, res, urlPath) {
       return sendJSON(res, 200, { events: result.events, replies: result.replies, success: result.success, step: result.step, runtime: fullState(topo).runtime });
     }
 
+    // /flows  (GET: list and counters, POST: open a transport flow)
+    if (parts[3] === 'flows' && parts.length === 4) {
+      if (method === 'GET') {
+        const state = flowStateFor(topo);
+        const list = flow.listFlows(state).map(function (f) { return describeFlow(f); });
+        return sendJSON(res, 200, { flows: list, counters: state.counters });
+      }
+      if (method === 'POST') {
+        const body = await readBody(req);
+        const sim = simForFlows(topo);
+        let result;
+        try {
+          result = sim.openFlow({
+            proto: body.proto,
+            srcDevice: body.srcDevice !== undefined ? body.srcDevice : body.src,
+            dstDevice: body.dstDevice !== undefined ? body.dstDevice : body.dst,
+            dstIp: body.dstIp,
+            srcPort: body.srcPort,
+            dstPort: body.dstPort,
+            bytes: body.bytes
+          });
+        } catch (e) {
+          // An unknown device is a client bug, not a network condition.
+          return sendJSON(res, 400, { error: e.message });
+        }
+        if (!result.ok) {
+          return sendJSON(res, 400, {
+            error: result.reason, code: result.code, reason: result.reason,
+            flow: result.flow ? describeFlow(result.flow) : null,
+            events: result.events, step: result.step
+          });
+        }
+        broadcast(topoId);
+        return sendJSON(res, 201, {
+          flow: describeFlow(result.flow),
+          mtu: result.mtu, mss: result.mss, segments: result.segments,
+          events: result.events, step: result.step,
+          counters: flowStateFor(topo).counters,
+          runtime: fullState(topo).runtime
+        });
+      }
+    }
+
+    // /flows/:id  (GET one, DELETE to tear it down)
+    if (parts[3] === 'flows' && parts.length === 5) {
+      const id = decodeURIComponent(parts[4]);
+      const state = flowStateFor(topo);
+      if (method === 'GET') {
+        const rec = state.flows.get(id);
+        if (!rec) return sendJSON(res, 404, { error: 'flow not found' });
+        return sendJSON(res, 200, { flow: describeFlow(rec) });
+      }
+      if (method === 'DELETE') {
+        const sim = simForFlows(topo);
+        const result = sim.closeFlow(id);
+        if (!result.ok) return sendJSON(res, 404, { error: result.reason, code: result.code });
+        broadcast(topoId);
+        return sendJSON(res, 200, {
+          ok: true, flow: describeFlow(result.flow), already: !!result.already,
+          events: result.events, step: result.step,
+          counters: flowStateFor(topo).counters,
+          runtime: fullState(topo).runtime
+        });
+      }
+    }
+
     // /layout
     if (parts[3] === 'layout' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
@@ -334,6 +431,10 @@ async function handleApi(req, res, urlPath) {
     // /reset  (clear runtime forwarding state)
     if (parts[3] === 'reset' && parts.length === 4 && method === 'POST') {
       for (const d of topo.devices.values()) { d.macTable.clear(); d.arp.clear(); d.pending.clear(); }
+      // A reset clears the conversations too: they are runtime state, and a flow
+      // left behind would point at a NAT translation or a socket that no longer
+      // exists.
+      flow.resetFlowState(flowStateFor(topo));
       broadcast(topoId);
       return sendJSON(res, 200, { ok: true });
     }

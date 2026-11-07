@@ -14,12 +14,17 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 48
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "eth1",
@@ -33,5 +38,6 @@
     }
   ],
   "icon": "ptp",
-  "color": "#f97316"
+  "color": "#f97316",
+  "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/3e72c403-8d3c-40d8-a76f-973ccc4bd8af/Cambium_Networks_data_sheet_PTP_820C.pdf"
 }

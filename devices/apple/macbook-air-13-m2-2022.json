@@ -13,7 +13,10 @@
     {
       "name": "wlan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "antenna"
     }
-  ]
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111867",
+  "notes": "No Ethernet at all: no RJ45 and no onboard NIC. The only native uplink is Wi-Fi 6 (802.11ax); wired needs a USB-C dock or a 1GbE/2.5GbE dongle. Include it to model hosts that cannot be cabled without extra hardware."
 }

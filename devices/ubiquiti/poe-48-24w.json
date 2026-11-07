@@ -17,7 +17,9 @@
     {
       "name": "poe",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 24
     }
-  ]
+  ],
+  "sourceUrl": "https://www.ui.com/accessories/poe-adapter/"
 }

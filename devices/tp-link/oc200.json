@@ -13,12 +13,14 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 5
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-controller/oc200/v1/"
 }

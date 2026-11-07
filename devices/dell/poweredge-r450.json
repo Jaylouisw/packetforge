@@ -26,5 +26,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/dell-emc-poweredge-r450-spec-sheet.pdf",
+  "notes": "Onboard: 2x 1GbE LOM only (no 10G copper on the board). OCP 3.0 mezzanine slot is empty in the base config - that is where a 10/25GbE card goes; 2x PCIe Gen4 slots for stand-up cards. The iDRAC9 port is a physically separate management network, not shared with LOM1."
 }

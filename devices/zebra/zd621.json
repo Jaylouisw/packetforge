@@ -15,5 +15,7 @@
       "type": "ethernet",
       "speed": "100M"
     }
-  ]
+  ],
+  "sourceUrl": "https://www.zebra.com/us/en/products/printers/desktop/zd600-series/zd621.html",
+  "notes": "Wired only in the standard SKU (10/100 Ethernet); Wi-Fi 802.11ac requires the optional dual-radio module. No PoE. Industrial endpoints like this often sit on a flat VLAN with the WMS."
 }

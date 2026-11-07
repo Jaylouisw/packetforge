@@ -13,12 +13,15 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     },
     {
       "name": "pc",
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://dsg.snom.com/m/products/d785-d785n/en/latest.pdf",
+  "notes": "Snom documentation: '2 x RJ45-8P8C (NET/PC) sockets', 'Power over Ethernet (PoE): IEEE 802.3af class 2/3', with the footnote that the Bluetooth-less D785N is class 2 while the D785 with Bluetooth is class 3 - hence 12.95 W here. The NET port is the uplink and PC is a daisy-chain passthrough (explicitly for chaining further Ethernet devices). Bluetooth 4.0 class 2 for headsets. USB 2.0 Type A, EHS RJ12 and headset RJ9 are not modelled."
 }

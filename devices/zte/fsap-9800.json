@@ -254,32 +254,62 @@
     {
       "name": "ge1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ge2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ge3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ge4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ge5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": null,
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "ge6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": null,
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.manualslib.com/manual/1179687/Zte-Fsap-9800.html",
+  "notes": "FSAP 9800: VDSL2 cards of 48 or 64 lines, ADSL2/2+ cards of 32/64 lines. Uplinks: 6x GE on the CSC board (2 sub-cards, electrical/optical mix) and up to 4 Ethernet cards with 2x GE each, i.e. 14 GE maximum; FE/GE/10GE/ATM network interfaces."
 }

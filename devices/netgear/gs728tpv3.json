@@ -22,24 +22,45 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "poe": {
+    "budgetW": 190,
+    "sourceUrl": "https://www.netgear.com/business/wired/switches/smart-cloud/gs728tpv3/"
+  },
   "icon": "switch",
-  "color": "#64748b"
+  "color": "#64748b",
+  "sourceUrl": "https://www.netgear.com/business/wired/switches/smart-cloud/gs728tpv3/"
 }

@@ -14,5 +14,7 @@
       "type": "ethernet",
       "speed": "1G"
     }
-  ]
+  ],
+  "sourceUrl": "https://i.dell.com/sites/csdocuments/Shared-Content_data-Sheets_Documents/en/aa/Dell_OptiPlex_9010_spec_sheet.pdf",
+  "notes": "1GbE RJ45 (Intel 82579LM) onboard, no wireless option fitted in the field. Legacy 1000BASE-T host that still auto-negotiates down to 100M against old switches - good for mixed-speed lab scenarios."
 }

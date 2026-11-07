@@ -1,0 +1,878 @@
+{
+  "devices": [
+    {
+      "vendor": "moxa",
+      "model": "EDS-4008-2GT-2GS-LV-T",
+      "label": "EDS-4008 managed FE switch, 2GT+2SFP",
+      "category": "switch",
+      "description": "Compact managed Fast Ethernet switch with 4 x 10/100BaseT(X) RJ45 ports, 2 x 1000BaseT(X) RJ45 uplinks and 2 x 1000BaseSFP slots - 8 Ethernet ports in total - plus an RS-232 8-pin RJ45 console port. -40 to 75 C, Turbo Ring/Turbo Chain redundancy and IEC 62443-4-2 Security Level 2 certification.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "gt1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "gt2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "sfp1",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "sfp2",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "console",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://moxa.com/getmedia/5350a622-e96a-46df-926c-547406461e5b/moxa-eds-4008-series-datasheet-v1.8.pdf"
+    },
+    {
+      "vendor": "siemens",
+      "model": "SCALANCE XC216-4C",
+      "label": "SCALANCE XC216-4C managed IE switch",
+      "category": "switch",
+      "description": "DIN-rail / S7-rail Layer 2 managed industrial Ethernet switch (6GK5216-4BS00-2AC2) with 12 x 10/100 Mbit/s RJ45 ports, 4 gigabit combo ports that take either a 1000 Mbit/s SFP or a 10/100/1000 RJ45, and an RJ11 console port. PROFINET IO device with MRP/HRP/PRP redundancy, -40 to +70 C.",
+      "capabilities": [
+        "l2-forward",
+        "cli",
+        "http-server",
+        "dhcp-client",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "9",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "10",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "11",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "12",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "13",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "13-sfp",
+          "comboRole": "rj45",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "13-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ],
+          "comboWith": "13",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "14",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "14-sfp",
+          "comboRole": "rj45",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "14-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ],
+          "comboWith": "14",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "15",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "15-sfp",
+          "comboRole": "rj45",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "15-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ],
+          "comboWith": "15",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "16",
+          "type": "ethernet",
+          "speed": "1G",
+          "comboWith": "16-sfp",
+          "comboRole": "rj45",
+          "speedCaps": [
+            100,
+            1000
+          ]
+        },
+        {
+          "name": "16-sfp",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            100,
+            1000
+          ],
+          "comboWith": "16",
+          "comboRole": "sfp"
+        },
+        {
+          "name": "console",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6GK5216-4BS00-2AC2&language=en&caller=SIOS"
+    },
+    {
+      "vendor": "phoenix-contact",
+      "model": "FL SWITCH 2308",
+      "label": "FL SWITCH 2308 managed switch",
+      "category": "switch",
+      "description": "DIN-rail managed switch (2702652, Managed Switch 2000 series) with 8 x RJ45 ports at 10/100/1000 Mbps and no separate uplink cage. PROFINET Conformance Class B, -40 to 70 C, 12 to 57 V DC input.",
+      "capabilities": [
+        "l2-forward",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.phoenixcontact.com/en-us/products/switch-fl-switch-2308-2702652"
+    },
+    {
+      "vendor": "advantech",
+      "model": "EKI-5728I",
+      "label": "EKI-5728I 8-port gigabit unmanaged switch",
+      "category": "switch",
+      "description": "DIN-rail unmanaged gigabit switch with 8 x 10/100/1000 Mbps RJ45 ports and no uplink cages or console. ATEX/C1D2 rated, -40 to 75 C, redundant 12 to 48 V DC input, and it answers SNMP and Modbus/TCP for monitoring.",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "5",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "6",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "7",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "8",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.advantech.com/en-us/products/60707cfd-c070-4037-82fb-d6533ac71635/eki-5728i/mod_aec25fc0-171c-44f5-82b3-8e0ad895ada0"
+    },
+    {
+      "vendor": "siemens",
+      "model": "SIMATIC S7-1200 CPU 1214C",
+      "label": "S7-1200 CPU 1214C DC/DC/DC",
+      "category": "iot",
+      "description": "Compact PLC (6ES7214-1AG40-0XB0) with 14 DI / 10 DO and a single PROFINET RJ45 port running at 10/100 Mbit/s - one port, no integrated switch, so it is a leaf on the plant network. Integrated web server plus OPC UA server; the RS-485 expansion module is a separate part.",
+      "capabilities": [
+        "host",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "x1p1",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6ES7214-1AG40-0XB0&language=en&caller=SIOS"
+    },
+    {
+      "vendor": "siemens",
+      "model": "SIMATIC S7-1500 CPU 1516-3 PN/DP",
+      "label": "S7-1500 CPU 1516-3 PN/DP",
+      "category": "iot",
+      "description": "High-end PLC (6ES7516-3AN02-0AB0) with three gigabit RJ45 ports: X1 is a two-port PROFINET IRT switch and X2 is a separate single-port PROFINET RT interface, so 3 x 1 Gbit/s Ethernet in total. A third interface is PROFIBUS DP on a 9-pin sub-D, not Ethernet; integrated web server.",
+      "capabilities": [
+        "host",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "x1p1r",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "x1p2r",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "x2p1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6ES7516-3AN02-0AB0&language=en&caller=SIOS"
+    },
+    {
+      "vendor": "allen-bradley",
+      "model": "5069-L320ER",
+      "label": "CompactLogix 5380 2MB Enet controller",
+      "category": "iot",
+      "description": "CompactLogix 5380 EtherNet/IP controller (2 MB, 16 local I/Os, 40 EtherNet/IP nodes) with exactly 2 x 1 Gb EtherNet ports on embedded RJ45 connectors, usable as a device-level ring (DLR) pair. There is also a USB port for local programming, which is not a network interface.",
+      "capabilities": [
+        "host",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "port1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "port2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.rockwellautomation.com/en-us/products/details.5069-L320ER.html"
+    },
+    {
+      "vendor": "schneider-electric",
+      "model": "TM241CE24T",
+      "label": "Modicon M241 24 I/O logic controller",
+      "category": "iot",
+      "description": "Modicon M241 logic controller with 14 DI / 10 transistor DO and one 10/100BASE-TX RJ45 Ethernet port that carries Modbus TCP server/client and EtherNet/IP. Serial 1 is an RJ45 RS-232/RS-485 link and serial 2 an RS-485 terminal block; the mini-B USB port is programming only.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        },
+        {
+          "name": "serial2",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://www.mouser.com/datasheet/2/357/Schneider-Electric-1563957.pdf"
+    },
+    {
+      "vendor": "wago",
+      "model": "750-8212",
+      "label": "PFC200 G2 controller, 2 x Ethernet",
+      "category": "iot",
+      "description": "WAGO PFC200 2nd-generation PLC/edge controller with 2 x ETHERNET RJ45 ports at 10/100 Mbit/s (internal switch, daisy-chain capable) plus one RS-232/RS-485 interface. Runs Linux with a web-based management UI, SSH and Modbus TCP, EtherNet/IP, BACnet/IP and OPC UA.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "x1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "x2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://www.wago.com/us/controllers-bus-couplers-i-o/controller-pfc200/p/750-8212"
+    },
+    {
+      "vendor": "johnson-controls",
+      "model": "MS-NAE5510-2",
+      "label": "Metasys NAE55 network engine",
+      "category": "iot",
+      "description": "Metasys NAE55 network automation engine with one 10/100/1000 Mbps RJ45 Ethernet port for the BACnet/IP site network. Field buses are two optically isolated RS-485 ports and two RS-232-C ports, and it runs an embedded web server for the site UI.",
+      "capabilities": [
+        "host",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "rs485-1",
+          "type": "console"
+        },
+        {
+          "name": "rs485-2",
+          "type": "console"
+        },
+        {
+          "name": "rs232-1",
+          "type": "console"
+        },
+        {
+          "name": "rs232-2",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://docs.johnsoncontrols.com/bas/r/Metasys/en-US/NAE55-Catalog-Page/12.0/Ordering-information"
+    },
+    {
+      "vendor": "honeywell",
+      "model": "WEB-8000",
+      "label": "WEB-8000 building controller",
+      "category": "iot",
+      "description": "Niagara-based WEB-8000 plant controller with two RJ45 10/100 Ethernet ports, PRI (LAN1) enabled by default and SEC (LAN2) shipped disabled. It also exposes RS-485 field-bus ports and an integral 802.11a/b/g/n Wi-Fi adapter on an RP-SMA antenna connector.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "pri",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "sec",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "rs485-1",
+          "type": "console"
+        },
+        {
+          "name": "rs485-2",
+          "type": "console"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "300M"
+        }
+      ],
+      "sourceUrl": "https://prod-edam.honeywell.com/content/dam/honeywell-edam/hbt/en-us/documents/manuals-and-guides/reference-guides/HBT-BMS-WEB-8000-Quick-Start-Guide-31-00091.pdf"
+    },
+    {
+      "vendor": "distech-controls",
+      "model": "ECY-S1000",
+      "label": "ECLYPSE S1000 connected controller",
+      "category": "iot",
+      "description": "ECLYPSE building controller with 2 switched RJ45 Ethernet ports at 10/100 Mbps that can be configured individually for daisy-chain wiring, speaking BACnet/IP, Modbus TCP and REST. Up to three RS-485 ports carry BACnet MS/TP or Modbus RTU, and up to 20 I/O extension modules can be added.",
+      "capabilities": [
+        "host",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "rs485-1",
+          "type": "console"
+        },
+        {
+          "name": "rs485-2",
+          "type": "console"
+        },
+        {
+          "name": "rs485-3",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://lit.stromquist.com/docs/Distech/ECY-S1000data.pdf"
+    },
+    {
+      "vendor": "moxa",
+      "model": "MGate MB3180",
+      "label": "MGate MB3180 Modbus TCP gateway",
+      "category": "iot",
+      "description": "One-port Modbus gateway that converts Modbus TCP to Modbus RTU/ASCII: a single 10/100BaseT(X) RJ45 port on the Ethernet side and one DB9 male RS-232/422/485 serial port on the field side. 16 simultaneous Modbus TCP masters, DIN-rail or wall mount, 12 to 48 VDC.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/getmedia/863d6b9f-284e-42dd-860d-1679161ee174/moxa-mgate-mb3180-mb3280-mb3480-series-datasheet-v1.9.pdf"
+    },
+    {
+      "vendor": "moxa",
+      "model": "NPort 5150A",
+      "label": "NPort 5150A 1-port serial device server",
+      "category": "iot",
+      "description": "Single-port serial device server with one 10/100BaseT(X) RJ45 Ethernet port and one DB9 male RS-232/422/485 port, so legacy serial meters and PLCs become TCP endpoints. 1.5 kV magnetic isolation, 1 W typical draw, web and Telnet configuration.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/getmedia/2c359aa1-a851-4b7b-a2ec-a54f7ab207e0/moxa-nport-5100a-series-datasheet-v2.0.pdf"
+    },
+    {
+      "vendor": "perle",
+      "model": "IOLAN STS4",
+      "label": "IOLAN STS4 terminal server, 4 x RS232",
+      "category": "iot",
+      "description": "1U rack terminal server with 4 RS-232 serial ports on RJ45 connectors and a single 10/100/1000 Ethernet port. Each serial port can be reached by Telnet, SSH or raw TCP, which makes it a serial console server for OT equipment in a rack.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        },
+        {
+          "name": "serial2",
+          "type": "console"
+        },
+        {
+          "name": "serial3",
+          "type": "console"
+        },
+        {
+          "name": "serial4",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://www.perle.com/products/iolan-sts-terminal-server.shtml"
+    },
+    {
+      "vendor": "hms",
+      "model": "IN7004852500000",
+      "label": "Intesis Modbus to BACnet/IP gateway",
+      "category": "iot",
+      "description": "Intesis protocol translator (250 points) that presents Modbus TCP/RTU devices to a BACnet/IP or BACnet MS/TP BMS. One Ethernet 10/100 Mbps RJ45 port, two independent EIA-485 ports for Modbus RTU lines and one EIA-232 port; DIN-rail mount, 9 to 36 VDC.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "porta",
+          "type": "console"
+        },
+        {
+          "name": "portb",
+          "type": "console"
+        },
+        {
+          "name": "rs232",
+          "type": "console"
+        }
+      ],
+      "sourceUrl": "https://media.hms-networks.com/image/upload/v1786566390/Documents/Generated_Datasheets/Production/en/hms-IN7004852500000_BAC_MBS-en-Modbus-TCP--RTU-Master-to-BACnetIP--MSTP-Server-Application.pdf"
+    },
+    {
+      "vendor": "teltonika",
+      "model": "RUT906",
+      "label": "Teltonika RUT906 industrial 4G router",
+      "category": "router",
+      "description": "Industrial 4G LTE Cat 4 router with 4 x 10/100 Mbps Ethernet ports (1 WAN + 3 LAN), a single 2.4 GHz Wi-Fi 4 radio, RS-232 on DB9 and RS-485 on a 6-pin socket. Dual SIM, GNSS, RutOS with firewall/NAT/VPN; the USB-A port is for storage only.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        },
+        {
+          "name": "serial2",
+          "type": "console"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "300M"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.tme.eu/Document/baaf30aa2fa5b3a2cec258731b6f5e4a/Datasheet_RUT906_1.13.pdf"
+    },
+    {
+      "vendor": "advantech",
+      "model": "ICR-3231",
+      "label": "ICR-3231 industrial LTE router",
+      "category": "router",
+      "description": "DIN-rail LTE Cat 4 router/gateway with two independent 10/100 Mbps Ethernet ports (ETH0, ETH1), one RS-232 and one RS-485 serial port, and digital I/O. Dual SIM for carrier failover, Linux-based ICR-OS with NAT, firewall and VPN; Wi-Fi and GNSS are optional modules, not fitted on the base model.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        },
+        {
+          "name": "serial2",
+          "type": "console"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://icr.advantech.com/support/router-models/download/301/icr-3231-hardware-manual-20260213.pdf"
+    },
+    {
+      "vendor": "moxa",
+      "model": "OnCell G3150A-LTE",
+      "label": "OnCell G3150A-LTE cellular gateway",
+      "category": "router",
+      "description": "Rugged LTE serial/Ethernet-to-cellular gateway with exactly one 10/100BaseT(X) RJ45 LAN port and one DB9 RS-232/422/485 serial port, plus an RJ45 RS-232 console port. Dual SIM with GuaranLink, IPsec/OpenVPN, NAT and a MAC/IP/port firewall; ATEX Zone 2 rated, -30 to 70 C on the wide-temp models.",
+      "capabilities": [
+        "cli",
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console"
+        },
+        {
+          "name": "console",
+          "type": "console"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/Moxa/media/PDIM/S100000289/moxa-oncell-g3150a-lte-series-datasheet-v1.0.pdf"
+    },
+    {
+      "vendor": "microchip",
+      "model": "PD-9501G-SFP",
+      "label": "60 W PoE midspan / SFP media converter",
+      "category": "powerline",
+      "description": "Industrial single-port PoE midspan that can inject up to 60 W of 802.3at power into a gigabit link: three ports, an SFP cage for the data uplink, an RJ45 data-in port and an RJ45 PoE-out port, all active simultaneously. Full 802.3af/at detection, so it refuses passive 24 V or 48 V devices.",
+      "capabilities": [
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "sfp-uplink",
+          "type": "ethernet",
+          "speed": "1G",
+          "connector": "sfp",
+          "speedCaps": [
+            1000
+          ]
+        },
+        {
+          "name": "data-in",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "poe-out",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://ww1.microchip.com/downloads/aemDocuments/documents/POE/ProductDocuments/DataSheets/PD-9501G-SFP-Datasheet-August2018.pdf"
+    }
+  ]
+}

@@ -13,7 +13,10 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
-  ]
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-dome",
+  "notes": "PoE class 802.3af, 12.95 W. Wired only. IPX4 only while covered, so it is an indoor/soffit device in practice. Requires a UniFi Protect controller."
 }

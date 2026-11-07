@@ -51,5 +51,6 @@
       "type": "wireless",
       "speed": "2.5G"
     }
-  ]
+  ],
+  "sourceUrl": "https://cradlepoint.ericsson.com/datasheet/r1900-series-5g-ruggedized-router/"
 }

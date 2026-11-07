@@ -12,32 +12,40 @@
     {
       "name": "ds1",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "ds2",
       "type": "coax",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "f"
     },
     {
       "name": "us1",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us2",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us3",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     },
     {
       "name": "us4",
       "type": "coax",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "f"
     }
-  ]
+  ],
+  "sourceUrl": "https://amt.com/wp-content/uploads/2024/10/Harmonic_DS_Reef_Dense-R-PHY-Shelf.pdf",
+  "notes": "Counted: '9 linecards per chassis, each with 2 RPDs' => 18 RPDs / 18 service groups; 'each with two independent Remote PHY devices of 1DSx2US ports' => 2 DS + 4 US per line card (18 DS / 36 US fully loaded). RPD spec: up to 158 SC-QAMs or 6x 192 MHz OFDM per RPD, 5-204 MHz US, 1218 MHz DS. A full shelf is modelled as one line card because only one card's worth of RF ports is needed to represent a service group pair; the RPD uplinks are Ethernet tunnels to the CableOS Core (software vCMTS on a 1-RU x86 server) and the datasheet publishes no connector count for them, so none are modelled."
 }

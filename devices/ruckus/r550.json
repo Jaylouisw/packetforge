@@ -15,7 +15,8 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     },
     {
       "name": "eth1",
@@ -32,5 +33,7 @@
       "type": "wireless",
       "speed": "1.2G"
     }
-  ]
+  ],
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r550/ds-commscope-r550.html",
+  "notes": "802.3at PoE+ PD. The datasheet power table is explicit: on 802.3at the second Ethernet port, onboard IoT and USB are disabled. No USB port modelled."
 }
