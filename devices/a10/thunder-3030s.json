@@ -44,32 +44,62 @@
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "mgmt",
