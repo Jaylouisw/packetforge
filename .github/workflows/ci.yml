@@ -25,10 +25,8 @@ jobs:
           cache: npm
       - name: Syntax check (all JS)
         run: node scripts/syntax-check.js
-      - name: Engine tests
-        run: node test/engine.test.js
-      - name: CLI tests
-        run: node test/cli.test.js
+      - name: Engine + CLI + physical-layer tests
+        run: npm test
       - name: Build & verify example labs
         run: node examples/build-examples.js
 

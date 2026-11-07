@@ -187,6 +187,60 @@
     try { await api('POST', '/topologies/' + TOPO + '/layout', { positions: { [id]: { x: x, y: y } } }); } catch (e) {}
   };
 
+  // Modal that lets the user choose the physical medium for a new cable.
+  function pickLinkMedia(options, verdict, portA, portB) {
+    return new Promise(function (resolve) {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      const box = document.createElement('div');
+      box.className = 'modal-box';
+
+      let html = '<div class="modal-title">Cable ' + esc(portA) + ' &rarr; ' + esc(portB) + '</div>';
+      html += '<div class="modal-sub">Choose the physical medium' +
+        (verdict && verdict.speedMbps ? ' &middot; negotiated ' + verdict.speedMbps + ' Mbps' : '') + '</div>';
+      html += '<div class="media-list">';
+      for (const o of options) {
+        const sel = (verdict && o.id === verdict.mediaId) || (!verdict && o === options[0]);
+        html += '<label class="media-opt' + (sel ? ' sel' : '') + '">' +
+          '<input type="radio" name="pf-media" value="' + esc(o.id) + '"' + (sel ? ' checked' : '') + '>' +
+          '<span class="mo-name">' + esc(o.name || o.id) + '</span>' +
+          '<span class="mo-meta">' + esc(o.family || '') + (o.maxRangeM ? ' &middot; ' + o.maxRangeM + ' m' : '') + '</span>' +
+          '</label>';
+      }
+      html += '</div>';
+      html += '<div class="modal-actions">' +
+        '<button class="btn" data-act="cancel">Cancel</button>' +
+        '<button class="btn primary" data-act="ok">Connect</button></div>';
+      box.innerHTML = html;
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      function done(val) {
+        overlay.remove();
+        document.removeEventListener('keydown', onKey);
+        resolve(val);
+      }
+      function onKey(e) { if (e.key === 'Escape') done(null); }
+      document.addEventListener('keydown', onKey);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) { done(null); return; }
+        const act = e.target.getAttribute('data-act');
+        if (act === 'cancel') { done(null); return; }
+        if (act === 'ok') {
+          const chosen = box.querySelector('input[name=pf-media]:checked');
+          done(chosen ? chosen.value : null);
+        }
+      });
+    });
+  }
+
+  function devName(id) {
+    const d = deviceById(id);
+    return d ? d.name : id;
+  }
+
+  // Clicking a second port: dry-run the cable, block impossible ones, then
+  // let the user choose the medium when more than one is valid.
   PFCanvas.on.portClick = async function (deviceId, iface) {
     const c = PFCanvas.getConnecting();
     if (!c) {
@@ -195,18 +249,51 @@
       return;
     }
     if (c.deviceId === deviceId) { PFCanvas.setConnecting(null); setStatus('Ready'); return; }
+
+    // 1. Physical feasibility (dry run)
+    let verdict = null;
+    let options = [];
+    try {
+      const v = await api('POST', '/topologies/' + TOPO + '/validate-link', {
+        a: { deviceId: c.deviceId, iface: c.iface },
+        b: { deviceId: deviceId, iface: iface }
+      });
+      verdict = v.verdict;
+      options = v.mediaOptions || [];
+    } catch (e) { /* fall through; the server will decide */ }
+
+    if (verdict && verdict.ok === false) {
+      const err = (verdict.errors && verdict.errors[0]) || null;
+      toast('Impossible: ' + (err ? err.message : 'incompatible ports'));
+      PFCanvas.setConnecting(null);
+      setStatus('Blocked: ' + (err ? err.code : 'E_LINK'));
+      return;
+    }
+
+    // 2. Choose the medium
+    let mediaId = verdict ? verdict.mediaId : null;
+    if (options.length > 1) {
+      const picked = await pickLinkMedia(options, verdict,
+        devName(c.deviceId) + '/' + c.iface, devName(deviceId) + '/' + iface);
+      if (!picked) { PFCanvas.setConnecting(null); setStatus('Ready'); return; }
+      mediaId = picked;
+    }
+
+    // 3. Connect
     try {
       const r = await api('POST', '/topologies/' + TOPO + '/links', {
         a: { deviceId: c.deviceId, iface: c.iface },
-        b: { deviceId: deviceId, iface: iface }
+        b: { deviceId: deviceId, iface: iface },
+        mediaId: mediaId
       });
       topo = r.state;
       PFCanvas.setConnecting(null);
       PFCanvas.setTopology(topo);
-      setStatus('Connected ' + c.deviceId + '/' + c.iface + ' ↔ ' + deviceId + '/' + iface);
+      const via = (r.link && r.link.mediaId) ? ' via ' + r.link.mediaId : '';
+      setStatus('Connected ' + devName(c.deviceId) + '/' + c.iface + ' to ' + devName(deviceId) + '/' + iface + via);
     } catch (e) {
       PFCanvas.setConnecting(null);
-      toast(e.message);
+      toast('Impossible: ' + e.message);
     }
   };
 

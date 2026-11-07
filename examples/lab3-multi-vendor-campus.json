@@ -16,11 +16,14 @@
         "cli"
       ],
       "name": "Cloud / Internet-d1",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": "198.51.100.2",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -31,7 +34,34 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t",
+            "2.5gbase-t",
+            "5gbase-t",
+            "10gbase-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000,
+            2500,
+            5000,
+            10000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -50,6 +80,7 @@
         "nat"
       ],
       "name": "EDGE",
+      "poeBudget": 0,
       "config": {
         "hostname": "EDGE",
         "defaultGateway": null,
@@ -61,7 +92,9 @@
             "iface": null
           }
         ],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -72,7 +105,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Gi0/0/1",
@@ -82,7 +136,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Gi0/0/2",
@@ -92,150 +167,870 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
     {
       "id": "d3",
-      "vendor": "arista",
-      "model": "7050SX3",
-      "label": "7050SX3-48YC8 (L3)",
-      "category": "l3-switch",
-      "color": "#0ea5e9",
+      "vendor": "mikrotik",
+      "model": "CRS326-24G",
+      "label": "CRS326-24G-2S+IN",
+      "category": "switch",
+      "color": "#14b8a6",
       "icon": "switch",
       "capabilities": [
         "l2-forward",
         "l3-forward",
         "cli"
       ],
-      "name": "7050SX3-48YC8 (L3)-d3",
+      "name": "CRS326-24G-2S+IN-d3",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
-          "name": "Et1",
+          "name": "ether1",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et2",
+          "name": "ether2",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et3",
+          "name": "ether3",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et4",
+          "name": "ether4",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et5",
+          "name": "ether5",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et6",
+          "name": "ether6",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et7",
+          "name": "ether7",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et8",
+          "name": "ether8",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et9",
+          "name": "ether9",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et10",
+          "name": "ether10",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et11",
+          "name": "ether11",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "Et12",
+          "name": "ether12",
           "type": "ethernet",
-          "speed": "25G",
+          "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether13",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether14",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether15",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether16",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether17",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether18",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether19",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether20",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether21",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether22",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether23",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "ether24",
+          "type": "ethernet",
+          "speed": "1G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "sfp-sfpplus1",
+          "type": "ethernet",
+          "speed": "10G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "sfp+",
+          "media": [
+            "10gbase-sr",
+            "10gbase-lr",
+            "10gbase-er",
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-t-sfp",
+            "dac-10g",
+            "dac-10g-active",
+            "aoc-10g"
+          ],
+          "speedCaps": [
+            1000,
+            10000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
+        },
+        {
+          "name": "sfp-sfpplus2",
+          "type": "ethernet",
+          "speed": "10G",
+          "ip": null,
+          "mask": null,
+          "enabled": true,
+          "dhcp": false,
+          "description": "",
+          "cage": "sfp+",
+          "media": [
+            "10gbase-sr",
+            "10gbase-lr",
+            "10gbase-er",
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-t-sfp",
+            "dac-10g",
+            "dac-10g-active",
+            "aoc-10g"
+          ],
+          "speedCaps": [
+            1000,
+            10000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -253,11 +1048,14 @@
         "cli"
       ],
       "name": "S5735-L24T4S-d4",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -268,7 +1066,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/2",
@@ -278,7 +1097,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/3",
@@ -288,7 +1128,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/4",
@@ -298,7 +1159,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/5",
@@ -308,7 +1190,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/6",
@@ -318,7 +1221,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/7",
@@ -328,7 +1252,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/8",
@@ -338,7 +1283,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/9",
@@ -348,7 +1314,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/10",
@@ -358,7 +1345,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/11",
@@ -368,7 +1376,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/12",
@@ -378,7 +1407,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/13",
@@ -388,7 +1438,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/14",
@@ -398,7 +1469,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/15",
@@ -408,7 +1500,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/16",
@@ -418,7 +1531,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/17",
@@ -428,7 +1562,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/18",
@@ -438,7 +1593,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/19",
@@ -448,7 +1624,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/20",
@@ -458,7 +1655,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/21",
@@ -468,7 +1686,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/22",
@@ -478,7 +1717,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/23",
@@ -488,7 +1748,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/24",
@@ -498,7 +1779,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/25",
@@ -508,7 +1810,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/26",
@@ -518,7 +1841,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/27",
@@ -528,7 +1872,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "GE0/0/28",
@@ -538,290 +1903,615 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
     {
       "id": "d5",
-      "vendor": "mikrotik",
-      "model": "CRS326-24G",
-      "label": "CRS326-24G-2S+IN",
+      "vendor": "ubiquiti",
+      "model": "EdgeSwitch-16",
+      "label": "EdgeSwitch 16",
       "category": "switch",
-      "color": "#14b8a6",
+      "color": "#3b82f6",
       "icon": "switch",
       "capabilities": [
         "l2-forward",
-        "l3-forward",
         "cli"
       ],
-      "name": "CRS326-24G-2S+IN-d5",
+      "name": "EdgeSwitch 16-d5",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
-          "name": "ether1",
+          "name": "port1",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether2",
+          "name": "port2",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether3",
+          "name": "port3",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether4",
+          "name": "port4",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether5",
+          "name": "port5",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether6",
+          "name": "port6",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether7",
+          "name": "port7",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether8",
+          "name": "port8",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether9",
+          "name": "port9",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether10",
+          "name": "port10",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether11",
+          "name": "port11",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether12",
+          "name": "port12",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether13",
+          "name": "port13",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether14",
+          "name": "port14",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether15",
+          "name": "port15",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether16",
+          "name": "port16",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether17",
+          "name": "SFP1",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "sfp",
+          "media": [
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
-          "name": "ether18",
+          "name": "SFP2",
           "type": "ethernet",
           "speed": "1G",
           "ip": null,
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether19",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether20",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether21",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether22",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether23",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "ether24",
-          "type": "ethernet",
-          "speed": "1G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "sfp-sfpplus1",
-          "type": "ethernet",
-          "speed": "10G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
-        },
-        {
-          "name": "sfp-sfpplus2",
-          "type": "ethernet",
-          "speed": "10G",
-          "ip": null,
-          "mask": null,
-          "enabled": true,
-          "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "sfp",
+          "media": [
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -839,11 +2529,14 @@
         "dhcp-client"
       ],
       "name": "PC1",
+      "poeBudget": 0,
       "config": {
         "hostname": "PC1",
         "defaultGateway": "10.0.0.1",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -854,7 +2547,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -872,11 +2586,14 @@
         "dhcp-client"
       ],
       "name": "PC2",
+      "poeBudget": 0,
       "config": {
         "hostname": "PC2",
         "defaultGateway": "10.0.0.1",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -887,7 +2604,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -906,11 +2644,14 @@
         "http-server"
       ],
       "name": "SRV1",
+      "poeBudget": 0,
       "config": {
         "hostname": "SRV1",
         "defaultGateway": "10.0.0.1",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -921,7 +2662,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     }
@@ -937,7 +2699,13 @@
         "deviceId": "d2",
         "iface": "Gi0/0/0"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l10",
@@ -947,33 +2715,51 @@
       },
       "b": {
         "deviceId": "d3",
-        "iface": "Et1"
+        "iface": "ether1"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l11",
       "a": {
         "deviceId": "d3",
-        "iface": "Et2"
+        "iface": "ether2"
       },
       "b": {
         "deviceId": "d4",
         "iface": "GE0/0/1"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l12",
       "a": {
         "deviceId": "d3",
-        "iface": "Et3"
+        "iface": "sfp-sfpplus1"
       },
       "b": {
         "deviceId": "d5",
-        "iface": "ether1"
+        "iface": "SFP1"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-sx",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l13",
@@ -985,7 +2771,13 @@
         "deviceId": "d6",
         "iface": "eth0"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l14",
@@ -997,19 +2789,31 @@
         "deviceId": "d7",
         "iface": "eth0"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l15",
       "a": {
         "deviceId": "d5",
-        "iface": "ether2"
+        "iface": "port1"
       },
       "b": {
         "deviceId": "d8",
         "iface": "eth0"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     }
   ],
   "layout": {

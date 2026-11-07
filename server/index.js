@@ -8,6 +8,7 @@ const { URL } = require('url');
 
 const { Topology, Simulator, CliSession } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
+const media = require('../engine/media');
 const { WebSocketServer } = require('./ws');
 
 const PORT = parseInt(process.env.PORT || '8000', 10);
@@ -123,6 +124,11 @@ async function handleApi(req, res, urlPath) {
       return sendJSON(res, 200, { specs: catalog, categories: groupByCategory(catalog) });
     }
 
+    // GET /api/media -- physical media + cage catalogue (link-type picker)
+    if (parts[1] === 'media' && method === 'GET') {
+      return sendJSON(res, 200, { media: media.MEDIA, cages: media.CAGES });
+    }
+
     // topologies collection
     if (parts[1] === 'topologies' && parts.length === 2) {
       if (method === 'GET') return sendJSON(res, 200, { ids: Array.from(topologies.keys()) });
@@ -183,10 +189,37 @@ async function handleApi(req, res, urlPath) {
     if (parts[3] === 'links' && parts.length === 4) {
       if (method === 'POST') {
         const body = await readBody(req);
-        const link = topo.connect(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, body.type);
-        broadcast(topoId);
-        return sendJSON(res, 201, { link: link.serialize(), state: fullState(topo) });
+        try {
+          const link = topo.connect(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, {
+            mediaId: body.mediaId,
+            lengthM: body.lengthM,
+            duplex: body.duplex,
+            lagId: body.lagId,
+            force: !!body.force,
+            type: body.type
+          });
+          broadcast(topoId);
+          return sendJSON(res, 201, { link: link.serialize(), state: fullState(topo) });
+        } catch (e) {
+          // An impossible cable is a client error, not a server fault.
+          return sendJSON(res, 409, {
+            error: e.message,
+            code: e.code || 'E_LINK',
+            issues: e.issues || []
+          });
+        }
       }
+    }
+
+    // /validate-link -- dry-run a prospective cable before committing it
+    if (parts[3] === 'validate-link' && parts.length === 4 && method === 'POST') {
+      const body = await readBody(req);
+      const verdict = topo.validateLink(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, {
+        mediaId: body.mediaId,
+        lengthM: body.lengthM
+      });
+      const options = topo.mediaOptions(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface);
+      return sendJSON(res, 200, { verdict: verdict, mediaOptions: options });
     }
 
     // /links/:linkId

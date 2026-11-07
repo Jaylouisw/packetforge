@@ -21,6 +21,9 @@ and they all run the same simulation engine and the same command set.
   decrement and ICMP echo/reply — with a replayable event stream.
 - **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable,
   per-device console, live packet animation, WebSocket multi-client sync.
+- **Physically accurate.** 32 link types across copper, fiber, DAC, console and
+  wireless; per-port cages, speed capabilities and PoE budgets. Impossible cables
+  are *refused*, not drawn. See [docs/PHYSICAL_LAYER.md](docs/PHYSICAL_LAYER.md).
 - **Any hardware.** Add a new model in ~10 lines of JSON. See
   [docs/DEVICE_REGISTRY.md](docs/DEVICE_REGISTRY.md).
 
@@ -76,6 +79,8 @@ echo/reply travel across the link with a live animation and event log.
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP (request/reply, cache), ICMP echo request/reply, TTL handling |
+| Physical layer | 32 media types, 9 cage types, per-port speed caps + PoE, live feasibility validation |
+| L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
 | CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
 | Persistence | save/load topologies as JSON (import/export buttons) |

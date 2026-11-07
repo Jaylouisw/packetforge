@@ -7,9 +7,13 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
-    "test": "node test/engine.test.js && node test/cli.test.js",
+    "test": "node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js",
     "test:engine": "node test/engine.test.js",
     "test:cli": "node test/cli.test.js",
+    "test:validation": "node test/validation.test.js",
+    "test:vlan": "node test/vlan.test.js",
+    "test:lag": "node test/lag.test.js",
+    "test:stp": "node test/stp.test.js",
     "examples": "node examples/build-examples.js",
     "syntax": "node scripts/syntax-check.js"
   },

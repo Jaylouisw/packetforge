@@ -1,7 +1,8 @@
 'use strict';
-// topology.js — a container of devices + links, with (de)serialization.
+// topology.js -- a container of devices + links, with (de)serialization.
 const { Device } = require('./device');
 const { Link } = require('./link');
+const media = require('./media');
 const net = require('./net');
 
 // Expand a device spec's interfaces into a flat list. A spec may provide an
@@ -17,8 +18,13 @@ function expandInterfaces(spec) {
     const count = (t.count === undefined || t.count === null) ? 1 : t.count;
     const type = t.type || 'ethernet';
     const speed = t.speed || '1G';
+    // carry explicit hardware hints (cage / media / PoE) onto every port
+    const extra = {};
+    for (const k of ['cage', 'connector', 'media', 'supportedMedia', 'speedCaps', 'poeOut', 'poeIn', 'hardware']) {
+      if (t[k] !== undefined) extra[k] = t[k];
+    }
     for (let i = 0; i < count; i++) {
-      out.push({ name: prefix + (start + i), type: type, speed: speed });
+      out.push(Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra));
     }
   }
   if (Array.isArray(spec.interfaces)) {
@@ -60,8 +66,81 @@ class Topology {
 
   getLink(id) { return this.links.get(id) || null; }
 
-  // Connect two interfaces. Throws if either interface is already connected.
-  connect(aId, aIface, bId, bIface, type) {
+  // All links touching a device.
+  linksFor(deviceId) {
+    const out = [];
+    for (const l of this.links.values()) if (l.touches(deviceId)) out.push(l);
+    return out;
+  }
+
+  // Physical feasibility of cabling two ports. Returns a verdict:
+  //   { ok, errors:[{code,message}], warnings:[{code,message}],
+  //     media:[ids], mediaId, speedMbps }
+  // Delegates to engine/validation.js when present, else to media.canMate().
+  validateLink(aId, aIface, bId, bIface, opts) {
+    opts = opts || {};
+    const a = this.devices.get(aId);
+    const b = this.devices.get(bId);
+    const ai = a && a.interfaces.get(aIface);
+    const bi = b && b.interfaces.get(bIface);
+
+    let V = null;
+    try { V = require('./validation'); } catch (e) { V = null; }
+
+    if (V && typeof V.validateConnection === 'function') {
+      return V.validateConnection({
+        portA: ai && ai.hardware,
+        portB: bi && bi.hardware,
+        ifaceA: ai,
+        ifaceB: bi,
+        devA: a,
+        devB: b,
+        mediaId: opts.mediaId,
+        lengthM: opts.lengthM,
+        duplexA: ai && ai.duplex,
+        duplexB: bi && bi.duplex
+      });
+    }
+
+    // Fallback: connector / media / speed checks only.
+    const verdict = media.canMate(ai && ai.hardware, bi && bi.hardware);
+    return {
+      ok: verdict.ok,
+      errors: verdict.ok ? [] : [{ code: verdict.code, message: verdict.message }],
+      warnings: [],
+      media: verdict.media || [],
+      mediaId: verdict.ok ? media.preferredMedia(verdict.media) : null,
+      speedMbps: verdict.speedMbps || null
+    };
+  }
+
+  // Media a user could pick between two ports (for the UI's link picker).
+  mediaOptions(aId, aIface, bId, bIface) {
+    const a = this.devices.get(aId);
+    const b = this.devices.get(bId);
+    const ai = a && a.interfaces.get(aIface);
+    const bi = b && b.interfaces.get(bIface);
+    if (!ai || !bi) return [];
+    return media.commonMedia(ai.hardware, bi.hardware).map(function (id) {
+      const m = media.mediaById(id);
+      return {
+        id: id,
+        name: m ? m.name : id,
+        family: m ? m.family : null,
+        speedMbps: m ? m.speedMbps : null,
+        maxRangeM: m ? m.maxRangeM : null
+      };
+    });
+  }
+
+  // Connect two interfaces. Validates the physical layer first and throws a
+  // descriptive error (with .code and .issues) when the cabling is impossible.
+  // `opts` may carry { mediaId, lengthM, duplex, lagId, force }.
+  connect(aId, aIface, bId, bIface, opts) {
+    // Backwards compatibility: a bare string used to mean `type`.
+    if (typeof opts === 'string') opts = { type: opts };
+    opts = opts || {};
+
     const a = this.devices.get(aId);
     const b = this.devices.get(bId);
     if (!a) throw new Error('Unknown device: ' + aId);
@@ -73,7 +152,23 @@ class Topology {
     if (ai.peer) throw new Error(aId + '/' + aIface + ' is already connected');
     if (bi.peer) throw new Error(bId + '/' + bIface + ' is already connected');
 
-    const link = new Link('l' + (this._seq++), aId, aIface, bId, bIface, type);
+    const verdict = this.validateLink(aId, aIface, bId, bIface, opts);
+    if (!verdict.ok && !opts.force) {
+      const err = new Error(verdict.errors.map(function (e) { return e.message; }).join(' '));
+      err.code = verdict.errors[0] ? verdict.errors[0].code : 'E_LINK';
+      err.issues = verdict.errors;
+      throw err;
+    }
+
+    const mediaId = opts.mediaId || verdict.mediaId || null;
+    const link = new Link('l' + (this._seq++), aId, aIface, bId, bIface, {
+      type: 'media',
+      mediaId: mediaId,
+      speedMbps: opts.speedMbps || verdict.speedMbps || null,
+      duplex: opts.duplex || 'full',
+      lengthM: (opts.lengthM === undefined) ? null : opts.lengthM,
+      lagId: opts.lagId || null
+    });
     ai.peer = { deviceId: bId, iface: bIface };
     bi.peer = { deviceId: aId, iface: aIface };
     this.links.set(link.id, link);
@@ -125,7 +220,15 @@ class Topology {
     for (const dev of topo.devices.values()) topo._assignMacs(dev);
 
     for (const l of (data.links || [])) {
-      topo.connect(l.a.deviceId, l.a.iface, l.b.deviceId, l.b.iface, l.type);
+      // force: true so legacy topologies (no media info) still load.
+      try {
+        topo.connect(l.a.deviceId, l.a.iface, l.b.deviceId, l.b.iface, {
+          mediaId: l.mediaId, speedMbps: l.speedMbps, duplex: l.duplex,
+          lengthM: l.lengthM, lagId: l.lagId, type: l.type, force: true
+        });
+      } catch (e) {
+        // Skip links that can no longer be made (device/port removed).
+      }
     }
     topo.layout = (data.layout && typeof data.layout === 'object') ? data.layout : {};
     return topo;

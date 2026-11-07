@@ -16,11 +16,14 @@
         "dhcp-client"
       ],
       "name": "PC-d1",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -31,7 +34,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -49,11 +73,14 @@
         "dhcp-client"
       ],
       "name": "PC-d2",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -64,7 +91,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -81,11 +129,14 @@
         "cli"
       ],
       "name": "Switch (L2)-d3",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -96,7 +147,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/2",
@@ -106,7 +178,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/3",
@@ -116,7 +209,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/4",
@@ -126,7 +240,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/5",
@@ -136,7 +271,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/6",
@@ -146,7 +302,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/7",
@@ -156,7 +333,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Fa0/8",
@@ -166,7 +364,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     }
@@ -182,7 +401,13 @@
         "deviceId": "d3",
         "iface": "Fa0/1"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l5",
@@ -194,7 +419,13 @@
         "deviceId": "d3",
         "iface": "Fa0/2"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     }
   ],
   "layout": {

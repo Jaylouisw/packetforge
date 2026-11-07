@@ -256,3 +256,29 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-thumb { background: #2a3345; border-radius: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- link media picker ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(6, 9, 14, .72);
+  display: flex; align-items: center; justify-content: center; z-index: 200;
+}
+.modal-box {
+  width: 430px; max-width: calc(100vw - 32px);
+  background: var(--panel); border: 1px solid var(--border-2);
+  border-radius: 10px; padding: 16px 18px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+}
+.modal-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.modal-sub { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.media-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow: auto; }
+.media-opt {
+  display: flex; align-items: center; gap: 9px; cursor: pointer;
+  padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 7px; background: var(--panel-2); font-size: 13px;
+}
+.media-opt:hover { border-color: var(--border-2); }
+.media-opt.sel { border-color: var(--accent); background: rgba(63, 124, 255, .10); }
+.media-opt input { accent-color: var(--accent); }
+.media-opt .mo-name { flex: 1; }
+.media-opt .mo-meta { font-size: 11px; color: var(--muted); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }

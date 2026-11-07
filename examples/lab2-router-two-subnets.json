@@ -16,11 +16,14 @@
         "dhcp-client"
       ],
       "name": "PC-d1",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": "10.0.1.1",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -31,7 +34,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -49,11 +73,14 @@
         "dhcp-client"
       ],
       "name": "PC-d2",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": "10.0.2.1",
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -64,7 +91,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     },
@@ -83,11 +131,14 @@
         "nat"
       ],
       "name": "Router-d3",
+      "poeBudget": 0,
       "config": {
         "hostname": null,
         "defaultGateway": null,
         "routes": [],
-        "motd": null
+        "motd": null,
+        "vlans": {},
+        "lags": {}
       },
       "interfaces": [
         {
@@ -98,7 +149,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Gi0/1",
@@ -108,7 +180,28 @@
           "mask": "255.255.255.0",
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         },
         {
           "name": "Gi0/2",
@@ -118,7 +211,28 @@
           "mask": null,
           "enabled": true,
           "dhcp": false,
-          "description": ""
+          "description": "",
+          "cage": "rj45",
+          "media": [
+            "10base-t",
+            "100base-tx",
+            "1000base-t"
+          ],
+          "speedCaps": [
+            10,
+            100,
+            1000
+          ],
+          "poeOut": null,
+          "poeIn": null,
+          "duplex": "full",
+          "vlan": {
+            "mode": "access",
+            "accessVlan": 1,
+            "nativeVlan": 1,
+            "allowedVlans": "all"
+          },
+          "lagId": null
         }
       ]
     }
@@ -134,7 +248,13 @@
         "deviceId": "d3",
         "iface": "Gi0/0"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     },
     {
       "id": "l5",
@@ -146,7 +266,13 @@
         "deviceId": "d3",
         "iface": "Gi0/1"
       },
-      "type": "copper"
+      "type": "media",
+      "mediaId": "1000base-t",
+      "speedMbps": 1000,
+      "duplex": "full",
+      "lengthM": null,
+      "lagId": null,
+      "state": "up"
     }
   ],
   "layout": {

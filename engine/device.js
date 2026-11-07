@@ -1,14 +1,20 @@
 'use strict';
-// device.js — Device + Interface model (vendor-agnostic).
+// device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
+const media = require('./media');
 
 class Interface {
-  constructor(spec, index) {
+  constructor(spec, index, deviceSpec) {
     this.name = spec.name;
     this.type = spec.type || 'ethernet';
     this.speed = spec.speed || '1G';
     this.index = index;
     this.mac = null;          // assigned by Topology
+
+    // Physical hardware: cage, supported media, speed caps, PoE.
+    // Derived from the terse spec (name/type/speed) unless the spec overrides.
+    this.hardware = media.derivePortHardware(spec, deviceSpec || {});
+
     // runtime / configurable state
     this.ip = null;           // dotted-quad or null
     this.mask = null;         // dotted-quad or null
@@ -16,7 +22,25 @@ class Interface {
     this.dhcp = false;
     this.description = '';
     this.peer = null;         // { deviceId, iface }
+
+    // L2 configuration (802.1Q)
+    this.vlan = {
+      mode: 'access',         // 'access' | 'trunk'
+      accessVlan: 1,
+      nativeVlan: 1,
+      allowedVlans: 'all'     // 'all' | array of VLAN ids
+    };
+    this.lagId = null;        // LAG (link aggregation) group this port belongs to
+    this.duplex = 'full';
+    this.mtu = 1500;
   }
+
+  // Convenience accessors over the derived hardware block.
+  get cage() { return this.hardware.cage; }
+  get supportedMedia() { return this.hardware.media; }
+  get speedCaps() { return this.hardware.speedCaps; }
+  get poeOut() { return this.hardware.poeOut; }
+  get poeIn() { return this.hardware.poeIn; }
 
   get status() { return this.enabled ? 'up' : 'admin down'; }
   get cidr() {
@@ -30,7 +54,13 @@ const CAPABILITIES = [
   'l2-forward',   // bridge/switch: MAC learning + flooding
   'l3-forward',   // router: IP forwarding between subnets
   'cli',          // exposes a management console
-  'dhcp-server', 'dhcp-client', 'nat', 'firewall', 'wireless', 'http-server'
+  'dhcp-server', 'dhcp-client', 'nat', 'firewall', 'wireless', 'http-server',
+  // physical / L2 feature tokens
+  'poe-pse',      // can source PoE
+  'poe-pd',       // is powered by PoE
+  'vlan',         // supports 802.1Q
+  'lacp',         // supports link aggregation
+  'stp'           // participates in spanning tree
 ];
 
 class Device {
@@ -49,9 +79,12 @@ class Device {
 
     this.interfaces = new Map();
     (spec.interfaces || []).forEach((ifaceSpec, i) => {
-      const iface = new Interface(ifaceSpec, i);
+      const iface = new Interface(ifaceSpec, i, spec);
       this.interfaces.set(iface.name, iface);
     });
+
+    // PoE budget on the PSE side, in watts. 0 = does not source PoE.
+    this.poeBudget = spec.poeBudget || (spec.poe && spec.poe.budgetW) || 0;
 
     // runtime forwarding state
     this.macTable = new Map();   // mac -> iface name
@@ -63,7 +96,9 @@ class Device {
       hostname: null,
       routes: [],                // { dest, mask, gw, iface }
       defaultGateway: null,
-      motd: null
+      motd: null,
+      vlans: {},                 // vid -> { name }
+      lags: {}                   // lagId -> { mode, hashPolicy, members: [iface] }
     };
   }
 
@@ -92,6 +127,17 @@ class Device {
   isHost() { return this.hasCap('host'); }
   isL2() { return this.hasCap('l2-forward'); }
   isL3() { return this.hasCap('l3-forward'); }
+
+  // Total PoE draw currently sourced by this device (watts).
+  poeDraw() {
+    let w = 0;
+    for (const iface of this.interfaces.values()) {
+      if (!iface.peer) continue;
+      if (!iface.poeOut) continue;
+      w += iface.poeOut;
+    }
+    return w;
+  }
 
   // Determine the egress interface + next-hop IP for a destination.
   // Returns { iface, via, type, prefix } or null.
@@ -175,17 +221,34 @@ class Device {
       icon: this.icon,
       capabilities: this.capabilities,
       name: this.name,
+      poeBudget: this.poeBudget,
       config: {
         hostname: this.config.hostname,
         defaultGateway: this.config.defaultGateway,
         routes: this.config.routes.slice(),
-        motd: this.config.motd
+        motd: this.config.motd,
+        vlans: Object.assign({}, this.config.vlans),
+        lags: JSON.parse(JSON.stringify(this.config.lags))
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
           name: i.name, type: i.type, speed: i.speed,
           ip: i.ip, mask: i.mask, enabled: i.enabled,
-          dhcp: i.dhcp, description: i.description
+          dhcp: i.dhcp, description: i.description,
+          // physical hardware (so the UI can render cages/media without re-deriving)
+          cage: i.hardware.cage,
+          media: i.hardware.media,
+          speedCaps: i.hardware.speedCaps,
+          poeOut: i.hardware.poeOut,
+          poeIn: i.hardware.poeIn,
+          duplex: i.duplex,
+          vlan: {
+            mode: i.vlan.mode,
+            accessVlan: i.vlan.accessVlan,
+            nativeVlan: i.vlan.nativeVlan,
+            allowedVlans: i.vlan.allowedVlans
+          },
+          lagId: i.lagId
         };
       })
     };
@@ -198,11 +261,14 @@ class Device {
       d.name = state.name || d.name;
       if (state.color) d.color = state.color;
       if (state.icon) d.icon = state.icon;
+      if (state.poeBudget !== undefined) d.poeBudget = state.poeBudget || 0;
       if (state.config) {
         d.config.hostname = state.config.hostname || null;
         d.config.defaultGateway = state.config.defaultGateway || null;
         d.config.routes = (state.config.routes || []).slice();
         d.config.motd = state.config.motd || null;
+        d.config.vlans = Object.assign({}, state.config.vlans || {});
+        d.config.lags = JSON.parse(JSON.stringify(state.config.lags || {}));
       }
       if (Array.isArray(state.interfaces)) {
         for (const is of state.interfaces) {
@@ -213,6 +279,16 @@ class Device {
           iface.enabled = is.enabled !== false;
           iface.dhcp = !!is.dhcp;
           iface.description = is.description || '';
+          if (is.duplex) iface.duplex = is.duplex;
+          if (is.lagId !== undefined) iface.lagId = is.lagId || null;
+          if (is.vlan && typeof is.vlan === 'object') {
+            iface.vlan = {
+              mode: is.vlan.mode === 'trunk' ? 'trunk' : 'access',
+              accessVlan: Number(is.vlan.accessVlan) || 1,
+              nativeVlan: Number(is.vlan.nativeVlan) || 1,
+              allowedVlans: is.vlan.allowedVlans === undefined ? 'all' : is.vlan.allowedVlans
+            };
+          }
         }
       }
     }

@@ -49,24 +49,25 @@ function lab3() {
   const t = new Topology();
   const cloud = t.addDevice(spec('generic', 'generic-cloud'));
   const edge = t.addDevice(spec('cisco', 'ISR4321'));
-  const core = t.addDevice(spec('arista', '7050SX3'));
+  const core = t.addDevice(spec('mikrotik', 'CRS326-24G'));
   const accA = t.addDevice(spec('huawei', 'S5735-L24T4S'));
-  const accB = t.addDevice(spec('mikrotik', 'CRS326-24G'));
+  const accB = t.addDevice(spec('ubiquiti', 'EdgeSwitch-16'));
   const pc1 = t.addDevice(spec('generic', 'generic-pc'));
   const pc2 = t.addDevice(spec('generic', 'generic-pc'));
   const srv = t.addDevice(spec('generic', 'generic-server'));
 
-  // WAN edge
+  // WAN edge (1G copper)
   t.connect(cloud.id, 'eth0', edge.id, 'Gi0/0/0');
-  // core
-  t.connect(edge.id, 'Gi0/0/1', core.id, 'Et1');
-  // access switches
-  t.connect(core.id, 'Et2', accA.id, 'GE0/0/1');
-  t.connect(core.id, 'Et3', accB.id, 'ether1');
+  // edge -> core (1G copper)
+  t.connect(edge.id, 'Gi0/0/1', core.id, 'ether1');
+  // core -> access A (1G copper)
+  t.connect(core.id, 'ether2', accA.id, 'GE0/0/1');
+  // core -> access B over 1G fiber (SFP+ cage accepting a 1G SFP optic)
+  t.connect(core.id, 'sfp-sfpplus1', accB.id, 'SFP1');
   // hosts
   t.connect(accA.id, 'GE0/0/2', pc1.id, 'eth0');
   t.connect(accA.id, 'GE0/0/3', pc2.id, 'eth0');
-  t.connect(accB.id, 'ether2', srv.id, 'eth0');
+  t.connect(accB.id, 'port1', srv.id, 'eth0');
 
   cfg(t, cloud, ['configure terminal', 'interface eth0', 'ip address 198.51.100.1 255.255.255.0', 'exit', 'ip default-gateway 198.51.100.2']);
   cfg(t, edge, [
