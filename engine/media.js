@@ -176,6 +176,13 @@ const CAGES = {
 };
 
 // Which cages can physically mate with which.
+// Bare connector tokens that are really cages, with the polish implied by the vendor's
+// own connector type. Kept deliberately short: anything else that does not resolve to a
+// real cage is reported as unknown rather than guessed at.
+const CAGE_ALIAS = {
+  lc: 'lc-upc'
+};
+
 const CAGE_MATE = {
   rj45: ['rj45', 'combo'],
   combo: ['combo', 'rj45', 'sfp', 'sfp+', 'sfp28'],
@@ -281,14 +288,25 @@ const CAGE_MEDIA = {
     if (maxMbps >= 9000) out.push('xgspon-sc-upc');
     return out;
   },
+  // LC is the connector, not the protocol. It is used on PON ports AND on ordinary
+  // Ethernet optics (10GBASE-LR, 25G-LR, 100G-LR4 all terminate in LC/UPC), so the
+  // media offered depends on the rate the port declares, not on the connector.
   'lc-upc': function (maxMbps) {
     const out = ['gpon-lc-upc'];
     if (maxMbps >= 9000) out.push('xgspon-lc-upc');
+    if (maxMbps >= 100000) out.push('100gbase-lr4');
+    else if (maxMbps >= 25000) out.push('25gbase-lr');
+    else if (maxMbps >= 10000) out.push('10gbase-lr');
+    else if (maxMbps >= 1000) out.push('1000base-lx');
     return out;
   },
   'lc-apc': function (maxMbps) {
     const out = ['gpon-lc-upc'];
     if (maxMbps >= 9000) out.push('xgspon-lc-upc');
+    if (maxMbps >= 100000) out.push('100gbase-lr4');
+    else if (maxMbps >= 25000) out.push('25gbase-lr');
+    else if (maxMbps >= 10000) out.push('10gbase-lr');
+    else if (maxMbps >= 1000) out.push('1000base-lx');
     return out;
   },
   coax: function (maxMbps) {
@@ -341,13 +359,11 @@ const CAGE_SPEEDS = {
     return out.filter(function (v) { return v <= maxMbps; });
   },
   'lc-upc': function (maxMbps) {
-    const out = [1244, 2488];
-    if (maxMbps >= 9000) out.push(9953);
+    const out = [1000, 1244, 2488, 9953, 10000, 25000, 100000];
     return out.filter(function (v) { return v <= maxMbps; });
   },
   'lc-apc': function (maxMbps) {
-    const out = [1244, 2488];
-    if (maxMbps >= 9000) out.push(9953);
+    const out = [1000, 1244, 2488, 9953, 10000, 25000, 100000];
     return out.filter(function (v) { return v <= maxMbps; });
   },
   coax: function (maxMbps) {
@@ -428,11 +444,27 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   const spec = ifaceSpec || {};
   const dev = deviceSpec || {};
   const maxMbps = parseSpeedMbps(spec.speed) || 1000;
-  const cage = spec.cage || spec.connector || inferCage(spec, maxMbps);
+  let cage = String(spec.cage || spec.connector || inferCage(spec, maxMbps));
 
-  const cageDef = CAGES[cage] || CAGES.rj45;
-  let media = (CAGE_MEDIA[cage] || CAGE_MEDIA.rj45)(maxMbps);
-  let speeds = (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps);
+  // A handful of spec authors write the bare fibre token ('lc') because that is what
+  // the datasheet calls it. 'lc' is a connector, not a cage - the cages are lc-upc and
+  // lc-apc, because the polish is part of what will mate. Resolve the bare token to the
+  // flat (UPC) variant rather than inventing a third unmateable cage.
+  if (CAGE_ALIAS[cage]) cage = CAGE_ALIAS[cage];
+
+  // An unrecognised cage must NOT inherit RJ45.
+  //
+  // This used to read CAGES[cage] || CAGES.rj45, which turned a typo or an unmodelled
+  // connector into a copper port that advertised 10GBASE-T and then refused every
+  // cable - including another port of the same kind - with the nonsense message
+  // "Cannot mate RJ45 to RJ45". Two passive optical devices (an FS DWDM mux and an LC
+  // patch panel, 64 ports) were in exactly that state. An unknown connector is now
+  // reported as unknown: no media, no rate, no mates, and a refusal that says why.
+  const known = Object.prototype.hasOwnProperty.call(CAGES, cage);
+  const cageDef = known ? CAGES[cage]
+    : { name: cage, family: 'unknown', label: cage + ' (not a modelled connector)' };
+  let media = known ? (CAGE_MEDIA[cage] || CAGE_MEDIA.rj45)(maxMbps) : [];
+  let speeds = known ? (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) : [];
 
   // A wireless radio only carries its own band.
   if (cage === 'antenna') {
@@ -583,6 +615,7 @@ function parsePoeBudget(model) {
 }
 
 module.exports = {
+  CAGE_ALIAS,
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
   parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, negotiateSpeed, canMate, preferredMedia,

@@ -1,6 +1,4 @@
 {
   "_comment": "Hardware defects that are known, tracked in GitHub, and not yet fixed. Each entry must cite its issue. tests fail on anything NOT listed here, and fail again if a listed device is fixed but not removed - so this file can only shrink.",
-  "opticsWithoutCage": [
-    "truenas/R50"
-  ]
+  "opticsWithoutCage": []
 }

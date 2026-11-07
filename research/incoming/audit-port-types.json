@@ -1,0 +1,581 @@
+{
+  "generatedAt": "2026-11-07T22:41:55.286Z",
+  "offenders": [
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port1",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port2",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port3",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port4",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port5",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port6",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port7",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port8",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port9",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port10",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port11",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port12",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port13",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port14",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port15",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port16",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port17",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port18",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port19",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port20",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port21",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port22",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port23",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FHD-1U-PP-24LC",
+      "port": "port24",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch21",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch22",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch23",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch24",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch25",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch26",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch27",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch28",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch29",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch30",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch31",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch32",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch33",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch34",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch35",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch36",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch37",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch38",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch39",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch40",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch41",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch42",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch43",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch44",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch45",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch46",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch47",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch48",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch49",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch50",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch51",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch52",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch53",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch54",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch55",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch56",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch57",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch58",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch59",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    },
+    {
+      "vendor": "fs",
+      "model": "FMU-D402160M3",
+      "port": "ch60",
+      "type": "ethernet",
+      "declaredConnector": "lc",
+      "resolvedCage": "lc",
+      "note": "declares fibre connector \"lc\" but \"lc\" is not a modelled cage: the port presents as RJ45 copper, advertises 10GBASE-T media, and then refuses every cable (including its own kind) with \"Cannot mate RJ45 to RJ45\""
+    }
+  ]
+}

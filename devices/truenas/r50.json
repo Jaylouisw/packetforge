@@ -14,17 +14,31 @@
     {
       "name": "enp1s0f0",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "enp1s0f1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "oobm",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000
+      ]
     }
   ]
 }
