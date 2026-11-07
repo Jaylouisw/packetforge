@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PacketForge — Open Network Simulator</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- The faceplate view's own rules. Linked here so it can never become another
+       orphaned stylesheet whose rules are written but never loaded. -->
+  <link rel="stylesheet" href="faceplate.css" />
 </head>
 <body>
   <header id="topbar">
@@ -94,6 +97,12 @@
   </footer>
 
   <div id="toast" class="toast hidden"></div>
+
+  <!-- The context menu the canvas has always tried to open. app.js assigned to
+       #context-menu's innerHTML, but no such element existed, so the assignment threw
+       and the menu never appeared: the only visible "Delete device" was unreachable
+       (issue #16). -->
+  <div id="context-menu" class="context-menu"></div>
 
   <script src="canvas.js"></script>
   <script src="app.js"></script>

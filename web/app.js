@@ -364,7 +364,11 @@
     let html = '';
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
       '<span class="vendor-badge" style="background:' + vendorColor + '">' + d.vendor.toUpperCase() + '</span>' +
-      '<strong>' + d.name + '</strong></div>';
+      '<strong>' + d.name + '</strong>' +
+      // A right-click menu was the only way to remove a device, and it did not open.
+      // Delete belongs somewhere you can see it.
+      '<button id="btn-delete-device" class="btn danger" style="margin-left:auto;padding:4px 10px;font-size:12px" title="Remove this device and all of its cables">Delete device</button>' +
+      '</div>';
     html += '<div class="kv"><span class="k">Model</span><span>' + d.model + ' (' + d.label + ')</span></div>';
     html += '<div class="kv"><span class="k">Category</span><span>' + d.category + '</span></div>';
     html += '<div class="kv"><span class="k">ID</span><span style="font-family:var(--mono)">' + d.id + '</span></div>';
@@ -444,6 +448,10 @@
         });
       });
     }
+
+    // The delete button is part of the generated HTML, so it needs wiring on every
+    // render - same as the interface editors below.
+    bindDeviceDelete();
 
     // wire interface editors
     wrap.querySelectorAll('input[data-field]').forEach(function (inp) {
@@ -931,6 +939,11 @@
   // ---------- context menu ----------
   function showContextMenu(id, x, y) {
     const menu = $('#context-menu');
+    // The element was missing from index.html for a long time, and assigning .innerHTML
+    // on null threw - which meant the context menu, and therefore the only visible
+    // "Delete device", could never appear (issue #16). A missing element must degrade,
+    // not throw.
+    if (!menu) { setStatus('Context menu unavailable - use Delete in the inspector'); return; }
     menu.innerHTML =
       '<div class="cm-item" data-act="console">Open console</div>' +
       '<div class="cm-item" data-act="ping">Ping from here…</div>' +
@@ -946,6 +959,24 @@
       else if (act === 'delete') { await deleteDevice(id); }
     };
     document.addEventListener('click', function hide() { menu.style.display = 'none'; document.removeEventListener('click', hide); });
+  }
+
+  // The inspector's delete button, wired after each render because the button is part
+  // of the generated HTML.
+  function bindDeviceDelete() {
+    // Looked up defensively: the render tests drive this code against a stub DOM that
+    // implements querySelector but not getElementById, and a UI detail must not be able
+    // to throw its way out of a render.
+    let btn = null;
+    try {
+      btn = (typeof document.getElementById === 'function')
+        ? document.getElementById('btn-delete-device')
+        : document.querySelector('#btn-delete-device');
+    } catch (e) { btn = null; }
+    if (!btn || !btn.addEventListener) return;
+    btn.addEventListener('click', function () {
+      if (selectedId) deleteDevice(selectedId);
+    });
   }
 
   async function deleteDevice(id) {
@@ -1021,6 +1052,9 @@
       PFCanvas.setConnecting(null);
       setStatus('Ready');
     } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+      // Backspace is also "navigate back" in some browsers; a device deletion here is
+      // deliberate, so stop the default.
+      e.preventDefault();
       deleteDevice(selectedId);
     }
   });

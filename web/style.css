@@ -349,3 +349,62 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 /* ---------- canvas link selection ---------- */
 .link-hit { stroke: transparent; stroke-width: 16; fill: none; pointer-events: stroke; cursor: pointer; }
 .link.selected { stroke: var(--accent); stroke-width: 3.5; filter: url(#glow); }
+
+/* ---- port identity on the canvas (folded in from the orphan styles.css) ---- */
+
+/* Port role chips (issue #8): a dual-purpose cage is a switch you can flip. */
+.port-role {
+  display: inline-block;
+  padding: 1px 6px;
+  margin-right: 6px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: rgba(96, 165, 250, 0.18);
+  color: var(--blue, #60a5fa);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  cursor: pointer;
+  user-select: none;
+}
+.port-role:hover { background: rgba(96, 165, 250, 0.32); }
+.port-role.fixed {
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--muted, #94a3b8);
+  border-color: rgba(148, 163, 184, 0.25);
+  cursor: default;
+}
+.port-shared { color: var(--muted, #94a3b8); font-size: 11px; font-style: italic; }
+
+/* Port labels on the canvas: without these the dots are indistinguishable, which
+   makes the drawing decorative rather than useful. */
+.port-label {
+  font-size: 7px;
+  fill: #8494ad;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  pointer-events: none;
+  user-select: none;
+}
+.port-label.cabled { fill: #d7e0ee; }
+.port.down { opacity: 0.4; stroke-dasharray: 2 2; }
+.port-peer {
+  font-size: 10px;
+  color: #7dd3fc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Port colour key in the canvas toolbar. */
+.legend { display: inline-flex; gap: 9px; align-items: center; font-size: 10px; color: #8494ad; }
+.legend .lg { display: inline-flex; align-items: center; gap: 4px; }
+.legend .lg i {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block; border: 1px solid rgba(255,255,255,0.25);
+}
+.port-lldp {
+  font-size: 10px;
+  color: #a3e635;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+}
