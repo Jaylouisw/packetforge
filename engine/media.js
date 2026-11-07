@@ -83,6 +83,16 @@ const MEDIA = {
   '100gbase-sr4': { name: '100GBASE-SR4', family: 'fiber', connector: 'mpo', speedMbps: 100000, maxRangeM: 100, fiber: 'mmf', wavelengthNm: 850 },
   '100gbase-lr4': { name: '100GBASE-LR4', family: 'fiber', connector: 'lc', speedMbps: 100000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
 
+  // ---- fiber, PON (single-mode, outside plant) ----
+  // A PON is the one place where the connector belongs to the medium rather than
+  // the cage: the same OLT port takes an SC/APC or an SC/UPC module, and the two
+  // will not mate. GPON is 2.488 Gbit/s down over 1.244 up; XGS-PON is symmetric
+  // 9.953. Reach is the class budget: 20 km at a 1:32 split.
+  'gpon-sc-apc': { name: 'GPON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+  'gpon-sc-upc': { name: 'GPON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+  'xgspon-sc-apc': { name: 'XGS-PON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
+  'xgspon-sc-upc': { name: 'XGS-PON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
+
   // ---- DAC / AOC ----
   'dac-1g': { name: '1G DAC (passive)', family: 'dac', connector: 'sfp', speedMbps: 1000, maxRangeM: 3 },
   'dac-10g': { name: '10G DAC (passive)', family: 'dac', connector: 'sfp', speedMbps: 10000, maxRangeM: 7 },
@@ -121,6 +131,11 @@ const CAGES = {
   combo: { name: 'Combo', family: 'combo', label: 'Combo RJ45 / SFP' },
   'qsfp+': { name: 'QSFP+', family: 'optical', label: 'QSFP+ cage (40G)' },
   qsfp28: { name: 'QSFP28', family: 'optical', label: 'QSFP28 cage (100G)' },
+  // SC is the PON connector. APC and UPC are separate cages deliberately: an
+  // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
+  // about 3 dB of loss and can chip the endface.
+  'sc-apc': { name: 'SC/APC', family: 'optical', label: 'SC/APC (green, angled 8 deg)' },
+  'sc-upc': { name: 'SC/UPC', family: 'optical', label: 'SC/UPC (blue, flat)' },
   console: { name: 'Console', family: 'management', label: 'Console (RS-232)' },
   usb: { name: 'USB', family: 'management', label: 'USB' },
   antenna: { name: 'Antenna', family: 'wireless', label: 'Wireless radio' }
@@ -135,6 +150,9 @@ const CAGE_MATE = {
   sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
   'qsfp+': ['qsfp+', 'qsfp28'],
   qsfp28: ['qsfp+', 'qsfp28'],
+  // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
+  'sc-apc': ['sc-apc'],
+  'sc-upc': ['sc-upc'],
   console: ['console'],
   usb: ['usb', 'console'],
   antenna: ['antenna']
@@ -143,6 +161,27 @@ const CAGE_MATE = {
 function cagesMate(a, b) {
   const list = CAGE_MATE[a];
   return !!list && list.indexOf(b) !== -1;
+}
+
+// Ferrule geometry. Two connectors with the same shape but a different polish are
+// the classic field mistake: an SC/APC (8 degree angled, green) ferrule pushed
+// into an SC/UPC (flat, blue) socket does not seat, loses about 3 dB, and can
+// chip the endface. That is not a "wrong cable, try another" error - it is a
+// physically impossible link, so it gets its own verdict instead of hiding
+// behind a generic connector mismatch.
+const FERRULE = {
+  'sc-apc': { shape: 'sc', polish: 'apc', colour: 'green', angleDeg: 8 },
+  'sc-upc': { shape: 'sc', polish: 'upc', colour: 'blue', angleDeg: 0 },
+  lc: { shape: 'lc', polish: 'upc', colour: 'blue', angleDeg: 0 },
+  mpo: { shape: 'mpo', polish: 'upc', colour: 'aqua', angleDeg: 0 }
+};
+
+function ferrule(cage) { return FERRULE[cage] || null; }
+
+// Same shape, different polish: physically incompatible.
+function polishMismatch(a, b) {
+  const fa = ferrule(a), fb = ferrule(b);
+  return !!(fa && fb && fa.shape === fb.shape && fa.polish !== fb.polish);
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +218,16 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  'sc-apc': function (maxMbps) {
+    const out = ['gpon-sc-apc'];
+    if (maxMbps >= 9000) out.push('xgspon-sc-apc');
+    return out;
+  },
+  'sc-upc': function (maxMbps) {
+    const out = ['gpon-sc-upc'];
+    if (maxMbps >= 9000) out.push('xgspon-sc-upc');
+    return out;
+  },
   console: function () { return ['console-rs232']; },
   usb: function () { return ['usb-console']; },
   antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-60']; }
@@ -203,6 +252,16 @@ const CAGE_SPEEDS = {
   sfp28: function () { return [10000, 25000]; },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
+  'sc-apc': function (maxMbps) {
+    const out = [1244, 2488];
+    if (maxMbps >= 9000) out.push(9953);
+    return out;
+  },
+  'sc-upc': function (maxMbps) {
+    const out = [1244, 2488];
+    if (maxMbps >= 9000) out.push(9953);
+    return out;
+  },
   console: function () { return [0.1152]; },
   usb: function () { return [12]; },
   antenna: function (maxMbps) { return [maxMbps]; }
@@ -226,6 +285,13 @@ function inferCage(ifaceSpec, maxMbps) {
   if (type === 'usb') return 'usb';
   if (/console|con\d|tty|aux/.test(name)) return 'console';
   if (/usb/.test(name)) return 'usb';
+
+  // A PON port is an SC connector on the outside plant, not RJ45 copper. APC
+  // (green, angled 8 degrees) is the norm on OLT and ONT PON ports; a spec that
+  // knows better can say connector: "sc-upc".
+  if (/sc\/?apc|scapc/.test(name)) return 'sc-apc';
+  if (/sc\/?upc|scupc/.test(name)) return 'sc-upc';
+  if (/gpon|xgs-?pon|xg-?s-?pon|(^|[-_ /])pon(\d|$)|^pon/.test(name)) return 'sc-apc';
 
   const optical = /sfp|qsfp|xfp|cfp|xe-|et-|fc\d/.test(name) ||
     /(^|[^0-9])(25|40|100)\s*g/i.test(String(ifaceSpec.speed || ''));
@@ -338,6 +404,17 @@ function canMate(pa, pb) {
     }
   }
   if (!cagesMate(pa.cage, pb.cage)) {
+    if (polishMismatch(pa.cage, pb.cage)) {
+      const fa = ferrule(pa.cage), fb = ferrule(pb.cage);
+      return {
+        ok: false, code: 'E_POLISH_MISMATCH',
+        message: pa.cageName + ' and ' + pb.cageName + ' take the same ' +
+          fa.shape.toUpperCase() + ' ferrule but not the same polish (' +
+          fa.polish.toUpperCase() + (fa.angleDeg ? ' angled ' + fa.angleDeg + ' deg' : ' flat') +
+          ' vs ' + fb.polish.toUpperCase() + (fb.angleDeg ? ' angled ' + fb.angleDeg + ' deg' : ' flat') +
+          '). They are not intermateable - forcing it costs about 3 dB and can chip the endface.'
+      };
+    }
     return {
       ok: false, code: 'E_CONNECTOR_MISMATCH',
       message: 'Cannot mate ' + pa.cageName + ' to ' + pb.cageName + ' (incompatible connectors).'
@@ -391,5 +468,6 @@ module.exports = {
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
   parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, negotiateSpeed, canMate, preferredMedia,
+  FERRULE, ferrule, polishMismatch,
   inferCage, isPoePse, isPoePd
 };

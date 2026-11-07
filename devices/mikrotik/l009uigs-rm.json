@@ -24,7 +24,11 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "speedCaps": [
+        1000,
+        2500
+      ]
     }
   ],
   "icon": "router",

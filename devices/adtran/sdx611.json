@@ -4,10 +4,22 @@
   "label": "SDX 611 GPON ONT",
   "category": "ont",
   "description": "Adtran SDX 611 GPON SFU ONT — 1x GPON (SC/APC, 2.488G down / 1.244G up) + 1x GbE LAN. Realtek RTL9601D, 16MB SPI NOR, dual-image bank.",
-  "capabilities": ["l2-forward", "cli"],
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
   "interfaces": [
-    { "name": "pon", "type": "ethernet", "speed": "2.5G" },
-    { "name": "lan1", "type": "ethernet", "speed": "1G" }
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
   ],
   "icon": "ont",
   "color": "#f97316"

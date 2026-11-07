@@ -79,6 +79,38 @@ SFP+ uplinks but modelled with all-copper ports will *refuse* a fibre link that
 the real hardware accepts, and *offer* copper where it does not fit. CI checks
 every description against the ports it declares.
 
+### PON ports and ferrule polish
+
+PON is the one place the connector belongs to the medium rather than the cage: the
+same OLT port takes an `SC/APC` or an `SC/UPC` module, and the two are **not**
+intermateable. Model a PON port with `connector: "sc-apc"` (or `sc-upc`) and type
+`pon`:
+
+```json
+{ "name": "gpon0/1", "type": "pon", "speed": "2.5G", "connector": "sc-apc" }
+```
+
+A port named `pon`, `pon1`, `gpon0/1`, `xgspon…` infers `sc-apc` automatically,
+because that is the green angled ferrule virtually every OLT and ONT ships with.
+Say `sc-upc` explicitly if the hardware really has the flat blue one.
+
+| Connector | Ferrule | Polish | Colour | Mates with |
+|---|---|---|---|---|
+| `sc-apc` | SC | APC, angled 8° | green | `sc-apc` only |
+| `sc-upc` | SC | UPC, flat | blue | `sc-upc` only |
+| `lc` | LC | UPC, flat | blue | `lc` |
+| `mpo` | MPO | UPC, flat | aqua | `mpo` |
+
+An SC/APC pushed into an SC/UPC socket is refused with `E_POLISH_MISMATCH`,
+naming both polishes: the angled endface does not seat, costs about 3 dB, and can
+chip the face. It is a different verdict from `E_CONNECTOR_MISMATCH` (wrong shape
+entirely, e.g. LC into SC) because "you have the wrong polish" is a fixable
+mistake and "these two things cannot ever connect" is not.
+
+PON media carry their real line rates: GPON is 2.488 Gbit/s down over 1.244 up,
+XGS-PON is symmetric 9.953. A GPON port against an XGS-PON port negotiates down to
+GPON rates rather than failing, which is what a GPON OLT does with an older ONT.
+
 ### Combo ports
 
 Some hardware (common on Cisco, HPE, Huawei and Juniper) has a **combo** cage: one

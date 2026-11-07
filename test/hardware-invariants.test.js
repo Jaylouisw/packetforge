@@ -145,8 +145,14 @@ console.log('\nCages and media agree with each other:');
       if (isConsoleOnly(i.hardware)) continue;
       const top = Math.max.apply(null, caps);
       if (top < 100) slow.push(x.spec.model + '/' + i.name + ' top ' + top + ' Mbps');
-      const declared = i.speedMbps || 0;
-      if (declared && top && declared > top) {
+      // NOTE: read hardware.maxSpeedMbps, not i.speedMbps. The latter does not
+      // exist on the Interface model, so this assertion silently compared zero
+      // and could never fail - it was vacuous from the day it was written.
+      const declared = i.hardware.maxSpeedMbps || 0;
+      // Line-rate rounding: a "2.5G" PON port is really 2.488 Gbit/s and a "10G"
+      // PON port 9.953, so allow a couple of percent before calling it a claim
+      // the cage cannot carry.
+      if (declared && top && declared > top * 1.02) {
         overreach.push(x.spec.model + '/' + i.name + ' claims ' + declared +
           ' Mbps on a ' + top + ' Mbps ' + i.hardware.cage + ' cage');
       }

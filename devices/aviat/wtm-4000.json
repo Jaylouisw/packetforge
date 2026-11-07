@@ -24,12 +24,24 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
     },
     {
       "name": "radio0",
