@@ -1,0 +1,167 @@
+{
+  "ports": [
+    {
+      "vendor": "huawei",
+      "model": "AR2220",
+      "rj45Count": 2,
+      "sfpCount": 1,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "http://enterprise.huawei.com/ucmf/groups/entpublic/documents/enterprise_country_webasset/hw_330684.pdf",
+      "notes": "AR2200 brochure, order code AR0M0022BA00: '3GE WAN (1GE Combo)' = 2 fixed GE RJ45 + 1 GE RJ45/SFP combo; the combo carries the SFP cage (a 1000BASE-T SFP still gives copper)."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AR651",
+      "rj45Count": 8,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100041787/e2151be7/ar651-50010483",
+      "notes": "Hardware Description '2*GE combo WAN, 8*GE LAN': 8x GE electrical LAN RJ45 + 2x GE combo WAN (RJ45 or LC/PC optical, one forwarding interface) - the 2 combos are the only SFP-capable ports."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AR6300",
+      "rj45Count": 10,
+      "sfpCount": 14,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100041787/89a2f4da/sru-400h-02312neu-sru-400h-service-and-router-unit-400h-1410gesfp-10ge-copper-1usb20",
+      "notes": "Modular chassis: built-in ports come from the installed SRU-400H - 14x 10GE SFP+ (GE-capable) + 10x GE copper RJ45; SIC/WSIC/XSIC cards excluded."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5735-L24T4S",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/a7d76a8a16614cefb9943336bb224d69/M2T1A590N889230686196621601/Huawei%20CloudEngine%20S5735-L%20Series%20Switches%20Datasheet.pdf",
+      "notes": "S5735-L series datasheet, L24T4S-A1 row: '24*10/100/1000BASE-T ports, 4*GE SFP ports' - dedicated 1G cages, no combo."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5735-L48T4X-A1",
+      "rj45Count": 48,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/a7d76a8a16614cefb9943336bb224d69/M2T1A590N889230686196621601/Huawei%20CloudEngine%20S5735-L%20Series%20Switches%20Datasheet.pdf",
+      "notes": "Datasheet row S5735-L48T4X-A1: '48*10/100/1000BASE-T ports, 4*10GE SFP+ ports' - the 'X' suffix is the 4x 10G SFP+ uplink, dedicated."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5736-S24T4XC",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1000013597/5a27fdcd/s5736-s24t4xc",
+      "notes": "Hardware Description: '24*10/100/1000BASE-T ports, 4*10GE SFP+ ports' - four separate optical ports auto-sensing 1G/10G, explicitly not combo (the trailing C is not a combo here)."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S12704",
+      "rj45Count": 0,
+      "sfpCount": 24,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100089142/c05b0742/lst7x24bx6e0-03033dam-03033dam-001-03033dam-002-24-port-10ge-sfp-interface-and-24-port-ge-sfp-interface-card-x6e-sfp",
+      "notes": "Chassis: only the installed LST7X24BX6E0 line card in slot 1 is modelled - 'twenty-four 10GE optical ports and twenty-four GE optical ports', so all 24 listed ports are SFP+ with zero copper."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S5731-H24T4XC",
+      "rj45Count": 24,
+      "sfpCount": 4,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1000013597/523c958c/s5731-h24t4xc-02352qpp-02352qpp-001-02352qpp-005",
+      "notes": "Hardware Description for 02352QPP: 24x 10/100/1000BASE-T + four 10GE SFP+ ports (1G/10G auto-sensing); extended-slot cards not counted."
+    },
+    {
+      "vendor": "huawei",
+      "model": "USG6510E",
+      "rj45Count": 10,
+      "sfpCount": 2,
+      "sfpType": "sfp",
+      "sfpSpeedsMbps": [
+        1000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100069149/5797e785/usg6510e",
+      "notes": "USG6000E Hardware Guide: 'USG6510E AC Host (10*GE RJ45+2*GE SFP)' - GE 0/0/0-7 service + WAN 8-9 are RJ45, GE 0/0/10-11 are dedicated SFP optical."
+    },
+    {
+      "vendor": "huawei",
+      "model": "USG6555E",
+      "rj45Count": 2,
+      "sfpCount": 10,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100069149/2de9bb1c/usg6555e",
+      "notes": "Hardware Guide '2*GE WAN+8*GE Combo+2*10GE SFP+': the 8 combo ports are optical-capable (SFP or RJ45, one at a time) and counted in sfpCount with the 2 dedicated 10GE SFP+; only the 2 GE WAN ports are copper-only."
+    },
+    {
+      "vendor": "huawei",
+      "model": "S800E",
+      "rj45Count": 0,
+      "sfpCount": 2,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": false,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/access-network/optixstar-s800e-pid-250646194",
+      "notes": "XGS-PON SFP ONU stick - the device IS the module and has no copper data port, so 0 RJ45: the XGS-PON SC/APC fibre tail and the SFP+ host edge that plugs into the host's cage are both optical (not receptacle cages)."
+    },
+    {
+      "vendor": "huawei",
+      "model": "AirEngine6760-X1",
+      "rj45Count": 4,
+      "sfpCount": 1,
+      "sfpType": "sfp+",
+      "sfpSpeedsMbps": [
+        1000,
+        10000
+      ],
+      "sfpSharedWithRj45": true,
+      "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100278610/402baf76/airengine-6760-x1-02353gsj",
+      "notes": "AP: 10GE RJ45 (PoE in) + GE RJ45 + 10GE SFP+ (the 10GE RJ45 and SFP+ are combo - only one active) + 2 WLAN radios; the 2 antenna-cage radios are included in rj45Count only so the row sums to the stated 5 ports."
+    }
+  ]
+}

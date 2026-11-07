@@ -152,7 +152,10 @@ const CAGE_MEDIA = {
     return out.filter(function (id) { return MEDIA[id].speedMbps <= maxMbps; });
   },
   sfp: function () {
-    return ['1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx', '1000base-t-sfp', 'dac-1g', '1000base-t'];
+    // '1000base-t-sfp' is the copper SFP module, which is legitimate in this
+    // cage. Bare '1000base-t' is RJ45 copper cabling and must NOT be offered
+    // here: it let two fibre cages be joined by a copper run.
+    return ['1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx', '1000base-t-sfp', 'dac-1g'];
   },
   'sfp+': function () {
     return ['10gbase-sr', '10gbase-lr', '10gbase-er', '1000base-sx', '1000base-lx',

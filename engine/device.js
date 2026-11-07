@@ -97,12 +97,13 @@ class Device {
     // the name parser: 'ES-24-500W' would otherwise be credited with 500 W of
     // PoE when 500 W is only its PSU rating and no budget is published.
     const mediaLib = require('./media');
-    let budget;
-    if (spec.poeBudget !== undefined && spec.poeBudget !== null) budget = spec.poeBudget;
-    else if (spec.poe && spec.poe.budgetW !== undefined && spec.poe.budgetW !== null) budget = spec.poe.budgetW;
-    else if (spec.poe && spec.poe.budgetUnknown) budget = 0;
-    else budget = mediaLib.parsePoeBudget(spec.model) || 0;
+    let budget, budgetSource;
+    if (spec.poeBudget !== undefined && spec.poeBudget !== null) { budget = spec.poeBudget; budgetSource = 'spec'; }
+    else if (spec.poe && spec.poe.budgetW !== undefined && spec.poe.budgetW !== null) { budget = spec.poe.budgetW; budgetSource = 'research'; }
+    else if (spec.poe && spec.poe.budgetUnknown) { budget = 0; budgetSource = 'unknown'; }
+    else { budget = mediaLib.parsePoeBudget(spec.model) || 0; budgetSource = 'name'; }
     this.poeBudget = budget;
+    this.poeBudgetSource = budgetSource;
 
     // runtime forwarding state
     // VLAN 1 keeps the flat legacy table (also used by `show mac address-table`);
@@ -139,6 +140,19 @@ class Device {
     this.bgpRoutes = [];
     // Per-interface ACL bindings: ifaceName -> { in: aclNumber, out: aclNumber }
     this.aclBindings = {};
+
+    // A budget parsed out of the model name is a guess, and a guess only means
+    // something if the device can actually source power. 'AR651W-8P' parses to
+    // 651 W but is a router with no PoE-out ports at all, so the guess is
+    // discarded. Research-sourced figures are kept even if they look odd - a
+    // contradiction there is a data bug for a human to see, not to hide.
+    if (this.poeBudgetSource === 'name') {
+      let sources = false;
+      for (const i of this.interfaces.values()) {
+        if (i.hardware && i.hardware.poeOut) { sources = true; break; }
+      }
+      if (!sources) this.poeBudget = 0;
+    }
   }
 
   interface(name) { return this.interfaces.get(name); }

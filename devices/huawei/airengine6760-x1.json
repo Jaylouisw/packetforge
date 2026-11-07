@@ -11,31 +11,37 @@
   ],
   "interfaces": [
     {
-      "name": "10GE",
-      "type": "ethernet",
-      "speed": "10G"
-    },
-    {
-      "name": "GE",
+      "name": "Gi0/0/1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet",
+      "name": "Gi0/0/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "WLAN-2.4G",
-      "type": "wireless",
-      "speed": "600M"
+      "name": "Gi0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
     },
     {
-      "name": "WLAN-5G",
-      "type": "wireless",
-      "speed": "4.8G"
+      "name": "Gi0/0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "Gi0/0/5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "wireless",
-  "color": "#a855f7"
+  "color": "#a855f7",
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 1x 10GE SFP+ plus electrical ports and IoT."
 }

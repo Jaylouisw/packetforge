@@ -12,85 +12,199 @@
     "dhcp-client",
     "firewall"
   ],
-  "portTemplate": {
-    "prefix": "GigabitEthernet0/0/",
-    "start": 1,
-    "count": 10,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
     {
-      "name": "XGigabitEthernet0/0/1",
+      "name": "GigabitEthernet0/0/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/2",
+      "name": "GigabitEthernet0/0/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/3",
+      "name": "GigabitEthernet0/0/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/4",
+      "name": "GigabitEthernet0/0/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/5",
+      "name": "GigabitEthernet0/0/5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/6",
+      "name": "GigabitEthernet0/0/6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/7",
+      "name": "GigabitEthernet0/0/7",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/8",
+      "name": "GigabitEthernet0/0/8",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/9",
+      "name": "GigabitEthernet0/0/9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/10",
+      "name": "GigabitEthernet0/0/10",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/11",
+      "name": "GigabitEthernet0/0/11",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
-      "name": "XGigabitEthernet0/0/12",
+      "name": "GigabitEthernet0/0/12",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
-      "name": "XGigabitEthernet0/0/13",
+      "name": "GigabitEthernet0/0/13",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
-      "name": "XGigabitEthernet0/0/14",
+      "name": "GigabitEthernet0/0/14",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/17",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/18",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/19",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/20",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/21",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/22",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/23",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/24",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "router",
-  "color": "#f43f5e"
+  "color": "#f43f5e",
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 14x 10GE SFP+ plus 10x GE RJ45."
 }

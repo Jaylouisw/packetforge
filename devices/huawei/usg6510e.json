@@ -12,25 +12,77 @@
     "dhcp-server",
     "http-server"
   ],
-  "portTemplate": {
-    "prefix": "GigabitEthernet0/0/",
-    "start": 0,
-    "count": 10,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
     {
-      "name": "GigabitEthernet0/0/10",
+      "name": "GigabitEthernet0/0/0",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "GigabitEthernet0/0/11",
+      "name": "GigabitEthernet0/0/1",
       "type": "ethernet",
       "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "firewall",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 10x GE RJ45 + 2x GE SFP."
 }

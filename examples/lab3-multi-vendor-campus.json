@@ -1958,15 +1958,16 @@
           "enabled": true,
           "dhcp": false,
           "description": "",
-          "cage": "rj45",
+          "cage": "sfp",
           "media": [
-            "10base-t",
-            "100base-tx",
-            "1000base-t"
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g"
           ],
           "speedCaps": [
-            10,
-            100,
             1000
           ],
           "poeOut": null,
@@ -1991,15 +1992,16 @@
           "enabled": true,
           "dhcp": false,
           "description": "",
-          "cage": "rj45",
+          "cage": "sfp",
           "media": [
-            "10base-t",
-            "100base-tx",
-            "1000base-t"
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g"
           ],
           "speedCaps": [
-            10,
-            100,
             1000
           ],
           "poeOut": null,
@@ -2024,15 +2026,16 @@
           "enabled": true,
           "dhcp": false,
           "description": "",
-          "cage": "rj45",
+          "cage": "sfp",
           "media": [
-            "10base-t",
-            "100base-tx",
-            "1000base-t"
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g"
           ],
           "speedCaps": [
-            10,
-            100,
             1000
           ],
           "poeOut": null,
@@ -2057,15 +2060,16 @@
           "enabled": true,
           "dhcp": false,
           "description": "",
-          "cage": "rj45",
+          "cage": "sfp",
           "media": [
-            "10base-t",
-            "100base-tx",
-            "1000base-t"
+            "1000base-sx",
+            "1000base-lx",
+            "1000base-ex",
+            "1000base-zx",
+            "1000base-t-sfp",
+            "dac-1g"
           ],
           "speedCaps": [
-            10,
-            100,
             1000
           ],
           "poeOut": null,
@@ -2660,8 +2664,7 @@
             "1000base-ex",
             "1000base-zx",
             "1000base-t-sfp",
-            "dac-1g",
-            "1000base-t"
+            "dac-1g"
           ],
           "speedCaps": [
             1000
@@ -2695,8 +2698,7 @@
             "1000base-ex",
             "1000base-zx",
             "1000base-t-sfp",
-            "dac-1g",
-            "1000base-t"
+            "dac-1g"
           ],
           "speedCaps": [
             1000

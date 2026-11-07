@@ -10,35 +10,169 @@
     "cli",
     "dhcp-server"
   ],
-  "portTemplate": {
-    "prefix": "GigabitEthernet0/0/",
-    "start": 1,
-    "count": 24,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
     {
-      "name": "XGigabitEthernet0/0/1",
+      "name": "GigabitEthernet0/0/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/2",
+      "name": "GigabitEthernet0/0/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/3",
+      "name": "GigabitEthernet0/0/3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
     },
     {
-      "name": "XGigabitEthernet0/0/4",
+      "name": "GigabitEthernet0/0/4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "GigabitEthernet0/0/25",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/26",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/27",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "GigabitEthernet0/0/28",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#dc2626"
+  "color": "#dc2626",
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: 24x 1G RJ45 + 4x 10GE SFP+."
 }

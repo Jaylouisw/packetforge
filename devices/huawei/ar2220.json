@@ -13,21 +13,26 @@
   ],
   "interfaces": [
     {
-      "name": "GigabitEthernet0/0/0",
+      "name": "Gi0/0/1",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "GigabitEthernet0/0/1",
+      "name": "Gi0/0/2",
       "type": "ethernet",
       "speed": "1G"
     },
     {
-      "name": "GigabitEthernet0/0/2",
+      "name": "Gi0/0/3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "router",
-  "color": "#f43f5e"
+  "color": "#f43f5e",
+  "portSplitNote": "Port split derived from the device description, not independently verified against a Huawei datasheet: one GE combo RJ45/SFP modelled on the SFP side."
 }
