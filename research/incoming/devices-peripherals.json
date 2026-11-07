@@ -1,0 +1,1123 @@
+{
+  "devices": [
+    {
+      "vendor": "hp",
+      "model": "LaserJet Pro M404dn",
+      "label": "Mono laser printer, 40 ppm, duplex",
+      "category": "printer",
+      "description": "Monochrome A4 laser printer rated 40 ppm with automatic duplex and a 10/100/1000Base-T Ethernet port. Wired-only: no Wi-Fi radio is fitted, so it is a pure DHCP client on the office LAN.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hp.com/us-en/shop/pdp/hp-laserjet-pro-m404dn-w1a53a-bgj",
+      "notes": "Wired only (1x 10/100/1000Base-T), no Wi-Fi, no PoE - needs a mains outlet. Sleep/wake causes the port to re-negotiate and drop off the ARP table, which shows up as intermittent L2 presence in a lab."
+    },
+    {
+      "vendor": "hp",
+      "model": "OfficeJet Pro 9015e",
+      "label": "Inkjet all-in-one, wired + wireless",
+      "category": "printer",
+      "description": "Colour inkjet all-in-one (print/scan/copy/fax) with 10/100 Ethernet and dual-band 802.11b/g/n Wi-Fi. Both interfaces are active at once, so the printer holds two IPs on two subnets unless one is disabled.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.hp.com/us-en/shop/pdp/hp-officejet-pro-9015e-all-in-one-printer",
+      "notes": "Both wired (10/100) and wireless (2.4/5 GHz 802.11b/g/n) - the classic dual-homed endpoint that breaks naive one-IP-per-device models. No PoE; 100-240 VAC external adapter."
+    },
+    {
+      "vendor": "brother",
+      "model": "HL-L2350DW",
+      "label": "Compact mono laser printer, wireless only",
+      "category": "printer",
+      "description": "32 ppm monochrome laser printer with 802.11b/g/n 2.4 GHz Wi-Fi and USB; there is no Ethernet port at all. Purely a wireless client.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.brother.com/g/b/spec.aspx?c=us&lang=en&prod=hll2350dw_us_eu_as",
+      "notes": "Wireless only - 2.4 GHz 802.11b/g/n, no RJ45, no PoE, no 5 GHz. A lab that models it with an Ethernet port is wrong; it can only reach the network through an AP."
+    },
+    {
+      "vendor": "brother",
+      "model": "MFC-L2750DW",
+      "label": "Mono laser all-in-one, wired + wireless",
+      "category": "printer",
+      "description": "36 ppm monochrome all-in-one with 10/100Base-TX Ethernet plus 802.11b/g/n 2.4 GHz Wi-Fi. Either path can carry print jobs, and both can be up simultaneously.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.brother.com/g/b/spec.aspx?c=us&lang=en&prod=mfcl2750dw_us_eu_as",
+      "notes": "Wired (10/100) and wireless (2.4 GHz only) together. No PoE. Wireless is 2.4 GHz 802.11b/g/n, so it cannot join a 5 GHz-only SSID."
+    },
+    {
+      "vendor": "canon",
+      "model": "Color imageCLASS MF743Cdw",
+      "label": "Colour laser all-in-one, wired + wireless",
+      "category": "printer",
+      "description": "28 ppm colour laser all-in-one with 10/100/1000Base-T Ethernet and 802.11b/g/n Wi-Fi. Gigabit wired plus wireless, both live at the same time.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.usa.canon.com/support/p/color-imageclass-mf743cdw",
+      "notes": "Wired is gigabit (10/100/1000Base-T) while wireless is 802.11b/g/n - asymmetric links are realistic here. No PoE, mains powered."
+    },
+    {
+      "vendor": "epson",
+      "model": "EcoTank ET-4760",
+      "label": "Inkjet supertank all-in-one, wired + wireless",
+      "category": "printer",
+      "description": "Cartridge-free colour inkjet all-in-one (15/8 ISO ppm) with 10/100 Ethernet and 802.11b/g/n Wi-Fi. Wireless setup often leaves the wired port idle but link-up.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://epson.com/For-Work/Printers/Inkjet/EcoTank-ET-4760-All-in-One-Cartridge-Free-Supertank-Printer---Black/p/C11CG19203",
+      "notes": "Both wired (10/100) and wireless (2.4 GHz 802.11b/g/n). No PoE, external 100-240 VAC supply. Wi-Fi Direct AP mode is also available, so it can act as a soft AP in isolation."
+    },
+    {
+      "vendor": "xerox",
+      "model": "VersaLink C405dn",
+      "label": "Colour laser MFP, wired only",
+      "category": "printer",
+      "description": "36 ppm colour multifunction printer with 10/100/1000Base-T Ethernet and no built-in Wi-Fi. The 'dn' configuration is wired-only; wireless needs the optional Xerox adapter.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.office.xerox.com/latest/VC4SS-027.PDF",
+      "notes": "Wired only (gigabit). Wi-Fi is an optional accessory, not standard - model it as Ethernet-only. No PoE; 100-240 VAC."
+    },
+    {
+      "vendor": "zebra",
+      "model": "ZD621",
+      "label": "4-inch desktop thermal label printer",
+      "category": "printer",
+      "description": "4-inch desktop thermal transfer/direct thermal label printer with 10/100 Ethernet, RS-232 and USB 2.0 standard; 802.11ac is an optional factory radio. Wired by default in a warehouse lab.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.zebra.com/us/en/products/printers/desktop/zd600-series/zd621.html",
+      "notes": "Wired only in the standard SKU (10/100 Ethernet); Wi-Fi 802.11ac requires the optional dual-radio module. No PoE. Industrial endpoints like this often sit on a flat VLAN with the WMS."
+    },
+    {
+      "vendor": "axis",
+      "model": "M3086-V",
+      "label": "4MP indoor mini dome IP camera",
+      "category": "camera",
+      "description": "Compact 4 MP indoor mini dome streaming H.264/H.265 over a 10/100 RJ45 port. Powered only by PoE 802.3af/802.3at Type 1 Class 2, drawing 3.6 W typical and 4.2 W max.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://www.axis.com/products/axis-m3086-v",
+      "notes": "PoE class 802.3af (Type 1 Class 2), 12.95 W at the PSE, 4.2 W actual - a very light load. Wired only, no Wi-Fi. 10/100 only despite the small frame size."
+    },
+    {
+      "vendor": "axis",
+      "model": "P3265-LVE",
+      "label": "2MP outdoor IR dome IP camera",
+      "category": "camera",
+      "description": "2 MP outdoor vandal-resistant dome with OptimizedIR and deep-learning analytics, 10/100 RJ45. PoE 802.3af/802.3at Type 1 Class 3, 4.8 W typical, 10.7 W max with IR on.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://www.axis.com/products/axis-p3265-lve",
+      "notes": "PoE class 802.3af (Type 1 Class 3), 12.95 W. Wired only. IR illuminator pushes draw to 10.7 W, which is the number to use for switch budget planning, not the 4.8 W typical figure."
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-2CD2143G2-I",
+      "label": "4MP AcuSense fixed dome IP camera",
+      "category": "camera",
+      "description": "4 MP AcuSense dome with 120 dB WDR and human/vehicle classification, one RJ45 10/100 port. PoE 802.3af Class 3, max 6.5 W; also accepts 12 VDC.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Cameras/Pro-Series-EasyIP-/ds-2cd2143g2-i-s-/",
+      "notes": "PoE class 802.3af Class 3, 12.95 W reserved at the switch, 6.5 W drawn. Wired only. Has a 12 VDC barrel jack as an alternative, so it can be powered without a PoE switch."
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-2DE4A425IW-DE",
+      "label": "4MP 25x IR PTZ speed dome",
+      "category": "camera",
+      "description": "4 MP outdoor PTZ with 25x optical zoom, 100 m IR and auto-tracking, on a single RJ45 10/100 port. Demands PoE+ 802.3at and draws up to 18 W when the motors and IR are both running.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 25.5
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/PTZ-Cameras/Pro-Series/ds-2de4a425iw-de-s6-/",
+      "notes": "PoE class 802.3at (PoE+), 25.5 W at the PSE, 18 W actual - the device that fails on an 802.3af-only switch. Wired only; 12 VDC alternative. Pan/tilt burst current is the reason to leave headroom on the port."
+    },
+    {
+      "vendor": "dahua",
+      "model": "IPC-HDW5442TM-AS",
+      "label": "4MP WizMind eyeball IP camera",
+      "category": "camera",
+      "description": "4 MP starlight eyeball camera with WDR and AI perimeter protection, RJ45 10/100Base-T. PoE 802.3af, roughly 7 W maximum; 12 VDC also supported.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://www.dahuasecurity.com/asset/upload/uploads/soft/20190506/DH-IPC-HDW5442TM-AS.pdf",
+      "notes": "PoE class 802.3af, 12.95 W. Wired only. 10/100 port - no gigabit even on the 4 MP stream, so bitrate planning matters more than cabling category."
+    },
+    {
+      "vendor": "reolink",
+      "model": "RLC-810A",
+      "label": "4K PoE bullet IP camera",
+      "category": "camera",
+      "description": "8 MP (4K) bullet camera with smart person/vehicle detection and 30 m IR, single RJ45 10/100 port. Powered by PoE 802.3af, 12 W max, and it has no Wi-Fi radio.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://reolink.com/product/rlc-810a/",
+      "notes": "PoE class 802.3af, 12.95 W at the PSE, 12 W drawn - right at the class limit, so it will brown out on a marginal injector. Wired only, no 12 VDC jack on the PoE SKU. No ONVIF-profile-S-only caveat: fully ONVIF compliant."
+    },
+    {
+      "vendor": "reolink",
+      "model": "RLC-511WA",
+      "label": "5MP Wi-Fi bullet camera with backup Ethernet",
+      "category": "camera",
+      "description": "5 MP bullet camera with 5x optical zoom that joins 802.11a/b/g/n on 2.4 or 5 GHz and also carries a 10/100 RJ45 pigtail. Powered from a 12 VDC barrel jack; there is no PoE front end at all.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://reolink.com/product/rlc-511wa/",
+      "notes": "Both wired (10/100 RJ45) and wireless (2.4/5 GHz 802.11a/b/g/n). NOT PoE-capable - 12 VDC 1 A barrel jack only. Good case for testing a camera that fails over from Ethernet to Wi-Fi on cable pull."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UVC-G5-Bullet",
+      "label": "UniFi G5 Bullet 2K camera",
+      "category": "camera",
+      "description": "4 MP (2K) UniFi Protect bullet with a 10/100 MbE RJ45 port, IP55 and IK04. PoE-powered, 4 W max, 37-57 VDC - an 802.3af load.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-bullet",
+      "notes": "PoE class 802.3af, 12.95 W reserved, 4 W drawn. Wired only, no Wi-Fi, and only a 10/100 port. Adopts only from a UniFi Protect controller - it will not talk ONVIF to a third-party NVR."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UVC-G5-Dome",
+      "label": "UniFi G5 Dome 2K camera",
+      "category": "camera",
+      "description": "4 MP (2K) indoor/outdoor dome with two-way audio, 10/100 MbE RJ45 and IK08 impact rating. PoE 802.3af, 5 W max.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-dome",
+      "notes": "PoE class 802.3af, 12.95 W. Wired only. IPX4 only while covered, so it is an indoor/soffit device in practice. Requires a UniFi Protect controller."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UVC-AI-Pro",
+      "label": "UniFi AI Pro 4K camera with PoE+",
+      "category": "camera",
+      "description": "4K (8 MP) AI bullet camera with a gigabit RJ45 port and on-board licence-plate/face detection. Needs PoE+ 802.3at: 11 W alone, 22 W with the AI Theta enhancer attached.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 25.5
+        }
+      ],
+      "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-ai-pro",
+      "notes": "PoE class 802.3at, 25.5 W at the PSE; 11 W bare, 22 W with the enhancer - over 802.3af's 12.95 W ceiling, so it will not boot on an af port. Wired only, and one of the few cameras here with a gigabit port."
+    },
+    {
+      "vendor": "hanwha",
+      "model": "XNV-8080R",
+      "label": "Wisenet X 5MP vandal dome IP camera",
+      "category": "camera",
+      "description": "5 MP vandal-resistant outdoor dome from the Wisenet X series with a 10/100/1000 RJ45 port. PoE 802.3af Class 3, max 12.95 W, with 12 VDC and 24 VAC alternatives.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/XNV-8080R",
+      "notes": "PoE class 802.3af Class 3, 12.95 W (the datasheet quotes 12.95 W as the PoE maximum, i.e. it uses the whole class). Wired only, but gigabit. Rare case of a camera that also takes 24 VAC, so legacy installs can bypass the PoE switch entirely."
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-7608NI-K2/8P",
+      "label": "8-channel NVR with 8-port PoE switch",
+      "category": "nvr",
+      "description": "8-channel 4K NVR with two SATA bays, one gigabit LAN port and eight 10/100 PoE camera ports on a private subnet. The built-in PoE switch supplies 802.3af/at with an 80 W total budget and hands the cameras DHCP from the NVR itself.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7608ni-k2-8p/",
+      "notes": "Recorder + 8-port PoE switch in one box. PoE out: 802.3af/at, 25.5 W per port, 80 W total budget - four 802.3at PTZs will exhaust it. The PoE ports sit on an internal 192.168.254.0/24 with DHCP enabled, so cameras are double-NATed from the LAN unless bridged. Wired only."
+    },
+    {
+      "vendor": "hikvision",
+      "model": "DS-7616NI-K2/16P",
+      "label": "16-channel NVR with 16-port PoE switch",
+      "category": "nvr",
+      "description": "16-channel 4K NVR, two SATA bays, one gigabit LAN uplink and sixteen 10/100 PoE camera ports. PoE is 802.3af/at with a 200 W aggregate budget, making it a real power source for a camera fleet.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 9",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 10",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 11",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 12",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 13",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 14",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 15",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 16",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        }
+      ],
+      "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7616ni-k2-16p/",
+      "notes": "Recorder + 16-port PoE switch. PoE out: 802.3af/at, 25.5 W per port, 200 W total - the number to test against a 16-camera build. Internal PoE subnet with its own DHCP server; only the LAN port is routable from the office network."
+    },
+    {
+      "vendor": "dahua",
+      "model": "NVR2108HS-8P-4KS3",
+      "label": "8-channel Lite NVR with 8-port PoE",
+      "category": "nvr",
+      "description": "8-channel 4K Lite NVR in a 1U chassis with one HDD bay, one gigabit RJ45 uplink and eight 10/100 PoE camera ports. PoE budget is 72 W total with 25.5 W per port (802.3af/at).",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        }
+      ],
+      "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/lite-series/nvr2-4ks3-series/nvr2108hs-8p-4ks3",
+      "notes": "PoE out: 802.3af/at, 25.5 W per port, 72 W total from the datasheet. NVR itself draws under 10 W without a disk. Internal PoE ports are a separate L2 domain with DHCP; camera discovery from the LAN needs the NVR's port mapping or a manual route."
+    },
+    {
+      "vendor": "dahua",
+      "model": "NVR5216-16P-EI2",
+      "label": "16-channel WizSense NVR with 16-port PoE",
+      "category": "nvr",
+      "description": "16-channel WizSense NVR with two HDD bays, one gigabit uplink and sixteen 10/100 PoE ports (ports 1-8 also do Dahua ePoE for long runs). 802.3af/at with a 130 W total PoE budget.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "dhcp-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 9",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 10",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 11",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 12",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 13",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 14",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 15",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 16",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        }
+      ],
+      "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/wizsense-series/nvr-5-ei2-series/nvr5216-16p-ei2",
+      "notes": "PoE out: 802.3af/at, 25.5 W per port, 130 W total - notably less per-camera headroom than the 16-port Hikvision. Ports 1-8 support ePoE (extended-distance) which changes the cable-length assumptions in a lab."
+    },
+    {
+      "vendor": "reolink",
+      "model": "RLN8-410",
+      "label": "8-channel PoE NVR",
+      "category": "nvr",
+      "description": "8-channel 4K NVR with one SATA bay, one 10/100 RJ45 uplink and eight 10/100 PoE camera ports. Supports 802.3af/at at up to 25 W per port; Reolink does not publish an aggregate PoE budget.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "dhcp-server"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "PoE 1",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 2",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 3",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 4",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 5",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 6",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 7",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        },
+        {
+          "name": "PoE 8",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeOut": 25.5
+        }
+      ],
+      "sourceUrl": "https://reolink.com/product/rln8-410/",
+      "notes": "PoE out: 802.3af/at, 25 W per port (declared as 25.5 W per port here), but no published total budget - left out deliberately; do not assume 8 x 25 W is available. Uplink is only 10/100, so eight 4K streams will saturate it. Wired only."
+    },
+    {
+      "vendor": "ubiquiti",
+      "model": "UNVR-Pro",
+      "label": "UniFi Protect NVR Pro, 7 bays",
+      "category": "nvr",
+      "description": "2U rackmount UniFi Protect recorder with seven 2.5/3.5-inch bays, one gigabit RJ45 management port and one 10G SFP+ uplink. It has no PoE outputs at all - cameras must be powered from a separate UniFi PoE switch.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "SFP+ 1",
+          "type": "ethernet",
+          "speed": "10G"
+        }
+      ],
+      "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/unvr-pro",
+      "notes": "No PoE out - this is a recorder only, so the camera power budget lives on the switch. 160 W max system draw (135 W of that available to drives), dual PSU input. Wired only, 10G SFP+ uplink for large camera counts."
+    },
+    {
+      "vendor": "synology",
+      "model": "NVR1218",
+      "label": "12-channel desktop NVR, 2 bays",
+      "category": "nvr",
+      "description": "12-channel desktop network video recorder with two drive bays, one gigabit RJ45 port and no PoE. Cameras are licensed per channel and must be powered separately.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "l2-forward"
+      ],
+      "interfaces": [
+        {
+          "name": "LAN",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/NetworkVideoRecorder/18-year/NVR1218/enu/Product_Spec_NVR1218_enu.pdf",
+      "notes": "No PoE out and only one 1GbE port, so camera traffic shares the uplink with management. Wired only. Surveillance Station camera licences are per-channel - a lab that assumes 12 free channels is wrong out of the box."
+    },
+    {
+      "vendor": "amazon",
+      "model": "Echo Dot (5th gen)",
+      "label": "Smart speaker, Wi-Fi only",
+      "category": "iot",
+      "description": "5th-generation Echo Dot (2022) smart speaker with a 1.73-inch front-firing driver and Alexa. Dual-band 802.11a/b/g/n/ac Wi-Fi and Bluetooth; there is no Ethernet port.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.amazon.com/dp/B09B8V1LZ3",
+      "notes": "Wireless only - 2.4/5 GHz 802.11a/b/g/n/ac, no RJ45, no PoE; 15 W USB-C power adapter. Always-on cloud sessions keep a NAT mapping and a steady trickle of traffic, which is the realistic background load in a home lab."
+    },
+    {
+      "vendor": "google",
+      "model": "Nest Hub (2nd gen)",
+      "label": "Smart display, Wi-Fi only",
+      "category": "iot",
+      "description": "7-inch smart display with Google Assistant, Sleep Sensing and a 802.11ac dual-band radio. No Ethernet and no PoE - it lives entirely on Wi-Fi.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://store.google.com/product/nest_hub_2nd_gen_specs?hl=en-US",
+      "notes": "Wireless only, 802.11ac 2.4/5 GHz plus Bluetooth 5.0. Mains powered via 15 W adapter, no PoE. Uses mDNS and Google Cast, so multicast behaviour matters on the WLAN."
+    },
+    {
+      "vendor": "apple",
+      "model": "HomePod mini",
+      "label": "Smart speaker, Wi-Fi only",
+      "category": "iot",
+      "description": "Compact Siri smart speaker with a full-range driver and four-microphone array. 802.11n 2.4/5 GHz Wi-Fi, Bluetooth 5.0 and a U1 chip for nearby handoff; no wired interface.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/111914",
+      "notes": "Wireless only - 802.11n (Wi-Fi 4) on 2.4 and 5 GHz, no Ethernet, no PoE. 20 W adapter. Very chatty on mDNS/Bonjour; it will flood a lab's multicast group if IGMP snooping is off."
+    },
+    {
+      "vendor": "apple",
+      "model": "Apple TV 4K (3rd gen, 128GB)",
+      "label": "4K streaming box, wired + wireless",
+      "category": "iot",
+      "description": "Third-generation Apple TV 4K with the A15 Bionic, 128 GB of storage, Gigabit Ethernet and Wi-Fi 6. The 128 GB model is the one that ships with the Ethernet port; the 64 GB model is Wi-Fi only.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/111839",
+      "notes": "Both wired (gigabit Ethernet) and wireless (Wi-Fi 6 802.11ax 2.4/5 GHz) - the 128 GB SKU is the wired variant, the 64 GB SKU is not. No PoE. Prefers Ethernet when both are up and keeps the Wi-Fi association as a standby path."
+    },
+    {
+      "vendor": "roku",
+      "model": "Ultra (4802R)",
+      "label": "4K HDR streaming player, wired + wireless",
+      "category": "iot",
+      "description": "2022 Roku Ultra streaming player with 4K/HDR10+/Dolby Vision, Wi-Fi 5 and a 10/100 Ethernet port, plus USB 3.0 and a lost-remote finder. Mains powered, no PoE.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.roku.com/products/roku-ultra",
+      "notes": "Both wired (10/100 Ethernet only - not gigabit) and wireless (802.11ac dual-band). No PoE. Streams are the bulk of the traffic; the 100M port caps 4K bitrate headroom well below a gigabit link."
+    },
+    {
+      "vendor": "philips",
+      "model": "Hue Bridge",
+      "label": "Zigbee lighting hub, Ethernet only",
+      "category": "iot",
+      "description": "Square white Zigbee 3.0 bridge that controls up to 50 Hue lights and 12 accessories. It has a single 10/100 Ethernet port and no Wi-Fi radio at all; its only wireless role is Zigbee coordinator.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "http-server"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.philips-hue.com/en-us/p/hue-bridge/046677458478/specifications",
+      "notes": "Wired only for IP (10/100 Ethernet, no Wi-Fi, no PoE) but it is a Zigbee coordinator, so it is a wireless gateway for the bulbs. Mains powered. All light traffic is tunnelled over the wired link; the bridge is a single point of failure for the whole lighting VLAN."
+    },
+    {
+      "vendor": "shelly",
+      "model": "Plus 1",
+      "label": "Wi-Fi relay module, 16 A",
+      "category": "iot",
+      "description": "DIN-adjacent Wi-Fi relay module with a potential-free 16 A contact, dry/wet input and Bluetooth provisioning. 2.4 GHz 802.11b/g/n only, no Ethernet, powered from 110-240 VAC or 12 VDC.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.shelly.com/products/shelly-plus-1-x1",
+      "notes": "Wireless only - 2.4 GHz 802.11b/g/n, no RJ45, no PoE; powered from the mains circuit it switches (or 12 VDC). Very low traffic but it exposes an HTTP/MQTT endpoint and can act as a Wi-Fi AP during provisioning."
+    },
+    {
+      "vendor": "ring",
+      "model": "Video Doorbell Elite",
+      "label": "PoE video doorbell",
+      "category": "iot",
+      "description": "Flush-mount professional video doorbell that runs entirely on Power over Ethernet: one 10/100 Ethernet cable carries both power and video. 1080p HD video with two-way talk.",
+      "capabilities": [
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 12.95
+        }
+      ],
+      "sourceUrl": "https://ring.com/support/products/doorbells/video-doorbell-elite",
+      "notes": "PoE class 802.3af, 12.95 W - the rare consumer IoT endpoint that is genuinely PoE powered, wired only for IP (its 802.11 radio is not used for the network path). No mains wiring needed, which is why it is the interesting exception in this category."
+    }
+  ]
+}

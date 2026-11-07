@@ -1,0 +1,22 @@
+{
+  "vendor": "asus",
+  "model": "RT-AC5300",
+  "label": "RT-AC5300 tri-band router",
+  "category": "router",
+  "description": "ASUS RT-AC5300 - Wi-Fi 5 AC5300 tri-band (2.4 GHz 1000 Mbps plus two 5 GHz radios at 2167 Mbps each) with 1x 1G WAN, 4x 1G LAN, USB 2.0 and USB 3.0. Older 802.11ac design, often reused as an AiMesh node.",
+  "capabilities": ["wireless", "l2-forward", "l3-forward", "nat", "dhcp-server", "firewall", "http-server", "cli"],
+  "interfaces": [
+    { "name": "wan", "type": "ethernet", "speed": "1G" },
+    { "name": "lan1", "type": "ethernet", "speed": "1G" },
+    { "name": "lan2", "type": "ethernet", "speed": "1G" },
+    { "name": "lan3", "type": "ethernet", "speed": "1G" },
+    { "name": "lan4", "type": "ethernet", "speed": "1G" },
+    { "name": "radio0", "type": "wireless", "speed": "1G" },
+    { "name": "radio1", "type": "wireless", "speed": "1G" },
+    { "name": "radio2", "type": "wireless", "speed": "1G" }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ac5300/techspec/",
+  "notes": "Three radios, not two: the AC5300 class is one 2.4 GHz plus two independent 5 GHz radios. No 2.5G or 10G ports at all, so it cannot be the wired backbone of a multi-gig lab. 4x4 on all three bands."
+}

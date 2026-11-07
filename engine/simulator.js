@@ -1126,12 +1126,12 @@ class Simulator {
     const mac = dev.arp.get(nextHopIp);
     if (mac) {
       this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache', vlan: v });
-      this._emitFrame(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null), v);
+      this._sendFromOwnIp(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null), v);
       return;
     }
     // ARP resolution
     this._emit({ type: 'arp-request', dev: dev.id, iface: egress.name, targetIp: nextHopIp, vlan: v });
-    this._emitFrame(dev, egress, arpRequest(egress.mac, egress.ip, nextHopIp), v);
+    this._sendFromOwnIp(dev, egress, arpRequest(egress.mac, egress.ip, nextHopIp), v);
     // stash the pending packet until the ARP reply arrives
     let list = dev.pending.get(nextHopIp);
     if (!list) { list = []; dev.pending.set(nextHopIp, list); }
@@ -1158,6 +1158,23 @@ class Simulator {
   // Apply egress VLAN rules to a frame leaving `iface` in `vid`, then queue it.
   // A subinterface has no link of its own: the frame leaves the parent physical
   // port, tagged with the subinterface's VLAN.
+  // Send a frame that originates from one of this device's own L3 addresses.
+  //
+  // On a router that address belongs to a point-to-point-facing port, so sending
+  // out that port is right. On a multilayer switch it belongs to a VLAN, not to
+  // a cable: the peer may be three ports away, and pinning the reply to the port
+  // that happens to hold the address sends it into an empty socket. So for L2
+  // devices the reply is handed to the bridge, which unicasts it to whichever
+  // port the peer's MAC was learned on.
+  _sendFromOwnIp(dev, iface, frame, vid) {
+    const v = (vid === undefined || vid === null) ? 1 : vid;
+    if (dev.isL2()) {
+      this._forwardL2(dev, frame, null, net.isBroadcastMac(frame.dstMac), v);
+      return;
+    }
+    this._emitFrame(dev, iface, frame, v);
+  }
+
   _emitFrame(dev, iface, frame, vid) {
     if (!iface) return;
     // A device that could not get power from its PSE cannot transmit.
@@ -1295,11 +1312,24 @@ class Simulator {
     const flood = bcast || mcast;
     const mine = dev.interfaceWithMac(f.dstMac);
 
-    // 4. Bridge / switch: forward at L2. An L3-capable switch may also
-    //    terminate frames addressed to its own MAC (routing / management).
+    // 4. Bridge / switch: forward at L2. An L3-capable switch also terminates
+    //    frames addressed to itself: unicast to one of its MACs (routing and
+    //    management) and ARP/ND for its own interface addresses. The last part
+    //    used to be missed: an ARP request is a broadcast, so `mine` is always
+    //    null and the frame was flooded without ever being offered to the L3
+    //    path. The result was that no multilayer switch in the catalogue could
+    //    answer for its own IP - it routed traffic for everyone else but its own
+    //    management address was dead.
     if (dev.isL2()) {
-      if (mine && !flood && dev.hasCap('l3-forward')) {
+      const l3 = dev.hasCap('l3-forward');
+      const isArp = f.etherType === net.ETH_ARP;
+      const isNd = f.etherType === net.ETH_ND;
+      if (l3 && mine && !flood) {
         if (this._tryProcessL3(dev, f, inIface)) return;
+      } else if (l3 && (isArp || isNd)) {
+        // Offer it locally first - _handleArp only replies when the target
+        // address is actually ours - then flood it like any switch would.
+        this._tryProcessL3(dev, f, inIface);
       }
       this._forwardL2(dev, f, inIface, flood, vid);
       return;
@@ -1447,7 +1477,7 @@ class Simulator {
       if (iface) {
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
         this._emit({ type: 'arp-reply', dev: dev.id, iface: iface.name, targetIp: arp.targetIp, mac: iface.mac, vlan: vid });
-        this._emitFrame(dev, iface, arpReply(frame, iface.mac, iface.ip), vid);
+        this._sendFromOwnIp(dev, iface, arpReply(frame, iface.mac, iface.ip), vid);
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
@@ -1471,7 +1501,7 @@ class Simulator {
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
       this._emit({ type: 'icmp-reply', dev: dev.id, iface: iface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
-      this._emitFrame(dev, iface, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
+      this._sendFromOwnIp(dev, iface, ethFrame(frame.srcMac, iface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });

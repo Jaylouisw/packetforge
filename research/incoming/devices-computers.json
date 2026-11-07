@@ -1,0 +1,791 @@
+{
+  "devices": [
+    {
+      "vendor": "apple",
+      "model": "MacBook Air 13 (M2, 2022)",
+      "label": "MacBook Air 13-inch (M2, 2022)",
+      "category": "laptop",
+      "description": "Fanless 13.6-inch ultraportable with the Apple M2 SoC (2022); two Thunderbolt/USB 4 ports, Wi-Fi 6 and Bluetooth 5.0 only.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/111867",
+      "notes": "No Ethernet at all: no RJ45 and no onboard NIC. The only native uplink is Wi-Fi 6 (802.11ax); wired needs a USB-C dock or a 1GbE/2.5GbE dongle. Include it to model hosts that cannot be cabled without extra hardware."
+    },
+    {
+      "vendor": "apple",
+      "model": "MacBook Air 13 (M3)",
+      "label": "MacBook Air 13-inch (M3)",
+      "category": "laptop",
+      "description": "13.6-inch fanless ultraportable with Apple M3 (2024), Wi-Fi 6E, two Thunderbolt/USB 4 ports.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.apple.com/macbook-air/specs/",
+      "notes": "No RJ45 and no onboard Ethernet controller; wired requires a Thunderbolt/USB-C dongle (1GbE typical). Wi-Fi 6E is the default path, so a lab link to this node is wireless unless a dongle is modelled."
+    },
+    {
+      "vendor": "apple",
+      "model": "MacBook Air 15 (M3)",
+      "label": "MacBook Air 15-inch (M3)",
+      "category": "laptop",
+      "description": "15.3-inch version of the fanless M3 Air, same port set: two Thunderbolt/USB 4, MagSafe 3, Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.apple.com/macbook-air/specs/",
+      "notes": "No Ethernet port on any Air model. Wired only through a USB-C/Thunderbolt Ethernet adapter at 1GbE (2.5GbE with a faster dongle); Wi-Fi 6E is the built-in uplink."
+    },
+    {
+      "vendor": "apple",
+      "model": "MacBook Pro 14 (M3, Nov 2023)",
+      "label": "MacBook Pro 14-inch (M3)",
+      "category": "laptop",
+      "description": "14.2-inch pro laptop, Apple M3, HDMI plus SDXC and two Thunderbolt 4 ports; Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/117735",
+      "notes": "No RJ45: Apple ships HDMI, SDXC and Thunderbolt 4 but no wired Ethernet. A USB-C dock/dongle provides 1GbE (2.5GbE with a 2.5G adapter); out of the box this host is Wi-Fi 6E only."
+    },
+    {
+      "vendor": "apple",
+      "model": "MacBook Pro 16 (M3 Max, Nov 2023)",
+      "label": "MacBook Pro 16-inch (M3 Max)",
+      "category": "laptop",
+      "description": "16.2-inch M3 Max workstation laptop with three Thunderbolt 4 ports, HDMI and SDXC; Wi-Fi 6E and Bluetooth 5.3.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.apple.com/en-us/117737",
+      "notes": "Still no Ethernet jack despite the pro chassis - wired is Thunderbolt-dock only (1GbE or 2.5GbE dongle). Wi-Fi 6E is the sole native interface; a good contrast to the Mac Studio's built-in 10GbE."
+    },
+    {
+      "vendor": "dell",
+      "model": "XPS 13 9340",
+      "label": "XPS 13 (9340) ultraportable",
+      "category": "laptop",
+      "description": "13.4-inch ultraportable, Intel Core Ultra (Meteor Lake), two Thunderbolt 4 ports and Wi-Fi 7; no onboard Ethernet.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/en-us/shop/dell-laptops/spd/xps-13-9340-laptop",
+      "notes": "No RJ45 and no USB-A, so a USB-C dock or 2.5GbE USB-C adapter is mandatory for wired. Wi-Fi 7 (BE200-class) is the only built-in uplink - the classic thin-and-light that cannot be plugged in."
+    },
+    {
+      "vendor": "dell",
+      "model": "XPS 15 9530",
+      "label": "XPS 15 (9530)",
+      "category": "laptop",
+      "description": "15.6-inch creator laptop with 13th-gen Core H and RTX 40 graphics, Thunderbolt 4 and Wi-Fi 6E; no RJ45.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/en-us/shop/dell-laptops/spd/xps-15-9530-laptop",
+      "notes": "No wired NIC: Dell kept only Thunderbolt 4/USB-C on the 9530, so 1GbE arrives via a dock or dongle. Wi-Fi 6E (AX211) is standard; useful as a high-power host that is still wireless-only."
+    },
+    {
+      "vendor": "dell",
+      "model": "Latitude 5440",
+      "label": "Latitude 5440 14-inch business laptop",
+      "category": "laptop",
+      "description": "14-inch 13th-gen Core business laptop with a real RJ45 port plus two Thunderbolt 4 ports and Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/support/manuals/en-us/latitude-14-5440-laptop/latitude-5440-owners-manual/external-ports-and-slots?guid=guid-1fc91ef3-b5a3-4c62-9229-cbe8084bfd5f&lang=en-us",
+      "notes": "Real RJ45 onboard at 1GbE (Intel I219-LM) - no dongle needed, which is exactly what separates it from the XPS line. Wi-Fi 6E AX211 is the secondary path; ideal 'office laptop that actually has a port' node."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkPad T14 Gen 4 (Intel)",
+      "label": "ThinkPad T14 Gen 4",
+      "category": "laptop",
+      "description": "14-inch business workhorse, 13th-gen Core U/P with vPro, onboard RJ45 plus Thunderbolt 4 and Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_T14_Gen_4_Intel",
+      "notes": "1GbE RJ45 (Intel I219-LM) is standard on every T14 Gen 4 - a genuine wired port, not a dongle. Wi-Fi 6E AX211 with optional WWAN; the reference 'dock-free corporate laptop'."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkPad X1 Carbon Gen 11",
+      "label": "ThinkPad X1 Carbon Gen 11",
+      "category": "laptop",
+      "description": "1.12 kg 14-inch carbon-fibre ultrabook, 13th-gen Core U/P, two Thunderbolt 4 and Wi-Fi 6E; no RJ45.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_X1_Carbon_Gen_11",
+      "notes": "No onboard Ethernet - Lenovo expects a USB-C/USB-A Ethernet dongle or dock (1GbE). Wi-Fi 6E AX211 is the only native link, so this node's uplink is wireless unless a dongle is modelled."
+    },
+    {
+      "vendor": "hp",
+      "model": "EliteBook 840 G10",
+      "label": "HP EliteBook 840 14-inch G10",
+      "category": "laptop",
+      "description": "14-inch aluminium business ultrabook, 13th-gen Core U/P, two Thunderbolt 4 plus HDMI 2.1 and Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://support.hp.com/us-en/document/ish_7775077-7775121-16",
+      "notes": "No RJ45 on the 840 G10: HP moved wired connectivity to the dock (2x Thunderbolt 4, 2x USB-A, HDMI only). Wired needs a USB-C dock/dongle at 1GbE; Wi-Fi 6E AX211 plus optional 5G WWAN onboard."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkPad X1 Extreme Gen 6",
+      "label": "ThinkPad X1 Extreme Gen 6",
+      "category": "laptop",
+      "description": "16-inch performance ThinkPad with 13th-gen Core HX and RTX 40 graphics, two Thunderbolt 4, SD Express and Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_X1_Extreme_Gen_6",
+      "notes": "No RJ45 - the X1 Extreme dropped the jack, so wired is Thunderbolt-dock only at 1GbE. Wi-Fi 6E AX211 onboard; a heavy host that still cannot be cabled directly."
+    },
+    {
+      "vendor": "asus",
+      "model": "Zenbook 14 OLED (UX3405)",
+      "label": "ASUS Zenbook 14 OLED (UX3405)",
+      "category": "laptop",
+      "description": "14-inch 3K OLED ultrabook, Intel Core Ultra, two Thunderbolt 4 plus USB-A and HDMI, Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.asus.com/us/laptops/for-home/zenbook/asus-zenbook-14-ux3405/techspec/",
+      "notes": "No RJ45 and no Ethernet controller - wired would need a USB-C 1GbE/2.5GbE dongle. Wi-Fi 6E is standard, so model this host with a wireless uplink only."
+    },
+    {
+      "vendor": "acer",
+      "model": "Aspire 5 A515-45",
+      "label": "Acer Aspire 5 (A515-45)",
+      "category": "laptop",
+      "description": "15.6-inch budget laptop (Ryzen 5000 U-series) that still includes a Gigabit RJ45 port plus Wi-Fi 6.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.acer.com/us-en/laptops/aspire/aspire-5-amd/pdp/NX.ABKAA.001",
+      "notes": "Gigabit Ethernet RJ45 is genuinely onboard (Acer lists 'Ethernet Technology: Gigabit Ethernet'), unusual at this price. Wi-Fi 6 (802.11ax) secondary - a cheap lab host that can be cabled without a dongle."
+    },
+    {
+      "vendor": "msi",
+      "model": "Raider GE78 HX 14V",
+      "label": "MSI Raider GE78 HX 14V",
+      "category": "laptop",
+      "description": "17-inch gaming laptop, 14th-gen Core HX with RTX 40, Killer 2.5GbE RJ45 and Wi-Fi 7.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://us.msi.com/Laptop/Raider-GE78-HX-14VX/Specification",
+      "notes": "Killer E3100 2.5GbE RJ45 onboard - one of the few laptops here that links above 1G, so it can saturate a 2.5G access port. Wi-Fi 7 (BE1750) as the wireless path."
+    },
+    {
+      "vendor": "framework",
+      "model": "Laptop 13 (AMD Ryzen AI 300)",
+      "label": "Framework Laptop 13",
+      "category": "laptop",
+      "description": "13.5-inch 3:2 modular laptop, AMD Ryzen AI 300, four user-selectable Expansion Cards and Wi-Fi 7.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://frame.work/laptop13?tab=specs",
+      "notes": "Ethernet exists only as an Expansion Card: the 2.5GbE RJ45 card occupies one of the four slots, so the port is present only if the card is fitted. Wi-Fi 7 (RZ717) is always onboard - perfect for modelling a host whose wired port is optional hardware."
+    },
+    {
+      "vendor": "system76",
+      "model": "Lemur Pro (lemp14)",
+      "label": "System76 Lemur Pro",
+      "category": "laptop",
+      "description": "14/16-inch Linux ultrabook (Intel Core Ultra, up to 73Wh battery); System76 lists only the Intel BE200 Wi-Fi 7 card.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://system76.com/tech-docs/models/lemp14/specs",
+      "notes": "Zero Ethernet: the spec sheet lists no wired NIC at all, only Wi-Fi 7 + BT 5.4. Wired requires a USB-C dock or dongle (1GbE in practice) - the cleanest example of a Linux laptop with no RJ45."
+    },
+    {
+      "vendor": "dell",
+      "model": "OptiPlex 7010 Plus SFF",
+      "label": "Dell OptiPlex 7010 Plus small form factor",
+      "category": "desktop",
+      "description": "Small-form-factor business desktop, 13th-gen Core, one 1GbE RJ45 on the rear panel, 180W internal PSU.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/en-us/shop/desktop-computers/optiplex-small-form-factor/spd/optiplex-7010-plus-small-ff",
+      "notes": "1GbE Intel I219-LM RJ45 is standard on every SFF configuration - no dongle. No Wi-Fi unless the optional M.2 wireless card is ordered, so model this node as wired-only."
+    },
+    {
+      "vendor": "dell",
+      "model": "OptiPlex 7010 Micro",
+      "label": "Dell OptiPlex 7010 Micro",
+      "category": "desktop",
+      "description": "1.2-litre micro desktop with 13th-gen Core T-series, external 90W adapter and a single 1GbE RJ45.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/en-us/shop/desktop-computers/optiplex-micro/spd/optiplex-7010-micro",
+      "notes": "1GbE RJ45 (Intel I219-LM) on the rear of a 1.2 L chassis; wired-only by default - Wi-Fi 6E is an optional M.2 card. Compact desktop node for dense lab topologies."
+    },
+    {
+      "vendor": "dell",
+      "model": "OptiPlex 9010 SFF",
+      "label": "Dell OptiPlex 9010 small form factor",
+      "category": "desktop",
+      "description": "2012 Ivy Bridge-era SFF desktop, Core i5/i7 3000-series, Intel 82579LM Gigabit RJ45, no Wi-Fi.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://i.dell.com/sites/csdocuments/Shared-Content_data-Sheets_Documents/en/aa/Dell_OptiPlex_9010_spec_sheet.pdf",
+      "notes": "1GbE RJ45 (Intel 82579LM) onboard, no wireless option fitted in the field. Legacy 1000BASE-T host that still auto-negotiates down to 100M against old switches - good for mixed-speed lab scenarios."
+    },
+    {
+      "vendor": "dell",
+      "model": "Precision 3660 Tower",
+      "label": "Dell Precision 3660 Tower workstation",
+      "category": "desktop",
+      "description": "Mid-tower workstation, 13th-gen Core K-series or Xeon W-3400, one 1GbE RJ45, up to 4 PCIe slots.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/en-us/shop/desktop-computers/spd/precision-3660-workstation",
+      "notes": "1GbE Intel I219-LM RJ45 standard; the Wi-Fi 6E card is an option, not a default. Wired-only unless configured otherwise - typical of workstation nodes that also serve DHCP/PXE."
+    },
+    {
+      "vendor": "hp",
+      "model": "EliteDesk 800 G9 SFF",
+      "label": "HP EliteDesk 800 G9 small form factor",
+      "category": "desktop",
+      "description": "Small-form-factor business desktop, 12th-gen Core, one 1GbE RJ45 plus USB-C and DisplayPort.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www8.hp.com/h20195/v2/GetDocument.aspx?docname=c08017769",
+      "notes": "1GbE (Intel I219-LM) RJ45 on the rear, standard across 800 G9 SFF SKUs. Wi-Fi 6E is an optional M.2 module; base builds are wired-only, so no wlan0 is modelled."
+    },
+    {
+      "vendor": "hp",
+      "model": "Z2 Tower G9",
+      "label": "HP Z2 Tower G9 workstation",
+      "category": "desktop",
+      "description": "Entry workstation tower, 12th/13th-gen Core or Xeon W, 1GbE RJ45, 500W or 700W PSU.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://support.hp.com/us-en/document/ish_5968940-5969005-16",
+      "notes": "1GbE Intel I219-LM RJ45 standard; HP offers Wi-Fi 6E only as a configure-to-order option. Wired 1G host suited to serving DHCP/TFTP in a lab segment."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkCentre M90q Gen 4",
+      "label": "Lenovo ThinkCentre M90q Gen 4",
+      "category": "desktop",
+      "description": "1-litre tiny desktop, 13th-gen Core, external adapter and one 1GbE RJ45 on the rear.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://psref.lenovo.com/product/ThinkCentre/ThinkCentre_M90q_Gen_4",
+      "notes": "1GbE RJ45 standard (Intel I219-LM); Wi-Fi 6E is an optional M.2 card, so the stock unit is wired-only. Tiny footprint makes it the usual 'one PC per desk' node in dense topologies."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkStation P3 Tower",
+      "label": "Lenovo ThinkStation P3 Tower",
+      "category": "desktop",
+      "description": "Workstation tower with 13th-gen Core K or Xeon W, 1GbE RJ45 and up to four PCIe expansion slots.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://psref.lenovo.com/Product/ThinkStation/ThinkStation_P3_Tower",
+      "notes": "1GbE RJ45 onboard; Lenovo sells Wi-Fi 6E as an add-in option only. Wired 1G by default - pair it with a 2.5G/10G NIC only if you add a PCIe card, which this model does not ship with."
+    },
+    {
+      "vendor": "apple",
+      "model": "Mac mini (M2, 2023)",
+      "label": "Apple Mac mini (M2)",
+      "category": "desktop",
+      "description": "Compact desktop with Apple M2, Gigabit Ethernet RJ45 standard (10GbE a build option) plus Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.apple.com/mac-mini/specs/",
+      "notes": "1GbE RJ45 is standard on the M2 mini; the 10GbE option is a configure-to-order upgrade, so the default node links at 1G. Wi-Fi 6E + BT 5.3 also onboard - dual-homed host for redundancy tests."
+    },
+    {
+      "vendor": "apple",
+      "model": "Mac Studio (M2 Max)",
+      "label": "Apple Mac Studio (M2 Max)",
+      "category": "desktop",
+      "description": "Workstation cube with M2 Max (or M2 Ultra), 10GbE RJ45 standard plus Wi-Fi 6E and four Thunderbolt 4 ports.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.apple.com/mac-studio/specs/",
+      "notes": "10GbE RJ45 (NBASE-T, negotiates 1G/2.5G/5G/10G) is built in on every Mac Studio - the only 10G-capable endpoint in this set. Wi-Fi 6E as the secondary path; the natural host for a 10G access-layer demo."
+    },
+    {
+      "vendor": "apple",
+      "model": "iMac 24 (M3, 2023)",
+      "label": "Apple iMac 24-inch (M3)",
+      "category": "desktop",
+      "description": "24-inch all-in-one with Apple M3, Wi-Fi 6E and Gigabit Ethernet built into the external power adapter.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.apple.com/imac/specs/",
+      "notes": "The 1GbE RJ45 physically lives in the external power brick, not the chassis - standard on 10-core GPU configs and optional on the base model. Wi-Fi 6E onboard; worth modelling because the 'port' is not where students expect it."
+    },
+    {
+      "vendor": "intel",
+      "model": "NUC 13 Pro Kit NUC13ANHi7",
+      "label": "Intel NUC 13 Pro (NUC13ANHi7)",
+      "category": "desktop",
+      "description": "4x4-inch mini PC, 13th-gen Core i7-1360P, one 2.5GbE RJ45 plus Wi-Fi 6E and two Thunderbolt 4 ports.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.intel.com/content/dam/support/us/en/documents/intel-nuc/NUC13AN_TechProdSpec.pdf",
+      "notes": "2.5GbE RJ45 (Intel i226) on a 4x4-inch chassis - a compact host that can actually use a 2.5G access port. Wi-Fi 6E AX211 onboard; common as a lab broker/VM host node."
+    },
+    {
+      "vendor": "asus",
+      "model": "ExpertCenter D700SE",
+      "label": "ASUS ExpertCenter D700SE",
+      "category": "desktop",
+      "description": "Small-form-factor commercial desktop, 13th-gen Core, 1GbE RJ45, 9-litre chassis.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.asus.com/desktops/for-work/expertcenter/expertcenter-d700se/techspec/",
+      "notes": "1GbE Realtek RTL8111 RJ45 standard; Wi-Fi 6 is an optional module, not fitted by default, so the stock node is wired-only at 1G."
+    },
+    {
+      "vendor": "dell",
+      "model": "Alienware Aurora R15",
+      "label": "Alienware Aurora R15 gaming desktop",
+      "category": "desktop",
+      "description": "Gaming tower, 13th-gen Core i7/i9 with RTX 40 graphics, Killer 2.5GbE RJ45 and Killer Wi-Fi 6E.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client",
+        "wifi-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.dell.com/support/manuals/en-us/alienware-aurora-r15-desktop/alienware-aurora-r15-setup-and-specifications/ports-and-connectors",
+      "notes": "Killer E3100 2.5GbE RJ45 on the standard rear I/O (entry SKUs with the non-K CPU ship a 1GbE Realtek instead) - above-gigabit wired out of the box. Killer AX1675 Wi-Fi 6E included on most configurations, so the host can be dual-homed."
+    },
+    {
+      "vendor": "corsair",
+      "model": "Vengeance i7400",
+      "label": "Corsair Vengeance i7400 gaming PC",
+      "category": "desktop",
+      "description": "Prebuilt ATX gaming tower (i9-13900K / RTX 4080 on the review SKU) built on an MSI PRO Z690-A DDR5 board.",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.corsair.com/us/en/p/gaming-computers/cs-9050062-na/corsair-vengeance-i7400-series-gaming-pc-cs-9050062-na",
+      "notes": "2.5GbE RJ45 from the Realtek RTL8125 on the PRO Z690-A DDR5 board (non-WIFI SKU, so no wlan0). Corsair's own port list confirms a single rear Ethernet jack - this node must be cabled to join the lab."
+    },
+    {
+      "vendor": "nzxt",
+      "model": "Player: Three",
+      "label": "NZXT Player: Three",
+      "category": "desktop",
+      "description": "Prebuilt gaming tower on an NZXT N7 B650E board (Ryzen 7 9800X3D, RTX 50-series on current builds).",
+      "capabilities": [
+        "host",
+        "ipv4-host",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://nzxt.com/products/player-three",
+      "notes": "2.5GbE RJ45 (Realtek RTL8125) on the N7 B650E; the standard build ships without a Wi-Fi card, so wired is the only path. 2.5G link lets it stress a multi-gig access port without a PCIe NIC."
+    }
+  ]
+}

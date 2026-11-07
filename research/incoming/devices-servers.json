@@ -1,0 +1,1042 @@
+{
+  "devices": [
+    {
+      "vendor": "dell",
+      "model": "PowerEdge R450",
+      "label": "PowerEdge R450 1U rack server",
+      "category": "server",
+      "description": "1U single-socket rack server with two 1GbE LOM ports on the motherboard and a separate dedicated 1GbE iDRAC9 port. One OCP 3.0 mezzanine slot and two PCIe Gen4 slots take any additional network card.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "idrac",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/dell-emc-poweredge-r450-spec-sheet.pdf",
+      "notes": "Onboard: 2x 1GbE LOM only (no 10G copper on the board). OCP 3.0 mezzanine slot is empty in the base config - that is where a 10/25GbE card goes; 2x PCIe Gen4 slots for stand-up cards. The iDRAC9 port is a physically separate management network, not shared with LOM1."
+    },
+    {
+      "vendor": "dell",
+      "model": "PowerEdge R650",
+      "label": "PowerEdge R650 1U rack server",
+      "category": "server",
+      "description": "1U two-socket rack server with two embedded 1GbE LOM ports, an OCP 3.0 slot on x8 PCIe lanes and a dedicated 1GbE iDRAC9 port. Up to three PCIe Gen4 low-profile slots carry stand-up adapters.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "idrac",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://i.dell.com/sites/csdocuments/Product_Docs/en/poweredge-r650-spec-sheet.pdf",
+      "notes": "Onboard: 2x 1GbE LOM. OCP 3.0 (x8 lanes) is the slot for a 10/25GbE mezzanine NIC; 3x PCIe Gen4 LP (or 2x full-height) for stand-up cards. Dedicated iDRAC port is 1GbE and separate from the data plane."
+    },
+    {
+      "vendor": "dell",
+      "model": "PowerEdge R750",
+      "label": "PowerEdge R750 2U rack server",
+      "category": "server",
+      "description": "2U two-socket rack server with two 1GbE LOM ports, one OCP 3.0 slot on x8 PCIe lanes and a dedicated 1GbE iDRAC9 port. Up to eight PCIe Gen4 slots are available through riser and SNAP I/O options.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "idrac",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/poweredge-r750-technical-guide.pdf",
+      "notes": "Onboard: 2x 1GbE LOM. OCP 3.0 (x8) for a 10/25GbE mezzanine card; up to 8x PCIe Gen4 slots for stand-up NICs/GPUs. Dedicated iDRAC9 Ethernet port."
+    },
+    {
+      "vendor": "dell",
+      "model": "PowerEdge T350",
+      "label": "PowerEdge T350 tower server",
+      "category": "server",
+      "description": "Tower (4.5U-class) single-socket server with two embedded 1GbE LOM ports and a dedicated 1GbE iDRAC9 port. There is no OCP slot; networking beyond the LOM comes from two PCIe Gen4 and two PCIe Gen3 slots.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "idrac",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://i.dell.com/sites/csdocuments/product_docs/en/dell-emc-poweredge-t350-spec-sheet.pdf",
+      "notes": "Onboard: 2x 1GbE LOM. No OCP bay at all - a 10GbE upgrade needs a PCIe stand-up card (2x Gen4 + 2x Gen3 slots). Dedicated iDRAC9 port on the rear."
+    },
+    {
+      "vendor": "dell",
+      "model": "PowerEdge R760",
+      "label": "PowerEdge R760 2U rack server",
+      "category": "server",
+      "description": "2U two-socket rack server where the 2x 1GbE LOM card and the OCP 3.0 card are both optional factory items; the dedicated 1GbE iDRAC9 port is always present. Up to eight PCIe Gen5/Gen4 slots, plus an optional DPU management interface card.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "idrac",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/poweredge-r760-spec-sheet-en-dl1lkoo-original.pdf",
+      "notes": "Modelled as the common 2x 1GbE LOM build. Dell allows either LOM card, an OCP 3.0 card, or both: OCP 3.0 is the 10/25GbE path and the LOM card is copper only. Up to 8x PCIe slots. Dedicated iDRAC Ethernet port is separate."
+    },
+    {
+      "vendor": "hpe",
+      "model": "ProLiant DL360 Gen10",
+      "label": "ProLiant DL360 Gen10 1U rack server",
+      "category": "server",
+      "description": "1U two-socket rack server with four embedded 1GbE ports (HPE 331i) and a 1GbE dedicated iLO 5 port. One FlexibleLOM slot takes the primary 10/25GbE adapter without consuming a PCIe slot.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ilo",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hpe.com/psnow/doc/a00008159enw.html",
+      "notes": "Onboard: 4x 1GbE HPE 331i embedded. 'Network Choice' (NC) SKUs ship with no embedded LOM and require a FlexibleLOM instead - this spec is the embedded-LOM CTO build. FlexibleLOM is the 10/25GbE uplink slot; 3x PCIe 3.0 slots for stand-up cards. iLO 5 port is 1GbE dedicated."
+    },
+    {
+      "vendor": "hpe",
+      "model": "ProLiant DL380 Gen10",
+      "label": "ProLiant DL380 Gen10 2U rack server",
+      "category": "server",
+      "description": "2U two-socket rack server with four embedded 1GbE ports (HPE 331i) plus a 1GbE dedicated iLO 5 port. The single FlexibleLOM slot is the primary 10/25GbE bay and does not consume a PCIe slot.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ilo",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hpe.com/psnow/doc/a00008180enw.html",
+      "notes": "Onboard: 4x 1GbE HPE 331i embedded (NC SKUs have none and use FlexibleLOM). FlexibleLOM = 10/25GbE uplink; up to 8x PCIe 3.0 slots for stand-up cards. iLO 5 has its own 1GbE port."
+    },
+    {
+      "vendor": "hpe",
+      "model": "ProLiant ML350 Gen10",
+      "label": "ProLiant ML350 Gen10 tower server",
+      "category": "server",
+      "description": "Tower two-socket server with four embedded 1GbE ports (HPE 369i) and a 1GbE dedicated iLO 5 port. There is no FlexibleLOM bay; extra NICs go in the PCIe stand-up slots.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ilo",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hpe.com/psnow/doc/a00021852enw.html",
+      "notes": "Onboard: 4x 1GbE 369i standard. No FlexibleLOM - a 10GbE upgrade is a PCIe stand-up adapter. iLO 5 dedicated 1GbE port plus a front iLO service port (USB, not Ethernet - not modelled)."
+    },
+    {
+      "vendor": "hpe",
+      "model": "ProLiant DL360 Gen11",
+      "label": "ProLiant DL360 Gen11 1U rack server",
+      "category": "server",
+      "description": "1U two-socket rack server with no embedded LOM at all: data networking comes from the OCP 3.0 slot, modelled here as the factory 2-port 10/25GbE adapter. A separate 1GbE dedicated iLO 6 port is always present.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "ilo",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hpe.com/psnow/doc/a50004306enw.html",
+      "notes": "IMPORTANT: Gen11 has zero onboard data NICs. eth0/eth1 represent the 2x 10/25GbE SFP28 OCP 3.0 adapter in OCP slot 1 (a Broadcom 57414-class card), not motherboard ports. Two OCP 3.0 x16 slots exist; a 1GbE copper OCP card is an alternative. iLO 6 port is 1GbE dedicated."
+    },
+    {
+      "vendor": "hpe",
+      "model": "ProLiant DL380 Gen11",
+      "label": "ProLiant DL380 Gen11 2U rack server",
+      "category": "server",
+      "description": "2U two-socket rack server with no embedded LOM: primary networking is a choice of OCP 3.0 or stand-up card, modelled here as a 2-port 10/25GbE adapter. The 1GbE iLO 6 management port is dedicated and separate.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "ilo",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.hpe.com/psnow/doc/a50004307enw.html",
+      "notes": "IMPORTANT: no onboard data NICs - eth0/eth1 are the 2x 10/25GbE SFP28 OCP 3.0 adapter. OCP 3.0 is the primary networking bay; additional NICs go in PCIe 5.0 slots. iLO 6 on its own 1GbE port, plus a front iLO service USB port (not modelled)."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkSystem SR250",
+      "label": "ThinkSystem SR250 1U rack server",
+      "category": "server",
+      "description": "1U single-socket entry rack server with two embedded 1GbE ports (Broadcom 5720) and a 1GbE port dedicated to the XClarity Controller. Expansion is two PCIe Gen4 slots - a 10GbE NIC would be a stand-up card.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "xcc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://lenovopress.lenovo.com/ds0066.pdf",
+      "notes": "Onboard: 2x 1GbE (BCM5720) plus 1x 1GbE dedicated XCC management port. No OCP bay on this model; 2x PCIe Gen4 slots (x8/x8 or x16) take any 10GbE adapter. XCC port is a separate management network."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkSystem SR630 V2",
+      "label": "ThinkSystem SR630 V2 1U rack server",
+      "category": "server",
+      "description": "1U two-socket rack server with a selectable 2-port LOM (1GbE or 10GbE) and a second selectable bay for an OCP 3.0 adapter up to 25GbE. The 1GbE XClarity Controller port is dedicated.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "xcc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://lenovopress.lenovo.com/lp1391.pdf",
+      "notes": "Modelled with the 2x 1GbE LOM selection. The LOM connector and the OCP 3.0 slot are both factory-selectable, so a 10GbE LOM or a 10/25GbE OCP card can replace eth0/eth1 - the onboard copper ports are what is drawn here. Up to 3x PCIe 4.0 slots. XCC has its own 1GbE RJ-45 port."
+    },
+    {
+      "vendor": "lenovo",
+      "model": "ThinkSystem SR650 V2",
+      "label": "ThinkSystem SR650 V2 2U rack server",
+      "category": "server",
+      "description": "2U two-socket rack server whose LOM is an OCP-format 2-port 1GbE adapter, supplemented by a dedicated 1GbE XClarity Controller port. Up to eight PCIe 4.0 slots provide room for 10/25GbE stand-up cards.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "xcc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://lenovopress.lenovo.com/ds0126.pdf",
+      "notes": "Onboard-equivalent: 2x 1GbE LOM adapter seated in the OCP 3.0 slot (Lenovo calls this the LOM). 10/25GbE comes from a different OCP 3.0 adapter or a PCIe 4.0 card - not onboard. Dedicated 1GbE XCC port."
+    },
+    {
+      "vendor": "supermicro",
+      "model": "SYS-1029U-TR4",
+      "label": "SuperServer SYS-1029U-TR4 1U server",
+      "category": "server",
+      "description": "1U dual-socket Ultra server with four 1GbE RJ45 ports supplied by the AOC-UR-i4G card (Intel i350-AM4) in the Ultra riser, plus one dedicated 1GbE IPMI LAN port. PCIe 3.0 risers take 10/25GbE add-in cards.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ipmi",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.supermicro.com/en/products/system/1u/1029/sys-1029u-tr4.php",
+      "notes": "The 4x 1GbE RJ45 ports are NOT on the motherboard: they come from the AOC-UR-i4G (i350AM4) riser card. 10GbE requires a different AOC in the Ultra riser or a PCIe slot (up to 3x PCIe 3.0 x16). IPMI is a dedicated RJ45 port (ASPEED BMC) - separate network."
+    },
+    {
+      "vendor": "supermicro",
+      "model": "SYS-5019A-FTN4",
+      "label": "SuperServer SYS-5019A-FTN4 1U server",
+      "category": "server",
+      "description": "Short-depth 1U embedded server on an Intel Atom C3758 SoC with four 1GbE RJ45 LAN ports straight off the SoC and one dedicated 1GbE IPMI LAN port. One PCIe 3.0 x8 slot (low-profile) plus a Mini-PCIe slot for expansion.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "ipmi",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.supermicro.com/en/products/system/1u/5019/sys-5019a-ftn4.php",
+      "notes": "Onboard: 4x 1GbE from the C3000 SoC (RJ45, 10/100/1000). No OCP bay; 1x PCIe 3.0 x8 LP slot + 1x Mini-PCIe for a 10GbE NIC. IPMI uses a Realtek RTL8201N PHY on a dedicated port."
+    },
+    {
+      "vendor": "cisco",
+      "model": "UCS C220 M6",
+      "label": "UCS C220 M6 1U rack server",
+      "category": "server",
+      "description": "1U two-socket UCS rack server with two motherboard LAN ports that run 1GbE or 10GbE depending on the link partner, plus a 1GbE dedicated CIMC management port. A modular LOM (mLOM) bay accepts a VIC without using a PCIe slot.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "cimc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/hw/c220m6/install/c220m6/m_overview.html",
+      "notes": "Onboard: 2x RJ45 LAN1/LAN2 rated 1G/10G (10GBASE-T copper) - the port speed follows the link partner, so a 1G switch yields 1G. 3x PCIe 4.0 slots plus the mLOM bay for a VIC 1440/1480 (10/25/40/100GbE). CIMC 1GbE port is dedicated out-of-band."
+    },
+    {
+      "vendor": "asus",
+      "model": "RS500A-E11-RS12U",
+      "label": "ASUS RS500A-E11-RS12U 1U rack server",
+      "category": "server",
+      "description": "1U single-socket AMD EPYC rack server with two 1GbE ports (Intel i350-AM2) and a 1GbE management port on the ASMB10/AST2600 BMC. One OCP 3.0 socket and three PCIe 4.0 slots carry 10/25GbE adapters.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "mgmt",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://dlcdnets.asus.com/pub/ASUS/server/RS500A-E11/Datasheet/DataSheet_RS500A-E11-RS12U_20220317.pdf",
+      "notes": "Onboard: 2x 1GbE i350-AM2 (RJ45) only - there is no 10G copper on the board. OCP 3.0 socket (Gen4 x16) is the natural home for a 10/25GbE mezzanine card; 3x PCIe 4.0 slots (1x x16 FH, 1x x16 LP, 1x x8 LP). BMC management port is separate."
+    },
+    {
+      "vendor": "synology",
+      "model": "DS220+",
+      "label": "DiskStation DS220+ 2-bay NAS",
+      "category": "nas",
+      "description": "2-bay desktop NAS with two 1GbE RJ45 ports that support link aggregation and failover. There is no PCIe slot and no management port - both NICs are data ports.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/DiskStation/20-year/DS220+/enu/Product_Spec_DS220+_enu.pdf",
+      "notes": "Onboard: 2x 1GbE RJ45, no expansion slot at all (10GbE impossible). Both ports are data-plane; there is no separate BMC/OOB port. Link aggregation (802.3ad) and failover are supported."
+    },
+    {
+      "vendor": "synology",
+      "model": "DS923+",
+      "label": "DiskStation DS923+ 4-bay NAS",
+      "category": "nas",
+      "description": "4-bay desktop NAS with two 1GbE RJ45 ports and one PCIe 3.0 x2 network upgrade slot. That slot is the only route to 10GbE, via Synology's E10G22-T1-Mini module.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/DiskStation/23-year/DS923+/enu/Product_Spec_DS923+_enu.pdf",
+      "notes": "Onboard: 2x 1GbE RJ45 only - 10GbE is NOT onboard, it needs the E10G22-T1-Mini in the PCIe 3.0 x2 slot. No OOB management port. Link aggregation supported."
+    },
+    {
+      "vendor": "synology",
+      "model": "DS1522+",
+      "label": "DiskStation DS1522+ 5-bay NAS",
+      "category": "nas",
+      "description": "5-bay desktop NAS with four 1GbE RJ45 ports and a PCIe 3.0 x2 network upgrade slot for a 10GbE module. No out-of-band management port.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/DataSheet/DiskStation/22-year/DS1522+/enu/Synology_DS1522+_Data_Sheet_enu.pdf",
+      "notes": "Onboard: 4x 1GbE RJ45 (same count as the DS1520+ it replaced - the DS923+ by contrast has only two). PCIe 3.0 x2 network upgrade slot takes the E10G22-T1-Mini 10GbE copper module. No OOB management port."
+    },
+    {
+      "vendor": "synology",
+      "model": "RS1221+",
+      "label": "RackStation RS1221+ 2U 8-bay NAS",
+      "category": "nas",
+      "description": "2U 8-bay rackmount NAS with four 1GbE RJ45 ports and one PCIe 3.0 x8 (x4 link) slot. That slot takes 10GbE or 25GbE network cards, which are add-in and not part of the onboard count.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/RackStation/21-year/RS1221+/enu/Product_Spec_RS1221+_enu.pdf",
+      "notes": "Onboard: 4x 1GbE RJ45. The 10/25GbE path is a PCIe 3.0 x8 (x4 electrical) slot - E10G18-T1, E10G30-T2/F2 or a 25GbE card - so those ports are add-in, not onboard. Rear console port is serial, not Ethernet. No BMC."
+    },
+    {
+      "vendor": "synology",
+      "model": "DS1823xs+",
+      "label": "DiskStation DS1823xs+ 8-bay NAS",
+      "category": "nas",
+      "description": "8-bay desktop NAS with 10GbE built in: two 1GbE RJ45 ports plus one 10GBASE-T port, and a dedicated 1GbE out-of-band management port. A PCIe 3.0 slot takes 10/25GbE or Fibre Channel cards.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "mgmt",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://kb.synology.com/en-us/HIGs/DS1823xsp_HIG/1",
+      "notes": "Onboard per Synology's port table: 1GbE (RJ-45) x2, 10GbE (RJ-45) x1, 1GbE (RJ-45) for OOB x1. The 10G port is 10GBASE-T copper, not a cage. The OOB port is management-only - it is a separate network and cannot carry storage traffic. PCIe 3.0 slot for further 10/25GbE cards."
+    },
+    {
+      "vendor": "qnap",
+      "model": "TS-464",
+      "label": "TS-464 4-bay NAS",
+      "category": "nas",
+      "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports (2.5G/1G/100M) and one PCIe Gen3 x2 slot. 5GbE/10GbE are optional add-in cards, not onboard.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.qnap.com/en/product/ts-464/specs/hardware",
+      "notes": "Onboard: 2x 2.5GbE RJ45. PCIe Gen3 x2 slot takes a 5GbE or 10GbE card (low profile, 190 mm). No management/OOB port. WOL supported on the 2.5G ports."
+    },
+    {
+      "vendor": "qnap",
+      "model": "TS-873A",
+      "label": "TS-873A 8-bay NAS",
+      "category": "nas",
+      "description": "8-bay desktop NAS with two 2.5GbE RJ45 ports and two PCIe Gen3 x4 slots. 10GbE comes from an add-in card in one of those slots, not from the motherboard.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.qnap.com/en/product/ts-873a/specs/hardware",
+      "notes": "Onboard: 2x 2.5GbE RJ45. Two PCIe Gen3 x4 slots for 10GbE/25GbE cards or M.2 expansion. No OOB management port."
+    },
+    {
+      "vendor": "qnap",
+      "model": "TS-453D",
+      "label": "TS-453D 4-bay NAS",
+      "category": "nas",
+      "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports and a single PCIe Gen2 x2 slot. A 10GbE card fits that slot but the x2 link caps its throughput.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.qnap.com/en/product/ts-453d/specs/hardware",
+      "notes": "Onboard: 2x 2.5GbE RJ45. PCIe Gen2 x2 slot - QNAP warns the x2 bandwidth limits 10GbE performance. No management port."
+    },
+    {
+      "vendor": "qnap",
+      "model": "TVS-672XT",
+      "label": "TVS-672XT 6-bay NAS",
+      "category": "nas",
+      "description": "6-bay desktop NAS with three network ports - one 10GbE RJ45 and two 1GbE RJ45 - plus two Thunderbolt 3 ports. A PCIe Gen3 x16 slot is free for a further adapter.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://download.qnap.com/TechnicalDocument/Storage/SMB%20NAS/tvs-x72xt/tvs-x72xt-ug-en-us.pdf",
+      "notes": "Onboard: 1x 10GbE (10GBASE-T copper) + 2x 1GbE RJ45. The 10G port is copper, not a cage. 2x Thunderbolt 3 ports are not Ethernet and are not modelled. PCIe Gen3 x16 slot for a 25GbE card. No OOB management port."
+    },
+    {
+      "vendor": "truenas",
+      "model": "Mini X+",
+      "label": "TrueNAS Mini X+ 5-bay NAS",
+      "category": "nas",
+      "description": "5-bay desktop NAS with two RJ45 1/10GBASE-T ports as standard and a dedicated RJ45 IPMI port for out-of-band management. A PCIe slot can take an optional 2-port 10GbE card.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "ipmi",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.truenas.com/wp-content/uploads/2026/02/TrueNAS_Mini_Data_Sheet_January_2026.pdf",
+      "notes": "Onboard: 2x RJ45 1/10GBASE-T (copper, speed follows the link partner) + 1x dedicated RJ45 IPMI port. The optional 2x SFP+ 10G add-on card is NOT modelled because it is an option, not onboard. IPMI is a separate management network (ASPEED BMC, iKVM over HTML5)."
+    },
+    {
+      "vendor": "truenas",
+      "model": "M40",
+      "label": "TrueNAS M40 2U dual-controller NAS",
+      "category": "nas",
+      "description": "2U dual-controller enterprise NAS; each controller has two 10/25GbE data ports in SFP28 cages plus two 10GBASE-T ports and a 1GbE management port. The second controller carries the same set.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "25G",
+          "connector": "sfp28",
+          "speedCaps": [
+            10000,
+            25000
+          ]
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "10G",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "eth3",
+          "type": "ethernet",
+          "speed": "10G",
+          "speedCaps": [
+            1000,
+            10000
+          ]
+        },
+        {
+          "name": "ipmi",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://www.truenas.com/docs/files/MSeriesPUM.pdf",
+      "notes": "Only one controller's ports are modelled. Data NICs are 2x 10/25/40GbE SFP28 cages (modelled at 10/25G - the 40GbE mode needs a QSFP+ optic, which this model does not represent) plus 2x 10GBASE-T copper. Management is a dedicated 1GbE port with IPMI. MTU/jumbo frames and LACP are standard."
+    },
+    {
+      "vendor": "asustor",
+      "model": "AS5304T",
+      "label": "AS5304T 4-bay NAS",
+      "category": "nas",
+      "description": "4-bay desktop NAS with two 2.5GbE RJ45 ports for link aggregation. No PCIe slot, so there is no 10GbE upgrade path.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "2.5G"
+        }
+      ],
+      "sourceUrl": "https://www.asustor.com/materials/datasheet/Datasheet_AS5304T_US%20ENG.pdf",
+      "notes": "Onboard: 2x 2.5GbE RJ45 only. No PCIe slot and no management port. WOL supported."
+    },
+    {
+      "vendor": "wd",
+      "model": "My Cloud PR4100",
+      "label": "My Cloud Pro Series PR4100 4-bay NAS",
+      "category": "nas",
+      "description": "4-bay desktop NAS with two Gigabit Ethernet RJ45 ports for failover or link aggregation. There is no expansion slot and no management port.",
+      "capabilities": [
+        "host",
+        "dhcp-client",
+        "http-server",
+        "cli"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://documents.westerndigital.com/content/dam/doc-library/en_us/assets/public/wd/product/nas/my_cloud/pro_pr_4100/product-brief-my-cloud-pro-series-pr4100.pdf",
+      "notes": "Onboard: 2x Gigabit Ethernet RJ45. No PCIe slot, no OOB management port. USB 3.0 expansion ports are for drives only."
+    }
+  ]
+}
