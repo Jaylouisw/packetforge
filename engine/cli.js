@@ -118,6 +118,25 @@ class CliSession {
       }
       this.iface = tokens[1];
       this.mode = MODE_IFACE;
+    } else if (head === 'router' && tokens[1] === 'bgp') {
+      out.push.apply(out, this._bgp(['as', tokens[2]]));
+    } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
+      this.device.config.bgp = null;
+      this.device.bgpRoutes = [];
+      out.push('BGP disabled');
+    } else if (head === 'no' && tokens[1] === 'neighbor') {
+      const addr = tokens[2];
+      if (!this.device.config.bgp) out.push('% BGP is not enabled');
+      else {
+        const list = this.device.config.bgp.neighbors || [];
+        const keep = list.filter(function (x) { return x.address !== addr; });
+        this.device.config.bgp.neighbors = keep;
+        out.push(keep.length === list.length ? '% No such neighbor ' + addr : 'Removed neighbor ' + addr);
+      }
+    } else if (head === 'neighbor') {
+      out.push.apply(out, this._bgp(tokens.slice(1)));
+    } else if (head === 'bgp') {
+      out.push.apply(out, this._bgp(tokens.slice(1)));
     } else if (head === 'dns') {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
@@ -245,6 +264,51 @@ class CliSession {
       parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
     }
     return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
+  }
+
+  // ---------- BGP ----------
+  _bgp(tokens) {
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x); });
+    const isIp = function (s) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(s || '')); };
+
+    function ensure(asn) {
+      if (!dev.config.bgp) dev.config.bgp = { as: null, routerId: null, neighbors: [] };
+      if (!dev.config.bgp.neighbors) dev.config.bgp.neighbors = [];
+      if (asn !== undefined && asn !== null && asn !== '') dev.config.bgp.as = asn;
+      return dev.config.bgp;
+    }
+
+    // router bgp <as>
+    if (t[0] === 'as') {
+      const asn = parseInt(t[1], 10);
+      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid AS number "' + (t[1] || '') + '"'];
+      ensure(asn);
+      return ['BGP enabled, local AS ' + asn];
+    }
+
+    // bgp router-id <ip>
+    if (t[0] === 'router-id') {
+      if (!isIp(t[1])) return ['% Invalid router-id "' + (t[1] || '') + '"'];
+      if (!dev.config.bgp) return ['% BGP is not enabled (use "router bgp <as>")'];
+      dev.config.bgp.routerId = t[1];
+      return ['BGP router-id ' + t[1]];
+    }
+
+    // neighbor <ip> remote-as <as>
+    if (isIp(t[0]) && String(t[1] || '').toLowerCase() === 'remote-as') {
+      const asn = parseInt(t[2], 10);
+      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid remote AS "' + (t[2] || '') + '"'];
+      if (!dev.config.bgp) return ['% BGP is not enabled (use "router bgp <as>" first)'];
+      const list = dev.config.bgp.neighbors;
+      let n = null;
+      for (const x of list) { if (x.address === t[0]) { n = x; break; } }
+      if (n) n.remoteAs = asn;
+      else list.push({ address: t[0], remoteAs: asn });
+      return ['BGP neighbor ' + t[0] + ' remote-as ' + asn];
+    }
+
+    return ['% Usage: router bgp <as> | bgp router-id <ip> | neighbor <ip> remote-as <as>'];
   }
 
   // ---------- DNS ----------

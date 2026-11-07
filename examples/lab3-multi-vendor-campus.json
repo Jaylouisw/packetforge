@@ -27,7 +27,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -105,7 +106,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -235,7 +237,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -1134,7 +1137,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -2088,7 +2092,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -2717,7 +2722,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -2781,7 +2787,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {
@@ -2846,7 +2853,8 @@
         "acls": {},
         "ospf": null,
         "dnsServers": [],
-        "dnsZones": []
+        "dnsZones": [],
+        "bgp": null
       },
       "interfaces": [
         {

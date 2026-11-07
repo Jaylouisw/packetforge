@@ -542,6 +542,8 @@
         (e.vlan ? ' vlan ' + e.vlan : '') + ' — ' + (e.reason || 'blocking');
       case 'lag': return 'LAG ' + (e.dev || '') + ' group ' + e.lag + ' → ' + e.picked +
         ' of [' + (e.members || []).join(', ') + ']';
+      case 'bgp': return 'BGP ' + (e.dev || '?') + ' ' + (e.session === 'ebgp' ? '⇄' : '↔') +
+        ' ' + (e.peer || '?') + '  ' + (e.session || '') + '  AS' + e.localAs + '–AS' + e.remoteAs;
       case 'dns': return 'DNS ' + (e.qname || '?') + (e.ok
         ? ' → ' + (e.address || '?') + ' (from ' + (e.server || '?') + ')'
         : ' NXDOMAIN' + (e.server ? ' (from ' + e.server + ')' : ''));

@@ -11,6 +11,7 @@ const stpLib = require('./stp');
 const aclLib = require('./acl');
 const ospfLib = require('./ospf');
 const dnsLib = require('./dns');
+const bgpLib = require('./bgp');
 
 // --- frame builders ---
 function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp) {
@@ -133,6 +134,8 @@ class Simulator {
     this.computeStp();
     // Recompute OSPF so learned routes are present before the first packet.
     this.computeOspf();
+    // Recompute BGP so learned routes are present before the first packet.
+    this.computeBgp();
     const src = this.topo.getDevice(srcId);
     if (!src) throw new Error('Unknown device: ' + srcId);
 
@@ -383,6 +386,182 @@ class Simulator {
     }
 
     this.ospfResult = result;
+    return result;
+  }
+
+  // ---------------------------------------------------------------------
+  // BGP route installation
+  // ---------------------------------------------------------------------
+
+  // Build BGP sessions from configuration, run advertisement to convergence,
+  // and install the best path per prefix as dev.bgpRoutes.
+  //
+  // A session only forms when BOTH sides are configured: each must list the
+  // other's address as a neighbour with a matching remote-as. That is real BGP
+  // behaviour, and it is what makes "half a peering is not a peering" testable.
+  computeBgp() {
+    const speakers = [];
+
+    for (const dev of this.topo.devices.values()) {
+      dev.bgpRoutes = [];
+      const cfg = dev.config && dev.config.bgp;
+      if (!cfg || !cfg.as) continue;
+
+      const addrs = [];
+      for (const i of dev.interfaces.values()) {
+        if (!i.enabled || !i.ip || !i.mask) continue;
+        addrs.push({ ip: i.ip, mask: i.mask, iface: i.name });
+      }
+      if (!addrs.length) continue;
+
+      speakers.push({
+        dev: dev,
+        as: Number(cfg.as),
+        routerId: cfg.routerId || addrs[0].ip,
+        addrs: addrs,
+        neighbors: (cfg.neighbors || []).slice(),
+        adj: [],
+        cands: Object.create(null),   // prefix -> [candidates]
+        best: Object.create(null)     // prefix -> current best candidate
+      });
+    }
+
+    if (speakers.length < 2) { this.bgpResult = null; this.bgpSessions = 0; return null; }
+
+    // --- sessions: both ends must agree ---
+    for (const a of speakers) {
+      for (const nb of a.neighbors) {
+        let local = null;
+        for (const x of a.addrs) {
+          if (net.sameSubnet(nb.address, x.ip, x.mask)) { local = x; break; }
+        }
+        if (!local) continue;                       // neighbour not on a connected subnet
+
+        let b = null;
+        for (const s of speakers) {
+          if (s === a) continue;
+          for (const y of s.addrs) { if (y.ip === nb.address) { b = s; break; } }
+          if (b) break;
+        }
+        if (!b) continue;
+        if (Number(nb.remoteAs) !== b.as) continue;  // remote-as does not match the peer
+
+        let back = null;
+        for (const n of b.neighbors) { if (n.address === local.ip) { back = n; break; } }
+        if (!back || Number(back.remoteAs) !== a.as) continue;   // peer has not configured us
+
+        a.adj.push({
+          peer: b,
+          peerIp: nb.address,
+          localIp: local.ip,
+          iface: local.iface,
+          type: bgpLib.sessionType(a.as, b.as)
+        });
+      }
+    }
+
+    // One event per established session, so the log shows the peering.
+    for (const a of speakers) {
+      for (const adj of a.adj) {
+        if (a.dev.id > adj.peer.dev.id) continue;
+        this._emit({
+          type: 'bgp', dev: a.dev.name, peer: adj.peer.dev.name,
+          session: adj.type, localAs: a.as, remoteAs: adj.peer.as
+        });
+      }
+    }
+
+    // --- originate every connected prefix ---
+    for (const s of speakers) {
+      for (const x of s.addrs) {
+        const netAddr = net.intToIp(net.networkOf(x.ip, x.mask));
+        const key = netAddr + '/' + net.prefixOf(x.mask);
+        s.cands[key] = [{
+          dest: netAddr, mask: x.mask, asPath: [], origin: bgpLib.BGP_ORIGIN.IGP,
+          localPreference: bgpLib.DEFAULT_LOCAL_PREF, med: 0, weight: 0,
+          nextHop: null, ad: 0, from: 'local', iface: x.iface
+        }];
+      }
+    }
+
+    function computeBest(s) {
+      const out = Object.create(null);
+      for (const key of Object.keys(s.cands)) {
+        const winner = bgpLib.bestPath(s.cands[key]);
+        if (winner) out[key] = winner;
+      }
+      return out;
+    }
+    for (const s of speakers) s.best = computeBest(s);
+
+    // --- advertise until the tables stop changing ---
+    const MAX_ROUNDS = 12;
+    let rounds = 0;
+    for (; rounds < MAX_ROUNDS; rounds++) {
+      const updates = [];
+      for (const a of speakers) {
+        for (const adj of a.adj) {
+          for (const key of Object.keys(a.best)) {
+            const e = a.best[key];
+            if (e.from === adj.peer.dev.id) continue;     // never advertise a route back
+            const asPath = adj.type === 'ebgp' ? [a.as].concat(e.asPath) : e.asPath.slice();
+            if (!bgpLib.pathIsLoopFree(asPath, adj.peer.as)) continue;
+            updates.push({
+              to: adj.peer,
+              cand: {
+                dest: e.dest, mask: e.mask, asPath: asPath,
+                origin: e.origin, localPreference: e.localPreference, med: e.med,
+                weight: 0, nextHop: adj.localIp,
+                ad: adj.type === 'ebgp' ? 20 : 200,
+                from: a.dev.id, session: adj.type
+              }
+            });
+          }
+        }
+      }
+
+      let changed = false;
+      for (const u of updates) {
+        const key = u.cand.dest + '/' + u.cand.mask;
+        if (!u.to.cands[key]) { u.to.cands[key] = []; changed = true; }
+        const list = u.to.cands[key];
+        let idx = -1;
+        for (let i = 0; i < list.length; i++) { if (list[i].from === u.cand.from) { idx = i; break; } }
+        if (idx === -1) { list.push(u.cand); changed = true; }
+        else if (bgpLib.comparePaths(u.cand, list[idx]) < 0) { list[idx] = u.cand; changed = true; }
+      }
+      if (!changed) break;
+      for (const s of speakers) s.best = computeBest(s);
+    }
+
+    // --- install ---
+    const result = Object.create(null);
+    let sessions = 0;
+    for (const s of speakers) {
+      sessions += s.adj.length;
+      const routes = [];
+      for (const key of Object.keys(s.best)) {
+        const e = s.best[key];
+        if (e.from === 'local') continue;               // connected already covers it
+        if (!e.nextHop) continue;
+        let iface = null;
+        for (const x of s.addrs) {
+          if (net.sameSubnet(e.nextHop, x.ip, x.mask)) { iface = x.iface; break; }
+        }
+        routes.push({
+          dest: e.dest, mask: e.mask, nextHop: e.nextHop, iface: iface,
+          ad: e.ad, asPath: e.asPath.slice(),
+          peerAs: e.asPath.length ? e.asPath[0] : null,
+          session: e.session
+        });
+      }
+      s.dev.bgpRoutes = routes;
+      result[s.dev.id] = routes;
+    }
+
+    this.bgpResult = result;
+    this.bgpSessions = Math.floor(sessions / 2);   // sessions were counted once per direction
+    this.bgpRounds = rounds;
     return result;
   }
 

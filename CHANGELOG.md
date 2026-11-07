@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **BGP route installation.** Sessions form only when BOTH sides are configured
+  (each lists the other with a matching remote-as); advertisement runs to
+  convergence with per-neighbour split horizon and AS-path loop detection; the
+  best path per prefix is installed with eBGP 20 / iBGP 200 administrative
+  distance. CLI: `router bgp <as>`, `bgp router-id`, `neighbor <ip> remote-as`,
+  `no neighbor`.
+- **DNS in the data path.** `ping` accepts a hostname, resolves it through a
+  device that hosts the zone (honouring the client's resolver list) and follows
+  CNAMEs before sending a single ICMP packet. CLI: `dns zone`, `dns add`,
+  `ip name-server`. `bgp`, `dns`, `scion` and `ipv6` are now exported from the
+  public engine API.
+- Administrative-distance ordering in the routing table (connected 0, static 1,
+  eBGP 20, OSPF 110, iBGP 200, default 254) — previously only prefix length
+  decided, so a static route could not override a routing protocol.
+- **OSPF route installation.** Area-aware adjacency graph built from the live
+  topology, per-router SPF, next-hop resolved to a real adjacent IP, routes
+  installed as code `O`; costs derive from link rate, passive interfaces are
+  advertised but form no adjacency.
+- `scripts/import-devices.js` — strict validation of researched device specs
+  (vocabulary, declared ports, line rates, duplicate detection).
+- `scripts/audit-devices.js` — catalogue accuracy audit: uncablable ports and
+  devices that describe optics but expose no optical cage.
+- 226 researched devices across 24 vendor families, taking the catalogue to
+  317 models / 32 vendors; every ethernet port verified cablable.
+
 - **VLANs, LAG and STP are now enforced in the data path**, not just modelled:
   - per-VLAN MAC tables and VLAN-scoped flooding; broadcast never crosses a VLAN
   - 802.1Q tagging on trunks, untagging on access ports (visible in the event log)

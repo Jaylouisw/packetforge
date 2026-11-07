@@ -116,10 +116,13 @@ class Device {
       acls: {},                  // aclNumber -> [ { action, ... } ]
       ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
       dnsServers: [],            // upstream resolvers, by IP
-      dnsZones: []               // zones this device is authoritative for
+      dnsZones: [],              // zones this device is authoritative for
+      bgp: null                  // { as, routerId, neighbors: [{ address, remoteAs }] }
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
+    // Routes learned by BGP (derived, never persisted)
+    this.bgpRoutes = [];
     // Per-interface ACL bindings: ifaceName -> { in: aclNumber, out: aclNumber }
     this.aclBindings = {};
   }
@@ -213,53 +216,82 @@ class Device {
 
   // Determine the egress interface + next-hop IP for a destination.
   // Returns { iface, via, type, prefix } or null.
+  // Longest prefix wins; equal-length prefixes are broken by administrative
+  // distance (connected 0, static 1, eBGP 20, OSPF 110, iBGP 200, default 254).
   routeTo(dstIp) {
     let best = null;
 
-    // 1. connected subnets (highest priority, longest prefix)
+    function better(prefix, ad) {
+      if (!best) return true;
+      if (prefix !== best.prefix) return prefix > best.prefix;
+      return ad < (best.ad === undefined ? 255 : best.ad);
+    }
+
+    // 1. connected subnets
     for (const iface of this.activeInterfaces()) {
       if (iface.ip && iface.mask && net.sameSubnet(dstIp, iface.ip, iface.mask)) {
         const prefix = net.prefixOf(iface.mask);
-        if (!best || prefix > best.prefix) {
-          best = { iface: iface.name, via: dstIp, type: 'connected', prefix: prefix };
+        if (better(prefix, 0)) {
+          best = { iface: iface.name, via: dstIp, type: 'connected', prefix: prefix, ad: 0 };
         }
       }
     }
 
-    // 2. static routes (longest prefix match)
+    // 2. static routes
     for (const r of (this.config.routes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
         const prefix = net.prefixOf(r.mask);
-        if (!best || prefix > best.prefix) {
+        if (better(prefix, 1)) {
           best = {
             iface: r.iface || null,
             via: r.gw || dstIp, // on-link if no gateway given
             type: 'static',
-            prefix: prefix
+            prefix: prefix,
+            ad: 1
           };
         }
       }
     }
 
-    // 3. OSPF-learned routes (admin distance 110; longest prefix still wins)
+    // 3. BGP-learned routes (eBGP 20, iBGP 200)
+    for (const r of (this.bgpRoutes || [])) {
+      if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
+        const prefix = net.prefixOf(r.mask);
+        const ad = r.ad || 200;
+        if (better(prefix, ad)) {
+          best = {
+            iface: r.iface || null,
+            via: r.nextHop || dstIp,
+            type: 'bgp',
+            prefix: prefix,
+            ad: ad,
+            asPath: r.asPath,
+            peerAs: r.peerAs
+          };
+        }
+      }
+    }
+
+    // 4. OSPF-learned routes
     for (const r of (this.ospfRoutes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
         const prefix = net.prefixOf(r.mask);
-        if (!best || prefix > best.prefix) {
+        if (better(prefix, 110)) {
           best = {
             iface: r.iface || null,
             via: r.nextHop || dstIp,
             type: 'ospf',
             prefix: prefix,
-            cost: r.cost
+            cost: r.cost,
+            ad: 110
           };
         }
       }
     }
 
-    // 4. default gateway (hosts / routers)
+    // 5. default gateway (hosts / routers)
     if (!best && this.config.defaultGateway) {
-      best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0 };
+      best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0, ad: 254 };
     }
 
     return best;
@@ -298,6 +330,13 @@ class Device {
         gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf'
       });
     }
+    for (const r of (this.bgpRoutes || [])) {
+      rows.push({
+        code: 'B', dest: r.dest, mask: r.mask,
+        gw: r.nextHop || '-', iface: r.iface || '-', type: 'bgp',
+        ad: r.ad, asPath: r.asPath
+      });
+    }
     if (this.config.defaultGateway) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
     }
@@ -326,7 +365,8 @@ class Device {
         acls: JSON.parse(JSON.stringify(this.config.acls)),
         ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null,
         dnsServers: (this.config.dnsServers || []).slice(),
-        dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || []))
+        dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || [])),
+        bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
         return {
@@ -376,6 +416,7 @@ class Device {
         d.config.ospf = state.config.ospf ? JSON.parse(JSON.stringify(state.config.ospf)) : null;
         d.config.dnsServers = (state.config.dnsServers || []).slice();
         d.config.dnsZones = JSON.parse(JSON.stringify(state.config.dnsZones || []));
+        d.config.bgp = state.config.bgp ? JSON.parse(JSON.stringify(state.config.bgp)) : null;
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {

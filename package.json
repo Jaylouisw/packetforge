@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
-    "test": "node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js && node test/ospf-wire.test.js && node test/bgp.test.js && node test/dns.test.js && node test/scion.test.js && node test/ipv6.test.js && node test/dns-wire.test.js",
+    "test": "node test/engine.test.js && node test/cli.test.js && node test/validation.test.js && node test/vlan.test.js && node test/lag.test.js && node test/stp.test.js && node test/l2.test.js && node test/l3.test.js && node test/dhcp.test.js && node test/nat.test.js && node test/acl.test.js && node test/acl-data.test.js && node test/vrrp.test.js && node test/ospf.test.js && node test/ospf-wire.test.js && node test/bgp.test.js && node test/dns.test.js && node test/scion.test.js && node test/ipv6.test.js && node test/dns-wire.test.js && node test/bgp-wire.test.js",
     "test:engine": "node test/engine.test.js",
     "test:cli": "node test/cli.test.js",
     "test:validation": "node test/validation.test.js",
@@ -28,6 +28,7 @@
     "test:scion": "node test/scion.test.js",
     "test:ipv6": "node test/ipv6.test.js",
     "test:dns-wire": "node test/dns-wire.test.js",
+    "test:bgp-wire": "node test/bgp-wire.test.js",
     "examples": "node examples/build-examples.js",
     "syntax": "node scripts/syntax-check.js"
   },
