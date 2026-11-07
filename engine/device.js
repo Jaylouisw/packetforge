@@ -132,6 +132,10 @@ class Device {
     this.macTable = new Map();   // mac -> iface name (VLAN 1)
     this.macTables = new Map();  // vid -> Map(mac -> iface)
     this.arp = new Map();        // ip -> mac
+    // LLDP neighbour table: our port name -> what announced itself on it. This is how
+    // real hardware answers "what is plugged in here", and it is filled from frames
+    // that actually crossed the link rather than from the topology file.
+    this.lldp = new Map();
     this.pending = new Map();    // nextHopIp -> [ {egress, frame} ] awaiting ARP
 
     // STP state, populated by Simulator.computeStp()
@@ -529,6 +533,9 @@ class Device {
   }
 
   serialize() {
+    // The interface map below runs in a callback, so the device reference has to be
+    // captured: `this` is not the device inside it.
+    const self = this;
     return {
       id: this.id,
       vendor: this.vendor,
@@ -581,6 +588,9 @@ class Device {
           role: i.role || null,
           dualRole: i.dualRole || null,
           bridgeGroup: i.bridgeGroup || null,
+          // What announced itself on this port, learned from an LLDP frame that
+          // actually crossed the link. null until something is cabled and speaks.
+          lldp: self.lldp.get(i.name) || null,
           // router subinterface (null for physical ports)
           parent: i.parent || null,
           encapVid: i.encapVid || null

@@ -9,17 +9,20 @@
     {
       "name": "com",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     },
     {
       "name": "pass1310",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     },
     {
       "name": "refl1490",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     }
   ]
 }

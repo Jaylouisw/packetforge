@@ -114,6 +114,8 @@ const MEDIA = {
   'gpon-sc-apc': { name: 'GPON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'gpon-sc-upc': { name: 'GPON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'xgspon-sc-apc': { name: 'XGS-PON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
+  'gpon-lc-upc': { name: 'GPON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+  'xgspon-lc-upc': { name: 'XGS-PON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
   'xgspon-sc-upc': { name: 'XGS-PON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
 
   // ---- DAC / AOC ----
@@ -159,6 +161,8 @@ const CAGES = {
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
   // about 3 dB of loss and can chip the endface.
   'sc-apc': { name: 'SC/APC', family: 'optical', label: 'SC/APC (green, angled 8 deg)' },
+  'lc-upc': { name: 'LC/UPC', family: 'optical', label: 'LC/UPC (blue, flat polish)' },
+  'lc-apc': { name: 'LC/APC', family: 'optical', label: 'LC/APC (green, angled 8 deg)' },
   'sc-upc': { name: 'SC/UPC', family: 'optical', label: 'SC/UPC (blue, flat)' },
   // Subscriber-access connectors. An F-connector is not an RJ45 and a mains plug
   // never meets one, so each gets its own cage rather than being flattened into
@@ -187,6 +191,11 @@ const CAGE_MATE = {
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
+  // LC is the small-form-factor connector used on SFP/SFP+ PON ports. Same rule as
+  // SC: shape must match and so must the polish, because an angled ferrule against a
+  // flat one leaves an air gap and reflects the signal back at the laser.
+  'lc-upc': ['lc-upc'],
+  'lc-apc': ['lc-apc'],
   coax: ['coax'],
   dsl: ['dsl'],
   powerline: ['powerline'],
@@ -210,6 +219,8 @@ const FERRULE = {
   'sc-apc': { shape: 'sc', polish: 'apc', colour: 'green', angleDeg: 8 },
   'sc-upc': { shape: 'sc', polish: 'upc', colour: 'blue', angleDeg: 0 },
   lc: { shape: 'lc', polish: 'upc', colour: 'blue', angleDeg: 0 },
+  'lc-upc': { shape: 'lc', polish: 'upc', colour: 'blue', angleDeg: 0 },
+  'lc-apc': { shape: 'lc', polish: 'apc', colour: 'green', angleDeg: 8 },
   mpo: { shape: 'mpo', polish: 'upc', colour: 'aqua', angleDeg: 0 }
 };
 
@@ -270,6 +281,16 @@ const CAGE_MEDIA = {
     if (maxMbps >= 9000) out.push('xgspon-sc-upc');
     return out;
   },
+  'lc-upc': function (maxMbps) {
+    const out = ['gpon-lc-upc'];
+    if (maxMbps >= 9000) out.push('xgspon-lc-upc');
+    return out;
+  },
+  'lc-apc': function (maxMbps) {
+    const out = ['gpon-lc-upc'];
+    if (maxMbps >= 9000) out.push('xgspon-lc-upc');
+    return out;
+  },
   coax: function (maxMbps) {
     const out = ['moca-11', 'moca-25', 'docsis-30'];
     if (maxMbps >= 1000) out.push('docsis-31');
@@ -317,7 +338,17 @@ const CAGE_SPEEDS = {
   'sc-upc': function (maxMbps) {
     const out = [1244, 2488];
     if (maxMbps >= 9000) out.push(9953);
-    return out;
+    return out.filter(function (v) { return v <= maxMbps; });
+  },
+  'lc-upc': function (maxMbps) {
+    const out = [1244, 2488];
+    if (maxMbps >= 9000) out.push(9953);
+    return out.filter(function (v) { return v <= maxMbps; });
+  },
+  'lc-apc': function (maxMbps) {
+    const out = [1244, 2488];
+    if (maxMbps >= 9000) out.push(9953);
+    return out.filter(function (v) { return v <= maxMbps; });
   },
   coax: function (maxMbps) {
     const out = [175, 1000];
@@ -363,6 +394,14 @@ function inferCage(ifaceSpec, maxMbps) {
   // A PON port is an SC connector on the outside plant, not RJ45 copper. APC
   // (green, angled 8 degrees) is the norm on OLT and ONT PON ports; a spec that
   // knows better can say connector: "sc-upc".
+  if (/sc\/?apc|scapc/.test(name)) return 'sc-apc';
+  if (/sc\/?upc|scupc/.test(name)) return 'sc-upc';
+  // A PON port's connector is a vendor choice, not a protocol rule, so only guess
+  // when the name says which one. A bare 'pon' falls back to the ISP-conventional
+  // SC/APC, but an explicit connector on the spec always wins - which is how the
+  // SDX 611 gets its real LC/UPC port instead of being forced into SC.
+  if (/lc\/?apc|lcapc/.test(name)) return 'lc-apc';
+  if (/lc\/?upc|lcupc/.test(name)) return 'lc-upc';
   if (/sc\/?apc|scapc/.test(name)) return 'sc-apc';
   if (/sc\/?upc|scupc/.test(name)) return 'sc-upc';
   if (/gpon|xgs-?pon|xg-?s-?pon|(^|[-_ /])pon(\d|$)|^pon/.test(name)) return 'sc-apc';

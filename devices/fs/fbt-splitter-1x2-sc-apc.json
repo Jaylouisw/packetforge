@@ -9,17 +9,20 @@
     {
       "name": "in",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     },
     {
       "name": "out1",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     },
     {
       "name": "out2",
       "type": "pon",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "sc-apc"
     }
   ]
 }

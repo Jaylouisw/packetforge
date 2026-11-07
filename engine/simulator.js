@@ -12,6 +12,7 @@ const aclLib = require('./acl');
 const ospfLib = require('./ospf');
 const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
+const lldp = require('./lldp');
 const ipv6Lib = require('./ipv6');
 const scionLib = require('./scion');
 
@@ -138,6 +139,8 @@ class Simulator {
     this.computeStp();
     // Resolve PoE power before the run: an unpowered device must not transmit.
     this.computePoe();
+    // Announce ourselves on every cabled port, the way real gear does on link-up.
+    this.announceLldp();
     // Recompute OSPF so learned routes are present before the first packet.
     this.computeOspf();
     // Recompute BGP so learned routes are present before the first packet.
@@ -820,6 +823,35 @@ class Simulator {
   // A PSE has a finite budget. Powered devices are served in port order until
   // the budget runs out; the ones that miss out never power up, which is what
   // a real switch does rather than silently over-subscribing.
+  // Populate the neighbour tables without running a simulation. Used when the
+  // topology changes (a cable is added or removed) so the UI can show what is on the
+  // other end straight away, instead of leaving the tables empty until something is
+  // pinged.
+  refreshNeighbours() {
+    this.computePoe();
+    this.announceLldp();
+    this._run();
+    return this;
+  }
+
+  // Send an LLDPDU out of every active, cabled port. Real devices do this on a
+  // timer; here it runs at the start of a simulation so the neighbour tables are
+  // populated before anyone asks a question about them.
+  announceLldp() {
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.lldp) continue;
+      for (const iface of dev.activeInterfaces()) {
+        if (!iface.peer) continue;                 // nothing plugged in
+        if (iface.parent) continue;                // subinterfaces are not ports
+        try {
+          this._emitFrame(dev, iface, lldp.buildFrame(dev, iface));
+        } catch (e) {
+          // A port that cannot transmit right now simply does not announce.
+        }
+      }
+    }
+  }
+
   computePoe() {
     this.poe = [];
 
@@ -1313,6 +1345,23 @@ class Simulator {
     const mcast = net.isMulticastMac(f.dstMac);
     const flood = bcast || mcast;
     const mine = dev.interfaceWithMac(f.dstMac);
+
+    // LLDP is sent to the nearest-bridge multicast group, which a bridge must NOT
+    // forward: the frame carries one hop and dies. Flooding it would invent
+    // neighbours two switches away, so terminate it here and record what announced
+    // itself. This is the protocol that answers "what is plugged into this port" on
+    // real hardware.
+    if (lldp.isLldp(f)) {
+      if (dev.lldp && inIface) {
+        const nb = lldp.neighbourFrom(f, inIface);
+        dev.lldp.set(inIface, nb);
+        this._emit({
+          type: 'lldp', dev: dev.id, iface: inIface,
+          neighbour: nb.systemName, neighbourPort: nb.portId
+        });
+      }
+      return;
+    }
 
     // 4. Bridge / switch: forward at L2. An L3-capable switch also terminates
     //    frames addressed to itself: unicast to one of its MACs (routing and

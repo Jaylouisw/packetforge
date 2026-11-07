@@ -41,6 +41,8 @@
       antenna: 'antenna',
       'sc-apc': 'SC/APC fibre',
       'sc-upc': 'SC/UPC fibre',
+      'lc-upc': 'LC/UPC fibre',
+      'lc-apc': 'LC/APC fibre',
       usb: 'USB'
     };
     return names[cage] || cage;
@@ -186,6 +188,7 @@
       sfp: '#fbbf24', 'sfp+': '#fbbf24', sfp28: '#fbbf24',
       'qsfp+': '#f59e0b', qsfp28: '#f59e0b', qsfpdd: '#f59e0b',
       'sc-apc': '#22d3ee', 'sc-upc': '#22d3ee',
+      'lc-upc': '#22d3ee', 'lc-apc': '#4ade80',
       combo: '#e879f9',
       console: '#a78bfa',
       coax: '#fb923c',
@@ -213,13 +216,17 @@
       const iface = d.interfaces.find(function (i) { return i.name === p.name; });
       const peer = peerLabel(p.name);
       const connected = !!peer || !!iface.peer;
-      const cage = iface.cage || 'rj45';
-      const tint = CAGE_TINT[cage] || '#94a3b8';
+      // Never guess copper. Defaulting an unresolved cage to rj45 painted fibre
+      // ports grey and made the tooltip state "RJ45 copper" - a confident, specific,
+      // wrong answer. Unknown is drawn as unknown.
+      const cage = iface.cage || null;
+      const tint = cage ? (CAGE_TINT[cage] || '#6b7280') : '#6b7280';
       const rate = (iface.speedCaps && iface.speedCaps.length)
         ? Math.max.apply(null, iface.speedCaps) + ' Mbps'
         : '';
       const roleBit = iface.role ? ' · ' + String(iface.role).toUpperCase() : '';
-      const title = p.name + ' · ' + cageLabel(cage) + ' (' + cage + ')' +
+      const title = p.name + ' · ' +
+        (cage ? cageLabel(cage) + ' (' + cage + ')' : 'connector unknown') +
         (rate ? ' · ' + rate : '') + roleBit +
         (peer ? ' · cabled to ' + peer : ' · not cabled') +
         (iface.enabled === false ? ' · administratively down' : '');

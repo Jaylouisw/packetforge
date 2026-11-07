@@ -22,7 +22,8 @@
     {
       "name": "in",
       "type": "pon",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sc-apc"
     }
   ]
 }

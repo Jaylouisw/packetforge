@@ -513,7 +513,9 @@ function validateConnection(input) {
   // link that silently never passes traffic. Checked in BOTH directions: the
   // upstream runs at 1310 nm, which is lossier than the 1490 nm downstream, so
   // the reverse direction is usually the one that fails.
-  const isPonCage = function (c) { return c === 'sc-apc' || c === 'sc-upc'; };
+  const isPonCage = function (c) {
+    return c === 'sc-apc' || c === 'sc-upc' || c === 'lc-upc' || c === 'lc-apc';
+  };
   if (isPonCage(portA.cage) && isPonCage(portB.cage)) {
     const optical = require('./optical');
     const ratios = [];

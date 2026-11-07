@@ -17,6 +17,15 @@ function ok(cond, msg) {
 }
 
 const catalog = loadCatalog(path.join(__dirname, '..', 'devices'));
+// The ONT is synthetic for the same reason the OLT is: these legs are SC/APC, and an
+// ONT with an LC/UPC port (the SDX 611, correctly) cannot be cabled to them. Pinning
+// the test to a catalogue part would make a wiring fact look like an optical one.
+const ontSpec = {
+  vendor: 'generic', model: 'generic-ont', label: 'ONT', category: 'ont',
+  capabilities: ['host'],
+  interfaces: [{ name: 'pon', type: 'pon', speed: '2.5G', connector: 'sc-apc' }]
+};
+
 const oltSpec = {
   vendor: 'generic', model: 'generic-olt', label: 'OLT', category: 'olt',
   capabilities: ['l3-forward', 'cli'],
@@ -26,7 +35,7 @@ const oltSpec = {
 function buildBranch(ratio, ontCount) {
   const t = new Topology();
   const splitter = catalog.find(function (s) { return s.model === 'PON Splitter ' + ratio; });
-  const ont = catalog.find(function (s) { return s.model === 'SDX611'; });
+  const ont = ontSpec;
   const olt = t.addDevice(oltSpec);
   const sp = t.addDevice(splitter);
   olt.name = 'OLT-1'; sp.name = 'SPL-1';

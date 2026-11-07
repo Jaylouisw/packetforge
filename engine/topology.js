@@ -230,8 +230,18 @@ class Topology {
     if (!link) return false;
     const a = this.devices.get(link.a.deviceId);
     const b = this.devices.get(link.b.deviceId);
-    if (a) { const i = a.interfaces.get(link.a.iface); if (i) i.peer = null; }
-    if (b) { const i = b.interfaces.get(link.b.iface); if (i) i.peer = null; }
+    if (a) {
+      const i = a.interfaces.get(link.a.iface);
+      if (i) i.peer = null;
+      // Forget what LLDP learned on that port. The far end is gone, so a neighbour
+      // entry left behind would be a lie the UI then shows as fact.
+      if (a.lldp) a.lldp.delete(link.a.iface);
+    }
+    if (b) {
+      const i = b.interfaces.get(link.b.iface);
+      if (i) i.peer = null;
+      if (b.lldp) b.lldp.delete(link.b.iface);
+    }
     this.links.delete(linkId);
     return true;
   }

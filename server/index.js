@@ -207,6 +207,9 @@ async function handleApi(req, res, urlPath) {
             force: !!body.force,
             type: body.type
           });
+          // Populate the LLDP neighbour tables now, so the port inspector can say
+          // what is on the other end without waiting for a ping.
+          try { new Simulator(topo).refreshNeighbours(); } catch (e) { /* best effort */ }
           broadcast(topoId);
           return sendJSON(res, 201, { link: link.serialize(), state: fullState(topo) });
         } catch (e) {

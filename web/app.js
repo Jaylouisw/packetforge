@@ -587,7 +587,10 @@
       rj45: 'RJ45', sfp: 'SFP', 'sfp+': 'SFP+', sfp28: 'SFP28',
       qsfpdd: 'QSFP-DD cage (200/400G)',
       'qsfp+': 'QSFP+', qsfp28: 'QSFP28', console: 'Console',
-      usb: 'USB', antenna: 'Antenna'
+      'sc-apc': 'SC/APC fibre', 'sc-upc': 'SC/UPC fibre',
+      'lc-upc': 'LC/UPC fibre', 'lc-apc': 'LC/APC fibre',
+      combo: 'combo RJ45/SFP', coax: 'F-connector coax', dsl: 'RJ11 DSL',
+      powerline: 'mains powerline', usb: 'USB', antenna: 'Antenna'
     };
     return known[c] || String(c || '').toUpperCase();
   }
@@ -691,13 +694,22 @@
         '\u2192 ' + peerName + ':' + other.iface + '</span>';
     }
 
+    // What announced itself on this port. Unlike the cable line above, this came from
+    // a frame: it is what the far end says about itself, which is how you notice when
+    // the cable record and reality disagree.
+    let lldpText = '';
+    if (i.lldp) {
+      lldpText = '<span class="port-lldp" title="Announced over LLDP by the far end">' +
+        'LLDP: ' + (i.lldp.systemName || '?') + '/' + (i.lldp.portId || '?') + '</span>';
+    }
+
     let html = '<div class="iface-row" data-iface="' + i.name + '">';
     html += '<div class="iface-head">' +
       '<span class="dot ' + (i.enabled ? 'up' : 'down') + '"></span>' +
       '<span class="port-name">' + i.name + '</span>' +
       '<span class="port-media">' + hw + '</span>' +
       '<span class="port-ip' + (i.ip ? ' has' : '') + '">' + ipText + '</span>' +
-      peerText +
+      peerText + lldpText +
       '</div>';
 
     html += '<div class="iface-body">';

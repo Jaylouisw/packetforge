@@ -78,13 +78,17 @@ console.log('\nXGS-PON negotiates a different rate on the same connector:');
 
 console.log('\nReal hardware carries the connector it actually has:');
 {
+  // Adtran's SDX 611 presents its PON on LC/UPC, not SC/APC. Asserting SC here is
+  // what let the wrong connector survive: the test agreed with the spec, and both
+  // disagreed with the hardware.
   const sdx = catalog.find(function (s) { return s.model === 'SDX611'; });
   const d = new Topology().addDevice(sdx);
   const pon = d.interfaces.get('pon');
-  ok(pon.hardware.cage === 'sc-apc', 'SDX611 GPON port is SC/APC');
-  ok(pon.hardware.media.indexOf('gpon-sc-apc') !== -1, 'and offers GPON medium');
+  ok(pon.hardware.cage === 'lc-upc', 'SDX611 GPON port is LC/UPC');
+  ok(pon.hardware.media.indexOf('gpon-lc-upc') !== -1, 'and offers GPON on an LC connector');
   const lan = d.interfaces.get('lan1');
-  ok(lan.hardware.cage === 'rj45', 'while its LAN port stays copper');
+  ok(lan.hardware.cage === 'rj45', 'while its LAN port is copper');
+  ok(pon.hardware.cage !== lan.hardware.cage, 'so the PON port is not the LAN port in disguise');
 
   const s800 = catalog.find(function (s) { return s.model === 'S800E'; });
   const stick = new Topology().addDevice(s800);
@@ -101,10 +105,16 @@ console.log('\nThe topology refuses the impossible cable, and accepts the real o
     capabilities: ['l3-forward', 'cli'],
     interfaces: [{ name: 'gpon0/1', type: 'pon', speed: '2.5G', connector: 'sc-apc' }]
   };
-  const ont = catalog.find(function (s) { return s.model === 'SDX611'; });
+  // The ONT has to match the OLT's connector: an SC/APC OLT cannot be cabled to the
+  // SDX 611's LC/UPC port, and it should not be able to.
+  const ontSpec = {
+    vendor: 'generic', model: 'generic-ont', label: 'ONT', category: 'ont',
+    capabilities: ['host'],
+    interfaces: [{ name: 'pon', type: 'pon', speed: '2.5G', connector: 'sc-apc' }]
+  };
   const t = new Topology();
   const olt = t.addDevice(oltSpec);
-  const cpe = t.addDevice(ont);
+  const cpe = t.addDevice(ontSpec);
   const link = t.connect(olt.id, 'gpon0/1', cpe.id, 'pon');
   ok(!!link, 'an OLT PON port cables to an ONT PON port');
   const l = [...t.links.values()][0];

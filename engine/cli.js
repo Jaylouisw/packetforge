@@ -634,6 +634,21 @@ class CliSession {
       for (const r of dev.routesTable()) {
         out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
       }
+    } else if (what === 'lldp') {
+      // The table that answers "what is plugged into this port" - and it is honest,
+      // because it is filled from LLDPDUs that actually crossed the link rather than
+      // from the topology file. An empty table means nothing has announced itself.
+      out.push('LLDP neighbours on ' + dev.name + ':');
+      out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
+      const rows = Array.from(dev.lldp.entries());
+      if (!rows.length) {
+        out.push('  (none - no LLDP has been heard on any port)');
+      } else {
+        for (const [port, nb] of rows) {
+          out.push('  ' + pad(nb.systemName || '?', 20) + pad(port, 16) +
+            pad(nb.portId || '?', 16) + (nb.mgmtIp || '-'));
+        }
+      }
     } else if (what === 'access-lists' || what === 'access-list') {
       const aclLib = require('./acl');
       const acls = dev.config.acls || {};
@@ -796,6 +811,7 @@ class CliSession {
       '  enable / configure terminal / interface <name>',
       '  hostname <name>          ip address <ip> <mask>',
       '  ip route <dest> <mask> <gw> [iface]',
+      '  show lldp neighbors               neighbours learned over the wire',
       '  ip default-gateway <gw>  shutdown / no shutdown',
       '  vlan <id> [name]                       (config mode)',
       '  interface <parent>.<vlan>              (creates a subinterface)',
