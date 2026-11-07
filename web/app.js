@@ -317,6 +317,19 @@
   };
 
   PFCanvas.on.context = function (id, x, y) { showContextMenu(id, x, y); };
+
+  // The canvas reports anything it could not draw. One bad device must not be able to
+  // take the rest of the drawing - or the user's ability to notice - with it.
+  PFCanvas.on.renderError = function (failures, fatal) {
+    const list = failures || [];
+    console.error('canvas render problems', fatal || '', list);
+    if (fatal) {
+      setStatus('Canvas could not be redrawn - showing the last good view. Press F5 to reload.');
+      return;
+    }
+    const names = list.map(function (f) { return f.what + ' ' + (f.id || '?'); }).join(', ');
+    setStatus('Some items could not be drawn: ' + names + ' (see console)');
+  };
   PFCanvas.on.dblclick = function (id) { select(id); switchTab('console'); };
 
   // ---------- selection + inspector ----------
@@ -1130,7 +1143,13 @@
           if (selectedId && !deviceById(selectedId)) { selectedId = null; PFCanvas.setSelected(null); }
           renderDeviceTab(); renderSimulateTab();
         }
-      } catch (e) {}
+      } catch (e) {
+        // This was a bare `catch (e) {}`. A redraw that threw therefore produced an
+        // empty canvas, an empty inspector and no output anywhere - the failure was
+        // discarded at the only place that could have reported it (issue #20).
+        console.error('topology sync failed', e);
+        setStatus('Render failed - the canvas may be out of date. Press F5 to reload.');
+      }
     };
   }
 

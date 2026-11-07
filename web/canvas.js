@@ -17,7 +17,8 @@
     move: null,       // (deviceId, x, y)
     portClick: null,  // (deviceId, iface)
     context: null,    // (deviceId, x, y)
-    dblclick: null    // (deviceId)
+    dblclick: null,   // (deviceId)
+    renderError: null // (failures[], error) - a redraw could not draw everything
   };
 
   const ICONS = { router: '🧭', switch: '🔀', 'l3-switch': '🔀', host: '🖥️', server: '🗄️', firewall: '🛡️', wireless: '📶', ptp: '📻', cloud: '☁️', ont: '📡', ap: '📶' };
@@ -85,43 +86,97 @@
     return device;
   }
 
+  // Rendering is all-or-nothing on purpose.
+  //
+  // This used to clear the drawing surface first and then draw, so ANY throw after the
+  // clear left the canvas permanently blank with the topology still intact on the server
+  // and no explanation anywhere - the WebSocket handler discarded the exception with a
+  // bare `catch (e) {}`. Reported as issue #20 after a hostname edit blanked a lab.
+  //
+  // Two levels of protection now:
+  //   - one malformed device is skipped and reported, the rest still draw
+  //   - if the redraw cannot be completed at all, the previous drawing is put back
+  // Either way the failure is handed to on.renderError so it can reach the user.
   function render(topo) {
     state.topology = topo;
-    world.innerHTML = '';
-    overlay.innerHTML = '';
-    portPos = {};
-    geo = {};
 
-    drawGrid();
+    const failures = [];
+    const previous = { world: world.innerHTML, overlay: overlay.innerHTML };
+    // A device that cannot be laid out cannot be drawn either, so it must not be
+    // reported twice for the same fault.
+    const failedDevices = {};
 
-    // pass 1: compute geometry so links know where the ports are
-    for (const d of (topo.devices || [])) computeGeo(d);
-
-    // links (under devices)
-    for (const link of (topo.links || [])) {
-      const a = portWorld(link.a.deviceId, link.a.iface);
-      const b = portWorld(link.b.deviceId, link.b.iface);
-      if (!a || !b) continue;
-      const sel = state.selectedLink === link.id;
-      // wide invisible hit target so a 2px line is actually clickable
-      el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
-      el('line', {
-        class: 'link' + (sel ? ' selected' : ''),
-        x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id
-      }, world);
+    function skip(what, id, err) {
+      if (what === 'device' && id) {
+        if (failedDevices[id]) return;
+        failedDevices[id] = true;
+      }
+      failures.push({ what: what, id: id, message: (err && err.message) || String(err) });
     }
 
-    // devices
-    for (const d of (topo.devices || [])) drawDevice(d);
+    const devices = (topo && Array.isArray(topo.devices)) ? topo.devices : [];
+    const links = (topo && Array.isArray(topo.links)) ? topo.links : [];
 
-    // ghost link while cabling
-    if (state.connecting) {
-      const a = portWorld(state.connecting.deviceId, state.connecting.iface);
-      if (a) {
-        ghostLine = el('line', { class: 'link-ghost', x1: a.x, y1: a.y, x2: a.x, y2: a.y }, overlay);
+    try {
+      world.innerHTML = '';
+      overlay.innerHTML = '';
+      portPos = {};
+      geo = {};
+
+      drawGrid();
+
+      // pass 1: compute geometry so links know where the ports are. A device whose
+      // interfaces are not a list cannot be laid out, so it is skipped - but it is
+      // recorded, because a device vanishing silently is the same complaint as #20.
+      for (const d of devices) {
+        try { computeGeo(d); } catch (e) { skip('device', d && d.id, e); }
       }
-    } else {
-      ghostLine = null;
+
+      // links (under devices)
+      for (const link of links) {
+        try {
+          const a = portWorld(link.a.deviceId, link.a.iface);
+          const b = portWorld(link.b.deviceId, link.b.iface);
+          if (!a || !b) continue;
+          const sel = state.selectedLink === link.id;
+          // wide invisible hit target so a 2px line is actually clickable
+          el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
+          el('line', {
+            class: 'link' + (sel ? ' selected' : ''),
+            x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id
+          }, world);
+        } catch (e) { skip('link', link && link.id, e); }
+      }
+
+      // devices
+      for (const d of devices) {
+        if (d && failedDevices[d.id]) continue;
+        try { drawDevice(d); } catch (e) { skip('device', d && d.id, e); }
+      }
+
+      // ghost link while cabling
+      if (state.connecting) {
+        const a = portWorld(state.connecting.deviceId, state.connecting.iface);
+        if (a) {
+          ghostLine = el('line', { class: 'link-ghost', x1: a.x, y1: a.y, x2: a.x, y2: a.y }, overlay);
+        }
+      } else {
+        ghostLine = null;
+      }
+    } catch (e) {
+      // Could not even complete the frame: put the last good drawing back rather than
+      // showing an empty canvas.
+      world.innerHTML = previous.world;
+      overlay.innerHTML = previous.overlay;
+      skip('frame', null, e);
+      if (typeof on.renderError === 'function') {
+        try { on.renderError(failures, e); } catch (ignored) { /* reporting must not throw */ }
+      }
+      return;
+    }
+
+    if (failures.length && typeof on.renderError === 'function') {
+      try { on.renderError(failures, null); } catch (ignored) { /* reporting must not throw */ }
     }
   }
 
@@ -139,9 +194,11 @@
   }
 
   function computeGeo(d) {
+    if (!d || typeof d.id !== 'string') throw new Error('device has no id');
+    const ifaces = Array.isArray(d.interfaces) ? d.interfaces : [];
     const pos = (state.topology.layout && state.topology.layout[d.id]) || { x: 100, y: 100 };
-    const size = deviceSize(d.interfaces.length);
-    const ports = layoutPorts(d.interfaces, size.w, size.h);
+    const size = deviceSize(ifaces.length);
+    const ports = layoutPorts(ifaces, size.w, size.h);
     geo[d.id] = { pos: pos, size: size, ports: ports };
     portPos[d.id] = {};
     for (const p of ports) {

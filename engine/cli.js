@@ -70,7 +70,11 @@ class CliSession {
     const out = [];
     const head = tokens[0].toLowerCase();
     if (head === 'hostname') {
-      this.device.config.hostname = tokens[1] || null;
+      // The whole remainder is the name. Taking tokens[1] silently truncated
+      // "core switch 1" to "core", which is what the UI's hostname field appeared to do
+      // (issue #19) - the box was fine, the parser was eating the rest of the line.
+      const name = tokens.slice(1).join(' ').trim();
+      this.device.config.hostname = name || null;
       if (tokens[1]) this.device.name = tokens[1];
     } else if (head === 'vlan') {
       const id = parseInt(tokens[1], 10);
