@@ -24,9 +24,15 @@
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "ptp",
-  "color": "#06b6d4"
+  "color": "#06b6d4",
+  "comboPorts": 1
 }

@@ -48,8 +48,13 @@ function main() {
     }
 
     // Only flag when the prose promises optics the ports cannot deliver.
+    // A description that explicitly denies optics ("no SFP cages", "SFP: none")
+    // is correct documentation, not a defect - read the negation.
     const desc = String(spec.description || '');
-    if (/\b(sfp|qsfp|xfp)\b/i.test(desc) && optical === 0) {
+    const withoutDenials = desc
+      .replace(/\b(no|without|zero|none|not)\b[^.;,]{0,24}\b(sfp|qsfp|xfp)\b/gi, ' ')
+      .replace(/\b(sfp|qsfp|xfp)\b[^.;,]{0,16}\b(none|n\/a|-)\b/gi, ' ');
+    if (/\b(sfp|qsfp|xfp)\b/i.test(withoutDenials) && optical === 0) {
       report.opticalMissing.push({ model: spec.vendor + '/' + spec.model, ports: ifaces.length });
     }
   }

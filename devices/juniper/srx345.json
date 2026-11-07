@@ -19,5 +19,43 @@
     "speed": "1G"
   },
   "icon": "firewall",
-  "color": "#84cc16"
+  "color": "#84cc16",
+  "interfaces": [
+    {
+      "name": "ge-0/0/16",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/17",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/18",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "ge-0/0/19",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ]
 }

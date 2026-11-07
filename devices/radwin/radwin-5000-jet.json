@@ -24,7 +24,11 @@
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "ptp",

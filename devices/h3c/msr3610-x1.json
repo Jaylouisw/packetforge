@@ -36,14 +36,23 @@
     {
       "name": "GigabitEthernet0/4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "GigabitEthernet0/5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "comboPorts": 2
 }

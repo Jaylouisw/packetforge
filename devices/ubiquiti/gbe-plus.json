@@ -3,12 +3,33 @@
   "model": "GBE-Plus",
   "label": "GigaBeam Plus",
   "category": "ptp",
-  "description": "60 GHz point-to-point radio, up to 2 Gbps; 1x GigE + 1x 10G SFP+ data port.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "description": "Ubiquiti GigaBeam Plus 60 GHz radio - 1x GbE RJ45 with PoE-in; no SFP+ port, despite what earlier notes claimed. The 60 GHz chain is modelled as a wireless port.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
   "interfaces": [
-    { "name": "eth0", "type": "ethernet", "speed": "1G" },
-    { "name": "data", "type": "ethernet", "speed": "10G" },
-    { "name": "radio0", "type": "wireless", "speed": "2G" }
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "data",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2G"
+    }
   ],
   "icon": "ptp",
   "color": "#3b82f6"
