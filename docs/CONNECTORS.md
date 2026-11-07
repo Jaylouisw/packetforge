@@ -752,3 +752,27 @@ Stated so nobody debugs a limitation as a bug:
 See also: [docs/PHYSICAL_LAYER.md](PHYSICAL_LAYER.md) for the medium catalogue and
 the L2 rules built on top, and [docs/DEVICE_REGISTRY.md](DEVICE_REGISTRY.md) for
 how a device spec declares its connectors.
+
+## What each cable looks like on the canvas
+
+A cable's colour is its medium family, not decoration. The canvas carries the family in a
+class (`link-dac`, `link-fiber`, ...) and in `data-medium` on the line element, so the
+drawing can be read without clicking anything, and a screenshot means something.
+
+| Family | Drawn as | What it is |
+| --- | --- | --- |
+| `copper` | warm brown, 2.5 px | twisted-pair Ethernet (10/100/1000/2.5G/5G/10GBASE-T) |
+| `fiber` | cyan, 2 px | optical Ethernet (SFP/SFP+/QSFP optics) |
+| `dac` | amber, 3.5 px | direct-attach twinax: copper, but a stiff assembly, not a run |
+| `aoc` | teal, 3 px | active optical cable: fibre with transceivers moulded on |
+| `pon` | mauve, dashed 10 3 | a shared optical drop from a splitter |
+| `coax` | steel grey, 3 px | DOCSIS / MoCA segment |
+| `dsl` | green, dashed 6 4 | one twisted pair carrying VDSL2/ADSL2+ |
+| `powerline` | yellow, dashed 2 4 | the mains as a medium |
+| `wireless` | blue, dashed 5 5 | an association, not a cable |
+
+Cables are drawn above the chassis: a run that passes behind a device stays continuous from
+socket to socket instead of being erased for that span. If you add a medium to
+`engine/media.js`, give it a rule in `MEDIUM_RULES` (`web/canvas.js`) and a stroke in
+`web/style.css`, or it will draw in the neutral default and `test/canvas-cables.test.js`
+will tell you so.

@@ -97,6 +97,36 @@
   //   - one malformed device is skipped and reported, the rest still draw
   //   - if the redraw cannot be completed at all, the previous drawing is put back
   // Either way the failure is handed to on.renderError so it can reach the user.
+  // What a cable is made of, drawn as what it is made of.
+  //
+  // Every medium was the same 2 px grey line, so copper, fibre, a DAC, a PON drop and a
+  // phone line were visually identical and the only distinction the canvas had was
+  // wireless-versus-not. A link you cannot identify is a line, not a cable (issue #34).
+  //
+  // Classification is by media id, because that is what the link records. Patterns are
+  // ordered: the first match wins, so 'dac-10g' is a DAC before it is copper, and a PON
+  // drop is PON before it is fibre.
+  const MEDIUM_RULES = [
+    [/^wireless/, 'wireless'],
+    [/^dac/, 'dac'],
+    [/^aoc/, 'aoc'],
+    [/^(gpon|xgspon|xg-pon|epon|10g-epon|ngpon|pon)/, 'pon'],
+    [/^(docsis|moca|coax)/, 'coax'],
+    [/^(vdsl|adsl|shdsl|dsl)/, 'dsl'],
+    [/^(homeplug|g\.hn|powerline|mains)/, 'powerline'],
+    [/(base-t$|-t$|cat[0-9]|rj45|1000base-t|10gbase-t)/, 'copper'],
+    [/(base-|optics|fiber|fibre|sx|lx|er|sr|fr|dr|lr4|cr4|base-x)/, 'fiber']
+  ];
+
+  function mediumClass(mediaId) {
+    const id = String(mediaId || '').toLowerCase();
+    if (!id) return '';
+    for (const rule of MEDIUM_RULES) {
+      if (rule[0].test(id)) return rule[1];
+    }
+    return '';
+  }
+
   function render(topo) {
     state.topology = topo;
 
@@ -132,7 +162,16 @@
         try { computeGeo(d); } catch (e) { skip('device', d && d.id, e); }
       }
 
-      // links (under devices)
+      // devices
+      for (const d of devices) {
+        if (d && failedDevices[d.id]) continue;
+        try { drawDevice(d); } catch (e) { skip('device', d && d.id, e); }
+      }
+
+      // Devices first, cables after. Devices used to be drawn last, so every cable
+      // passing under a chassis was erased for that span and the drawing showed two
+      // disconnected stubs - and a cable is the thing you are trying to read (#34).
+      // geometry is already known from pass 1, so the order costs nothing.
       for (const link of links) {
         try {
           const a = portWorld(link.a.deviceId, link.a.iface);
@@ -143,19 +182,18 @@
           el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
           // A radio association is not a cable. Drawing it as one made a wireless lab
           // look wired, and hid the fact that the link is a band rather than a run of
-          // copper or glass.
-          const isWireless = String(link.mediaId || link.media || '').indexOf('wireless') === 0;
+          // copper or glass. Every other medium now carries its own class for the same
+          // reason: you should be able to read the plant off the drawing.
+          const family = mediumClass(link.mediaId || link.media);
           el('line', {
-            class: 'link' + (isWireless ? ' link-wireless' : '') + (sel ? ' selected' : ''),
-            x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id
+            class: 'link' + (family ? ' link-' + family : '') + (sel ? ' selected' : '') +
+              (link.mediaId ? ' link-media' : ''),
+            x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+            'data-link-id': link.id,
+            'data-medium': family || 'unknown',
+            'data-media-id': link.mediaId || ''
           }, world);
         } catch (e) { skip('link', link && link.id, e); }
-      }
-
-      // devices
-      for (const d of devices) {
-        if (d && failedDevices[d.id]) continue;
-        try { drawDevice(d); } catch (e) { skip('device', d && d.id, e); }
       }
 
       // ghost link while cabling
