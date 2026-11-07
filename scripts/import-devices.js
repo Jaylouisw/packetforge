@@ -248,7 +248,13 @@ function readIncoming() {
 
 function main() {
   const argv = process.argv.slice(2);
-  const dryRun = argv.indexOf('--dry-run') !== -1;
+  // Writing is opt-in. Research agents kept running this script bare and pushing
+  // specs straight into the catalogue, which is how three classes of modelling error
+  // reached main without passing the invariant gate (issue #10). A default dry run
+  // means an agent has to type --apply on purpose, and a stray invocation prints what
+  // it would have done instead of doing it.
+  const apply = argv.indexOf('--apply') !== -1 || argv.indexOf('--write') !== -1;
+  const dryRun = !apply;
   const asJson = argv.indexOf('--json') !== -1;
 
   // Existing catalogue, keyed by vendor|model so we never overwrite vetted data.
@@ -337,7 +343,7 @@ function main() {
     }
   }
   if (report.warnings.length) console.log('\n' + report.warnings.length + ' spec(s) had minor warnings (still imported).');
-  if (dryRun) console.log('\nDry run: nothing was written. Re-run without --dry-run to import.');
+  if (dryRun) console.log('\nDry run: nothing was written. Re-run with --apply to import.');
   return 0;
 }
 

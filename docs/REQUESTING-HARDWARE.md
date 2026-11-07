@@ -79,3 +79,45 @@ tell you if the ports and the description disagree.
 
 To close the loop on a merged request, reference the issue in the commit
 (`closes #12`) so the requester is notified automatically.
+
+## How a spec reaches the catalogue
+
+Research and review are separate steps on purpose, and the tooling enforces it.
+
+1. **Write specs** to `research/incoming/devices-*.json`. One JSON object per model.
+2. **Dry run** the importer:
+
+   ```sh
+   node scripts/import-devices.js
+   ```
+
+   This prints what *would* be added, which specs are duplicates of ones already
+   vetted, and every rejection with the reason. It writes nothing.
+3. **Import** deliberately, once the dry run looks right:
+
+   ```sh
+   node scripts/import-devices.js --apply
+   ```
+
+4. **Run the invariants** — they are the gate, not a formality:
+
+   ```sh
+   node test/hardware-invariants.test.js
+   ```
+
+### Why `--apply` is required
+
+Writing used to be the default. Research agents ran the script bare, so specs went
+from a language model's memory into the catalogue without anyone reading them, and
+three classes of hardware error reached main that way (a USB port modelled as a
+gigabit NIC, SFP+ uplinks downgraded to 1G, combo cages flattened to copper).
+
+A dry-run default costs one extra word and buys a review point. If you are an
+automated agent: **write JSON, do not import.** A human or CI applies it.
+
+### Known gaps are tracked, not hidden
+
+Some devices carry hardware facts that need a datasheet read to settle. Those live
+in `test/known-issues.json` against a GitHub issue. The invariant fails on any new
+offender *and* fails if a listed device is fixed but not removed, so the list can
+only shrink.
