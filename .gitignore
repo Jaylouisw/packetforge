@@ -12,3 +12,8 @@ Thumbs.db
 
 # runtime artifacts
 *.pid
+
+# Boards saved by the server. They are the user's work, not the project's: a lab built on
+# someone's own hardware must not end up in the repository (see CONTRIBUTING.md).
+/data/
+.tmp-*

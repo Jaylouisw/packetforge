@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- **A server restart no longer discards the board.** Topologies are saved to
+  `data/topologies/<id>.json` on every change and loaded at start-up, written
+  synchronously: a 120 ms debounce looked harmless but on Windows a kill calls
+  `TerminateProcess`, so no signal handler runs and the tail of your work vanished.
+  Saves are atomic (write then rename), a board that cannot be parsed is reported
+  and left in place rather than deleted, and device ids survive the round trip (#24).
+- **The browser notices when it is stale.** The socket had no `onclose`, no `onerror`
+  and no retry, so a tab kept drawing a board the server had never heard of. It now
+  shows a connection badge in the status bar, retries with backoff, and re-fetches the
+  server's copy on reconnect - reporting it when fewer devices come back than the tab
+  was showing (#24).
+
 ## [Unreleased]
 
 ### Added

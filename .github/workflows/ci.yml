@@ -53,7 +53,8 @@ jobs:
           node-version: 20
       - name: Start server and probe API
         run: |
-          PORT=8123 node server/index.js > server.log 2>&1 &
+          # PF_DATA keeps the smoke test from writing boards into the checkout.
+          PORT=8123 PF_DATA="$RUNNER_TEMP/pf-data" node server/index.js > server.log 2>&1 &
           ready=0
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8123/api/catalog >/dev/null 2>&1; then

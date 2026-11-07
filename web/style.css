@@ -412,3 +412,18 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   white-space: nowrap;
 }
+
+/* ---------- connection badge ---------- */
+/* A tab that is not receiving updates has to say so: silently showing a stale board is
+   how a restarted server left the UI claiming work that no longer existed (issue #24). */
+.conn-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .02em;
+  border: 1px solid var(--border-2);
+}
+.conn-badge.conn-ok { color: #7ee787; border-color: #2ea0433d; background: #2ea04314; }
+.conn-badge.conn-bad { color: var(--amber, #d29922); border-color: #d299223d; background: #d2992214; }
+#statusbar { display: flex; align-items: center; gap: 12px; }

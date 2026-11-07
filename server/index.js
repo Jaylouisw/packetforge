@@ -15,17 +15,107 @@ const PORT = parseInt(process.env.PORT || '8000', 10);
 const WEB_DIR = path.join(__dirname, '..', 'web');
 const DEVICES_DIR = path.join(__dirname, '..', 'devices');
 
+// Where boards are kept between runs.
+//
+// The server used to hold every topology in memory only, so restarting it - which is a
+// normal thing to do while developing - threw the board away. The browser kept drawing
+// its own copy, and because the WebSocket had no reconnect it never found out it was
+// looking at a board that no longer existed (issue #24). PF_DATA lets a test run against
+// a scratch directory instead of the real one.
+const DATA_DIR = process.env.PF_DATA ? path.resolve(process.env.PF_DATA)
+  : path.join(__dirname, '..', 'data');
+const TOPO_DIR = path.join(DATA_DIR, 'topologies');
+
 // --- state ---
 const topologies = new Map();
 const sessions = new Map(); // `${topoId}:${devId}` -> CliSession
 const catalog = loadCatalog(DEVICES_DIR);
 const wss = new WebSocketServer();
 
+// --- persistence -----------------------------------------------------------
+// File per board, JSON, no database, no dependency. Writes are debounced because a
+// single CLI command can touch several interfaces and each one broadcasts.
+const pendingSaves = new Map();
+
+function topologyFile(id) {
+  const safe = String(id).replace(/[^A-Za-z0-9._-]/g, '_');
+  return path.join(TOPO_DIR, safe + '.json');
+}
+
+function saveTopologyNow(id) {
+  const t = topologies.get(id);
+  if (!t) return false;
+  try {
+    fs.mkdirSync(TOPO_DIR, { recursive: true });
+    const body = {
+      format: 'packetforge-topology',
+      version: 1,
+      savedAt: new Date().toISOString(),
+      topology: t.serialize()
+    };
+    // Write to a temporary file and rename, so a crash mid-write cannot leave a
+    // half-written board that the next boot refuses to parse.
+    const target = topologyFile(id);
+    const tmp = target + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(body, null, 2) + String.fromCharCode(10));
+    fs.renameSync(tmp, target);
+    return true;
+  } catch (e) {
+    console.error('could not save topology ' + id + ': ' + e.message);
+    return false;
+  }
+}
+
+// Saved immediately, not on a debounce.
+//
+// A 120 ms debounce looked harmless and was not: on Windows a kill (or taskkill, or a
+// crashed terminal) calls TerminateProcess, so no signal handler and no 'exit' listener
+// ever runs, and anything still waiting on a timer is simply gone. The window was small
+// and the loss was real - a board that had just been edited came back one edit short.
+// A board is a few kilobytes and a human makes one change at a time, so the honest
+// trade is a synchronous write per change.
+function saveTopology(id) {
+  if (pendingSaves.has(id)) { clearTimeout(pendingSaves.get(id)); pendingSaves.delete(id); }
+  saveTopologyNow(id);
+}
+
+// Kept for the shutdown path: with immediate saves there is normally nothing pending,
+// but a caller that sets pendingSaves itself must still be flushed.
+function flushSaves() {
+  for (const [id, timer] of pendingSaves) {
+    clearTimeout(timer);
+    saveTopologyNow(id);
+  }
+  pendingSaves.clear();
+}
+
+// Load whatever survived the last run. A board that cannot be parsed is reported and
+// left alone rather than deleted: it is the user's work, and a later version may read it.
+function loadSavedTopologies() {
+  let names;
+  try { names = fs.readdirSync(TOPO_DIR); } catch (e) { return; }
+  for (const name of names) {
+    if (!/\.json$/i.test(name)) continue;
+    const full = path.join(TOPO_DIR, name);
+    try {
+      const body = JSON.parse(fs.readFileSync(full, 'utf8'));
+      const raw = body && body.topology ? body.topology : body;
+      const topo = Topology.fromJSON(raw);
+      const id = name.replace(/\.json$/i, '');
+      topologies.set(id, topo);
+    } catch (e) {
+      console.error('could not load ' + name + ': ' + e.message);
+    }
+  }
+}
+
 function ensureTopology(id) {
   let t = topologies.get(id);
   if (!t) { t = new Topology(); topologies.set(id, t); }
   return t;
 }
+ensureTopology('default');
+loadSavedTopologies();
 ensureTopology('default');
 
 function sessionKey(topoId, devId) { return topoId + ':' + devId; }
@@ -108,6 +198,9 @@ function readBody(req) {
 function broadcast(topoId) {
   const t = topologies.get(topoId);
   if (!t) return;
+  // Every mutation broadcasts, so this is the one place that has to know a board
+  // changed. Persisting here cannot drift out of step with the in-memory state.
+  saveTopology(topoId);
   wss.broadcast({ type: 'topology', topologyId: topoId, state: fullState(t) });
 }
 
@@ -481,6 +574,26 @@ server.on('upgrade', function (req, socket) {
     try { socket.destroy(); } catch (e2) {}
   }
 });
+
+// A debounced save must not die with the process. Ctrl-C while a device is being
+// placed is exactly the moment the work is most likely to be lost.
+let shuttingDown = false;
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  flushSaves();
+  console.log('  ' + signal + ' - boards saved, shutting down.');
+  try {
+    server.close(function () { process.exit(0); });
+  } catch (e) { process.exit(0); }
+  setTimeout(function () { process.exit(0); }, 1000).unref();
+}
+process.on('SIGINT', function () { shutdown('SIGINT'); });
+process.on('SIGTERM', function () { shutdown('SIGTERM'); });
+process.on('SIGBREAK', function () { shutdown('SIGBREAK'); });
+process.on('SIGHUP', function () { shutdown('SIGHUP'); });
+// Last resort for a normal exit path: synchronous, so it completes during shutdown.
+process.on('exit', function () { try { flushSaves(); } catch (e) {} });
 
 server.listen(PORT, function () {
   console.log('');

@@ -1131,11 +1131,83 @@
   });
 
   // ---------- websocket sync ----------
+  //
+  // This used to open a socket once, with no onclose, no onerror and no retry. When the
+  // server went away the tab kept drawing its own copy of the board forever, showing
+  // devices the server had never heard of, and nothing on screen said so (issue #24).
+  // A client that cannot tell it is stale is worse than one that fails loudly.
+  let ws = null;
+  let wsRetryMs = 500;
+  let wsTimer = null;
+
+  function setConnected(state) {
+    const el = document.getElementById('conn-state');
+    if (el) {
+      el.textContent = state === 'connected' ? 'connected'
+        : (state === 'connecting' ? 'reconnecting' : 'disconnected');
+      el.className = 'conn-badge conn-' + (state === 'connected' ? 'ok' : 'bad');
+      el.title = state === 'connected'
+        ? 'Live: the board on screen is the copy the server holds'
+        : 'Not receiving updates from the server';
+    }
+    if (state === 'disconnected') setStatus('Disconnected from the server - reconnecting...');
+  }
+
+  // Re-fetch the server's copy and re-render. Called after a reconnect, because the
+  // only safe assumption is that the tab's copy is stale.
+  async function syncTopology(reason) {
+    const beforeDevices = (topo && topo.devices) ? topo.devices.length : 0;
+    const beforeLinks = (topo && topo.links) ? topo.links.length : 0;
+    const t = await api('GET', '/topologies/' + TOPO);
+    topo = t;
+    PFCanvas.setTopology(topo);
+    if (selectedId && !deviceById(selectedId)) { selectedId = null; PFCanvas.setSelected(null); }
+    if (selectedLink && !(topo.links || []).some(function (l) { return l.id === selectedLink; })) {
+      selectedLink = null;
+    }
+    renderDeviceTab();
+    renderSimulateTab();
+    setStatus('Ready - ' + topo.devices.length + ' device(s), ' + topo.links.length + ' link(s)');
+
+    // A transition the user must not have to work out for themselves: work disappeared.
+    if (reason === 'reconnect' && topo.devices.length < beforeDevices) {
+      const lost = beforeDevices - topo.devices.length;
+      toast('The server came back with ' + lost + ' fewer device(s) - the board you were ' +
+        'looking at was not saved');
+    }
+    if (reason === 'reconnect' && topo.devices.length === 0 && beforeLinks > 0) {
+      toast('The server has an empty board now - your devices were not persisted');
+    }
+    return topo;
+  }
+
+  function scheduleReconnect() {
+    if (wsTimer) return;
+    const wait = wsRetryMs;
+    wsRetryMs = Math.min(Math.round(wsRetryMs * 1.7), 10000);
+    wsTimer = setTimeout(function () { wsTimer = null; connectWS(); }, wait);
+  }
+
   function connectWS() {
+    if (wsTimer) { clearTimeout(wsTimer); wsTimer = null; }
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    let ws;
-    try { ws = new WebSocket(proto + '://' + location.host + '/'); } catch (e) { return; }
-    ws.onmessage = function (ev) {
+    let socket;
+    try { socket = new WebSocket(proto + '://' + location.host + '/'); }
+    catch (e) { setConnected('disconnected'); scheduleReconnect(); return; }
+    ws = socket;
+    setConnected('connecting');
+
+    socket.onopen = function () {
+      wsRetryMs = 500;
+      setConnected('connected');
+      // Converge on the server rather than keeping a private copy.
+      syncTopology('reconnect').catch(function (e) {
+        console.error('resync failed', e);
+        setStatus('Connected, but the board could not be reloaded: ' + e.message);
+      });
+    };
+
+    socket.onmessage = function (ev) {
       try {
         const m = JSON.parse(ev.data);
         if (m.type === 'topology') {
@@ -1152,6 +1224,17 @@
         setStatus('Render failed - the canvas may be out of date. Press F5 to reload.');
       }
     };
+
+    socket.onclose = function () {
+      setConnected('disconnected');
+      scheduleReconnect();
+    };
+
+    socket.onerror = function () {
+      // onclose follows an error in every browser worth supporting; closing here makes
+      // sure a socket that errors without closing still reaches the retry path.
+      try { socket.close(); } catch (e) { setConnected('disconnected'); scheduleReconnect(); }
+    };
   }
 
   // ---------- boot ----------
@@ -1162,13 +1245,8 @@
       const cat = await api('GET', '/catalog');
       catalog = cat;
       renderPalette();
-      const t = await api('GET', '/topologies/' + TOPO);
-      topo = t;
-      PFCanvas.setTopology(topo);
+      await syncTopology('boot');
       PFCanvas.fitView();
-      renderDeviceTab();
-      renderSimulateTab();
-      setStatus('Ready — ' + topo.devices.length + ' device(s), ' + topo.links.length + ' link(s)');
       $('#status-right').textContent = catalog.specs.length + ' models · ' +
         new Set(catalog.specs.map(function (s) { return s.vendor; })).size + ' vendors';
       connectWS();
@@ -1182,6 +1260,14 @@
   // Small surface for the UI render tests (also handy in the devtools console).
   window.__pf = {
     setTopology: function (t) { topo = t; },
+    connectWS: connectWS,
+    syncTopology: syncTopology,
+    setConnected: setConnected,
+    getTopology: function () { return topo; },
+    connectionState: function () {
+      const el = document.getElementById('conn-state');
+      return el ? el.textContent : null;
+    },
     selectDevice: function (id) { selectedId = id; selectedLink = null; },
     selectLink: function (id) { selectedLink = id; selectedId = null; },
     renderDeviceTab: renderDeviceTab,
