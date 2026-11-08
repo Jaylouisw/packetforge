@@ -1,0 +1,31 @@
+{
+  "vendor": "technicolor",
+  "model": "AFM0003",
+  "label": "Vantiva (formerly Technicolor) AFM0003 GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT in an SFP module (Realtek RTL9601CI, 32MB RAM / 128MB flash, Linux 2.6 (Luna SDK 1.9)) that presents to the host as 2.5G Ethernet; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc with no LAN ports and no Wi-Fi, managed over web UI + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-technicolor-afm0003/"
+}
