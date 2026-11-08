@@ -1,0 +1,42 @@
+{
+  "vendor": "mikrotik",
+  "model": "SXTR&EP06-A",
+  "label": "SXT LTE6 kit-US",
+  "category": "ptp",
+  "description": "MikroTik SXT LTE6 kit-US (SXTR&EP06-A) \u2014 2x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/sxt_lte6_kit_us"
+}
