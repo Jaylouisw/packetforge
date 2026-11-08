@@ -1,0 +1,46 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UISP-Console",
+  "label": "UISP Console",
+  "category": "router",
+  "description": "UISP host console with an integrated 8-port Gigabit switch and a multi-gigabit gateway: 8 LAN GbE RJ45 plus 1 LAN 1/10G SFP+, and 1 WAN GbE RJ45 plus 1 WAN 1/10G SFP+. Quad-core ARM Cortex-A57 at 1.7 GHz, 4 GB DDR4, 16 GB eMMC plus a 128 GB SSD for hosting UISP, and a microSD slot up to 2 TB.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    { "name": "lan1", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan2", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan3", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan4", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan5", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan6", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan7", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    { "name": "lan8", "type": "ethernet", "speed": "1G", "role": "lan", "bridgeGroup": "lan" },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [1000, 10000],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    { "name": "wan1", "type": "ethernet", "speed": "1G", "role": "wan" },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [1000, 10000],
+      "role": "wan"
+    }
+  ],
+  "sourceUrl": "https://store.ui.com/us/en/category/wired-hosting/products/uisp-console-u",
+  "notes": "Vendor figures, networking interface: (8) LAN GbE RJ45 ports, (1) LAN 1/10G SFP+ port, (1) WAN GbE RJ45 port, (1) WAN 1/10G SFP+ port. Management in-band over Ethernet, plus Bluetooth. Powered by a 24V DC 2.5A adapter (24-28V range) with a Power TransPort DC input; 30W max. Modelled with the LAN ports in one bridge group and the WAN side carrying the wan role, which is the split the vendor's own port labels describe. The two SFP+ cages accept 1G or 10G modules, so they declare speedCaps rather than a single rate - a 1G optic in a 10G cage is a supported configuration, not a downgrade. Placed in the 'router' category rather than 'cloud' because the unit is a gateway and switch with a console built in, not a controller-only appliance."
+}
