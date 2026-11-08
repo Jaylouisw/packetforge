@@ -1,0 +1,44 @@
+{
+  "vendor": "huawei",
+  "model": "HG8240H",
+  "label": "Huawei HG8240H GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT with 4× 1G LAN and with Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-huawei-hg8240h/"
+}

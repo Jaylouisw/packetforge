@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBwAPG-60ad-SA",
+  "label": "wAP 60Gx3 AP",
+  "category": "ptp",
+  "description": "MikroTik wAP 60Gx3 AP (RBwAPG-60ad-SA) \u2014 1x 1G RJ45, 60 GHz radio. ARM 32bit 4-core IPQ-4019.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio60",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/wap_60gx3_ap"
+}

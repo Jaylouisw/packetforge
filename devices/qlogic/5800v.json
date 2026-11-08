@@ -14,260 +14,260 @@
       "name": "0",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "1",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "2",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "3",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "4",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "5",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "6",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "7",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "8",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "9",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "10",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "11",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "12",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "13",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "14",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "15",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "16",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "17",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "18",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "19",
       "type": "ethernet",
       "speed": "8G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        2000,
-        4000,
-        8000
+        2125,
+        4250,
+        8500
       ]
     },
     {
       "name": "isl0",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        10000,
-        20000
+        8500,
+        10519
       ]
     },
     {
       "name": "isl1",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        10000,
-        20000
+        8500,
+        10519
       ]
     },
     {
       "name": "isl2",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        10000,
-        20000
+        8500,
+        10519
       ]
     },
     {
       "name": "isl3",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "sfp+",
+      "connector": "fc-sfp",
       "speedCaps": [
-        10000,
-        20000
+        8500,
+        10519
       ]
     },
     {
@@ -282,5 +282,5 @@
     }
   ],
   "sourceUrl": "https://www.corporatearmor.com/documents/5800V_5802V_datasheet.pdf",
-  "notes": "8G Fibre Channel is not an allowed speed step, so device ports are modelled at the nearest step (10G) with the real 2/4/8G rates in speedCaps; the 4 stacking/ISL ports are 10G (20G with the bandwidth-on-demand licence). Source is QLogic data sheet 50902-00 Rev H, still hosted by a reseller because qlogic.com was folded into Marvell - the 5800V itself is long end-of-sale."
+  "notes": "20 device ports run 2/4/8G Fibre Channel (8.5 Gbit/s at 8G) and are licensed in 4-port steps from 8; the 4 always-on stacking/ISL ports run 10GFC (10.519 Gbit/s), and the 20G ISL figure is two of them bonded, which this model expresses as two links rather than one 20G port. Ports are FC cages, so an ISL port cannot be cabled to an Ethernet switch even though the SFP+ connector is identical."
 }

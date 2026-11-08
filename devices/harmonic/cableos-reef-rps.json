@@ -24,25 +24,25 @@
     {
       "name": "us1",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "us2",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "us3",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "us4",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     }
   ],

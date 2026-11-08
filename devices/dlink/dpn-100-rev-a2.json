@@ -1,0 +1,29 @@
+{
+  "vendor": "dlink",
+  "model": "DPN-100 Rev A2",
+  "label": "D-LINK DPN-100 Rev A2 GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT in an SFP module (Lantiq PEB98035, 64 MB RAM / 8 MB flash) that presents to the host as 2.5G Ethernet; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC with no LAN ports and no Wi-Fi, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-d-link-dpn-100-rev-a2/"
+}

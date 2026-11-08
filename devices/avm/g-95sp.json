@@ -1,0 +1,29 @@
+{
+  "vendor": "avm",
+  "model": "G-95SP",
+  "label": "AVM GmbH G-95SP GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT in an SFP module (Lantiq PEB98035, Linux (kernel 3.10.4, AVM firmware `SFP_7.5.13`)) that presents to the host as 1G Ethernet; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc with no LAN ports and no Wi-Fi, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-avm-g-95sp/"
+}

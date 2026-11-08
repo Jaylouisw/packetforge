@@ -1,26 +1,31 @@
 {
   "vendor": "nokia",
   "model": "G-010S-A",
-  "label": "G-010S-A GPON SFP ONT",
+  "label": "Nokia G-010S-A GPON SFP ONT",
   "category": "ont",
-  "description": "Nokia G-010S-A GPON ONT in SFP form factor (Lantiq PEB98035): one SC/UPC angled-free GPON port (2.488/1.244 Gbit/s) and an HSGMII host interface on the SFP edge connector, with no RJ45 and no Wi-Fi. It is the SC/UPC sibling of the SC/APC G-010S-P and is managed by OMCI or its own CLI.",
+  "description": "mini-GPON ONT in an SFP module (Lantiq PEB98035, 64 MB RAM / 16 MB flash, OpenWRT) that presents to the host as 2.5G Ethernet; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-upc with no LAN ports and no Wi-Fi, managed over web UI + SSH + serial.",
   "capabilities": [
     "l2-forward",
+    "host",
     "http-server",
     "cli"
   ],
-  "portTemplate": {
-    "prefix": "pon",
-    "start": 1,
-    "count": 1,
-    "type": "pon",
-    "speed": "2.5G",
-    "connector": "sc-upc",
-    "speedCaps": [
-      1244,
-      2488
-    ]
-  },
-  "interfaces": [],
-  "sourceUrl": "https://onestore.nokia.com/asset/f/201221"
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-nokia-g-010s-a/"
 }

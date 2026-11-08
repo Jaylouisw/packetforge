@@ -1,0 +1,38 @@
+{
+  "vendor": "ubiquiti",
+  "model": "LTU-ROCKET",
+  "label": "LTU Rocket",
+  "category": "ptp",
+  "description": "5 GHz LTU PtMP base station radio (antenna not included), 24 W, 50 V 4-pair passive PoE in. Ports: 2x GbE RJ45 (data/PoE in plus secondary); 2x RP-SMA RF; built-in GPS sync.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/ltu-rocket"
+}

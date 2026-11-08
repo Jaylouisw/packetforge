@@ -1,0 +1,42 @@
+{
+  "vendor": "draytek",
+  "model": "VigorSwitch P2540x",
+  "label": "DrayTek VigorSwitch P2540x",
+  "category": "switch",
+  "description": "48-port Gigabit Layer 2+ managed PoE switch with six 10G SFP+ uplinks. All 48 RJ-45 ports are PoE/PoE+ (802.3af/802.3at, Type A) with a 400 W total budget and up to 30 W per port, 216 Gbps switching capacity, and static routing plus a DHCP server so inter-VLAN traffic does not depend on the gateway.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 30
+  },
+  "interfaces": [
+    { "name": "sfp49", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp50", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp51", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp52", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp53", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp54", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "console", "type": "console" }
+  ],
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://www.draytek.co.uk/support/downloads/vigorswitch-p2540x/send/876-vsp2540x/2226-datasheet-vsp2540x",
+    "note": "400 W total PoE budget, up to 30 W per port, 802.3af/802.3at Type A on all 48 RJ-45 ports."
+  },
+  "sourceUrl": "https://www.draytek.co.uk/support/downloads/vigorswitch-p2540x/send/876-vsp2540x/2226-datasheet-vsp2540x",
+  "notes": "Datasheet: 48 x RJ-45 Gigabit Ethernet ports (10/100/1000), 6 x SFP+ ports at 10 Gbps numbered 49-54, 1 x RJ-45 console port, 216 Gbps switching capacity, 160.7 Mpps forwarding at 64 bytes, 32k MAC table, 12 KB jumbo frames, 12k static routes plus 12k prefix routes. PoE is PSE Mode A, 802.3af (15.4 W) and 802.3at (30 W) with a 400 W budget - the P2540x is the PoE member of the 2540x series and its sibling G2540X (also in this catalogue) is the same switch without PoE. The SFP+ cages are modelled with speedCaps [1000, 10000] because they accept 1G optics as well as 10G: a 1G module in a 10G cage is a supported configuration here, not a downgrade. Inter-VLAN traffic is routed on the switch (static routes + DHCP server), which is why it carries l3-forward and dhcp-server rather than being modelled as a plain L2 bridge."
+}

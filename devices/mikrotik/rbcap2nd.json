@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBcAP2nD",
+  "label": "cAP",
+  "category": "wireless",
+  "description": "MikroTik cAP (RBcAP2nD) — 1x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core QCA9533.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBcAP2nD"
+}

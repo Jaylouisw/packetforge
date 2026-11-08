@@ -14,83 +14,67 @@
   "interfaces": [
     {
       "name": "serial1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial2",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial3",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial4",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial5",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial6",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial7",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial8",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial9",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial10",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial11",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial12",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial13",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial14",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial15",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial16",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "net1",

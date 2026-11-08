@@ -63,97 +63,97 @@
     {
       "name": "us1",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us2",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us3",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us4",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us5",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us6",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us7",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us8",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us9",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us10",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us11",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us12",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us13",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us14",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us15",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {
       "name": "us16",
       "type": "coax",
-      "speed": "100M",
+      "speed": "1G",
       "connector": "f"
     },
     {

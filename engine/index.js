@@ -20,11 +20,13 @@ const ospf = require('./ospf');
 const bgp = require('./bgp');
 const dns = require('./dns');
 const scion = require('./scion');
+const convergence = require('./convergence');
 const ipv6 = require('./ipv6');
 const ra = require('./ra');
 const flow = require('./flow');
 
 module.exports = {
+  convergence,
   net,
   media,
   optical,

@@ -23,8 +23,7 @@
     },
     {
       "name": "console1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     }
   ],
   "sourceUrl": "https://www.vertiv.com/4a25b9/globalassets/shared/vertiv-avocent-mergepoint-unity-kvm-over-ip-and-serial-console-switch-guide-specifications-av-49558.pdf",

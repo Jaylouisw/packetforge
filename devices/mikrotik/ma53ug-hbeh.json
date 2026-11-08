@@ -1,0 +1,65 @@
+{
+  "vendor": "mikrotik",
+  "model": "MA53UG+HbeH",
+  "label": "hAP be\u00b3 Media",
+  "category": "wireless",
+  "description": "MikroTik hAP be\u00b3 Media (MA53UG+HbeH) \u2014 5x 2.5G RJ45, Wi-Fi 2.4 GHz + 5 GHz + 6 GHz. ARM 64bit 4-core IPQ-5322.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.9G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5.8G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hap_be3_media"
+}

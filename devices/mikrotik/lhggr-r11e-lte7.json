@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "LHGGR&R11e-LTE7",
+  "label": "LHGG LTE7 kit",
+  "category": "ptp",
+  "description": "MikroTik LHGG LTE7 kit (LHGGR&R11e-LTE7) \u2014 1x 1G RJ45, LTE radio. ARM 64bit 2-core 88F3720.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/lhgg_lte7"
+}

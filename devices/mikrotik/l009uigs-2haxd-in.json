@@ -1,0 +1,82 @@
+{
+  "vendor": "mikrotik",
+  "model": "L009UiGS-2HaxD-IN",
+  "label": "L009UiGS-2HaxD-IN",
+  "category": "wireless",
+  "description": "MikroTik L009UiGS-2HaxD-IN (L009UiGS-2HaxD-IN) \u2014 8x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. ARM 32bit 2-core IPQ-5018.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/l009uigs_2haxd_in"
+}

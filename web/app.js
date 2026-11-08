@@ -112,22 +112,40 @@
     return String(s == null ? '' : s).toLowerCase().replace(SEARCH_NOISE, '');
   }
 
-  // Lower is better: 0 exact model, 1 model prefix, 2 model substring, 3 vendor(+model)
-  // hit, 4 some other field, 5 every whitespace token present somewhere. -1 = no match.
+  // Does the query appear as a whole word in this string? Word boundaries matter: a
+  // category is a name someone chose, whereas a substring is usually an accident.
+  function hasWord(str, q) {
+    if (!q) return false;
+    const parts = String(str == null ? '' : str).toLowerCase().split(/[^a-z0-9]+/);
+    for (let i = 0; i < parts.length; i++) { if (parts[i] && parts[i] === q) return true; }
+    return false;
+  }
+
+  // Lower is better: 0 exact model, 1 model prefix, 2 category word, 3 model substring,
+  // 4 vendor(+model) hit, 5 some other field, 6 every whitespace token present
+  // somewhere. -1 = no match.
+  //
+  // The category tier sits above the substring tier because a substring is far too easy
+  // to hit by accident. "ont" is the project's own name for fibre CPE, and it is a
+  // substring of "Controller" - so searching for an ONT returned 150 devices led by an
+  // Aruba Mobility Controller and an ExtremeCloud IQ Controller, with the real ONTs
+  // buried behind them. A whole word in a category is a deliberate name; ranking it
+  // above accidental substrings is the difference between a search box and a lottery.
   function searchRank(s, q, tokens) {
-    if (!q) return 5;                       // punctuation-only query: keep everything
+    if (!q) return 6;                       // punctuation-only query: keep everything
     const model = searchKey(s.model);
     const vendor = searchKey(s.vendor);
     const vm = vendor + model;              // lets "tp-link mc220l" / "tplink mc220l" land
     if (model === q) return 0;
     if (model.indexOf(q) === 0) return 1;
-    if (model.indexOf(q) !== -1) return 2;
-    if (vm.indexOf(q) !== -1) return 3;
+    if (hasWord(s.category, q)) return 2;
+    if (model.indexOf(q) !== -1) return 3;
+    if (vm.indexOf(q) !== -1) return 4;
     const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
-    if (fields.indexOf(q) !== -1) return 4;
+    if (fields.indexOf(q) !== -1) return 5;
     const hay = model + '\u0000' + vm + '\u0000' + fields;
     for (const t of tokens) { if (hay.indexOf(t) === -1) return -1; }
-    return tokens.length ? 5 : -1;
+    return tokens.length ? 6 : -1;
   }
 
   // Palette filter: vendor/type facets first, then search, best matches first. Ties
@@ -180,20 +198,16 @@
     }
     if (!q) vendorNames.sort(function (a, b) { return vendorLabel(a).localeCompare(vendorLabel(b)); });
 
-    for (const v of vendorNames) {
-      const items = groups[v];
-      const sec = document.createElement('div');
-      sec.className = 'vendor-group open';
-      const head = document.createElement('button');
-      head.type = 'button';
-      head.className = 'vendor-head';
-      head.innerHTML = '<span class="vh-caret">▾</span><span class="vh-name">' + vendorLabel(v) + '</span><span class="vh-count">' + items.length + '</span>';
-      head.addEventListener('click', function () {
-        sec.classList.toggle('open');
-        head.querySelector('.vh-caret').textContent = sec.classList.contains('open') ? '▾' : '▸';
-      });
-      const body = document.createElement('div');
-      body.className = 'vendor-body';
+    // A palette that renders the whole catalogue with every vendor group expanded is not
+    // a palette. Measured on the current catalogue: 1498 cards, 243 open groups, 115,115 px
+    // of scroll inside a 289 px viewport - about 400 screens - and 11,358 DOM nodes built
+    // before anyone asked to see them. Groups now start collapsed unless something is
+    // narrowing the list (a query or a facet), and a group's cards are built the first time
+    // it is opened. Searching still expands everything that matched, because then the list
+    // is short and the ranking is the point.
+    const narrowing = !!q || !!paletteFilter.vendor || !!paletteFilter.type;
+
+    function buildCards(items, body) {
       for (const s of items) {
         const card = document.createElement('div');
         card.className = 'device-card';
@@ -214,6 +228,34 @@
         });
         body.appendChild(card);
       }
+    }
+
+    // How much of the catalogue is on screen, stated rather than implied.
+    const summary = document.createElement('div');
+    summary.className = 'palette-summary';
+    summary.textContent = narrowing
+      ? filtered.length + ' of ' + specs.length + ' devices'
+      : specs.length + ' devices in ' + vendorNames.length + ' vendor groups';
+    list.appendChild(summary);
+
+    for (const v of vendorNames) {
+      const items = groups[v];
+      const sec = document.createElement('div');
+      sec.className = 'vendor-group' + (narrowing ? ' open' : '');
+      const head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'vendor-head';
+      head.innerHTML = '<span class="vh-caret">' + (narrowing ? '▾' : '▸') + '</span><span class="vh-name">' + vendorLabel(v) + '</span><span class="vh-count">' + items.length + '</span>';
+      const body = document.createElement('div');
+      body.className = 'vendor-body';
+      let built = false;
+      head.addEventListener('click', function () {
+        sec.classList.toggle('open');
+        const isOpen = sec.classList.contains('open');
+        head.querySelector('.vh-caret').textContent = isOpen ? '▾' : '▸';
+        if (isOpen && !built) { buildCards(items, body); built = true; }
+      });
+      if (narrowing) { buildCards(items, body); built = true; }
       sec.appendChild(head);
       sec.appendChild(body);
       list.appendChild(sec);
@@ -1327,7 +1369,21 @@
     'GSFP-43-20C|sfp|GPON OLT Class C+ (ITU-T G.984.2)|2488|20000|SC/UPC|1490',
     'XGS-SFP-52-20N2I|sfp+|XGS-PON OLT Class N2 (ITU-T G.9807.1)|9953|20000|SC/UPC|1577',
     'GSFP-34-20B-I|sfp|GPON ONU Class B+ (ITU-T G.984.2)|2488|20000|SC/UPC|1310',
-    'XGS-SFP-25-20I|sfp+|XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)|9953|20000|SC/APC|1270'
+    'XGS-SFP-25-20I|sfp+|XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)|9953|20000|SC/APC|1270',
+    // Huawei 10GE SFP+ family (#237). Part names in Huawei's own datasheet carry the
+    // facts - "Optical Transceiver,SFP+,10G,Single-mode Module(1310nm,10km,LC)" - so the
+    // reach and wavelength here are read off the part name, not inferred from the rate.
+    // The two eKit rows are the same optics sold through a different channel; they are
+    // listed separately because a lab ordering parts needs the part number it will receive.
+    'OMXD30000|sfp+|10GBASE-SR|10000|300|LC/UPC|850',
+    'OSX010000|sfp+|10GBASE-LR|10000|10000|LC/UPC|1310',
+    'OSX040N01|sfp+|10GBASE-ER|10000|40000|LC/UPC|1550',
+    'SFP-10G-ZR|sfp+|10GBASE-ZR|10000|80000|LC/UPC|1550',
+    'SFP-10G-SR-eKit|sfp+|10GBASE-SR|10000|300|LC/UPC|850',
+    'SFP-10G-LR-eKit|sfp+|10GBASE-LR|10000|10000|LC/UPC|1310',
+    'SFP-10G-BXU1|sfp+|10GBASE-BX10-U|10000|10000|LC/UPC|1270',
+    'SFP-10G-BXD1|sfp+|10GBASE-BX10-D|10000|10000|LC/UPC|1330',
+    'SFP-10GBaseT-SR|sfp+|10GBASE-T|10000|30|RJ45|'
   ];
 
   // "10GBASE-ER/EW (CWDM)" -> "10gbase-er": the first token is the medium the part
@@ -1664,8 +1720,14 @@
   function showLinkContextMenu(id, x, y) {
     const menu = $('#context-menu');
     if (!menu) { setStatus('Context menu unavailable - use Delete cable in the inspector'); return; }
+    const link = (topo.links || []).filter(function (l) { return l.id === id; })[0];
+    const down = link && link.state && link.state !== 'up';
     menu.innerHTML =
       '<div class="cm-item" data-act="inspect">Inspect cable</div>' +
+      // Pulling a cable and deleting one are different operations: the ports stay patched, the
+      // hardware stays as it is, and only the link dies - which is what actually happens.
+      (down ? '<div class="cm-item" data-act="up">Bring link up</div>'
+            : '<div class="cm-item" data-act="down">Take link down</div>') +
       '<div class="cm-item danger" data-act="delete">Delete cable</div>';
     menu.style.display = 'block';
     menu.style.left = x + 'px';
@@ -1674,9 +1736,41 @@
       const act = e.target.getAttribute('data-act');
       menu.style.display = 'none';
       if (act === 'inspect') selectLink(id);
+      else if (act === 'down') await setLinkState(id, 'down');
+      else if (act === 'up') await setLinkState(id, 'up');
       else if (act === 'delete') await deleteLink(id);
     };
     document.addEventListener('click', function hide() { menu.style.display = 'none'; document.removeEventListener('click', hide); });
+  }
+
+  /**
+   * Take a cable down (or put it back) and let the network re-converge from that instant.
+   *
+   * The simulator re-runs every control-plane timer from the moment of the change, so the answer
+   * comes back with the time at which the lab is whole again - which the status line shows,
+   * because "it will work in thirty seconds" is the useful half of the answer.
+   */
+  async function setLinkState(id, state) {
+    if (!topo) return;
+    try {
+      const res = await fetch('/api/topologies/' + encodeURIComponent(topo.id) + '/links/' +
+        encodeURIComponent(id) + '/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: state, atMs: Date.now() % 100000 })
+      });
+      if (!res.ok) {
+        setStatus('Could not change the link: ' + ((await res.json()).error || res.status));
+        return;
+      }
+      const body = await res.json();
+      await refresh();
+      setStatus(state === 'down'
+        ? 'Link down. The network converges again at ' + body.reconvergeAtMs + ' ms.'
+        : 'Link up. Convergence re-based; whole again at ' + body.reconvergeAtMs + ' ms.');
+    } catch (e) {
+      setStatus('Could not change the link: ' + e.message);
+    }
   }
 
   // The inspector's delete button, wired after each render because the button is part
@@ -1997,6 +2091,11 @@
     vlanSummary: vlanSummary,
     filterDevices: filterDevices,
     searchKey: searchKey,
+    // The palette render is exposed so a test can assert what it builds: the whole point
+    // of the collapse change is how many cards exist in the DOM, and that is not visible
+    // through filterDevices.
+    renderPalette: renderPalette,
+    setCatalog: function (cat) { catalog = cat; },
     renderCableLegend: renderCableLegend,
     bindLegend: bindLegend,
     setLegendCollapsed: setLegendCollapsed,

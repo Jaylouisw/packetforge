@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "ATLGM&RG520F-EU",
+  "label": "ATL 5G R16",
+  "category": "wireless",
+  "description": "MikroTik ATL 5G R16 (ATLGM&RG520F-EU) — 1x 1G RJ45, LTE radio. ARM 64bit 2-core 88F3720.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "2G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/atl_5g_r16"
+}

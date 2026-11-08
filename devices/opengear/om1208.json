@@ -14,43 +14,35 @@
   "interfaces": [
     {
       "name": "serial1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial2",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial3",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial4",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial5",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial6",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial7",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial8",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "net1",

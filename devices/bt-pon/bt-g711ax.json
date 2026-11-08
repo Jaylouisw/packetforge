@@ -1,0 +1,46 @@
+{
+  "vendor": "bt-pon",
+  "model": "BT-G711AX",
+  "label": "BT-PON BT-G711AX GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9607Cv2 (Realtek RTL8198D is mentioned too in boot log???), DDR3 256MiB RAM / SPI NAND 128MiB (Winbond W25N01GVZEIG) flash, Linux 4.4.140 (Realtek MSDK-4.8.5p1 Build 3068)) with 4× 1G LAN, 1xRJ11 (Si32192) POTS (FXS) and with Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-upc, managed over web UI + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-bt-pon-bt-g711ax/"
+}
