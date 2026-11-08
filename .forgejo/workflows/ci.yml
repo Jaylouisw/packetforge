@@ -26,6 +26,10 @@ jobs:
         run: node scripts/syntax-check.js
       - name: No control bytes in source
         run: node scripts/check-control-bytes.js
+      - name: No API newer than the Node 18 floor
+        # A green suite on the newest Node means nothing for the oldest matrix job, and that
+        # failure reads like a flaky runner rather than "you used a Node 20 API".
+        run: node scripts/check-node-surface.js
       - name: Full test suite
         run: npm test
       - name: Build & verify example labs

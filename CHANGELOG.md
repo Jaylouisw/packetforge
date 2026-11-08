@@ -2,6 +2,11 @@
 
 ### Added
 
+- **`scripts/check-node-surface.js`** runs in CI and in `npm test`: it fails the build if any source
+  file uses an API that arrived after Node 18 (`toSorted`, `Object.groupBy`,
+  `Promise.withResolvers`, and the rest), because a green suite on a newer local interpreter says
+  nothing about the oldest job in the matrix. This dev machine runs Node 24 while CI tests 18/20/22.
+
 ### Added
 
 - **`test/skip-audit.test.js`**: every skip that exempts a class of hardware from a check must name

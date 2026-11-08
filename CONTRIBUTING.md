@@ -141,3 +141,17 @@ if (POE_IN.test(desc) && POE_OUT.test(desc)) continue;
 The audit does not judge whether an exemption is *correct* — only that it is claimed, tracked and
 findable. If you are adding a rule and a class of devices fails it, that is a decision about the
 catalogue: either fix the devices, or open an issue and reference it.
+
+## The Node 18 floor is real
+
+CI runs the suite on Node 18, 20 and 22. If you develop on something newer, `npm test` can be green
+locally and the Node 18 job can fail twenty minutes later, which reads like a flaky runner rather
+than "you used a Node 20 API". `scripts/check-node-surface.js` closes that gap statically, so it
+needs no second interpreter installed:
+
+```
+node scripts/check-node-surface.js          # fails on any post-18 API
+node scripts/check-node-surface.js --list   # what is banned, and what to write instead
+```
+
+It runs in CI before the matrix jobs, so the failure is immediate and names the API.
