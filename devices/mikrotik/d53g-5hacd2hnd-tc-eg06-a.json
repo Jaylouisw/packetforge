@@ -1,0 +1,62 @@
+{
+  "vendor": "mikrotik",
+  "model": "D53G-5HacD2HnD-TC&EG06-A",
+  "label": "Chateau LTE6-US",
+  "category": "wireless",
+  "description": "MikroTik Chateau LTE6-US (D53G-5HacD2HnD-TC&EG06-A) — 5x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz, LTE radio. ARM 32bit 4-core IPQ-4019.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/chateau_lte6_us"
+}
