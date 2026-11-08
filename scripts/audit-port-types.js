@@ -13,9 +13,18 @@
 //
 // Usage: node scripts/audit-port-types.js [--json] [--quiet]
 // Exit:   0 = no contradictions, 1 = at least one found (CI gate).
+// ---------------------------------------------------------------------------
+// A spec may describe its ports as an explicit `interfaces` array, as a compact
+// `portTemplate` that the engine expands into N ports, or as both. This audit reads
+// the EXPANDED list (devices/registry.effectiveInterfaces), so a port that only
+// exists because a template generated it is inspected exactly like a hand-written
+// one. Reading `interfaces` alone made this audit silent for the ~a fifth of the
+// catalogue that is template-only, which is how the FortiGate 200G shipped with no
+// copper ports modelled (issue #71, see #60).
 const path = require('path');
-const { loadCatalog } = require('../devices/registry');
+const { loadCatalog, effectiveInterfaces } = require('../devices/registry');
 const { Topology } = require('../engine');
+const mediaLib = require('../engine/media');
 
 // Human-facing names for the type families we police.
 const TYPE_LABEL = {
@@ -53,8 +62,7 @@ const PON_CAGES = ['sc-apc', 'sc-upc', 'lc-upc', 'lc-apc'];
 // copper while claiming to be fibre. That silent degradation is the defect, so
 // the audit compares against the EFFECTIVE cage, not the label.
 function isKnownCage(cage) {
-  const media = require('../engine/media');
-  return Object.prototype.hasOwnProperty.call(media.CAGES, cage);
+  return Object.prototype.hasOwnProperty.call(mediaLib.CAGES, cage);
 }
 
 function effectiveCage(cage) {
@@ -212,6 +220,184 @@ function checkPort(type, connector, cage) {
   return hits;
 }
 
+// ---------------------------------------------------------------------------
+// portTemplate coherence
+// ---------------------------------------------------------------------------
+// A template is ONE declaration standing in for N ports, so it is the only place
+// that can say what those ports physically are. When it says nothing, the engine
+// falls back to inferCage(), which reads the port NAME and the declared rate, and
+// to a 1000 Mbps default when the rate does not parse. The port then exists, draws
+// as something, and contradicts nothing -- because nothing was claimed. That is the
+// shape of the #60 defects: the FortiGate 200G modelled no copper ports at all, and
+// the 80F/600E SFP cages resolved to RJ45, and the audit agreed with the engine
+// every time because the spec under it was silent.
+//
+// A declared-but-unmodelled connector is already caught by `unknown-cage` above, so
+// these rules only speak to the remaining case: the template names nothing at all.
+
+// How many ports the template generates. Mirrors devices/registry.effectiveInterfaces:
+// generated ports are the FIRST count entries of the effective list.
+function templatePortCount(spec) {
+  const t = spec && spec.portTemplate;
+  if (!t) return 0;
+  return (t.count === undefined || t.count === null) ? 1 : t.count;
+}
+
+// Does anything in the declaration pin the connector down? A `hardware` block counts,
+// because the engine reads it before it starts guessing.
+function declaresConnector(decl) {
+  const d = decl || {};
+  const hw = (d.hardware && typeof d.hardware === 'object') ? d.hardware : {};
+  return !!(d.connector || d.cage || hw.cage || hw.connector);
+}
+
+function declaredSpeedCaps(decl, tpl) {
+  const a = decl && Array.isArray(decl.speedCaps) ? decl.speedCaps : null;
+  const b = tpl && Array.isArray(tpl.speedCaps) ? tpl.speedCaps : null;
+  if (a && a.length) return a;
+  if (b && b.length) return b;
+  return [];
+}
+
+// A rate the engine can read. parseSpeedMbps returns null for anything it does not
+// understand, and derivePortHardware then quietly falls back to 1000 Mbps - so a 25G
+// template port can be modelled as a 1G SFP while every check agrees with it, because
+// the spec never stated a rate the code could read.
+function knownSpeedMbps(decl, tpl) {
+  if (tpl) {
+    // The template's own value wins: expansion defaults a missing speed to "1G", and an
+    // invented 1G is not a declared rate.
+    if (tpl.speed === undefined || tpl.speed === null) return null;
+    return mediaLib.parseSpeedMbps(tpl.speed);
+  }
+  return mediaLib.parseSpeedMbps(decl ? decl.speed : undefined);
+}
+
+function checkTemplatePort(spec, decl, iface) {
+  const tpl = (spec && spec.portTemplate) || {};
+  const hits = [];
+  // The four-way silence: no connector, no cage, no speedCaps, no readable rate. The
+  // port's entire hardware description is a guess, so no datasheet claim can ever be
+  // contradicted and no rule above can ever fire on it.
+  if (!declaresConnector(decl) && !declaredSpeedCaps(decl, tpl).length && !knownSpeedMbps(decl, tpl)) {
+    hits.push({
+      rule: 'template-undeclared-hardware',
+      severity: 'high',
+      note: 'the portTemplate declares no connector, no cage, no speedCaps and no rate the engine can read, so this ' +
+        'port has no declared physical identity at all: the cage is inferred from the port name alone and the rate ' +
+        'fell back to 1 Gbit/s (it presents as ' + String(iface && iface.hardware && iface.hardware.cage) + '). ' +
+        'Nothing here can be checked against a datasheet, and a wrong connector or a wrong line rate can never be caught'
+    });
+  }
+  return hits;
+}
+
+// ---------------------------------------------------------------------------
+// One spec in, one audit out
+// ---------------------------------------------------------------------------
+// Everything the CLI reports is produced here, so a test can hand in a fixture spec
+// that was never written into devices/ and ask the same questions CI asks.
+// Returns { ports, offenders, templatePorts, undeclaredPorts } (plus `error` when the
+// spec cannot be materialised at all).
+function auditSpec(spec) {
+  const result = { ports: 0, offenders: [], templatePorts: 0, undeclaredPorts: [] };
+  let dev;
+  try {
+    dev = new Topology().addDevice(spec);
+  } catch (e) {
+    result.error = e.message;
+    return result;
+  }
+
+  // The EXPANDED declaration list: template ports first, then explicit ones.
+  const ports = effectiveInterfaces(spec);
+  const tplCount = spec.portTemplate ? templatePortCount(spec) : 0;
+  const seen = new Set();
+
+  // Classifier for the one case a silent template gets badly wrong and no rule above
+  // can decide: a 10G+ population that the engine renders as RJ45 copper because the
+  // port name says nothing and 10G is not in inferCage's optical rate list. 10GBASE-T
+  // is real, so the rate alone proves nothing - what decides it is the spec's own
+  // words: a box that says SFP/QSFP and never says RJ45/copper/10GBASE-T is describing
+  // fibre ports, and if its template resolves them to copper, the fibre ports are not
+  // modelled at all. This is the 80F/600E/200G shape (issue #60), reported as evidence
+  // rather than as a failure because the wording is a heuristic, not a datasheet.
+  const hay = String(spec.model || '') + ' ' + String(spec.label || '') + ' ' + String(spec.description || '');
+  const saysFibre = /\b(sfp|qsfp|xfp|cfp)\b/i.test(hay);
+  const saysCopper = /\b(rj45|10gbase-?t|copper|mggbe|multigigabit)\b/i.test(hay);
+  const copperIsUndescribed = saysFibre && !saysCopper;
+  result.fibreAsCopper = [];
+
+  for (let idx = 0; idx < ports.length; idx++) {
+    const decl = ports[idx];
+    const fromTemplate = idx < tplCount;
+
+    // The interface map is keyed by name, so a name declared twice silently collapses:
+    // the device ends up with fewer ports than the spec declares and the dropped one is
+    // invisible to every check. A template can collide with an explicit port even
+    // though neither declaration looks wrong on its own.
+    if (seen.has(decl.name)) {
+      result.offenders.push({
+        vendor: spec.vendor || 'generic',
+        model: spec.model || 'unknown',
+        port: String(decl.name),
+        type: String(decl.type || 'ethernet').toLowerCase(),
+        declaredConnector: String(decl.connector || decl.cage || ''),
+        resolvedCage: String((dev.interfaces.get(decl.name) || { hardware: {} }).hardware.cage),
+        severity: 'high',
+        rules: ['port-name-declared-twice'],
+        origin: fromTemplate ? 'template' : 'explicit',
+        note: 'declared twice: the first port of this name is the one the device keeps, so this one does not exist ' +
+          'and no other check can see it'
+      });
+      continue;
+    }
+    seen.add(decl.name);
+
+    const iface = dev.interfaces.get(decl.name);
+    if (!iface) continue;
+    // Subinterfaces borrow the parent's hardware; auditing them would report
+    // the same physical port twice.
+    if (iface.parent) continue;
+    result.ports++;
+    if (fromTemplate) result.templatePorts++;
+
+    const type = String(iface.type || 'ethernet').toLowerCase();
+    const connector = decl.connector || decl.cage || '';
+    const cage = iface.hardware.cage;
+    const hits = checkPort(type, connector, cage);
+    if (fromTemplate) {
+      for (const h of checkTemplatePort(spec, decl, iface)) hits.push(h);
+      // Nothing in the template says what this port physically is: the cage came from
+      // the port-name heuristic. Counted as coverage, not as a contradiction.
+      if (!declaresConnector(decl)) result.undeclaredPorts.push({ name: decl.name, cage: String(cage) });
+      const mbps = knownSpeedMbps(decl, spec.portTemplate) || 0;
+      if (!declaresConnector(decl) && String(cage) === 'rj45' && mbps >= 10000 && copperIsUndescribed) {
+        result.fibreAsCopper.push({ name: decl.name, speed: String(decl.speed || '') });
+      }
+    }
+    if (!hits.length) continue;
+
+    hits.sort(function (a, b) { return severityRank(a.severity) - severityRank(b.severity); });
+    result.offenders.push({
+      vendor: spec.vendor || 'generic',
+      model: spec.model || 'unknown',
+      port: String(decl.name),
+      type: type,
+      declaredConnector: String(connector),
+      resolvedCage: String(cage),
+      note: hits.map(function (h) { return h.note; }).join('; '),
+      // extra context for the report; JSON consumers can ignore it
+      severity: hits[0].severity,
+      rules: hits.map(function (h) { return h.rule; }),
+      origin: fromTemplate ? 'template' : 'explicit',
+      category: spec.category || 'generic',
+      resolvedCageName: iface.hardware.cageName
+    });
+  }
+  return result;
+}
+
 function main() {
   const argv = process.argv.slice(2);
   const asJson = argv.indexOf('--json') !== -1;
@@ -226,71 +412,74 @@ function main() {
   }
 
   const cat = loadCatalog(path.join(process.cwd(), 'devices'));
-  const topology = new Topology();
 
   const report = {
     models: cat.length,
     vendors: new Set(cat.map(function (s) { return s.vendor; })).size,
     ports: 0,
     offenders: [],
-    failed: []
+    failed: [],
+    // Template-expanded ports, and how many of them nothing in the spec pins down.
+    // These are coverage, not offenders: a spec that declares nothing contradicts
+    // nothing, yet those are exactly the ports no check can hold to a datasheet.
+    templatePorts: 0,
+    templateSpecs: 0,
+    undeclaredTemplatePorts: 0,
+    undeclaredTemplateSpecs: [],
+    fibreAsCopperPorts: 0,
+    fibreAsCopperSpecs: []
   };
   const bySeverity = { high: 0, medium: 0, low: 0 };
   const byRule = {};
   const byType = {};   // wireless / pon / ethernet / ... buckets
   const byVendor = {};
+  const byOrigin = { template: 0, explicit: 0 };
   const devicesSeen = new Set();
 
   for (const spec of cat) {
-    let dev;
-    try {
-      dev = topology.addDevice(spec);
-    } catch (e) {
-      report.failed.push({ model: spec.vendor + '/' + spec.model, error: e.message });
+    const res = auditSpec(spec);
+    if (res.error) {
+      report.failed.push({ model: spec.vendor + '/' + spec.model, error: res.error });
       continue;
     }
 
-    // Expanded interface specs, keyed by name, so we can read what the spec
-    // DECLARED (before the engine resolved a cage for it).
-    const declared = new Map();
-    for (const s of (dev.spec.interfaces || [])) declared.set(s.name, s);
-
-    for (const iface of dev.interfaces.values()) {
-      // Subinterfaces borrow the parent's hardware; auditing them would report
-      // the same physical port twice.
-      if (iface.parent) continue;
-      report.ports++;
-
-      const declaredSpec = declared.get(iface.name) || {};
-      const type = String(iface.type || 'ethernet').toLowerCase();
-      const connector = declaredSpec.connector || declaredSpec.cage || '';
-      const cage = iface.hardware.cage;
-      const hits = checkPort(type, connector, cage);
-      if (!hits.length) continue;
-
-      hits.sort(function (a, b) { return severityRank(a.severity) - severityRank(b.severity); });
-      const worst = hits[0].severity;
-      const offender = {
+    report.ports += res.ports;
+    report.templatePorts += res.templatePorts;
+    if (res.fibreAsCopper && res.fibreAsCopper.length) {
+      report.fibreAsCopperPorts += res.fibreAsCopper.length;
+      report.fibreAsCopperSpecs.push({
         vendor: spec.vendor || 'generic',
         model: spec.model || 'unknown',
-        port: iface.name,
-        type: type,
-        declaredConnector: String(connector),
-        resolvedCage: String(cage),
-        note: hits.map(function (h) { return h.note; }).join('; '),
-        // extra context for the report; JSON consumers can ignore it
-        severity: worst,
-        rules: hits.map(function (h) { return h.rule; }),
-        category: spec.category || 'generic',
-        resolvedCageName: iface.hardware.cageName
-      };
+        ports: res.fibreAsCopper.length,
+        total: res.templatePorts,
+        speed: res.fibreAsCopper[0].speed,
+        first: res.fibreAsCopper[0].name
+      });
+    }
+    if (res.templatePorts) {
+      report.templateSpecs++;
+      if (res.undeclaredPorts.length) {
+        report.undeclaredTemplatePorts += res.undeclaredPorts.length;
+        report.undeclaredTemplateSpecs.push({
+          vendor: spec.vendor || 'generic',
+          model: spec.model || 'unknown',
+          ports: res.undeclaredPorts.length,
+          total: res.templatePorts,
+          first: res.undeclaredPorts[0].name,
+          cage: res.undeclaredPorts[0].cage
+        });
+      }
+    }
+
+    for (const offender of res.offenders) {
       report.offenders.push(offender);
 
       devicesSeen.add(offender.vendor + '/' + offender.model);
-      bySeverity[worst] = (bySeverity[worst] || 0) + 1;
-      for (const h of hits) byRule[h.rule] = (byRule[h.rule] || 0) + 1;
-      const bucket = (type === 'radio') ? 'wireless' : type;
+      bySeverity[offender.severity] = (bySeverity[offender.severity] || 0) + 1;
+      for (const r of offender.rules) byRule[r] = (byRule[r] || 0) + 1;
+      const bucket = (offender.type === 'radio') ? 'wireless' : offender.type;
       byType[bucket] = (byType[bucket] || 0) + 1;
+      byOrigin[offender.origin] = (byOrigin[offender.origin] || 0) + 1;
       byVendor[offender.vendor] = (byVendor[offender.vendor] || 0) + 1;
     }
   }
@@ -324,13 +513,32 @@ function main() {
     models: report.models,
     vendors: report.vendors,
     ports: report.ports,
+    // Ports that only exist because a portTemplate generated them. Before #71 these
+    // were the ones this audit could not see at all.
+    templatePorts: report.templatePorts,
+    templateSpecs: report.templateSpecs,
     devicesOffending: devicesSeen.size,
     portsOffending: report.offenders.length,
     bySeverity: bySeverity,
     byType: byType,
     byRule: byRule,
+    byOrigin: byOrigin,
     byVendor: byVendor,
-    failed: report.failed
+    failed: report.failed,
+    // Coverage, not failures: template ports whose connector nothing in the spec
+    // declares, so the cage is the engine's guess from the port name.
+    undeclaredTemplateHardware: {
+      specs: report.undeclaredTemplateSpecs.length,
+      ports: report.undeclaredTemplatePorts,
+      models: report.undeclaredTemplateSpecs.map(function (u) { return u.vendor + '/' + u.model; })
+    },
+    // 10G+ template ports presented as RJ45 copper on a box whose own wording says
+    // SFP/QSFP and never says copper - the #60 shape, measured.
+    fibreDeclaredAsCopper: {
+      specs: report.fibreAsCopperSpecs.length,
+      ports: report.fibreAsCopperPorts,
+      models: report.fibreAsCopperSpecs.map(function (u) { return u.vendor + '/' + u.model; })
+    }
   };
 
   if (outPath) {
@@ -348,7 +556,10 @@ function main() {
 
   console.log('Port type / connector audit');
   console.log('  models:  ' + report.models + ' across ' + report.vendors + ' vendors');
-  console.log('  ports:   ' + report.ports);
+  console.log('  ports:   ' + report.ports +
+    (report.templatePorts
+      ? '  (' + report.templatePorts + ' of them expanded from a portTemplate in ' + report.templateSpecs + ' specs)'
+      : ''));
   console.log('  offending devices: ' + devicesSeen.size);
   console.log('  offending ports:   ' + report.offenders.length +
     '  (high ' + (bySeverity.high || 0) + ', medium ' + (bySeverity.medium || 0) +
@@ -363,13 +574,56 @@ function main() {
     console.log('  by rule:           ' + rules.map(function (k) {
       return k + ' ' + byRule[k];
     }).join(', '));
+    console.log('  by port origin:    template ' + (byOrigin.template || 0) + ', explicit ' + (byOrigin.explicit || 0));
     console.log('');
     for (const o of report.offenders) {
       console.log('[' + o.severity.toUpperCase() + '] ' + o.vendor + '/' + o.model + ' ' + o.port +
         '  type=' + o.type +
         ' connector=' + (o.declaredConnector || '(none)') +
-        ' cage=' + o.resolvedCage);
+        ' cage=' + o.resolvedCage +
+        (o.origin === 'template' ? '  (from portTemplate)' : ''));
       if (!quiet) console.log('        ' + o.note);
+    }
+  }
+
+  // Coverage, not failure. A spec that declares nothing contradicts nothing, so these
+  // are not offenders - but the cage on every one of these ports came from the engine's
+  // name/rate heuristic, which means the audit and the engine can only ever agree with
+  // each other. This is the list #71 exists to make countable.
+  if (report.undeclaredTemplateSpecs.length) {
+    const list = report.undeclaredTemplateSpecs.slice().sort(function (a, b) {
+      return b.ports - a.ports || naturalCompare(a.vendor + '/' + a.model, b.vendor + '/' + b.model);
+    });
+    console.log('\nTemplate ports whose connector nothing declares: ' + report.undeclaredTemplatePorts +
+      ' port(s) in ' + list.length + ' spec(s)');
+    console.log('  The template names no connector/cage and no speedCaps, so each cage below is inferred from the');
+    console.log('  port name and rate. Nothing can contradict a datasheet here, because the spec states nothing.');
+    if (!quiet) {
+      for (const u of list.slice(0, 15)) {
+        console.log('    - ' + u.vendor + '/' + u.model + '  ' + u.ports + '/' + u.total + ' template ports' +
+          ' (e.g. ' + u.first + ' -> ' + u.cage + ')');
+      }
+      if (list.length > 15) console.log('    ... and ' + (list.length - 15) + ' more (see --json summary.undeclaredTemplateHardware)');
+    }
+  }
+
+  // The #60 shape, measured: a fibre-only box whose template population the engine
+  // renders as RJ45 copper. Reported, not gated - the wording is evidence, not proof.
+  if (report.fibreAsCopperSpecs.length) {
+    const list = report.fibreAsCopperSpecs.slice().sort(function (a, b) {
+      return b.ports - a.ports || naturalCompare(a.vendor + '/' + a.model, b.vendor + '/' + b.model);
+    });
+    console.log('\nTemplate ports at 10G+ presented as RJ45 copper on a box that describes itself as SFP: ' +
+      report.fibreAsCopperPorts + ' port(s) in ' + list.length + ' spec(s)');
+    console.log('  These specs say SFP/QSFP and never say RJ45/copper/10GBASE-T, their template declares no');
+    console.log('  connector, and 10G is not in the engine\'s optical rate list - so the fibre ports are');
+    console.log('  modelled as copper sockets that would take a patch lead (the FortiGate 80F/600E/200G shape, #60).');
+    if (!quiet) {
+      for (const u of list.slice(0, 15)) {
+        console.log('    - ' + u.vendor + '/' + u.model + '  ' + u.ports + '/' + u.total + ' template ports at ' +
+          u.speed + ' (' + u.first + ' -> rj45)');
+      }
+      if (list.length > 15) console.log('    ... and ' + (list.length - 15) + ' more (see --json summary.fibreDeclaredAsCopper)');
     }
   }
 
@@ -390,6 +644,10 @@ if (require.main === module) process.exit(main());
 module.exports = {
   main: main,
   checkPort: checkPort,
+  // Per-spec entry point: hand it a fixture and it audits it exactly as the CLI does.
+  auditSpec: auditSpec,
+  checkTemplatePort: checkTemplatePort,
+  effectiveInterfaces: effectiveInterfaces,
   isKnownCage: isKnownCage,
   effectiveCage: effectiveCage,
   FIBRE_CONNECTORS: FIBRE_CONNECTORS,
