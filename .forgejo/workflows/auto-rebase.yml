@@ -61,9 +61,18 @@ permissions:
 # pull-request runs were being picked up normally. The schedule was firing exactly
 # on time the whole time - every ten minutes, the cron spec advanced correctly -
 # and nothing said so, because the run that would have told us never started.
-concurrency:
-  group: auto-rebase
-  cancel-in-progress: true
+# No concurrency group, deliberately.
+#
+# With one, every run of this workflow enters the same group, and a run that enters
+# a group and never gets a runner blocks every later run in it - the group drains in
+# order, and the order never advances. The database shows the result over the whole
+# history of this file: fourteen runs, ten cancelled and four waiting, and **not one
+# that ever started**. cancel-in-progress does not help, because it cancels running
+# jobs, not waiting ones.
+#
+# Two rebase passes overlapping is not a correctness problem here: each pass reads
+# `mergeable`, rebases one branch at a time, and force-pushes only onto pull-request
+# branches. Worse case is one pass finding a branch already current.
 
 jobs:
   rebase:
