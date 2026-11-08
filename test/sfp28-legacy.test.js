@@ -122,9 +122,9 @@ console.log('\nThe rate never runs away upward:');
 
 console.log('\nEnd to end, with real catalogue parts:');
 {
-  const oneG = catalog.find(function (s) { return s.model === 'ASR1001-X'; });
+  const oneG = catalog.find(function (s) { return s.model === 'ASR 1001-X'; });
   const twentyFive = catalog.find(function (s) { return s.model === '7280R3-48YC8'; });
-  ok(!!oneG, 'a 1G SFP device is in the catalogue (Cisco ASR1001-X)');
+  ok(!!oneG, 'a 1G SFP device is in the catalogue (Cisco ASR 1001-X)');
   ok(!!twentyFive, 'and a 25G SFP28 switch (Arista 7280R3-48YC8)');
 
   if (oneG && twentyFive) {

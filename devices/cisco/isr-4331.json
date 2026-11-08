@@ -75,5 +75,7 @@
     }
   ],
   "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/routers/4000-series-integrated-services-routers-isr/data_sheet-c78-732542.pdf",
-  "notes": "ISR4331/K9: \"3 onboard GE, 2 NIM slots, 1 ISC slot, 1 SM slot\". Hardware installation guide, \"Dual Mode GE or SFP Ports\": the SFP cage shares the physical port with the RJ-45 of the same number and only one media can be active, so each GE port is modelled as a combo pair. GigabitEthernet0 is the separate 10/100/1000 management port. The SFP cages accept 1000BASE-SX/LX/ZX and 100 Mb/s SFPs; PoE+ is not fitted on the 4331 (only 4451-X and 4351 have front-panel PoE+)."
+  "notes": "ISR4331/K9: \"3 onboard GE, 2 NIM slots, 1 ISC slot, 1 SM slot\". Hardware installation guide, \"Dual Mode GE or SFP Ports\": the SFP cage shares the physical port with the RJ-45 of the same number and only one media can be active, so each GE port is modelled as a combo pair. GigabitEthernet0 is the separate 10/100/1000 management port. The SFP cages accept 1000BASE-SX/LX/ZX and 100 Mb/s SFPs; PoE+ is not fitted on the 4331 (only 4451-X and 4351 have front-panel PoE+). Catalogued twice until issue #60: devices/cisco/isr4331.json held the same router under the compact spelling and modelled the three onboard GE ports as plain RJ-45, dropping the SFP halves of each dual-mode pair. That file is deleted - the compact form is the same device, its normalised key cisco|isr4331 is already taken, and adding it again will be refused by the importer and by test/hardware-invariants.test.js.",
+  "icon": "router",
+  "color": "#2563eb"
 }

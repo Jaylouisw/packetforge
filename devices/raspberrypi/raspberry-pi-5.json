@@ -25,5 +25,7 @@
     }
   ],
   "sourceUrl": "https://www.raspberrypi.com/products/raspberry-pi-5/",
-  "notes": "1x 1GbE only - no 2.5GbE on the Pi 5 despite many RK3588 competitors having it. USB ports are not modelled. Existing catalogue entry 'RaspberryPi5' declares eth0 only and omits the onboard radio."
+  "notes": "1GbE only - the Pi 5 has no 2.5GbE despite many RK3588 competitors having it, and the single RJ45 is fed by the RP1 southbridge rather than the SoC. The standard board carries dual-band 2.4/5 GHz 802.11ac 2x2 and Bluetooth 5.0 (there is no non-wireless Pi 5 SKU), so wlan0 is modelled alongside eth0. USB and microSD are not network interfaces and are not modelled. Catalogued twice until issue #60: devices/raspberrypi/RaspberryPi5.json was the compact-spelling entry, with eth0 only, no radio and no source - that file is deleted. The compact form is the same board, its normalised key raspberrypi|raspberrypi5 is already taken, and adding it again will be refused by the importer and by test/hardware-invariants.test.js.",
+  "icon": "host",
+  "color": "#c51a4a"
 }

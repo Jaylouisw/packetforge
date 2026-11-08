@@ -10,9 +10,11 @@
 //   - 68 devices advertised optics their ports could not deliver
 //   - a switch was credited 500 W of PoE from its power-supply rating
 //   - CX 6100 12G was modelled with 14 ports where the datasheet has 16
+//   - three models were catalogued twice under punctuation variants of one name
+//     ("ASR1001-X" beside "ASR 1001-X"), which an exact-string check could not see
 const path = require('path');
 const { Topology } = require('../engine');
-const { loadCatalog } = require('../devices/registry');
+const { loadCatalog, modelKey } = require('../devices/registry');
 const mediaLib = require('../engine/media');
 
 let passed = 0, failed = 0;
@@ -380,6 +382,33 @@ console.log('\nVendor and model identity is unique:');
     (dupes.length ? ' (' + dupes.slice(0, 3).join(', ') + ')' : ''));
   ok(catalog.length >= 300, 'the catalogue is still populated (' + catalog.length + ' models)');
 }
+
+console.log('\nPunctuation cannot smuggle a duplicate into the catalogue:');
+{
+  // The check above compares the exact string, so it is blind to a vendor spelling one
+  // model two ways. Issue #60 shipped exactly that: "ASR1001-X" beside "ASR 1001-X",
+  // "ISR4331" beside "ISR 4331" and "RaspberryPi5" beside "Raspberry Pi 5". Nothing
+  // collided at write time either, because the importer names files by slug(model) and
+  // a space and a dash slug differently - so the catalogue offered the same box twice,
+  // with different port counts, and whichever copy the search happened to return was
+  // the one you got. Identity therefore has to be punctuation-insensitive: compare the
+  // vendor and model with every non-alphanumeric character stripped.
+  const byKey = new Map();
+  const clashes = [];
+  for (const s of catalog) {
+    const key = modelKey(s);
+    if (byKey.has(key)) {
+      clashes.push(key + ' (' + byKey.get(key).model + ' == ' + s.model + ')');
+    } else {
+      byKey.set(key, s);
+    }
+  }
+  ok(clashes.length === 0, 'no two specs share a normalised vendor+model key' +
+    (clashes.length ? ' (' + clashes.slice(0, 3).join('; ') + ')' : ''));
+  ok(byKey.size === catalog.length, 'every model squashes to a distinct key (' +
+    byKey.size + '/' + catalog.length + ')');
+}
+
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
