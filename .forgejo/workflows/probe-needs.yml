@@ -1,0 +1,36 @@
+# Diagnostic only. Two jobs gated on a needs output, one expected to run and one
+# expected to be skipped, so we can see which of those this Forgejo build actually
+# does - the fast lane in #1091 depended on it and every gated job came back
+# "skipped" while its dependency was still waiting.
+name: Probe needs
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  a:
+    name: Probe a (sets output)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      flag: ${{ steps.s.outputs.flag }}
+    steps:
+      - id: s
+        run: |
+          echo "flag=true" >> "$GITHUB_OUTPUT"
+          echo "probe a ran"
+  b:
+    name: Probe b (runs when flag is true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: a
+    if: needs.a.outputs.flag == 'true'
+    steps:
+      - run: echo "probe b ran - gated jobs work on this build"
+  c:
+    name: Probe c (skipped when flag is true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: a
+    if: needs.a.outputs.flag != 'true'
+    steps:
+      - run: echo "probe c ran - the gate did not hold"
