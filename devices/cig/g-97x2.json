@@ -1,0 +1,45 @@
+{
+  "vendor": "cig",
+  "model": "G-97X2",
+  "label": "CIG G-97X2 GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9606, MIPSBE Lexra @ 700 MHz, Linux 2.6.30 Realtek RSDK) with 4× 1000Base-T LAN ports, 2× POTS (FXS) voice ports and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC (Semtech 25L95), managed over telnet, FTP or serial (no web UI). Also sold as the Frontier FOG421.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-cig-g-97x2/"
+}
