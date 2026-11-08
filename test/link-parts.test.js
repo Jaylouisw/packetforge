@@ -181,9 +181,18 @@ console.log('\nA medium resolves to the parts that implement it:');
 {
   const pf = boot().pf;
   const lr = pf.partsForMedia('10gbase-lr');
-  ok(lr.length === 1 && lr[0].partNumber === 'SFP-10G-LR',
-    '10gbase-lr resolves to SFP-10G-LR (' + lr.map(function (p) { return p.partNumber; }).join(', ') + ')');
-  ok(pf.partsForMedia('10GBASE-LR').length === 1, 'the media id is matched case-insensitively');
+  // More than one vendor makes a 10GBASE-LR module, and a lab may hold any of them, so the
+  // resolver returns all of them. What must stay stable is the *first*, because that is the
+  // part the inspector headlines - a vendor-agnostic toolbox whose advice reordered itself
+  // when a catalogue entry was appended would be quoting its own file order as engineering.
+  ok(lr.length >= 2, '10gbase-lr resolves to every part that implements it (' +
+    lr.map(function (p) { return p.partNumber; }).join(', ') + ')');
+  ok(lr[0].partNumber === 'SFP-10G-LR', 'and the first is the one the inspector headlines (' +
+    (lr[0] && lr[0].partNumber) + ')');
+  ok(lr.some(function (p) { return p.partNumber === 'OSX010000'; }),
+    'a Huawei 10GBASE-LR part is offered alongside the Cisco one (#237)');
+  ok(pf.partsForMedia('10GBASE-LR').length === lr.length,
+    'the media id is matched case-insensitively');
   ok(pf.partsForMedia('10gbase-t')[0].partNumber === 'SFP-10G-T-X',
     '10gbase-t resolves to the copper SFP+ module');
   ok(pf.partsForMedia('1000base-t').length === 1, '1000base-t resolves to GLC-TE');
