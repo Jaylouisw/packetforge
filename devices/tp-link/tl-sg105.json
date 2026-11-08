@@ -1,0 +1,70 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG105",
+  "label": "TP-Link TL-SG105 5-port gigabit desktop switch",
+  "category": "switch",
+  "description": "Unmanaged 5-port 10/100/1000 Mbps desktop switch: 5x auto-negotiation RJ45 ports with Auto-MDI/MDIX, metal casing, fanless, external 5 V DC/0.6 A power adapter. Switching capacity 10 Gbps, packet forwarding rate 7.4 Mpps, 2K MAC table, 9 KB jumbo frames, 3.0 W max consumption. Fixed-function 802.1p/DSCP QoS, IGMP snooping and loop prevention only - no management interface. No SFP cage and no PoE.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202606/20260612/TL-SG105(UN)9.0_Datasheet.pdf",
+  "icon": "switch",
+  "color": "#0ea5e9"
+}
