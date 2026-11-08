@@ -1,0 +1,78 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS310-8G+2S+IN",
+  "label": "CRS310-8G+2S+IN",
+  "category": "l3-switch",
+  "description": "MikroTik CRS310-8G+2S+IN (CRS310-8G+2S+IN) — 8x 2.5G RJ45, 2x 10G SFP+. ARM 32bit 2-core 98DX226S.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs310_8g_2s_in"
+}
