@@ -1,0 +1,36 @@
+{
+  "vendor": "fs",
+  "model": "AP-N515",
+  "label": "FS AP-N515",
+  "category": "wireless",
+  "description": "Indoor Wi-Fi 6 access point with a single gigabit Ethernet port.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://resource.fs.com/mall/doc/202307121051483d3v0p.pdf",
+  "notes": "Vendor figures from the FS datasheet: 1x 10/100/1000 1000Base-T RJ45 port, 802.11ax. The datasheet gives the standard but the per-band maximum-rate row did not extract, so the two radios are modelled at the AX1800 split (574M on 2.4 GHz, 1.2G on 5 GHz) that this class uses - treat those two figures as the product class rather than a quoted row."
+}
