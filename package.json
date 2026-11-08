@@ -53,7 +53,9 @@
     "test:flow": "node test/flow.test.js",
     "test:pon-connectors": "node test/pon-connectors.test.js",
     "test:ui-dom": "node test/ui-dom-contract.test.js",
-    "smoke": "node scripts/smoke-http.js"
+    "smoke": "node scripts/smoke-http.js",
+    "wiki:build": "node scripts/build-wiki.js",
+    "wiki:publish": "node scripts/publish-wiki.js"
   },
   "keywords": [
     "network",
