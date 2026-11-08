@@ -1,0 +1,49 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBD22UGS-5HPacD2HnD-15S",
+  "label": "mANTBox 52 15s",
+  "category": "ptp",
+  "description": "MikroTik mANTBox 52 15s (RBD22UGS-5HPacD2HnD-15S) — 1x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 4-core IPQ-4019.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/mantbox_52_15s"
+}
