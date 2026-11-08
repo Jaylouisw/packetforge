@@ -40,7 +40,8 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 - One logical change per pull request.
 - Keep the project **zero-dependency** — do not add npm packages without a strong
   reason and a discussion in the issue first.
-- All checks must pass before merge (CI runs them automatically).
+- All checks must pass before merge (CI runs them automatically — what each one
+  does, and what a red one means, is in [docs/CI.md](docs/CI.md)).
 
 ## Development setup
 
@@ -128,7 +129,8 @@ No trailing period, no scope prefixes.
 ## Review process
 
 1. A maintainer reviews the PR.
-2. CI must be green (tests, syntax check, example-lab build).
+2. CI must be green (tests, syntax check, example-lab build). [docs/CI.md](docs/CI.md)
+   lists the five checks and how to run each of them locally.
 3. For device additions, the maintainer cross-checks the datasheet.
 
 Thank you for contributing!
