@@ -3,7 +3,7 @@
   "model": "UA-G3-SK-Pro",
   "label": "UniFi G3 Starter Kit Pro",
   "category": "iot",
-  "description": "UniFi G3 Starter Kit Pro (UA-G3-SK-Pro) - 5x 1G RJ45. 802.3bt PoE-in; 30 W max.",
+  "description": "UniFi G3 Starter Kit Pro (UA-G3-SK-Pro) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 30 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",
