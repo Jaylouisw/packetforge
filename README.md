@@ -81,17 +81,36 @@ echo/reply travel across the link with a live animation and event log.
 
 | Area | What's implemented |
 |------|--------------------|
-| Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | Cisco, Juniper, Arista, MikroTik, Huawei, Ubiquiti, TP-Link, Netgear, Zyxel, GL.iNet, Protectli, QNAP, Qotom, TRENDnet, Adtran, Raspberry Pi + generic models (**91 models / 17 vendors**) |
+| Devices | 25 categories: router, L2 switch, L3 switch, PC, laptop, desktop, server, firewall, access point, PTP radio, modem, ONT/ONU, OLT, splitter, NAS, NVR, camera, printer, phone, tablet, IoT, powerline, tap, cloud, generic host |
+| Vendors | Cisco, Juniper, Arista, MikroTik, Huawei, Ubiquiti, TP-Link, Netgear, Zyxel, GL.iNet, Protectli, QNAP, Qotom, TRENDnet, Adtran, Raspberry Pi, Aruba, HPE, Dell, Supermicro, Nokia, ZTE, Ericsson, Fortinet, Palo Alto, F5 + more: **1494 models / 243 vendors** (plus generic models) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
-| L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
-| Protocols | ARP (request/reply, cache), ICMP echo request/reply, TTL handling |
-| Physical layer | 64 media types, 19 connector cages, per-port speed caps + PoE, live feasibility validation |
+| L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match, OSPF (areas, SPF, AD 110) and BGP (eBGP/iBGP, AD 20/200) feeding the same table |
+| Protocols | ARP (request/reply, cache), ICMP echo request/reply + TTL handling, IPv6 neighbour discovery + SLAAC, LLDP, DNS (A/AAAA/CNAME/MX, with NXDOMAIN vs NODATA vs SERVFAIL kept distinct), SCION path selection, TCP flows (handshake, ACKs, close) |
+| Policy | Standard and extended ACLs with wildcard masks and implicit deny, in the forwarding path; static NAT and PAT overload |
+| Physical layer | 64 media types across 8 families, 19 connector cages, per-port speed caps + PoE, live feasibility validation that refuses impossible cables |
 | L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
-| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping` |
+| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping`, `vlan`/`switchport`, `channel-group`, `ip access-group` + `access-list`, `ip ospf`/`ip bgp`, `dns`, `scion`, `encapsulation dot1q` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
 | Persistence | save/load topologies as JSON (import/export buttons) |
 | Sync | WebSocket broadcasts topology edits to every connected client in real time |
+
+### What this does not model yet
+
+Kept here rather than buried, because a simulator that overstates itself is worse than a
+small one. `docs/SIMULATION.md` carries the full picture, section by section.
+
+- **DHCP and VRRP are libraries, not data paths.** Both are complete and tested, and neither
+  is called by the simulator: `ip address dhcp` sets a flag nothing reads, and a configured
+  VRRP group elects nobody, so a host pointed at a virtual gateway times out.
+- **No ICMP errors.** TTL expiry and an unroutable destination are dropped silently, which is
+  why there is no `traceroute`.
+- **OSPF and BGP compute routes; they do not exchange packets.** No adjacencies over the wire,
+  no timers, no LSA or UPDATE on the link.
+- **No FHRP failover, no timers, no queueing.** A run is computed, not played out; there is no
+  master-down interval, no retransmission timer, no congestion window.
+- **The "firewall" is stateless.** ACLs are packet filters, not connection tracking.
+- **802.11 is a link, not a protocol.** Rates and bands decide whether an association is
+  possible; there is no beaconing, association or encryption handshake.
 
 ---
 
