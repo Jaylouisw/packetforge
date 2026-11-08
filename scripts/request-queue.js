@@ -15,15 +15,13 @@
 // requester, and the script says which field is missing so the reply can be
 // specific rather than "please provide more information".
 
-const { execFileSync } = require('child_process');
 const path = require('path');
+const tracker = require('./forgejo-api');
 const { loadCatalog } = require('../devices/registry');
 
-const REPO = process.env.PF_REPO || 'Jaylouisw/packetforge';
-
-function gh(args) {
-  return execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-}
+// The tracker is Forgejo. `gh` would either not exist or, worse, quietly answer about the GitHub
+// mirror - a backlog nobody is working on.
+const REPO = tracker.OWNER + '/' + tracker.NAME;
 
 // The issue form renders each field as '### Label' followed by the value.
 function field(body, label) {
@@ -61,7 +59,7 @@ function slug(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 }
 
-function main() {
+async function main() {
   const argv = process.argv.slice(2);
   const asJson = argv.includes('--json');
   const skelIdx = argv.indexOf('--skeleton');
@@ -71,18 +69,22 @@ function main() {
     return String(s.vendor).toLowerCase() + '|' + String(s.model).toLowerCase();
   }));
 
-  let raw;
-  try {
-    raw = gh(['issue', 'list', '--repo', REPO, '--state', 'open', '--label', 'device-request',
-      '--limit', '500', '--json', 'number,title,createdAt,author,url,body']);
-  } catch (e) {
+  const gate = tracker.availability();
+  if (!gate.available) {
     console.error('Could not read issues from ' + REPO + '.');
-    console.error('Is the `gh` CLI installed and authenticated?  gh auth status');
-    console.error(String(e.message).split('\n')[0]);
+    console.error(gate.reason);
+    // Exit 2, not 0: "could not look" must never be reported as "nothing to do".
     process.exit(2);
   }
 
-  const issues = JSON.parse(raw);
+  let issues;
+  try {
+    issues = await tracker.listOpenIssues({ labels: 'device-request', max: 500 });
+  } catch (e) {
+    console.error('Could not read issues from ' + REPO + '.');
+    console.error(String(e.message).split('\n')[0]);
+    process.exit(2);
+  }
 
   // Hand-filed issues may not use the form; fall back to the title.
   const queue = issues.map(function (it) {
@@ -110,7 +112,7 @@ function main() {
       number: it.number,
       title: it.title,
       url: it.url,
-      author: it.author ? it.author.login : null,
+      author: it.author || null,
       created: it.createdAt,
       ageDays: Math.floor((Date.now() - new Date(it.createdAt).getTime()) / 86400000),
       vendor: vendor || null,
@@ -191,5 +193,10 @@ function main() {
 module.exports = { field: field, slug: slug, CATEGORY_MAP: CATEGORY_MAP, parseIssue: null };
 
 if (require.main === module) {
-  main();
+  // main() is async now: an unhandled rejection would exit 0 on some Node versions and look like
+  // a clean run that simply found nothing.
+  main().catch(function (e) {
+    console.error(String(e && e.stack || e));
+    process.exit(2);
+  });
 }

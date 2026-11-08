@@ -30,6 +30,11 @@ jobs:
         # A green suite on the newest Node means nothing for the oldest matrix job, and that
         # failure reads like a flaky runner rather than "you used a Node 20 API".
         run: node scripts/check-node-surface.js
+      - name: Every project URL points at Forgejo
+        # The project moved and the links did not follow: the README said to clone from GitHub and
+        # SECURITY.md sent reports to a GitHub advisory page. Nothing failed, because a stale URL
+        # looks like every other string in the repo.
+        run: node scripts/check-canonical-urls.js
       - name: Full test suite
         run: npm test
       - name: Build & verify example labs

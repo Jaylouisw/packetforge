@@ -53,7 +53,7 @@ PacketForge has **no runtime dependencies**. Node 18 or newer and a browser is t
 list - no npm install, no Docker, no database.
 
 \`\`\`bash
-git clone https://github.com/Jaylouisw/packetforge.git
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js          # http://localhost:8000
 \`\`\`
@@ -97,7 +97,7 @@ The catalogue is the project. If a device is missing, that is a bug and we want 
 
 ## How to ask
 
-Open a **[device request](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)**
+Open a **[device request](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)**
 with:
 
 - **vendor and exact model number** - the string printed on the box, e.g. \`CRS326-24G-2S+RM\`
@@ -139,7 +139,7 @@ game, and increasingly already there.
 pages['Simulation-Fidelity.md'] = `# Simulation fidelity
 
 The authoritative, file-and-line-cited answer lives in
-**[docs/SIMULATION.md](https://github.com/Jaylouisw/packetforge/blob/main/docs/SIMULATION.md)**,
+**[docs/SIMULATION.md](https://git.jayw.uk/jaylouisw/packetforge/src/branch/main/docs/SIMULATION.md)**,
 which is written from \`engine/*.js\`. This page is a summary; when the two disagree, that one
 is right.
 
@@ -162,7 +162,7 @@ modelled - a link is either passing traffic or it is not.
 ## Not modelled
 
 Also listed there, in full. If a feature is not in the matrix, assume it is not modelled and
-ask [in an issue](https://github.com/Jaylouisw/packetforge/issues) rather than assuming.
+ask [in an issue](https://git.jayw.uk/jaylouisw/packetforge/issues) rather than assuming.
 `;
 
 pages['Contributing.md'] = `# Contributing
@@ -218,8 +218,8 @@ pages['_Sidebar.md'] = `**PacketForge**
 
 ---
 
-- [Repository](https://github.com/Jaylouisw/packetforge)
-- [Request a device](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)
+- [Repository](https://git.jayw.uk/jaylouisw/packetforge)
+- [Request a device](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 `;
 
 fs.mkdirSync(OUT, { recursive: true });

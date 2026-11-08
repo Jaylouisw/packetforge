@@ -3,8 +3,8 @@
 **An open-source, vendor-agnostic network simulator — a modern alternative to
 Cisco Packet Tracer.**
 
-[![CI](https://github.com/Jaylouisw/packetforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Jaylouisw/packetforge/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Jaylouisw/packetforge/actions/workflows/codeql.yml/badge.svg)](https://github.com/Jaylouisw/packetforge/actions/workflows/codeql.yml)
+[![CI](https://git.jayw.uk/jaylouisw/packetforge/badges/workflows/ci.yml/badge.svg)](https://git.jayw.uk/jaylouisw/packetforge/actions?workflow=ci.yml)
+[![CodeQL](https://git.jayw.uk/jaylouisw/packetforge/actions/workflows/codeql.yml/badge.svg)](https://git.jayw.uk/jaylouisw/packetforge/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 PacketForge lets you drag-and-drop routers, switches, hosts, firewalls, access
@@ -37,7 +37,7 @@ and they all run the same simulation engine and the same command set.
 ### From source
 
 ```bash
-git clone https://github.com/Jaylouisw/packetforge.git
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js
 ```
@@ -136,7 +136,8 @@ packetforge/
 ├── examples/        # ready-to-import lab topologies
 ├── test/            # engine + CLI tests
 ├── scripts/         # syntax checker + merge tools
-├── .github/         # CI/CD workflows, issue/PR templates
+├── .github/         # CI/CD workflows, issue/PR templates (read by Forgejo too)
+├── .forgejo/        # Forgejo Actions workflows
 └── docs/            # architecture, registry, CLI, roadmap, link state
 ```
 
@@ -172,9 +173,15 @@ Contributions are welcome — especially new hardware models. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide and
 [docs/DEVICE_REGISTRY.md](docs/DEVICE_REGISTRY.md) for the device schema.
 
+## Where this project lives
+
+Development, CI and releases run on **Forgejo**; GitHub is a read-only mirror. Where the two differ,
+Forgejo is right. [docs/MIRRORING.md](docs/MIRRORING.md) explains what stays in sync, what cannot,
+and how a contribution made on GitHub reaches review here.
+
 ### Want a device added?
 
-[**Open a hardware request →**](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)
+[**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
 Every device is one JSON file, so a good request is mostly a good datasheet link.
 Anything internet-connected is in scope: routers, switches, firewalls, APs and

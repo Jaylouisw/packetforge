@@ -19,14 +19,13 @@
 //   node scripts/missing-devices.js examples lab5.json
 //   node scripts/missing-devices.js --stubs          # also write research/incoming/missing-<vendor>.json
 //   node scripts/missing-devices.js --json           # machine-readable
-//   node scripts/missing-devices.js --no-issues      # skip the GitHub device-request scan
+//   node scripts/missing-devices.js --no-issues      # skip the device-request scan
 //   node scripts/missing-devices.js --strict         # also fail on open issue requests
 //
 // Exit codes: 0 = every referenced model exists, 1 = at least one is missing,
 // 2 = the scan itself could not run (bad path, unreadable topology).
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
 const { loadCatalog } = require('../devices/registry');
 const { field, slug } = require('./request-queue');
 
@@ -37,7 +36,11 @@ const ROOT = path.join(__dirname, '..');
 const DEVICES = process.env.PF_DEVICES ? path.resolve(process.env.PF_DEVICES) : path.join(ROOT, 'devices');
 const INCOMING = process.env.PF_INCOMING ? path.resolve(process.env.PF_INCOMING) : path.join(ROOT, 'research', 'incoming');
 const REPO = process.env.PF_REPO || 'Jaylouisw/packetforge';
-const TEMPLATE_URL = 'https://github.com/' + REPO + '/issues/new?template=device_request.yml';
+// The canonical host, from the one file that defines it. A hardware request link that points
+// somewhere other than where development happens is a dead end for the person following it.
+const canonical = require('./canonical');
+const tracker = require('./forgejo-api');
+const TEMPLATE_URL = canonical.issue('device_request.yml');
 
 // The vocabulary scripts/import-devices.js will accept. A skeleton outside this
 // set is a draft, not a device, which is why 'unknown' exists here and nowhere
@@ -199,26 +202,15 @@ function parseIssueRequests(issues) {
 
 // Open requests are a wish list, not a broken lab, so they are reported in their
 // own section and only gate CI under --strict.
-function scanIssues() {
-  let raw;
-  try {
-    raw = execFileSync('gh', ['issue', 'list', '--repo', REPO, '--state', 'open',
-      '--label', 'device-request', '--limit', '500', '--json', 'number,title,url,body'],
-    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 20000, stdio: ['ignore', 'pipe', 'pipe'] });
-  } catch (e) {
-    const msg = String(e && e.message || e);
-    const reason = /ENOENT/.test(msg)
-      ? 'the `gh` CLI is not installed'
-      : /timed out|ETIMEDOUT/.test(msg)
-        ? '`gh` timed out reaching api.github.com'
-        : '`gh` is installed but not authenticated for ' + REPO;
-    return { available: false, reason: reason, count: 0, requests: [] };
+async function scanIssues() {
+  // Forgejo, through its API. The old version shelled out to `gh`, which on a machine that has it
+  // installed and authenticated answers about the GitHub mirror instead - a backlog nobody works
+  // on, reported as fact.
+  const scan = await tracker.scanRequests({ labels: 'device-request', max: 500 });
+  if (!scan.available) {
+    return { available: false, reason: scan.reason, count: 0, requests: [] };
   }
-  let issues;
-  try { issues = JSON.parse(raw); } catch (e) {
-    return { available: false, reason: '`gh` returned unparsable JSON', count: 0, requests: [] };
-  }
-  const requests = parseIssueRequests(issues);
+  const requests = parseIssueRequests(scan.requests);
   return { available: true, reason: null, count: requests.length, requests: requests };
 }
 
@@ -302,7 +294,7 @@ function writeSkeletons(missing) {
   return written;
 }
 
-function main() {
+async function main() {
   const argv = process.argv.slice(2);
   const flags = new Set(argv.filter(function (a) { return a.startsWith('--'); }));
   const targets = argv.filter(function (a) { return !a.startsWith('--'); });
@@ -366,7 +358,7 @@ function main() {
     return (a.vendor + '|' + a.model.toLowerCase()).localeCompare(b.vendor + '|' + b.model.toLowerCase());
   });
 
-  const issues = scanGh ? scanIssues() : { available: false, reason: 'issue scan disabled with --no-issues', count: 0, requests: [] };
+  const issues = scanGh ? await scanIssues() : { available: false, reason: 'issue scan disabled with --no-issues', count: 0, requests: [] };
   // An open request only counts as a gap if the catalogue still lacks it.
   const seen = new Set(missing.map(function (m) { return m.vendor + '|' + m.model.toLowerCase(); }));
   const issueMissing = diffIssueRequests(issues.requests, have, seen);
@@ -501,4 +493,9 @@ module.exports = {
   TEMPLATE_URL: TEMPLATE_URL
 };
 
-if (require.main === module) process.exit(main());
+if (require.main === module) {
+  main().then(function (code) { process.exit(code); }).catch(function (e) {
+    console.error(String(e && e.stack || e));
+    process.exit(2);
+  });
+}

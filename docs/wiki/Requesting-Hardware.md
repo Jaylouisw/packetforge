@@ -4,7 +4,7 @@ The catalogue is the project. If a device is missing, that is a bug and we want 
 
 ## How to ask
 
-Open a **[device request](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)**
+Open a **[device request](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)**
 with:
 
 - **vendor and exact model number** - the string printed on the box, e.g. `CRS326-24G-2S+RM`
