@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLHGR&R11e-4G",
+  "label": "LHG 4G kit",
+  "category": "ptp",
+  "description": "MikroTik LHG 4G kit (RBLHGR&R11e-4G) — 1x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/lhg_4g_kit"
+}
