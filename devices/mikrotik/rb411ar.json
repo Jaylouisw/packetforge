@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB411AR",
+  "label": "RB411AR",
+  "category": "wireless",
+  "description": "MikroTik RB411AR (RB411AR) — 1x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR7161.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "54M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB411AR"
+}
