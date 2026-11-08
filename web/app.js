@@ -1327,7 +1327,21 @@
     'GSFP-43-20C|sfp|GPON OLT Class C+ (ITU-T G.984.2)|2488|20000|SC/UPC|1490',
     'XGS-SFP-52-20N2I|sfp+|XGS-PON OLT Class N2 (ITU-T G.9807.1)|9953|20000|SC/UPC|1577',
     'GSFP-34-20B-I|sfp|GPON ONU Class B+ (ITU-T G.984.2)|2488|20000|SC/UPC|1310',
-    'XGS-SFP-25-20I|sfp+|XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)|9953|20000|SC/APC|1270'
+    'XGS-SFP-25-20I|sfp+|XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)|9953|20000|SC/APC|1270',
+    // Huawei 10GE SFP+ family (#237). Part names in Huawei's own datasheet carry the
+    // facts - "Optical Transceiver,SFP+,10G,Single-mode Module(1310nm,10km,LC)" - so the
+    // reach and wavelength here are read off the part name, not inferred from the rate.
+    // The two eKit rows are the same optics sold through a different channel; they are
+    // listed separately because a lab ordering parts needs the part number it will receive.
+    'OMXD30000|sfp+|10GBASE-SR|10000|300|LC/UPC|850',
+    'OSX010000|sfp+|10GBASE-LR|10000|10000|LC/UPC|1310',
+    'OSX040N01|sfp+|10GBASE-ER|10000|40000|LC/UPC|1550',
+    'SFP-10G-ZR|sfp+|10GBASE-ZR|10000|80000|LC/UPC|1550',
+    'SFP-10G-SR-eKit|sfp+|10GBASE-SR|10000|300|LC/UPC|850',
+    'SFP-10G-LR-eKit|sfp+|10GBASE-LR|10000|10000|LC/UPC|1310',
+    'SFP-10G-BXU1|sfp+|10GBASE-BX10-U|10000|10000|LC/UPC|1270',
+    'SFP-10G-BXD1|sfp+|10GBASE-BX10-D|10000|10000|LC/UPC|1330',
+    'SFP-10GBaseT-SR|sfp+|10GBASE-T|10000|30|RJ45|'
   ];
 
   // "10GBASE-ER/EW (CWDM)" -> "10gbase-er": the first token is the medium the part
