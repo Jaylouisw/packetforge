@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "L11UG-5HaxD-NB",
+  "label": "NetBox 5 ax",
+  "category": "ptp",
+  "description": "MikroTik NetBox 5 ax (L11UG-5HaxD-NB) — 1x 1G RJ45, Wi-Fi 5 GHz. ARM 32bit 2-core IPQ-5010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/netbox_5_ax"
+}
