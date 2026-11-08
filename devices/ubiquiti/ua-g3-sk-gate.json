@@ -3,7 +3,7 @@
   "model": "UA-G3-SK-Gate",
   "label": "UniFi G3 Gate Starter Kit",
   "category": "iot",
-  "description": "UniFi G3 Gate Starter Kit (UA-G3-SK-Gate) - 5x 1G RJ45. 802.3bt PoE-in; 22 W max.",
+  "description": "UniFi G3 Gate Starter Kit (UA-G3-SK-Gate) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 22 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",
