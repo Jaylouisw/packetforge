@@ -1,0 +1,47 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UBB-XG",
+  "label": "UniFi Building Bridge XG",
+  "category": "wireless",
+  "description": "UniFi Building Bridge XG (UBB-XG) - 1x 1G RJ45 + 1x 10G SFP+ (10G/1G). 802.3bt PoE-in; WiFi 5; up to 6 Gbps PHY rate; 29 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "6G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/ubb-xg"
+}
