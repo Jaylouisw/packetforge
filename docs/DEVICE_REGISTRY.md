@@ -212,31 +212,23 @@ To add a "Northbound NFX-9000" router, create
 Restart the server (or hit the catalog endpoint) and the model appears in the
 palette, fully simulated — no other changes required.
 
-## Included catalog
+## What is in the catalogue
 
-22 models across 7 vendors: **Cisco** (ISR 4321, Catalyst 2960, Catalyst 9300,
-ASA 5506), **Juniper** (MX204, EX2300), **Arista** (7050SX3, 7280SR),
-**MikroTik** (CRS326, CCR1036), **Huawei** (S5735, AR6140), **Ubiquiti**
-(EdgeSwitch 16, EdgeRouter 4), plus 9 generic models (router, L2/L3 switch, PC,
-server, firewall, AP, cloud).
+**1,717 models across 245 vendors**, and it grows every time somebody's hardware is
+added. The largest vendors by model count:
 
-## Asking for hardware that is not here
+| vendor | models | | category | models |
+|---|---:|---|---|---:|
+| MikroTik | 353 | | router | 225 |
+| Ubiquiti | 317 | | switch | 211 |
+| Aruba | 72 | | point-to-point | 196 |
+| Huawei | 64 | | wireless | 186 |
+| Cisco | 48 | | L3 switch | 137 |
+| TP-Link | 34 | | IoT | 112 |
 
-If a device is missing, open an issue titled `[Device]: <vendor> <model>` on the forge.
-The title matters: the sweeper reads these titles to decide whether a request is already
-satisfied, and it matches on the model, including a code in brackets.
+The authoritative list is not this page — it is the directory. `GET /api/catalog` returns
+every spec the running server has loaded, with the category groupings the palette uses,
+and `GET /api/requests` returns the hardware people have asked for that is not here yet.
 
-```
-[Device]: MikroTik hEX Refresh Router (E50UG) — the S version is in the catalogue
-```
-
-- **Keep the model code in brackets.** `HUAWEI 4G Mobile WiFi 3 (E5785)` and
-  `(E5783)` are two different products; a title without the code cannot be matched to
-  either and both will sit open.
-- **The app tells you the status now.** While searching the palette, requests that
-  match what you typed appear under the results as *Requested, not yet modelled*, with a
-  link to the issue. So "is this supported?" has an answer even when the answer is "not
-  yet, but somebody has asked", and you can check before filing a duplicate.
-- The list comes from **`GET /api/requests`**: open device requests, cached for ten
-  minutes, `available: false` when the forge cannot be reached. It is deliberately not
-  an error in that case — the palette works from the catalogue either way.
+If a number here disagrees with the directory, the directory is right; this section is
+prose and prose goes stale.
