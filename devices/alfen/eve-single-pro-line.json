@@ -1,0 +1,29 @@
+{
+  "vendor": "alfen",
+  "model": "Eve Single Pro-line",
+  "label": "Alfen Eve Single Pro-line 22 kW AC charge point",
+  "category": "iot",
+  "description": "Alfen Eve Single Pro-line (904460023, 3-phase, type 2 socket) is a 22 kW AC EV charge point with a 3.5-inch display, RFID authorisation, MID-certified energy metering and 6 mA DC fault detection. It has a dedicated RJ45 LAN connection plus 2.4 GHz Wi-Fi and an optional LTE modem.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://eu-assets.contentstack.com/v3/assets/blt08d332658a89f766/blta4f9411e56ab5073/69cb8d6be953b74d95580f3a/904460xxx-ace-ds-1200-1.3-en_datasheet_eve_single_int.pdf",
+  "notes": "Datasheet lists a dedicated Ethernet/LAN network connection; the installation manual names the physical port as an RJ-45 connector for LAN and does not publish a line rate, so 100BASE-TX is modelled as the typical figure for this class of controller. OCPP 1.6J to the backend; RS-485 Modbus RTU for an external energy meter; RJ-11 (or TIC over RS-485 in France) for a smart meter; Wi-Fi 802.11 b/g/n 2.4 GHz and LTE are alternatives to the wired port, not extra ports. 22 kW only guaranteed to 40 C ambient; IP55/IK10."
+}

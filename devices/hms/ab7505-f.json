@@ -1,0 +1,36 @@
+{
+  "vendor": "hms",
+  "model": "AB7505-F",
+  "label": "Anybus X-gateway Modbus TCP Server / PROFINET-IRT Device",
+  "category": "host",
+  "description": "DIN-rail protocol gateway that maps cyclic I/O between a Modbus TCP server interface and a PROFINET-IRT device interface (512 bytes in and out each way), so a Modbus TCP master and a PROFINET controller can exchange process data without any PLC card slot. Two RJ45 ports per network side, 24 VDC input.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "modbus1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "modbus2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "profinet1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "profinet2",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.hms-networks.com/p/ab7505-f-anybus-x-gateway-modbus-tcp-server-profinet-irt-device?tab=tab-specification",
+  "notes": "Technical specifications tab: 'Connectors / Input / Output: 2xRJ45, 2x RJ45, USB-B Config port'; 'Modbus-TCP Bandwidth: 10/100 Mbit/s' with 'Daisy chaining' in the supported-functionality list, and 'PROFINET Bandwidth: 100MBit full duplex down to 1ms cycle time' (IRT requires the two-port switch). So the four RJ45s are two independent switched pairs - a Modbus TCP pair and a PROFINET pair - and traffic never crosses between them at layer 2. They are modelled as four ports with no l2-forward precisely because claiming a bridge would wrongly suggest the two networks are joined; the payload crossing between them is application-level mapping, not routing. Configuration is by web page / Anybus Configuration Manager over Ethernet."
+}

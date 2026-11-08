@@ -1,0 +1,22 @@
+{
+  "vendor": "hid",
+  "model": "Aero X1100",
+  "label": "HID Aero X1100 intelligent access controller",
+  "category": "iot",
+  "description": "HID Aero X1100 is a two-door intelligent controller on HID Mercury technology, driving two Wiegand or four OSDP readers on-board and up to 64 readers with X100/X200/X300 expansion IO modules. It talks to the host over an on-board Ethernet 10-BaseT/100Base-TX port and is powered from 12-24 V DC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://manuals.plus/m/11620effe4059145d1b7d5d1695ce8aa1ea25e17c17b544b3d3231ffabc9b694",
+  "notes": "One Ethernet port (CAT-5, 100 m to the switch); the RS-485 ports to X100/X200/X300 IO modules and the reader ports are serial, not IP. Input voltage 12-24 V DC +/-10%, no PoE, so the unit needs its own supply in a cabinet. TLS 1.2 to host software, AES-256 to IO modules, OSDP secure channel to readers; UL 294 recognised component."
+}

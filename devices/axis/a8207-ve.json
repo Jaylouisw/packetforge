@@ -1,0 +1,23 @@
+{
+  "vendor": "axis",
+  "model": "A8207-VE",
+  "label": "AXIS A8207-VE network video door station",
+  "category": "camera",
+  "description": "AXIS A8207-VE combines a 6 MP 180-degree door camera, two-way audio with echo cancellation, an induction loop and a multi-frequency RFID reader (13.56 MHz MIFARE/DESFire/iCLASS, 125 kHz Prox/EM) in one IP66/IK08 unit. Single RJ45 10BASE-T/100BASE-TX port with Power over Ethernet 802.3af/802.3at Type 1 Class 3.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/37/e3/2b/datasheet-axis-a8207-ve-network-video-door-station-en-US-378343.pdf",
+  "notes": "PoE 802.3af/802.3at Type 1 Class 3 (12.95 W); PoE+ or 10-30 V DC raises the peripheral budget for locks and readers (7.5 W with PoE, 14 W with DC). One network connector only - HDMI, RS485, relays and I/O are separate terminal blocks, not extra Ethernet ports. SIP, VAPIX, ONVIF Profiles S/G/T/M, MQTT, 802.1X, LLDP."
+}

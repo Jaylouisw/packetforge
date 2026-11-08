@@ -1,0 +1,30 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-KV8113-WME1(C)",
+  "label": "DS-KV8113-WME1(C) villa video intercom door station",
+  "category": "camera",
+  "description": "Hikvision DS-KV8113-WME1(C) is a 2 MP villa door station with IR supplement, two-way audio, a 13.56 MHz Mifare reader and 2.4 GHz Wi-Fi. Wired side is a single 10/100 Mbps Ethernet LAN port, powered by standard IEEE 802.3af PoE (under 10 W) or 12 V DC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000083/S000000129/S000000131/OFR000170/M000009612/Data_Sheet/DS-KV8113-WME1_Villa-Door-Station_Datasheet_V1.0_20210428.pdf",
+  "notes": "802.3af, power consumption < 10 W. Wired network is 10/100 Mbps; the 2.4 GHz Wi-Fi radio is an alternative path, not a second wired port. Two relays, four alarm inputs, RS-485 and a debugging port drive the door hardware. IP65/IK08, -40 to 53 C."
+}

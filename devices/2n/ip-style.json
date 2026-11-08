@@ -1,0 +1,23 @@
+{
+  "vendor": "2n",
+  "model": "IP Style",
+  "label": "2N IP Style 10-inch SIP video intercom",
+  "category": "camera",
+  "description": "2N IP Style is a 10.1-inch touchscreen SIP video door intercom built on an AXIS ARTPEC-7 SoC, with a 5 MP camera, two-way full-duplex audio, a 125 kHz/13.56 MHz RFID reader and a Bluetooth 5.0 LE WaveKey reader. One RJ45 10/100BASE-TX LAN port with Auto-MDIX; powered by PoE+ IEEE 802.3at Class 4 (25.5 W) or 12 V / 4 A DC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 25.5
+    }
+  ],
+  "sourceUrl": "https://www.2n.com/en-US/products/intercoms/2n-ip-style/",
+  "notes": "PoE class 802.3at Type 2 Class 4 = 25.5 W; a 12 V DC input is the alternative. Protocols: SIP (UDP/TCP/TLS), SIPS, RTSP/RTP/SRTP, HTTP/HTTPS, DHCP (incl. option 66), SMTP, SNMP, TR-069, 802.1X, Syslog, ONVIF. Exactly one LAN port - there is no second RJ45 to daisy-chain or to give the unit a separate management network, so in a lab it occupies one switch port like any camera."
+}

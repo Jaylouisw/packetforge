@@ -1,0 +1,29 @@
+{
+  "vendor": "wallbox",
+  "model": "Commander 2",
+  "label": "Wallbox Commander 2 22 kW AC charger with touchscreen",
+  "category": "iot",
+  "description": "Wallbox Commander 2 is a 22 kW three-phase AC charge point with a 7-inch touchscreen, PIN and RFID identification and OCPP 1.6J support. Its connectivity set is Ethernet, Wi-Fi and Bluetooth, with an optional 4G dongle; the Ethernet cable is landed on an RJ45 port inside the enclosure.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://support.wallbox.com/wp-content/uploads/ht_kb/2024/02/EN_MASTER_DS_Commander-2_20240201.pdf",
+  "notes": "Installation guide: remove the knock-out beside the supply gland, crimp an RJ45 on the cable and plug it into the single Ethernet port in the charger. No PoE - the unit is mains powered. Wi-Fi is 2.4 GHz 802.11b/g/n (Wallbox's own guidance recommends 2.4 GHz and warns 5 GHz may be unsupported) and needs WPA2. OCPP 1.6J to a CSMS over HTTPS/TCP 443; the 4G dongle is an optional extra path. No IPv6 support on Wallbox chargers."
+}

@@ -1,0 +1,23 @@
+{
+  "vendor": "akuvox",
+  "model": "E16C",
+  "label": "Akuvox E16C face-recognition SIP door phone",
+  "category": "camera",
+  "description": "Akuvox E16C is a 5-inch touchscreen SIP door phone with two 2 MP cameras (main plus low-light auxiliary), face/card/PIN/BLE/QR identification and an embedded web UI. One RJ45 10/100 Mbps auto-negotiating Ethernet port, powered by 802.3af PoE or a 12 V DC input.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://www.akuvox.com/productsDownloadFile?did=1175",
+  "notes": "802.3af PoE (12.95 W class) or 12 V DC. No Wi-Fi radio on the E16C - Bluetooth 5.0 is used only for BLE identification and provisioning, so the wired port is the only network path. Downstream door hardware attaches over the on-board RS-485 and Wiegand ports plus one relay output; SIP and ONVIF are both supported."
+}

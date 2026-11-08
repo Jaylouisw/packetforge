@@ -1,0 +1,27 @@
+{
+  "vendor": "raritan",
+  "model": "EMX2-888",
+  "label": "Raritan EMX2-888 smart rack controller",
+  "category": "host",
+  "description": "1U environmental rack controller with eight RJ-12 sensor ports (temperature, humidity, air flow, differential pressure, water-leak and contact-closure sensors), eight RJ-45 asset-management feature ports, eight RS-485 ports, two contact closures and a 10/100BASE-T Ethernet port plus a DB-9 console/modem port, feeding sensor data to Power IQ or any SNMP manager.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "console1",
+      "type": "console",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "http://assets.raritan.com/resources/data_sheets/raritan-ds-EMX_rack_monitoring.pdf",
+  "notes": "Datasheet model table: 'EMX2-888 Smart rack controller with 8 RJ-12 sensor ports, 8 RJ-45 feature ports for AMS, 8 RJ-45 RS-485 ports, 2 USB-A ports, 1 USB-B port, 1 RJ-45 Ethernet port, 1 DB-9M console/modem, 2 contact closure, LCD display'. The RJ-45 feature ports are Raritan's asset-management sensor bus and the RJ-45 RS-485 ports are serial field buses - neither is Ethernet, so only the single RJ-45 Ethernet port is modelled. Fast Ethernet is confirmed by the EMX user guide (Xerus 3.6.0) LED description: 'Yellow indicates communications at 10/100 BaseT speeds'. Supports up to 128 sensors across the ports; SNMPv1/v2/v3, Power IQ integration."
+}

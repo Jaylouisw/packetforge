@@ -1,0 +1,29 @@
+{
+  "vendor": "shelly",
+  "model": "Pro 3EM",
+  "label": "Shelly Pro 3EM DIN-rail three-phase energy meter",
+  "category": "iot",
+  "description": "Shelly Pro 3EM is a DIN-rail three-phase energy meter with 1% active-energy accuracy (class B), per-phase voltage/current/power and 60 days of 1-minute history on device. It has a single RJ45 LAN port alongside 2.4 GHz Wi-Fi and Bluetooth, and speaks Modbus TCP, MQTT and HTTP.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.shelly.com/products/shelly-pro-3em-x1",
+  "notes": "One RJ45 LAN port; Ethernet and Wi-Fi can be used simultaneously and the LAN LED is documented, but Shelly does not publish the port line rate on the datasheet - 100BASE-TX is modelled as the figure for this Pro-series platform. No relay on board (a Pro 3EM Switch Add-on is needed to control a contactor). Modbus TCP for industrial integrators, MQTT/WebSocket/UDP/mTLS for the rest; Bluetooth is only for inclusion. Powered from the measured circuit, 100-260 V AC, < 3 W."
+}

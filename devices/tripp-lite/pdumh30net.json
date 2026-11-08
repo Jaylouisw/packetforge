@@ -1,0 +1,22 @@
+{
+  "vendor": "tripp-lite",
+  "model": "PDUMH30NET",
+  "label": "Tripp Lite PDUMH30NET switched PDU 30A 120V (16x5-20R, 2U)",
+  "category": "host",
+  "description": "2U horizontal switched PDU for 120 V single-phase feeds: NEMA L5-30P input derated to 24 A continuous, 16 individually switchable NEMA 5-15/20R outlets in two 20 A breakered load banks, 2.9 kW. A pre-installed LX Platform (WEBCARDLX) card provides one 10/100BASE-T RJ45 running the HTML5 web UI, telnet/SSH, SNMP v1/v2/v3 and DHCP/BOOTP.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://assets.tripplite.com/product-pdfs/en/pdumh30net.pdf",
+  "notes": "Vendor spec sheet 'Network Monitoring Port: RJ45 Network port, Micro-USB Configuration port, USB A port supports a variety of Envirosense2 environmental and control modules' and 'Network Compatibility: 10 Mbps; 100 Mbps (Fast Ethernet)'; protocols listed include IPv4/IPv6, HTTP, HTTPS, SMTP, SNMPv1/v2/v3, telnet, SSH, FTP, DHCP, BOOTP and NTP - hence dhcp-client. The USB-A port takes EnviroSense2 sensor/control modules and the Micro-USB port is a local configuration console, so neither is a network interface. Tripp Lite is now the Eaton Tripp Lite series; the TAA version is PDUMH30NETAA."
+}
