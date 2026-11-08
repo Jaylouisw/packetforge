@@ -1,0 +1,31 @@
+{
+  "vendor": "conbic",
+  "model": "PMG3000-D20B-C",
+  "label": "CONBIC PMG3000-D20B-C GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT in an SFP module (Faraday/Galachip C1601) that presents to the host as 2.5G Ethernet; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc with no LAN ports and no Wi-Fi, managed over web UI + SSH.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-conbic-pmg3000-d20b-c/"
+}
