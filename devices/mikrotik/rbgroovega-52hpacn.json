@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBGrooveGA-52HPacn",
+  "label": "GrooveA 52 ac",
+  "category": "ptp",
+  "description": "MikroTik GrooveA 52 ac (RBGrooveGA-52HPacn) — 1x 1G RJ45, Wi-Fi 2.4/5 GHz. MIPSBE 1-core QCA9556.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBGrooveGA-52HPacn"
+}
