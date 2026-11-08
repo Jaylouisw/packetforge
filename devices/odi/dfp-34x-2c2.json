@@ -1,0 +1,31 @@
+{
+  "vendor": "odi",
+  "model": "DFP-34X-2C2",
+  "label": "ODI DFP-34X-2C2 GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT built into an SFP module (Realtek RTL9601D, Linux Luna SDK, SC/UPC BOSA) that presents itself to the host router as an HSGMII Ethernet interface at 2.5 Gbit/s; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up with no LAN ports and no Wi-Fi, managed over its web UI or SSH.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "hsgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-odi-realtek-dfp-34x-2c2/"
+}
