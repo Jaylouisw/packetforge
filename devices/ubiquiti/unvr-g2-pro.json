@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UNVR-G2-Pro",
+  "label": "UniFi Network Video Recorder G2 Pro",
+  "category": "nvr",
+  "description": "UniFi Network Video Recorder G2 Pro (UNVR-G2-Pro) - 1x 10G SFP+ + 1x 2.5G RJ45. 200 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    }
+  ],
+  "icon": "nvr",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/unvr-g2-pro"
+}
