@@ -1,0 +1,37 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB433UL",
+  "label": "RB433UL",
+  "category": "router",
+  "description": "MikroTik RB433UL (RB433UL) \u2014 3x 100M RJ45. MIPSBE 1-core AR7130.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB433UL"
+}
