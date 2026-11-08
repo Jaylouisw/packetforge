@@ -1,0 +1,50 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTX09",
+  "label": "Teltonika RUTX09 (EOL)",
+  "category": "router",
+  "description": "A four-port gigabit LTE Cat 6 router: 1 WAN + 3 LAN at gigabit, no Wi-Fi. The wired cellular router - the modem is the uplink, so there is no radio to model.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutx09",
+  "notes": "Vendor figures from the RUTX09 datasheet: 1 x WAN port 10/100/1000 Mbps, 3 x LAN ports 10/100/1000 Mbps, described as four Gigabit Ethernet ports; LTE Cat 6, modelled at the 300 Mbps downlink class. No Wi-Fi: the datasheet's only 802.11 reference is 802.11e QoS on the Ethernet bridge, not a radio."
+}

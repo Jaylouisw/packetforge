@@ -1,0 +1,67 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTX14",
+  "label": "Teltonika RUTX14 (EOL)",
+  "category": "router",
+  "description": "An LTE Cat 12 router with 1 WAN (reconfigurable as LAN) + 4 LAN at gigabit and dual-band 802.11ac. The Cat 12 modem is the reason for the 600M cellular interface against the Cat 6 units' 300M.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "600M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutx14",
+  "notes": "Vendor figures from the RUTX14 datasheet: 1 x WAN port (can be configured as LAN) 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps; 802.11ac dual band Wi-Fi; LTE Cat 12, modelled at the 600 Mbps downlink class - three times the Cat 4 units in this catalogue and twice the Cat 6 ones."
+}

@@ -1,0 +1,45 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTX08",
+  "label": "Teltonika RUTX08 (EOL)",
+  "category": "router",
+  "description": "A four-port gigabit VPN router with no cellular modem and no Wi-Fi: 1 WAN (reconfigurable as LAN) + 3 LAN, all gigabit. A wired router for a branch office that already has its uplink.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutx08",
+  "notes": "Vendor figures from the RUTX08 datasheet: 1 x WAN port (can be configured as LAN) 10/100/1000 Mbps and 3 x LAN ports 10/100/1000 Mbps, IEEE 802.3/802.3u. No cellular modem and no Wi-Fi: the datasheet contains no 802.11 wireless section, so neither is claimed. End of life per the vendor, kept in the catalogue because these are still in racks."
+}

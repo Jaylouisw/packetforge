@@ -1,0 +1,33 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB140",
+  "label": "Teltonika TRB140",
+  "category": "iot",
+  "description": "A tiny industrial 4G gateway: one Gigabit Ethernet port, a micro-USB and RutOS. It is a modem with an Ethernet face - there is no switch and no radio.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/gateways/trb140",
+  "notes": "Vendor figures (Teltonika wiki and TRB140 datasheet): one Gigabit Ethernet port plus Micro-USB; 4G LTE Cat 4. No Wi-Fi and no switch fabric, so a single eth0 is the whole data path."
+}
