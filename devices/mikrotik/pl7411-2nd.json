@@ -1,0 +1,28 @@
+{
+  "vendor": "mikrotik",
+  "model": "PL7411-2nD",
+  "label": "PWR-LINE AP (EU plug)",
+  "category": "powerline",
+  "description": "MikroTik PWR-LINE AP (EU plug) (PL7411-2nD) — 1x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core QCA9533.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "powerline",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/pwr_line_ap"
+}
