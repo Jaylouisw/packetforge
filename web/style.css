@@ -12,6 +12,17 @@
   --green: #2dd4a7;
   --red: #f4556b;
   --amber: #f5b942;
+  /* One colour per cable family. The drawn cable (.link-*) and the legend swatch
+     both read these, so a cable's colour and its key entry cannot drift apart. */
+  --c-copper: #b98b5e;
+  --c-fiber: #4db6e2;
+  --c-dac: #e0a458;
+  --c-aoc: #58d5c9;
+  --c-pon: #b48ead;
+  --c-coax: #9aa5b1;
+  --c-dsl: #8bc34a;
+  --c-powerline: #f0c674;
+  --c-wireless: #7aa2f7;
   --radius: 8px;
   --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
 }
@@ -350,7 +361,7 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .link-hit { stroke: transparent; stroke-width: 16; fill: none; pointer-events: stroke; cursor: pointer; }
 .link.selected { stroke: var(--accent); stroke-width: 3.5; filter: url(#glow); }
 /* A radio association is not a cable: dashes say "this hop is over the air". */
-.link.link-wireless { stroke: #7aa2f7; stroke-dasharray: 5 5; }
+.link.link-wireless { stroke: var(--c-wireless); stroke-dasharray: 5 5; }
 
 /* What a cable is made of, drawn as what it is made of (issue #34).
    Colour carries the family, width carries the construction (a DAC is a stiff twinax
@@ -358,16 +369,33 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
    PON is a shared drop, DSL is one pair, powerline is the mains. Without this a campus
    diagram is a mesh of identical grey lines and you cannot tell a fibre uplink from a
    patch lead. */
-.link.link-copper { stroke: #b98b5e; stroke-width: 2.5; }
-.link.link-fiber { stroke: #4db6e2; stroke-width: 2; }
-.link.link-dac { stroke: #e0a458; stroke-width: 3.5; }
-.link.link-aoc { stroke: #58d5c9; stroke-width: 3; }
-.link.link-pon { stroke: #b48ead; stroke-width: 2.25; stroke-dasharray: 10 3; }
-.link.link-coax { stroke: #9aa5b1; stroke-width: 3; }
-.link.link-dsl { stroke: #8bc34a; stroke-width: 2; stroke-dasharray: 6 4; }
-.link.link-powerline { stroke: #f0c674; stroke-width: 2.5; stroke-dasharray: 2 4; }
+.link.link-copper { stroke: var(--c-copper); stroke-width: 2.5; }
+.link.link-fiber { stroke: var(--c-fiber); stroke-width: 2; }
+.link.link-dac { stroke: var(--c-dac); stroke-width: 3.5; }
+.link.link-aoc { stroke: var(--c-aoc); stroke-width: 3; }
+.link.link-pon { stroke: var(--c-pon); stroke-width: 2.25; stroke-dasharray: 10 3; }
+.link.link-coax { stroke: var(--c-coax); stroke-width: 3; }
+.link.link-dsl { stroke: var(--c-dsl); stroke-width: 2; stroke-dasharray: 6 4; }
+.link.link-powerline { stroke: var(--c-powerline); stroke-width: 2.5; stroke-dasharray: 2 4; }
 .link.link-wireless:hover { stroke: var(--red); }
 .link.link-wireless.selected { stroke: var(--accent); }
+
+/* ---- cable parts in the link inspector ---- */
+/* A medium that names its parts is information you can act on; a medium that names
+   none says so, because a blank panel reads as a bug rather than as an answer. */
+.parts-list { display: flex; flex-direction: column; gap: 4px; margin: 2px 0 9px; }
+.part-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; padding: 4px 8px; border-radius: 5px;
+  background: var(--panel-2); border-left: 3px solid rgba(63, 124, 255, .55);
+}
+.part-no { color: var(--text); font-weight: 600; font-size: 11px; }
+.part-spec { color: var(--muted); }
+.parts-none {
+  margin: 2px 0 9px; padding: 7px 9px; font-size: 11px; line-height: 1.5;
+  color: var(--muted); border: 1px dashed var(--border-2); border-radius: 6px;
+}
+.parts-none .mono { color: var(--text); }
 
 /* ---- port identity on the canvas (folded in from the orphan styles.css) ---- */
 
@@ -453,3 +481,45 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .conn-badge.conn-ok { color: #7ee787; border-color: #2ea0433d; background: #2ea04314; }
 .conn-badge.conn-bad { color: var(--amber, #d29922); border-color: #d299223d; background: #d2992214; }
 #statusbar { display: flex; align-items: center; gap: 12px; }
+
+/* ---------- cable-colour legend ---------- */
+/* A key for the nine cable colours. It lives in the palette, below the device list, so
+   it can never cover a device the way a canvas overlay would, and it collapses to one
+   header line - a preference the browser remembers (localStorage), not one that resets
+   on every reload. The .lg-row carries the same family class the canvas puts on the
+   cable (link-copper, link-pon, ...), which is what keeps this honest. */
+.cable-legend {
+  flex: 0 0 auto; max-height: 40vh; overflow-y: auto;
+  border-top: 1px solid var(--border); background: var(--panel);
+}
+.legend-toggle {
+  width: 100%; display: flex; align-items: center; gap: 7px;
+  padding: 8px 12px; background: none; border: 0; cursor: pointer;
+  color: var(--muted); font: inherit; font-size: 11px; letter-spacing: .06em;
+  text-transform: uppercase; text-align: left;
+}
+.legend-toggle:hover, .legend-toggle:focus-visible { color: var(--text); }
+.legend-caret { width: 10px; font-size: 10px; color: var(--muted); }
+.legend-body { display: flex; flex-direction: column; gap: 3px; padding: 0 12px 9px; }
+.cable-legend.collapsed .legend-body { display: none; }
+.lg-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+.lg-chip {
+  flex: 0 0 auto; width: 20px; height: 0;
+  border-top: 3px solid var(--cable, #8494ad); border-radius: 2px;
+}
+.lg-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Same dashes the canvas draws: a shared drop, one pair, the mains and the air are not
+   plain cable runs, so the key does not draw them as plain cable runs either. */
+.lg-row.link-pon .lg-chip,
+.lg-row.link-dsl .lg-chip,
+.lg-row.link-powerline .lg-chip,
+.lg-row.link-wireless .lg-chip { border-top-style: dashed; }
+.lg-row.link-copper { --cable: var(--c-copper); }
+.lg-row.link-fiber { --cable: var(--c-fiber); }
+.lg-row.link-dac { --cable: var(--c-dac); }
+.lg-row.link-aoc { --cable: var(--c-aoc); }
+.lg-row.link-pon { --cable: var(--c-pon); }
+.lg-row.link-coax { --cable: var(--c-coax); }
+.lg-row.link-dsl { --cable: var(--c-dsl); }
+.lg-row.link-powerline { --cable: var(--c-powerline); }
+.lg-row.link-wireless { --cable: var(--c-wireless); }
