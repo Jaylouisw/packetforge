@@ -138,7 +138,7 @@ packetforge/
 ├── scripts/         # syntax checker + merge tools
 ├── .github/         # CI/CD workflows, issue/PR templates (read by Forgejo too)
 ├── .forgejo/        # Forgejo Actions workflows
-└── docs/            # architecture, registry, CLI, roadmap, link state
+└── docs/            # architecture, registry, CLI, CI, roadmap, link state
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
