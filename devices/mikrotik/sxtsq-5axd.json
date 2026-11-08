@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "SXTsq-5axD",
+  "label": "SXTsq 5 ax",
+  "category": "ptp",
+  "description": "MikroTik SXTsq 5 ax (SXTsq-5axD) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. ARM 32bit 2-core IPQ-5010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/sxtsq_5ax"
+}
