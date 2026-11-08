@@ -1,0 +1,57 @@
+{
+  "vendor": "dell",
+  "model": "Z9432F-ON",
+  "label": "PowerSwitch Z9432F-ON",
+  "category": "switch",
+  "description": "Dell PowerSwitch Z9432F-ON 1U 400GbE aggregation/leaf switch: 32x 400GbE QSFP56-DD ports (10/25/40/50/100/200/400G per port, 12.8 Tbps) plus 2x 10GbE SFP+ ports and one 1G RJ-45 management port. Ships with ONIE plus Enterprise SONiC or SmartFabric OS10.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "400G",
+    "connector": "qsfpdd",
+    "speedCaps": [
+      400000,
+      200000,
+      100000,
+      50000,
+      40000,
+      25000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/33",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "Ethernet1/34",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.delltechnologies.com/assetlink/doc/en-us/dell-emc-powerswitch-z9432f-spec-sheet-en-dl1ljen-original.pdf"
+}

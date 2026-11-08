@@ -1,0 +1,27 @@
+{
+  "vendor": "huawei",
+  "model": "MA5671A",
+  "label": "MA5671A GPON SFP ONT",
+  "category": "ont",
+  "description": "Huawei MA5671A mini-PON ONT built into an SFP module: a single SC/APC GPON port on the fibre side (2.488 Gbit/s down, 1.244 Gbit/s up) and an HSGMII host interface on the SFP edge connector, so there is no RJ45 and no Wi-Fi anywhere on the unit. Managed over its own web UI, SSH or the 115200 baud UART on the SFP pins.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [],
+  "sourceUrl": "https://hack-gpon.org/ont-huawei-ma5671a/"
+}

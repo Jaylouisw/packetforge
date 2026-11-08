@@ -1,0 +1,33 @@
+{
+  "vendor": "fs",
+  "model": "N8560-32C",
+  "label": "N8560-32C 100G data-centre switch",
+  "category": "switch",
+  "description": "FS N8560-32C 1U 100G spine/leaf switch: 32x QSFP28 100G ports (40G or 4x25G per port, 6.4 Tbps, VXLAN/EVPN and MLAG) plus one 1G RJ-45 management port; ONIE with PicOS or another NOS. Console access is an RJ-45 serial port, not a data interface.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "HundredGigabitEthernet0/",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      100000,
+      40000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Management0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://img-en.fs.com/file/datasheet/n8560-32c-switch-datasheet.pdf"
+}

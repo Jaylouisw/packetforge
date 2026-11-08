@@ -1,0 +1,55 @@
+{
+  "vendor": "edgecore",
+  "model": "AS9716-32D",
+  "label": "AS9716-32D 400G spine",
+  "category": "switch",
+  "description": "Edgecore AS9716-32D (DCS510) 1RU 400G spine: 32x QSFP-DD 400G ports (1x400G, 1x100G, or 4x100G/4x25G via breakout, 12.8 Tbps) plus 2x SFP+ 10G and one 1G RJ-45 management port. ONIE-loaded open networking hardware on Tomahawk 3.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "400G",
+    "connector": "qsfpdd",
+    "speedCaps": [
+      400000,
+      200000,
+      100000,
+      50000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.edge-core.com/product/dcs510/"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "adtran",
+  "model": "SDX 621",
+  "label": "SDX 621 XGS-PON ONT",
+  "category": "ont",
+  "description": "ADTRAN SDX 621 XGS-PON ONT (ITU-T G.9807.1, 10G/10G, SC/APC): one auto-sensing 100M/1G/2.5G/5G/10G RJ-45 UNI port and no Wi-Fi or voice, the 10GE member of the SDX 620 series. Managed zero-touch through Mosaic One.",
+  "capabilities": [
+    "host",
+    "l2-forward",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-620-series.pdf"
+}

@@ -1,0 +1,74 @@
+{
+  "vendor": "huawei",
+  "model": "MA5800-X15",
+  "label": "SmartAX MA5800-X15 OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5800-X15 11U OLT: a 20-slot shelf with 15 service slots (200 Gbit/s each), 2 control slots and a universal interface slot, scaling to 240 GPON ports. This spec models one H901GPHF 16-port GPON card in slot 1 (gpon1/1-16, SC/APC) plus the 4x GE/10GE SFP+ uplinks on an MPLB control board and 1 GE out-of-band management port = 21 ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5800"
+}

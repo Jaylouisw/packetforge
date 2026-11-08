@@ -1,0 +1,31 @@
+{
+  "vendor": "tp-link",
+  "model": "XGZ032",
+  "label": "XGZ032 XGS-PON terminal",
+  "category": "ont",
+  "description": "TP-Link XGZ032 XGS-PON terminal: 10 Gbit/s symmetric PON (1270 nm upstream / 1577 nm downstream, 20 km) on one SC/APC BOSA port and a single 2.5 Gigabit RJ-45 LAN port, with no Wi-Fi. Supports IGMP v1/v2/v3 snooping and AES encryption.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202610/20261008/Datasheet-XGZ032.pdf"
+}

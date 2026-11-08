@@ -1,0 +1,29 @@
+{
+  "vendor": "zte",
+  "model": "ZXHN F2801S",
+  "label": "ZXHN F2801S XGS-PON bridge ONT",
+  "category": "ont",
+  "description": "ZTE ZXHN F2801S XGS-PON bridge ONT: one SC/APC XGS-PON port and a single 2.5 Gigabit RJ-45 LAN port, bridge mode only with no routing or Wi-Fi. Intended to feed an upstream router on FTTH and small-business drops.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.zte.com.cn/global/home_and_enterprise/campus_network/zxhn_f2801s.html"
+}

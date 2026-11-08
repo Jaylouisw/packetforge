@@ -1,0 +1,25 @@
+{
+  "vendor": "zyxel",
+  "model": "PMG3000-D20B",
+  "label": "PMG3000-D20B GPON SFP-type SFU",
+  "category": "ont",
+  "description": "Zyxel PMG3000-D20B Gigabit GPON SFU built into an SFP electrical footprint: one SC/APC ITU-T G.984 GPON port and an MSA SFP host edge connector that bridges GPON to a router or switch cage, with no RJ45 of its own. Managed over OMCI (G.984.4 / TR-247).",
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [],
+  "sourceUrl": "https://www.zyxel.com/service-provider/global/en/products/fiber-oltsonts/gpon/sfus/pmg3000-d20b"
+}

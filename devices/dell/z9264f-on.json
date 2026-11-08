@@ -1,0 +1,55 @@
+{
+  "vendor": "dell",
+  "model": "Z9264F-ON",
+  "label": "PowerSwitch Z9264F-ON",
+  "category": "switch",
+  "description": "Dell PowerSwitch Z9264F-ON 2RU 100GbE ToR/end-of-row switch: 64x QSFP28 ports at 1/10/25/40/50/100GbE (128x 25G/50G with breakout, 12.8 Tbps) plus 2x 1/10GbE SFP+ ports and one 1G RJ-45 management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 64,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      100000,
+      50000,
+      40000,
+      25000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/65",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "Ethernet1/66",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://cdn.blueally.com/netsolutionworks/datasheets/dell-emc-networking-z9264-on-spec-sheet.pdf"
+}
