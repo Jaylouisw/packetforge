@@ -1,4 +1,4 @@
-name: Hardware request triage
+name: Device request triage
 
 # Every hardware request gets an immediate acknowledgement with the checklist it
 # will be judged against, so the requester knows what is missing before a
@@ -36,13 +36,37 @@ jobs:
               core.warning('could not add label: ' + e.message);
             }
 
+            // Reflect "blocked on a datasheet" in the labels, so the queue can be
+            // filtered for requests that still need a link. Runs on every open/edit,
+            // independent of the comment-marker idempotency below.
+            const hasUrl = /https?:\/\//i.test(body);
+            try {
+              if (hasUrl) {
+                await github.rest.issues.removeLabel({
+                  owner: issue.owner, repo: issue.repo,
+                  issue_number: issue.number,
+                  name: 'needs-datasheet'
+                });
+              } else {
+                await github.rest.issues.addLabels({
+                  owner: issue.owner, repo: issue.repo,
+                  issue_number: issue.number,
+                  labels: ['needs-datasheet']
+                });
+              }
+            } catch (e) {
+              // 404 = the label was not present to remove; that is fine.
+              if (e.status !== 404) {
+                core.warning('could not update needs-datasheet label: ' + e.message);
+              }
+            }
+
             const comments = await github.rest.issues.listComments({
               owner: issue.owner, repo: issue.repo, issue_number: issue.number
             });
             const already = comments.data.some(c => (c.body || '').includes(marker));
             if (already) return;
 
-            const hasUrl = /https?:\/\//i.test(body);
             const missing = [];
             if (!hasUrl) missing.push('a datasheet or product page URL');
             if (!/(rj45|ethernet|sfp|qsfp|gbe|ge |10g|1g)/i.test(body)) missing.push('a port list with speeds');
