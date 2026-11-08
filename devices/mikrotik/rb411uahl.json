@@ -1,0 +1,27 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB411UAHL",
+  "label": "RB411UAHL",
+  "category": "router",
+  "description": "MikroTik RB411UAHL (RB411UAHL) — 1x 100M RJ45.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB411UAHL"
+}
