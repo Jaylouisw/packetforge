@@ -38,6 +38,47 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # 168 of the 177 open pull requests are device data: one JSON file under
+  # `devices/<vendor>/`. The matrix runs the whole suite three times on three Node
+  # versions, then a server smoke test and a Docker build - five jobs for a change
+  # that cannot touch the server, the Dockerfile or the Node floor. On a runner that
+  # is the bottleneck for everything else, that is where the queue comes from.
+  #
+  # This classifies the diff so the expensive lanes can opt out. Data-only changes
+  # still run the entire suite, including the device invariants that are the point of
+  # it - once, on the newest Node. Anything touching code runs the full matrix as
+  # before, and if the base commit cannot be resolved the answer is "full run",
+  # because a fast lane that guesses is worse than no fast lane.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      data_only: ${{ steps.classify.outputs.data_only }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: classify
+        name: Classify the diff
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "no resolvable base commit - treating this as a full run"
+            echo "data_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files=$(git diff --name-only "$base"...HEAD || true)
+          echo "changed files:"; printf '%s\n' "$files"
+          other=$(printf '%s\n' "$files" | grep -vE '^devices/[^/]+/[^/]+\.json$' | grep -v '^$' || true)
+          if [ -n "$other" ]; then
+            echo "not data-only, also touches:"; printf '%s\n' "$other"
+            echo "data_only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "data-only change"
+            echo "data_only=true" >> "$GITHUB_OUTPUT"
+          fi
+
   # A job that hangs holds the only runner, and a held runner is a queue that
   # stops moving: issue #930 documents a task stuck in `running` for over forty
   # minutes while every other pull request waited behind it. A bound does not make
@@ -46,6 +87,8 @@ jobs:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: changes
+    if: needs.changes.outputs.data_only != 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -75,10 +118,42 @@ jobs:
       - name: Every lab model exists in the catalogue
         run: node scripts/missing-devices.js examples --no-issues
 
+  # The same suite, once, for changes that are only device JSON. The invariants are
+  # not skipped - a device file can be wrong in ways only the suite catches (duplicate
+  # port names, a cage it cannot deliver, an SKU already taken) - they are just not
+  # asked three times on three Node versions for a file that contains no JavaScript.
+  data:
+    name: Test (data only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: changes
+    if: needs.changes.outputs.data_only == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check (all JS)
+        run: node scripts/syntax-check.js
+      - name: No control bytes in source
+        run: node scripts/check-control-bytes.js
+      - name: No API newer than the Node 18 floor
+        run: node scripts/check-node-surface.js
+      - name: Every project URL points at Forgejo
+        run: node scripts/check-canonical-urls.js
+      - name: Full test suite
+        run: npm test
+      - name: Build & verify example labs
+        run: node examples/build-examples.js
+      - name: Every lab model exists in the catalogue
+        run: node scripts/missing-devices.js examples --no-issues
+
   smoke:
     name: Server smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.data_only != 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,6 +166,8 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.data_only != 'true'
     steps:
       - uses: actions/checkout@v4
       # node:20-bookworm ships no docker binary. The runner mounts the host
