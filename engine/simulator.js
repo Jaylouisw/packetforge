@@ -2275,8 +2275,15 @@ class Simulator {
         this._emit({ type: 'drop', reason: 'echo for unknown local IP', dev: dev.id });
         return;
       }
-      const sameGroup4 = owner.bridgeGroup && inIf4 && inIf4.bridgeGroup === owner.bridgeGroup;
-      const replyIface = sameGroup4 ? inIf4 : owner;
+      // The reply leaves by the port the request arrived on: that is the way back to the
+      // sender, and for a router it is the only way a request addressed to a far-side
+      // address is ever answered. Replying out the interface that owns the address sent it
+      // into a port with no cable at all, which is what "the router holds it but nothing
+      // comes back" looked like from the host.
+      // A tagged subinterface is the exception: the frame arrives tagged on the parent port
+      // and the reply has to leave the same way, so the subinterface sends it.
+      const ownerIsTaggedChild = owner.parent && inIf4 && owner.parent === inIf4.name;
+      const replyIface = ownerIsTaggedChild ? owner : inIf4;
       this._emit({ type: 'icmp-echo', dev: dev.id, iface: replyIface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };

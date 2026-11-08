@@ -154,7 +154,23 @@ first.
 
 ## 3. IPv4
 
-### 3.1 ARP
+### 3.1 Address ownership
+
+Two different questions, and the forwarding path has to ask the first one first:
+
+- **Do I hold this address at all?** A routing device has one IP stack, so any address it
+  is configured with is its own whichever port a frame arrives on. `Device.holdsIp()`.
+- **Will I serve it on this interface?** Not always: WAN and LAN are separate L3 surfaces, an
+  address in VLAN 20 is not answered from a port in VLAN 10, and a subinterface answers for
+  its own tag. `Device.ownsIpOn()`.
+
+| Verdict | Behaviour | Where |
+|---|---|---|
+| **Modelled** | A router serves any of its own addresses on any of its ports. Ping the far-side address of your own gateway and it answers — previously it forwarded the packet, decremented the TTL and died, so the host saw silence while the router held the address. | `engine/device.js` `ownsIpOn`, `holdsIp` |
+| **Modelled** | A reply leaves by the port the request arrived on, not the port that owns the address. The second half matters as much as the first: a router that accepts the packet and replies into an uncabled port has answered and still looks dead to the host. A tagged subinterface is the exception and sends the reply tagged. | `engine/simulator.js` `_handleLocalIp` |
+| **Modelled** | The interface-scoped rules still outrank stack ownership: WAN/LAN role separation, L2 VLAN isolation, bridge-group membership. | `engine/device.js` |
+
+### 3.2 ARP
 
 | Verdict | Behaviour | Where |
 |---|---|---|
@@ -163,7 +179,7 @@ first.
 | **Modelled** | A request for an address nobody owns is simply unanswered, so the ping times out — the correct symptom, arrived at honestly. | — |
 | **Absent** | ARP cache ageing, gratuitous ARP, proxy ARP, ARP inspection (DAI), static ARP entries, duplicate-address detection. | — |
 
-### 3.2 ICMP
+### 3.3 ICMP
 
 | Verdict | Behaviour | Where |
 |---|---|---|
@@ -172,7 +188,7 @@ first.
 | **Absent** | **Every other ICMP type.** There is no destination-unreachable, no time-exceeded, no redirect, no parameter-problem. A black-holed packet and a TTL-expired packet both look like silence to `ping`; only the event log tells you which. | `engine/net.js:81-82` |
 | **Absent** | `traceroute`. Nothing in the engine is designed for it, and without time-exceeded there is nothing to build it on. | — |
 
-### 3.3 Routing and administrative distance
+### 3.4 Routing and administrative distance
 
 **Modelled** — `Device.routeTo()` (`engine/device.js:366-443`), in this order:
 

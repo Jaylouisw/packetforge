@@ -294,7 +294,29 @@ class Device {
         owner.bridgeGroup === inIface.bridgeGroup) {
       return owner;
     }
+
+    // Nothing above said no, and this is an L3 device: a router has ONE IP stack, so any
+    // address it holds is its own whichever port the frame arrives on. Before this rule the
+    // function returned null here and the frame was forwarded - so a packet addressed to a
+    // router's far-side address was decremented and, at TTL 1, died of time-exceeded instead
+    // of being delivered. A host could not ping the other side of its own gateway, and
+    // traceroute to a far-side address of the first hop timed out.
+    //
+    // The checks above still outrank this one, which is what keeps the two cases that are
+    // genuinely interface-scoped: WAN/LAN role separation (a LAN address is not served on
+    // the WAN port - that is what NAT is for) and L2 isolation on a switch (an address in
+    // VLAN 20 is not answered from a port in VLAN 10). A pure switch stays unscoped-L3-free.
+    const routes = this.hasCap('route') || this.hasCap('router') || !this.isL2();
+    if (routes) return owner;
     return null;
+  }
+
+  // Does this device hold the address at all, on any interface? This is the stack-ownership
+  // question, as opposed to ownsIpOn()'s "will I serve it on this interface". Deliverability
+  // is the second question; forwarding has to ask the first one first, or it decrements the
+  // TTL of a packet that was addressed to the router itself.
+  holdsIp(ip) {
+    return this.interfaceWithIp(ip) || null;
   }
 
   // The interface that represents a bridge group for configuration purposes: the
