@@ -160,7 +160,7 @@ class Topology {
       errors: verdict.ok ? [] : [{ code: verdict.code, message: verdict.message }],
       warnings: [],
       media: verdict.media || [],
-      mediaId: verdict.ok ? media.preferredMedia(verdict.media) : null,
+      mediaId: verdict.ok ? media.preferredMedia(verdict.media, verdict.speedMbps) : null,
       speedMbps: verdict.speedMbps || null
     };
   }
