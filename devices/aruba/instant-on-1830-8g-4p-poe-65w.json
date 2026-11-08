@@ -1,0 +1,64 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1830 8G 4p Class4 PoE 65W (JL811A)",
+  "label": "Aruba Instant On 1830 8G 4p Class4 PoE 65W Switch (JL811A)",
+  "category": "switch",
+  "description": "Aruba Instant On 1830 8G 4p Class 4 PoE 65W (JL811A) - 8x 1G RJ45 with 802.3at Class 4 PoE on ports 1-4 (65 W budget), fanless smart-managed Layer 2, no SFP cages.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf",
+  "poe": {
+    "budgetW": 65,
+    "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf",
+    "note": "JL811A: 65 W Class 4 PoE across ports 1-4."
+  }
+}
