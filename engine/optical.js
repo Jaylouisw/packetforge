@@ -242,10 +242,65 @@ function biDiPairsWith(a, b) {
   return { ok: true, code: null, message: 'Crossed BiDi pair: ' + aTx + '/' + aRx + ' nm against ' + bTx + '/' + bRx + ' nm.' };
 }
 
+// The ODN catalogue is two files, in this order:
+//
+//   odn.json                 splitters and the two hybrid leads that predate the
+//                            dedicated catalogue
+//   hybrid-patch-cords.json  the factory UPC/APC assemblies from issue #18
+//
+// odn.json is read first on purpose. A part number that appears in both belongs
+// to the older file, and hybridCord() returns the first match, so the default
+// answer for SC/UPC -> SC/APC stays SMSCSX - the part the docs, the tests and
+// the issue all name.
+//
+// The two files overlap on SMSCSX and SMLCSX, and they do not say the same
+// things: the older entries predate `polishBridge`, `insertionLossBasis` and
+// the vendor field. So a duplicate is merged rather than dropped - the first
+// record keeps its position and identity, the later one fills in whatever it
+// knows that the first does not, and its catalogue id is kept as an alias so
+// either id finds the part. Dropping the later record outright would make
+// `patchCord('patch-cord-hybrid-sc-upc-apc-fs-smscsx')` fail, which is the kind
+// of papercut that makes a catalogue look empty.
+//
+// A missing or malformed file is skipped rather than fatal (see _load), so a
+// checkout without the hybrid catalogue still runs the rest of the engine.
+const ODN_FILES = ['odn.json', 'hybrid-patch-cords.json'];
+
+function odmMerge(into, from) {
+  // Fill gaps only: what the first record says about the part is what the rest
+  // of the engine was written against, and reordering keys here would change
+  // nothing except the diff.
+  for (const key of Object.keys(from)) {
+    if (into[key] === undefined || into[key] === null) into[key] = from[key];
+  }
+  const alias = String(from.id || '').trim();
+  if (alias && alias !== into.id) {
+    into.aliasIds = (into.aliasIds || []).concat([alias]);
+  }
+  return into;
+}
+
 function odnParts() {
   if (_odn === null) {
-    const raw = _load('odn.json');
-    _odn = Array.isArray(raw) ? raw : [];
+    const parts = [];
+    const byKey = new Map();
+    for (const file of ODN_FILES) {
+      const raw = _load(file);
+      const list = Array.isArray(raw) ? raw : [];
+      for (const part of list) {
+        if (!part || typeof part !== 'object') continue;
+        // One part per part number: it is what a technician orders against. A
+        // splitter entry has no orderable number (only a model and a ratio), so
+        // it is simply appended - there is nothing to collide with.
+        const key = String(part.partNumber || part.id || '').trim().toLowerCase();
+        if (!key) { parts.push(part); continue; }
+        const seen = byKey.get(key);
+        if (seen) { odmMerge(seen, part); continue; }
+        byKey.set(key, part);
+        parts.push(part);
+      }
+    }
+    _odn = parts;
   }
   return _odn;
 }
@@ -282,11 +337,14 @@ function patchCords() {
 function patchCord(partNumber) {
   const want = String(partNumber || '').trim().toLowerCase();
   if (!want) return null;
-  // Either the vendor part number a technician orders (SMSCSX) or the catalogue's
-  // stable id (patch-cord-hybrid-sc-upc-apc) identifies the part.
+  // Either the vendor part number a technician orders (SMSCSX) or a catalogue's
+  // stable id (patch-cord-hybrid-sc-upc-apc) identifies the part. A part that
+  // appears in both catalogue files answers to both ids - see odmMerge().
   return patchCords().filter(function (p) {
-    return String(p.partNumber || '').toLowerCase() === want ||
-      String(p.id || '').toLowerCase() === want;
+    if (String(p.partNumber || '').toLowerCase() === want) return true;
+    if (String(p.id || '').toLowerCase() === want) return true;
+    const aliases = Array.isArray(p.aliasIds) ? p.aliasIds : [];
+    return aliases.some(function (a) { return String(a).toLowerCase() === want; });
   })[0] || null;
 }
 
