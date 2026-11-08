@@ -134,5 +134,25 @@ try {
 } catch (e) { tokenError = false; }
 ok(tokenError === true, 'the failure names the variable, the remote alternative and the bug-report link');
 
+// ---------------------------------------------------------------------------
+// A short model code is still a model code.
+//
+// Models named GBE, UBB, UDW, UX, EFG, UTR and LAP-GPS were all reported as "not in the
+// catalogue" while sitting in it: the guard requires a digit or two words, and none of
+// these has either. Live effect: the sweeper said 0 matches when 7 were already modelled.
+const { explicitCodes } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+
+console.log('\nShort codes the reporter wrote explicitly are trusted:');
+ok(explicitCodes('[Device]: Ubiquiti UniFi Express (UX)').has('ux'), 'a bracketed short code is explicit');
+ok(explicitCodes('[Device]: Ubiquiti airMAX AC GigaBeam 60GHz radio with 1+ Gbps Throughput (GBE)').has('gbe'),
+  'GBE is explicit even with no digit');
+ok(explicitCodes('[Device]: Ubiquiti airMAX LiteAP LAP-GPS AC PTMP Access Point with GPS Sync').has('lap gps'),
+  'an ALL-CAPS token with no digit is explicit too');
+ok(explicitCodes('[Device]: Ubiquiti UniFi Mobile Router Ultra').has('ultra') === false,
+  'a mixed-case marketing word is not a code');
+ok(requestCandidates('Ubiquiti airMAX LiteAP LAP-GPS AC PTMP Access Point').indexOf('LAP-GPS') !== -1,
+  'and it is tried as a candidate');
+ok(requestCandidates('Ubiquiti UniFi Express (UX)').indexOf('UX') !== -1, 'bracketed codes are still candidates');
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

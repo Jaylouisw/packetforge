@@ -156,7 +156,10 @@ function requestCandidates(rawSubject) {
   // model codes, and the catalogue lookup still has to find an exact match.
   for (const token of String(rawSubject || '').split(/[\s,()\[\]]+/)) {
     const t = token.trim();
-    if (t.length < 3 || !/[0-9]/.test(t)) continue;
+    // A code with a digit is always worth trying. An ALL-CAPS token ("LAP-GPS", "GBE") is
+    // worth trying too: it is how reporters write codes that have no digit at all.
+    const looksLikeCode = /[0-9]/.test(t) || /^[A-Z][A-Z0-9\-\+\.\/]{1,}$/.test(t);
+    if (t.length < 3 || !looksLikeCode) continue;
     if (subjects.indexOf(t) === -1) subjects.push(t);
   }
   return subjects;
@@ -195,6 +198,26 @@ function variantOfSameCode(title, model) {
     if (VARIANT_QUALIFIERS.indexOf(words[i + keyWords.length]) !== -1) return true;
   }
   return false;
+}
+
+// Codes the reporter wrote *explicitly*: anything in brackets, plus ALL-CAPS tokens like
+// "GBE" or "UX". These are trusted to name a product even when they are a single word with
+// no digit, which the general guard below requires - without this, models named GBE, UBB,
+// UDW, UX, EFG, UTR and LAP-GPS all read as "not in the catalogue" while sitting in it.
+// The vendor guard still applies, so "UniFi Mobile Router Ultra" does not land on roku/Ultra.
+function explicitCodes(title) {
+  const codes = new Set();
+  for (const group of String(title || '').match(/\(([^)]*)\)/g) || []) {
+    for (const part of group.slice(1, -1).split(/[,/]| and /i)) {
+      const n = norm(part.trim());
+      if (n) codes.add(n);
+    }
+  }
+  for (const token of String(title || '').match(/\b[A-Z][A-Z0-9\-\+\.\/]{1,}\b/g) || []) {
+    const n = norm(token);
+    if (n) codes.add(n);
+  }
+  return codes;
 }
 
 function main() {
@@ -241,6 +264,7 @@ function main() {
         // tells them their hardware is modelled when it is not.
         const parts = subject.split(/\s+/);
         const subjectVendor = cat.vendorNames.get(norm(parts[0])) || null;
+        const codes = explicitCodes(title);
 
         const acceptable = function (info) {
           if (!info) return false;
@@ -251,7 +275,10 @@ function main() {
           // ("ultra", "ac", "pro") identify lines, not products.
           const modelKey = norm(info.model).split(' ');
           const hasDigit = modelKey.some(function (w) { return /[0-9]/.test(w); });
-          if (!hasDigit && modelKey.length < 2) return false;
+          if (!hasDigit && modelKey.length < 2) {
+            // ...unless the reporter wrote that exact code themselves: "(UX)", "(GBE)", "(UDW)".
+            return codes.has(norm(info.model));
+          }
           return true;
         };
 
@@ -319,6 +346,7 @@ if (require.main === module) {
     requestSubject: requestSubject,
     requestCandidates: requestCandidates,
     variantOfSameCode: variantOfSameCode,
+    explicitCodes: explicitCodes,
     norm: norm
   };
 }
