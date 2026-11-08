@@ -15,6 +15,7 @@ jobs:
   acknowledge:
     if: contains(github.event.issue.title, '[Device]') || contains(toJSON(github.event.issue.labels), 'device-request')
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - name: Label and acknowledge
         uses: actions/github-script@v8

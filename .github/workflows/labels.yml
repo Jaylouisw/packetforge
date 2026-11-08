@@ -18,6 +18,7 @@ jobs:
   sync:
     name: Sync labels
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - name: Sync labels from .github/labels.yml

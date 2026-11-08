@@ -12,6 +12,7 @@ jobs:
   docker:
     name: Build & publish image
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - uses: docker/login-action@v3
@@ -37,6 +38,7 @@ jobs:
   release:
     name: GitHub Release
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - name: Create release

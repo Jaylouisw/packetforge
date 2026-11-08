@@ -14,6 +14,7 @@ jobs:
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     strategy:
       fail-fast: false
       matrix:
@@ -47,6 +48,7 @@ jobs:
   smoke:
     name: Server smoke test
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -62,6 +64,7 @@ jobs:
   docker:
     name: Docker build
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - name: Build image
@@ -73,6 +76,7 @@ jobs:
   lint:
     name: Workflow lint
     runs-on: ubuntu-latest
+    if: github.server_url == 'https://github.com'
     steps:
       - uses: actions/checkout@v7
       - name: actionlint (all workflows)
