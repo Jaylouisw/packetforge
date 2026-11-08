@@ -37,6 +37,17 @@ function loadCatalog(dir) {
   return specs;
 }
 
+// Identity key for a device. Vendors punctuate the same box several ways, so the
+// exact vendor+model string is not an identity: "ASR1001-X" and "ASR 1001-X" are one
+// router, and so are "RaspberryPi5" and "Raspberry Pi 5". Squashing every
+// non-alphanumeric character turns punctuation variants into one key, which is what
+// the catalogue's uniqueness invariant and the importer's duplicate gate compare
+// (issue #60 - three models were catalogued twice and an exact-string check missed it).
+function modelKey(spec) {
+  function squash(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+  return squash(spec && spec.vendor) + '|' + squash(spec && spec.model);
+}
+
 // Group catalog by category for palette rendering.
 function groupByCategory(specs) {
   const groups = {};
@@ -48,4 +59,4 @@ function groupByCategory(specs) {
   return groups;
 }
 
-module.exports = { loadCatalog, groupByCategory, CATEGORY_ORDER };
+module.exports = { loadCatalog, groupByCategory, modelKey, CATEGORY_ORDER };

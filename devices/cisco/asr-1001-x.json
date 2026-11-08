@@ -85,7 +85,6 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     },
@@ -95,9 +94,12 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000,
         10000
       ]
     }
-  ]
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/routers/asr1000/install/guide/1001-x/asr1hig-book.pdf",
+  "notes": "Cisco ASR 1001-X Router Hardware Installation Guide: \"Six built-in 1 GE SFP-only interfaces (do not support SFP+), and two built-in 10 GE SFP+ interfaces (support only 10-GE rate) that support SyncE\". The front-panel port table numbers them GE 0/0/0-0/0/5 and 10GE 0/0/0-0/0/1, so Gi0/0/0-5 are 1G SFP cages that refuse a 10G optic and Te0/0/0-1 are 10G SFP+ pinned to 10G, because a 1G SFP in a 10G-only cage is the same mistake as a 10G optic in a 1G cage. The half-height SPA slot is empty in the base chassis (nine SPAs are orderable) so no SPA ports are modelled, and Gi0 is the separate 10/100/1000 management port. ESP: 2.5 Gbps default, 5/10/20 Gbps with a licence. This model was catalogued twice until issue #60: devices/cisco/asr1001-x.json held it under the compact spelling and modelled all eight built-in ports as 10G SFP+, so a 10G optic was accepted on the six 1G-only cages. That file is deleted - the compact form is the same device, its normalised key cisco|asr1001x is already taken, and adding it again will be refused by the importer and by test/hardware-invariants.test.js.",
+  "icon": "router",
+  "color": "#2563eb"
 }

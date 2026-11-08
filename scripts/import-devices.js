@@ -7,6 +7,10 @@
 // validator depends on. So every spec is checked here before it is written to
 // devices/<vendor>/<model>.json.
 //
+// "Duplicate" means the same box, not the same string: identity is compared with all
+// punctuation stripped (modelKey in devices/registry.js), so a research agent cannot
+// write "ISR 4331" beside the "ISR4331" already in the catalogue (issue #60).
+//
 // Usage:
 //   node scripts/import-devices.js --dry-run     # report only, write nothing
 //   node scripts/import-devices.js               # validate and write
@@ -15,7 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const { expandInterfaces } = require('../engine/topology');
 const media = require('../engine/media');
-const { loadCatalog } = require('../devices/registry');
+const { loadCatalog, modelKey } = require('../devices/registry');
 
 const ROOT = path.join(__dirname, '..');
 // PF_INCOMING lets the importer be tested against a fixture directory without
@@ -277,8 +281,13 @@ function main() {
   // Where each existing spec actually lives. A repair must overwrite THAT file: re-deriving
   // the name from the model would create a second file beside an existing one with different
   // capitalisation ('U7-Pro.json' vs 'u7-pro.json') and the catalogue would load both.
-  const existingPathByKey = (function () {
-    const map = Object.create(null);
+  //
+  // Two maps, because there are two notions of identity. The exact one is used by --upgrade;
+  // the normalised one is used by the duplicate gate, because two spellings of one model live
+  // in two DIFFERENT files and neither map would see the other otherwise (issue #60).
+  const existingPathByKey = Object.create(null);
+  const existingPathByNormalised = Object.create(null);
+  (function () {
     function walk(dir) {
       let entries;
       try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return; }
@@ -289,13 +298,14 @@ function main() {
         try {
           const spec = JSON.parse(fs.readFileSync(full, 'utf8'));
           if (spec && spec.vendor && spec.model) {
-            map[String(spec.vendor) + '|' + String(spec.model).toLowerCase()] = full;
+            existingPathByKey[String(spec.vendor) + '|' + String(spec.model).toLowerCase()] = full;
+            const nk = modelKey(spec);
+            if (!existingPathByNormalised[nk]) existingPathByNormalised[nk] = full;
           }
         } catch (e) { /* a broken file is another script's problem */ }
       }
     }
     walk(DEVICES);
-    return map;
   })();
 
   function writeSpecTo(spec, fullPath) {
@@ -305,10 +315,25 @@ function main() {
 
   const known = Object.create(null);
   const existingByKey = Object.create(null);
+  // modelKey -> the spec that already owns that identity, so a punctuation variant of an
+  // existing model is refused instead of being written beside it. Seeded from the catalogue
+  // and extended with every spec this run accepts, so one batch cannot introduce both
+  // spellings either.
+  const byNormalisedKey = Object.create(null);
   for (const s of existing) {
     const k = String(s.vendor) + '|' + String(s.model).toLowerCase();
     known[k] = true;
     existingByKey[k] = s;
+    const nk = modelKey(s);
+    if (!byNormalisedKey[nk]) {
+      byNormalisedKey[nk] = {
+        vendor: s.vendor,
+        model: s.model,
+        where: existingPathByNormalised[nk]
+          ? path.relative(ROOT, existingPathByNormalised[nk]).replace(/\\/g, '/')
+          : 'the catalogue'
+      };
+    }
   }
 
   // How much hardware detail a spec actually carries. Used by --upgrade, which repairs a
@@ -335,7 +360,7 @@ function main() {
     return 0;
   }
 
-  const report = { files: groups.length, seen: 0, added: [], duplicates: [], rejected: [], warnings: [] };
+  const report = { files: groups.length, seen: 0, added: [], duplicates: [], rejected: [], collisions: [], warnings: [] };
 
   for (const g of groups) {
     if (g.fatal) { report.rejected.push({ file: g.file, model: '(whole file)', errors: [g.fatal] }); continue; }
@@ -366,6 +391,37 @@ function main() {
         }
         continue;
       }
+      // Punctuation is not an identity (issue #60). "ISR4331" and "ISR 4331" are the same
+      // router, but slug() spells their files differently, so nothing collided at write
+      // time and the catalogue ended up offering the box twice - with different port
+      // counts, and there was no way to tell from the model string which one you had.
+      // An exact match is a routine re-import and is reported above as a duplicate (and
+      // repaired by --upgrade); a match that only differs in punctuation is a modelling
+      // error, so it is refused and the spec it collides with is named.
+      const nk = modelKey(spec);
+      const clash = byNormalisedKey[nk];
+      if (clash) {
+        report.rejected.push({
+          file: g.file,
+          vendor: spec.vendor,
+          model: spec.model,
+          errors: ['duplicate model: ' + spec.vendor + '/' + spec.model + ' is the same device as the ' +
+            'existing ' + clash.vendor + '/' + clash.model + ' (normalised key ' + nk +
+            ', punctuation ignored) in ' + clash.where +
+            ' - correct that spec instead of adding a second spelling']
+        });
+        report.collisions.push({
+          file: g.file,
+          vendor: spec.vendor,
+          model: spec.model,
+          key: nk,
+          collidesWith: clash.vendor + '/' + clash.model,
+          where: clash.where
+        });
+        continue;
+      }
+      byNormalisedKey[nk] = { vendor: spec.vendor, model: spec.model, where: g.file };
+
       known[key] = true;   // also guards duplicates inside the incoming batch
       if (v.warnings.length) report.warnings.push({ vendor: spec.vendor, model: spec.model, warnings: v.warnings });
 
@@ -405,7 +461,7 @@ function main() {
 
   if (asJson) {
     console.log(JSON.stringify(report, null, 2));
-    return 0;
+    return report.collisions.length ? 1 : 0;
   }
 
   const byVendor = {};
@@ -414,6 +470,7 @@ function main() {
   console.log('Scanned ' + report.files + ' file(s), ' + report.seen + ' spec(s)');
   console.log((dryRun ? 'Would add: ' : 'Added: ') + report.added.length +
     '  duplicates: ' + report.duplicates.length + '  rejected: ' + report.rejected.length +
+    (report.collisions.length ? '  refused duplicate spellings: ' + report.collisions.length : '') +
     ((report.upgraded || []).length ? '  upgraded: ' + report.upgraded.length : ''));
   if ((report.upgraded || []).length) {
     console.log(dryRun ? 'Would repair (incoming spec carries more detail):' : 'Repaired from a richer spec:');
@@ -437,9 +494,21 @@ function main() {
       for (const e of r.errors.slice(0, 4)) console.log('      ' + e);
     }
   }
+  if (report.collisions.length) {
+    console.log('\nRefused - already in the catalogue under a different spelling:');
+    for (const c of report.collisions.slice(0, 20)) {
+      console.log('  - ' + c.vendor + '/' + c.model + '  (' + c.file + ')');
+      console.log('      is the same device as ' + c.collidesWith + ' in ' + c.where + '  [key ' + c.key + ']');
+    }
+    if (report.collisions.length > 20) console.log('  ... and ' + (report.collisions.length - 20) + ' more');
+    console.log('  Punctuation is not an identity: fix the spec that is already there rather than' +
+      ' adding a second spelling of it.');
+  }
   if (report.warnings.length) console.log('\n' + report.warnings.length + ' spec(s) had minor warnings (still imported).');
   if (dryRun) console.log('\nDry run: nothing was written. Re-run with --apply to import.');
-  return 0;
+  // A collision is a catalogue-integrity failure, not a benign re-import, so the batch fails
+  // loudly. Exact duplicates stay non-fatal: re-running a research file must remain a no-op.
+  return report.collisions.length ? 1 : 0;
 }
 
 process.exit(main());
