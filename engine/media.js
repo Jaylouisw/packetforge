@@ -66,6 +66,58 @@ const MEDIA = {
   '1000base-ex': { name: '1000BASE-EX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 40000, fiber: 'smf', wavelengthNm: 1310 },
   '1000base-zx': { name: '1000BASE-ZX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 80000, fiber: 'smf', wavelengthNm: 1550 },
 
+  // ---- fiber, 1G, single-strand (bidirectional / BiDi) ----
+  // 1000BASE-BX10 carries a full gigabit in both directions over ONE strand of SMF by
+  // splitting the band: one end transmits in the 1310 nm window and listens at 1490,
+  // the other end does the opposite. The two halves are separate orderable parts, so
+  // each is its own medium here rather than one medium with a "direction" flag - a
+  // port really does hold one part or the other, and the part number differs:
+  //
+  //   -U  TX 1310 nm / RX 1490 nm      (Cisco GLC-BX-U)
+  //   -D  TX 1490 nm / RX 1310 nm      (Cisco GLC-BX-D)
+  //
+  // "A 1000BASE-BX10-D device is always connected to a 1000BASE-BX10-U device with a
+  // single strand of standard SMF with an operating transmission range up to 10 km."
+  //   -- Cisco, SFP Modules for Gigabit Ethernet Applications, datasheet c78-366584
+  //      (the same table rates GLC-BX-U at 1310 nm TX / 1490 nm RX and GLC-BX-D at
+  //      1490 nm TX / 1310 nm RX; IEEE 802.3ah-2004 clause 59 defines 1000BASE-BX10.)
+  //
+  // 10 km is the datasheet figure for this class, and it is what maxRangeM says: a 25 m
+  // run is *within* it, not the limit of it, and nothing here claims BX reaches 80 km -
+  // that is 1000BASE-ZX, a duplex part.
+  //
+  // The pair is MIRRORED, which is the whole point: U mates with D and with nothing
+  // else. Two U ends put two 1310 nm transmitters into the same strand while both
+  // 1490 nm receivers sit deaf - not a bad cable, an unbuildable link. `matesWith`
+  // is how this model states a medium-level mate that is NOT reflexive; see MEDIA_MATE
+  // and commonMedia() below.
+  '1000base-bx-u': {
+    name: '1000BASE-BX10-U', family: 'fiber', connector: 'lc', speedMbps: 1000,
+    maxRangeM: 10000, fiber: 'smf',
+    wavelengthNm: 1310, txWavelengthNm: 1310, rxWavelengthNm: 1490,
+    strands: 1, duplex: 'single', direction: 'U',
+    matesWith: '1000base-bx-d', link: '1000base-bx'
+  },
+  '1000base-bx-d': {
+    name: '1000BASE-BX10-D', family: 'fiber', connector: 'lc', speedMbps: 1000,
+    maxRangeM: 10000, fiber: 'smf',
+    wavelengthNm: 1490, txWavelengthNm: 1490, rxWavelengthNm: 1310,
+    strands: 1, duplex: 'single', direction: 'D',
+    matesWith: '1000base-bx-u', link: '1000base-bx'
+  },
+  // The RUN the two halves make, named as its own medium for the same reason the
+  // hybrid patch cords are: neither end describes the span - "1000BASE-BX10-U" is a
+  // module, "1000BASE-BX10" is the link. No cage offers this id; it appears only when
+  // a U and a D meet (commonMedia), and `linkOnly` keeps it out of the media list
+  // whenever a real module fits the pair, so it can never displace 1000BASE-LX as the
+  // description of an ordinary SFP-to-SFP run.
+  '1000base-bx': {
+    name: '1000BASE-BX10 (U/D pair, single strand)', family: 'fiber', connector: 'lc',
+    speedMbps: 1000, maxRangeM: 10000, fiber: 'smf',
+    wavelengthsNm: [1310, 1490], strands: 1, duplex: 'single', linkOnly: true,
+    pair: ['1000base-bx-u', '1000base-bx-d']
+  },
+
   // ---- fiber, 10G ----
   '10gbase-sr': { name: '10GBASE-SR', family: 'fiber', connector: 'lc', speedMbps: 10000, maxRangeM: 300, fiber: 'mmf', wavelengthNm: 850 },
   '10gbase-lr': { name: '10GBASE-LR', family: 'fiber', connector: 'lc', speedMbps: 10000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
@@ -150,6 +202,46 @@ const MEDIA = {
 };
 
 function mediaById(id) { return MEDIA[id] || null; }
+
+// ---------------------------------------------------------------------------
+// medium-level mating
+// ---------------------------------------------------------------------------
+// CAGE_MATE answers "can these two cages be joined", which is a symmetric,
+// reflexive question: an SFP cage mates with an SFP cage, and an SFP cage mates
+// with itself. That is right for the hardware and WRONG for a single-strand
+// optical run, where the thing that decides the link is what is plugged into the
+// cage, not the cage. Two SFP cages mate by definition; a 1000BASE-BX10-U module
+// in each of them does not.
+//
+// So the model needs a second, *medium-level* mate relation, and that relation is
+// deliberately not reflexive and not symmetric:
+//
+//   MEDIA_MATE['1000base-bx-u'] = { with: '1000base-bx-d', link: '1000base-bx' }
+//   MEDIA_MATE['1000base-bx-d'] = { with: '1000base-bx-u', link: '1000base-bx' }
+//
+// - `with` names the ONE medium this one can form a link with. An id that has a
+//   `with` is never a link on its own, so sharing an id across the two ports is not
+//   enough: commonMedia() intersects ids and then resolves complements, and a half
+//   only ever enters the result through a complement (see there).
+// - `link` names the medium the *run* is, because a U at one end and a D at the other
+//   is not "a U link" and not "a D link" - the pair has its own id, exactly as a hybrid
+//   UPC/APC patch cord has one.
+//
+// Adding 10G-BXU/10G-BXD or 40GBASE-SR-BD later is a row here plus the two media
+// entries; nothing in canMate() or commonMedia() needs to change.
+const MEDIA_MATE = {};
+for (const id of Object.keys(MEDIA)) {
+  const m = MEDIA[id];
+  if (m && m.matesWith) MEDIA_MATE[id] = { with: m.matesWith, link: m.link || m.matesWith };
+}
+
+// Is this medium one half of a single-strand pair (so it can never be a link alone)?
+function isPairedHalf(id) {
+  return Object.prototype.hasOwnProperty.call(MEDIA_MATE, id);
+}
+
+function mediaMate(id) { return MEDIA_MATE[id] || null; }
+
 
 // ---------------------------------------------------------------------------
 // cages -- the physical connector/cage fitted to a port
@@ -305,10 +397,21 @@ const CAGE_MEDIA = {
     // '1000base-t-sfp' is the copper SFP module, which is legitimate in this
     // cage. Bare '1000base-t' is RJ45 copper cabling and must NOT be offered
     // here: it let two fibre cages be joined by a copper run.
-    return ['1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx', '1000base-t-sfp', 'dac-1g'];
+    // The BX10 halves belong here because an SFP cage really does take a GLC-BX-U or a
+    // GLC-BX-D - that is what the cage is for. What the cage cannot tell you is which
+    // one is in it, so both directions are listed and the PAIR decides (see MEDIA_MATE
+    // and commonMedia): U with D is a link, U with U is refused. A spec that knows
+    // which module is fitted can say so with `media: ["1000base-bx-u"]`, and then the
+    // port can only ever meet a -D.
+    return ['1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx',
+            '1000base-bx-u', '1000base-bx-d',
+            '1000base-t-sfp', 'dac-1g'];
   },
   'sfp+': function () {
+    // 1G modules go in an SFP+ slot and run at 1G, BX10 halves included: the cage is
+    // the same and the module is the same part that works in a plain SFP cage.
     return ['10gbase-sr', '10gbase-lr', '10gbase-er', '1000base-sx', '1000base-lx',
+      '1000base-bx-u', '1000base-bx-d',
       '1000base-t-sfp', 'dac-10g', 'dac-10g-active', 'aoc-10g'];
   },
   sfp28: function () {
@@ -323,6 +426,7 @@ const CAGE_MEDIA = {
     return ['25gbase-sr', '25gbase-lr', '10gbase-sr', '10gbase-lr', '10gbase-er',
             'dac-25g', 'dac-10g',
             '1000base-sx', '1000base-lx', '1000base-ex', '1000base-zx',
+            '1000base-bx-u', '1000base-bx-d',
             '1000base-t-sfp', 'dac-1g'];
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
@@ -748,12 +852,30 @@ function isPoePd(dev) {
 // compatibility / negotiation
 // ---------------------------------------------------------------------------
 
-// Media ids that BOTH ports can carry, given their cages.
+// Media that BOTH ports can carry, given their cages - plus the medium that two
+// *complementary* halves make when they meet.
+//
+// The plain intersection is no longer the whole answer now that a medium can have a
+// mate that is a different medium. Two 1000BASE-BX10-U ports intersect on
+// '1000base-bx-u', and that intersection is a lie dressed as a fact: the id is shared,
+// but there is no link and never can be. So a paired half never enters the result on
+// its own - it enters only through its complement, as the run the pair actually makes
+// ('1000base-bx'). Everything that is not a half is still reflexive and still comes
+// straight out of the intersection, in the order the A port lists it.
 function commonMedia(pa, pb) {
   if (!cagesMate(pa.cage, pb.cage)) return [];
   const setB = {};
   for (const m of pb.media) setB[m] = true;
-  return pa.media.filter(function (m) { return setB[m]; });
+
+  const out = pa.media.filter(function (m) { return setB[m] && !isPairedHalf(m); });
+
+  // U at one end, D at the other: the only arrangement a single strand supports.
+  for (const a of pa.media) {
+    const mate = mediaMate(a);
+    if (!mate || !setB[mate.with]) continue;
+    if (out.indexOf(mate.link) === -1) out.push(mate.link);
+  }
+  return out;
 }
 
 // The optical *service* a polish-specific media id carries, with the ferrule
@@ -825,6 +947,62 @@ function negotiateSpeed(pa, pb) {
   return Math.max.apply(null, shared);
 }
 
+// Why two ports that each carry a single-strand module still make no link.
+//
+// Two reasons, and they are the two the parts catalogue already draws
+// (engine/optical.js -> biDiPairsWith, same codes), so a user who moves between the
+// module picker and the cable editor reads the same words for the same mistake:
+//
+//   E_BIDI_SAME_WAVELENGTH  both ends are the SAME half. Two 1310 nm transmitters into
+//                           one strand, two deaf 1490 nm receivers. The single most
+//                           common way to get a BiDi run wrong.
+//   E_BIDI_MISMATCH         exactly one end is single-strand. A duplex 1310 nm optic
+//                           hears this module's 1310 nm transmit well enough, but its
+//                           own transmit never lands on the 1490 nm this receiver is
+//                           tuned to - so one direction of the pair is dead, and a link
+//                           with one dead direction is not a link.
+function biDiRefusal(pa, pb) {
+  const shared = pa.media.filter(function (id) {
+    return isPairedHalf(id) && pb.media.indexOf(id) !== -1;
+  });
+  if (shared.length) {
+    const id = shared[0], m = MEDIA[id], mate = mediaMate(id);
+    return {
+      ok: false, code: 'E_BIDI_SAME_WAVELENGTH',
+      message: 'Both ends carry ' + m.name + '. Two ' + m.direction + ' ends cannot form a ' +
+        'run: each transmits at ' + m.txWavelengthNm + ' nm into the same strand and listens ' +
+        'at ' + m.rxWavelengthNm + ' nm, so the two transmitters face each other and neither ' +
+        'receiver ever sees light. A single-strand link needs one ' + m.name + ' and one ' +
+        MEDIA[mate.with].name + '.'
+    };
+  }
+  const dirA = pa.media.filter(isPairedHalf);
+  const dirB = pb.media.filter(isPairedHalf);
+  if (dirA.length && dirB.length) return null;      // both ends single-strand, handled above
+  const half = dirA.length ? dirA[0] : dirB[0];
+  if (!half) return null;
+  const m = MEDIA[half];
+  const far = dirA.length ? pb : pa;
+  const farIsOptical = far.media.some(function (id) {
+    return MEDIA[id] && MEDIA[id].family === 'fiber';
+  });
+  return {
+    ok: false, code: 'E_BIDI_MISMATCH',
+    message: m.name + ' is a single-strand (BiDi) optic: it transmits at ' + m.txWavelengthNm +
+      ' nm and receives at ' + m.rxWavelengthNm + ' nm over ONE fibre, so it only ever ' +
+      'pairs with ' + MEDIA[m.matesWith].name + '. ' +
+      (farIsOptical
+        // Precise about what breaks: a duplex 1310 nm optic DOES hear this module's 1310 nm
+        // transmit. What it cannot do is send one back on a wavelength this receiver is
+        // looking at, so one direction of the pair is dead - and that is not a link.
+        ? 'The far end is a two-strand duplex optic: it may hear this module\'s ' +
+          m.txWavelengthNm + ' nm transmit, but its own transmit is not the ' +
+          m.rxWavelengthNm + ' nm this receiver listens for, so one direction of the pair is ' +
+          'dead - and a link with one dead direction is no link.'
+        : 'The far end is not an optical medium at all, so this module has nothing to listen to.')
+  };
+}
+
 // Can these two ports be cabled at all? Returns a structured verdict.
 function canMate(pa, pb) {
   if (!pa || !pb) {
@@ -854,6 +1032,11 @@ function canMate(pa, pb) {
   }
   const media = commonMedia(pa, pb);
   if (!media.length) {
+    // A pair that shares a single-strand id but no complementary half is refused for a
+    // physical reason, and "no shared medium" would hide it: both ports agree perfectly
+    // on what they carry. Say what is actually wrong first (issue #97).
+    const bidi = biDiRefusal(pa, pb);
+    if (bidi) return bidi;
     return {
       ok: false, code: 'E_NO_COMMON_MEDIA',
       message: 'No shared medium between ' + pa.cageName + ' and ' + pb.cageName + '.'
@@ -867,7 +1050,23 @@ function canMate(pa, pb) {
         ' (A: ' + pa.speedCaps.join('/') + ', B: ' + pb.speedCaps.join('/') + ').'
     };
   }
-  return { ok: true, code: 'OK', media: media, speedMbps: speed };
+  // A single-strand pair runs at the MODULE's rate, not the cage's.
+  //
+  // This is the one case where the medium, not the port, sets the speed: 1000BASE-BX10
+  // is a 1 Gbps PMD, so two SFP+ cages that both clock 10G still make a 1G link when
+  // the pair is a BX run, because the module in them is a 1G module. It only applies
+  // when every medium the pair shares is a linkOnly run - i.e. the pair has nothing
+  // else it could be - so no existing pair changes its number. validation.js clamps to
+  // the chosen medium as well; this keeps canMate() honest on its own.
+  let rate = speed;
+  if (media.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); })) {
+    for (const id of media) {
+      if (typeof MEDIA[id].speedMbps === 'number' && MEDIA[id].speedMbps > 0) {
+        rate = Math.min(rate, MEDIA[id].speedMbps);
+      }
+    }
+  }
+  return { ok: true, code: 'OK', media: media, speedMbps: rate };
 }
 
 // Preferred medium when several are possible (prefer fiber/DAC over copper SFP,
@@ -875,13 +1074,25 @@ function canMate(pa, pb) {
 function preferredMedia(mediaIds) {
   if (!mediaIds || !mediaIds.length) return null;
   const rank = { fiber: 3, dac: 2, copper: 1, console: 1, wireless: 1 };
+  // A `linkOnly` medium describes a SPAN, not a module you choose: '1000base-bx' exists
+  // only because a U met a D, and no cage offers it. Two ordinary SFP ports therefore
+  // stay described as a 1000BASE-LX run - the medium every other cable in the matrix is
+  // already named by - instead of being renamed for a pair of modules neither port is
+  // known to hold. It still wins when it is the only thing the two ports can share,
+  // which is precisely the U-at-one-end/D-at-the-other case.
+  const onlyLinks = mediaIds.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); });
+  const rankOf = function (id) {
+    const m = MEDIA[id];
+    if (m && m.linkOnly && !onlyLinks) return -1;
+    return (m && rank[m.family]) || 0;
+  };
   let best = mediaIds[0];
   for (const id of mediaIds) {
     const a = MEDIA[best]; const b = MEDIA[id];
     if (!b) continue;
     if (!a) { best = id; continue; }
-    if ((rank[b.family] || 0) > (rank[a.family] || 0)) best = id;
-    else if ((rank[b.family] || 0) === (rank[a.family] || 0) && b.speedMbps > a.speedMbps) best = id;
+    if (rankOf(id) > rankOf(best)) best = id;
+    else if (rankOf(id) === rankOf(best) && b.speedMbps > a.speedMbps) best = id;
   }
   return best;
 }
@@ -899,6 +1110,7 @@ function parsePoeBudget(model) {
 module.exports = {
   CAGE_ALIAS,
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
+  MEDIA_MATE, mediaMate, isPairedHalf, biDiRefusal,
   parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, commonMediaBridged, negotiateSpeed, canMate, preferredMedia,
   FERRULE, ferrule, polishMismatch,

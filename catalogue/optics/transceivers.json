@@ -388,5 +388,39 @@
     "standard": "XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)",
     "sourceUrl": "https://www.fs.com/products/196583.html",
     "note": "ONT side, SC/APC angled ferrule: 9.953G Tx @1270 nm / 9.953G Rx @1577 nm"
+  },
+  {
+    "partNumber": "GLC-BX-U",
+    "vendor": "cisco",
+    "formFactor": "sfp",
+    "connector": "lc",
+    "polish": "upc",
+    "wavelengthNm": 1310,
+    "reachM": 10000,
+    "fiber": "smf",
+    "speedMbps": 1000,
+    "biDi": true,
+    "pairWavelengthNm": 1490,
+    "cwdmChannel": null,
+    "standard": "1000BASE-BX10-U",
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/gigabit-ethernet-gbic-sfp-modules/datasheet-c78-366584.html",
+    "note": "Transmits 1310 nm / receives 1490 nm over one SMF strand; must pair with GLC-BX-D"
+  },
+  {
+    "partNumber": "GLC-BX-D",
+    "vendor": "cisco",
+    "formFactor": "sfp",
+    "connector": "lc",
+    "polish": "upc",
+    "wavelengthNm": 1490,
+    "reachM": 10000,
+    "fiber": "smf",
+    "speedMbps": 1000,
+    "biDi": true,
+    "pairWavelengthNm": 1310,
+    "cwdmChannel": null,
+    "standard": "1000BASE-BX10-D",
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/gigabit-ethernet-gbic-sfp-modules/datasheet-c78-366584.html",
+    "note": "Transmits 1490 nm / receives 1310 nm over one SMF strand; must pair with GLC-BX-U"
   }
 ]
