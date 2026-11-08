@@ -1,0 +1,67 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM51",
+  "label": "Teltonika RUTM51",
+  "category": "router",
+  "description": "An international 5G router: 1 WAN + 4 LAN at gigabit, dual-band Wi-Fi 5 and 5G Sub-6. Four LAN ports and a 2 Gbps modem - the workhorse of the RUTM line.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutm51",
+  "notes": "Vendor figures from the RUTM51 datasheet: 1 x WAN port 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps; 5G Sub-6 GHz SA 2 Gbps downlink / 1 Gbps uplink, NSA 2.6 Gbps / 650 Mbps; 802.11b/g/n/ac Wave 2 (Wi-Fi 5) dual band up to 867 Mbps. Modelled at the 2 Gbps SA downlink figure."
+}

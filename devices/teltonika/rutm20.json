@@ -1,0 +1,49 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM20",
+  "label": "Teltonika RUTM20",
+  "category": "router",
+  "description": "A compact 5G router: 1 WAN + 1 LAN at gigabit, dual-band Wi-Fi 5 and a 5G Sub-6 modem. Two ports and a 2.5 Gbps radio - the modem is ten times faster than the 4G units it replaces.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutm20",
+  "notes": "Vendor figures from the RUTM20 datasheet: 1 x WAN port 10/100/1000 Mbps and 1 x LAN port 10/100/1000 Mbps (IEEE 802.3); 5G Sub-6 GHz SA/NSA at 2.5/3.4 Gbps downlink with 4x4 MIMO and 900/550 Mbps uplink; 802.11b/g/n/ac Wave 2 (Wi-Fi 5) dual band up to 867 Mbps. The cellular interface is modelled at 2.5G - the lower end of the vendor's downlink range - rather than the 3.4 Gbps best case, so 5G labs are not optimistic by default."
+}
