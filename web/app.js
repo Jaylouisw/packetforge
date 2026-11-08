@@ -112,22 +112,40 @@
     return String(s == null ? '' : s).toLowerCase().replace(SEARCH_NOISE, '');
   }
 
-  // Lower is better: 0 exact model, 1 model prefix, 2 model substring, 3 vendor(+model)
-  // hit, 4 some other field, 5 every whitespace token present somewhere. -1 = no match.
+  // Does the query appear as a whole word in this string? Word boundaries matter: a
+  // category is a name someone chose, whereas a substring is usually an accident.
+  function hasWord(str, q) {
+    if (!q) return false;
+    const parts = String(str == null ? '' : str).toLowerCase().split(/[^a-z0-9]+/);
+    for (let i = 0; i < parts.length; i++) { if (parts[i] && parts[i] === q) return true; }
+    return false;
+  }
+
+  // Lower is better: 0 exact model, 1 model prefix, 2 category word, 3 model substring,
+  // 4 vendor(+model) hit, 5 some other field, 6 every whitespace token present
+  // somewhere. -1 = no match.
+  //
+  // The category tier sits above the substring tier because a substring is far too easy
+  // to hit by accident. "ont" is the project's own name for fibre CPE, and it is a
+  // substring of "Controller" - so searching for an ONT returned 150 devices led by an
+  // Aruba Mobility Controller and an ExtremeCloud IQ Controller, with the real ONTs
+  // buried behind them. A whole word in a category is a deliberate name; ranking it
+  // above accidental substrings is the difference between a search box and a lottery.
   function searchRank(s, q, tokens) {
-    if (!q) return 5;                       // punctuation-only query: keep everything
+    if (!q) return 6;                       // punctuation-only query: keep everything
     const model = searchKey(s.model);
     const vendor = searchKey(s.vendor);
     const vm = vendor + model;              // lets "tp-link mc220l" / "tplink mc220l" land
     if (model === q) return 0;
     if (model.indexOf(q) === 0) return 1;
-    if (model.indexOf(q) !== -1) return 2;
-    if (vm.indexOf(q) !== -1) return 3;
+    if (hasWord(s.category, q)) return 2;
+    if (model.indexOf(q) !== -1) return 3;
+    if (vm.indexOf(q) !== -1) return 4;
     const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
-    if (fields.indexOf(q) !== -1) return 4;
+    if (fields.indexOf(q) !== -1) return 5;
     const hay = model + '\u0000' + vm + '\u0000' + fields;
     for (const t of tokens) { if (hay.indexOf(t) === -1) return -1; }
-    return tokens.length ? 5 : -1;
+    return tokens.length ? 6 : -1;
   }
 
   // Palette filter: vendor/type facets first, then search, best matches first. Ties
