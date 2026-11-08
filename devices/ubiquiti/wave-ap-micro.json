@@ -1,0 +1,40 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-AP-Micro",
+  "label": "UniFi Wave AP Micro",
+  "category": "ptp",
+  "description": "UniFi Wave AP Micro (Wave-AP-Micro) - 1x 2.5G RJ45. Passive PoE-in; WiFi 6; 24 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/wave-a-p-micro"
+}
