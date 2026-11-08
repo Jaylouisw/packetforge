@@ -2,6 +2,11 @@
 
 ### Added
 
+- **`scripts/sweep-device-requests.js`** answers "is this hardware request already modelled?" against
+  the ~800-issue backlog, with no fuzzy matching: a vendor-agreement guard and a model-key guard,
+  because the first version closed three Ubiquiti requests pointing at `roku/Ultra`. See
+  [docs/TRIAGE.md](docs/TRIAGE.md). 41 requests closed with per-issue comments naming the file.
+
 - **OLT uplinks are real ports now** (#987). The Adtran SDX 6320's 4x100GbE + 4x10GbE uplinks
   declared no connector (so a 10G uplink was guessed as copper, #1069 again), the FiberHome
   AN5516-01's HU2A card was missing its second combo position, and the Huawei MA5600T had no uplink
