@@ -202,7 +202,25 @@ const CAGE_ALIAS = {
   // MCX is a small coax connector used on CMTS line cards and small-cell gear. A
   // different shape from an F-connector, but the engine has one coax cage and it is
   // still coax: leaving it unmapped made 40 CMTS line-card ports uncabliable.
-  mcx: 'coax'
+  mcx: 'coax',
+  // Radio connectors (issue #77). A spec describes a radio the way its datasheet does:
+  // "antenna", "SMA", "RP-SMA", "N-type". None of those is an RJ45 socket, but an
+  // unrecognised token used to become one - and a Wi-Fi radio presented as a copper
+  // cage is a port the UI offers you as something to plug a patch lead into. The engine
+  // has exactly one radio cage, so every aerial spelling resolves to it.
+  antenna: 'antenna',
+  sma: 'antenna',
+  'rp-sma': 'antenna',
+  rsma: 'antenna',
+  'sma-female': 'antenna',
+  'n-type': 'antenna',
+  ntype: 'antenna',
+  tnc: 'antenna',
+  wireless: 'antenna',
+  radio: 'antenna',
+  wifi: 'antenna',
+  'wi-fi': 'antenna',
+  wlan: 'antenna'
 };
 
 const CAGE_MATE = {
@@ -369,7 +387,13 @@ const CAGE_MEDIA = {
   },
   console: function () { return ['console-rs232']; },
   usb: function () { return ['usb-console']; },
-  antenna: function () { return ['wireless-2.4', 'wireless-5', 'wireless-6', 'wireless-7', 'wireless-60']; }
+  // A radio carries bands, not a cable (issue #77). There is no copper here and no
+  // optic: the medium is the band set its generation covers, and the generation follows
+  // from the port's own rate. `generationBands` is the single source of truth shared with
+  // derivePortHardware, which then narrows the set from the spec (explicit bands, 60 GHz
+  // gear) - so the cage table and the derived port cannot disagree about what a radio
+  // carries.
+  antenna: function (maxMbps) { return generationBands(maxMbps || 0); }
 };
 
 const CAGE_SPEEDS = {
@@ -464,7 +488,11 @@ const CAGE_SPEEDS = {
   },
   console: function () { return [0.1152]; },
   usb: function () { return [12]; },
-  antenna: function (maxMbps) { return [maxMbps]; }
+  // A radio has no autonegotiation ladder: it runs at the rate the interface declares
+  // and at nothing else. The 10/100/1000 rungs belong to an RJ45 cage, and offering
+  // them here is how a Wi-Fi radio came to advertise 1000BASE-T (issue #77). A 25 Mbit/s
+  // satellite WAN is 25, an 867 Mbit/s Wi-Fi radio is 867, never a gigabit.
+  antenna: function (maxMbps) { return maxMbps > 0 ? [maxMbps] : []; }
 };
 
 // ---------------------------------------------------------------------------
@@ -476,17 +504,33 @@ const CAGE_SPEEDS = {
 //   { "hardware": { "cage": "sfp+", "poeOut": 30 } }
 // or per-field: { "connector": "sfp+", "poeOut": 30 }
 
+// Interface types that are radios, whatever the spec author called them. Anything that
+// falls through inferCage() becomes RJ45 copper, so this list is the difference between
+// a Wi-Fi radio and an Ethernet socket (issue #77).
+const WIRELESS_TYPE = /^(wireless|radio|wifi|wi-fi|wlan|wwan|cellular|lte|nr5g|5g-nr|satellite|microwave)$/;
+
 function inferCage(ifaceSpec, maxMbps) {
   const name = String(ifaceSpec.name || '').toLowerCase();
   const type = String(ifaceSpec.type || 'ethernet').toLowerCase();
 
-  if (type === 'wireless' || type === 'radio') return 'antenna';
+  // A radio is an antenna, never an RJ45 socket.
+  //
+  // This used to test only 'wireless' and 'radio', and everything else that reached the
+  // bottom of this function became copper: a radio shown in the link inspector as an RJ45
+  // cage, advertising 10/100/1000BASE-T and - because anything that enumerates "ports you
+  // can plug into" goes by cage - offered as somewhere to plug a patch lead in, even
+  // though validateLink refused the cable. The refusal was never the problem; the
+  // description was (issue #77).
+  if (WIRELESS_TYPE.test(type)) return 'antenna';
   if (type === 'console') return 'console';
   if (type === 'usb') return 'usb';
   // Subscriber-access line types are their own connector families.
   if (type === 'coax') return 'coax';
   if (type === 'dsl' || type === 'adsl' || type === 'vdsl') return 'dsl';
   if (type === 'powerline' || type === 'plc' || type === 'mains') return 'powerline';
+  // A spec that never states a type: the interface name is the last honest signal. A port
+  // called wlan0 or radio1 is a radio however the default type reads.
+  if (/^(?:wlan|wifi|wi-?fi|radio|wwan|nr5g)\d*(?:$|[.\-_ /])/.test(name)) return 'antenna';
   if (/console|con\d|tty|aux/.test(name)) return 'console';
   if (/usb/.test(name)) return 'usb';
 
@@ -543,6 +587,16 @@ function bandMediaId(band) {
   return 'wireless-' + b;
 }
 
+// The band set a rate implies, and the only place that mapping lives: CAGE_MEDIA.antenna
+// asks this, and so does the derived port below, so the two can never disagree about what
+// a radio carries.
+function generationBands(maxMbps) {
+  for (const g of WIRELESS_GENERATIONS) {
+    if (maxMbps <= g.maxMbps) return g.media.slice();
+  }
+  return WIRELESS_GENERATIONS[WIRELESS_GENERATIONS.length - 1].media.slice();
+}
+
 function wirelessBands(spec, maxMbps, dev) {
   const s = spec || {};
   if (Array.isArray(s.bands) && s.bands.length) return s.bands.map(bandMediaId);
@@ -553,10 +607,7 @@ function wirelessBands(spec, maxMbps, dev) {
   const hay = String((dev && dev.model) || '') + ' ' + String((dev && dev.description) || '');
   if (/60\s*ghz|802\.11ad|wigig/i.test(hay)) return ['wireless-60'];
 
-  for (const g of WIRELESS_GENERATIONS) {
-    if (maxMbps <= g.maxMbps) return g.media.slice();
-  }
-  return WIRELESS_GENERATIONS[WIRELESS_GENERATIONS.length - 1].media.slice();
+  return generationBands(maxMbps);
 }
 
 function derivePortHardware(ifaceSpec, deviceSpec) {
@@ -612,6 +663,20 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   // Explicit overrides.
   if (Array.isArray(spec.media)) media = spec.media.slice();
   if (Array.isArray(spec.supportedMedia)) media = spec.supportedMedia.slice();
+
+  // A radio's media list is not a place for a patch lead.
+  //
+  // Everything above can be overridden by the spec, and a spec that writes
+  // `media: ["1000base-t"]` on a radio is describing a cable that cannot exist. Copper or
+  // optics in an antenna cage is precisely the confusion issue #77 is about, so the
+  // family is enforced last: whatever else is true of this port, it carries radio bands or
+  // it carries nothing. Unknown ids are left alone rather than invented away.
+  if (cage === 'antenna') {
+    media = media.filter(function (id) {
+      const m = MEDIA[id];
+      return !m || m.family === 'wireless';
+    });
+  }
 
   const hw = spec.hardware || {};
 
