@@ -1,0 +1,61 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB953GS-5HnT-RP",
+  "label": "RB953GS-5HnT-RP",
+  "category": "wireless",
+  "description": "MikroTik RB953GS-5HnT-RP (RB953GS-5HnT-RP) — 3x 1G RJ45, 2x SFP, Wi-Fi 5 GHz. MIPSBE 1-core QCA9558.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "450M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB953GS-5HnT-RP"
+}
