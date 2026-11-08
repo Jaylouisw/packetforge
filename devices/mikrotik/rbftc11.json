@@ -1,0 +1,34 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBFTC11",
+  "label": "RBFTC11",
+  "category": "switch",
+  "description": "MikroTik RBFTC11 (RBFTC11) — 1x 1G RJ45, 1x SFP.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBFTC11"
+}
