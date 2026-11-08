@@ -1,0 +1,305 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1930 48G Class4 PoE 4SFP+ 370W (JL686A)",
+  "label": "Aruba Instant On 1930 48G Class4 PoE 4SFP+ 370W Switch (JL686A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1930 48G Class 4 PoE 4SFP+ 370W (JL686A) - 48x 1G RJ45 PoE+ (802.3at Class 4, 370 W budget) plus 4x 1G/10G SFP+ uplinks. Smart-managed Layer 2+ with IPv4 static routing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "48",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "49",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "50",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "51",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "52",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.netxl.com/aruba/docs/jl684b-acc-datasheet.pdf",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.netxl.com/aruba/docs/jl684b-acc-datasheet.pdf",
+    "note": "JL686A: 370 W Class 4 PoE budget, all 48 copper ports."
+  }
+}
