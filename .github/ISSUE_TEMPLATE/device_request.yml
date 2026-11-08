@@ -1,7 +1,7 @@
-name: Hardware request
+name: Device request
 description: Ask for a device model to be added to the catalog
 title: "[Device]: "
-labels: ["device-request", "device", "enhancement"]
+labels: ["device-request", "device"]
 body:
   - type: markdown
     attributes:

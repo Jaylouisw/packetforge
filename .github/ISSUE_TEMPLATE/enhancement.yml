@@ -1,0 +1,24 @@
+name: Enhancement
+description: Improve something that already exists
+title: "[Enhancement]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behaviour
+      description: What happens today that you want improved?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: How should it behave or look instead?
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why it matters
+      description: Who benefits, and how?
