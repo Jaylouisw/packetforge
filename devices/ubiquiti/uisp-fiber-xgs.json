@@ -1,0 +1,39 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UISP-FIBER-XGS",
+  "label": "Fiber XGS",
+  "category": "ont",
+  "description": "Fiber XGS (UISP-FIBER-XGS) - 1x PON (10G) + 1x 10G RJ45. 8 W max.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    }
+  ],
+  "icon": "ont",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/uisp-fiber-xgs"
+}
