@@ -1,0 +1,59 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AFi-ALN-R",
+  "label": "AmpliFi Alien Router",
+  "category": "wireless",
+  "description": "AmpliFi Alien Router (AFi-ALN-R) - 5x 1G RJ45 (1 WAN + 4 LAN) plus 2.4 GHz and 5 GHz Wi-Fi 6 radios. Mesh router with a touchscreen; no SFP and no PoE output.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://store.ui.com/us/en/products/afi-aln-r"
+}
