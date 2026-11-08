@@ -180,20 +180,16 @@
     }
     if (!q) vendorNames.sort(function (a, b) { return vendorLabel(a).localeCompare(vendorLabel(b)); });
 
-    for (const v of vendorNames) {
-      const items = groups[v];
-      const sec = document.createElement('div');
-      sec.className = 'vendor-group open';
-      const head = document.createElement('button');
-      head.type = 'button';
-      head.className = 'vendor-head';
-      head.innerHTML = '<span class="vh-caret">▾</span><span class="vh-name">' + vendorLabel(v) + '</span><span class="vh-count">' + items.length + '</span>';
-      head.addEventListener('click', function () {
-        sec.classList.toggle('open');
-        head.querySelector('.vh-caret').textContent = sec.classList.contains('open') ? '▾' : '▸';
-      });
-      const body = document.createElement('div');
-      body.className = 'vendor-body';
+    // A palette that renders the whole catalogue with every vendor group expanded is not
+    // a palette. Measured on the current catalogue: 1498 cards, 243 open groups, 115,115 px
+    // of scroll inside a 289 px viewport - about 400 screens - and 11,358 DOM nodes built
+    // before anyone asked to see them. Groups now start collapsed unless something is
+    // narrowing the list (a query or a facet), and a group's cards are built the first time
+    // it is opened. Searching still expands everything that matched, because then the list
+    // is short and the ranking is the point.
+    const narrowing = !!q || !!paletteFilter.vendor || !!paletteFilter.type;
+
+    function buildCards(items, body) {
       for (const s of items) {
         const card = document.createElement('div');
         card.className = 'device-card';
@@ -214,6 +210,34 @@
         });
         body.appendChild(card);
       }
+    }
+
+    // How much of the catalogue is on screen, stated rather than implied.
+    const summary = document.createElement('div');
+    summary.className = 'palette-summary';
+    summary.textContent = narrowing
+      ? filtered.length + ' of ' + specs.length + ' devices'
+      : specs.length + ' devices in ' + vendorNames.length + ' vendor groups';
+    list.appendChild(summary);
+
+    for (const v of vendorNames) {
+      const items = groups[v];
+      const sec = document.createElement('div');
+      sec.className = 'vendor-group' + (narrowing ? ' open' : '');
+      const head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'vendor-head';
+      head.innerHTML = '<span class="vh-caret">' + (narrowing ? '▾' : '▸') + '</span><span class="vh-name">' + vendorLabel(v) + '</span><span class="vh-count">' + items.length + '</span>';
+      const body = document.createElement('div');
+      body.className = 'vendor-body';
+      let built = false;
+      head.addEventListener('click', function () {
+        sec.classList.toggle('open');
+        const isOpen = sec.classList.contains('open');
+        head.querySelector('.vh-caret').textContent = isOpen ? '▾' : '▸';
+        if (isOpen && !built) { buildCards(items, body); built = true; }
+      });
+      if (narrowing) { buildCards(items, body); built = true; }
       sec.appendChild(head);
       sec.appendChild(body);
       list.appendChild(sec);
@@ -2011,6 +2035,11 @@
     vlanSummary: vlanSummary,
     filterDevices: filterDevices,
     searchKey: searchKey,
+    // The palette render is exposed so a test can assert what it builds: the whole point
+    // of the collapse change is how many cards exist in the DOM, and that is not visible
+    // through filterDevices.
+    renderPalette: renderPalette,
+    setCatalog: function (cat) { catalog = cat; },
     renderCableLegend: renderCableLegend,
     bindLegend: bindLegend,
     setLegendCollapsed: setLegendCollapsed,
