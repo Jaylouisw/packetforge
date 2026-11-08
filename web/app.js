@@ -323,6 +323,10 @@
   PFCanvas.on.select = function (id) { select(id); };
   PFCanvas.on.selectLink = function (id) { selectLink(id); };
 
+  // The canvas abandoned an in-flight cable because the user clicked empty space.
+  // The canvas owns the state; this only owns the sentence the user reads.
+  PFCanvas.on.connectCancel = function () { setStatus('Ready'); };
+
   PFCanvas.on.move = async function (id, x, y) {
     if (!topo.layout) topo.layout = {};
     topo.layout[id] = { x: x, y: y };
@@ -457,14 +461,26 @@
 
   // Clicking a second port: dry-run the cable, block impossible ones, then
   // let the user choose the medium when more than one is valid.
+  //
+  // This is the ONE code path that makes a cable with the mouse, and it is reached both
+  // by the first click (no pending connection → remember this end) and by the second
+  // (pending connection → finish it). The canvas calls it for a port click in every
+  // mode, including while the ghost cable is being dragged, so completing a link is the
+  // same operation as starting one - there is no separate "drop" handler to get out of
+  // step with this one (issues #61/#66).
   PFCanvas.on.portClick = async function (deviceId, iface) {
     const c = PFCanvas.getConnecting();
     if (!c) {
       PFCanvas.setConnecting({ deviceId: deviceId, iface: iface });
-      setStatus('Now click the destination port (Esc to cancel)');
+      setStatus('Now click the destination port (Esc or an empty spot on the canvas to cancel)');
       return;
     }
-    if (c.deviceId === deviceId) { PFCanvas.setConnecting(null); setStatus('Ready'); return; }
+    if (c.deviceId === deviceId) {
+      // Same box twice: not a cable. Treated as "never mind", not as an error.
+      PFCanvas.setConnecting(null);
+      setStatus('Ready');
+      return;
+    }
 
     // 1. Physical feasibility (dry run)
     let verdict = null;

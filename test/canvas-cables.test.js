@@ -3,8 +3,8 @@
 //
 // Copper, fibre, a DAC, an AOC, a PON drop, coax, a phone line and a mains adapter all
 // rendered as the same 2 px grey line: the only distinction the drawing had was
-// wireless-versus-not. And links were appended before the devices, so any cable passing
-// under a chassis was erased for that span and the drawing showed two disconnected stubs.
+// wireless-versus-not. (Cable z-order against the chassis is asserted at the end of this
+// file, and it is devices-above-cables since issue #66.)
 //
 // This loads the real web/canvas.js against a recording stub DOM and asserts that each
 // medium is identifiable from the drawing alone, and that a cable is continuous from
@@ -182,21 +182,41 @@ console.log('The stylesheet gives each family its own stroke:');
 }
 
 console.log('');
-console.log('A cable is drawn above the chassis it passes:');
+console.log('A cable is drawn behind the chassis it terminates on:');
 {
   const lines = drawWith('dac-10g', twoSfpSwitches);
   const line = lines.filter(function (l) { return String(l.attrs.class).indexOf('link-hit') === -1; })[0];
+
+  // Paint order is document order, and the canvas now builds two layers: the cable layer
+  // first, the device layer second, so no cable can be painted over a faceplate.
+  //
+  // This assertion used to be the other way round ("the cable sits after every device"),
+  // added when a cable that passed under a chassis disappeared for that span. Putting
+  // cables on top is what laid their 16 px transparent grab band across the sockets in
+  // the faceplate, and since hit testing was `e.target.closest(...)` the ports under a
+  // cable stopped answering the mouse at all (issue #66). A cable still reaches both of
+  // its sockets - it terminates on the port, not inside the box - and hit testing no
+  // longer depends on paint order, so this is the correct side of the trade.
   const order = roots.world.children;
-  const lineAt = order.indexOf(line);
-  ok(lineAt !== -1, 'the cable is a direct child of the drawing surface');
-  const deviceNodes = order.filter(function (n) {
-    return String(n.attrs && n.attrs.class || '').indexOf('device') !== -1;
+  function layerIndex(node) {
+    for (let i = 0; i < order.length; i++) {
+      let found = order[i] === node;
+      walk(order[i], function (n) { if (n === node) found = true; });
+      if (found) return i;
+    }
+    return -1;
+  }
+  const lineAt = layerIndex(line);
+  ok(lineAt !== -1, 'the cable is on the drawing surface');
+  const deviceNodes = [];
+  walk(roots.world, function (n) {
+    if (String((n.attrs && n.attrs.class) || '') === 'device') deviceNodes.push(n);
   });
-  ok(deviceNodes.length > 0, 'there are device groups to compare against (' + deviceNodes.length + ')');
-  const lastDevice = Math.max.apply(null, deviceNodes.map(function (n) { return order.indexOf(n); }));
-  ok(lineAt > lastDevice,
-    'the cable sits after every device, so a run under a chassis stays continuous (' +
-    lineAt + ' > ' + lastDevice + ')');
+  ok(deviceNodes.length > 1, 'there are device groups to compare against (' + deviceNodes.length + ')');
+  const firstDevice = Math.min.apply(null, deviceNodes.map(layerIndex));
+  ok(lineAt < firstDevice,
+    'the cable layer is painted before every device, so no cable covers a faceplate (' +
+    lineAt + ' < ' + firstDevice + ')');
 }
 
 console.log('');
