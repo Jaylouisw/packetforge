@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G3-FLEX",
+  "label": "UniFi G3 Flex",
+  "category": "camera",
+  "description": "UniFi G3 Flex (UVC-G3-FLEX) - 1x 100M RJ45. 802.3af PoE-in; FHD; 4 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g3-flex"
+}
