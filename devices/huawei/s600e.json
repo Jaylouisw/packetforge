@@ -1,0 +1,36 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXstar S600E",
+  "label": "Huawei OptiXstar S600E GPON SFP ONU",
+  "category": "ont",
+  "description": "GPON ONU built into an SFP module (HiSilicon SD5182S, UX5176 BOSA) that plugs into a router's SFP/SFP+ cage with a GE/2.5GE/5GE/10GE adaptive host interface; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC (ITU-T G.984.2 Class B+), no RJ45 LAN ports and no Wi-Fi. Also sold as the MA5671B, successor to the MA5671A; the XGS-PON version is the OptiXstar S800E.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "host",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-huawei-optixstar-s600e/"
+}
