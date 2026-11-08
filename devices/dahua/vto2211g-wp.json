@@ -1,0 +1,30 @@
+{
+  "vendor": "dahua",
+  "model": "VTO2211G-WP",
+  "label": "VTO2211G-WP IP and Wi-Fi villa door station",
+  "category": "camera",
+  "description": "Dahua VTO2211G-WP is a 2 MP wide-angle villa outdoor station with two-way talk, a 13.56 MHz IC card reader and 2.4 GHz Wi-Fi. Network side is one RJ45 10/100 Mbps port, powered by PoE IEEE 802.3af Class 0 or 12 V DC 1 A.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.dahuawiki.com/images/9/99/Datasheet_Intercom_IP_OutdoorStation_DHI-VTO2211G-WP_v001_004.pdf",
+  "notes": "Ethernet: one RJ45 10/100 Mbps. PoE 802.3af Class 0, working draw <= 7 W, standby <= 1 W, 12 V DC 200 mA pass-through for a lock. Wi-Fi is 802.11b/g/n 2.4 GHz only. Protocols SIP/P2P/IPv4/DNS/RTSP/RTP/TCP/UDP, ONVIF; one RS-485 port and one alarm in/out. IP65."
+}

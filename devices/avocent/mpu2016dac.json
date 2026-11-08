@@ -1,0 +1,32 @@
+{
+  "vendor": "avocent",
+  "model": "MPU2016DAC",
+  "label": "Avocent MergePoint Unity MPU2016DAC 16-port KVM-over-IP switch",
+  "category": "host",
+  "description": "1U KVM-over-IP and serial console switch for 16 target devices over CAT5/6 (PS/2, Sun, USB or serial through the appropriate adaptor), with a local USB/VGA console port and two 10/100/1000BASE-T RJ45 network ports for redundant LAN or two separate management networks. Agentless browser (OBWI) and DSView access, virtual media, dual internal power supplies.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console1",
+      "type": "console",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.vertiv.com/4a25b9/globalassets/shared/vertiv-avocent-mergepoint-unity-kvm-over-ip-and-serial-console-switch-guide-specifications-av-49558.pdf",
+  "notes": "Guide specifications AV-49558 Rev A, section 1.3.2.4 Ports/Connections: 'a. Network: Number: 2, Type: 10/100/1000 Ethernet'; 'c. Device ports: Number 8, 16, or 32, Connector: 8-pin modular'; 'd. Local console: 1, USB and VGA'; 'g. Setup port: 1, RS232 serial, 8-pin modular'; 'h. Modem port: 1, RS232 serial'. The 16 CAT5 device ports are KVM target ports (the same ports accept serial adaptors for serial targets), so they are not modelled as Ethernet or as separate console interfaces - only the two NICs and the RS-232 setup port are exposed. MPU2016DAC = 16-port, dual AC (15 W); MPU2032DAC/MPU4032DAC/MPU8032DAC are the 32-port 2/4/8-user variants."
+}

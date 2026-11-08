@@ -1,0 +1,22 @@
+{
+  "vendor": "mercury",
+  "model": "MP1502",
+  "label": "Mercury MP1502 two-reader intelligent controller",
+  "category": "iot",
+  "description": "Mercury MP1502 (HID Global) is a two-reader intelligent access controller providing decision making, event reporting and local cardholder storage for the Mercury hardware platform. Host communication runs over the on-board 10-BaseT/100Base-TX Ethernet port; the board is powered from 12-24 V DC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.mercury-security.com/wp-content/uploads/2026/08/PLT-07611-A.3-Mercury-MP1502-Controller-Installation-and-Specifications.pdf",
+  "notes": "Single on-board 10-BaseT/100Base-TX Ethernet port (the micro-USB 2.0 port needs a USB-to-Ethernet adapter and is not a second NIC). No PoE - the controller requires 12-24 V DC, so plan a local PSU rather than a switch port. Reader ports take TTL, F/2F or 2-wire RS-485 (OSDP); four Form-C relays and eight supervised inputs; web configuration page, SNMP and Zeroconf should be disabled in production."
+}

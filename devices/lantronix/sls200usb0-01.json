@@ -1,0 +1,27 @@
+{
+  "vendor": "lantronix",
+  "model": "SLS200USB0-01",
+  "label": "Lantronix SpiderDuo SLS200 single-port KVM-over-IP",
+  "category": "host",
+  "description": "Server-powered zero-U KVM-over-IP dongle for one server: USB keyboard/mouse and video (up to 1280x1024 at 60 Hz) are tunnelled over a single 10/100/1000BASE-T RJ45 to a Java-free browser client for up to eight simultaneous users, with virtual media and an RS-232 serial port for console redirection or an external modem.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console1",
+      "type": "console",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://cdn.lantronix.com/wp-content/uploads/pdf/900-495j_Spider_Spider_Duo_UG.pdf",
+  "notes": "User guide 900-495J, SpiderDuo technical data: 'Network: One 10/100/1000 Base-T Ethernet Port with activity indicators (RJ45)', and 'Ethernet Ports--Connects to the LAN. The SpiderDuo device has one port only that connects to the LAN.' The two-port Network + Cascade arrangement and the internal 'hardware Ethernet switch' described in the same guide belong to the Spider SLS100, not the SpiderDuo, so this model correctly carries a single Ethernet port and no l2-forward. The RJ45 serial port is RS-232 (up to 115200 baud). Server-powered from the USB/PS2 cable, with an optional external PSU."
+}

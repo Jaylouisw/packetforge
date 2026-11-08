@@ -1,0 +1,23 @@
+{
+  "vendor": "axis",
+  "model": "A1001",
+  "label": "AXIS A1001 network door controller",
+  "category": "iot",
+  "description": "AXIS A1001 is a two-door network door controller with reader interfaces, lock power outputs and an embedded access-management web UI (AXIS Entry Manager). Network connector is a single RJ45 10BASE-T/100BASE-TX; power is PoE IEEE 802.3af/802.3at Type 1 Class 3 or 10-30 V DC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/eb/bc/9d/datasheet-axis-a1001-network-door-controller-en-US-286869.pdf",
+  "notes": "One RJ45 10BASE-T/100BASE-TX; the rest of the I/O (RS-485 full/half duplex, Wiegand, 12 V lock power, configurable inputs/outputs) is on terminal blocks. PoE 802.3af/at Type 1 Class 3 = 12.95 W, which leaves 625 mA at 12 V for locks and readers; 10-30 V DC gives 1166 mA. ONVIF Profile A/C and VAPIX; credentials live on the controller (up to 400 in Entry Manager, 50 000 with third-party software)."
+}

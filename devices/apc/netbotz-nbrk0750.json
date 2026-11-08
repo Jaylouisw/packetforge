@@ -1,0 +1,29 @@
+{
+  "vendor": "apc",
+  "model": "NetBotz NBRK0750",
+  "label": "APC NetBotz Rack Monitor 750 environmental/security appliance",
+  "category": "host",
+  "description": "1U rack environmental and security appliance: two 10/100/1000BASE-T ports (a public LAN uplink and a PoE+ type-2 private LAN port that can power a camera pod), universal sensor ports for temperature/humidity/leak/dry-contact sensors, A-Link ports for cascading sensor pods, a beacon port and a Modbus RS-485 port. Central head-end of a NetBotz monitoring deployment.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "public-lan"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "private-lan-poe"
+    }
+  ],
+  "sourceUrl": "https://www.se.com/us/en/download/document/990-91106_EN/",
+  "notes": "Installation and Quick Configuration guide 990-91106 (rev J): item 8 '10/100/1000 Network port - Provides a connection to the network'; item 9 'Private LAN* PoE+ type 2 port (IEEE802.3at). Provides a 10/100/1000 connection to a private Local Area Network (LAN). Each port can provide up to 25.5 W to attached devices'. A-Link ports are explicitly 'a proprietary Controller Area Network (CAN) bus ... not Ethernet devices and cannot coexist on an Ethernet bus', so they are not modelled; the Modbus RS-485 port and USB coordinator are likewise not Ethernet. PoE on the private LAN is noted here rather than claimed as a switching capability: the appliance hosts the pod, it does not forward frames between its two NICs."
+}

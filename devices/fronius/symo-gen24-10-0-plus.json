@@ -1,0 +1,35 @@
+{
+  "vendor": "fronius",
+  "model": "Symo GEN24 10.0 Plus",
+  "label": "Fronius Symo GEN24 10.0 Plus hybrid PV inverter",
+  "category": "iot",
+  "description": "Fronius Symo GEN24 10.0 Plus is a 10 kW three-phase hybrid PV inverter with an integrated datalogger, web server and battery input. The datasheet specifies WLAN plus 2 x Ethernet LAN, and the operating instructions give the port as RJ 45, 10/100 Mbit; Modbus TCP SunSpec and the Fronius Solar API (JSON) run over it.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.fronius.com/en/~/downloads/Solar%20Energy/Datasheets/SE_DS_GEN24_GEN24Plus_Symo_EN_AU.pdf",
+  "notes": "Two RJ45 10/100 ports (LAN1/LAN2) - the second one lets the inverter be daisy-chained or kept on a separate service VLAN, which is why this is a 2-port box rather than 1. Modbus TCP SunSpec server, Fronius Solar API JSON, Solar.web; Modbus RTU (2x RS-485, SunSpec) for meters plus 6 digital inputs and 6 digital in/out for ripple control; wired shutdown (WSD) chains up to 28 devices over the same RJ45 style cabling. Wi-Fi is 802.11b/g/n 2.4 GHz."
+}

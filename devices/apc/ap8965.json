@@ -1,0 +1,22 @@
+{
+  "vendor": "apc",
+  "model": "AP8965",
+  "label": "APC Rack PDU 2G Switched 30A/208V (21xC13 3xC19)",
+  "category": "host",
+  "description": "Zero-U switched rack PDU for a 208 V three-phase rack feed: 30 A input on a NEMA L21-30P cord, 21 C13 and 3 C19 outlets with per-outlet switching plus branch and total current metering, 8.6 kW capacity. One 10/100BASE-T RJ45 network port carries the Web UI, SNMP and CLI, and the In/Out Network Port Sharing jacks let up to four 8000-series PDUs sit behind a single IP address.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.se.com/us/en/product/AP8965/rack-pdu-2g-switched-zerou-8-6kw-208v-21-c13-3-c19/",
+  "notes": "Front panel of the AP89XX switched PDU (user guide 990-5569K-001) lists a '10/100 Base-T Connector', 'Network status LED', '10/100 LED' and reset button - so the management port is Fast Ethernet, not Gigabit. The same guide documents 'DHCP and BOOTP configuration', hence dhcp-client. The In/Out Network Port Sharing jacks are an RJ45-terminated PDU-to-PDU bus (terminator required at each end), not an Ethernet segment, so they are not modelled as ports. Discontinued Jun 2022; the 9K-series APDU9965 (21 C13/C15 + 3 C19/C21) is the replacement, and per APC's rack PDU family spec the 9000 series is the Gigabit-Ethernet generation while 8000-series units stay at 10/100."
+}

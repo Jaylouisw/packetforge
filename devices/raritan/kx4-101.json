@@ -1,0 +1,27 @@
+{
+  "vendor": "raritan",
+  "model": "KX4-101",
+  "label": "Raritan Dominion KX IV-101 single-port 4K KVM-over-IP switch",
+  "category": "host",
+  "description": "Zero-U single-port KVM-over-IP appliance giving BIOS-level remote keyboard, video (HDMI, up to 4K30 4:2:2) and mouse access to one server for up to eight simultaneous users. One 1 GbE RJ45 carries all management traffic and an RJ45 serial admin port provides local console access; the server-side HDMI video and USB keyboard/mouse links are not network ports.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "console1",
+      "type": "console",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.raritan.com/assets/ram/resources/data_sheets/dominion-kx-iv-101-datasheet.pdf",
+  "notes": "'Ports and Connections' panel of the datasheet labels exactly: Power, '1G LAN', 'Serial Admin', 'USB-B to Server', 'HDMI to Server', 'HDMI Out', 'USB K/M' (local port), terminal block and factory reset. Only the 1G LAN is an Ethernet interface; the single managed server port is HDMI + USB (not Ethernet) so it is deliberately not modelled, which is why the box appears as a host with one network port. Optional DSAM-2/DSAM-4 Dominion Serial Access Modules add up to eight RS-232 devices over a separate link; those serial ports belong to the module, not the switch. Fanless, Java-free HTML5 client, LDAP/RADIUS/AD, AES encryption."
+}

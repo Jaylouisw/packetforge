@@ -1,0 +1,22 @@
+{
+  "vendor": "eaton",
+  "model": "EMA333-10",
+  "label": "Eaton ePDU G3 Managed 3-phase 0U 8.64kW (21xC13 6xC19 1x5-20R)",
+  "category": "host",
+  "description": "Three-phase 0U managed rack PDU: NEMA L21-30P input, 120/208 V, 24 A, 8.64 kW, feeding 21 C13, 6 C19 and one 5-20R outlet with per-outlet switching and metering. The embedded eNMC module presents a single 10/100BASE-T RJ45 for the Web UI, CLI/Telnet, SNMP and DHCP-based addressing, plus an RS-232 port that also accepts an Environmental Monitoring Probe.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.eaton.com/us/en-us/skuPage.EMA333-10.html",
+  "notes": "SKU page gives the electrical/outlet data (3PH, 0U, L21-30P, 8.64 kW, 24 A, 120/208 V, 28 outlets = 21 C13 + 6 C19 + 1 5-20R, RS-232 serial interface). Port speed comes from the ePDU G3 installation and connectivity quick start (P-164000314): item 4 is an 'Ethernet 10/100 Base-T Port' with a green LED that is OFF at 10 Mbit/s and ON at 100 Mbit/s, and the network connection 'automatically receives an IP address through DHCP'. The daisy-chain port (up to four ePDUs sharing one Ethernet port through an RJ-45 splitter) is a proprietary PDU bus, not an Ethernet segment, so it is not modelled."
+}

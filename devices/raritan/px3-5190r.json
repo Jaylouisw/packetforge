@@ -1,0 +1,27 @@
+{
+  "vendor": "raritan",
+  "model": "PX3-5190R",
+  "label": "Raritan PX3-5190R switched rack PDU (8xC13, 16A/230V)",
+  "category": "host",
+  "description": "1U horizontal switched rack PDU for 200-240 V single-phase feeds: 16 A input on an IEC 60309 2P+E plug, 8 IEC C13 outlets with per-receptacle metering and remote switching, 3.7 kVA. A Gigabit (10/100/1000BASE-T) port is the primary management interface and a second, redundant 10/100BASE-T port provides a backup path for the Web/SSH/SNMP/Modbus-TCP stack.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://cdn.raritan.com/product-selector/pdus/PX3-5190R/PX3-5190R-spec.pdf",
+  "notes": "Engineering submittal (rev 20250625) 'Networking': 'Gigabit (10/100/1000 BaseT) Ethernet port; secondary, redundant (10/100 BaseT) Ethernet port. Optional WiFi (802.11a/b/g/n)'. Remote management over HTTP(s), SSH, Telnet, RS-232, SNMP v2/v3, SMTP, JSON-RPC and Modbus over TCP; environmental-sensor ready (temperature, humidity, air flow, differential pressure, water leak, contact closure) via the RJ-12 sensor ports, which are not Ethernet. Cascading: up to 32 PDUs over the dedicated cascade link, which is a Cat5 PDU-to-PDU bus rather than an Ethernet segment, so it is not modelled and the two exposed ports are the primary and redundant NICs only."
+}
