@@ -1,0 +1,98 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG1210MPE",
+  "label": "TP-Link TL-SG1210MPE",
+  "category": "switch",
+  "description": "10-port gigabit Easy Smart switch: 9x 10/100/1000 RJ45 plus one gigabit combo SFP/RJ45 uplink, with 802.3af/at PoE on ports 1-8 and a 123 W budget.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/soho-switch-poe/tl-sg1210mpe/",
+  "notes": "Vendor figures from the TP-Link datasheet: interface is 9x 10/100/1000 Mbps RJ45 ports plus 1x 1000 Mbps Combo SFP/RJ45 port; PoE standard 802.3af/at compliant on ports 1-8 with a 123 W total budget. The combo port is modelled once, as sfp1, because it is a single physical cage that takes either an SFP module or the tenth copper port - a lab that needs the copper side should treat sfp1 as eth9."
+}

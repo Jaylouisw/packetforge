@@ -1,0 +1,76 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG2008P",
+  "label": "TP-Link TL-SG2008P",
+  "category": "switch",
+  "description": "8-port gigabit JetStream smart switch with PoE+: 8x 10/100/1000 RJ45, 802.3af/at on ports 1-4 and a 62 W power supply.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg2008p/",
+  "notes": "Vendor figures from the TP-Link datasheet: interface is 8x 10/100/1000 Mbps RJ45 ports (ports 1-4 support 802.3at/af PoE+), auto negotiation / auto MDI/MDIX; PoE standard 802.3af/at on 4 ports with a 62 W power supply. Half the row is PoE and half is not, which is what the port model shows."
+}
