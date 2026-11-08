@@ -20,32 +20,25 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeIn": 8.5
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "speed": "1G"
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "speed": "1G"
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "speed": "1G"
     },
     {
       "name": "radio0",

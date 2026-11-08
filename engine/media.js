@@ -835,6 +835,12 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     // PoE
     poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null),
     poeIn: hw.poeIn !== undefined ? hw.poeIn : (spec.poeIn !== undefined ? spec.poeIn : null),
+    // Whether this port sourced power because the spec said so, or because the engine guessed
+    // from the device class. The two are not the same claim: a spec that says a port sources
+    // power is a statement about hardware, while a guess is the engine filling a silence. Only
+    // the guess is a defect when it lands on a device that does not switch (see the PoE
+    // invariant in test/poe-inference.test.js).
+    poeOutDeclared: (hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null)) !== null,
     // distance / cabling hints
     maxRangeM: hw.maxRangeM !== undefined ? hw.maxRangeM : null
   };
@@ -852,12 +858,25 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     else if (isPoePd(dev)) port.poeIn = 12.95;
   }
 
+  // A port the datasheet names "PoE 1" has declared its job in the only place it can: the
+  // port name comes from the spec file, and an NVR that documents eight PoE ports is not a
+  // device the engine invented watts for. Without this, "did the engine guess?" would answer
+  // yes for every documented PoE port on a non-switch, which is the opposite of the truth.
+  if (!port.poeOutDeclared && port.poeOut &&
+      /poe/i.test(String(port.name)) && !/poe[\s_-]?in\b|pdin/i.test(String(port.name))) {
+    port.poeOutDeclared = true;
+  }
+
   return port;
 }
 
 function isPoePse(dev, portName) {
   const name = String(portName || '');
-  // A port that calls itself PoE is one, whatever the device is.
+  // A port that calls itself PoE is one, whatever the device is - unless it calls itself an
+  // *input*. "poe_in" contains "poe", so the old rule made the inline splitters (planet
+  // POE-E201, poe-texas GAF-12V12W) power sources on the strength of their own input jack's
+  // name. A port that accepts power is not a port that supplies it.
+  if (/poe[\s_-]?in\b|pdin|poe[\s_-]?pd\b/i.test(name)) return false;
   if (/poe/i.test(name)) return true;
   const model = String(dev.model || '') + ' ' + String(dev.label || '');
   const caps = dev.capabilities || [];

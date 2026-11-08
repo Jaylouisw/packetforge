@@ -26,8 +26,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeIn": 8.0
     },
     {
       "name": "eth1",
@@ -37,9 +36,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth2",
@@ -49,9 +46,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth3",
@@ -61,9 +56,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth4",
@@ -73,9 +66,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth5",
@@ -85,9 +76,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth6",
@@ -97,9 +86,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth7",
@@ -109,9 +96,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth8",
@@ -121,9 +106,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth9",
@@ -133,9 +116,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     }
   ],
   "icon": "router",
