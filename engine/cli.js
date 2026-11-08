@@ -205,6 +205,10 @@ class CliSession {
       }
       this.iface = name;
       this.mode = MODE_IFACE;
+    } else if (head === 'vrrp') {
+      // A group belongs to an interface, so this has to be configured on one - silently attaching
+      // it to whichever interface happened to be selected last would be worse than refusing.
+      return ['% vrrp is configured per interface: enter an interface first, e.g. interface Gi0/0'];
     } else if (head === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'pool') {
       // A pool is a named object on the device, not a property of an interface: the same server
       // can hold several, and a client chooses by the subnet its own interface sits in.
@@ -323,6 +327,21 @@ class CliSession {
     const out = [];
     const iface = this.device.interfaces.get(this.iface);
     const head = tokens[0].toLowerCase();
+
+    if (head === 'vrrp') {
+      const res = this._vrrpIfaceCommand(tokens);
+      if (res) return res;
+    }
+    if (head === 'no' && tokens[1] === 'vrrp') {
+      const vrid = parseInt(tokens[2], 10);
+      const groups = (this.device.config.vrrp || []);
+      const kept = groups.filter(function (g) {
+        return !(g.vrid === vrid && g.interface === this.iface);
+      }, this);
+      if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
+      this.device.config.vrrp = kept;
+      return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+    }
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
         iface.dhcp = true;
@@ -876,6 +895,102 @@ class CliSession {
     return ['Interface ' + iface.name + ': access list ' + num + ' applied ' + dir];
   }
 
+  // ---------- config: vrrp (per interface) ----------
+  //
+  // A group belongs to an interface: the vrid plus the interface is the key, which is why the same
+  // vrid can exist on two interfaces of one router without them being the same group.
+  _vrrpIfaceCommand(tokens) {
+    const vrrpLib = require('./vrrp');
+    const out = [];
+    const dev = this.device;
+    if (!this.iface) return ['% vrrp must be configured inside an interface'];
+    const vrid = parseInt(tokens[1], 10);
+    if (!Number.isInteger(vrid) || vrid < 1 || vrid > 255) {
+      return ['% Invalid virtual router id: ' + (tokens[1] || '(none)') + ' (1-255)'];
+    }
+    if (!Array.isArray(dev.config.vrrp)) dev.config.vrrp = [];
+
+    const find = function () {
+      return dev.config.vrrp.filter(function (g) {
+        return g.vrid === vrid && g.interface === this.iface;
+      }, this)[0];
+    }.bind(this);
+
+    if (tokens[0] === 'no' || tokens[0] === 'no-') {
+      // 'no vrrp <vrid>' is dispatched from the config mode handler, not here.
+      return null;
+    }
+
+    let group = find();
+    // The argument is validated BEFORE the group exists: a command that is refused must not leave
+    // an empty group behind, or `show vrrp` reports a virtual gateway that was never configured.
+    if (!group && !tokens[2]) return ['% Incomplete command: vrrp <vrid> ip <address>'];
+    const what = (tokens[2] || '').toLowerCase();
+    if (what === 'ip') {
+      const ip = tokens[3];
+      if (!ip || !net.isIp(ip)) return ['% Invalid address: ' + (tokens[3] || '(none)')];
+      if (!group) {
+        group = { vrid: vrid, interface: this.iface, ips: [], priority: 100, preempt: true, advertSec: 1 };
+        dev.config.vrrp.push(group);
+      }
+      if (group.ips.indexOf(ip) === -1) group.ips.push(ip);
+      out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip);
+    } else if (what === 'priority') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + ': give it an address first'];
+      const p = parseInt(tokens[3], 10);
+      if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
+      group.priority = p;
+      out.push('VRRP group ' + vrid + ' priority ' + p);
+    } else if (what === 'preempt') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      group.preempt = !(tokens[0] === 'no');
+      out.push('VRRP group ' + vrid + ' preempt ' + (group.preempt ? 'enabled' : 'disabled'));
+    } else if (what === 'advertise' || what === 'advertisement') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      const a = Number(tokens[3]);
+      if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)')];
+      group.advertSec = a;
+      out.push('VRRP group ' + vrid + ' advertises every ' + a + ' s');
+    } else if (what === 'authentication') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      group.authText = tokens.slice(3).join(' ').slice(0, 8);
+      out.push('VRRP group ' + vrid + ' authentication set');
+    } else {
+      return ['% Unrecognized vrrp command: ' + tokens.join(' ')];
+    }
+
+    // The library validates the group; report its judgement rather than a second opinion.
+    const check = vrrpLib.validateGroup(vrrpLib.normalizeGroup(group));
+    if (!check.ok && check.errors.length) {
+      for (const e of check.errors) out.push('% ' + e.code + ': ' + (e.message || e.description || ''));
+    }
+    return out;
+  }
+
+  // show vrrp - the state after the last election, which is what an operator checks.
+  _showVrrp() {
+    const out = [];
+    const dev = this.device;
+    const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
+    if (!groups.length) { out.push('% VRRP is not configured'); return out; }
+    const claims = (dev.vrrpClaims || []);
+    out.push(pad('Interface', 14) + pad('Group', 7) + pad('Pri', 5) + pad('State', 11) +
+      pad('Master', 12) + pad('Virtual IP', 16) + 'Virtual MAC');
+    for (const g of groups) {
+      const claim = claims.filter(function (c) {
+        return c.vrid === g.vrid && c.iface === g.interface;
+      })[0];
+      out.push(pad(String(g.interface), 14) + pad(String(g.vrid), 7) +
+        pad(String(g.priority === undefined ? 100 : g.priority), 5) +
+        pad(claim ? 'Master' : 'Backup', 11) +
+        pad(dev.name || '', 12) +
+        pad((g.ips || []).join(','), 16) +
+        (claim ? claim.mac : '-'));
+    }
+    if (!claims.length) out.push('(no group holds its address yet - run a simulation)');
+    return out;
+  }
+
   // ---------- config: ip dhcp pool ----------
   //
   // The pool is stored exactly as engine/dhcp.js normalises it at run time, and validated here so a
@@ -1133,6 +1248,8 @@ class CliSession {
           if (String(binds[k].out) === String(id)) out.push('    applied OUT on ' + k);
         }
       }
+    } else if (what === 'vrrp') {
+      out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
       out.push('VLAN Name                             Status    Ports');
       const byVlan = new Map();

@@ -297,16 +297,20 @@ snooping, lease expiry during a run (leases are computed at run start, not aged)
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
 | **Absent** | The `firewall` capability does nothing. 58 firewall models are catalogued and 217 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:90` |
 
-### 5.4 VRRP — **absent from the data path**
+### 5.4 VRRP — **in the data path** (since #1052)
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled (as a library)** | Group maths, master/backup election by priority and IP, virtual MAC formation, advertisement interval arithmetic — pure functions with tests. | `engine/vrrp.js`, `test/vrrp.test.js` |
-| **Exported** | Re-exported from the public API. | `engine/index.js:18` |
-| **Absent in the simulator** | Never required by `engine/simulator.js`. No VRRP advertisement is ever sent, no group ever elects a master, and — the part that breaks labs — **nothing answers ARP for the virtual IP**. A host pointing at a VRRP virtual address gets no reply and times out. | grep `vrrp` in `engine/simulator.js` returns nothing |
-| **Absent in the CLI** | No `vrrp` command, no `standby`/`hsrp` equivalent. | — |
+| **Modelled** | Group maths, master/backup election by priority then highest interface address, address-owner priority 255, virtual MAC formation, advertisement/skew/master-down arithmetic. | `engine/vrrp.js` |
+| **Wired** | `Simulator.computeVrrp()` elects once per (broadcast domain, vrid) before the first packet. The winner claims the group's addresses and `ownsIpOn()` serves them, so ARP and ICMP for the VIP are answered locally instead of being forwarded and dying at TTL 1. | `engine/simulator.js` |
+| **Virtual MAC on the wire** | The master answers ARP for the VIP with `00:00:5E:00:01:<vrid>`, not its own, and accepts frames addressed to that MAC although no port owns it. Without both halves a host resolves the gateway and still cannot reach it. | `Device.macForIp()`, `Simulator._handleFrame()` |
+| **Gratuitous ARP on takeover** | The new master announces every virtual address in a broadcast ARP, which re-points the switches' MAC tables. Not decoration: without it the old master's port keeps receiving the traffic and black-holes it. | `Simulator._sendGratuitousArp()` |
+| **Failover** | A master whose interface goes down relinquishes (it is no longer a candidate), and the backup takes the VIP with the same virtual MAC — the host never relearns. | `test/vrrp-in-path.test.js` |
+| **In the CLI** | `vrrp <vrid> ip <address>`, `priority`, `preempt` / `no preempt`, `advertise`, plus `show vrrp` reporting Master/Backup, the virtual IP and the virtual MAC. A group belongs to an interface, so the command is refused outside one. | `engine/cli.js` |
 
-There is no first-hop redundancy of any kind, and no HA failover to demonstrate.
+Absent: VRRPv3, IPv6 virtual addresses, authentication beyond storing the text, and any detection of
+lost advertisements — a master is displaced only by losing its interface, never by going quiet.
+HSRP and GLBP do not exist.
 
 ### 5.5 OSPF
 
@@ -510,7 +514,7 @@ actually true.
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
 | "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:1477`, `engine/device.js:484` |
-| "HA exists." | No VRRP/HSRP in the data path, no BFD, no LACP failure detection, no graceful restart. | `engine/index.js:18` vs `engine/simulator.js` |
+| "HA exists." | VRRP is in the data path (#1052), so a virtual gateway fails over. Still absent: HSRP/GLBP, BFD, LACP failure detection, graceful restart, and detection of a master that goes quiet rather than down. | `engine/simulator.js` `computeVrrp()` |
 | "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
@@ -608,8 +612,8 @@ The engine is dependency-free, so every claim above is one command away:
 ```bash
 node -e "const m=require('./engine/media'); console.log(Object.keys(m.MEDIA).length, Object.keys(m.CAGES).length)"
 node -e "const {Simulator,Topology}=require('./engine'); /* build a two-host lab, ping, inspect replies[0].delay */"
-grep -rn "dhcp" engine/simulator.js     # returns nothing: DHCP is not in the data path
-grep -rn "vrrp" engine/simulator.js     # returns nothing: VRRP is not in the data path
+grep -n "computeDhcp()" engine/simulator.js   # DHCP is in the data path (#1051)
+grep -n "computeVrrp()" engine/simulator.js   # so is VRRP (#1052)
 grep -rn "setTimeout\|setInterval\|Date.now" engine/*.js   # comments only: there are no timers
 npm test                                 # the suites that pin the behaviour above
 ```

@@ -2,6 +2,15 @@
 
 ### Added
 
+- **VRRP is in the data path** (#1052). `engine/vrrp.js` elected a master and nothing called it, and
+  the CLI had no `vrrp` command at all - a lab could read about a virtual gateway and never build
+  one. `Simulator.computeVrrp()` now elects once per (broadcast domain, vrid) before the first
+  packet; the winner claims the group's addresses so ARP and ICMP for the VIP are answered locally,
+  answers with the **virtual** MAC and accepts frames addressed to it, and announces the VIP with a
+  gratuitous ARP on takeover - without which the switches keep pointing the virtual MAC at the old
+  master's port and the failover black-holes. New CLI: `vrrp <vrid> ip|priority|preempt|advertise`
+  per interface and `show vrrp`. Groups survive save/load.
+
 - **DHCP is in the data path** (#1051). `engine/dhcp.js` was a complete, tested model with no
   caller: `ip address dhcp` set a flag, no DISCOVER was ever sent, and a host stayed unaddressed for
   the life of the lab. `Simulator.computeDhcp()` now runs the exchange before the first packet, walks
