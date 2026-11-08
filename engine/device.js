@@ -570,7 +570,7 @@ class Device {
     // The interface map below runs in a callback, so the device reference has to be
     // captured: `this` is not the device inside it.
     const self = this;
-    return {
+    const out = {
       id: this.id,
       vendor: this.vendor,
       model: this.model,
@@ -637,6 +637,14 @@ class Device {
       // per-interface ACL bindings (acl definitions live in config.acls)
       aclBindings: this.aclBindings || {}
     };
+
+    // Only when there is something in it. A server that forgets its pools on save is broken - the
+    // lab silently stops handing out addresses - but a device with no pools should not grow an
+    // empty array in every saved topology either.
+    if (this.config.dhcpPools && this.config.dhcpPools.length) {
+      out.config.dhcpPools = JSON.parse(JSON.stringify(this.config.dhcpPools));
+    }
+    return out;
   }
 
   // Apply a previously serialized device body onto this instance.
@@ -665,6 +673,8 @@ class Device {
         d.config.gateway6Iface = state.config.gateway6Iface || null;
         d.config.ra = state.config.ra ? JSON.parse(JSON.stringify(state.config.ra)) : null;
         d.config.scionAs = state.config.scionAs || null;
+        d.config.dhcpPools = (state.config && Array.isArray(state.config.dhcpPools))
+          ? JSON.parse(JSON.stringify(state.config.dhcpPools)) : [];
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {

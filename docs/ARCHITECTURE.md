@@ -38,7 +38,8 @@ A `Device` has a list of **capabilities**:
 | `l2-forward` | bridge/switch: MAC learning + flooding |
 | `l3-forward` | router: forwards IP between subnets |
 | `cli`      | exposes the management console |
-| `dhcp-server`, `dhcp-client`, `nat`, `firewall`, `wireless`, `http-server` | reserved for future protocol support |
+| `dhcp-server`, `dhcp-client` | **live** — `Simulator.computeDhcp()` runs the exchange before the first packet (#1051) |
+| `nat`, `firewall`, `wireless`, `http-server` | reserved for future protocol support |
 
 The forwarding logic branches on capabilities, never on `vendor` or `model`.
 That's the entire trick that makes **any manufacturer work**: a Huawei router

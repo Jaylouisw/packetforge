@@ -9,6 +9,7 @@ const MODE_EXEC = 'exec';
 const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
+const MODE_DHCP_POOL = 'dhcp-pool';
 
 // ---------------------------------------------------------------------------
 // Port-name aliases (issue #27)
@@ -92,6 +93,7 @@ class CliSession {
     const host = this.device.config.hostname || this.device.hostname || this.device.name;
     if (this.mode === MODE_CONFIG) return host + '(config)#';
     if (this.mode === MODE_IFACE) return host + '(config-if)#';
+    if (this.mode === MODE_DHCP_POOL) return host + '(config-dhcp)#';
     if (this.mode === MODE_ENABLE) return host + '#';
     return host + '>';
   }
@@ -105,6 +107,8 @@ class CliSession {
     try {
       if (this.mode === MODE_IFACE) {
         out.push.apply(out, this._ifaceMode(tokens));
+      } else if (this.mode === MODE_DHCP_POOL) {
+        out.push.apply(out, this._dhcpPoolMode(tokens));
       } else if (this.mode === MODE_CONFIG) {
         out.push.apply(out, this._configMode(tokens));
       } else {
@@ -201,6 +205,21 @@ class CliSession {
       }
       this.iface = name;
       this.mode = MODE_IFACE;
+    } else if (head === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'pool') {
+      // A pool is a named object on the device, not a property of an interface: the same server
+      // can hold several, and a client chooses by the subnet its own interface sits in.
+      const name = tokens[3];
+      if (!name) return ['% Incomplete command: ip dhcp pool <name>'];
+      if (!/^[A-Za-z0-9_.-]{1,32}$/.test(name)) return ['% Invalid pool name: ' + name];
+      if (!this.device.config.dhcpPools) this.device.config.dhcpPools = [];
+      let pool = this.device.config.dhcpPools.filter(function (p) { return p.name === name; })[0];
+      if (!pool) {
+        pool = { name: name };
+        this.device.config.dhcpPools.push(pool);
+        out.push('Created DHCP pool ' + name);
+      }
+      this.pool = name;
+      this.mode = MODE_DHCP_POOL;
     } else if (head === 'scion') {
       const scionLib2 = require('./scion');
       const parsed = scionLib2.parseIsdAs(tokens[1]);
@@ -855,6 +874,96 @@ class CliSession {
     if (!dev.aclBindings[iface.name]) dev.aclBindings[iface.name] = {};
     dev.aclBindings[iface.name][dir] = num;
     return ['Interface ' + iface.name + ': access list ' + num + ' applied ' + dir];
+  }
+
+  // ---------- config: ip dhcp pool ----------
+  //
+  // The pool is stored exactly as engine/dhcp.js normalises it at run time, and validated here so a
+  // typo is caught while it is typed rather than by a client that never gets an address. The
+  // validation is the library's own, not a second opinion: normalizePool() + validatePool().
+  _dhcpPoolMode(tokens) {
+    const out = [];
+    const dhcpLib = require('./dhcp');
+    const head = tokens[0].toLowerCase();
+    const pools = (this.device.config && this.device.config.dhcpPools) || [];
+    const pool = pools.filter(function (p) {
+      return p.name === this.pool;
+    }, this)[0];
+    if (!pool) { this.mode = MODE_CONFIG; return ['% Pool no longer exists']; }
+
+    // A pool is legitimately incomplete while it is being typed - 'network' before 'range' is not an
+    // error, it is the second keystroke. Nothing is validated per command; the pool is checked once,
+    // when the operator leaves the sub-mode, and again at run time where it matters.
+    function incomplete(msg) {
+      out.push('% ' + msg);
+      return out;
+    }
+
+    const finish = (mode) => {
+      // Leaving the sub-mode is the first honest moment to judge the pool.
+      const check = dhcpLib.validatePool(dhcpLib.normalizePool(pool));
+      if (!check.ok) {
+        for (const e of check.errors) out.push('% ' + e.code + ': ' + e.message);
+      }
+      this.mode = mode;
+      this.pool = null;
+      return out;
+    };
+
+    if (head === 'exit') return finish(MODE_CONFIG);
+    if (head === 'end') return finish(MODE_EXEC);
+    if (head === 'network') {
+      if (!tokens[1]) return incomplete('Incomplete command: network <network> [mask|/prefix]');
+      pool.network = tokens[1];
+      if (tokens[2]) pool.mask = tokens[2];
+    } else if (head === 'default-router') {
+      if (!tokens[1]) return incomplete('Incomplete command: default-router <address>');
+      pool.gateway = tokens[1];
+    } else if (head === 'dns-server') {
+      if (!tokens[1]) return incomplete('Incomplete command: dns-server <address...>');
+      pool.dns = tokens.slice(1).join(' ');
+    } else if (head === 'range') {
+      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: range <start> <end>');
+      pool.rangeStart = tokens[1];
+      pool.rangeEnd = tokens[2];
+    } else if (head === 'excluded-address' || (head === 'excluded' && tokens[1] === 'address')) {
+      const from = head === 'excluded' ? 2 : 1;
+      const addrs = tokens.slice(from).filter(Boolean);
+      if (!addrs.length) return incomplete('Incomplete command: excluded-address <address[-address]>');
+      pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
+    } else if (head === 'lease') {
+      // Days by default, like IOS: `lease 0 12 0` is 12 hours.
+      const nums = tokens.slice(1).filter(function (x) { return /^\d+$/.test(x); }).map(Number);
+      if (!nums.length) return incomplete('Incomplete command: lease <days> [hours] [minutes]');
+      const days = nums[0] || 0, hours = nums[1] || 0, mins = nums[2] || 0;
+      const sec = days * 86400 + hours * 3600 + mins * 60;
+      if (sec <= 0) return incomplete('A lease must be longer than zero');
+      pool.leaseSec = String(sec);
+    } else if (head === 'host') {
+      // host <address> <hardware-address> - a reservation, which is how a printer keeps its address.
+      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac>');
+      if (!pool.reservations) pool.reservations = {};
+      pool.reservations[tokens[2]] = tokens[1];
+    } else if (head === 'no') {
+      const what = (tokens[1] || '').toLowerCase();
+      if (what === 'default-router') delete pool.gateway;
+      else if (what === 'dns-server') delete pool.dns;
+      else if (what === 'range') { delete pool.rangeStart; delete pool.rangeEnd; }
+      else if (what === 'lease') delete pool.leaseSec;
+      else if (what === 'excluded-address') pool.excluded = [];
+      else if (what === 'pool') {
+        this.device.config.dhcpPools = pools.filter(function (p) { return p.name !== this.pool; }, this);
+        this.mode = MODE_CONFIG;
+        this.pool = null;
+        out.push('Removed DHCP pool');
+        return out;
+      }
+      return out;
+    } else {
+      return ['% Unrecognized DHCP pool command: ' + tokens.join(' ')];
+    }
+
+    return out;
   }
 
   // ---------- ping ----------

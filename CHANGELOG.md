@@ -2,6 +2,15 @@
 
 ### Added
 
+- **DHCP is in the data path** (#1051). `engine/dhcp.js` was a complete, tested model with no
+  caller: `ip address dhcp` set a flag, no DISCOVER was ever sent, and a host stayed unaddressed for
+  the life of the lab. `Simulator.computeDhcp()` now runs the exchange before the first packet, walks
+  the broadcast domain properly (`engine/segment.js`: bridges pass, routers stop, STP-blocked ports
+  pass nothing, VLANs are boundaries), installs the lease on the interface, and reports the failures
+  a real server produces — `no-server`, `no-pool`, `pool-exhausted`, `nak`. New CLI sub-mode
+  `ip dhcp pool` with network/range/exclusions/reservations/lease, validated on exit rather than on
+  every keystroke. Pools survive save/load.
+
 - **README corrections.** The protocol table claimed DHCP client/server and VRRP, and the CLI row
   claimed `ip dhcp pool` and `vrrp`. `engine/simulator.js` requires neither library, and the CLI has
   no `vrrp` command at all — `docs/SIMULATION.md` §5.1 has documented DHCP as absent from the data

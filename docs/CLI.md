@@ -163,3 +163,32 @@ converge [at <ms>]
 
 Lists every process on every device with the instant it finishes, and the lab's fully-converged
 time. With an instant, anything still pending is marked.
+
+## DHCP server
+
+```
+ip dhcp pool <name>
+  network <network> [mask|/prefix]
+  default-router <address>
+  dns-server <address...>
+  range <start> <end>
+  excluded-address <address[-address]>
+  lease <days> [hours] [minutes]
+  host <address> <mac>          # a reservation
+  exit
+```
+
+A pool is a named object on the device, not a property of an interface: one server can hold several
+and a client picks by the subnet its own interface sits in. The pool is validated once, when the
+sub-mode is left — `network` before `range` is the second keystroke, not an error:
+
+```
+R1(config)#ip dhcp pool lan
+R1(config-dhcp)#network 10.0.0.0 255.255.255.0
+R1(config-dhcp)#exit
+% E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
+```
+
+A client is configured with `ip address dhcp` on its interface. The exchange runs before the first
+packet of a run, and the failures are the ones a server really produces — `no-server`, `no-pool`,
+`pool-exhausted`, `nak`. See [SIMULATION.md §5.1](SIMULATION.md).

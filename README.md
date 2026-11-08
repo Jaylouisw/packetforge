@@ -86,10 +86,10 @@ echo/reply travel across the link with a live animation and event log.
 | Vendors | **1,544 models across 245 vendors**, in 25 categories (router, switch, L3 switch, firewall, AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, TV/set-top, IoT, tap, splitter, cloud, host) + generic models. Adding one is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
-| Protocols | ARP, IPv4, ICMP echo + errors (dest-unreachable, time-exceeded), traceroute, DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static + PAT), extended ACLs, OSPF, BGP, SCION, IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
+| Protocols | ARP, IPv4, ICMP echo + errors, traceroute, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static + PAT), extended ACLs, OSPF, BGP, SCION, IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
 | Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
 | L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
-| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping [count] [at <ms>]`, `traceroute`, `converge` |
+| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip dhcp pool`, `ip route`, `ping [count] [at <ms>]`, `traceroute`, `converge` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
 | Convergence | Control planes take time: STP Listening/Learning, OSPF hello + SPF hold, DHCP exchange, VRRP master-down. Ask any question at an instant with `setRunTime(ms)` / `ping ... at 5000`; an unfinished process reports `converging`, not "timed out" ([docs](docs/CONVERGENCE.md)) |
 | Latency | Per-link propagation from the medium's velocity, serialisation from frame size and line rate, store-and-forward per hop — so a 40 km span is not the same as a 1 m patch lead |
@@ -100,10 +100,9 @@ echo/reply travel across the link with a live animation and event log.
 
 Stated plainly, because a simulator that overstates itself teaches wrong things:
 
-- **DHCP server and client** (#1051). `engine/dhcp.js` is a complete, tested model — pools,
-  DISCOVER/OFFER, REQUEST/ACK, renewals, reservations, exclusions — and `engine/simulator.js` never
-  calls it. `ip address dhcp` sets a flag and no lease ever arrives. See
-  [SIMULATION.md §5.1](docs/SIMULATION.md).
+- **DHCP relay.** A DISCOVER does not cross a router, so a central server cannot serve a remote
+  subnet. Snooping, Option 82 and DHCPv6 are absent too; leases are computed at run start and do not
+  age.
 - **VRRP** (#1052). `engine/vrrp.js` elects a master and has no caller; no device answers for a
   virtual IP.
 - **Timed interleaving.** Control planes now have a duration ([CONVERGENCE.md](docs/CONVERGENCE.md)),

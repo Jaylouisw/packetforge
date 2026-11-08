@@ -246,24 +246,32 @@ a `/25` connected route regardless of list order.
 
 ## 5. Control plane
 
-### 5.1 DHCP — **absent from the data path**
-
-This is the largest gap between what the repo looks like and what it does.
+### 5.1 DHCP — **in the data path** (since #1051)
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled (as a library)** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js:599`, `engine/dhcp.js:633` |
-| **Exported** | Re-exported from the engine's public API. | `engine/index.js:15` |
-| **Tested** | Covered by its own suite. | `test/dhcp.test.js` |
-| **Absent in the simulator** | `engine/simulator.js` never requires `dhcp.js` and never calls it. No DISCOVER is ever sent, no OFFER ever crosses a link, no lease is ever installed on an interface. | grep `dhcp` in `engine/simulator.js` returns nothing |
-| **Absent in the CLI** | `ip address dhcp` sets `iface.dhcp = true` and prints a confirmation. Nothing reads the flag; `show ip interface brief` prints "DHCP" as a label. `docs/CLI.md:50` calls it "(reserved)" and is correct. | `engine/cli.js:306-308`, `engine/cli.js:897` |
+| **Modelled** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js` |
+| **Wired** | `Simulator.computeDhcp()` runs before the first packet of a run: every interface with `ip address dhcp` sends a DISCOVER into its broadcast domain, a server whose own interface sits in a pool's subnet answers, and the lease is installed on the interface (address, mask, gateway, DNS, lease time). | `engine/simulator.js` `computeDhcp()` |
+| **Broadcast domain** | Walked rather than assumed: bridges pass the DISCOVER on, routers stop it, a spanning-tree blocked port passes nothing, and a VLAN boundary is a boundary. | `engine/segment.js` |
+| **In the timeline** | The exchange is an event, so a lab can see the ACK and read the pool it came from. | `{ type: 'dhcp', phase: 'ack', ip, pool, serverIp, leaseSec }` |
+| **In the CLI** | `ip dhcp pool <name>` with `network`, `default-router`, `dns-server`, `range`, `excluded-address`, `lease`, `host` (reservation). The pool is validated once, on leaving the sub-mode — a half-typed pool is not an error. | `engine/cli.js` `_dhcpPoolMode()` |
 
-A lab that expects hosts to pull addresses from a DHCP server will not work.
-Give every host a static address, or drive the model directly from a script.
+The failures are the ones a real server produces, and each is distinguishable:
 
-Also absent: DHCP relay, Option 82, vendor classes, DHCP snooping, and any
-DHCPv6 (which SLAAC's M-flag tells the host to go and use —
-`engine/simulator.js:1018` — and which does not exist).
+| Reason | Meaning |
+|---|---|
+| `no-server` | nothing in this broadcast domain holds a pool |
+| `no-pool` | a server is present, but its own address is in none of its pools |
+| `pool-exhausted` | every address in range is leased, reserved or excluded |
+| `nak` | the server refused to acknowledge the offered address |
+
+A run asked at an instant before the exchange completes (1000 ms by default) leaves the host
+unaddressed and the ping reports `converging` — see [CONVERGENCE.md](CONVERGENCE.md).
+
+Also absent: DHCP relay (a DISCOVER does not cross a router — a lab with a central server and a
+remote subnet will not work, by design rather than by accident), Option 82, vendor classes, DHCP
+snooping, lease expiry during a run (leases are computed at run start, not aged), and any DHCPv6
+(which SLAAC's M-flag tells the host to go and use — and which does not exist).
 
 ### 5.2 NAT / PAT
 

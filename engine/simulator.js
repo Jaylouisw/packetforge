@@ -20,6 +20,8 @@ const natLib = require('./nat');
 const flowLib = require('./flow');
 const latencyLib = require('./latency');
 const convergenceLib = require('./convergence');
+const dhcpLib = require('./dhcp');
+const segmentLib = require('./segment');
 const mediaModel = require('./media');
 
 // Two routers advertise the same OSPF network; when the SPF cost ties, the
@@ -122,6 +124,11 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
+    // Lease state per server device, rebuilt each run: a lease is a property of a run, not of the
+    // topology, and a stale one would make the second ping in a lab answer with an address nobody
+    // was offered.
+    this._dhcpStates = new Map();
+    this.dhcpLeases = [];
     // reset() rewinds a run, not the connection table: a ping must not tear down
     // somebody's TCP session.
     if (!this.flowState) this.flowState = flowLib.createFlowState();
@@ -315,6 +322,8 @@ class Simulator {
     this.computeStp();
     // Resolve PoE power before the run: an unpowered device must not transmit.
     this.computePoe();
+    // Let hosts pull addresses before anything is asked of them.
+    this.computeDhcp();
     // Announce ourselves on every cabled port, the way real gear does on link-up.
     this.announceLldp();
     // Then let the routers hand out IPv6 prefixes, so a host configured for
@@ -508,6 +517,158 @@ class Simulator {
     }
     this._stpDirty = false;
     return res;
+  }
+
+  // ---------------------------------------------------------------------
+  // DHCP (engine/dhcp.js, engine/segment.js)
+  // ---------------------------------------------------------------------
+  //
+  // The library modelled the exchange completely and nothing called it: `ip address dhcp` set a
+  // flag, no DISCOVER was ever sent, and the host stayed unaddressed for the life of the lab. This
+  // is the caller.
+  //
+  // A DISCOVER is a broadcast, so the servers are whatever sits in the same broadcast domain and
+  // holds a pool covering its own interface subnet. The exchange runs before the first packet the
+  // user asked for, which is when a real host would have done it too.
+
+  computeDhcp() {
+    const events = [];
+    for (const dev of this.topo.devices.values()) {
+      // Which interfaces are asking?
+      const clients = [];
+      for (const iface of dev.interfaces.values()) {
+        if (iface.dhcp && iface.enabled !== false) clients.push(iface);
+      }
+      if (!clients.length) continue;
+
+      // A run asked at an instant before the exchange finished leaves the host unaddressed, which
+      // is exactly what a real host is at that moment - and the ping path reports it as converging
+      // rather than as a broken lab.
+      if (!this._converged('dhcp', dev)) continue;
+
+      for (const clientIface of clients) {
+        const segment = segmentLib.segmentOf(this.topo, dev, clientIface.name);
+        const servers = segment.filter(function (e) {
+          return e.device && e.device !== dev && e.device.config &&
+            Array.isArray(e.device.config.dhcpPools) && e.device.config.dhcpPools.length &&
+            e.iface.ip;
+        });
+
+        const result = this._runDhcpExchange(dev, clientIface, servers);
+        events.push(result.event);
+        if (result.lease) {
+          clientIface.ip = result.lease.ip;
+          clientIface.mask = result.lease.mask;
+          clientIface.dhcpLease = result.lease;
+          if (!dev.config.defaultGateway && result.lease.gateway) {
+            dev.config.defaultGateway = result.lease.gateway;
+          }
+          this.dhcpLeases.push(result.lease);
+        }
+      }
+    }
+    for (const e of events) this._emit(e);
+    return events;
+  }
+
+  // One client, one interface, one DISCOVER -> OFFER -> REQUEST -> ACK.
+  _runDhcpExchange(client, clientIface, servers) {
+    const mac = clientIface.mac || (client.macAddress || '00:00:00:00:00:00');
+    const base = {
+      type: 'dhcp', client: client.id, clientName: client.name,
+      iface: clientIface.name, mac: mac
+    };
+
+    if (!servers.length) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'no-server',
+          detail: 'no DHCP server in this broadcast domain'
+        })
+      };
+    }
+
+    // A server answers only for a pool that covers the subnet its own interface is in. The first
+    // match wins, in device order, so a run is deterministic.
+    let chosen = null;
+    for (const s of servers) {
+      for (const rawPool of s.device.config.dhcpPools) {
+        const pool = dhcpLib.normalizePool(rawPool);
+        const check = dhcpLib.validatePool(pool);
+        if (!check.ok) continue;
+        // The question is "is this server's interface inside the pool's subnet", not "could this
+        // address be handed out" - the gateway is deliberately not allocatable, and asking
+        // ipInPool() would reject every correctly configured router.
+        if (net.ipInSubnet(s.iface.ip, pool.network, pool.mask)) {
+          chosen = { server: s, pool: pool };
+          break;
+        }
+      }
+      if (chosen) break;
+    }
+
+    if (!chosen) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'no-pool',
+          server: servers[0].device.id, serverName: servers[0].device.name,
+          detail: 'the address of ' + servers[0].iface.ip + ' is in none of the server pools'
+        })
+      };
+    }
+
+    const serverDev = chosen.server.device;
+    if (!this._dhcpStates.has(serverDev.id)) {
+      this._dhcpStates.set(serverDev.id, dhcpLib.createLeaseState());
+    }
+    const state = this._dhcpStates.get(serverDev.id);
+
+    const offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: this.step });
+    if (!offer) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'pool-exhausted',
+          server: serverDev.id, serverName: serverDev.name, pool: chosen.pool.name,
+          detail: 'pool ' + chosen.pool.name + ' has no address left to offer'
+        })
+      };
+    }
+
+    const ack = dhcpLib.handleRequest(chosen.pool, state, {
+      mac: mac, requestedIp: offer.ip, step: this.step
+    });
+    if (!ack || ack.type !== dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'nak',
+          server: serverDev.id, serverName: serverDev.name, pool: chosen.pool.name,
+          detail: 'the server refused to acknowledge ' + offer.ip
+        })
+      };
+    }
+
+    // normalizePool() already resolved the lease to seconds; taking it from there keeps the
+    // configured value instead of quietly reporting the library default.
+    const leaseSec = Number(chosen.pool.leaseSec);
+    return {
+      lease: {
+        ip: ack.ip, mask: chosen.pool.mask,
+        gateway: chosen.pool.gateway || null,
+        dns: (chosen.pool.dns || []).slice(),
+        server: chosen.server.iface.ip, pool: chosen.pool.name,
+        leaseSec: leaseSec, client: client.id, iface: clientIface.name, mac: mac
+      },
+      event: Object.assign({}, base, {
+        phase: 'ack', ok: true, ip: ack.ip, mask: chosen.pool.mask,
+        server: serverDev.id, serverName: serverDev.name,
+        serverIp: chosen.server.iface.ip, pool: chosen.pool.name,
+        gateway: chosen.pool.gateway || null, leaseSec: leaseSec
+      })
+    };
   }
 
   // ---------------------------------------------------------------------
