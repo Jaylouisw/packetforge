@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLDFG-5acD",
+  "label": "LDF 5 ac",
+  "category": "ptp",
+  "description": "MikroTik LDF 5 ac (RBLDFG-5acD) — 1x 1G RJ45, Wi-Fi 5 GHz. ARM 32bit 4-core IPQ-4018.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ldf_5_ac"
+}
