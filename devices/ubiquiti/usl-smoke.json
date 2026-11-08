@@ -1,0 +1,20 @@
+{
+  "color": "#14b8a6",
+  "vendor": "ubiquiti",
+  "model": "USL-Smoke",
+  "label": "UniFi Smoke and CO Alarm",
+  "category": "iot",
+  "description": "Ubiquiti UniFi Smoke and CO Alarm (USL-Smoke) - battery-powered smoke and carbon-monoxide alarm with SuperLink sub-GHz connectivity (up to 2 km range) and 10-year battery life.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "iot",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/usl-smoke"
+}
