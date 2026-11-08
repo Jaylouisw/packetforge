@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB911G-5HPacD",
+  "label": "RB911G-5HPacD",
+  "category": "wireless",
+  "description": "MikroTik RB911G-5HPacD (RB911G-5HPacD) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB911G-5HPacD"
+}
