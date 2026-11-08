@@ -7,13 +7,15 @@
   "capabilities": [
     "host",
     "dhcp-client",
-    "http-server"
+    "http-server",
+    "poe-pd"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
   ],
   "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/QNV-8080R"

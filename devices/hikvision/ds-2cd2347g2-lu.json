@@ -7,13 +7,15 @@
   "capabilities": [
     "host",
     "dhcp-client",
-    "http-server"
+    "http-server",
+    "poe-pd"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
   ],
   "sourceUrl": "https://www.hikvision.com/us-en/products/network-products/network-cameras/colorvu-series/ds-2cd2347g2-lu/"

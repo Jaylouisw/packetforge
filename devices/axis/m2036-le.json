@@ -7,13 +7,15 @@
   "capabilities": [
     "host",
     "dhcp-client",
-    "http-server"
+    "http-server",
+    "poe-pd"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 12.95
     }
   ],
   "sourceUrl": "https://www.axis.com/dam/public/ee/d3/cd/datasheet-axis-m2036-le-bullet-camera-en-US-519726.pdf"
