@@ -1,0 +1,25 @@
+{
+  "vendor": "terramaster",
+  "model": "F2-424",
+  "label": "F2-424 2-bay 2.5GbE NAS",
+  "category": "nas",
+  "description": "TerraMaster F2-424 is a 2-bay home/SOHO NAS on an Intel N95 with dual 2.5GbE RJ45 Ethernet jacks and no 1GbE-only port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.terra-master.com/pages/f2-424-specification"
+}

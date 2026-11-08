@@ -1,0 +1,20 @@
+{
+  "vendor": "xerox",
+  "model": "AltaLink C8145",
+  "label": "AltaLink C8145 A3 colour MFP",
+  "category": "printer",
+  "description": "Xerox AltaLink C8145 is a 45 ppm tabloid/A3 colour all-in-one with a standard 10/100/1000Base-T Ethernet port; Wi-Fi and Wi-Fi Direct are separate options.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.office.xerox.com/latest/AC8SS-032.PDF"
+}

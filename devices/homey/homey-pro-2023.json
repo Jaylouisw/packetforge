@@ -1,0 +1,21 @@
+{
+  "vendor": "homey",
+  "model": "Homey Pro (2023)",
+  "label": "Homey Pro (Early 2023) smart home hub",
+  "category": "iot",
+  "description": "Athom Homey Pro (Early 2023) is a local-first hub with eight radios (Wi-Fi 2.4/5 GHz, Zigbee, Z-Wave Plus, BLE, 433 MHz RF, infrared, Matter and Thread) and NO Ethernet port: wired networking needs the separately sold Homey Pro Ethernet adapter, so its only IP interface is Wi-Fi.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://cdn-reichelt.de/documents/datenblatt/E910/HOMEY_PRO_3_DB-EN.pdf"
+}

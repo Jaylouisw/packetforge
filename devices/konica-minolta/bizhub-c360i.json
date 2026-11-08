@@ -1,0 +1,20 @@
+{
+  "vendor": "konica-minolta",
+  "model": "bizhub C360i",
+  "label": "bizhub C360i A3 colour MFP",
+  "category": "printer",
+  "description": "Konica Minolta bizhub C360i is a 36 ppm A3 colour MFP whose standard network interface is 10BASE-T/100BASE-TX/1000BASE-T Ethernet, with Wi-Fi 802.11b/g/n available only as an optional kit.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.jtfcorp.com/konica-bizhub-c360i-multifunction-printer-aa2j011"
+}

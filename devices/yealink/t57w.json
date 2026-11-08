@@ -1,0 +1,31 @@
+{
+  "vendor": "yealink",
+  "model": "T57W",
+  "label": "T57W prime business phone",
+  "category": "phone",
+  "description": "Yealink SIP-T57W is a 16-line prime desk phone with a 7-inch touchscreen, a two-port Gigabit Ethernet switch (LAN in plus PC passthrough) and built-in dual-band 2.4/5 GHz Wi-Fi with Bluetooth 4.2; PoE 802.3af or a 5 V adapter powers it.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.netxl.com/yealink/docs/T57W-Data-Sheet.pdf"
+}

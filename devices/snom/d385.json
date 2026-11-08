@@ -1,0 +1,25 @@
+{
+  "vendor": "snom",
+  "model": "D385",
+  "label": "D385 IP desk phone",
+  "category": "phone",
+  "description": "Snom D385 is a Linux-based 12-line desk phone with a 4.3-inch TFT display, integrated Bluetooth and a two-port Gigabit Ethernet switch (RJ45) powered by 802.3af Class 3 PoE or a 5 V adapter.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.netxl.com/snom/docs/snom-d385-deskphone-datasheet.pdf"
+}

@@ -1,0 +1,62 @@
+{
+  "vendor": "dahua",
+  "model": "NVR4208-8P-4KS3",
+  "label": "8-ch 1U Lite NVR with 8-port PoE",
+  "category": "nvr",
+  "description": "Dahua NVR4208-8P-4KS3 is a 1U 8-channel 4K Lite recorder with two HDD bays, eight 10/100 Mbps PoE ports (IEEE 802.3af/at) and one gigabit RJ45 uplink for the LAN.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/Lite-Series/NVR4-4KS3-Series/2HDD/NVR4208-8P-4KS3"
+}
