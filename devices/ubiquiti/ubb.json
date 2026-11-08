@@ -1,0 +1,37 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UBB",
+  "label": "UniFi Building Bridge",
+  "category": "wireless",
+  "description": "UniFi Building Bridge (UBB) - 1x 1G RJ45. 802.3af PoE-in; WiFi 5; up to 1.7 Gbps PHY rate; 11 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.7G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/ubb"
+}
