@@ -18,7 +18,7 @@
       "name": "lineW-in",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -29,7 +29,7 @@
       "name": "lineW-out",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -40,7 +40,7 @@
       "name": "lineE-in",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -51,7 +51,7 @@
       "name": "lineE-out",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -62,7 +62,7 @@
       "name": "add1470",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -73,7 +73,7 @@
       "name": "drop1470",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -84,7 +84,7 @@
       "name": "add1490",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -95,7 +95,7 @@
       "name": "drop1490",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -106,7 +106,7 @@
       "name": "add1510",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -117,7 +117,7 @@
       "name": "drop1510",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -128,7 +128,7 @@
       "name": "add1530",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -139,7 +139,7 @@
       "name": "drop1530",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,

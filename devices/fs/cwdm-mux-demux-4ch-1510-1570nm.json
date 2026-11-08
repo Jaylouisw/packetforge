@@ -17,7 +17,7 @@
       "name": "line",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -28,7 +28,7 @@
       "name": "ch1510",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -39,7 +39,7 @@
       "name": "ch1530",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -50,7 +50,7 @@
       "name": "ch1550",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,
@@ -61,7 +61,7 @@
       "name": "ch1570",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         1000,
         2500,

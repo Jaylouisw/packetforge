@@ -32,7 +32,7 @@
       "name": "line",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         25000,
@@ -44,7 +44,7 @@
       "name": "p1310",
       "type": "ethernet",
       "speed": "100G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         40000,
         100000
