@@ -111,15 +111,26 @@ services, and a job that has to swap makes the whole queue slower.
 
 ## Known gaps
 
+- **Pushed runs are starved behind pull-request work.** This is the root of most of
+  the gaps below, and it was measured rather than guessed: twenty-seven push runs
+  did start today, but only when the queue was otherwise empty. During a merge
+  burst, every push run for the same commits — `ci.yml`, `auto-rebase` and two
+  probe workflows differing only in their `permissions:` block — sat at `waiting`
+  with `started` at epoch 0 and was never handed to a runner. It is not permissions
+  and not specific to one workflow. **Consequence: `main` is verified and stale pull
+  requests are rebased only when nothing else is queued — that is, never on the days
+  you need it.** Until this is fixed on the host, treat post-merge verification as
+  best-effort and run the suite locally before trusting `main`.
 - **`main` is verified only when a run survives to completion.** Post-merge runs
   are queued behind every open pull request, so on a busy day the default branch
-  trails.
+  trails. See above for the measured shape of it.
 - **Throughput is one runner.** Capacity 2 is a ceiling of roughly 26 merged pull
   requests an hour; the backlog is larger than that.
 - **`auto-rebase` runs on merge, not on a clock.** On this instance, scheduled and
   manually dispatched runs are created with their job rows and then never handed to
-  a runner — `started` stays at epoch 0 forever, while pull-request and push runs
-  dispatch normally. So the workflow triggers on `push` to `main`, which is the
+  a runner — `started` stays at epoch 0 forever, while pull-request runs dispatch
+  normally and push runs dispatch only when the queue is idle. So the workflow
+  triggers on `push` to `main`, which is the
   moment every open pull request becomes stale anyway. The schedule remains in the
   file as a safety net and does nothing; that is a dispatcher bug on the host, not a
   workflow bug, and it is worth knowing before you spend an evening reading YAML.
