@@ -1,0 +1,52 @@
+{
+  "vendor": "mikrotik",
+  "model": "A42G-HbeP",
+  "label": "hAP be lite",
+  "category": "wireless",
+  "description": "MikroTik hAP be lite (A42G-HbeP) — 3x 1G RJ45, 1x 2.5G RJ45, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 2-core AN7563PT.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.9G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hap_be_lite"
+}
