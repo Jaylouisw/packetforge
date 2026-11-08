@@ -1,0 +1,38 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On AP11 (R2W96A)",
+  "label": "Aruba Instant On AP11 (RW) 3x3 11ac Wave2 Indoor Access Point (R2W96A)",
+  "category": "wireless",
+  "description": "Aruba Instant On AP11 (R2W96A) - dual-radio 802.11ac Wave 2 indoor AP, 2x2:2 on both bands (300 Mbps 2.4 GHz + 867 Mbps 5 GHz). Single 1G RJ45 uplink with 802.3af PoE-in or 12 V DC. Runs Instant On cloud/mobile management and can act as a Wi-Fi gateway/router.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.9
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b",
+  "sourceUrl": "https://se.insight.com/content/dam/insight-web/emea/partner/hpe/hpe-aruba-ap11-data-sheet.pdf"
+}
