@@ -1,0 +1,29 @@
+{
+  "color": "#14b8a6",
+  "vendor": "ubiquiti",
+  "model": "UVC-G4-Doorbell-Pro",
+  "label": "UniFi G4 Doorbell Pro",
+  "category": "camera",
+  "description": "Ubiquiti UniFi G4 Doorbell Pro (UVC-G4-Doorbell-Pro) - Wi-Fi 5 (802.11ac) plus optional 1G RJ45 via UACC-Adapter-DBPOE. FHD dual-camera doorbell with package detection, two-way audio, NFC access, and 6 m IR night vision.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g4-doorbell-pro"
+}
