@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The simulator has a notion of time.** Propagation (by medium and length), serialisation
+  (by frame size and line rate) and a per-hop store-and-forward term are summed over both
+  directions, so a 40 km fibre measures slower than a 1 m patch lead instead of identically.
+  An unrecorded length stays unknown rather than inventing a distance.
+- **A palette search that finds what exists.** Punctuation is folded on both sides, vendor +
+  model match together, a punctuation-only query matches everything, and exact model hits
+  rank first. No fuzzy typo tolerance — a confident wrong hit is worse than none.
+- **A faceplate that fits its labels**: shrink within a floor, then shorten from the front,
+  full name in the tooltip. `Fa0/2` and `Fa0/24` can no longer look identical.
+- **TP-Link TL-SG105 and TL-SG105E** 5-port gigabit switches, from the datasheet.
+- **A hybrid UPC/APC patch-cord catalogue** plus the rules for when a hybrid lead is correct,
+  because a flat ferrule cannot meet an 8° angled one.
+- **An upstream/transit design** (`docs/UPSTREAM-DESIGN.md`) replacing "the internet is one
+  RJ45" with real link types and multihoming.
+- **235 assertions over the control plane** (BGP, OSPF, VRRP, DHCP, NAT, DNS), five of which
+  document defects as `DOCUMENTS BUG` and reference the issues that will flip them.
+
+### Fixed
+
+- An 8-wide faceplate group no longer clips port names mid-glyph.
+- Palette search finds `MC220L` by `mc-220l`, `mc 220l` or `TL-MC220L`.
+
+### Known defects (filed, not fixed)
+
+- #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
+- #42 OSPF installs a route for its own connected network, at transit cost.
+- #43 OSPF does not advertise a passive interface's network at all.
+- #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
+- #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
+
+
+### Added
+
 - **Cables are drawn as what they are made of.** Every medium was one grey 2 px line and
   wireless-versus-not was the only distinction the canvas had. Colour now carries the family
   (copper, fiber, dac, aoc, pon, coax, dsl, powerline, wireless), width the construction and a
