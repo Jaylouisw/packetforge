@@ -105,7 +105,11 @@ function loadCatalogue() {
 function requestSubject(title) {
   let t = String(title || '').replace(/^\[[^\]]*\]\s*:?\s*/, '');
   // cut at the em dash / hyphen / colon that starts the description
-  const cut = t.search(/\s+[—–-]\s+|\s*:\s*|\s+\(/);
+  // Deliberately not cut at "(" any more. A model code lives in the parentheses as often
+  // as not - "HUAWEI 4G Mobile WiFi 3 (E5785)" - and cutting there threw away the one
+  // token that distinguishes it from "4G Mobile WiFi 3 (E5783)". The caller tries the
+  // parenthetical both with and without instead of destroying it here.
+  const cut = t.search(/\s+[—–-]\s+|\s*:\s*/);
   if (cut > 0) t = t.slice(0, cut);
   return t.trim();
 }
@@ -135,40 +139,53 @@ function main() {
       const title = String(it.title || '');
       const isRequest = /^\[(device|hardware)\]/i.test(title) || /^\[device\]/i.test(title);
       if (isRequest) deviceRequests.push(it);
-      const subject = requestSubject(title);
-      const key = norm(subject);
-      if (!key) continue;
-
-      // A candidate is only accepted if it survives every guard. The expensive mistake here is not
-      // missing a match - it is closing someone's request by pointing at a different product, which
-      // tells them their hardware is modelled when it is not.
-      const parts = subject.split(/\s+/);
-      const subjectVendor = cat.vendorNames.get(norm(parts[0])) || null;
-
-      function acceptable(info) {
-        if (!info) return false;
-        // The vendor in the title must agree with the catalogue entry's vendor. "Ubiquiti UniFi
-        // Cloud Gateway Ultra" once matched roku/Ultra on the shared word "Ultra".
-        if (subjectVendor && norm(info.vendor) !== norm(subjectVendor)) return false;
-        // A model key worth matching has a digit in it, or at least two words. Single generic words
-        // ("ultra", "ac", "pro") identify lines, not products.
-        const modelKey = norm(info.model).split(' ');
-        const hasDigit = modelKey.some(function (w) { return /[0-9]/.test(w); });
-        if (!hasDigit && modelKey.length < 2) return false;
-        return true;
-      }
+      // The subject as written, and the same subject with any parenthetical removed. Both
+      // are tried: a model code lives in the parentheses as often as not, while a title
+      // like "Aruba 2530-48 (EOL, replaced by X)" only matches once the note is dropped.
+      const rawSubject = requestSubject(title);
+      const subjects = [rawSubject];
+      const noParen = rawSubject.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+      if (noParen && noParen !== rawSubject) subjects.push(noParen);
 
       let hit = null;
-      const whole = cat.byVendorModel.get(key) || cat.byModel.get(key);
-      if (whole && acceptable(whole[0])) hit = whole;
-      if (!hit) {
-        // "MikroTik Cloud Core Router CCR2004-16G-2S+" -> the model is a trailing run of tokens.
-        // Only suffixes that pass the same guards are considered, longest first.
-        for (let i = 1; i < parts.length && !hit; i++) {
-          const tail = norm(parts.slice(i).join(' '));
-          const cand = cat.byVendorModel.get(norm(parts[0]) + ' ' + tail) || cat.byModel.get(tail);
-          if (cand && acceptable(cand[0])) hit = cand;
+      let subject = rawSubject;
+
+      for (const candidate of subjects) {
+        subject = candidate;
+        const key = norm(subject);
+        if (!key) continue;
+
+        // A candidate is only accepted if it survives every guard. The expensive mistake here is not
+        // missing a match - it is closing someone's request by pointing at a different product, which
+        // tells them their hardware is modelled when it is not.
+        const parts = subject.split(/\s+/);
+        const subjectVendor = cat.vendorNames.get(norm(parts[0])) || null;
+
+        const acceptable = function (info) {
+          if (!info) return false;
+          // The vendor in the title must agree with the catalogue entry's vendor. "Ubiquiti UniFi
+          // Cloud Gateway Ultra" once matched roku/Ultra on the shared word "Ultra".
+          if (subjectVendor && norm(info.vendor) !== norm(subjectVendor)) return false;
+          // A model key worth matching has a digit in it, or at least two words. Single generic words
+          // ("ultra", "ac", "pro") identify lines, not products.
+          const modelKey = norm(info.model).split(' ');
+          const hasDigit = modelKey.some(function (w) { return /[0-9]/.test(w); });
+          if (!hasDigit && modelKey.length < 2) return false;
+          return true;
+        };
+
+        const whole = cat.byVendorModel.get(key) || cat.byModel.get(key);
+        if (whole && acceptable(whole[0])) hit = whole;
+        if (!hit) {
+          // "MikroTik Cloud Core Router CCR2004-16G-2S+" -> the model is a trailing run of tokens.
+          // Only suffixes that pass the same guards are considered, longest first.
+          for (let i = 1; i < parts.length && !hit; i++) {
+            const tail = norm(parts.slice(i).join(' '));
+            const cand = cat.byVendorModel.get(norm(parts[0]) + ' ' + tail) || cat.byModel.get(tail);
+            if (cand && acceptable(cand[0])) hit = cand;
+          }
         }
+        if (hit) break;
       }
       if (hit && hit.length) matched.push({ issue: it, subject: subject, device: hit[0] });
     }
@@ -211,4 +228,11 @@ function main() {
   });
 }
 
-main();
+
+// Requiring the file gives a test the two pure functions without running a sweep against a
+// live instance; running it is what the command line is for.
+if (require.main === module) {
+  main();
+} else {
+  module.exports = { requestSubject: requestSubject, norm: norm };
+}
