@@ -3,7 +3,7 @@
   "model": "UA-G2-SK",
   "label": "UniFi G2 Starter Kit",
   "category": "iot",
-  "description": "UniFi G2 Starter Kit (UA-G2-SK) - 5x 1G RJ45. 802.3bt PoE-in; 30 W max.",
+  "description": "UniFi G2 Starter Kit (UA-G2-SK) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 30 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",
