@@ -1,0 +1,461 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "B One",
+    "label": "Peplink B One",
+    "category": "router",
+    "description": "Small-business SD-WAN router: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput, Wi-Fi 6 for the wireless variant.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/b-one.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE) and Number of Ethernet LAN port 4 (GE), router throughput 1 Gbps. Wait - the sheet states 2 GE WAN and 4 GE LAN; the two WAN ports are modelled as wan1 and wan2 because this is the Wi-Fi variant of the B One line and its whole point is a second WAN for failover. The per-band Wi-Fi rows were not extracted, so the two radios carry the AX1800 class figures (574M / 1.2G) and should be read as class, not a quoted row."
+  },
+  {
+    "vendor": "peplink",
+    "model": "B One 5G",
+    "label": "Peplink B One 5G",
+    "category": "router",
+    "description": "Small-business SD-WAN router with an embedded 5G modem: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/b-one-5g.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, router throughput 1 Gbps, plus an embedded 5G modem. The modem is modelled at the conservative 100M class the catalogue uses wherever a cellular category is not stated in the extracted rows - the sheet confirms 5G but the sub-6/mmWave split was not captured, so this figure is a floor rather than a peak."
+  },
+  {
+    "vendor": "peplink",
+    "model": "B One Plus",
+    "label": "Peplink B One Plus",
+    "category": "router",
+    "description": "Small-business SD-WAN router, LTE variant: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput, embedded LTE.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/b-one-plus.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, router throughput 1 Gbps, embedded LTE modem. The LTE category was not in the extracted rows, so the modem carries the conservative 100M class rather than a guessed Cat number - if your unit is Cat 6 or above, say so and the rate gets corrected."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 20X",
+    "label": "Peplink Balance 20X",
+    "category": "router",
+    "description": "Branch SD-WAN router: 1x GE WAN, 4x GE LAN, 900 Mbps routing throughput, Wi-Fi and a FlexModule Mini slot.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-20x.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 4 (GE), router throughput 900 Mbps, Wi-Fi AP yes. **900 Mbps is the router throughput, not the port rate** - the ports are gigabit but the box will not forward a gigabit line at line rate, and that distinction is the one that bites in a branch with a 1 Gbps circuit."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 2500",
+    "label": "Peplink Balance 2500",
+    "category": "router",
+    "description": "Datacentre load-balancing router: 12x GE WAN, 8x GE LAN, 8 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-2500.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: 12 GE WAN, 8 GE LAN, router throughput 8 Gbps. Twenty copper ports, all gigabit, split 12 WAN / 8 LAN - a lab that treats them as a 20-port switch will mis-model which side of the router it is on."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 30 LTE",
+    "label": "Peplink Balance 30 LTE",
+    "category": "router",
+    "description": "Small-branch router with LTE backup: 2x GE WAN, 4x GE LAN, 200 Mbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-30-lte.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, router throughput 200 Mbps, embedded LTE. **200 Mbps is the ceiling for the whole box**, so this model is for a branch whose uplinks are well under gigabit; pairing it with a gigabit circuit wastes the circuit rather than the router."
+  }
+]
