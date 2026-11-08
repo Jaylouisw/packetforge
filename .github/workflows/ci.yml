@@ -9,14 +9,21 @@ on:
 permissions:
   contents: read
 
+# One in-flight run per ref: a new push cancels the still-running older one, so
+# a burst of commits does not queue redundant jobs.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        node: [18, 20, 22]
+        node: [20, 22, 24]  # Node 18 dropped: EOL 2025-04-30 (engines is now >=20)
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -30,7 +37,11 @@ jobs:
       # cannot see that. Run this early so the failure names the file.
       - name: No control bytes in source
         run: node scripts/check-control-bytes.js
-      - name: Engine + CLI + physical-layer + L2 tests
+      - name: Catalogue audit (port type vs. connector cage)
+        run: node scripts/audit-port-types.js
+      # scripts/run-tests.js globs test/*.test.js, so a new suite can never fall
+      # off a hand-maintained list. It reports every failing file, not just the first.
+      - name: Engine + CLI + physical-layer + L2 + UI tests
         run: npm test
       - name: Build & verify example labs
         run: node examples/build-examples.js
@@ -75,12 +86,43 @@ jobs:
           echo "smoke test passed"
 
   docker:
-    name: Docker build
+    name: Docker build & smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - name: Build image
-        run: docker build -t packetforge:ci .
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (BuildKit cache)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: packetforge:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test the image
+        run: |
+          # Prove the *image* serves, not just the checkout: a broken Dockerfile
+          # or missing runtime file would otherwise stay green until release day.
+          docker run -d --rm --name pf-ci -p 8123:8000 -e PF_DATA=/tmp/pf-data packetforge:ci
+          ready=0
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8123/api/catalog >/dev/null 2>&1; then
+              echo "container ready after $i attempt(s)"
+              ready=1
+              break
+            fi
+            sleep 0.5
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "container never became ready; log follows"
+            docker logs pf-ci
+            exit 1
+          fi
+          curl -fsS http://127.0.0.1:8123/api/catalog | grep -q '"specs"'
+          curl -fsS http://127.0.0.1:8123/ | grep -qi 'PacketForge'
+          echo "image smoke test passed"
+          docker rm -f pf-ci
 
   # release.yml only triggers on a tag, so nothing ever validated it on a PR.
   # A dependabot bump that breaks the release workflow would stay invisible

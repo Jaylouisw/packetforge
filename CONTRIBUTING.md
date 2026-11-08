@@ -29,16 +29,26 @@ cd packetforge
 node server/index.js        # UI + JSON API on http://localhost:8000
 ```
 
-Run the checks locally before submitting:
+Run the checks locally before submitting. GitHub CI and the local pipeline run the
+*same* commands, so what passes on your machine passes in CI:
 
 ```bash
-npm run syntax                    # syntax-check every JS file
-npm run test:engine               # engine tests
-npm run test:cli                  # CLI tests
-npm run examples                  # rebuild + verify the example labs
-# or simply:
-npm test
+npm run check      # fast gates: syntax + control bytes + catalogue audit
+npm test           # every test/*.test.js, all failures reported
+npm run ci         # everything GitHub CI runs: gates + tests + example labs
 ```
+
+The individual suites still work (`npm run test:engine`, `npm run test:cli`, ...),
+and `npm test -- --filter vlan` runs only the suites whose name matches `vlan`.
+
+Install the pre-commit gate once, so fast checks run on every commit:
+
+```bash
+npm run hooks      # or: make hooks
+```
+
+`make check` / `make ci` / `make lint-workflows` mirror the same targets for
+contributors who reach for Make first.
 
 ## Adding a hardware model
 

@@ -31,6 +31,22 @@ and they all run the same simulation engine and the same command set.
 
 ---
 
+## Checks
+
+Run the full suite locally before opening a PR — zero dependencies, so nothing to
+install:
+
+```bash
+npm run check   # fast gates: syntax + control bytes + catalogue audit
+npm test        # every test/*.test.js (a new suite can never drift off the list)
+npm run ci      # everything GitHub CI runs: gates + tests + example labs
+```
+
+Optional: `make check` / `make ci` for the same targets, and `npm run hooks` to
+install the pre-commit gate.
+
+---
+
 ## Quick start
 
 ### From source

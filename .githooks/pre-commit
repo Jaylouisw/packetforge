@@ -1,0 +1,15 @@
+#!/bin/sh
+# PacketForge pre-commit hook (installed via `npm run hooks` / `make hooks`).
+#
+# Fast, zero-dependency gates only: syntax + control bytes. Do not put the full
+# test suite here or commits become slow -- `npm run ci` is for that, and CI runs
+# it on every push anyway. This catches the cheap, embarrassing stuff before it
+# ever leaves the machine.
+
+set -e
+
+echo "PacketForge: syntax check"
+node scripts/syntax-check.js
+
+echo "PacketForge: control-byte check"
+node scripts/check-control-bytes.js

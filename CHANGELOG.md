@@ -26,6 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **235 assertions over the control plane** (BGP, OSPF, VRRP, DHCP, NAT, DNS), five of which
   document defects as `DOCUMENTS BUG` and reference the issues that will flip them.
 
+### Changed
+
+- **CI runs every test suite.** `npm test` now globs `test/*.test.js` through
+  `scripts/run-tests.js` instead of a hand-written list that drifted off the newer
+  suites, and reports every failure rather than stopping at the first.
+- **The pipeline is reproducible locally.** `npm run check`, `npm test` and
+  `npm run ci` mirror GitHub Actions, plus a `Makefile` and a zero-dependency
+  pre-commit hook (`npm run hooks`).
+- **Node 18 dropped** (EOL 2025-04-30): the matrix is 20 / 22 / 24 and `engines`
+  is `>=20`.
+- **Docker builds are cached and smoke-tested in CI**, and releases add SLSA
+  provenance and an SPDX SBOM and only publish after the full check suite passes.
+
 ### Fixed
 
 - An 8-wide faceplate group no longer clips port names mid-glyph.
