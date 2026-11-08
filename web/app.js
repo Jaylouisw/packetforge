@@ -245,6 +245,33 @@
     return ranked.map(function (r) { return r.spec; });
   }
 
+  // What the empty state should say. Pure, so the wording can be tested without a
+  // DOM, and specific, so it names the thing that has to change rather than blaming
+  // "your search / filters" in general.
+  function describeEmptyState(f) {
+    const q = String((f && f.q) || '').trim();
+    const vendor = (f && f.vendor) || '';
+    const type = (f && f.type) || '';
+    const parts = [];
+    if (q) parts.push('"' + q + '"');
+    if (vendor) parts.push('vendor ' + vendor);
+    if (type) parts.push('type ' + type);
+    if (!parts.length) return 'The catalogue is empty - that is a bug, not a filter.';
+    if (parts.length === 1) return 'Nothing matches ' + parts[0] + '.';
+    return 'Nothing matches ' + parts.slice(0, -1).join(', ') + ' with ' + parts[parts.length - 1] + '.';
+  }
+
+  // Undo every narrowing control at once, and put the DOM back in step with the
+  // state so the search box does not keep showing a query that is no longer applied.
+  function clearPaletteFilter() {
+    paletteFilter = { q: '', vendor: '', type: '' };
+    ['#pf-search', '#pf-vendor', '#pf-type'].forEach(function (sel) {
+      const el = $(sel);
+      if (el) el.value = '';
+    });
+    renderPalette();
+  }
+
   function renderPalette() {
     const list = $('#palette-list');
     list.innerHTML = '';
@@ -257,7 +284,22 @@
     if (!filtered.length) {
       const empty = document.createElement('div');
       empty.className = 'palette-empty';
-      empty.textContent = 'No devices match your search / filters.';
+      const why = document.createElement('p');
+      why.className = 'palette-empty-why';
+      why.textContent = describeEmptyState(paletteFilter);
+      empty.appendChild(why);
+      // A search that can only ever say "no" is a dead end. Whatever the person
+      // typed, they got here by narrowing, so offer the way back out rather than
+      // making them find and undo three separate controls.
+      if (paletteFilter.q || paletteFilter.vendor || paletteFilter.type) {
+        const clear = document.createElement('button');
+        clear.type = 'button';
+        clear.className = 'btn btn-quiet';
+        clear.id = 'palette-clear';
+        clear.textContent = 'Clear search and filters';
+        clear.addEventListener('click', function () { clearPaletteFilter(); });
+        empty.appendChild(clear);
+      }
       list.appendChild(empty);
       return;
     }
@@ -2189,6 +2231,8 @@
     openBugReport: openBugReport,
     issueUrl: ISSUE_NEW,
     renderCableLegend: renderCableLegend,
+    describeEmptyState: describeEmptyState,
+    clearPaletteFilter: clearPaletteFilter,
     bindLegend: bindLegend,
     setLegendCollapsed: setLegendCollapsed,
     legendCollapsed: legendCollapsed,
