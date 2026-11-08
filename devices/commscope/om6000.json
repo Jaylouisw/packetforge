@@ -35,25 +35,25 @@
     {
       "name": "rtn1",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "rtn2",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "rtn3",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     },
     {
       "name": "rtn4",
       "type": "coax",
-      "speed": "100M",
+      "speed": "200M",
       "connector": "f"
     }
   ],

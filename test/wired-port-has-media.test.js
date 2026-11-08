@@ -127,5 +127,27 @@ section('3. The Ubiquiti ES-12F has eight 100/1000 ports and four 1G-only ports'
   }
 }
 
+// ---------------------------------------------------------------------------
+// A port with NO medium at all is worse than a port with the wrong one: it cannot be cabled to
+// anything, at any rate, and the picker simply does not offer it. 84 DOCSIS return-path ports and
+// 24 MCX ports were in exactly that state (issue #1039), and the rate check skipped them with an
+// early `continue`, so nothing failed. This is the assertion that owns the question.
+console.log('\nEvery port can be cabled with something:');
+{
+  const bare = [];
+  for (const spec of loadCatalog(path.join(__dirname, '..', 'devices'))) {
+    let dev;
+    try { dev = new Topology().addDevice(spec); } catch (e) { continue; }
+    for (const p of dev.interfaces.values()) {
+      if ((p.hardware.media || []).length) continue;
+      // A radio is an antenna, not a cabled port.
+      if (p.hardware.cage === 'antenna' || p.type === 'wireless') continue;
+      bare.push(spec.vendor + '/' + spec.model + '/' + p.name + ' (' + p.hardware.cage + ')');
+    }
+  }
+  ok(bare.length === 0, 'no cabled port has an empty medium list' +
+    (bare.length ? ' (' + bare.slice(0, 5).join(', ') + ')' : ''));
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

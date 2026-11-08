@@ -177,6 +177,11 @@ const MEDIA = {
   'docsis-31': { name: 'DOCSIS 3.1 (coax)', family: 'coax', connector: 'f', speedMbps: 10000, upstreamMbps: 1000, maxRangeM: 300, shared: true },
   'docsis-30': { name: 'DOCSIS 3.0 (coax)', family: 'coax', connector: 'f', speedMbps: 1000, upstreamMbps: 200, maxRangeM: 300, shared: true },
   'moca-25': { name: 'MoCA 2.5 (coax)', family: 'coax', connector: 'f', speedMbps: 2500, maxRangeM: 100, shared: true },
+  // DOCSIS is asymmetric, and the two directions are different sized pipes on the same
+  // F-connector. Without an upstream entry a 200 Mbps return-path port matches no medium and the
+  // cable picker offers it nothing at all (issue #1039).
+  'docsis-30-us': { name: 'DOCSIS 3.0 upstream (coax)', family: 'coax', connector: 'f', speedMbps: 200, maxRangeM: 300, shared: true, direction: 'upstream' },
+  'docsis-31-us': { name: 'DOCSIS 3.1 upstream (coax)', family: 'coax', connector: 'f', speedMbps: 1000, maxRangeM: 300, shared: true, direction: 'upstream' },
   'moca-11': { name: 'MoCA 1.1 (coax)', family: 'coax', connector: 'f', speedMbps: 175, maxRangeM: 100, shared: true },
   'vdsl2-35b': { name: 'VDSL2 35b (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 300, maxRangeM: 400 },
   'vdsl2-17a': { name: 'VDSL2 17a (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 100, maxRangeM: 900 },
@@ -371,7 +376,13 @@ const CAGE_ALIAS = {
   rj11: 'dsl',
   sc: 'sc-upc',
   // MCX is a small coax connector used on CMTS line cards and small-cell gear. A
-  // different shape from an F-connector, but the engine has one coax cage and it is
+  // MCX is a small coax connector used on CMTS line cards and small-cell gear: a different
+  // shape from an F-connector, resolved to the coax cage because the engine has one and because
+  // every MCX port in a real plant reaches the F-connector through a jumper anyway. Modelling
+  // them as separate cages would make 24 CMTS return-path ports uncablable to nothing at all,
+  // which is a worse lie than assuming the adapter.
+  //
+  // Original note: a different shape from an F-connector, but the engine has one coax cage and it is
   // still coax: leaving it unmapped made 40 CMTS line-card ports uncabliable.
   mcx: 'coax',
   // Radio connectors (issue #77). A spec describes a radio the way its datasheet does:
@@ -589,8 +600,11 @@ const CAGE_MEDIA = {
     return out;
   },
   coax: function (maxMbps) {
-    const out = ['moca-11', 'moca-25', 'docsis-30'];
-    if (maxMbps >= 1000) out.push('docsis-31');
+    // Both directions are offered, because both exist on the same connector: a CMTS return-path
+    // port runs at 200 Mbps (3.0) or 1 Gbps (3.1), and without its own entry here it shared no
+    // rate with any medium and ended up with none at all (issue #1039).
+    const out = ['moca-11', 'moca-25', 'docsis-30', 'docsis-30-us'];
+    if (maxMbps >= 1000) out.push('docsis-31', 'docsis-31-us');
     return out;
   },
   dsl: function (maxMbps) {
@@ -703,7 +717,7 @@ const CAGE_SPEEDS = {
     return out.filter(function (v) { return v <= maxMbps; });
   },
   coax: function (maxMbps) {
-    const out = [175, 1000];
+    const out = [175, 200, 1000];
     if (maxMbps >= 2500) out.push(2500);
     if (maxMbps >= 5000) out.push(5000);
     if (maxMbps >= 10000) out.push(10000);

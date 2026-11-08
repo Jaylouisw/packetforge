@@ -2,6 +2,13 @@
 
 ### Added
 
+- **DOCSIS has an upstream medium** (#1039). The coax cage offered only downstream media (1G on
+  3.0, 10G on 3.1), so a 200 Mbps return-path port shared no rate with anything: its media list came
+  out empty, the cable picker offered nothing, and the rate invariant skipped it with an early
+  `continue`. `docsis-30-us` (200 Mbps) and `docsis-31-us` (1 Gbps) now exist, the plant rates on
+  five CCAP chassis and one HFC node are corrected to what they carry, and
+  `test/coax-docsis.test.js` pins the asymmetry.
+
 - **Console ports have a baud rate, not a line rate** (#979). Five RS-232 rates (9600/19200/38400/
   57600/115200) are separate media, a spec states `baud: 115200`, and a multi-baud port negotiates
   **down** to the highest rate both ends share. A 9600-to-115200 cable now refuses with
@@ -22,6 +29,9 @@
 
 ### Fixed
 
+- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
+  only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
+  omitted them and no check noticed.
 - **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
   ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
   115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer

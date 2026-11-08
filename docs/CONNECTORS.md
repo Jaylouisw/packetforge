@@ -825,3 +825,26 @@ Specs state the rate the way a datasheet does, in baud:
 A spec that names nothing but its type gets the cage's own top rate (115,200 baud), not a
 gigabit — a default line rate of 1000 Mbps used to make every console port in the catalogue claim
 a rate its medium could never carry.
+
+## Coax: DOCSIS and MoCA
+
+DOCSIS is asymmetric and the two directions are different sized pipes on the same F-connector, so
+each direction is its own medium:
+
+| Medium | Direction | Rate |
+|---|---|---|
+| `docsis-30` | downstream | 1 Gbps |
+| `docsis-30-us` | upstream | 200 Mbps |
+| `docsis-31` | downstream | 10 Gbps |
+| `docsis-31-us` | upstream | 1 Gbps |
+| `moca-11` | symmetric | 175 Mbps |
+| `moca-25` | symmetric | 2.5 Gbps |
+
+A CMTS return-path port asks for its own rate (200 Mbps on a 3.0 chassis, 1 Gbps on a 3.1 one), so
+without an upstream entry it shares no rate with any medium and gets an *empty* media list — a port
+that exists, draws on the faceplate and cannot be cabled to anything. That is what the five CCAP
+chassis in `devices/` were doing.
+
+An **MCX** connector (CMTS RF modules, small-cell gear) resolves to the coax cage: the shapes
+differ, and every real install reaches the plant through an MCX-to-F jumper, which is the adapter
+the model assumes rather than making two dozen ports uncablable.
