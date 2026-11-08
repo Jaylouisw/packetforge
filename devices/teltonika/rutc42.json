@@ -1,0 +1,61 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTC42",
+  "label": "Teltonika RUTC42",
+  "category": "router",
+  "description": "A dual-modem edge router built for uptime: 1 WAN + 4 LAN at gigabit and two LTE Cat 4 modems, so a single carrier outage does not take the site down.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutc42",
+  "notes": "Vendor figures from the RUTC42 datasheet: 1 x WAN port 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps; two LTE Cat 4 modems, each rated up to 150 Mbps down / 50 Mbps up, so both cellular interfaces are modelled at 150M. Two wwan interfaces are modelled because redundancy is the entire reason to buy this model."
+}

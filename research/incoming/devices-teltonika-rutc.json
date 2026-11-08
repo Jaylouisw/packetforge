@@ -1,0 +1,186 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUTC40",
+    "label": "Teltonika RUTC40",
+    "category": "router",
+    "description": "An edge router with on-site compute: 1 WAN + 4 LAN at gigabit, a 4G modem, and enough CPU and storage to run containers at the branch rather than shipping every reading to a data centre.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rutc40",
+    "notes": "Vendor figures from the RUTC40 datasheet: 1 x WAN port 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps (IEEE 802.3); 4G LTE modem. The datasheet states '4G' without naming the LTE category, so the cellular interface is modelled at the 100 Mbps Cat 4 class that every 4G model in this catalogue shares, and the note says so rather than implying a measured figure."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTC42",
+    "label": "Teltonika RUTC42",
+    "category": "router",
+    "description": "A dual-modem edge router built for uptime: 1 WAN + 4 LAN at gigabit and two LTE Cat 4 modems, so a single carrier outage does not take the site down.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rutc42",
+    "notes": "Vendor figures from the RUTC42 datasheet: 1 x WAN port 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps; two LTE Cat 4 modems, each rated up to 150 Mbps down / 50 Mbps up, so both cellular interfaces are modelled at 150M. Two wwan interfaces are modelled because redundancy is the entire reason to buy this model."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTC50",
+    "label": "Teltonika RUTC50",
+    "category": "router",
+    "description": "An industrial 5G edge router: five gigabit ports (1 WAN + 4 LAN), WiFi 6, dual SIM and GPS, with on-site compute. The 5G modem is the point - 2.4-3.4 Gbps downlink against the 150 Mbps of the Cat 4 units.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rutc50",
+    "notes": "Vendor figures from the RUTC50 datasheet and wiki summary: 1 x WAN port 10/100/1000 Mbps, 4 x LAN ports 10/100/1000 Mbps (five gigabit ports total); WiFi 6; 5G Sub-6 GHz SA/NSA at 2.4-3.4 Gbps downlink with 4x4 MIMO; dual SIM; GPS. The cellular interface is modelled at the conservative 2.4 Gbps end of the vendor's downlink range rather than the 3.4 Gbps best case. The Wi-Fi interfaces are modelled at the standard WiFi 6 2x2 rates (574M on 2.4 GHz, 1.2G on 5 GHz) because the datasheet names WiFi 6 without quoting a client rate - if that matters for your lab, the radio standard is the quotable fact and the rate is the convention."
+  }
+]

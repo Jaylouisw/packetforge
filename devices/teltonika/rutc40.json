@@ -1,0 +1,56 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTC40",
+  "label": "Teltonika RUTC40",
+  "category": "router",
+  "description": "An edge router with on-site compute: 1 WAN + 4 LAN at gigabit, a 4G modem, and enough CPU and storage to run containers at the branch rather than shipping every reading to a data centre.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutc40",
+  "notes": "Vendor figures from the RUTC40 datasheet: 1 x WAN port 10/100/1000 Mbps and 4 x LAN ports 10/100/1000 Mbps (IEEE 802.3); 4G LTE modem. The datasheet states '4G' without naming the LTE category, so the cellular interface is modelled at the 100 Mbps Cat 4 class that every 4G model in this catalogue shares, and the note says so rather than implying a measured figure."
+}
