@@ -1,0 +1,37 @@
+{
+  "vendor": "nokia",
+  "model": "G-010G-T",
+  "label": "Nokia G-010G-T GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (CIG G-97CP ODM, Realtek RTL9601D, Linux Luna SDK 1.9.0) with a single 2.5GBase-T LAN port (RTL8221B PHY) and no Wi-Fi or POTS; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC, managed over its web UI or telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-nokia-g-010g-t/"
+}
