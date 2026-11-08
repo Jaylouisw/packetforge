@@ -186,6 +186,135 @@ class Topology {
     });
   }
 
+  // Every cable that could be drawn between two devices, ranked (issue #68).
+  //
+  // Cabling was port-first: you had to name the socket before the engine would help, so on a
+  // 48-port switch the first click was a guess and a wrong guess was rejected with an error
+  // that did not say which of the other few hundred pairs would have worked. This answers
+  // the question people actually ask - "these two boxes need to talk, how?" - by trying every
+  // free pair, keeping the ones that are legal, and grouping them by the medium they'd use.
+  //
+  // Nothing here is new physics: it is validateLink() run over the pairs, plus the refusals
+  // counted by code so "nothing works" can say why instead of failing one pair at a time.
+  linkOptions(aId, bId, opts) {
+    const o = opts || {};
+    const a = this.devices.get(aId);
+    const b = this.devices.get(bId);
+    if (!a) return { ok: false, code: 'E_NO_DEVICE', reason: 'no device ' + aId, options: [], refusals: {} };
+    if (!b) return { ok: false, code: 'E_NO_DEVICE', reason: 'no device ' + bId, options: [], refusals: {} };
+    if (a === b) {
+      return { ok: false, code: 'E_SAME_DEVICE', reason: 'a device cannot be cabled to itself', options: [], refusals: {} };
+    }
+
+    // Only free ports. A port already carrying a cable is not a candidate, and a combo's
+    // sibling is reported as occupied by validateLink, so both cases fall out correctly.
+    const free = function (dev) {
+      const out = [];
+      for (const i of dev.interfaces.values()) if (!i.peer) out.push(i);
+      return out;
+    };
+
+    const refusals = Object.create(null);
+    const byKey = new Map();
+
+    for (const ai of free(a)) {
+      for (const bi of free(b)) {
+        const v = this.validateLink(aId, ai.name, bId, bi.name, o);
+        if (!v || !v.ok) {
+          const code = (v && v.errors && v.errors[0] && v.errors[0].code) || 'E_UNKNOWN';
+          refusals[code] = (refusals[code] || 0) + 1;
+          continue;
+        }
+        // One "link type" per medium+speed: the choice a person makes is "10GBASE-T or
+        // 10GBASE-LR", not "Gi0/1 or Gi0/2". The port pairs are the detail underneath.
+        const mediaIds = v.media && v.media.length ? v.media : [];
+        const id = v.mediaId || mediaIds.join('|') || 'link';
+        const key = id + '@' + (v.speedMbps || 0);
+        let group = byKey.get(key);
+        if (!group) {
+          const m = media.mediaById(v.mediaId || mediaIds[0]);
+          group = {
+            id: id,
+            key: key,
+            media: mediaIds,
+            mediaId: v.mediaId || null,
+            mediaName: m ? m.name : (v.mediaId || id),
+            family: m ? m.family : null,
+            speedMbps: v.speedMbps || (m ? m.speedMbps : null) || null,
+            maxRangeM: m ? m.maxRangeM : null,
+            warnings: v.warnings || [],
+            pairs: []
+          };
+          byKey.set(key, group);
+        }
+        group.pairs.push({
+          a: { iface: ai.name, cage: ai.hardware && ai.hardware.cage, label: ai.label || ai.name },
+          b: { iface: bi.name, cage: bi.hardware && bi.hardware.cage, label: bi.label || bi.name }
+        });
+      }
+    }
+
+    const options = Array.from(byKey.values());
+    // Fastest first: the link a person wants is usually the best one available. On a tie,
+    // copper before fibre - a DAC or a patch lead is what most labs actually have.
+    options.sort(function (x, y) {
+      const sx = x.speedMbps || 0, sy = y.speedMbps || 0;
+      if (sx !== sy) return sy - sx;
+      const fx = x.family === 'copper' ? 0 : 1, fy = y.family === 'copper' ? 0 : 1;
+      if (fx !== fy) return fx - fy;
+      return x.mediaName.localeCompare(y.mediaName);
+    });
+    for (const opt of options) opt.ports = opt.pairs.length;
+
+    if (!options.length) {
+      // "No cable fits" is a diagnosis, not a shrug. Two very different situations arrive
+      // here and must not be reported as the same thing: nothing was even attempted because
+      // every port already has a cable ("no free ports" - unplug something), versus pairs
+      // were tried and the hardware refused them (a connector or medium problem).
+      const freeA = free(a).length, freeB = free(b).length;
+      const tried = Object.keys(refusals).reduce(function (n, k) { return n + refusals[k]; }, 0);
+
+      if (!freeA || !freeB) {
+        const which = !freeA && !freeB ? 'both devices have'
+          : (!freeA ? a.name : b.name) + ' has';
+        return {
+          ok: false,
+          code: 'E_NO_FREE_PORTS',
+          reason: which + ' no free port to cable (' + a.name + ': ' + freeA +
+            ' free, ' + b.name + ': ' + freeB + ' free)',
+          options: [],
+          refused: 0,
+          refusals: {},
+          free: { a: freeA, b: freeB }
+        };
+      }
+
+      const ranked = Object.keys(refusals).sort(function (x, y) { return refusals[y] - refusals[x]; });
+      const top = ranked[0] || null;
+      return {
+        ok: false,
+        code: top || 'E_NO_COMMON_MEDIA',
+        reason: top
+          ? 'no port pair on ' + a.name + ' and ' + b.name + ' can be cabled (' + top +
+            (ranked.length > 1 ? ', among ' + ranked.length + ' reasons' : '') + ')'
+          : 'no port pair on ' + a.name + ' and ' + b.name + ' can be cabled',
+        options: [],
+        refused: tried,
+        refusals: refusals,
+        free: { a: freeA, b: freeB }
+      };
+    }
+
+    return {
+      ok: true,
+      a: { id: a.id, name: a.name, model: a.model, vendor: a.vendor },
+      b: { id: b.id, name: b.name, model: b.model, vendor: b.vendor },
+      options: options,
+      refusals: refusals,
+      free: { a: free(a).length, b: free(b).length }
+    };
+  }
+
   // Connect two interfaces. Validates the physical layer first and throws a
   // descriptive error (with .code and .issues) when the cabling is impossible.
   // `opts` may carry { mediaId, lengthM, duplex, lagId, force, patchCord }.

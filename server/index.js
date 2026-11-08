@@ -358,6 +358,25 @@ async function handleApi(req, res, urlPath) {
       return sendJSON(res, 200, { verdict: verdict, mediaOptions: options });
     }
 
+    // /link-options -- every cable that could join two boxes, ranked (issue #68).
+    //
+    // The port-first flow made the user guess the socket before the engine would help, and a
+    // wrong guess was one error with no way to see the pairs that would have worked. This is
+    // the whole search in one answer: legal pairs grouped by medium, plus the refusals counted
+    // by code so "nothing fits" can say why.
+    if (parts[3] === 'link-options' && parts.length === 4 && method === 'POST') {
+      const body = await readBody(req);
+      const aId = body.a !== undefined ? body.a : (body.aId !== undefined ? body.aId : (body.from || null));
+      const bId = body.b !== undefined ? body.b : (body.bId !== undefined ? body.bId : (body.to || null));
+      if (aId === null || bId === null) {
+        return sendJSON(res, 400, { code: 'E_BAD_REQUEST', reason: 'expected {a, b} device ids' });
+      }
+      // 200 even when nothing fits: the request succeeded, the answer is "no". A 409 here
+      // would make the UI's fetch wrapper throw and lose the very explanation it asked for.
+      const result = topo.linkOptions(aId, bId, { lengthM: body.lengthM });
+      return sendJSON(res, 200, result);
+    }
+
     // /links/:linkId
     if (parts[3] === 'links' && parts.length === 5) {
       if (method === 'DELETE') {

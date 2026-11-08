@@ -320,7 +320,185 @@
     } catch (e) { toast(e.message); }
   };
 
-  PFCanvas.on.select = function (id) { select(id); };
+  // ---------------------------------------------------------------------------
+  // Create-link mode (issue #68)
+  // ---------------------------------------------------------------------------
+  //
+  // Cabling was port-first: name the socket, and only then does the engine tell you whether
+  // it works. The order people actually build in is "these two boxes need to talk" - so this
+  // takes two device clicks, asks the engine for every legal cable between them, and shows
+  // the link types with their port pairs underneath. The refusals come back grouped by code,
+  // because "nothing fits" is a diagnosis and a technician needs to know which one.
+  const linkMode = { armed: false, a: null };
+  let linkBtn = null;
+
+  function setLinkHint(msg) {
+    // Same selector helper the rest of the app uses, so the stub DOM in the UI tests -
+    // which implements querySelector but not getElementById - can load this file.
+    const hint = $('#canvas-hint');
+    if (hint) hint.textContent = msg;
+  }
+
+  function armLinkMode(on) {
+    linkMode.armed = !!on;
+    linkMode.a = null;
+    if (linkBtn) linkBtn.classList.toggle('active', linkMode.armed);
+    if (linkMode.armed) {
+      setLinkHint('Create link: click the first device  ·  Esc to cancel');
+    } else {
+      setLinkHint('Scroll to zoom · drag to pan · click a device or cable to inspect · click a port to cable');
+    }
+  }
+
+  async function openLinkOptions(aId, bId) {
+    const resp = await api('POST', '/topologies/' + TOPO + '/link-options', { a: aId, b: bId });
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    const box = document.createElement('div');
+    box.className = 'modal-box lo-box';
+
+    const an = (resp.a && resp.a.name) || 'device A';
+    const bn = (resp.b && resp.b.name) || 'device B';
+
+    if (!resp.ok) {
+      box.innerHTML =
+        '<div class="modal-title">Cannot cable ' + esc(an) + ' to ' + esc(bn) + '</div>' +
+        '<div class="modal-sub">' + esc(resp.reason || 'no legal cable between these devices') + '</div>' +
+        '<div class="lo-code">' + esc(resp.code || '') + '</div>' +
+        (resp.refusals && Object.keys(resp.refusals).length
+          ? '<div class="lo-refusals">' + Object.keys(resp.refusals).map(function (k) {
+              return '<div><code>' + esc(k) + '</code> &times;' + resp.refusals[k] + '</div>';
+            }).join('') + '</div>'
+          : '') +
+        '<div class="modal-actions"><button class="btn" data-act="close">Close</button></div>';
+    } else {
+      let html = '<div class="modal-title">Cable ' + esc(an) + ' &rarr; ' + esc(bn) + '</div>' +
+        '<div class="modal-sub">' + resp.options.length + ' link type(s) available &middot; ' +
+        resp.free.a + ' free port(s) on ' + esc(an) + ', ' + resp.free.b + ' on ' + esc(bn) + '</div>';
+      html += '<div class="lo-list">';
+      resp.options.forEach(function (o, oi) {
+        html += '<div class="lo-opt' + (oi === 0 ? ' sel' : '') + '" data-oi="' + oi + '">' +
+          '<div class="lo-head">' +
+            '<span class="lo-media">' + esc(o.mediaName) + '</span>' +
+            '<span class="lo-speed">' + (o.speedMbps ? fmtSpeed(o.speedMbps) : '') + '</span>' +
+            '<span class="lo-ports">' + o.ports + ' port pair(s)</span>' +
+          '</div>' +
+          (o.warnings && o.warnings.length
+            ? '<div class="lo-warn">' + o.warnings.map(function (w) { return esc(w.message || w.code); }).join('; ') + '</div>'
+            : '') +
+          '<div class="lo-pairs">' + o.pairs.map(function (pr, pi) {
+            return '<button class="lo-pair" data-oi="' + oi + '" data-pi="' + pi + '">' +
+              esc(pr.a.label || pr.a.iface) + ' <span class="lo-arrow">&harr;</span> ' +
+              esc(pr.b.label || pr.b.iface) + '</button>';
+          }).join('') + '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+      html += '<div class="modal-actions"><button class="btn" data-act="close">Cancel</button></div>';
+      box.innerHTML = html;
+    }
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    return new Promise(function (resolve) {
+      function done(v) { overlay.remove(); resolve(v); }
+      overlay.addEventListener('click', async function (e) {
+        if (e.target === overlay) return done(null);
+        const act = e.target.closest('[data-act]');
+        if (act) return done(null);
+        const pairBtn = e.target.closest('.lo-pair');
+        if (pairBtn) {
+          const o = resp.options[Number(pairBtn.dataset.oi)];
+          const pr = o.pairs[Number(pairBtn.dataset.pi)];
+          let made = null;
+          try {
+            made = await api('POST', '/topologies/' + TOPO + '/links', {
+              a: { deviceId: aId, iface: pr.a.iface },
+              b: { deviceId: bId, iface: pr.b.iface },
+              mediaId: o.mediaId || undefined,
+              lengthM: lengthChoicesFor(o.family, o.maxRangeM)[0]
+            });
+          } catch (err) {
+            // The engine refused at commit time. That should be rare - the list only offers
+            // pairs that validated - so it means something changed underneath us, and the
+            // message is the useful part.
+            setLinkHint('Could not cable: ' + err.message);
+            return done(null);
+          }
+          if (made && made.error) {
+            setLinkHint('Could not cable: ' + (made.reason || made.error));
+          } else {
+            await refresh();
+            setLinkHint('Cabled ' + (pr.a.label || pr.a.iface) + ' <-> ' + (pr.b.label || pr.b.iface));
+          }
+          return done(made);
+        }
+        const opt = e.target.closest('.lo-opt');
+        if (opt) {
+          box.querySelectorAll('.lo-opt').forEach(function (n) { n.classList.remove('sel'); });
+          opt.classList.add('sel');
+        }
+      });
+    });
+  }
+
+  // The second click of the pair. Kept separate from select() so the ordinary
+  // click-to-inspect path is untouched when the mode is off.
+  async function linkModeSelect(id) {
+    if (!linkMode.a) {
+      linkMode.a = id;
+      const d = deviceById(id);
+      setLinkHint('Create link: first device is ' + ((d && d.name) || 'selected') + '  ·  click the second device  ·  Esc to cancel');
+      // Highlighting is a nicety; the pairing is the job. If rendering the inspector throws
+      // on some device, the two-click flow must still work.
+      try { select(id); } catch (e) { /* pairing does not depend on the panel */ }
+      return;
+    }
+    if (linkMode.a === id) {
+      linkMode.a = null;
+      setLinkHint('Create link: click the first device  ·  Esc to cancel');
+      return;
+    }
+    const aId = linkMode.a;
+    linkMode.a = null;
+    // Disarm before opening the panel, not after: openLinkOptions() only settles when the
+    // panel is dismissed, so waiting would leave the canvas armed behind a modal - and a
+    // stray select() would start a second pairing nobody asked for.
+    armLinkMode(false);
+    await openLinkOptions(aId, id);
+  }
+
+  function wireLinkButton() {
+    linkBtn = $('#btn-link');
+    if (linkBtn) {
+      linkBtn.addEventListener('click', function () {
+        armLinkMode(!linkMode.armed);
+      });
+    }
+  }
+  // app.js may be loaded with defer, in which case DOMContentLoaded has already fired by
+  // the time this runs and the listener would never be called - the button would be inert.
+  if (typeof document.readyState === 'string' && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireLinkButton);
+  } else {
+    wireLinkButton();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && linkMode.armed) { armLinkMode(false); return; }
+    // C arms the mode, unless the user is typing into a field.
+    const el = document.activeElement;
+    const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+    if (!typing && (e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      armLinkMode(!linkMode.armed);
+    }
+  });
+
+  PFCanvas.on.select = function (id) {
+    if (linkMode.armed) return linkModeSelect(id);
+    select(id);
+  };
   PFCanvas.on.selectLink = function (id) { selectLink(id); };
 
   // The canvas abandoned an in-flight cable because the user clicked empty space.
@@ -1802,6 +1980,9 @@
       const el = document.getElementById('conn-state');
       return el ? el.textContent : null;
     },
+    // Create-link mode, exposed for the UI tests (issue #68): the two device clicks are the
+    // whole feature, and a test cannot click a stub DOM.
+    linkMode: { arm: armLinkMode, select: linkModeSelect, state: linkMode },
     selectDevice: function (id) { selectedId = id; selectedLink = null; },
     selectLink: function (id) { selectedLink = id; selectedId = null; },
     deleteTarget: deleteTarget,
