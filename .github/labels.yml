@@ -1,0 +1,60 @@
+# PacketForge label catalogue.
+#
+# Single source of truth for issue/PR labels. Synced to the repository by
+# .github/workflows/labels.yml whenever this file changes. Colours are hex
+# without the leading '#'.
+#
+# The issue templates reference these by name (labels: [...]), so a label added
+# here must exist before the template is submitted -- the sync workflow creates it.
+
+- name: bug
+  color: d73a4a
+  description: Something is broken or behaves incorrectly
+
+- name: feature
+  color: 0e8a16
+  description: A new capability that does not exist yet
+
+- name: enhancement
+  color: a2eeef
+  description: An improvement to something that already works
+
+- name: device
+  color: 5319e7
+  description: Relates to a device model in devices/
+
+- name: device-request
+  color: fbca04
+  description: Request for new hardware to be added to the catalog
+
+- name: documentation
+  color: 0075ca
+  description: Improvements or additions to docs/
+
+- name: ci
+  color: d4c5f9
+  description: CI/CD, build, and developer tooling
+
+- name: question
+  color: d876e3
+  description: Needs more information before it can be acted on
+
+- name: needs-datasheet
+  color: c5def5
+  description: Device request blocked on a manufacturer datasheet
+
+- name: good first issue
+  color: 7057ff
+  description: A good entry point for new contributors
+
+- name: help wanted
+  color: 008672
+  description: Extra attention or maintainer time needed
+
+- name: duplicate
+  color: cfd3d7
+  description: Already reported elsewhere
+
+- name: wontfix
+  color: ffffff
+  description: Will not be addressed
