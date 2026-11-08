@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "PBE-M5-400",
+  "label": "PowerBeam M5 400",
+  "category": "ptp",
+  "description": "5 GHz airMAX M-series PowerBeam with integrated 400 mm dish, 8 W, 24 V 0.5 A passive PoE in. Ports: 1x GbE RJ45 (PoE in); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/pbe-m5-400"
+}
