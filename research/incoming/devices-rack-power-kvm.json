@@ -1,0 +1,450 @@
+{
+  "devices": [
+    {
+      "vendor": "apc",
+      "model": "AP8965",
+      "label": "APC Rack PDU 2G Switched 30A/208V (21xC13 3xC19)",
+      "category": "host",
+      "description": "Zero-U switched rack PDU for a 208 V three-phase rack feed: 30 A input on a NEMA L21-30P cord, 21 C13 and 3 C19 outlets with per-outlet switching plus branch and total current metering, 8.6 kW capacity. One 10/100BASE-T RJ45 network port carries the Web UI, SNMP and CLI, and the In/Out Network Port Sharing jacks let up to four 8000-series PDUs sit behind a single IP address.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.se.com/us/en/product/AP8965/rack-pdu-2g-switched-zerou-8-6kw-208v-21-c13-3-c19/",
+      "notes": "Front panel of the AP89XX switched PDU (user guide 990-5569K-001) lists a '10/100 Base-T Connector', 'Network status LED', '10/100 LED' and reset button - so the management port is Fast Ethernet, not Gigabit. The same guide documents 'DHCP and BOOTP configuration', hence dhcp-client. The In/Out Network Port Sharing jacks are an RJ45-terminated PDU-to-PDU bus (terminator required at each end), not an Ethernet segment, so they are not modelled as ports. Discontinued Jun 2022; the 9K-series APDU9965 (21 C13/C15 + 3 C19/C21) is the replacement, and per APC's rack PDU family spec the 9000 series is the Gigabit-Ethernet generation while 8000-series units stay at 10/100."
+    },
+    {
+      "vendor": "raritan",
+      "model": "PX3-5190R",
+      "label": "Raritan PX3-5190R switched rack PDU (8xC13, 16A/230V)",
+      "category": "host",
+      "description": "1U horizontal switched rack PDU for 200-240 V single-phase feeds: 16 A input on an IEC 60309 2P+E plug, 8 IEC C13 outlets with per-receptacle metering and remote switching, 3.7 kVA. A Gigabit (10/100/1000BASE-T) port is the primary management interface and a second, redundant 10/100BASE-T port provides a backup path for the Web/SSH/SNMP/Modbus-TCP stack.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://cdn.raritan.com/product-selector/pdus/PX3-5190R/PX3-5190R-spec.pdf",
+      "notes": "Engineering submittal (rev 20250625) 'Networking': 'Gigabit (10/100/1000 BaseT) Ethernet port; secondary, redundant (10/100 BaseT) Ethernet port. Optional WiFi (802.11a/b/g/n)'. Remote management over HTTP(s), SSH, Telnet, RS-232, SNMP v2/v3, SMTP, JSON-RPC and Modbus over TCP; environmental-sensor ready (temperature, humidity, air flow, differential pressure, water leak, contact closure) via the RJ-12 sensor ports, which are not Ethernet. Cascading: up to 32 PDUs over the dedicated cascade link, which is a Cat5 PDU-to-PDU bus rather than an Ethernet segment, so it is not modelled and the two exposed ports are the primary and redundant NICs only."
+    },
+    {
+      "vendor": "eaton",
+      "model": "EMA333-10",
+      "label": "Eaton ePDU G3 Managed 3-phase 0U 8.64kW (21xC13 6xC19 1x5-20R)",
+      "category": "host",
+      "description": "Three-phase 0U managed rack PDU: NEMA L21-30P input, 120/208 V, 24 A, 8.64 kW, feeding 21 C13, 6 C19 and one 5-20R outlet with per-outlet switching and metering. The embedded eNMC module presents a single 10/100BASE-T RJ45 for the Web UI, CLI/Telnet, SNMP and DHCP-based addressing, plus an RS-232 port that also accepts an Environmental Monitoring Probe.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.eaton.com/us/en-us/skuPage.EMA333-10.html",
+      "notes": "SKU page gives the electrical/outlet data (3PH, 0U, L21-30P, 8.64 kW, 24 A, 120/208 V, 28 outlets = 21 C13 + 6 C19 + 1 5-20R, RS-232 serial interface). Port speed comes from the ePDU G3 installation and connectivity quick start (P-164000314): item 4 is an 'Ethernet 10/100 Base-T Port' with a green LED that is OFF at 10 Mbit/s and ON at 100 Mbit/s, and the network connection 'automatically receives an IP address through DHCP'. The daisy-chain port (up to four ePDUs sharing one Ethernet port through an RJ-45 splitter) is a proprietary PDU bus, not an Ethernet segment, so it is not modelled."
+    },
+    {
+      "vendor": "tripp-lite",
+      "model": "PDUMH30NET",
+      "label": "Tripp Lite PDUMH30NET switched PDU 30A 120V (16x5-20R, 2U)",
+      "category": "host",
+      "description": "2U horizontal switched PDU for 120 V single-phase feeds: NEMA L5-30P input derated to 24 A continuous, 16 individually switchable NEMA 5-15/20R outlets in two 20 A breakered load banks, 2.9 kW. A pre-installed LX Platform (WEBCARDLX) card provides one 10/100BASE-T RJ45 running the HTML5 web UI, telnet/SSH, SNMP v1/v2/v3 and DHCP/BOOTP.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://assets.tripplite.com/product-pdfs/en/pdumh30net.pdf",
+      "notes": "Vendor spec sheet 'Network Monitoring Port: RJ45 Network port, Micro-USB Configuration port, USB A port supports a variety of Envirosense2 environmental and control modules' and 'Network Compatibility: 10 Mbps; 100 Mbps (Fast Ethernet)'; protocols listed include IPv4/IPv6, HTTP, HTTPS, SMTP, SNMPv1/v2/v3, telnet, SSH, FTP, DHCP, BOOTP and NTP - hence dhcp-client. The USB-A port takes EnviroSense2 sensor/control modules and the Micro-USB port is a local configuration console, so neither is a network interface. Tripp Lite is now the Eaton Tripp Lite series; the TAA version is PDUMH30NETAA."
+    },
+    {
+      "vendor": "raritan",
+      "model": "KX4-101",
+      "label": "Raritan Dominion KX IV-101 single-port 4K KVM-over-IP switch",
+      "category": "host",
+      "description": "Zero-U single-port KVM-over-IP appliance giving BIOS-level remote keyboard, video (HDMI, up to 4K30 4:2:2) and mouse access to one server for up to eight simultaneous users. One 1 GbE RJ45 carries all management traffic and an RJ45 serial admin port provides local console access; fibre-channel-style digital video and USB stay on the server side.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "console1",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.raritan.com/assets/ram/resources/data_sheets/dominion-kx-iv-101-datasheet.pdf",
+      "notes": "'Ports and Connections' panel of the datasheet labels exactly: Power, '1G LAN', 'Serial Admin', 'USB-B to Server', 'HDMI to Server', 'HDMI Out', 'USB K/M' (local port), terminal block and factory reset. Only the 1G LAN is an Ethernet interface; the single managed server port is HDMI + USB (not Ethernet) so it is deliberately not modelled, which is why the box appears as a host with one network port. Optional DSAM-2/DSAM-4 Dominion Serial Access Modules add up to eight RS-232 devices over a separate link; those serial ports belong to the module, not the switch. Fanless, Java-free HTML5 client, LDAP/RADIUS/AD, AES encryption."
+    },
+    {
+      "vendor": "avocent",
+      "model": "MPU2016DAC",
+      "label": "Avocent MergePoint Unity MPU2016DAC 16-port KVM-over-IP switch",
+      "category": "host",
+      "description": "1U KVM-over-IP and serial console switch for 16 target devices over CAT5/6 (PS/2, Sun, USB or serial through the appropriate adaptor), with a local USB/VGA console port and two 10/100/1000BASE-T RJ45 network ports for redundant LAN or two separate management networks. Agentless browser (OBWI) and DSView access, virtual media, dual internal power supplies.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "console1",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.vertiv.com/4a25b9/globalassets/shared/vertiv-avocent-mergepoint-unity-kvm-over-ip-and-serial-console-switch-guide-specifications-av-49558.pdf",
+      "notes": "Guide specifications AV-49558 Rev A, section 1.3.2.4 Ports/Connections: 'a. Network: Number: 2, Type: 10/100/1000 Ethernet'; 'c. Device ports: Number 8, 16, or 32, Connector: 8-pin modular'; 'd. Local console: 1, USB and VGA'; 'g. Setup port: 1, RS232 serial, 8-pin modular'; 'h. Modem port: 1, RS232 serial'. The 16 CAT5 device ports are KVM target ports (the same ports accept serial adaptors for serial targets), so they are not modelled as Ethernet or as separate console interfaces - only the two NICs and the RS-232 setup port are exposed. MPU2016DAC = 16-port, dual AC (15 W); MPU2032DAC/MPU4032DAC/MPU8032DAC are the 32-port 2/4/8-user variants."
+    },
+    {
+      "vendor": "aten",
+      "model": "SN0116CO",
+      "label": "ATEN SN0116CO 16-port serial console server (dual LAN/power)",
+      "category": "host",
+      "description": "1U serial console server with 16 RJ45 RS-232 device ports (Cisco pin-out, auto-sensing DTE/DCE) and dual 10/100/1000BASE-T LAN ports so the production and management networks can be kept separate, or the second port used as failover; dual AC inputs. Console Management, Real COM, TCP/UDP Server-Client and Virtual Modem modes over Telnet/SSH or the HTML5 WebClient.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial9",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial10",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial11",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial12",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial13",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial14",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial15",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial16",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://assets.aten.com/product/spec_sheet/sn0108co_0116co_9108co_9116co_0132co_0148co_0108cod_0116cod_0132cod_0148cod_serial_over_the_net_ds_en.pdf",
+      "notes": "Spec sheet: 'LAN Ports: 2 x RJ-45 Female' with '10/100/1000 Mbps' status LEDs for the SN01xxCO models, 'Serial: 16 x RJ-45 Female', plus 1 modem RJ45, 1 local-console RJ45, 1 Mini-USB Laptop USB Console port, 3 USB Type-A and one reserved 'PON' RJ45 - none of those extra RJ45s are Ethernet data ports, so only the two LAN ports are modelled. Security: TLS 1.2, FIPS 140-2 level 1 module, RADIUS/TACACS+/LDAP/Kerberos, 802.1X. Single-LAN/single-power siblings are SN9116CO."
+    },
+    {
+      "vendor": "lantronix",
+      "model": "SLS200USB0-01",
+      "label": "Lantronix SpiderDuo SLS200 single-port KVM-over-IP",
+      "category": "host",
+      "description": "Server-powered zero-U KVM-over-IP dongle for one server: USB keyboard/mouse and video (up to 1280x1024 at 60 Hz) are tunnelled over a single 10/100/1000BASE-T RJ45 to a Java-free browser client for up to eight simultaneous users, with virtual media and an RS-232 serial port for console redirection or an external modem.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "console1",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://cdn.lantronix.com/wp-content/uploads/pdf/900-495j_Spider_Spider_Duo_UG.pdf",
+      "notes": "User guide 900-495J, SpiderDuo technical data: 'Network: One 10/100/1000 Base-T Ethernet Port with activity indicators (RJ45)', and 'Ethernet Ports--Connects to the LAN. The SpiderDuo device has one port only that connects to the LAN.' The two-port Network + Cascade arrangement and the internal 'hardware Ethernet switch' described in the same guide belong to the Spider SLS100, not the SpiderDuo, so this model correctly carries a single Ethernet port and no l2-forward. The RJ45 serial port is RS-232 (up to 115200 baud). Server-powered from the USB/PS2 cable, with an optional external PSU."
+    },
+    {
+      "vendor": "apc",
+      "model": "NetBotz NBRK0750",
+      "label": "APC NetBotz Rack Monitor 750 environmental/security appliance",
+      "category": "host",
+      "description": "1U rack environmental and security appliance: two 10/100/1000BASE-T ports (a public LAN uplink and a PoE+ type-2 private LAN port that can power a camera pod), universal sensor ports for temperature/humidity/leak/dry-contact sensors, A-Link ports for cascading sensor pods, a beacon port and a Modbus RS-485 port. Central head-end of a NetBotz monitoring deployment.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "net1",
+          "type": "ethernet",
+          "speed": "1G",
+          "role": "public-lan"
+        },
+        {
+          "name": "net2",
+          "type": "ethernet",
+          "speed": "1G",
+          "role": "private-lan-poe"
+        }
+      ],
+      "sourceUrl": "https://www.se.com/us/en/download/document/990-91106_EN/",
+      "notes": "Installation and Quick Configuration guide 990-91106 (rev J): item 8 '10/100/1000 Network port - Provides a connection to the network'; item 9 'Private LAN* PoE+ type 2 port (IEEE802.3at). Provides a 10/100/1000 connection to a private Local Area Network (LAN). Each port can provide up to 25.5 W to attached devices'. A-Link ports are explicitly 'a proprietary Controller Area Network (CAN) bus ... not Ethernet devices and cannot coexist on an Ethernet bus', so they are not modelled; the Modbus RS-485 port and USB coordinator are likewise not Ethernet. PoE on the private LAN is noted here rather than claimed as a switching capability: the appliance hosts the pod, it does not forward frames between its two NICs."
+    },
+    {
+      "vendor": "raritan",
+      "model": "EMX2-888",
+      "label": "Raritan EMX2-888 smart rack controller",
+      "category": "host",
+      "description": "1U environmental rack controller with eight RJ-12 sensor ports (temperature, humidity, air flow, differential pressure, water-leak and contact-closure sensors), eight RJ-45 asset-management feature ports, eight RS-485 ports, two contact closures and a 10/100BASE-T Ethernet port plus a DB-9 console/modem port, feeding sensor data to Power IQ or any SNMP manager.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "console1",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "http://assets.raritan.com/resources/data_sheets/raritan-ds-EMX_rack_monitoring.pdf",
+      "notes": "Datasheet model table: 'EMX2-888 Smart rack controller with 8 RJ-12 sensor ports, 8 RJ-45 feature ports for AMS, 8 RJ-45 RS-485 ports, 2 USB-A ports, 1 USB-B port, 1 RJ-45 Ethernet port, 1 DB-9M console/modem, 2 contact closure, LCD display'. The RJ-45 feature ports are Raritan's asset-management sensor bus and the RJ-45 RS-485 ports are serial field buses - neither is Ethernet, so only the single RJ-45 Ethernet port is modelled. Fast Ethernet is confirmed by the EMX user guide (Xerus 3.6.0) LED description: 'Yellow indicates communications at 10/100 BaseT speeds'. Supports up to 128 sensors across the ports; SNMPv1/v2/v3, Power IQ integration."
+    },
+    {
+      "vendor": "moxa",
+      "model": "MGate MB3660-8-2AC",
+      "label": "Moxa MGate MB3660-8-2AC 8-port Modbus TCP/RTU gateway",
+      "category": "host",
+      "description": "DIN-rail redundant Modbus gateway converting between Modbus TCP and Modbus RTU/ASCII: eight DB9 RS-232/422/485 serial ports individually configurable for RTU or ASCII, and two 10/100BaseT(X) RJ45 ports that can share one IP for LAN failover or hold separate IPs for parallel access. Dual AC inputs, up to 248 serial slave nodes.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "eth1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "eth2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "serial1",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial2",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial3",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial4",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial5",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial6",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial7",
+          "type": "console",
+          "speed": "100M"
+        },
+        {
+          "name": "serial8",
+          "type": "console",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.moxa.com/getmedia/a6f2f5ff-32a8-4e4c-b168-94c705e0c5de/moxa-mgate-mb3660-series-datasheet-v2.0.pdf",
+      "notes": "Datasheet 'Ethernet Interface: 10/100BaseT(X) Ports (RJ45 connector), 2 IP addresses, Auto MDI/MDI-X connection'; the two ports are described as redundancy NICs ('use the same IP for both ... automatically switch to the backup LAN when the main LAN fails' or 'different IP addresses ... clients can use both'), i.e. a multi-homed host, not a bridge - hence no l2-forward. MGate MB3660-8-2AC model row: 8 serial ports, DB9 male, 100-240 VAC. Management: Web Console (HTTP/HTTPS), Telnet, SNMPv1/v2c/v3, DHCP client. -J variants swap the DB9s for RJ45 serial."
+    },
+    {
+      "vendor": "hms",
+      "model": "AB7505-F",
+      "label": "Anybus X-gateway Modbus TCP Server / PROFINET-IRT Device",
+      "category": "host",
+      "description": "DIN-rail protocol gateway that maps cyclic I/O between a Modbus TCP server interface and a PROFINET-IRT device interface (512 bytes in and out each way), so a Modbus TCP master and a PROFINET controller can exchange process data without any PLC card slot. Two RJ45 ports per network side, 24 VDC input.",
+      "capabilities": [
+        "host",
+        "cli",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "modbus1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "modbus2",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "profinet1",
+          "type": "ethernet",
+          "speed": "100M"
+        },
+        {
+          "name": "profinet2",
+          "type": "ethernet",
+          "speed": "100M"
+        }
+      ],
+      "sourceUrl": "https://www.hms-networks.com/p/ab7505-f-anybus-x-gateway-modbus-tcp-server-profinet-irt-device?tab=tab-specification",
+      "notes": "Technical specifications tab: 'Connectors / Input / Output: 2xRJ45, 2x RJ45, USB-B Config port'; 'Modbus-TCP Bandwidth: 10/100 Mbit/s' with 'Daisy chaining' in the supported-functionality list, and 'PROFINET Bandwidth: 100MBit full duplex down to 1ms cycle time' (IRT requires the two-port switch). So the four RJ45s are two independent switched pairs - a Modbus TCP pair and a PROFINET pair - and traffic never crosses between them at layer 2. They are modelled as four ports with no l2-forward precisely because claiming a bridge would wrongly suggest the two networks are joined; the payload crossing between them is application-level mapping, not routing. Configuration is by web page / Anybus Configuration Manager over Ethernet."
+    }
+  ]
+}
