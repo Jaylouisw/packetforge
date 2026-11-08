@@ -1,0 +1,37 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Lite",
+  "label": "UniFi U7 Lite",
+  "category": "wireless",
+  "description": "UniFi U7 Lite (U7-Lite) - 1x 2.5G RJ45. 802.3af PoE-in; WiFi 7; up to 4.3 Gbps PHY rate; 13 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.3G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-lite"
+}
