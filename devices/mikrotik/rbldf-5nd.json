@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLDF-5nD",
+  "label": "LDF 5",
+  "category": "ptp",
+  "description": "MikroTik LDF 5 (RBLDF-5nD) — 1x 100M RJ45, Wi-Fi 5 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/rbldf_5nd"
+}
