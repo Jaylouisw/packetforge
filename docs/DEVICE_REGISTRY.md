@@ -69,6 +69,25 @@ The engine branches on capabilities only. So:
 - a **router** is `["l3-forward","cli","nat","dhcp-server"]`,
 - an **L3 switch** is `["l2-forward","l3-forward","cli"]`.
 
+### PoE: powered, powering, or both
+
+`poe-pd` means the device is powered by PoE. `poe-pse` means it supplies PoE, which
+also needs `poeOut` (and `poeOutClass`) on the port that does it.
+
+A device may legitimately declare **both** — that is a passthrough port, an Access
+hub powering a reader or a switch feeding a downstream AP. When it does, the
+description must say so, because `spec-vs-description` checks the prose against the
+ports and will not take the capability list as evidence:
+
+```json
+"description": "UniFi Door Hub (UA-Hub-Door) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 30 W max."
+```
+
+"Says PoE-in" and nothing else, with a `poeOut` port, is the failure. Naming the
+passthrough port is the fix — do not drop `poeOut` to silence the check, and do not
+add the device to the test's `KNOWN` list, which is debt for specs that genuinely
+cannot be adjudicated.
+
 ## Explicit interfaces vs. port templates
 
 ```json
@@ -100,6 +119,23 @@ Getting this wrong is the most common spec bug: a switch described as having
 SFP+ uplinks but modelled with all-copper ports will *refuse* a fibre link that
 the real hardware accepts, and *offer* copper where it does not fit. CI checks
 every description against the ports it declares.
+
+**The connector has to carry the speed you declare.** A cage cannot be faster than
+its own standard, so `speed` above the cage's ceiling is a spec bug even when the
+device really is that fast — the mistake is the connector string, not the number:
+
+| `connector` | carries up to |
+|---|---|
+| `sfp` | 2.5G |
+| `sfp+` | 10G |
+| `sfp28` | 25G |
+| `qsfp+` | 40G |
+| `qsfp28` | 100G |
+
+So a device with a 10G uplink is `"connector": "sfp+"`, never `"sfp"` with
+`"speed": "10G"`. That single mistake has reached `main` twice — twenty devices in
+total — because "SFP" is how the vendor's marketing copy says it and the JSON field
+looks like it should match. `hardware-invariants` fails on it.
 
 ### PON ports and ferrule polish
 
