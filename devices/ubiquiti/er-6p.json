@@ -1,0 +1,69 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ER-6P",
+  "label": "EdgeRouter 6 PoE",
+  "category": "router",
+  "description": "EdgeRouter 6 PoE (ER-6P) - 5x 1G RJ45 + 1x 1G SFP. 16 W max.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-6p"
+}
