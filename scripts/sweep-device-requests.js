@@ -90,8 +90,25 @@ async function api(tok, p, opts) {
 // enough: "WiFi Mesh 3+" and "WiFi Mesh 3" are different products, and a sweep that closes the first
 // citing the second has told a reporter their hardware is modelled when it is not. '+' becomes a
 // word, and punctuation otherwise becomes a separator rather than disappearing.
+// Titles on the tracker are full of typographic hyphens - Ubiquiti writes "UF&#8209;OLT" and
+// "LBE‑5AC‑Gen2" - and a code split at U+2011 is not a code. Fold every dash onto ASCII '-'
+// before anything else looks at the string.
+// Issue titles were imported from a scraper that left HTML entities in place: Ubiquiti's
+// "UF&#8209;OLT" is a literal string, not an en dash. A code split on "&#8209;" is not a code.
+function deEntity(s) {
+  return String(s == null ? '' : s)
+    .replace(/&#x([0-9a-fA-F]+);/g, function (m, h) { try { return String.fromCodePoint(parseInt(h, 16)); } catch (e) { return m; } })
+    .replace(/&#(\d+);/g, function (m, d) { try { return String.fromCodePoint(parseInt(d, 10)); } catch (e) { return m; } })
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+}
+
+function deDash(s) {
+  return deEntity(s).replace(/[‐‑‒–—―−]/g, '-');
+}
+
 function norm(s) {
-  return String(s || '')
+  return deDash(s || '')
     .toLowerCase()
     .replace(/\+\+/g, ' plusplus ')
     .replace(/\+/g, ' plus ')
@@ -107,6 +124,14 @@ function looksLikePartNumber(code) {
   // J9781A and JL355A (letters, digits, optional letter) and also R2W96A and S1T37A, where the
   // letters are interleaved - while still rejecting M4, NSM3, MIMO and UX.
   return /^(?=(?:.*\d){3,})[a-z]{1,3}[a-z0-9]{1,7}$/.test(norm(code));
+}
+
+// A model name that is itself a product code: at least one digit and at least one hyphen, so
+// "LBE-5AC-Gen2", "US-8-60W", "IS-M5" and "ES-12F" qualify while "5GHz", "802" and "M4" do not.
+// Requests quote these verbatim, which makes them the safest key in the whole catalogue.
+function looksLikeModelCode(model) {
+  const raw = String(model || '').trim();
+  return /^(?=.*\d)[A-Za-z0-9][A-Za-z0-9+/-]{2,}$/.test(raw) && raw.indexOf('-') !== -1;
 }
 
 function loadCatalogue() {
@@ -133,6 +158,15 @@ function loadCatalogue() {
       // and a request for a NetEngine router matches an Apple iPad.
       if (code && looksLikePartNumber(code) && !byCode.has(code)) {
         byCode.set(code, { vendor: s.vendor, model: s.model, file: s.file || null, category: s.category });
+      }
+    }
+    // Not every vendor brackets its part number. Ubiquiti names the model itself in code form -
+    // "LBE-5AC-Gen2", "US-8-60W", "IS-M5", "ES-12F" - so the model name is the code, and a
+    // request that quotes "LBE-5AC-Gen2" is quoting the catalogue key exactly.
+    if (looksLikeModelCode(String(s.model))) {
+      const bare = norm(s.model);
+      if (bare && !byCode.has(bare)) {
+        byCode.set(bare, { vendor: s.vendor, model: s.model, file: s.file || null, category: s.category });
       }
     }
   }
@@ -292,6 +326,9 @@ function main() {
         const parts = subject.split(/\s+/);
         const subjectVendor = titleVendor || cat.vendorNames.get(norm(parts[0])) || null;
         const codes = explicitCodes(title);
+        const codeTokens = (deDash(title).match(/\b[A-Za-z0-9]+(?:[-\/][A-Za-z0-9]+)+\b/g) || [])
+          .filter(function (t) { return /[0-9]/.test(t) && t.length >= 4; })
+          .map(norm);
 
         const acceptable = function (info) {
           if (!info) return false;
@@ -315,9 +352,29 @@ function main() {
           // A bracketed part number is the identifier the reporter actually quotes, and the
           // catalogue stores it inside the model name ("2530-48 (J9781A)"). Exact code match
           // only - a different part number is a different switch.
-          for (const code of codes) {
-            const cand = cat.byCode.get(code);
-            if (cand && acceptable(cand) && !variantOfSameCode(title, cand.model)) { hit = [cand]; break; }
+          // Bracketed codes first, then any hyphenated code the reporter typed in the title -
+          // Ubiquiti requests write "LiteBeam 5AC Gen2 - LBE-5AC-Gen2" without brackets, and
+          // "LBE-5AC-Gen2" is the catalogue's own key.
+          const allCodes = Array.from(codes).concat(codeTokens);
+          // A request that names two products - "ASUS RT-AX89U - the actual router model, catalogue
+          // only has RT-AX89X" - must not be closed against the one the catalogue happens to have.
+          // If any code-shaped candidate in the title is absent from the catalogue, the reporter is
+          // asking for something this catalogue does not model, and the match is ambiguous.
+          const named = allCodes.filter(function (c) { return /[0-9]/.test(c) && c.split(' ').length >= 2; });
+          const absent = named.filter(function (c) { return !cat.byCode.get(c); });
+          // A prefix is not a contradiction: "LBE-5AC" is how the caps-token scan splits
+          // "LBE-5AC-Gen2", and "US-8-5" is a five-pack of the US-8. Only an unrelated absent code
+          // - "RT-AX89U" next to a catalogue "RT-AX89X" - makes the request ambiguous.
+          const ambiguous = named.length > 1 && absent.some(function (a) {
+            return !named.some(function (p) {
+              return cat.byCode.get(p) && (a.indexOf(p) === 0 || p.indexOf(a) === 0);
+            });
+          });
+          if (!ambiguous) {
+            for (const code of allCodes) {
+              const cand = cat.byCode.get(code);
+              if (cand && acceptable(cand) && !variantOfSameCode(title, cand.model)) { hit = [cand]; break; }
+            }
           }
         }
         if (!hit) {
@@ -380,6 +437,9 @@ if (require.main === module) {
 } else {
   module.exports = {
     looksLikePartNumber: looksLikePartNumber,
+    looksLikeModelCode: looksLikeModelCode,
+    deEntity: deEntity,
+    deDash: deDash,
     requestSubject: requestSubject,
     requestCandidates: requestCandidates,
     variantOfSameCode: variantOfSameCode,

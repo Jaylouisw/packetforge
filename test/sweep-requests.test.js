@@ -171,5 +171,28 @@ for (const code of ['M4', 'MIMO', 'NSM3', 'UX', 'GBE', 'ultra', 'M3', '5']) {
 }
 ok(looksLikePartNumber('j9781a'), 'the check normalises case first');
 
+//
+// Two more naming conventions the tracker actually uses. Ubiquiti names the model in code form
+// ("LBE-5AC-Gen2") rather than bracketing it, and the importer left HTML entities in some titles
+// ("UF&#8209;OLT"), so a code could be split at a character that only looks like a hyphen.
+const { looksLikeModelCode, deEntity, deDash } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+
+console.log('');
+console.log('Model-name codes index the catalogue, marketing words do not:');
+for (const model of ['LBE-5AC-Gen2', 'NBE-5AC-Gen2', 'US-8-60W', 'IS-5AC', 'ES-12F', 'RBcAPGi-5acD2nD', 'TL-SG1218MP']) {
+  ok(looksLikeModelCode(model), model + ' is a model code');
+}
+for (const model of ['5GHz', 'M4', 'MIMO', 'UniFi-Switch', 'UniFi Switch 8', '']) {
+  ok(!looksLikeModelCode(model), JSON.stringify(model) + ' is not');
+}
+
+console.log('');
+console.log('Entities and typographic dashes are folded before matching:');
+ok(deEntity('UF&#8209;OLT') === 'UF‑OLT', 'a numeric entity is decoded');
+ok(deEntity('A&amp;B &quot;x&quot;') === 'A&B "x"', 'named entities are decoded');
+ok(deDash(deEntity('UF&#8209;OLT')) === 'UF-OLT', 'a decoded non-breaking hyphen becomes ASCII');
+ok(deDash('a–b—c') === 'a-b-c', 'en and em dashes fold too');
+ok(deDash('plain-ascii') === 'plain-ascii', 'ASCII input is untouched');
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
