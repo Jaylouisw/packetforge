@@ -18,7 +18,8 @@
     "start": 1,
     "count": 12,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "interfaces": [
     {
@@ -38,5 +39,6 @@
     }
   ],
   "icon": "router",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "The 12 template ports are declared sfp+ explicitly: at 10G both copper (10GBASE-T) and fibre (SFP+) are common, so the connector must not be guessed from the rate."
 }

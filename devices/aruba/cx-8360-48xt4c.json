@@ -14,7 +14,8 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "rj45"
   },
   "interfaces": [
     {
@@ -39,5 +40,6 @@
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "notes": "The 48 template ports are declared rj45 explicitly: at 10G both copper (10GBASE-T) and fibre (SFP+) are common, so the connector must not be guessed from the rate."
 }

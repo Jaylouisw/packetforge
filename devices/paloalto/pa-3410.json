@@ -18,7 +18,8 @@
     "start": 1,
     "count": 12,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "interfaces": [
     {
@@ -189,5 +190,6 @@
   ],
   "icon": "firewall",
   "color": "#ef4444",
-  "sourceUrl": "https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/datasheets/pa-3400/pa-3400-series.pdf"
+  "sourceUrl": "https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/datasheets/pa-3400/pa-3400-series.pdf",
+  "notes": "The 12 template ports are declared sfp+ explicitly: at 10G both copper (10GBASE-T) and fibre (SFP+) are common, so the connector must not be guessed from the rate."
 }
