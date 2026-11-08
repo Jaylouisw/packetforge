@@ -1,0 +1,48 @@
+{
+  "vendor": "mikrotik",
+  "model": "L23UGSR-5HaxD2HaxD",
+  "label": "L23UGSR-5HaxD2HaxD",
+  "category": "wireless",
+  "description": "MikroTik L23UGSR-5HaxD2HaxD (L23UGSR-5HaxD2HaxD) — 1x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 2-core IPQ-5010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/l23ugsr_5haxd2haxd"
+}
