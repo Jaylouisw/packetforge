@@ -165,9 +165,22 @@ body {
 .port.active { fill: var(--amber); stroke: var(--amber); }
 .link { stroke: #3c4a63; stroke-width: 2; }
 .link:hover { stroke: var(--red); stroke-width: 3; }
-.link-ghost { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; }
+/* The rubber band is a picture of the cable you are dragging, never a target.
+
+   It ends exactly at the pointer, so with the default pointer-events it was the topmost
+   element under the cursor for the entire drag: the click on the destination port landed
+   on the ghost, the canvas saw no port, and the gesture degraded into a pan. No cable
+   could be completed with the mouse at all (issue #61). Hit testing no longer consults
+   the event target (see hitTest in canvas.js), and this rule keeps the ghost out of the
+   browser's own hit testing too. */
+.link-ghost { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
 .packet { fill: var(--amber); filter: url(#glow); }
-.grid-line { stroke: #151a24; stroke-width: 1; }
+/* Grid lines are scenery: 400 of them used to be hover/click candidates. */
+.grid-line { stroke: #151a24; stroke-width: 1; pointer-events: none; }
+
+/* Decoration layers. The ghost cable lives in #overlay and the packet dots in #packets;
+   neither may ever intercept a press, or a device underneath them stops responding. */
+#packets, #overlay { pointer-events: none; }
 
 /* ---------- inspector ---------- */
 #inspector {

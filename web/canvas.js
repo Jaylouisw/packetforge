@@ -14,8 +14,10 @@
   const on = {
     place: null,      // (x, y, spec)
     select: null,     // (deviceId | null)
+    selectLink: null, // (linkId)
     move: null,       // (deviceId, x, y)
-    portClick: null,  // (deviceId, iface)
+    portClick: null,  // (deviceId, iface) - also the "complete the cable" call
+    connectCancel: null, // () - an in-flight cable was abandoned (empty canvas click)
     context: null,    // (deviceId, x, y)
     dblclick: null,   // (deviceId)
     renderError: null // (failures[], error) - a redraw could not draw everything
@@ -155,6 +157,25 @@
 
       drawGrid();
 
+      // Two explicit layers inside the drawing surface, created here rather than in
+      // index.html so the paint order cannot be lost by editing markup.
+      //
+      // PAINT ORDER (bottom to top): grid, cables, devices.
+      //
+      // Cables used to be appended after the devices, so every cable was painted over
+      // the chassis it terminated on - the 16 px transparent grab band lay across the
+      // faceplate and, worse, its DOM position made it the pointerdown target for the
+      // sockets underneath it (issue #66). A cable belongs behind a box, not in front
+      // of it: it runs between two sockets and there is nothing of it to read on the
+      // inside of a chassis.
+      //
+      // Paint order and hit order are separate concerns. Reordering the DOM alone does
+      // NOT make a socket clickable - painting order would still be deciding what the
+      // mouse hits. That is why hit testing is geometric and precedence-ordered (see
+      // hitTest below), independent of what is painted where.
+      const cableLayer = el('g', { class: 'cable-layer' }, world);
+      const deviceLayer = el('g', { class: 'device-layer' }, world);
+
       // pass 1: compute geometry so links know where the ports are. A device whose
       // interfaces are not a list cannot be laid out, so it is skipped - but it is
       // recorded, because a device vanishing silently is the same complaint as #20.
@@ -162,24 +183,22 @@
         try { computeGeo(d); } catch (e) { skip('device', d && d.id, e); }
       }
 
-      // devices
+      // devices (above the cables)
       for (const d of devices) {
         if (d && failedDevices[d.id]) continue;
-        try { drawDevice(d); } catch (e) { skip('device', d && d.id, e); }
+        try { drawDevice(d, deviceLayer); } catch (e) { skip('device', d && d.id, e); }
       }
 
-      // Devices first, cables after. Devices used to be drawn last, so every cable
-      // passing under a chassis was erased for that span and the drawing showed two
-      // disconnected stubs - and a cable is the thing you are trying to read (#34).
-      // geometry is already known from pass 1, so the order costs nothing.
       for (const link of links) {
         try {
           const a = portWorld(link.a.deviceId, link.a.iface);
           const b = portWorld(link.b.deviceId, link.b.iface);
           if (!a || !b) continue;
           const sel = state.selectedLink === link.id;
-          // wide invisible hit target so a 2px line is actually clickable
-          el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, world);
+          // A wide invisible band so a 2 px line is actually clickable. It is a grab
+          // convenience only: hitTest() consults it after every port and every device
+          // body, so it can never cover a socket (issue #66).
+          el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, cableLayer);
           // A radio association is not a cable. Drawing it as one made a wireless lab
           // look wired, and hid the fact that the link is a band rather than a run of
           // copper or glass. Every other medium now carries its own class for the same
@@ -192,15 +211,24 @@
             'data-link-id': link.id,
             'data-medium': family || 'unknown',
             'data-media-id': link.mediaId || ''
-          }, world);
+          }, cableLayer);
         } catch (e) { skip('link', link && link.id, e); }
       }
 
       // ghost link while cabling
+      //
+      // The rubber band ends exactly at the cursor, so any hit area it had covered the
+      // one pixel the user was aiming at: every click on the destination port landed on
+      // the ghost instead and started a pan, so no cable could ever be completed with
+      // the mouse (issue #61). It is a picture of a cable being dragged, never a target:
+      // pointer-events is off here and in style.css, and hitTest() has no case for it.
       if (state.connecting) {
         const a = portWorld(state.connecting.deviceId, state.connecting.iface);
         if (a) {
-          ghostLine = el('line', { class: 'link-ghost', x1: a.x, y1: a.y, x2: a.x, y2: a.y }, overlay);
+          ghostLine = el('line', {
+            class: 'link-ghost', x1: a.x, y1: a.y, x2: a.x, y2: a.y,
+            'pointer-events': 'none', 'data-ghost': 'connecting'
+          }, overlay);
         }
       } else {
         ghostLine = null;
@@ -248,10 +276,10 @@
     }
   }
 
-  function drawDevice(d) {
+  function drawDevice(d, parent) {
     const g = geo[d.id];
     const color = d.color || '#3f7cff';
-    const node = el('g', { 'data-device-id': d.id, class: 'device' }, world);
+    const node = el('g', { 'data-device-id': d.id, class: 'device' }, parent || world);
     node.style.cursor = 'move';
 
     // body
@@ -358,6 +386,98 @@
     return (portPos[deviceId] && portPos[deviceId][iface]) || null;
   }
 
+  // ---------- hit testing ----------
+  //
+  // THE PRECEDENCE RULE (first match wins, highest priority first):
+  //
+  //   1. PORT        - a socket answers to the mouse before anything else, in every
+  //                    mode. A port is 5 px of ink; give it a 9 px screen radius so it
+  //                    is reachable, and let nothing drawn over it steal the click.
+  //   2. DEVICE BODY - a click on a chassis selects/moves the device and must never
+  //                    start a cable (dropping a wire by accident when you meant to
+  //                    move a box is a data-loss-looking event).
+  //   3. CABLE       - the widened grab band of a 2 px line. It is a convenience and
+  //                    is therefore consulted LAST of the three: a cable crossing a
+  //                    faceplate may be grabbable on the open span, never on top of a
+  //                    socket (issue #66).
+  //   4. BACKGROUND  - pan, place-on-click, or cancel an in-flight cable.
+  //
+  // The GHOST CABLE IS NEVER A HIT TARGET. It terminates at the cursor by definition,
+  // so any area it claimed would always sit exactly under the click that is meant to
+  // complete the link - which is what made cabling impossible by mouse (issue #61).
+  // There is no branch for it here, and it is pointer-events:none in style.css.
+  //
+  // Testing is geometric, not `e.target.closest(...)`. Resolving through the event
+  // target made PAINT ORDER decide what the mouse hit: everything added to the drawing
+  // later (cables, the ghost) silently became a shield in front of the ports. Paint
+  // order and hit order are separate concerns and are now implemented separately.
+  const PORT_HIT_PX = 9;    // radius a socket answers to, in screen pixels
+  const CABLE_GRAB_PX = 8;  // half-width of a cable's grab band, in screen pixels
+
+  function portAt(w) {
+    const ids = Object.keys(geo);
+    const r = PORT_HIT_PX / view.zoom;
+    let best = null, bestD = Infinity;
+    // Reverse order: the last device drawn is the one painted on top, so it wins ties
+    // where two chassis overlap.
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const g = geo[ids[i]];
+      if (!g) continue;
+      for (const p of g.ports) {
+        const dx = (g.pos.x + p.x) - w.x;
+        const dy = (g.pos.y + p.y) - w.y;
+        const d = dx * dx + dy * dy;
+        if (d <= r * r && d < bestD) { bestD = d; best = { deviceId: ids[i], iface: p.name }; }
+      }
+    }
+    return best;
+  }
+
+  function deviceAt(w) {
+    const ids = Object.keys(geo);
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const g = geo[ids[i]];
+      if (!g) continue;
+      if (w.x >= g.pos.x && w.x <= g.pos.x + g.size.w &&
+          w.y >= g.pos.y && w.y <= g.pos.y + g.size.h) return { deviceId: ids[i] };
+    }
+    return null;
+  }
+
+  function distToSegment(p, a, b) {
+    const vx = b.x - a.x, vy = b.y - a.y;
+    const len2 = vx * vx + vy * vy;
+    let t = len2 ? ((p.x - a.x) * vx + (p.y - a.y) * vy) / len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    const cx = a.x + vx * t, cy = a.y + vy * t;
+    return Math.sqrt((p.x - cx) * (p.x - cx) + (p.y - cy) * (p.y - cy));
+  }
+
+  function cableAt(w) {
+    const links = (state.topology && Array.isArray(state.topology.links)) ? state.topology.links : [];
+    const grab = CABLE_GRAB_PX / view.zoom;
+    for (let i = links.length - 1; i >= 0; i--) {
+      const l = links[i];
+      if (!l || !l.a || !l.b) continue;
+      const a = portWorld(l.a.deviceId, l.a.iface);
+      const b = portWorld(l.b.deviceId, l.b.iface);
+      if (!a || !b) continue;
+      if (distToSegment(w, a, b) <= grab) return l;
+    }
+    return null;
+  }
+
+  function hitTest(sx, sy) {
+    const w = screenToWorld(sx, sy);
+    const port = portAt(w);
+    if (port) return { kind: 'port', deviceId: port.deviceId, iface: port.iface };
+    const dev = deviceAt(w);
+    if (dev) return { kind: 'device', deviceId: dev.deviceId };
+    const link = cableAt(w);
+    if (link) return { kind: 'link', linkId: link.id };
+    return { kind: 'background' };
+  }
+
   function worldToScreen(wx, wy) {
     return { x: wx * view.zoom + view.panX, y: wy * view.zoom + view.panY };
   }
@@ -435,37 +555,38 @@
   svg.addEventListener('pointerdown', function (e) {
     const r = rect();
     const sx = e.clientX - r.left, sy = e.clientY - r.top;
-    const target = e.target;
+    const hit = hitTest(sx, sy);
 
-    // port click → cabling
-    if (target.classList && target.classList.contains('port')) {
+    // 1. port click → cabling.
+    //
+    // This is the SAME callback the first click of a cable uses, so while a ghost cable
+    // is in flight it is also the code path that completes the link: app.js's
+    // PFCanvas.on.portClick sees a pending connection and connects it. All this handler
+    // has to do is make sure the click gets there instead of starting a pan (issue #61).
+    if (hit.kind === 'port') {
       e.stopPropagation();
-      const devId = target.getAttribute('data-device-id');
-      const iface = target.getAttribute('data-iface');
-      if (on.portClick) on.portClick(devId, iface);
+      if (on.portClick) on.portClick(hit.deviceId, hit.iface);
       return;
     }
 
-    const devEl = target.closest ? target.closest('[data-device-id]') : null;
-    if (devEl) {
-      const id = devEl.getAttribute('data-device-id');
-      if (on.select) on.select(id);
-      drag = { mode: 'device', id: id, moved: false, startSx: sx, startSy: sy };
+    // 2. device body → select and drag the chassis. Never a cable drip (#66).
+    if (hit.kind === 'device') {
+      if (on.select) on.select(hit.deviceId);
+      drag = { mode: 'device', id: hit.deviceId, moved: false, startSx: sx, startSy: sy };
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
       return;
     }
 
-    // link click → inspect the cable
-    const linkEl = target.closest ? target.closest('[data-link-id]') : null;
-    if (linkEl) {
-      const lid = linkEl.getAttribute('data-link-id');
-      if (on.selectLink) on.selectLink(lid);
+    // 3. cable → inspect it. Only reached when no port and no body answered, so the
+    //    grab band cannot shadow a socket (issue #66).
+    if (hit.kind === 'link') {
+      if (on.selectLink) on.selectLink(hit.linkId);
       e.preventDefault();
       return;
     }
 
-    // background: pan (and place-on-click handled on pointerup)
+    // 4. background: pan (and place-on-click / cancel handled on pointerup)
     drag = { mode: 'pan', moved: false, startSx: sx, startSy: sy, startPanX: view.panX, startPanY: view.panY };
     svg.setPointerCapture(e.pointerId);
   });
@@ -515,9 +636,14 @@
         }
       } else if (drag.mode === 'pan') {
         if (!drag.moved) {
-          // click on background: place device or deselect
+          // click on background: cancel a cable in flight, else place or deselect
           const w = screenToWorld(sx, sy);
-          if (state.placing && on.place) on.place(w.x, w.y, state.placing);
+          if (state.connecting) {
+            // A click on empty canvas means "never mind". Without this the ghost keeps
+            // following the pointer after the user has given up, and the canvas looks
+            // stuck in a mode it will not leave (#61).
+            cancelConnecting();
+          } else if (state.placing && on.place) on.place(w.x, w.y, state.placing);
           else if (on.select) on.select(null);
         }
       }
@@ -540,21 +666,29 @@
     applyView();
   }, { passive: false });
 
+  // Right-click and double-click go through the same precedence as a plain press: the
+  // device under the pointer, found geometrically, so neither can be stolen by a cable
+  // that happens to be drawn across a chassis (issue #66).
+  function deviceUnder(e) {
+    const devEl = e.target && e.target.closest ? e.target.closest('[data-device-id]') : null;
+    if (devEl) return devEl.getAttribute('data-device-id');
+    const r = rect();
+    const hit = hitTest(e.clientX - r.left, e.clientY - r.top);
+    if (hit.kind === 'port' || hit.kind === 'device') return hit.deviceId;
+    return null;
+  }
+
   svg.addEventListener('contextmenu', function (e) {
-    const devEl = e.target.closest ? e.target.closest('[data-device-id]') : null;
-    if (devEl) {
+    const id = deviceUnder(e);
+    if (id) {
       e.preventDefault();
-      const id = devEl.getAttribute('data-device-id');
       if (on.context) on.context(id, e.clientX, e.clientY);
     }
   });
 
   svg.addEventListener('dblclick', function (e) {
-    const devEl = e.target.closest ? e.target.closest('[data-device-id]') : null;
-    if (devEl) {
-      const id = devEl.getAttribute('data-device-id');
-      if (on.dblclick) on.dblclick(id);
-    }
+    const id = deviceUnder(e);
+    if (id && on.dblclick) on.dblclick(id);
   });
 
   // ---------- packet animation ----------
@@ -599,6 +733,20 @@
 
   function setPlacing(spec) { state.placing = spec; }
   function setConnecting(c) { state.connecting = c; render(state.topology); }
+
+  // Abandon an in-flight cable. One place, so every cancel route (Esc in app.js, a
+  // click on empty canvas, a second click on the same port) leaves the same state and
+  // the same redraw behind.
+  function cancelConnecting() {
+    if (!state.connecting) return false;
+    state.connecting = null;
+    render(state.topology);
+    if (typeof on.connectCancel === 'function') {
+      try { on.connectCancel(); } catch (ignored) { /* UI reporting must not throw */ }
+    }
+    return true;
+  }
+
   function setSelected(id) { state.selected = id; state.selectedLink = null; render(state.topology); }
   function setSelectedLink(id) { state.selectedLink = id; state.selected = null; render(state.topology); }
   function setTopology(t) { state.topology = t; render(t); }
@@ -616,6 +764,14 @@
     fitView: fitView,
     zoomBy: zoomBy,
     deviceCenter: deviceCenter,
+    // Exposed for the hit-testing tests and for the devtools console: where a socket
+    // actually is in world coordinates, and what the mouse would resolve to.
+    portWorld: function (deviceId, iface) {
+      const p = portWorld(deviceId, iface);
+      return p ? { x: p.x, y: p.y } : null;
+    },
+    hitTest: hitTest,
+    cancelConnecting: cancelConnecting,
     on: on
   };
 })();
