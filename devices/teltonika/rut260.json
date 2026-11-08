@@ -1,0 +1,44 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT260",
+  "label": "Teltonika RUT260",
+  "category": "router",
+  "description": "A two-port industrial router with LTE Cat 6: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi. The Cat 6 modem is the difference from the RUT200, and it is why the cellular interface is modelled at 300M instead of 100M.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut260",
+  "notes": "Vendor figures from the RUT260 datasheet v1.1: 1 x WAN port 10/100 Mbps, IEEE 802.3/802.3u/802.3az; 2 x Ethernet ports total; Wi-Fi 2.4 GHz 802.11b/g/n; LTE Cat 6, modelled at the 300 Mbps downlink class rather than the Cat 4 units' 100M."
+}

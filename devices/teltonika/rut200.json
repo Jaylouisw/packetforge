@@ -1,0 +1,44 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT200",
+  "label": "Teltonika RUT200",
+  "category": "router",
+  "description": "A two-port industrial LTE router: one WAN and one LAN at 10/100, 2.4 GHz Wi-Fi and a metal case. The smallest cellular router in the current line that still has a separate WAN port.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut200",
+  "notes": "Vendor figures from the RUT200 datasheet: 1 x WAN port 10/100 Mbps, IEEE 802.3/802.3u/802.3az; 2 x Ethernet ports in total per the vendor's own summary; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4. Modelled as one WAN plus one LAN because the datasheet distinguishes them."
+}

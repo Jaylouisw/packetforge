@@ -1,0 +1,52 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT206",
+  "label": "Teltonika RUT206",
+  "category": "router",
+  "description": "A two-port industrial LTE router with the I/O block and serial ports of the bigger RUT9xx units: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi, RS232/RS485 and a digital/analog I/O connector.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut206",
+  "notes": "Vendor figures from the RUT206 datasheet: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u/802.3az) and 1 x LAN port 10/100 Mbps; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4; RS232/RS485 and an I/O connector block. The serial ports are modelled as console interfaces, matching the RUT906 entry - they carry management traffic, not Ethernet frames."
+}

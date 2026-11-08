@@ -1,0 +1,369 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUT200",
+    "label": "Teltonika RUT200",
+    "category": "router",
+    "description": "A two-port industrial LTE router: one WAN and one LAN at 10/100, 2.4 GHz Wi-Fi and a metal case. The smallest cellular router in the current line that still has a separate WAN port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut200",
+    "notes": "Vendor figures from the RUT200 datasheet: 1 x WAN port 10/100 Mbps, IEEE 802.3/802.3u/802.3az; 2 x Ethernet ports in total per the vendor's own summary; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4. Modelled as one WAN plus one LAN because the datasheet distinguishes them."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT206",
+    "label": "Teltonika RUT206",
+    "category": "router",
+    "description": "A two-port industrial LTE router with the I/O block and serial ports of the bigger RUT9xx units: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi, RS232/RS485 and a digital/analog I/O connector.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut206",
+    "notes": "Vendor figures from the RUT206 datasheet: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u/802.3az) and 1 x LAN port 10/100 Mbps; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4; RS232/RS485 and an I/O connector block. The serial ports are modelled as console interfaces, matching the RUT906 entry - they carry management traffic, not Ethernet frames."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT260",
+    "label": "Teltonika RUT260",
+    "category": "router",
+    "description": "A two-port industrial router with LTE Cat 6: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi. The Cat 6 modem is the difference from the RUT200, and it is why the cellular interface is modelled at 300M instead of 100M.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut260",
+    "notes": "Vendor figures from the RUT260 datasheet v1.1: 1 x WAN port 10/100 Mbps, IEEE 802.3/802.3u/802.3az; 2 x Ethernet ports total; Wi-Fi 2.4 GHz 802.11b/g/n; LTE Cat 6, modelled at the 300 Mbps downlink class rather than the Cat 4 units' 100M."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT300",
+    "label": "Teltonika RUT300",
+    "category": "router",
+    "description": "A five-port industrial router with no cellular modem and no Wi-Fi: 1 WAN + 4 LAN at 10/100, and the LAN ports can be reconfigured as secondary WANs. A wired router for a cabinet that already has a modem.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut300",
+    "notes": "Vendor figures from the RUT300 datasheet: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u) and 4 x LAN ports 10/100 Mbps which can be configured as secondary WAN ports. No cellular modem and no Wi-Fi on this model, so no wlan0/wwan0 interface is claimed."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT901",
+    "label": "Teltonika RUT901",
+    "category": "router",
+    "description": "A four-port industrial LTE router: 1 WAN + 3 LAN at 10/100, 2.4 GHz Wi-Fi and dual SIM. The everyday four-port cellular router.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut901",
+    "notes": "Vendor figures from the RUT901 datasheet: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u/802.3az) and 3 x LAN ports 10/100 Mbps (IEEE 802.3/802.3u); Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4 with dual SIM."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT951",
+    "label": "Teltonika RUT951",
+    "category": "router",
+    "description": "A four-port industrial LTE router with dual SIM: 1 WAN + 3 LAN at 10/100 and 2.4 GHz Wi-Fi. The successor to the RUT950, with the same faceplate.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut951",
+    "notes": "Vendor figures from the RUT951 datasheet v1.31: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u/802.3az) and 3 x LAN ports 10/100 Mbps; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4 with dual SIM. Same port shape as the RUT950 already in the catalogue."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT955",
+    "label": "Teltonika RUT955",
+    "category": "router",
+    "description": "The full-feature four-port cellular router: 1 WAN (reassignable to LAN) + 3 LAN at 10/100, 2.4 GHz Wi-Fi, dual SIM, GPS, RS232/RS485 and an I/O block.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut955",
+    "notes": "Vendor figures from the RUT955 datasheet v1.2: 1 x WAN port (can be configured to LAN) 10/100 Mbps and 3 x LAN ports 10/100 Mbps; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4 with dual SIM, GPS, RS232/RS485 and I/O. Serial ports modelled as console interfaces, as on the RUT906."
+  }
+]

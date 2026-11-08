@@ -1,0 +1,56 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT951",
+  "label": "Teltonika RUT951",
+  "category": "router",
+  "description": "A four-port industrial LTE router with dual SIM: 1 WAN + 3 LAN at 10/100 and 2.4 GHz Wi-Fi. The successor to the RUT950, with the same faceplate.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut951",
+  "notes": "Vendor figures from the RUT951 datasheet v1.31: 1 x WAN port 10/100 Mbps (IEEE 802.3/802.3u/802.3az) and 3 x LAN ports 10/100 Mbps; Wi-Fi 2.4 GHz 802.11b/g/n; 4G LTE Cat 4 with dual SIM. Same port shape as the RUT950 already in the catalogue."
+}
