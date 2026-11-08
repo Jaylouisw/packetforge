@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "LBE-5AC-XR",
+  "label": "airMAX LiteBeam 5AC XR",
+  "category": "ptp",
+  "description": "5 GHz airMAX ac station built for extreme-distance links: a 29 dBi integrated parabolic antenna with a 5.5 degree beamwidth, 25 dBm conducted transmit power and 450+ Mbps throughput, reaching roughly 30 km in a point-to-point shot. One Gigabit Ethernet port, powered by the included 24V passive PoE adapter.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://store.ui.com/us/en/products/lbe-5ac-xr",
+  "notes": "Vendor figures: networking interface (1) GbE RJ45; operating frequency 5.15-5.85 GHz (region-dependent); antenna gain 29 dBi; beamwidth 3 dB: 5.5 degrees in both polarisations and elevation; max conducted TX power 25 dBm; total throughput 450+ Mbps; passive PoE 2-pair, 24V DC 0.5A gigabit adapter included; 7W max consumption. The radio rate is modelled at 867 Mbps, the 80 MHz 2x2 airMAX ac PHY rate, matching the other 5AC LiteBeams in the catalogue rather than the 450+ Mbps TCP figure, which is a throughput claim and not a line rate. The 29 dBi antenna and its narrow beam are what separate this from LBE-5AC-Gen2 (23 dBi) and LBE-5AC-LR (26 dBi) - a 30 km link is the design point, not a lab curiosity."
+}
