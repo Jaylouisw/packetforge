@@ -1,0 +1,110 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UISP-FIBER-OLT-XGS",
+  "label": "Fiber OLT XGS",
+  "category": "olt",
+  "description": "Fiber OLT XGS (UISP-FIBER-OLT-XGS) - 8x PON (10G) + 4x 25G SFP28 (25G/10G/1G). 70 W max.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "10G"
+    }
+  ],
+  "icon": "olt",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/uisp-fiber-olt-xgs"
+}
