@@ -9,6 +9,14 @@ on:
 permissions:
   contents: read
 
+# Superseded runs are cancelled: a device PR here typically gets several pushes, and every
+# push used to queue another full matrix (three Node versions, Docker build, server smoke)
+# that nobody was waiting for any more. Only pull-request runs are cancelled - a push to main
+# or a release tag always runs to completion, because that is the build of record.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Test (Node ${{ matrix.node }})
