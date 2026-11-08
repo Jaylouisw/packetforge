@@ -3,7 +3,7 @@
   "model": "R50",
   "label": "TrueNAS R50 4U hybrid storage appliance",
   "category": "nas",
-  "description": "4U (scalable to 12U) hybrid storage appliance whose base configuration has 2x SFP+ 10/25/40/100GbE ports plus a dedicated 1GBase-T OOBM management port; copper 10GBase-T and 32Gb Fibre Channel are optional add-in cards.",
+  "description": "4U (scalable to 12U) hybrid storage appliance. The onboard pair is 2x SFP+ 10GbE (enp1s0f0/enp1s0f1) plus a dedicated 1GBase-T OOBM port; faster and copper networking is an add-in card, not these ports: 2x 10/25/40/100GbE (QSFP28, SR4 optics), 2 or 6x 10GBase-T or SR, and optionally 2x 32Gb Fibre Channel.",
   "capabilities": [
     "host",
     "dhcp-client",
@@ -17,10 +17,8 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        10000,
-        25000,
-        40000,
-        100000
+        1000,
+        10000
       ]
     },
     {
@@ -29,17 +27,22 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        10000,
-        25000,
-        40000,
-        100000
+        1000,
+        10000
       ]
     },
     {
       "name": "oobm",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     }
   ],
-  "sourceUrl": "https://www.truenas.com/r-series/"
+  "sourceUrl": "https://www.truenas.com/r-series/",
+  "notes": "Modelled as the onboard pair, which is what the interface names mean: enp1s0f0/f1 are the onboard 10GbE NICs from the product manual's 'Onboard Networking 2x 10 GbE'. The manual also lists 'Additional Networking 1 (optional) 2x 10/25/40/100 GbE', which is a QSFP28 card in a different slot with different interface names - modelling it here would have meant relabelling an onboard NIC as a 100G cage, which is the contradiction issue #59 was about. A 100G configuration would be a separate catalogue entry, not a change of connector on these ports."
 }
