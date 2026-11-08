@@ -3,7 +3,7 @@
   "model": "UA-SK-Elevator",
   "label": "UniFi Elevator Starter Kit",
   "category": "iot",
-  "description": "UniFi Elevator Starter Kit (UA-SK-Elevator) - 4x 1G RJ45. 802.3bt PoE-in; 7 W max.",
+  "description": "UniFi Elevator Starter Kit (UA-SK-Elevator) - 4x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 7 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",

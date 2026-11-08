@@ -3,7 +3,7 @@
   "model": "UA-Hub-Door",
   "label": "UniFi Door Hub",
   "category": "iot",
-  "description": "UniFi Door Hub (UA-Hub-Door) - 5x 1G RJ45. 802.3bt PoE-in; 30 W max.",
+  "description": "UniFi Door Hub (UA-Hub-Door) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 30 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",
