@@ -121,20 +121,37 @@ jobs:
 
           git fetch -q --prune origin '+refs/heads/*:refs/remotes/origin/*'
 
-          pulls=$(curl -sS -H "Authorization: token $TOKEN" \
-            "$api/repos/$repo/pulls?state=open&limit=500" \
-            | node -e '
+          # This instance caps a page at 50 whatever `limit` asks for, so one request
+          # sees 50 pull requests no matter what. With 188 open, `limit=500` quietly
+          # meant "the 50 lowest-numbered" - which is why every batch was drawn from the
+          # same small window and newer pull requests were never reached at all.
+          fetch_pages() {
+            for page in 1 2 3 4 5 6 7 8 9 10 11 12; do
+              body=$(curl -sS -H "Authorization: token $TOKEN" \
+                "$api/repos/$repo/pulls?state=open&limit=50&page=$page") || return 1
+              printf '%s\n' "$body"
+              got=$(printf '%s' "$body" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{let a=[];try{a=JSON.parse(d)}catch(e){}process.stdout.write(String(a.length))})')
+              [ "${got:-0}" -lt 50 ] && return 0
+            done
+          }
+          
+          pulls=$(fetch_pages | node -e '
               let d = "";
               process.stdin.on("data", c => d += c).on("end", () => {
-                let prs = [];
-                try { prs = JSON.parse(d); } catch (e) { process.exit(0); }
+                const prs = [];
+                d.split("\n").forEach(line => {
+                  if (!line.trim()) return;
+                  try {
+                    const a = JSON.parse(line);
+                    if (Array.isArray(a)) prs.push(...a);
+                  } catch (e) {}
+                });
                 prs
                   .filter(p => p.state === "open" && p.mergeable === true)
                   .sort((a, b) => a.number - b.number)
                   .slice(0, Number(process.env.BATCH || 5))
                   .forEach(p => console.log(p.number + " " + p.head.ref));
-              });
-            ' 2>/dev/null || true)
+              });' 2>/dev/null || true)
 
           if [ -z "${pulls:-}" ]; then
             echo "no mergeable open pull requests"
@@ -206,4 +223,41 @@ jobs:
             esac
           done <<< "$pulls"
 
-          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed"
+          # Arm everything that is already mergeable, not only what this pass rebased.
+          #
+          # Force-pushing a branch clears its armed auto-merge - every pull request in a
+          # batch comes back disarmed - and an arm call can be refused while `mergeable` is
+          # still being computed. Anything that loses either race sits mergeable and unarmed
+          # until something comes back for it, and the batch loop above only revisits
+          # `batch` pull requests per push. On a queue this size that is a very long lap.
+          #
+          # 409 means "already armed", which is the outcome we want either way.
+          rearmed=0
+          armable=$(fetch_pages | node -e '
+              let d = "";
+              process.stdin.on("data", c => d += c).on("end", () => {
+                const prs = [];
+                d.split("\n").forEach(line => {
+                  if (!line.trim()) return;
+                  try {
+                    const a = JSON.parse(line);
+                    if (Array.isArray(a)) prs.push(...a);
+                  } catch (e) {}
+                });
+                prs
+                  .filter(p => p.state === "open" && p.mergeable === true)
+                  .forEach(p => console.log(p.number));
+              });')
+
+          for n in $armable; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+              -H "Authorization: token $TOKEN" -H "Content-Type: application/json" \
+              -d '{"Do":"squash","merge_when_checks_succeed":true}' \
+              "$api/repos/$repo/pulls/$n/merge")
+            case "$code" in
+              200|201|409) rearmed=$((rearmed+1)) ;;
+              *)           echo "PR #$n: arm refused (http $code)" ;;
+            esac
+          done
+
+          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed"
