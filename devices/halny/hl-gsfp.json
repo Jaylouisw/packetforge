@@ -1,0 +1,30 @@
+{
+  "vendor": "halny",
+  "model": "HL-GSFP",
+  "label": "HALNy HL-GSFP GPON SFP ONU",
+  "category": "ont",
+  "description": "GPON ONU built into an SFP module (T&W TW2362H-CDEL ODM, Lantiq PEB98035, OpenWRT) with a 2.5G HSGMII host interface to the router's SFP/SFP+ cage; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC, no LAN ports and no Wi-Fi, managed over SSH (port 22666).",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "host",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-halny-hl-gsfp/"
+}
