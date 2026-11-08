@@ -1,0 +1,42 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAP-XG",
+  "label": "UniFi XG",
+  "category": "wireless",
+  "description": "The 10G access point: one GbE port and one 1/10 GbE ICM port, 4x4 on 5 GHz at 1733 Mbps. Needs a PoE++ injector - it will not run from 802.3af.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1733M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "450M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-xg",
+  "notes": "Vendor figures: (1) GbE RJ45 port and (1) 1/10 GbE ICM Ethernet port; max data rate 1733 Mbps on 5 GHz (4x4) and 450 Mbps on 2.4 GHz (3x3); power method: Gigabit PoE++ adapter 50V DC 1.2A. The second port is the 10G ICM interface, modelled at 10G."
+}

@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-Extender",
+  "label": "UniFi U6 Extender",
+  "category": "wireless",
+  "description": "A plug-in WiFi 6 mesh extender: no Ethernet port at all, one radio pair (4x4 5 GHz, 2x2 2.4 GHz) and a wall plug. It only reaches the network through a mesh uplink, which is the reason to model it with radios and no copper.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "4.8G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "574M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-extender",
+  "notes": "Vendor figures: no networking interface listed - the U6 Extender is a wall-plug mesh unit with no Ethernet port; max data rate 4.8 Gbps on 5 GHz (4x4, BW160) and 573.5 Mbps on 2.4 GHz (2x2, BW40); universal AC input 100-240V. Mesh uplink only: in a lab it can join a wireless mesh but cannot be cabled, which is a real constraint of the hardware."
+}

@@ -1,0 +1,325 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "U6-Extender",
+    "label": "UniFi U6 Extender",
+    "category": "wireless",
+    "description": "A plug-in WiFi 6 mesh extender: no Ethernet port at all, one radio pair (4x4 5 GHz, 2x2 2.4 GHz) and a wall plug. It only reaches the network through a mesh uplink, which is the reason to model it with radios and no copper.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "4.8G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "574M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-extender",
+    "notes": "Vendor figures: no networking interface listed - the U6 Extender is a wall-plug mesh unit with no Ethernet port; max data rate 4.8 Gbps on 5 GHz (4x4, BW160) and 573.5 Mbps on 2.4 GHz (2x2, BW40); universal AC input 100-240V. Mesh uplink only: in a lab it can join a wireless mesh but cannot be cabled, which is a real constraint of the hardware."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U7-Pro-XG",
+    "label": "UniFi U7 Pro XG",
+    "category": "wireless",
+    "description": "WiFi 7 access point with a single 10GbE port and PoE++ - the 10G uplink is the point, so an AP is no longer the bottleneck on a 10G access switch.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3at",
+      "802.3bt"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "5.8G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "4.3G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "688M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro-xg",
+    "notes": "Vendor figures: (1) 10 GbE RJ45 port; max data rate 5.8 Gbps on 6 GHz (2x2), 4.3 Gbps on 5 GHz (2x2), 688 Mbps on 2.4 GHz (2x2); power method PoE++. Modelled with a 25.5 W PoE input (802.3at/PoE++ floor) because the vendor lists PoE++ without a wattage figure."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U7-Pro-XGS",
+    "label": "UniFi U7 Pro XGS",
+    "category": "wireless",
+    "description": "The 4x4 5 GHz variant of the U7 Pro XG: same single 10GbE PoE++ port, but 8.6 Gbps on 5 GHz instead of 4.3 - twice the spatial streams where most clients actually are.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3at",
+      "802.3bt"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "5.8G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "8.6G"
+      },
+      {
+        "name": "radio2",
+        "type": "wireless",
+        "speed": "688M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro-xgs",
+    "notes": "Vendor figures: (1) 10 GbE RJ45 port; max data rate 5.8 Gbps on 6 GHz (2x2), 8.6 Gbps on 5 GHz (4x4), 688 Mbps on 2.4 GHz (2x2); PoE++. The 4x4 5 GHz radio is what separates it from U7-Pro-XG."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-AC-HD",
+    "label": "UniFi AC HD",
+    "category": "wireless",
+    "description": "WiFi 5 access point with two GbE ports, 4x4 on both bands and 1.7 Gbps on 5 GHz. One port daisy-chains a second AP, which is why it carries two.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.7G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "800M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-hd",
+    "notes": "Vendor figures: (2) GbE RJ45 ports; max data rate 1.7 Gbps on 5 GHz (4x4 MU-MIMO) and 800 Mbps on 2.4 GHz (4x4); power method PoE+. The second GbE port is a passthrough for daisy-chaining, so both are modelled as ordinary ports."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-AC-SHD",
+    "label": "UniFi AC SHD",
+    "category": "wireless",
+    "description": "The shielded-radio AC access point: two GbE ports, 4x4 on both bands, plus a dedicated security radio for wireless intrusion detection.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.7G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "800M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-shd",
+    "notes": "Vendor figures: (2) GbE RJ45 ports; max data rate 1.7 Gbps on 5 GHz and 800 Mbps on 2.4 GHz, both 4x4 MU-MIMO; power method PoE+. The third (security) radio is not modelled as a forwarding interface - it is a monitoring radio, not a data path."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-FlexHD",
+    "label": "UniFi FlexHD",
+    "category": "wireless",
+    "description": "A compact indoor/outdoor AC access point: one GbE port, 4x4 on 5 GHz and 2x2 on 2.4 GHz, mountable on a wall, ceiling or pole.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.7G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-flexhd",
+    "notes": "Vendor figures: (1) GbE RJ45 port; max data rate 1.7 Gbps on 5 GHz (4x4 MU-MIMO) and 300 Mbps on 2.4 GHz (2x2); power method PoE."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-XG",
+    "label": "UniFi XG",
+    "category": "wireless",
+    "description": "The 10G access point: one GbE port and one 1/10 GbE ICM port, 4x4 on 5 GHz at 1733 Mbps. Needs a PoE++ injector - it will not run from 802.3af.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3bt"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1733M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "450M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-xg",
+    "notes": "Vendor figures: (1) GbE RJ45 port and (1) 1/10 GbE ICM Ethernet port; max data rate 1733 Mbps on 5 GHz (4x4) and 450 Mbps on 2.4 GHz (3x3); power method: Gigabit PoE++ adapter 50V DC 1.2A. The second port is the 10G ICM interface, modelled at 10G."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-nanoHD",
+    "label": "UniFi nanoHD",
+    "category": "wireless",
+    "description": "A small AC Wave 2 access point: one GbE port, 4x4 on 5 GHz and 2x2 on 2.4 GHz, designed to be unobtrusive on a ceiling.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.7G"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-nanohd",
+    "notes": "Vendor figures: (1) GbE RJ45 port; max data rate 1.7 Gbps on 5 GHz (4x4 MU-MIMO) and 300 Mbps on 2.4 GHz (2x2); power method PoE."
+  }
+]

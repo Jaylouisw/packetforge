@@ -1,0 +1,45 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAP-AC-SHD",
+  "label": "UniFi AC SHD",
+  "category": "wireless",
+  "description": "The shielded-radio AC access point: two GbE ports, 4x4 on both bands, plus a dedicated security radio for wireless intrusion detection.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.7G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "800M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-shd",
+  "notes": "Vendor figures: (2) GbE RJ45 ports; max data rate 1.7 Gbps on 5 GHz and 800 Mbps on 2.4 GHz, both 4x4 MU-MIMO; power method PoE+. The third (security) radio is not modelled as a forwarding interface - it is a monitoring radio, not a data path."
+}
