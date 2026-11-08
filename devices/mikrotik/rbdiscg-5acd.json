@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBDiscG-5acD",
+  "label": "DISC Lite5 ac",
+  "category": "ptp",
+  "description": "MikroTik DISC Lite5 ac (RBDiscG-5acD) — 1x 1G RJ45, Wi-Fi 5 GHz. ARM 32bit 4-core IPQ-4018.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/disc_lite5_ac"
+}
