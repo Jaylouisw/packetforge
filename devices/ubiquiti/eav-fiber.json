@@ -24,7 +24,7 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -34,7 +34,7 @@
     {
       "name": "sfp2",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -44,7 +44,7 @@
     {
       "name": "sfp3",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -54,7 +54,7 @@
     {
       "name": "sfp4",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -64,7 +64,7 @@
     {
       "name": "sfp5",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -74,7 +74,7 @@
     {
       "name": "sfp6",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -84,7 +84,7 @@
     {
       "name": "sfp7",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -94,7 +94,7 @@
     {
       "name": "sfp8",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -104,7 +104,7 @@
     {
       "name": "sfp9",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -114,7 +114,7 @@
     {
       "name": "sfp10",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -124,7 +124,7 @@
     {
       "name": "sfp11",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -134,7 +134,7 @@
     {
       "name": "sfp12",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -144,7 +144,7 @@
     {
       "name": "sfp13",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -154,7 +154,7 @@
     {
       "name": "sfp14",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -164,7 +164,7 @@
     {
       "name": "sfp15",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -174,7 +174,7 @@
     {
       "name": "sfp16",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -184,7 +184,7 @@
     {
       "name": "sfp17",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -194,7 +194,7 @@
     {
       "name": "sfp18",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -204,7 +204,7 @@
     {
       "name": "sfp19",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
@@ -214,7 +214,7 @@
     {
       "name": "sfp20",
       "type": "ethernet",
-      "connector": "sfp",
+      "connector": "sfp+",
       "speed": "10G",
       "speedCaps": [
         "10G",
