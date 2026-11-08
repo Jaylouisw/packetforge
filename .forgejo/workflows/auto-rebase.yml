@@ -85,10 +85,24 @@ jobs:
           persist-credentials: false
 
       - name: Rebase and arm
+        # No env here that reads github.event.inputs.
+        #
+        # This workflow has produced twenty runs and started none of them. Not on
+        # schedule, not on workflow_dispatch with inputs supplied, not on push after
+        # the concurrency group was removed - the run row and the job rows appear and
+        # then never become a task, while ci.yml dispatches normally on the same
+        # runner with the same runs-on.
+        #
+        # The only thing left in this file that ci.yml does not do is evaluate
+        # github.event.inputs, which is null for every trigger except workflow_dispatch
+        # and is still unreachable through that path here. An expression that cannot
+        # be evaluated while the job is being prepared would produce exactly this:
+        # a job that exists, is pending, and is never handed to a runner.
+        #
+        # The script already defaults batch and settle when the variables are absent,
+        # so the expressions bought nothing the defaults did not.
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REQUESTED_BATCH: ${{ github.event.inputs.batch }}
-          SETTLE_SECONDS: ${{ github.event.inputs.settle_seconds }}
         run: |
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
@@ -99,10 +113,8 @@ jobs:
             exit 1
           fi
 
-          batch="${REQUESTED_BATCH:-5}"
-          case "$batch" in ''|*[!0-9]*) batch=5 ;; esac
-          settle="${SETTLE_SECONDS:-120}"
-          case "$settle" in ''|*[!0-9]*) settle=120 ;; esac
+          batch=5
+          settle=120
           export BATCH="$batch"
 
           git config user.name  'packetforge-bot'
