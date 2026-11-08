@@ -569,13 +569,31 @@ function validateConnection(input) {
   }
   if (!mate.ok && !consoleToData) {
     let msg = mate.message;
-    // If a hybrid lead exists for this pair, say so: the refusal is correct, but
-    // the user needs to know the link is buildable rather than impossible.
+    // A polish refusal on its own only says what failed. Say what would fix it,
+    // because the answer is different in the two cases:
+    //
+    //   * the catalogue has a cord that bridges this exact pair - name it, with
+    //     its insertion loss, so the run can be ordered and declared;
+    //   * nothing in the catalogue bridges the pair - say so, because then the
+    //     answer is a re-termination or a different port, not a purchase order.
+    //
+    // A cord that was declared but did not fit the two cages is deliberately not
+    // dressed up: E_PATCH_CORD_ENDS already explains the part, and the pair is
+    // still two ferrules that do not seat.
     if (mate.code === 'E_POLISH_MISMATCH' && !cord) {
       const couldBridge = optical.hybridCord(portA.cage, portB.cage);
       if (couldBridge) {
-        msg += ' A hybrid patch cord (' + couldBridge.partNumber + ', ' + couldBridge.endA +
-          ' to ' + couldBridge.endB + ') is what joins these two polishes.';
+        msg += ' A hybrid patch cord (' + couldBridge.partNumber + ', ' +
+          couldBridge.endA + ' to ' + couldBridge.endB + ', ' +
+          optical.cordLossDb(couldBridge) + ' dB insertion loss) joins these two ' +
+          'polishes: declare it on the link (patchCord: ' +
+          JSON.stringify(couldBridge.partNumber) + ') and the run becomes buildable.';
+      } else {
+        msg += ' No hybrid patch cord in the catalogue ' +
+          '(catalogue/optics/hybrid-patch-cords.json) bridges these two polishes: ' +
+          'there is no orderable lead here that turns ' + portA.cageName + ' into ' +
+          portB.cageName + ', so the fix is to re-terminate one end or land the span ' +
+          'on a patch panel.';
       }
     }
     errors.push({
