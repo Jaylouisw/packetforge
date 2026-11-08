@@ -4,6 +4,29 @@ Thanks for helping out. PacketForge is built to be easy to extend — adding a p
 of hardware is a single JSON file with **no code changes**. This guide covers the
 common paths.
 
+## Two doors, and which one is yours
+
+The project is developed on its own forge at <https://git.jayw.uk/jaylouisw/packetforge>, which is
+public to read. Accounts there are not open to the public — the maintainer is the only account — so
+**contributors work through the GitHub mirror at <https://github.com/Jaylouisw/packetforge>**.
+
+| You want to | Do it on |
+|---|---|
+| Read the code, browse history, download a release | Either — both carry the same commits |
+| Open an issue or a device request | GitHub |
+| Send a fix or a new device | Fork and open a pull request on GitHub |
+| Review, run CI, merge | The forge (maintainer only) |
+
+Pull requests opened on GitHub are carried across to the forge automatically by
+`scripts/gh-bridge.js`: the contributor's commits are pushed as a `gh/<number>` branch, verbatim and
+with authorship intact, and a pull request is opened there so CI and review happen in one place. A
+maintainer replies on your GitHub thread. You never need an account on the forge, and the forge never
+needs one of your keys.
+
+The direction of travel is **forge → GitHub for code, GitHub → forge for contributions**. The mirror
+pushes automatically on every commit; the bridge pulls contributions in. Neither side is a fork of
+the other in spirit: the forge is the workshop, GitHub is the shopfront.
+
 ## Ways to contribute
 
 - **Add a hardware model** — the most common contribution (see below).

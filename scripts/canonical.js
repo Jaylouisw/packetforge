@@ -42,7 +42,10 @@ const EXEMPT_FILES = new Set(['CHANGELOG.md']);
  */
 const ALLOW = {
   'docs/MIRRORING.md': 'describes the push mirror, so it must name the mirror remote',
-  'test/canonical-urls.test.js': 'plants a stale URL deliberately to prove the guard can fail'
+  'test/canonical-urls.test.js': 'plants a stale URL deliberately to prove the guard can fail',
+  'docs/PUBLIC-ACCESS.md': 'explains the public door, which means naming what sits behind it',
+  'scripts/gh-bridge.js': 'is the GitHub client that carries contributions in; speaking to github.com is its entire job',
+  'CONTRIBUTING.md': 'must tell contributors which door to knock on, which means naming the GitHub mirror'
 };
 
 module.exports = {
