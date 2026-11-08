@@ -1,0 +1,40 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UA-G3-SK",
+  "label": "UniFi G3 Starter Kit",
+  "category": "iot",
+  "description": "UniFi G3 Starter Kit (UA-G3-SK) - 3x 1G RJ45. 802.3bt PoE-in; 19 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pse",
+    "802.3bt",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk"
+}
