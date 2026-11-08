@@ -1,0 +1,123 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "U-LTE-Backup Pro",
+    "label": "UniFi LTE Backup Pro",
+    "category": "iot",
+    "description": "UniFi LTE Backup Pro - a failover modem for a UniFi gateway: two GbE RJ45 ports (one powered by PoE-in, one passing PoE through) and an LTE Cat 4 radio with an internal antenna pair plus an RP-SMA connector for an external one.",
+    "capabilities": [
+      "poe-pd",
+      "poe-pse",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 8.5
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u-lte-backup-pro",
+    "notes": "Vendor figures from Ubiquiti techspecs: (2) GbE RJ45 ports - one PoE in, one PoE passthrough output requiring a PoE source - and an LTE Category 4 radio with (2) internal antennas and (1) female RP-SMA connector for an external antenna. Max power consumption 8.5 W excluding PoE passthrough. The LTE interface is modelled at 100M, the Cat 4 class shared with every other Cat 4 device in the catalogue, because the datasheet names the category rather than a measured rate."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UACC-LRE",
+    "label": "UniFi Long-Range Ethernet Repeater",
+    "category": "iot",
+    "description": "UniFi Long-Range Ethernet Repeater (UACC-LRE) - two GbE RJ45 ports that extend a run past the 100 m copper limit, with passthrough PoE so the downstream device is still powered from the source switch.",
+    "capabilities": [
+      "poe-pd",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uacc-lre",
+    "notes": "Vendor figures from Ubiquiti techspecs: (2) GbE RJ45 ports with (1) passthrough PoE output, 2-pairs (pins 1,2+; 3,6-). It is a two-port inline repeater: no switch fabric, no radio, no management plane beyond link handling, so it is modelled as two ports rather than as a switch."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "ES-5XP",
+    "label": "EdgeSwitch 5 XP",
+    "category": "switch",
+    "description": "EdgeSwitch 5 XP (ES-5XP) - five gigabit RJ45 ports with PoE configurable per port, plus a separate 10/100 management port. The small PoE switch in the EdgeSwitch XP line.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-5xp",
+    "notes": "Vendor figures from Ubiquiti techspecs: (5) 10/100/1000 Ethernet ports and (1) 10/100 Ethernet port for management, so the management port is modelled at 100M and named separately from the five data ports. PoE is present on the data ports - the datasheet carries per-port wattage, method and 'PoE configurable per port' rows - but the standard (802.3af/at vs passive 24V) was not captured during intake, so no 802.3 capability is claimed. If your unit negotiates 802.3af, that is a gap worth a comment."
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U-LTE-Backup Pro",
+  "label": "UniFi LTE Backup Pro",
+  "category": "iot",
+  "description": "UniFi LTE Backup Pro - a failover modem for a UniFi gateway: two GbE RJ45 ports (one powered by PoE-in, one passing PoE through) and an LTE Cat 4 radio with an internal antenna pair plus an RP-SMA connector for an external one.",
+  "capabilities": [
+    "poe-pd",
+    "poe-pse",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 8.5
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u-lte-backup-pro",
+  "notes": "Vendor figures from Ubiquiti techspecs: (2) GbE RJ45 ports - one PoE in, one PoE passthrough output requiring a PoE source - and an LTE Category 4 radio with (2) internal antennas and (1) female RP-SMA connector for an external antenna. Max power consumption 8.5 W excluding PoE passthrough. The LTE interface is modelled at 100M, the Cat 4 class shared with every other Cat 4 device in the catalogue, because the datasheet names the category rather than a measured rate."
+}

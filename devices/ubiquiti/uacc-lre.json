@@ -1,0 +1,28 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UACC-LRE",
+  "label": "UniFi Long-Range Ethernet Repeater",
+  "category": "iot",
+  "description": "UniFi Long-Range Ethernet Repeater (UACC-LRE) - two GbE RJ45 ports that extend a run past the 100 m copper limit, with passthrough PoE so the downstream device is still powered from the source switch.",
+  "capabilities": [
+    "poe-pd",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uacc-lre",
+  "notes": "Vendor figures from Ubiquiti techspecs: (2) GbE RJ45 ports with (1) passthrough PoE output, 2-pairs (pins 1,2+; 3,6-). It is a two-port inline repeater: no switch fabric, no radio, no management plane beyond link handling, so it is modelled as two ports rather than as a switch."
+}

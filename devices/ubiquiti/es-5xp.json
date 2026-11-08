@@ -1,0 +1,58 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ES-5XP",
+  "label": "EdgeSwitch 5 XP",
+  "category": "switch",
+  "description": "EdgeSwitch 5 XP (ES-5XP) - five gigabit RJ45 ports with PoE configurable per port, plus a separate 10/100 management port. The small PoE switch in the EdgeSwitch XP line.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-5xp",
+  "notes": "Vendor figures from Ubiquiti techspecs: (5) 10/100/1000 Ethernet ports and (1) 10/100 Ethernet port for management, so the management port is modelled at 100M and named separately from the five data ports. PoE is present on the data ports - the datasheet carries per-port wattage, method and 'PoE configurable per port' rows - but the standard (802.3af/at vs passive 24V) was not captured during intake, so no 802.3 capability is claimed. If your unit negotiates 802.3af, that is a gap worth a comment."
+}
