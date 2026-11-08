@@ -25,9 +25,21 @@ permissions:
   contents: write
   pull-requests: write
 
+# A periodic maintenance job, not a deployment: if a tick is missed because the
+# runner was busy - and on a single runner with a large pull-request backlog, most
+# ticks are - the right outcome is that the next tick supersedes it, not that they
+# queue in order forever.
+#
+# cancel-in-progress was false, and that deadlocked. A run that entered this group
+# and never got a runner stayed waiting; the next tick then waited behind it, and
+# so on. The database shows the result: thirteen scheduled runs cancelled without
+# ever starting (started=0), two still waiting from hours ago, while ordinary
+# pull-request runs were being picked up normally. The schedule was firing exactly
+# on time the whole time - every ten minutes, the cron spec advanced correctly -
+# and nothing said so, because the run that would have told us never started.
 concurrency:
   group: auto-rebase
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   rebase:
