@@ -1,0 +1,48 @@
+{
+  "vendor": "ubiquiti",
+  "model": "E7",
+  "label": "UniFi E7",
+  "category": "wireless",
+  "description": "UniFi E7 (E7) - 1x 10G RJ45 + 1x 1G RJ45. 802.3bt PoE-in; WiFi 7; up to 11.4 Gbps PHY rate; 43 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "8.6G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "11.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/e7"
+}
