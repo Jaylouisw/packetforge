@@ -1,0 +1,178 @@
+{
+  "vendor": "aruba",
+  "model": "2540 24G 4SFP+ (JL354A)",
+  "label": "Aruba 2540 24G 4SFP+ Switch (JL354A)",
+  "category": "l3-switch",
+  "description": "Aruba 2540 24G 4SFP+ (JL354A) - 24x 1G RJ45 plus 4x 1G/10G SFP+ uplinks. ArubaOS-Switch Layer 3 access switch with static and RIP routing, ACLs and ClearPass integration.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.4gon.co.uk/documents/DS_2540SwitchSeries.pdf"
+}
