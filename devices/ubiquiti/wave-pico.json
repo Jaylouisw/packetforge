@@ -1,0 +1,36 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-Pico",
+  "label": "UISP Wave Pico",
+  "category": "ptp",
+  "description": "UISP Wave Pico (Wave-Pico) - 1x 1G RJ45. Passive PoE-in; WiFi 6; 10 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/wave-pico"
+}
