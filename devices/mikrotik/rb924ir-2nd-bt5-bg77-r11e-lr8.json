@@ -1,0 +1,41 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB924iR-2nD-BT5&BG77&R11e-LR8",
+  "label": "KNOT LR8 kit",
+  "category": "iot",
+  "description": "MikroTik KNOT LR8 kit (RB924iR-2nD-BT5&BG77&R11e-LR8) \u2014 2x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "802.3at",
+    "802.3af",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/knot_lr8"
+}
