@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "LtAP-2HnD&R11e-LTE7",
+  "label": "LtAP LTE7 kit",
+  "category": "wireless",
+  "description": "MikroTik LtAP LTE7 kit (LtAP-2HnD&R11e-LTE7) — 1x 1G RJ45, Wi-Fi 2.4 GHz, LTE radio. MMIPS 2-core MT7621AT.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ltap_lte7_kit"
+}
