@@ -96,3 +96,40 @@ ok(requestCandidates('Vendor 48 Port Switch').indexOf('48') === -1, 'but a two-c
 ok(requestCandidates('Vendor plain words here').length === 1, 'titles with no digits add no token candidates');
 const nodup = requestCandidates('RUT241 RUT241');
 ok(nodup.filter(function (c) { return c === 'RUT241'; }).length === 1, 'a repeated code is only tried once');
+
+// ---------------------------------------------------------------------------
+// A longer code that starts with a catalogue model is a different product.
+//
+// "Teltonika RUT951 POE+ Industrial Cellular Router (RUT951-POE)" was reported as already
+// covered by teltonika/RUT951, because the sweeper also tries bare tokens and "RUT951" is
+// one. The PoE variant is not the plain unit - it adds power outputs and a budget - so that
+// match would have closed a request by pointing at hardware the reporter does not own.
+const { variantOfSameCode } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+
+console.log('\nA variant code is not the base model:');
+ok(variantOfSameCode('[Device]: Teltonika RUT951 POE+ Industrial Cellular Router (RUT951-POE)', 'RUT951') === true,
+  'RUT951-POE against RUT951 is a variant');
+ok(variantOfSameCode('[Device]: Teltonika RUT951 POE+ Industrial Cellular Router (RUT951 POE)', 'RUT951') === true,
+  'so is the space-separated form');
+ok(variantOfSameCode('[Device]: Teltonika RUT951 Industrial Cellular Router (RUT951)', 'RUT951') === false,
+  'the exact code still matches');
+ok(variantOfSameCode('[Device]: Teltonika RUT951 Industrial Cellular Router', 'RUT951') === false,
+  'a title with no bracket still matches on the bare code');
+ok(variantOfSameCode('[Device]: Teltonika RUT951-POE Router', 'RUT951') === true,
+  'a hyphenated code in the title body is caught too');
+ok(variantOfSameCode('[Device]: Ubiquiti UniFi Switch Pro XG 24 (USW-Pro-XG-24)', 'USW-Pro-XG-24') === false,
+  'a longer catalogue model matching its own exact code is fine');
+ok(variantOfSameCode('[Device]: Ubiquiti UniFi AP AC Pro 5-Pack (UAP-AC-PRO-5)', 'UAP-AC-PRO') === true,
+  'a pack code is a variant of the single unit');
+ok(variantOfSameCode('', 'RUT951') === false, 'an empty title never rejects a match');
+
+console.log('\nThe token error tells a user what to do:');
+let tokenError = null;
+try {
+  require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+  const env = Object.assign({}, process.env);
+  delete env.FORGEJO_TOKEN; delete env.GITHUB_TOKEN; delete env.GH_TOKEN;
+  const src = require('fs').readFileSync(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'), 'utf8');
+  tokenError = /no token: this script needs a Forgejo token[\s\S]*FORGEJO_TOKEN[\s\S]*Report it: https:\/\/git\.jayw\.uk/.test(src);
+} catch (e) { tokenError = false; }
+ok(tokenError === true, 'the failure names the variable, the remote alternative and the bug-report link');

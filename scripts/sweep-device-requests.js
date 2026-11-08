@@ -46,7 +46,14 @@ function token() {
   }
   for (const remote of ['github', 'origin']) {
     let url = '';
-    try { url = execFileSync('git', ['remote', 'get-url', remote], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch (e) { continue; }
+    // stderr is discarded: a checkout with no 'github' remote is the normal case here, and
+    // git's "error: No such remote 'github'" printed above our own diagnosis read like a
+    // crash. The only error a user should see is the one that tells them what to do.
+    try {
+      url = execFileSync('git', ['remote', 'get-url', remote], {
+        cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']
+      }).trim();
+    } catch (e) { continue; }
     const m = /^[a-z]+:\/\/([^@]+)@/.exec(url);
     if (m) {
       const cred = m[1];
@@ -54,7 +61,17 @@ function token() {
       if (idx !== -1) return cred.slice(idx + 1);
     }
   }
-  throw new Error('no token: set FORGEJO_TOKEN (or put one in a git remote URL)');
+  throw new Error([
+    'no token: this script needs a Forgejo token to read the issue tracker.',
+    '',
+    'Fix it one of these ways:',
+    '  1. export FORGEJO_TOKEN=<your token>        (also accepts GITHUB_TOKEN or GH_TOKEN)',
+    '  2. put a token in the git remote URL:       https://<user>:<token>@git.jayw.uk/jaylouisw/packetforge.git',
+    '',
+    'A token with read access to issues is enough for a report run; closing requests',
+    '(--close N) additionally needs write access.',
+    'Stuck? Report it: https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=bug_report.yml'
+  ].join('\n'));
 }
 
 async function api(tok, p, opts) {
@@ -145,6 +162,41 @@ function requestCandidates(rawSubject) {
   return subjects;
 }
 
+// Qualifiers that turn a model into a *different* product.
+// "RUT951 POE+" is not a RUT951: the PoE variant adds power outputs and a budget that the
+// plain unit does not have. Closing that request by pointing at the RUT951 spec told a
+// reporter their hardware was modelled when it was not, which is the one mistake this script
+// exists to avoid.
+const VARIANT_QUALIFIERS = ['poe', 'plus', 'pro', 'max', 'hd', 'lr', 'kit', 'pack', 'bundle'];
+
+// True when the request names a code that *begins* with the catalogue model and keeps going -
+// "RUT951-POE" against "RUT951", or "RUT951 POE+" as a separate word. An exact code is fine;
+// a longer one is a different device.
+function variantOfSameCode(title, model) {
+  const key = norm(model);
+  if (!key) return false;
+  const raw = String(title || '');
+  const codes = [];
+  for (const group of raw.match(/\(([^)]*)\)/g) || []) codes.push(group.slice(1, -1));
+  for (const token of raw.split(/[\s,()\[\]]+/)) if (token && /[-\/]/.test(token)) codes.push(token);
+  for (const code of codes) {
+    const n = norm(code);
+    if (!n || n === key) continue;
+    if (n.indexOf(key + ' ') === 0) return true;
+  }
+  const words = norm(raw).split(' ');
+  const keyWords = key.split(' ');
+  for (let i = 0; i + keyWords.length < words.length; i++) {
+    let match = true;
+    for (let j = 0; j < keyWords.length; j++) {
+      if (words[i + j] !== keyWords[j]) { match = false; break; }
+    }
+    if (!match) continue;
+    if (VARIANT_QUALIFIERS.indexOf(words[i + keyWords.length]) !== -1) return true;
+  }
+  return false;
+}
+
 function main() {
   const tok = token();
   const cat = loadCatalogue();
@@ -204,14 +256,14 @@ function main() {
         };
 
         const whole = cat.byVendorModel.get(key) || cat.byModel.get(key);
-        if (whole && acceptable(whole[0])) hit = whole;
+        if (whole && acceptable(whole[0]) && !variantOfSameCode(title, whole[0].model)) hit = whole;
         if (!hit) {
           // "MikroTik Cloud Core Router CCR2004-16G-2S+" -> the model is a trailing run of tokens.
           // Only suffixes that pass the same guards are considered, longest first.
           for (let i = 1; i < parts.length && !hit; i++) {
             const tail = norm(parts.slice(i).join(' '));
             const cand = cat.byVendorModel.get(norm(parts[0]) + ' ' + tail) || cat.byModel.get(tail);
-            if (cand && acceptable(cand[0])) hit = cand;
+            if (cand && acceptable(cand[0]) && !variantOfSameCode(title, cand[0].model)) hit = cand;
           }
         }
         if (hit) break;
@@ -263,5 +315,10 @@ function main() {
 if (require.main === module) {
   main();
 } else {
-  module.exports = { requestSubject: requestSubject, requestCandidates: requestCandidates, norm: norm };
+  module.exports = {
+    requestSubject: requestSubject,
+    requestCandidates: requestCandidates,
+    variantOfSameCode: variantOfSameCode,
+    norm: norm
+  };
 }
