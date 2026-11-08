@@ -10,6 +10,7 @@ const { Topology, Simulator, CliSession, flow } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
 const media = require('../engine/media');
 const { WebSocketServer } = require('./ws');
+const { formatStartupError } = require('./startup-error');
 
 const PORT = parseInt(process.env.PORT || '8000', 10);
 const WEB_DIR = path.join(__dirname, '..', 'web');
@@ -677,6 +678,15 @@ process.on('SIGBREAK', function () { shutdown('SIGBREAK'); });
 process.on('SIGHUP', function () { shutdown('SIGHUP'); });
 // Last resort for a normal exit path: synchronous, so it completes during shutdown.
 process.on('exit', function () { try { flushSaves(); } catch (e) {} });
+
+// Without this, a port that is already taken prints a raw EADDRINUSE stack trace and
+// exits. That is the single most common reason PacketForge will not start, and the
+// stack trace never mentions the obvious remedy - nor that the web UI, and with it
+// the "Report a bug" button, is exactly what is missing.
+server.on('error', function (err) {
+  for (const line of formatStartupError(err, PORT)) console.error(line);
+  process.exit(1);
+});
 
 server.listen(PORT, function () {
   console.log('');
