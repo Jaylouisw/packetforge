@@ -17,6 +17,16 @@
 //   wrap.innerHTML = html
 //   PFFaceplate.bind(wrap, function (hit) { ... })    // delegated, no inline JS
 //
+// opts: topology | ctx — the topology, so cables and LLDP neighbours can be drawn
+//       fullNames      — print the interface name instead of the panel number, when
+//                        it fits (the inspector asks for it)
+//       width          — the px the panel will be given, if not the 316px default
+//
+// Labels are never allowed to overflow their cell: the row width is chosen from the
+// measured text (see Geometry), so a dense panel gets more rows rather than sliced
+// glyphs. Issue #26 was that failure — an eight-wide cage group cutting "Gi1/1/1"
+// through the middle of a character.
+//
 // The device object is what the engine serialises (engine/device.js). Per interface
 // it carries: name, cage, speedCaps, enabled, ip, lldp, poeIn, poeOut, role, vlan.
 //
@@ -68,10 +78,46 @@
   var FAMILY_RANK = {};
   FAMILY_ORDER.forEach(function (f, i) { FAMILY_RANK[f] = (i + 1) * 10; });
 
-  // How many cells per physical row. A 24-port switch is two rows of twelve, a
-  // 48-port is four, which is how the silkscreen looks and still fits a 340px
-  // inspector. Capped at 12 so no row becomes a single unreadable line.
+  // How many cells per physical row at most. A 24-port switch is two rows of twelve,
+  // a 48-port is four, which is how the silkscreen looks and still fits a 340px
+  // inspector. These are ceilings, not promises: plan() lowers the count when the
+  // labels need the room (see Geometry below).
   var COLUMNS = { copper: 12, combo: 6, fibre: 8, console: 2, other: 8 };
+
+  // ---------------------------------------------------------------------------
+  // Geometry — how much room a label actually gets
+  //
+  // Issue #26: an eight-wide cage group allots a cell's label 27.6px by this estimate
+  // (28px measured in Chromium), while "Gi1/1/1" drawn at 9px monospace needs 35.7px
+  // there. .fp-port is a fixed-height overflow:hidden box with no ellipsis, so the
+  // excess was cut through the middle of a glyph and the socket became unreadable.
+  //
+  // The fix is to stop guessing: the column count is derived from the width of the
+  // text that will be painted, and a label that still cannot fit is shortened
+  // deliberately (silkscreen number, then an ellipsis) with the full name kept in
+  // the tooltip. Nothing is ever left for the browser to slice.
+  //
+  // Every number below mirrors a declaration in web/faceplate.css. They have to
+  // agree or the estimate is a fiction, so test/faceplate-clipping.test.js reads the
+  // stylesheet and fails when the two drift apart.
+  // ---------------------------------------------------------------------------
+  var METRICS = {
+    // #inspector is a fixed 340px column (web/style.css) and .tab-panel pads it by
+    // 12px a side, so the panel is 316px wide before its own padding is taken.
+    panelWidth: 316,
+    panelPadX: 12,      // .faceplate { padding: 10px 12px 11px }
+    panelBorder: 1,     // .faceplate { border: 1px }
+    gap: 3,             // .faceplate { --fp-gap: 3px } / .fp-row { gap }
+    cellPadX: 2,        // .fp-port { padding: 0 2px 2px }
+    cellBorder: 1,      // .fp-port { border: 1px }
+    fontSize: 9,        // .fp-port { font-size: 9px }
+    // Advance width of the panel's monospace glyph as a fraction of font-size.
+    // Consolas is 0.55em, Cascadia Code and SF Mono are 0.60em; take the widest so
+    // the estimate errs towards a shorter row and never towards a sliced label.
+    charRatio: 0.62,
+    roleArrow: 6        // .fp-role .fp-port-name::after ("⇄" at 7px, plus its margin)
+  };
+  var CHAR_W = METRICS.fontSize * METRICS.charRatio;
 
   function cageInfo(cage) {
     return CAGE_INFO[cage] || CAGE_INFO.unknown;
@@ -141,6 +187,47 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Geometry helpers (see METRICS above)
+  // ---------------------------------------------------------------------------
+  function panelInner(panelWidth) {
+    var w = (typeof panelWidth === 'number' && panelWidth > 0) ? panelWidth : METRICS.panelWidth;
+    return w - 2 * METRICS.panelPadX - 2 * METRICS.panelBorder;
+  }
+
+  // Rendered width of a label, in px. Monospace, so this is a multiplication and
+  // not a guess: every glyph has the same advance.
+  function textWidth(text) {
+    return String(text == null ? '' : text).length * CHAR_W;
+  }
+
+  // The space a label gets inside its cell for a given column count: the panel
+  // minus its padding, split into equal tracks less the gaps, minus the cell's own
+  // padding and border. This is the number issue #26 was silently overrunning.
+  function labelBudget(columns, panelWidth) {
+    var cols = (typeof columns === 'number' && columns >= 1) ? Math.floor(columns) : 1;
+    var cell = (panelInner(panelWidth) - (cols - 1) * METRICS.gap) / cols;
+    return cell - 2 * METRICS.cellPadX - 2 * METRICS.cellBorder;
+  }
+
+  // The widest row that still gives every label the room it needs. Fewer columns
+  // means taller, not wider: the panel gets more rows and stays readable.
+  function columnsThatFit(count, want, need, panelWidth) {
+    var cols = Math.max(1, Math.min(count, want));
+    while (cols > 1 && labelBudget(cols, panelWidth) < need) cols--;
+    return cols;
+  }
+
+  // Last resort when even a single column is too narrow: cut the label ourselves, on
+  // a glyph boundary and with an ellipsis, so it is obviously shortened. The caller
+  // keeps the full name in the tooltip, which is where a cut label belongs.
+  function clip(text, budget) {
+    var s = String(text == null ? '' : text);
+    if (textWidth(s) <= budget) return { text: s, truncated: false };
+    var room = Math.max(1, Math.floor(budget / CHAR_W) - 1);
+    return { text: s.slice(0, room) + '\u2026', truncated: true };
+  }
+
+  // ---------------------------------------------------------------------------
   // Grouping
   //
   // Group by connector, not by name: the name is a silkscreen detail, the cage is
@@ -195,6 +282,9 @@
 
   function plan(device, opts) {
     opts = opts || {};
+    // opts.width lets a host place the panel in a narrower column; the default is the
+    // inspector it was designed for.
+    var panelWidth = (typeof opts.width === 'number' && opts.width > 0) ? opts.width : METRICS.panelWidth;
     var ports = portsOf(device);
     var groups = [];
     var byCage = {};
@@ -223,14 +313,74 @@
       var info = cageInfo(g.cage);
       g.label = info.label;
       g.familyLabel = FAMILY_LABEL[g.family] || 'Other';
-      g.columns = columnsFor(g.family, g.ports.length);
-      g.rows = chunk(g.ports, g.columns);
-      g.rate = groupRate(g.ports);
+      var want = columnsFor(g.family, g.ports.length);
       var short = shortLabels(g.ports);
       g.shortOf = function (name) {
         if (opts.fullNames) return name;
         return short[name] || name;
       };
+
+      // --- how the group is labelled, and how wide that makes a row ------------
+      //
+      // Preference order: the full interface name when it fits, then the silkscreen
+      // number ("1/1/49" lives on the panel as "49"), then fewer columns, and only
+      // then an ellipsis. Each step is a deliberate choice about what to drop; the
+      // old layout dropped the last glyphs of the name without deciding to.
+      var fullLabels = g.ports.map(function (p) { return p.name; });
+      var silkLabels = g.ports.map(function (p) { return short[p.name] || p.name; });
+      var candidates = opts.fullNames ? [fullLabels, silkLabels] : [silkLabels];
+
+      var need = function (labels) {
+        var w = 0;
+        g.ports.forEach(function (p, i) {
+          var n = textWidth(labels[i]) + (p.role ? METRICS.roleArrow : 0);
+          if (n > w) w = n;
+        });
+        return w;
+      };
+
+      var chosen = null;
+      for (var ci = 0; ci < candidates.length && !chosen; ci++) {
+        if (need(candidates[ci]) <= labelBudget(want, panelWidth)) chosen = candidates[ci];
+      }
+
+      var labels, columns, cut = {};
+      if (chosen) {
+        // Density wins: the labels fit as they are, keep the widest row.
+        columns = want;
+        labels = chosen;
+      } else {
+        // Nothing fits at full density. The panel numbers are never longer than the
+        // full names, so they are the thing to keep while rows get narrower.
+        var preferred = candidates[candidates.length - 1];
+        columns = columnsThatFit(g.ports.length, want, need(preferred), panelWidth);
+        var budget = labelBudget(columns, panelWidth);
+        labels = preferred.map(function (s, i) {
+          var fitted = clip(s, budget - (g.ports[i].role ? METRICS.roleArrow : 0));
+          if (fitted.truncated) cut[g.ports[i].name] = true;
+          return fitted.text;
+        });
+      }
+
+      g.columns = columns;
+      // What the panel actually shows: the interface name, the silkscreen number the
+      // hardware prints, or a name the layout had to cut. Callers use it to explain
+      // the panel; the test uses it to know which shortening was deliberate.
+      var shortened = false;
+      g.ports.forEach(function (p, i) { if (labels[i] !== p.name) shortened = true; });
+      g.labelMode = Object.keys(cut).length ? 'truncated' : (shortened ? 'silkscreen' : 'full');
+      g.truncated = Object.keys(cut).length > 0;
+      g.budget = labelBudget(columns, panelWidth);
+      g.cut = cut;
+      g.labelOf = function (name) {
+        for (var k = 0; k < g.ports.length; k++) {
+          if (g.ports[k].name === name) return labels[k];
+        }
+        return name;
+      };
+
+      g.rows = chunk(g.ports, g.columns);
+      g.rate = groupRate(g.ports);
     });
     return groups;
   }
@@ -292,7 +442,7 @@
     var cage = resolveCage(iface);
     var info = cageInfo(cage);
     var name = iface.name;
-    var short = group.shortOf(name);
+    var short = group.labelOf ? group.labelOf(name) : (group.shortOf ? group.shortOf(name) : name);
     var peer = peerOf(device, name, ctx);
     var plugged = peerText(peer, iface);
     var lldp = iface.lldp || null;
@@ -339,6 +489,9 @@
       'data-device-id="' + esc(device.id || '') + '"'
     ];
     if (lldp && lldp.systemName) attrs.push('data-lldp="' + esc(lldp.systemName) + '"');
+    // A label the layout had to cut says so, so nothing downstream mistakes the
+    // ellipsis for the port's name. data-port and the tooltip keep the real one.
+    if (group.cut && group.cut[name]) attrs.push('data-truncated="1"');
     attrs.push('title="' + esc(title.join(' · ')) + '"');
     attrs.push('aria-label="' + esc(aria) + '"');
 
@@ -357,7 +510,10 @@
         '</div>';
     }).join('');
     return '<section class="fp-group" data-family="' + esc(group.family) + '"' +
-      ' data-cage="' + esc(group.cage) + '" data-count="' + group.ports.length + '">' +
+      ' data-cage="' + esc(group.cage) + '" data-count="' + group.ports.length + '"' +
+      // the geometry the layout committed to, so a test (or a host) can check that the
+      // CSS hook below really gives each label the width the plan assumed
+      ' data-columns="' + group.columns + '" data-label="' + esc(group.labelMode || 'silkscreen') + '">' +
       '<div class="fp-group-head">' +
         '<span class="fp-group-name">' + esc(group.familyLabel) + '</span>' +
         '<span class="fp-group-cage" data-cage="' + esc(group.cage) + '">' + esc(group.label) + '</span>' +
@@ -465,7 +621,13 @@
     portsOf: portsOf,
     escape: esc,
     COLUMNS: COLUMNS,
-    FAMILY_ORDER: FAMILY_ORDER
+    FAMILY_ORDER: FAMILY_ORDER,
+    // geometry: what the layout assumed, and how it decides (issue #26)
+    METRICS: METRICS,
+    textWidth: textWidth,
+    labelBudget: labelBudget,
+    columnsThatFit: columnsThatFit,
+    clip: clip
   };
 
   root.PFFaceplate = api;
