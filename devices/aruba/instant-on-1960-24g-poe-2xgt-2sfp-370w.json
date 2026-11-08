@@ -1,0 +1,176 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1960 24G 20p CL4 4p CL6 PoE 2XGT 2SFP+ 370W (JL807A)",
+  "label": "Aruba Instant On 1960 24G 20p Class4 4p Class6 PoE 2XGT 2SFP+ 370W Switch (JL807A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1960 24G 20p Class 4 + 4p Class 6 PoE 2XGT 2SFP+ 370W (JL807A) - 24x 1G RJ45 PoE (ports 1-20 802.3at Class 4, ports 21-24 802.3bt Class 6; 370 W budget), 2x 10GBASE-T RJ45 and 2x 1G/10G SFP+ uplinks. Stackable Layer 2+ switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1960switchseries.pdf",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1960switchseries.pdf",
+    "note": "JL807A: 370 W budget; 20x Class 4 + 4x Class 6 (802.3bt) PoE ports."
+  }
+}
