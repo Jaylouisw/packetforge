@@ -1,0 +1,370 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Pro-XG-Aggregation",
+  "label": "UniFi Pro XG Aggregation",
+  "category": "switch",
+  "description": "UniFi Pro XG Aggregation (USW-Pro-XG-Aggregation) - 32x 25G SFP28 (25G/10G/1G). Layer 3; 1.6 Tbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp15",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp16",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp17",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp18",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp19",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp20",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp21",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp22",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp23",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp24",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp25",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp26",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp27",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp28",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp29",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp30",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp31",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp32",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-aggregation"
+}
