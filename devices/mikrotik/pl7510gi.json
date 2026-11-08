@@ -1,0 +1,22 @@
+{
+  "vendor": "mikrotik",
+  "model": "PL7510Gi",
+  "label": "PWR-LINE PRO",
+  "category": "powerline",
+  "description": "MikroTik PWR-LINE PRO (PL7510Gi) — 1x 1G RJ45.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "powerline",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/pl7510gi"
+}
