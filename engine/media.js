@@ -282,6 +282,12 @@ const CAGES = {
   'qsfp+': { name: 'QSFP+', family: 'optical', label: 'QSFP+ cage (40G)' },
   qsfpdd: { name: 'QSFP-DD', family: 'optical', label: 'QSFP-DD cage (200/400G)' },
   qsfp28: { name: 'QSFP28', family: 'optical', label: 'QSFP28 cage (100G)' },
+  // QSFP56 is the 200G member of the QSFP family: same physical connector as QSFP28 and
+  // QSFP+, four lanes at 50G instead of 25G. It is not a QSFP-DD (which is double-density
+  // and twice as wide), so a 200G port modelled as QSFP-DD would refuse the 100G optic that
+  // physically fits it, and a 200G module in a QSFP28 cage would claim a rate the cage
+  // cannot carry.
+  qsfp56: { name: 'QSFP56', family: 'optical', label: 'QSFP56 cage (200G)' },
   // SC is the PON connector. APC and UPC are separate cages deliberately: an
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
   // about 3 dB of loss and can chip the endface.
@@ -349,12 +355,13 @@ const CAGE_MATE = {
   sfp: ['sfp', 'sfp+', 'sfp28', 'combo'],
   'sfp+': ['sfp', 'sfp+', 'sfp28', 'combo'],
   sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
-  'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd'],
-  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd'],
+  'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
+  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
   // A QSFP-DD cage takes a QSFP28 or QSFP+ module and negotiates down to that
   // module's rate. Refusing the pair would make a 400G port unable to accept the
   // 100G optic most labs actually have.
-  qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+'],
+  qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+', 'qsfp56'],
+  qsfp56: ['qsfp56', 'qsfp28', 'qsfp+'],
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
@@ -466,6 +473,11 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  qsfp56: function () {
+    return ['200gbase-dr4', '200gbase-fr4',
+            // QSFP28/QSFP+ modules seat in a QSFP56 cage and run at their own rate
+            '100gbase-sr4', '100gbase-lr4', '40gbase-sr4', '40gbase-lr4', 'dac-100g'];
+  },
   qsfpdd: function () {
     return ['200gbase-dr4', '200gbase-fr4', '400gbase-dr4', '400gbase-fr4',
             // backward-compatible modules, which run at their own rate
@@ -554,7 +566,8 @@ const CAGE_SPEEDS = {
     if (maxMbps >= 10000) out.push(10000);
     return out.filter(function (v) { return v <= maxMbps; });
   },
-  sfp: function () { return [1000]; },
+  // 2500BASE-X ships in SFP form (MikroTik hEX S 2025), like a 1G module in an SFP+ cage.
+  sfp: function () { return [1000, 2500]; },
   'sfp+': function () { return [1000, 10000]; },
   // An SFP28 cage takes 1G SFP and 10G SFP+ modules as well as 25G SFP28 ones, and
   // the link runs at the module's own rate (issue #17).
@@ -595,6 +608,7 @@ const CAGE_SPEEDS = {
   },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
+  qsfp56: function () { return [40000, 100000, 200000]; },
   qsfpdd: function (maxMbps) {
     const out = [40000, 100000, 200000, 400000];
     return out.filter(function (v) { return v <= maxMbps; });
@@ -705,6 +719,9 @@ function inferCage(ifaceSpec, maxMbps) {
   // A port named for its cage wins over its rate: qsfpdd1/1 carrying 200G is a
   // QSFP-DD cage, not a QSFP28 that happens to be fast.
   if (/qsfp-?dd|qsfpdd/.test(name)) return 'qsfpdd';
+  // QSFP56 is named, not inferred from a rate: 200G over QSFP-DD is far more common, so a
+  // bare 200G rate alone must keep resolving to QSFP-DD.
+  if (/qsfp-?56|qsfp56/.test(name)) return 'qsfp56';
 
   if (maxMbps >= 200000) return 'qsfpdd';
   if (maxMbps >= 100000) return 'qsfp28';

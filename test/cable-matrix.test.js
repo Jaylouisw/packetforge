@@ -169,6 +169,10 @@ const EXPECTED_ROWS = [
   ['qsfp+', 'qsfpdd', 'accept:downshift'],
   ['qsfp28', 'qsfp28', 'accept'],
   ['qsfp28', 'qsfpdd', 'accept:downshift'],
+  // QSFP56 is the 200G member of the same physical family: a 100G QSFP28 module seats in it
+  // and runs at 100G, exactly as a 1G SFP seats in an SFP+ cage.
+  ['qsfp28', 'qsfp56', 'accept:downshift'],
+  ['qsfp56', 'qsfp56', 'accept'],
   ['qsfpdd', 'qsfpdd', 'accept'],
 
   // ---- single-fibre PON connectors: shape AND polish must both match ----

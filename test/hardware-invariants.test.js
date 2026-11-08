@@ -189,8 +189,34 @@ console.log('\nCages and media agree with each other:');
       const caps = i.hardware.speedCaps;
       if (!caps || !caps.length) continue;
       if (!i.hardware.media) continue;
+      // A port with an empty media list has no medium at all in the model - serial and
+      // console ports today (240 of them declare "1G" caps on a 115 kb/s cage). That is a
+      // modelling gap in its own right, not a cage carrying more than it can: nothing can be
+      // cabled to these ports at any rate. Issue #979 tracks it.
+      if (!i.hardware.media.length) continue;
       if (isConsoleOnly(i.hardware)) continue;
-      const top = Math.max.apply(null, caps);
+      // NOTE: speedCaps are whatever the spec wrote - often "10G"/"1G" strings. The old
+      // Math.max.apply(null, caps) therefore returned NaN for those, and every comparison
+      // against NaN is false, so a port that declared its caps as text was never checked at
+      // all. That is how an EdgePoint S16 carried a 10G claim on a 1G SFP cage through a
+      // green suite. Parse first, then compare.
+      const parsedCaps = caps.map(function (c) {
+        return typeof c === 'number' ? c : mediaLib.parseSpeedMbps(c);
+      }).filter(function (n) { return typeof n === 'number' && isFinite(n) && n > 0; });
+      const top = parsedCaps.length ? Math.max.apply(null, parsedCaps) : 0;
+      const declaredRaw = i.hardware.maxSpeedMbps || 0;
+      const declared = typeof declaredRaw === 'number' ? declaredRaw : mediaLib.parseSpeedMbps(declaredRaw);
+      // What the cage itself can carry, asked of the engine rather than inferred from the
+      // port's own claim - comparing a port against itself can only ever pass.
+      const cageSpeeds = mediaLib.CAGE_SPEEDS[i.hardware.cage];
+      const cageRates = typeof cageSpeeds === 'function'
+        ? cageSpeeds(Math.max(top, declared || 0))
+        : (cageSpeeds || []);
+      const cageTop = cageRates.length ? Math.max.apply(null, cageRates) : 0;
+      // Fibre Channel has no cage and no medium in this model, so a 64G FC port is carried in
+      // an SFP+ cage and reads as a 40G claim on a 10G cage. That is a missing technology, not
+      // a port lying about its own connector - issue #980 tracks adding FC.
+      const fcish = /fibre channel|fc san|gen\s*\d+\s*fc/i.test(String(x.spec.description || ''));
       // A DSL line port is SUPPOSED to be slow: ADSL2+ tops out at 24 Mbit/s and
       // ADSL at 8. Flagging that as a defect would push contributors to inflate the
       // one number a DSLAM must state honestly. PON is exempt for the same reason
@@ -205,16 +231,13 @@ console.log('\nCages and media agree with each other:');
       if (top < 100 && !slowIsCorrect && !isRadio) {
         slow.push(x.spec.model + '/' + i.name + ' top ' + top + ' Mbps');
       }
-      // NOTE: read hardware.maxSpeedMbps, not i.speedMbps. The latter does not
-      // exist on the Interface model, so this assertion silently compared zero
-      // and could never fail - it was vacuous from the day it was written.
-      const declared = i.hardware.maxSpeedMbps || 0;
-      // Line-rate rounding: a "2.5G" PON port is really 2.488 Gbit/s and a "10G"
-      // PON port 9.953, so allow a couple of percent before calling it a claim
-      // the cage cannot carry.
-      if (declared && top && declared > top * 1.02) {
+      // Line-rate rounding: a "2.5G" PON port is really 2.488 Gbit/s and a "10G" PON
+      // port 9.953, so allow a couple of percent before calling it a claim the cage
+      // cannot carry. Compare against cageTop (what the cage can carry), not against
+      // the port's own caps.
+      if (declared && cageTop && declared > cageTop * 1.02 && !fcish) {
         overreach.push(x.spec.model + '/' + i.name + ' claims ' + declared +
-          ' Mbps on a ' + top + ' Mbps ' + i.hardware.cage + ' cage');
+          ' Mbps on a ' + cageTop + ' Mbps ' + i.hardware.cage + ' cage');
       }
     }
   }

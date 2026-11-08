@@ -105,7 +105,7 @@
       "name": "QSFP56-1",
       "type": "ethernet",
       "speed": "200G",
-      "connector": "qsfp28",
+      "connector": "qsfp56",
       "speedCaps": [
         50000,
         100000,
@@ -116,7 +116,7 @@
       "name": "QSFP56-2",
       "type": "ethernet",
       "speed": "200G",
-      "connector": "qsfp28",
+      "connector": "qsfp56",
       "speedCaps": [
         50000,
         100000,
