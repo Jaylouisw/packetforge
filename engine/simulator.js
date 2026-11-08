@@ -18,6 +18,8 @@ const raLib = require('./ra');
 const scionLib = require('./scion');
 const natLib = require('./nat');
 const flowLib = require('./flow');
+const latencyLib = require('./latency');
+const mediaModel = require('./media');
 
 // --- frame builders ---
 // `opts` carries the two fields that are not part of an L2/L3 header but are part
@@ -153,6 +155,58 @@ class Simulator {
     };
   }
 
+  // ---------------------------------------------------------------------
+  // Latency (engine/latency.js)
+  // ---------------------------------------------------------------------
+  //
+  // The simulator advances in queue steps, not in seconds: one step is "one frame
+  // handed to one port", which is a hop count wearing the name of a time. A ping
+  // answered on the first pass therefore reported rtt === hops, and a 40 km fibre
+  // span came back in exactly the same time as a 1 m patch lead. The number a
+  // ping is actually asked for -- the first thing anyone looks at -- is the delay,
+  // so it is computed from the path the exchange really walked: every `frame`
+  // event between the request and the reply names the port the frame left, and
+  // that port's link carries the medium, the length and the line rate.
+  //
+  // The model itself lives in engine/latency.js and is pure. Nothing here adds a
+  // timer or changes how many steps a run takes: the delay is a number computed
+  // at the end of the run that already happened.
+
+  // One direction of an echo exchange, as latency legs. A leg is one link
+  // crossing, and every crossing but the last is entered by a device that must
+  // receive the whole frame, decide, and transmit it again -- one store-and-
+  // forward hop. The last crossing is entered by the host that answers, whose own
+  // ICMP processing is explicitly not modelled.
+  _echoLegs(events, icmpType, id, seq, bits) {
+    const legs = [];
+    for (let i = 0; i < events.length; i++) {
+      const e = events[i];
+      if (e.type !== 'frame' || !e.frame || !e.frame.icmp) continue;
+      const icmp = e.frame.icmp;
+      if (icmp.type !== icmpType || icmp.id !== id || icmp.seq !== seq) continue;
+      const link = this._linkAt(e.from, e.fromIface);
+      const mediaId = link ? link.mediaId : null;
+      const media = mediaId ? mediaModel.mediaById(mediaId) : null;
+      legs.push({
+        mediaId: mediaId,
+        lengthM: link ? link.lengthM : null,
+        speedMbps: (link && link.speedMbps) || (media && media.speedMbps) || null,
+        bits: bits,
+        hops: 0
+      });
+    }
+    for (let i = 0; i < legs.length - 1; i++) legs[i].hops = 1;
+    return legs;
+  }
+
+  // Out and back for one exchange: every link is crossed twice, so the round trip
+  // is the sum of both directions, not one of them.
+  _roundTripFor(events, reqType, replyType, id, seq, bits) {
+    const forward = this._echoLegs(events, reqType, id, seq, bits);
+    const reverse = this._echoLegs(events, replyType, id, seq, bits);
+    return latencyLib.roundTripDetail(forward, reverse);
+  }
+
   // --- public: run a ping from srcDeviceId to dstIp ---
   ping(srcId, dstIp, opts) {
     opts = opts || {};
@@ -197,19 +251,33 @@ class Simulator {
 
     const id = this._icmpId++;
     const replies = [];
+    // How many bits an echo frame puts on the wire. Serialisation time is a
+    // function of it, so it is computed once for the whole run.
+    const bits = latencyLib.pingFrameBits(opts.payloadSize);
     for (let seq = 0; seq < count; seq++) {
       const startStep = this.step;
+      const evStart = this.events.length;
       this._emit({ type: 'ping', src: srcId, dst: target, seq: seq });
       this._sendIcmp(src, target, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: seq });
       this._run();
       const got = this.icmpReplies.filter(function (r) {
         return r.dst === srcId && r.id === id && r.seq === seq;
       })[0];
+      // Time the frame actually spent: propagation in the medium of every link
+      // crossed, twice (out and back), serialisation at every port twice, and
+      // store-and-forward at every device in between. `hops` stays what it always
+      // was -- the queue-step count -- so callers that use it are unaffected.
+      const delay = got
+        ? this._roundTripFor(this.events.slice(evStart), net.ICMP_ECHO_REQUEST, net.ICMP_ECHO_REPLY, id, seq, bits)
+        : null;
       replies.push({
         seq: seq,
         success: !!got,
         hops: got ? (got.step - startStep) : null,
-        rtt: got ? (got.step - startStep) : null
+        rtt: delay ? delay.totalMs : null,
+        rttUs: delay ? delay.totalUs : null,
+        lengthKnown: delay ? delay.lengthKnown : null,
+        delay: delay
       });
     }
     return { events: this.events, replies: replies, step: this.step, success: replies.some(function (r) { return r.success; }), resolved: target, dns: dnsResult };
@@ -1015,8 +1083,10 @@ class Simulator {
 
     const id = this._icmpId++;
     const replies = [];
+    const bits = latencyLib.pingFrameBits(opts.payloadSize);
     for (let seq = 0; seq < count; seq++) {
       const startStep = this.step;
+      const evStart = this.events.length;
       this._emit({ type: 'ping6', src: srcId, dst: dstIp6, seq: seq });
       this._sendIcmp6(src, dstIp6, {
         type: ipv6Lib.ICMPV6_TYPES.ECHO_REQUEST, code: 0, id: id, seq: seq
@@ -1025,11 +1095,21 @@ class Simulator {
       const got = this.icmp6Replies.filter(function (r) {
         return r.dst === srcId && r.id === id && r.seq === seq;
       })[0];
+      // Same delay model as IPv4: an echo reply over IPv6 crosses the same
+      // physical links, and 40 km of glass does not care which header is on the
+      // frame. Only the ICMP version differs.
+      const delay = got
+        ? this._roundTripFor(this.events.slice(evStart), ipv6Lib.ICMPV6_TYPES.ECHO_REQUEST,
+          ipv6Lib.ICMPV6_TYPES.ECHO_REPLY, id, seq, bits)
+        : null;
       replies.push({
         seq: seq,
         success: !!got,
         hops: got ? (got.step - startStep) : null,
-        rtt: got ? (got.step - startStep) : null
+        rtt: delay ? delay.totalMs : null,
+        rttUs: delay ? delay.totalUs : null,
+        lengthKnown: delay ? delay.lengthKnown : null,
+        delay: delay
       });
     }
     return {
