@@ -1,0 +1,40 @@
+{
+  "vendor": "mikrotik",
+  "model": "CubeG-5ac60ay-SA",
+  "label": "CubeSA 60Pro ac",
+  "category": "ptp",
+  "description": "MikroTik CubeSA 60Pro ac (CubeG-5ac60ay-SA) — 1x 1G RJ45, Wi-Fi 5 GHz, 60 GHz radio. ARM 32bit 4-core IPQ-4019.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "433M"
+    },
+    {
+      "name": "radio60",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/cubesa_60pro_ac"
+}
