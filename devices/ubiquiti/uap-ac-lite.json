@@ -1,0 +1,37 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAP-AC-LITE",
+  "label": "UniFi AC Lite",
+  "category": "wireless",
+  "description": "UniFi AC Lite (UAP-AC-LITE) - 1x 1G RJ45. 802.3af PoE-in; WiFi 5; up to 867 Mbps PHY rate; 6.5 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-lite"
+}
