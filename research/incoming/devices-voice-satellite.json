@@ -1,0 +1,468 @@
+{
+  "devices": [
+    {
+      "vendor": "yealink",
+      "model": "T46U",
+      "label": "Yealink T46U",
+      "category": "phone",
+      "description": "Yealink SIP-T46U executive desk phone with a 4.3-inch colour display, 16 SIP accounts and Yealink Optima HD voice, built on a two-port Gigabit Ethernet switch whose second RJ45 is a PC passthrough. It is a wired-only endpoint out of the box - the LAN port is the PoE input, there is no radio in the chassis, and Wi-Fi or Bluetooth only appears if a WF40/WF50 or BT40/BT41 USB dongle is fitted.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://support.yealink.com/docs/sip-t46u/yealink-sip-t46u-datasheet/16aa3e79e97649ccb8c7b0ff0f0c0a53",
+      "notes": "Datasheet: 'The SIP-T46U comes with two Gigabit Ethernet ports, one of which is suitable for Power over Ethernet (PoE)', feature list 'Dual-port Gigabit Ethernet', 'PoE support'. The datasheet does not print the PoE class, so 12.95 W is carried as the 802.3af PD ceiling. Radios: none in the chassis - 'Wi-Fi via WF40/WF50', 'Bluetooth via BT40/BT41/BT51' are USB dongles and the two USB 2.0 ports are not modelled, so the phone presents as a wired endpoint with a passthrough. Provisioning RPS/auto-P, TLS/SRTP, 802.1X, LLDP/CDP/DHCP-VLAN, OpenVPN/L2TP, IPv6. Pair with the T54W already in the catalogue to contrast a wired-only T4U against the Wi-Fi T54W."
+    },
+    {
+      "vendor": "yealink",
+      "model": "W80B",
+      "label": "Yealink W80B",
+      "category": "wireless",
+      "description": "Yealink W80B DECT IP multi-cell base station, the radio half of the W80 system (up to 30 bases, 100 handsets, 100 parallel calls under a W80DM), shipping from the factory in base mode and switchable to DM or DM-base at the touch of a button. One 10/100 RJ45 carries both SIP signalling and 802.3af class-1 power, and the DECT air interface runs 1880-1900 MHz in Europe or 1920-1930 MHz in the US rather than anything Ethernet-shaped.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 3.84
+        }
+      ],
+      "sourceUrl": "https://support.yealink.com/docs/w80dm-w80b/yealink-w80-datasheet/cf55bc85bd344b6c8423f476af1b8a64",
+      "notes": "Datasheet Interface section: '1 x RJ45 10/100M Ethernet port', 'Power over Ethernet (IEEE 802.3af), Class 1' - a single port, no PC passthrough (bases are the leaf, not the tree). 3.84 W is the class-1 reservation the PSE must hold, not the measured draw. Quick Start Guide adds 'IEEE 802.3af compliant PoE Hub/Switch' and a 5 V/1.2 A optional adapter. DECT 1880-1900 MHz (EU) / 1920-1930 MHz (US), 50 m indoor / 300 m outdoor, sync over air or LAN (IEEE1588) with level-1 base backup, third-party DECT devices deliberately unsupported. The DECT air interface and handsets are not modelled as Ethernet interfaces, same convention as the W70B."
+    },
+    {
+      "vendor": "snom",
+      "model": "M900",
+      "label": "Snom M900",
+      "category": "wireless",
+      "description": "Snom M900 VoIP DECT multicell base station that needs no separate DECT manager - up to 4,000 bases and 16,000 handsets in one network - with handover driven by either DECT or LAN synchronisation (IEEE1588) and OTA handset firmware. Its entire wired footprint is one 10/100 RJ45 that is also the 802.3af class-2 power input.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 6.49
+        }
+      ],
+      "sourceUrl": "https://www.vectordigitals.net/wp-content/uploads/2020/11/snom-m900-datasheet.pdf",
+      "notes": "Datasheet hardware block: 'Ethernet connector: RJ 45', 'LAN interface: 10/100 BASE-T IEEE 802.3', 'Power: Power over Ethernet (PoE) IEEE802.3af Class 2. If PoE is not available, the A5 PoE injector can be used'. 6.49 W is the class-2 reservation. DECT 1880-1900 MHz (EU) / 1920-1930 MHz (US), DECT 6.0, 8 narrowband or 4 wideband calls per base in multicell, 100 repeaters, up to 3000-entry shared phonebook; web UI plus HTTP/HTTPS/TFTP provisioning, LLDP, 802.1Q, TLS 1.2. One port only: there is no daisy-chain port, so each base is a separate PoE access-port drop - the reason a multicell deployment stresses a switch's PoE budget and STP edge config."
+    },
+    {
+      "vendor": "gigaset",
+      "model": "N870 IP PRO",
+      "label": "Gigaset N870 IP PRO",
+      "category": "wireless",
+      "description": "Gigaset N870 IP PRO, one hardware design that becomes DECT base, DECT manager or integrator by licence, scaling from 60 bases/250 handsets to 6,000 bases/20,000 handsets with a virtual integrator and seamless handover. Provisioned by zero-touch autoconfig over a single 10/100 RJ45 that doubles as its 802.3af class-1 power feed.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "lan",
+          "type": "ethernet",
+          "speed": "100M",
+          "poeIn": 3.84
+        }
+      ],
+      "sourceUrl": "https://www.gigaset.com/pro/en_en/gigaset-n870-ip-pro/",
+      "notes": "Gigaset product page specification table: 'LAN Port with Power-over-Ethernet: Yes', 'Power connector: Yes' - exactly one LAN jack, no passthrough. Line rate and power class come from the N870 IP PRO datasheet hardware section: 'Ethernet RJ45 10/100 Mbps', 'Power over Ethernet: PoE IEEE 802.3af class 1', draw '< 3.8 W'. 3.84 W is the class-1 reservation. DECT GAP/CAT-iq 1.0, 120 channels, 50 m indoor / 300 m outdoor, up to 10 simultaneous G.711 calls per base (5 wideband), SIP+TLS/SRTP, DHCP options 1/3/6/12/15/28/42/114/120, 802.1Q, uaCSTA, xHTML. DECT radio not modelled as an interface."
+    },
+    {
+      "vendor": "grandstream",
+      "model": "GRP2616",
+      "label": "Grandstream GRP2616",
+      "category": "phone",
+      "description": "Grandstream GRP2616 carrier-grade six-line desk phone with two colour LCDs (4.3-inch main plus 2.4-inch extension), 16 SIP accounts and 48 virtual MPKs, aimed at hot-desking and BLF-heavy reception positions. Wired side is a pair of dual-switched 10/100/1000 ports with 802.3af PoE on the LAN port, and from hardware version 5.0 the phone also carries its own dual-band Wi-Fi 6 (2.4/5 GHz) and Bluetooth radios.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1.2G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/Datasheet_GRP2616_English.pdf",
+      "notes": "Datasheet: 'Dual switched auto-sensing 10/100/1000 Mbps Gigabit Ethernet ports with integrated PoE' (two jacks, LAN plus PC), 'Integrated Power-over-Ethernet (802.3af)', 'Max power consumption 6.1 W (power adapter) or 7.8 W (PoE)'. Wi-Fi: 'Integrated dual-band (2.4GHz and 5GHz) Wi-Fi 6 (802.11a/b/g/n/ac/ax) - hardware version 5.0 and above' - stream count is not published, so 1.2G models a 2x2 80 MHz ax link; Bluetooth is integrated but is not a network interface. USB port and RJ9 headset jack not modelled. Note the GRP2616 is the model that makes an otherwise all-wired phone estate look like it has a wireless client on the access point."
+    },
+    {
+      "vendor": "poly",
+      "model": "VVX 350",
+      "label": "Poly VVX 350",
+      "category": "phone",
+      "description": "Poly VVX 350 six-line colour business desk phone (3.5-inch 320x240 LCD, 34 line-key appearances with pagination, Poly Acoustic Fence) that sits below the VVX 450 in the same family. Networking is a two-port Gigabit switch split into LAN and PC ports with 802.3af class-0 power draw on the LAN port, and no Wi-Fi radio unless the optional Poly Wi-Fi USB accessory is fitted.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 12.95
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        }
+      ],
+      "sourceUrl": "https://popp.com/wp-content/uploads/2025/07/Poly-VVX-350-Datasheet.pdf",
+      "notes": "Datasheet: 'Two-port gigabit Ethernet switch 10/100/1000Base-TX across LAN and PC ports', 'Built-in auto sensing IEEE 802.3af Power over Ethernet (Class 0) 13 W (Max)', optional 5 V DC 3 A adapter. Class 0 asks for the full 13.0 W reservation; 12.95 W is carried as the 802.3af PD ceiling (the catalogue's VVX 450 entry keeps the datasheet's 13 W figure instead). Wi-Fi only through 'optional Poly Wi-Fi USB accessory' and the two USB 2.0 ports are not modelled, so this phone is a wired-only edge host - the interesting contrast against the VVX 450 for PoE-class and LLDP-MED behaviour. VLAN via CDP/DHCP/LLDP-MED, 802.1X/EAPOL, SRTP, TLS, WebKit browser stack."
+    },
+    {
+      "vendor": "cisco",
+      "model": "8865",
+      "label": "Cisco 8865",
+      "category": "phone",
+      "description": "Cisco IP Phone 8865, the 720p-video flagship of the 8800 series, with a 5-inch 800x480 display, five programmable line keys and Intelligent Proximity pairing to a mobile. It carries an internal two-port 10/100/1000 switch for the phone and a co-located PC, draws 802.3at class-4 power on the LAN port, and adds an integrated 802.11a/b/g/n/ac Wi-Fi client so it can also sit on the WLAN with no cable at all.",
+      "capabilities": [
+        "host",
+        "http-server",
+        "dhcp-client",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "1G",
+          "poeIn": 25.5
+        },
+        {
+          "name": "pc",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "867M",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/collaboration-endpoints/unified-ip-phone-8800-series/datasheet-c78-734731.html",
+      "notes": "Datasheet: 'An internal 2-port Cisco Ethernet switch allows for a direct connection to a 10/100/1000BASE-T Ethernet network ... through an RJ-45 interface with single LAN connectivity for both the phone and a co-located PC', 'IEEE Power over Ethernet class 4 is supported. The phone is compatible with IEEE 802.3af, 802.3at and UPOE switch blades and supports both CDP and LLDP-PoE'. Class 4 is the 25.5 W 802.3at reservation - the phone will boot on an af port but with reduced features, which is exactly the misconfiguration a lab wants to reproduce. Wi-Fi table: 802.11a/b/g/n/ac, 2.4/5 GHz, 802.11r FT and CCKM, WPA2-Enterprise; 867M models a 2x2 80 MHz ac link. Separate 802.1Q VLANs per PC and voice port; two USB ports, AUX and 3.5 mm jack not modelled."
+    },
+    {
+      "vendor": "starlink",
+      "model": "Standard Kit",
+      "label": "Starlink Standard Kit",
+      "category": "router",
+      "description": "Starlink Standard Kit, the consumer Ka/Ku-band LEO terminal: a flat electronically-steered dish on a single cable plus a Gen 3 Wi-Fi 6 router that acts as both power supply and access point for the whole installation. The router's wired side is just two latching Gigabit LAN ports under a removable cover - the dish cable is a proprietary power-and-data link, not an Ethernet WAN - and it broadcasts tri-band 4x4 MU-MIMO 802.11ax for up to 235 devices.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1.1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "4.8G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "4.8G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "200M",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://starlink.com/public-files/Gen3RouterSpecificationsStandard.pdf",
+      "notes": "Gen 3 router specification sheet: 'Two (2) Latching Ethernet LAN ports with removable cover', '802.11 a/b/g/n/ac/ax', 'WiFi 6', 'Tri Band 4 x 4 MU-MIMO', 'WPA2', 'IP56 Rated (Water Resistant), configured for indoor use', 'Connect up to 235 devices', -30 C to 50 C. The sheet says 'Tri Band' without naming the third band, so wlan1/wlan2 are two 4x4 ax radios at 4.8G and wlan0 is the 1.1G 2.4 GHz radio. There is no Ethernet WAN jack: the dish hangs off a proprietary combined power/data cable, so the satellite segment is modelled as wwan0 (200M, the Standard kit's ~25-220 Mbps service envelope) rather than an invented RJ45. No local browser UI - everything is configured from the Starlink app against the router's local API - so http-server is deliberately not claimed."
+    },
+    {
+      "vendor": "hughesnet",
+      "model": "HT2000W",
+      "label": "HughesNet HT2000W",
+      "category": "router",
+      "description": "HughesNet HT2000W Ka/Ku-band satellite modem and Wi-Fi router in one box, the consumer Gen5 terminal that feeds a four-port Gigabit LAN switch and dual-band 2.4/5 GHz Wi-Fi from a single F-type coax IFL to the outdoor radio. It is a full router, not a bridge: the web UI exposes Wireless, LAN, DNS, Firewall, NAT with port mapping, QoS, Routing and IPv6 pages, and the optional ATA variant adds an RJ11 for HughesNet Voice.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan4",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "300M",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "867M",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "25M",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://my.hughesnet.com/support/wp-content/uploads/1041264-0001_a.pdf",
+      "notes": "User guide chapter 1: 'The modem connects to a computer or local area network (LAN) via one of its four (4) Ethernet ports and/or its two (2) wireless networks'; Appendix A Table 3 network interface ports: 'RJ-45 Ethernet LAN port supporting 10BaseT, 100BaseT or 1000BaseT operation'. Wi-Fi is protocol-specified but stream-count-free ('On 2.4GHz you can select b/g/n ... On 5GHz a only, n only, a/n mix, or a/n/ac mix', 20/40/80 MHz on 5 GHz), so 300M and 867M model 2x2 links rather than a datasheet number. The satellite IFL is a single F-type coax carrying DC and IF to the outdoor radio, not an Ethernet port, so the space segment is modelled as wwan0 at 25M (Gen5 service envelope) instead of a fictitious copper WAN. Firewall/NAT/port-mapping/QoS/Routing/IPv6 all live in the web UI at 192.168.0.1; the optional ATA RJ11 is not modelled."
+    },
+    {
+      "vendor": "zte",
+      "model": "MC888",
+      "label": "ZTE MC888",
+      "category": "router",
+      "description": "ZTE MC888 Wi-Fi 6 indoor 5G CPE built on the Qualcomm SDX62 platform with WCN6856 Wi-Fi, NSA/SA sub-6 5G with LTE and WCDMA fallback, and support for up to 64 clients. The wired side is deliberately thin - two Gigabit RJ45 LAN ports, no dedicated WAN jack - alongside dual-band 2x2 802.11ax Wi-Fi with 4K QAM and 160 MHz channels, because the cellular link is the uplink.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "600M",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "2.4G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "2.5G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.getic.com/files/catalogue/5133/ztemc888_ds-66e8303e6a1a1.pdf",
+      "notes": "ZTE datasheet: Interface 'Two Gigabit Network Ports'; WLAN '802.11a/b/g/n/ac/ax, 2.4G & 5G dual band, 2*2 MIMO, 4K QAM, 160MHz'; platform SDX62+WCN6856; 'Support Firewall and PP2P / LPTP'; connection number 64; 5G N1/N3/N7/N8/N20/N28/N38/N40/N75/N77/N78, LTE B1/B3/B7/B8/B20/B28/B32/B38/B40/B42/B43. Both copper ports are LAN - cellular is the only WAN - so no wan interface is declared. wlan1 at 2.4G is the 2x2 160 MHz ax PHY rate; wwan0 models the sub-6 NR downlink class of the X62 (2.5 Gbps). Do not confuse with the MC888 Ultra, which swaps in a 2.5GE port plus an RJ11."
+    },
+    {
+      "vendor": "t-mobile",
+      "model": "KVD21",
+      "label": "T-Mobile KVD21",
+      "category": "router",
+      "description": "T-Mobile 5G Gateway built by Arcadyan (KVD21), the small-business and home fixed-wireless CPE with a front LCD for signal bars, connected-device count and messages, fed by four internal wideband OMNI antennas covering the full LTE/5G band set. Wired connectivity is two RJ45 LAN ports labelled LAN1 and LAN2, and the radios are simultaneous dual-band Wi-Fi 6 with 4x4 MIMO plus the 5G NR uplink itself.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "1G"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1.1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "4.8G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wwan0",
+          "type": "wireless",
+          "speed": "1G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.t-mobile.com/support/home-internet/arcadyan-gateway",
+      "notes": "T-Mobile tech specs: 'Dual Band Wi-Fi 6 (802.11ax) with 4x4MIMO', 'WPA2/WPA3 Wi-Fi Security', 'Ethernet plugs 2xRJ-45', 'Maximum recommended devices: 64', AC adapter 12 V/1.2 A. User guide: 'The gateway has two (2) Ethernet LAN ports', referred to as LAN1 and LAN2, and 'the gateway offers 4G/LTE or 5G/NR WAN mobile network connectivity by way of four wide band OMNI antennas'. Caveat recorded honestly: T-Mobile publishes the port count but not the line rate, so each jack is modelled at 1 GbE - consistent with the 1 Gbps service cap - and wwan0 at 1G is the same cap. No WAN Ethernet port exists (cellular is the only uplink); there is no bridge mode, so a lab sees double NAT when chaining a router behind it."
+    },
+    {
+      "vendor": "verizon",
+      "model": "CR1000A",
+      "label": "Verizon CR1000A",
+      "category": "router",
+      "description": "Verizon Router CR1000A, the Wi-Fi 6E Fios gateway with a 10 Gigabit Ethernet WAN port, one 10 Gigabit and two 2.5 Gigabit LAN ports, and a coax port running MoCA 2.5 LAN for set-top and extender backhaul. Radios are three 4x4 802.11ax bands (2.4, 5 and 6 GHz) with SON band steering, and the box handles NAT/NAPT, ACL firewalling, IGMP, IPv4/IPv6 dual stack and TR-069/TR-181 management.",
+      "capabilities": [
+        "dhcp-client",
+        "dhcp-server",
+        "firewall",
+        "http-server",
+        "l2-forward",
+        "l3-forward",
+        "nat",
+        "wireless"
+      ],
+      "interfaces": [
+        {
+          "name": "wan",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "lan1",
+          "type": "ethernet",
+          "speed": "10G"
+        },
+        {
+          "name": "lan2",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "lan3",
+          "type": "ethernet",
+          "speed": "2.5G"
+        },
+        {
+          "name": "coax",
+          "type": "coax",
+          "speed": "2.5G",
+          "connector": "f"
+        },
+        {
+          "name": "wlan0",
+          "type": "wireless",
+          "speed": "1.1G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan1",
+          "type": "wireless",
+          "speed": "4.8G",
+          "connector": "antenna"
+        },
+        {
+          "name": "wlan2",
+          "type": "wireless",
+          "speed": "4.8G",
+          "connector": "antenna"
+        }
+      ],
+      "sourceUrl": "https://www.verizon.com/content/dam/verizon/support/consumer/documents/internet/verizon-router_datasheet.pdf",
+      "notes": "Datasheet hardware configuration: 'One 10 Gigabit LAN port', 'Two 2.5 Gigabit LAN ports', 'One 10 Gigabit WAN port', 'Coax port supporting MoCA 2.5 LAN'; Wi-Fi 'One 2.4 GHz 11ax 4x4', 'One 5 GHz 11ax 4x4', 'One 6 GHz 11ax 4x4', internal antenna, 20/40/80/160 MHz, DFS, WPA2/WPA3; 'IP sharing for LAN with up to 253 users'; 'NAT and NAPT', 'Virtual Server and DMZ', 'Firewall function with Access Control List (ACL)', IGMP, 802.1P/Q, TR-069/TR-181, HTTP embedded web server. Scope correction worth flagging: the CR1000A is the Fios gateway, not a 5G FWA unit - it is included because a 10G WAN port plus 2.5G LAN plus MoCA 2.5 is exactly the multi-rate edge a lab cannot otherwise build. USB Type-C port not modelled; no CLI, management is web/TR-069 only, so cli is not claimed."
+    }
+  ]
+}

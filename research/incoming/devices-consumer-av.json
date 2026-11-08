@@ -1,0 +1,323 @@
+[
+  {
+    "vendor": "apple",
+    "model": "iPad Pro 13-inch (M4)",
+    "label": "Apple iPad Pro 13-inch (M4)",
+    "category": "phone",
+    "description": "Apple's 13-inch M4 iPad Pro (2024) is a slate tablet running iPadOS, not a keyboard-first computer, so it is modelled as a handset-class wireless endpoint. Networking is Wi-Fi 6E (802.11ax) with 2x2 MIMO and simultaneous dual band across 2.4, 5 and 6 GHz, and the cellular SKU adds a 5G sub-6 GHz / Gigabit LTE modem with 4x4 MIMO; there is no RJ45 anywhere - the single wired connector is USB-C (Thunderbolt / USB 4, adapters sold separately) and it carries data, DisplayPort and charging only.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "2.4G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://support.apple.com/en-us/119891",
+    "notes": "Apple lists, verbatim: 'All models: Wi-Fi 6E (802.11ax) with 2x2 MIMO, Simultaneous dual band, Bluetooth 5.3' and 'Wi-Fi + Cellular models: 5G (sub-6 GHz) with 4x4 MIMO, Gigabit LTE with 4x4 MIMO'. So one Wi-Fi radio (wlan0) on all SKUs and wwan0 only on the cellular SKU; 2.4G is the 2x2 160 MHz Wi-Fi 6E figure. No Ethernet and no USB network interface: wired connectivity exists only through a USB-C dock or adapter, which this model deliberately does not declare. Wi-Fi 6E needs a 6 GHz-capable AP and regional approval, otherwise the device falls back to 2.4/5 GHz."
+  },
+  {
+    "vendor": "samsung",
+    "model": "Galaxy Tab S10 Ultra",
+    "label": "Samsung Galaxy Tab S10 Ultra",
+    "category": "phone",
+    "description": "14.6-inch Android 14 flagship tablet (SM-X920 Wi-Fi / SM-X926B 5G) with a single Wi-Fi 7 radio covering 802.11a/b/g/n/ac/ax/be on 2.4, 5 and 6 GHz at EHT320 with MIMO and 4096-QAM, plus a 5G sub-6 GHz modem with LTE fallback on the cellular SKU. It has no Ethernet port: the only wired connector is USB-C 3.2 Gen 1, and DeX runs over that or wirelessly, so the lab reaches the tablet over Wi-Fi or cellular only.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "5.8G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.samsung.com/au/tablets/galaxy-tab-s/galaxy-tab-s10-ultra-gray-256gb-wifi-sm-x920nzaaxsa/",
+    "notes": "Samsung's spec sheet reads 'Wi-Fi 802.11a/b/g/n/ac/ax/be 2.4GHz+5GHz+6GHz, EHT320, MIMO, 4096-QAM', 'Wi-Fi Direct Yes', 'USB Version USB 3.2 Gen 1', 'Earjack USB Type-C'. 5.8G is the 2x2 320 MHz Wi-Fi 7 figure. The Wi-Fi-only SKU has no wwan0; the 5G SKU (SM-X926B) is 5G sub-6 GHz only (bands n1/2/3/5/7/8/12/20/25/26/28/38/40/41/66/77/78 SA/NSA), no mmWave. No Ethernet and no USB NIC is declared: USB-C is data/charge/DisplayPort."
+  },
+  {
+    "vendor": "microsoft",
+    "model": "Surface Pro (11th Edition)",
+    "label": "Microsoft Surface Pro (11th Edition)",
+    "category": "laptop",
+    "description": "13-inch Windows 11 2-in-1 (Snapdragon X Elite or X Plus) sold with a Surface Pro Keyboard, so it is modelled as a laptop rather than a slab. Networking is Wi-Fi 7 with Bluetooth 5.4 on every SKU, and the Wi-Fi + 5G SKU adds a 5G-NR/LTE modem with nano-SIM and eSIM; the ports are two USB-C / USB 4 and Surface Connect, with no RJ45 - a wired link needs a Surface Thunderbolt 4 Dock, a Surface Dock or a USB-C Ethernet adapter.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "5.8G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.microsoft.com/en-us/d/surface-pro-for-business-13-inch-11th-edition-snapdragon/8nl1w61jw8zm",
+    "notes": "Microsoft's spec table: 'Ports and charging: 2 X USB-C/USB4 ports ... Surface Pro Keyboard port, Surface Connect port, NanoSIM' and 'Network and connectivity - Wi-Fi only models: Wi-Fi 7, Bluetooth Core 5.4; Wi-Fi+5G models: Wi-Fi 7, Bluetooth Core 5.4 ... 5G-NR SA/NSA Release 15, DL 256 QAM up to 2.9 Gbps, 4x4 MIMO ... 4G Gigabit LTE Advanced Pro Cat 19'. No Ethernet port and no USB NIC declared; 5.8G is the 2x2 320 MHz Wi-Fi 7 figure. Compare Surface Pro 10, which shipped Wi-Fi 6E/7 depending on SKU."
+  },
+  {
+    "vendor": "lg",
+    "model": "OLED65C4PUA",
+    "label": "LG OLED65C4PUA",
+    "category": "iot",
+    "description": "65-inch LG OLED evo C4 (2024) webOS smart TV. It has exactly one network socket - a single Ethernet RJ45 input that LG does not rate but which is Fast Ethernet (10/100) class in the C-series - alongside Wi-Fi 5 (802.11ac) dual-band and Bluetooth 5.1 for the Magic Remote. The rest of the back panel is four HDMI 2.1 inputs, three USB 2.0 ports, an RF tuner input, optical S/PDIF and an RS-232C service jack, and the set is mains powered with no PoE.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.lg.com/ca_en/tv-soundbars/oled/oled65c4pua/",
+    "notes": "LG's own spec list: 'Ethernet Input 1ea', 'Wi-Fi Yes (Wi-Fi 5)', 'Bluetooth Support Yes (v 5.1)', 'IP Control Yes', 'HDMI Input 4ea', 'USB Input 3ea (v 2.0)', 'RF Input 1ea', 'RS-232C Input (Min Jack)'. LG publishes the port but not its rate; C-series sets negotiate at 100 Mbps, so a high-bitrate 4K remux can outrun the wire while Wi-Fi 5 has headroom. 'IP Control' is real: webOS answers its second-screen/SSAP service over HTTP on port 3000, which is why http-server is declared. No PoE, and the RS-232C jack is a service/control port, not a network interface."
+  },
+  {
+    "vendor": "samsung",
+    "model": "QN65LS03D",
+    "label": "Samsung QN65LS03D",
+    "category": "iot",
+    "description": "65-inch Samsung The Frame (LS03D, 2024) art-mode QLED smart TV on Tizen. All of its ports live on the One Connect box that reaches the panel over a single thin cable: one Ethernet LAN RJ45 of Fast Ethernet (10/100) class, Wi-Fi 5 (802.11ac) dual-band and Bluetooth 5.2 for the SolarCell remote, plus four HDMI inputs (HDMI 4 at 4K120), two USB-A ports, optical audio out, an RF input and an Ex-Link RS-232C jack. It is mains powered with no PoE.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.samsung.com/ca/business/lifestyle-tvs/the-frame/ls03d-65-inch-qled-4k-art-mode-qn65ls03dafxzc/",
+    "notes": "Samsung's spec detail: 'Ethernet (LAN) 1', 'Wi-Fi Yes (Wi-Fi 5)', 'Bluetooth Yes (BT5.2)', 'HDMI 4', 'USB 2 x USB-A', 'Ex-Link (RS-232C) 1', 'One Connect (Y22 4K)' - the 2024 Frame routes every port through the One Connect box, so the visible ports are on the box, not the panel. Samsung does not publish the LAN rate; current sets are 10/100, hence 100M. Tizen exposes a remote-control/REST API over HTTP (port 8001 for the websocket pairing flow), so http-server is declared. No PoE."
+  },
+  {
+    "vendor": "nvidia",
+    "model": "Shield TV Pro",
+    "label": "NVIDIA Shield TV Pro",
+    "category": "iot",
+    "description": "Android TV 11 streaming box with a real wired option: one Gigabit Ethernet RJ45 plus 802.11ac 2x2 MIMO Wi-Fi on 2.4 and 5 GHz, Bluetooth 5.0 + LE for the remote and gamepad, HDMI 2.0b output and two USB 3.0 Type-A ports for storage. It is a mains-powered set-top box with no PoE and no other network interface.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.nvidia.com/en-us/shield/shield-tv-pro/",
+    "notes": "NVIDIA's spec list: 'Wireless: 802.11ac 2x2 MIMO 2.4 GHz and 5 GHz Wi-Fi, Bluetooth 5.0 + LE, Captive Portal support' and 'Interfaces: Gigabit Ethernet, HDMI 2.0b with HDCP 2.2 and CEC, Two USB 3.0 Ports (Type A)'. Gigabit here, unlike the 10/100 port on the Roku Ultra. Android TV answers DIAL/Google Cast on TCP 8008/8009, hence http-server. The two USB 3.0 ports are mass storage only and are not declared as network interfaces."
+  },
+  {
+    "vendor": "sony",
+    "model": "PlayStation 5 (CFI-2000)",
+    "label": "Sony PlayStation 5 (CFI-2000)",
+    "category": "iot",
+    "description": "Slim PS5 from the CFI-2000 model group: one LAN port rated 10BASE-T/100BASE-TX/1000BASE-T, so a gigabit RJ45, plus Wi-Fi 6 (IEEE 802.11a/b/g/n/ac/ax, 2.4 and 5 GHz) and Bluetooth 5.1 for the DualSense. The back panel is HDMI 2.1 out, the LAN port, one SuperSpeed USB Type-A and the AC inlet, with a SuperSpeed USB-C and a USB Type-A on the front; the console is mains powered only, with no PoE.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://blog.playstation.com/2020/11/09/ps5-the-ultimate-faq/",
+    "notes": "Sony's networking line: 'Ethernet (10BASE-T, 100BASE-TX, 1000BASE-T), Wifi: IEEE 802.11 a/b/g/n/ac/ax'. The CFI-2000/2100/7000 model group is confirmed on the support page (https://www.playstation.com/en-us/support/hardware/ps5/), whose back-panel diagram lists 'A) HDMI OUT port B) LAN port C) USB Type-A port D) AC IN connector' - one LAN port, no second NIC. 1.2G is the 2x2 80 MHz Wi-Fi 6 figure. No PoE; optical drive and USB ports are not network interfaces."
+  },
+  {
+    "vendor": "microsoft",
+    "model": "Xbox Series X",
+    "label": "Microsoft Xbox Series X",
+    "category": "iot",
+    "description": "1 TB Xbox Series X console with one Ethernet port rated 802.3 10/100/1000 - a single gigabit RJ45 - and dual-band 802.11ac (Wi-Fi 5) wireless, plus a dedicated Xbox Wireless radio for controllers that is not an 802.11 interface. Physical layout is HDMI 2.1 out, three USB 3.1 Gen 1 ports, the Ethernet port and an AC inlet; the console is mains powered with no PoE and no second NIC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.xbox.com/en-US/consoles/xbox-series-x",
+    "notes": "Microsoft's 'PORTS & CONNECTIVITY' block: 'HDMI: 1x HDMI 2.1 port, USB: 3x USB 3.1 Gen 1 ports, Wireless: 802.11ac dual band, Ethernet: 802.3 10/100/1000, Accessories radio: Dedicated dual band XBOX Wireless radio'. So Wi-Fi 5 only - no 6 GHz, no 802.11ax - which is a generation behind the PS5's Wi-Fi 6 and a useful contrast in a lab. 867M is the 2x2 802.11ac figure. The accessory radio links controllers, not the network, so it is not declared."
+  },
+  {
+    "vendor": "nintendo",
+    "model": "Switch OLED Model (HEG-001)",
+    "label": "Nintendo Switch OLED Model (HEG-001)",
+    "category": "iot",
+    "description": "Nintendo Switch OLED Model: the console itself is wireless only - Wi-Fi 802.11a/b/g/n/ac on 2.4 and 5 GHz plus Bluetooth 4.1, with no network socket on the tablet - but the bundled HEG-007 dock does add a wired LAN RJ45 that only works in TV mode, and it is USB 2.0-attached so the link is Fast Ethernet (10/100) class. The console's own ports are a USB-C system connector, a 3.5 mm headset jack and a microSD slot; the dock adds HDMI out, the LAN port and two USB 2.0 ports, and everything is mains powered with no PoE.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "433M"
+      }
+    ],
+    "sourceUrl": "https://www.nintendo.com/us/gaming-systems/switch/tech-specs/",
+    "notes": "Correction to the common assumption that the OLED Switch is Wi-Fi only: Nintendo's own tech-spec page gives the console 'Wi-Fi (IEEE 802.11 a/b/g/n/ac compliant) / Bluetooth 4.1' and then, separately, 'Nintendo Switch dock with LAN port ... Wired LAN port (LAN cable sold separately.)'. Nintendo support confirms the bundled dock is model HEG-007 with 'two USB 2.0 ports, one USB-C AC Adapter port, one HDMI port, and one LAN port'. So eth0 is real but conditional: it exists only while the console is docked, and it disappears in handheld mode, where wlan0 is the only path. Nintendo publishes no LAN rate; because the dock's ports are USB 2.0 the wired link is 10/100-class, so 100M rather than 1G. wlan0 is 1x1 802.11ac (433M). No PoE."
+  },
+  {
+    "vendor": "amazon",
+    "model": "Kindle Paperwhite (12th Gen)",
+    "label": "Amazon Kindle Paperwhite (12th Gen)",
+    "category": "iot",
+    "description": "7-inch 300 ppi 2024 Kindle Paperwhite (model SA568B, IPX8, 16 GB). Its only network interface is a dual-band Wi-Fi radio on 2.4 and 5 GHz that supports WPA/WPA2/WPA3 and OWE, plus Bluetooth/BLE for Audible; the single physical port is USB-C for charging and sideloading. There is no Ethernet port and no USB network adapter path at all - if the SSID goes away the device is offline.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "433M"
+      }
+    ],
+    "sourceUrl": "https://digprjsurvey.amazon.com/csad/help/node/TTWjMJ2xjovvl2P5jX",
+    "notes": "Amazon's own compliance sheet for model SA568B: 'Dual-Band Wi-Fi (2.4 GHz and 5 GHz), Bluetooth and Bluetooth Low Energy', with per-band EIRP (2.4 GHz 19.5 dBm; 5 GHz B1-B3 19.0 dBm, B4 14.0 dBm) and the indoor-only 5150-5350 MHz restriction. Amazon publishes neither the 802.11 flavour nor the PHY rate; 433M is the 1x1 80 MHz 802.11ac figure for a dual-band 5 GHz client. It does not support ad-hoc/peer-to-peer Wi-Fi, and there is no 802.1X/EAP, so an enterprise SSID will not associate - worth knowing when building a lab WLAN. No Ethernet, no USB NIC, no PoE."
+  },
+  {
+    "vendor": "kobo",
+    "model": "Libra Colour",
+    "label": "Kobo Libra Colour",
+    "category": "iot",
+    "description": "7-inch colour E Ink e-reader with a dual-band Wi-Fi radio that Kobo rates at 802.11ac/b/g/n on 2.4 and 5 GHz (1x1), Bluetooth for audiobooks and headphones, and a USB-C port for charging and sideloading only. It has no Ethernet socket and no dock with one, so Wi-Fi is the sole network path.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "433M"
+      }
+    ],
+    "sourceUrl": "https://ereader.kobo.com/en-us/products/kobo-libra-colour",
+    "notes": "Kobo's technical specs list 'Connectivity: WiFi 802.11 ac/b/g/n (i.e. dual band, 2.4 and 5 GHz), Bluetooth wireless technology, and USB-C'. One radio, 1x1, so 433M is the 80 MHz 802.11ac figure. Kobo syncs the library over HTTPS to Rakuten's store, so it needs a routable path but no inbound port. No Ethernet, no PoE, no USB NIC."
+  },
+  {
+    "vendor": "apple",
+    "model": "Apple Watch Ultra 2",
+    "label": "Apple Watch Ultra 2",
+    "category": "iot",
+    "description": "49 mm titanium Apple Watch Ultra 2: the radio set is Wi-Fi 4 (802.11n) on 2.4 and 5 GHz, Bluetooth 5.3, second-generation Ultra Wideband, L1+L5 dual-frequency GPS, and an LTE/UMTS modem on the GPS + Cellular SKU. It has no wired interface of any kind - charging is magnetic and there is no USB or Ethernet connector - so Wi-Fi or LTE is the only way onto the network.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "150M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://support.apple.com/en-us/111832",
+    "notes": "Apple's Connectivity block reads 'LTE and UMTS, L1+L5 Precision dual-frequency GPS, Wi-Fi 4 (802.11n), Bluetooth 5.3, Second-generation Ultra Wideband chip'. Apple's Wi-Fi note (https://support.apple.com/en-us/HT204562) adds that the watch joins 802.11b/g/n networks on 2.4 GHz or 5 GHz and will not join public networks that require a login, subscription or profile - it also only auto-joins SSIDs the paired iPhone already knows, which is a genuinely different association model from a laptop. 150M is 1x1 802.11n at 40 MHz; Apple does not publish the LTE UE category, so 100M is a deliberately conservative endpoint figure. No Ethernet, no PoE, no USB."
+  }
+]
