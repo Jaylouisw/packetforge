@@ -377,6 +377,32 @@ async function handleApi(req, res, urlPath) {
       return sendJSON(res, 200, result);
     }
 
+    // /links/:linkId/state - pull a cable or put it back, and re-converge from that instant.
+    // The UI needs this to show what a Packet Tracer lab shows and a diagram cannot: a network
+    // reacting to something going wrong.
+    if (parts[3] === 'links' && parts.length === 6 && parts[5] === 'state') {
+      if (method !== 'POST' && method !== 'PATCH') {
+        return sendJSON(res, 405, { error: 'use POST' });
+      }
+      const body = await readBody(req);
+      const state = String(body.state || '').toLowerCase();
+      if (state !== 'up' && state !== 'down') {
+        return sendJSON(res, 422, { error: 'state must be up or down', code: 'E_BAD_STATE' });
+      }
+      const sim = simForFlows(topo);
+      const result = sim.setLinkState(parts[4], state, { atMs: Number(body.atMs) || 0 });
+      if (!result.ok) {
+        return sendJSON(res, 404, { error: 'no such link', code: result.code || 'E_NO_LINK' });
+      }
+      broadcast(topoId);
+      return sendJSON(res, 200, {
+        ok: true, linkId: parts[4], state: state, atMs: result.atMs,
+        reconvergeAtMs: result.reconvergeAtMs, changed: result.changed,
+        convergence: sim.getConvergence(),
+        state: fullState(topo)
+      });
+    }
+
     // /links/:linkId
     if (parts[3] === 'links' && parts.length === 5) {
       if (method === 'DELETE') {

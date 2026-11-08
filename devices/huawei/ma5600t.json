@@ -3,7 +3,7 @@
   "model": "MA5600T",
   "label": "SmartAX MA5600T OLT",
   "category": "olt",
-  "description": "Huawei SmartAX MA5600T 16-service-slot all-in-one copper/fibre access platform. Counted here: one H805VDMF 48-port VDSL2-over-POTS board in slot 1 (ports 0/1/0-47, VDSL2 17a/8b, MELT, G.INP, ADSL2+ backwards compatible) plus the SCUN control board's 4x GE optical uplinks (SFP) = 52 ports. An H801X2CS uplink board adds 2x 10GE SFP+ and 64-port VDPD/VDQM boards raise the line side to 64.",
+  "description": "Huawei SmartAX MA5600T 16-service-slot all-in-one copper/fibre access platform. Counted here: one H805VDMF 48-port VDSL2-over-POTS board in slot 1 (ports 0/1/0-47, VDSL2 17a/8b, MELT, G.INP, ADSL2+ backwards compatible), one H801X2CS 2-port 10GE SFP+ uplink board in slot 19 (ports 0/19/0-1, SyncE capable), and the SCUN control board's 4x GE optical uplinks (SFP) = 54 ports. 64-port VDPD/VDQM boards raise the line side to 64 per slot.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -286,8 +286,30 @@
       "speedCaps": [
         1000
       ]
+    },
+    {
+      "name": "0/19/0",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "label": "H801X2CS 10GE uplink port 0"
+    },
+    {
+      "name": "0/19/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "label": "H801X2CS 10GE uplink port 1"
     }
   ],
   "sourceUrl": "https://www.scribd.com/presentation/520286987/MA5600T-Product-Introduction",
-  "notes": "SCUN provides four GE upstream optical ports (SFP). Board table: 48-channel VDSL2 boards VDJM (over ISDN), VDMF/VCMM (over POTS), VSNL/VSNF splitters."
+  "notes": "SCUN provides four GE upstream optical ports (SFP). An H801X2CS adds 2x10GE in SFP+ cages (H802X2CS is the same board with 10GE SyncE); H801X2CA is the XFP variant of the same 2x10GE card, which is a different and larger cage - the engine refuses an SFP+ optic in an xfp cage. Board table: 48-channel VDSL2 boards VDJM (over ISDN), VDMF/VCMM (over POTS), VSNL/VSNF splitters; 64-channel VDPD/VDQM raise the line side to 64."
 }

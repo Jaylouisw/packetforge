@@ -23,43 +23,35 @@
     },
     {
       "name": "serial1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial2",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial3",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial4",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial5",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial6",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial7",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "serial8",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     }
   ],
   "sourceUrl": "https://www.moxa.com/getmedia/a6f2f5ff-32a8-4e4c-b168-94c705e0c5de/moxa-mgate-mb3660-series-datasheet-v2.0.pdf",

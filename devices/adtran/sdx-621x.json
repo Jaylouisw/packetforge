@@ -1,0 +1,33 @@
+{
+  "vendor": "adtran",
+  "model": "SDX 621X",
+  "label": "Adtran SDX 621X XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT (Mosaic OS) (pluggable SFP+ XGS-PON WAN) with 1× 10G LAN + 1× 1G LAN, 2× RJ-11 POTS (FXS) and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-adtran-sdx-621x/"
+}

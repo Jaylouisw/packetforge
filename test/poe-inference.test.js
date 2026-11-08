@@ -78,18 +78,39 @@ t('no port on a non-copper cage draws power either', () => {
     offenders.length + ' PD port(s) on a cage that cannot carry power');
 });
 
-t('off a switch, only ports that name themselves PoE source power', () => {
+t('off a switch, power is only sourced where the datasheet says so', () => {
+  // A declared PoE output is a statement about hardware. An inferred one is the engine filling
+  // a silence from the device class, and on a device that does not switch that guess puts watts
+  // on ports nobody documented - the defect that once put 89 PSE ports on fibre cages (#105).
+  // Only the guess is the offence here. A declaration that is simply wrong is a data bug, and
+  // the fix for it is the spec file, not this rule.
   const offenders = [];
   for (const { spec, ifaces } of all) {
     if (SWITCHY.indexOf(String(spec.category)) !== -1) continue;
     for (const p of ifaces) {
-      if (p.hardware.poeOut && !/poe/i.test(String(p.name))) {
+      if (p.hardware.poeOut && !p.hardware.poeOutDeclared) {
         offenders.push(spec.vendor + '/' + spec.model + ' ' + p.name);
       }
     }
   }
   assert.deepStrictEqual(offenders.slice(0, 8), [],
-    offenders.length + ' inferred PSE port(s) that are not named PoE on a non-switch');
+    offenders.length + ' port(s) source power only because the engine guessed it, on a non-switch');
+});
+
+t('a device that only accepts PoE never sources it', () => {
+  // Each of these says "PoE-in" in its own description. Their specs declared every port a PSE
+  // anyway, which is a claim the hardware does not support: an EdgeRouter 10X with 10 self-
+  // powered ports is not an EdgeRouter 10X.
+  const PD_ONLY = ['EP-R6', 'ER-10X', 'ACB-AC'];
+  for (const model of PD_ONLY) {
+    const spec = all.find(x => String(x.spec.model) === model);
+    assert.ok(spec, model + ' must exist in the catalogue');
+    const sourcing = spec.ifaces.filter(p => p.hardware.poeOut);
+    assert.deepStrictEqual(sourcing.map(p => p.name), [],
+      model + ' accepts PoE and must not source it (' + /poe-in/i.test(spec.spec.description || '') + ')');
+    const sinking = spec.ifaces.filter(p => p.hardware.poeIn);
+    assert.ok(sinking.length > 0, model + ' must still accept power on at least one port');
+  }
 });
 
 t('a switch that claims a PoE budget actually sources power', () => {

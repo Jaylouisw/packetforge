@@ -1,0 +1,70 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6-Enterprise-IW",
+  "label": "UniFi U6 Enterprise In-Wall",
+  "category": "wireless",
+  "description": "UniFi U6 Enterprise In-Wall (U6-Enterprise-IW) - 1x 2.5G RJ45 + 4x 1G RJ45. 802.3at PoE-in; WiFi 6E; up to 4.8 Gbps PHY rate; 21 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.8G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-enterprise-iw"
+}

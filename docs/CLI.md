@@ -135,3 +135,102 @@ This is intentionally a **unified** command set. A future release can add
 per-vendor "translators" (e.g. accept Juniper `set interfaces …` or Huawei
 `interface GigabitEthernet0/0/0`) while keeping the single underlying
 configuration model. See `docs/ROADMAP.md`.
+
+### ping — ask at an instant
+
+```
+ping <ip> [count] [at <ms>]
+```
+
+`at` asks the question that many milliseconds after power-on. Before the control plane has
+finished, the reply is not a timeout - the engine names the process that is not done:
+
+```
+SW1#ping 10.0.0.2 1 at 5000
+Success rate is 0 percent (0/1)
+% Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+```
+
+Replies now carry a real millisecond time, computed from the path (propagation in each medium,
+serialisation at each port, store-and-forward at each device) rather than a hop count. See
+[CONVERGENCE.md](CONVERGENCE.md).
+
+### converge — when is it up?
+
+```
+converge [at <ms>]
+```
+
+Lists every process on every device with the instant it finishes, and the lab's fully-converged
+time. With an instant, anything still pending is marked.
+
+## DHCP server
+
+```
+ip dhcp pool <name>
+  network <network> [mask|/prefix]
+  default-router <address>
+  dns-server <address...>
+  range <start> <end>
+  excluded-address <address[-address]>
+  lease <days> [hours] [minutes]
+  host <address> <mac>          # a reservation
+  exit
+```
+
+A pool is a named object on the device, not a property of an interface: one server can hold several
+and a client picks by the subnet its own interface sits in. The pool is validated once, when the
+sub-mode is left — `network` before `range` is the second keystroke, not an error:
+
+```
+R1(config)#ip dhcp pool lan
+R1(config-dhcp)#network 10.0.0.0 255.255.255.0
+R1(config-dhcp)#exit
+% E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
+```
+
+A client is configured with `ip address dhcp` on its interface. The exchange runs before the first
+packet of a run, and the failures are the ones a server really produces — `no-server`, `no-pool`,
+`pool-exhausted`, `nak`. See [SIMULATION.md §5.1](SIMULATION.md).
+
+## VRRP (first-hop redundancy)
+
+A group belongs to an interface, so the commands live inside `interface`:
+
+```
+interface Gi0/0
+  ip address 10.0.0.1 255.255.255.0
+  vrrp <vrid> ip <virtual-address>
+  vrrp <vrid> priority <1-255>        # 255 = address owner; 100 default
+  vrrp <vrid> advertise <seconds>
+  vrrp <vrid> preempt                 # default on
+  no vrrp <vrid> preempt
+  no vrrp <vrid>                      # remove the group
+```
+
+`show vrrp` reports the state after the last election:
+
+```
+R1#show vrrp
+Interface     Group  Pri  State      Master      Virtual IP      Virtual MAC
+Gi0/0         10     150  Master     R1          10.0.0.254      00:00:5e:00:01:0a
+```
+
+The election runs before the first packet of a run. A master whose interface is down relinquishes,
+the backup takes over, and the virtual MAC does not change — which is the point. See
+[SIMULATION.md §5.4](SIMULATION.md) and [CONVERGENCE.md](CONVERGENCE.md) for the master-down timing.
+
+## Cables
+
+A cable is not owned by a device, so these are accepted from any console in the lab.
+
+```
+links                              # every cable, its ends and its state
+link down <linkId> [at <ms>]       # pull it: frames die, STP rebuilds, tables flush
+link up   <linkId> [at <ms>]       # put it back
+link state <linkId>                # what it is now, and since when
+```
+
+`at <ms>` is when the change happens, in milliseconds since power-on, so a script can say "the
+uplink fails at 10 s" and then ask what the network looks like at 11 s. The command prints when the
+network converges again. See [LINK-STATE.md](LINK-STATE.md).

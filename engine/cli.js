@@ -9,6 +9,7 @@ const MODE_EXEC = 'exec';
 const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
+const MODE_DHCP_POOL = 'dhcp-pool';
 
 // ---------------------------------------------------------------------------
 // Port-name aliases (issue #27)
@@ -92,6 +93,7 @@ class CliSession {
     const host = this.device.config.hostname || this.device.hostname || this.device.name;
     if (this.mode === MODE_CONFIG) return host + '(config)#';
     if (this.mode === MODE_IFACE) return host + '(config-if)#';
+    if (this.mode === MODE_DHCP_POOL) return host + '(config-dhcp)#';
     if (this.mode === MODE_ENABLE) return host + '#';
     return host + '>';
   }
@@ -105,6 +107,8 @@ class CliSession {
     try {
       if (this.mode === MODE_IFACE) {
         out.push.apply(out, this._ifaceMode(tokens));
+      } else if (this.mode === MODE_DHCP_POOL) {
+        out.push.apply(out, this._dhcpPoolMode(tokens));
       } else if (this.mode === MODE_CONFIG) {
         out.push.apply(out, this._configMode(tokens));
       } else {
@@ -118,6 +122,12 @@ class CliSession {
           out.push.apply(out, this._show(tokens.slice(1)));
         } else if (head === 'ping') {
           out.push.apply(out, this._ping(tokens.slice(1)));
+        } else if (head === 'converge') {
+          out.push.apply(out, this._converge(tokens.slice(1)));
+        } else if (head === 'link') {
+          out.push.apply(out, this._link(tokens.slice(1)));
+        } else if (head === 'links') {
+          out.push.apply(out, this._links());
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // stays in exec
         } else if (head === 'help' || head === '?') {
@@ -199,6 +209,25 @@ class CliSession {
       }
       this.iface = name;
       this.mode = MODE_IFACE;
+    } else if (head === 'vrrp') {
+      // A group belongs to an interface, so this has to be configured on one - silently attaching
+      // it to whichever interface happened to be selected last would be worse than refusing.
+      return ['% vrrp is configured per interface: enter an interface first, e.g. interface Gi0/0'];
+    } else if (head === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'pool') {
+      // A pool is a named object on the device, not a property of an interface: the same server
+      // can hold several, and a client chooses by the subnet its own interface sits in.
+      const name = tokens[3];
+      if (!name) return ['% Incomplete command: ip dhcp pool <name>'];
+      if (!/^[A-Za-z0-9_.-]{1,32}$/.test(name)) return ['% Invalid pool name: ' + name];
+      if (!this.device.config.dhcpPools) this.device.config.dhcpPools = [];
+      let pool = this.device.config.dhcpPools.filter(function (p) { return p.name === name; })[0];
+      if (!pool) {
+        pool = { name: name };
+        this.device.config.dhcpPools.push(pool);
+        out.push('Created DHCP pool ' + name);
+      }
+      this.pool = name;
+      this.mode = MODE_DHCP_POOL;
     } else if (head === 'scion') {
       const scionLib2 = require('./scion');
       const parsed = scionLib2.parseIsdAs(tokens[1]);
@@ -302,6 +331,21 @@ class CliSession {
     const out = [];
     const iface = this.device.interfaces.get(this.iface);
     const head = tokens[0].toLowerCase();
+
+    if (head === 'vrrp') {
+      const res = this._vrrpIfaceCommand(tokens);
+      if (res) return res;
+    }
+    if (head === 'no' && tokens[1] === 'vrrp') {
+      const vrid = parseInt(tokens[2], 10);
+      const groups = (this.device.config.vrrp || []);
+      const kept = groups.filter(function (g) {
+        return !(g.vrid === vrid && g.interface === this.iface);
+      }, this);
+      if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
+      this.device.config.vrrp = kept;
+      return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+    }
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
         iface.dhcp = true;
@@ -855,25 +899,327 @@ class CliSession {
     return ['Interface ' + iface.name + ': access list ' + num + ' applied ' + dir];
   }
 
+  // ---------- config: vrrp (per interface) ----------
+  //
+  // A group belongs to an interface: the vrid plus the interface is the key, which is why the same
+  // vrid can exist on two interfaces of one router without them being the same group.
+  _vrrpIfaceCommand(tokens) {
+    const vrrpLib = require('./vrrp');
+    const out = [];
+    const dev = this.device;
+    if (!this.iface) return ['% vrrp must be configured inside an interface'];
+    const vrid = parseInt(tokens[1], 10);
+    if (!Number.isInteger(vrid) || vrid < 1 || vrid > 255) {
+      return ['% Invalid virtual router id: ' + (tokens[1] || '(none)') + ' (1-255)'];
+    }
+    if (!Array.isArray(dev.config.vrrp)) dev.config.vrrp = [];
+
+    const find = function () {
+      return dev.config.vrrp.filter(function (g) {
+        return g.vrid === vrid && g.interface === this.iface;
+      }, this)[0];
+    }.bind(this);
+
+    if (tokens[0] === 'no' || tokens[0] === 'no-') {
+      // 'no vrrp <vrid>' is dispatched from the config mode handler, not here.
+      return null;
+    }
+
+    let group = find();
+    // The argument is validated BEFORE the group exists: a command that is refused must not leave
+    // an empty group behind, or `show vrrp` reports a virtual gateway that was never configured.
+    if (!group && !tokens[2]) return ['% Incomplete command: vrrp <vrid> ip <address>'];
+    const what = (tokens[2] || '').toLowerCase();
+    if (what === 'ip') {
+      const ip = tokens[3];
+      if (!ip || !net.isIp(ip)) return ['% Invalid address: ' + (tokens[3] || '(none)')];
+      if (!group) {
+        group = { vrid: vrid, interface: this.iface, ips: [], priority: 100, preempt: true, advertSec: 1 };
+        dev.config.vrrp.push(group);
+      }
+      if (group.ips.indexOf(ip) === -1) group.ips.push(ip);
+      out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip);
+    } else if (what === 'priority') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + ': give it an address first'];
+      const p = parseInt(tokens[3], 10);
+      if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
+      group.priority = p;
+      out.push('VRRP group ' + vrid + ' priority ' + p);
+    } else if (what === 'preempt') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      group.preempt = !(tokens[0] === 'no');
+      out.push('VRRP group ' + vrid + ' preempt ' + (group.preempt ? 'enabled' : 'disabled'));
+    } else if (what === 'advertise' || what === 'advertisement') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      const a = Number(tokens[3]);
+      if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)')];
+      group.advertSec = a;
+      out.push('VRRP group ' + vrid + ' advertises every ' + a + ' s');
+    } else if (what === 'authentication') {
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      group.authText = tokens.slice(3).join(' ').slice(0, 8);
+      out.push('VRRP group ' + vrid + ' authentication set');
+    } else {
+      return ['% Unrecognized vrrp command: ' + tokens.join(' ')];
+    }
+
+    // The library validates the group; report its judgement rather than a second opinion.
+    const check = vrrpLib.validateGroup(vrrpLib.normalizeGroup(group));
+    if (!check.ok && check.errors.length) {
+      for (const e of check.errors) out.push('% ' + e.code + ': ' + (e.message || e.description || ''));
+    }
+    return out;
+  }
+
+  // show vrrp - the state after the last election, which is what an operator checks.
+  _showVrrp() {
+    const out = [];
+    const dev = this.device;
+    const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
+    if (!groups.length) { out.push('% VRRP is not configured'); return out; }
+    const claims = (dev.vrrpClaims || []);
+    out.push(pad('Interface', 14) + pad('Group', 7) + pad('Pri', 5) + pad('State', 11) +
+      pad('Master', 12) + pad('Virtual IP', 16) + 'Virtual MAC');
+    for (const g of groups) {
+      const claim = claims.filter(function (c) {
+        return c.vrid === g.vrid && c.iface === g.interface;
+      })[0];
+      out.push(pad(String(g.interface), 14) + pad(String(g.vrid), 7) +
+        pad(String(g.priority === undefined ? 100 : g.priority), 5) +
+        pad(claim ? 'Master' : 'Backup', 11) +
+        pad(dev.name || '', 12) +
+        pad((g.ips || []).join(','), 16) +
+        (claim ? claim.mac : '-'));
+    }
+    if (!claims.length) out.push('(no group holds its address yet - run a simulation)');
+    return out;
+  }
+
+  // ---------- config: ip dhcp pool ----------
+  //
+  // The pool is stored exactly as engine/dhcp.js normalises it at run time, and validated here so a
+  // typo is caught while it is typed rather than by a client that never gets an address. The
+  // validation is the library's own, not a second opinion: normalizePool() + validatePool().
+  _dhcpPoolMode(tokens) {
+    const out = [];
+    const dhcpLib = require('./dhcp');
+    const head = tokens[0].toLowerCase();
+    const pools = (this.device.config && this.device.config.dhcpPools) || [];
+    const pool = pools.filter(function (p) {
+      return p.name === this.pool;
+    }, this)[0];
+    if (!pool) { this.mode = MODE_CONFIG; return ['% Pool no longer exists']; }
+
+    // A pool is legitimately incomplete while it is being typed - 'network' before 'range' is not an
+    // error, it is the second keystroke. Nothing is validated per command; the pool is checked once,
+    // when the operator leaves the sub-mode, and again at run time where it matters.
+    function incomplete(msg) {
+      out.push('% ' + msg);
+      return out;
+    }
+
+    const finish = (mode) => {
+      // Leaving the sub-mode is the first honest moment to judge the pool.
+      const check = dhcpLib.validatePool(dhcpLib.normalizePool(pool));
+      if (!check.ok) {
+        for (const e of check.errors) out.push('% ' + e.code + ': ' + e.message);
+      }
+      this.mode = mode;
+      this.pool = null;
+      return out;
+    };
+
+    if (head === 'exit') return finish(MODE_CONFIG);
+    if (head === 'end') return finish(MODE_EXEC);
+    if (head === 'network') {
+      if (!tokens[1]) return incomplete('Incomplete command: network <network> [mask|/prefix]');
+      pool.network = tokens[1];
+      if (tokens[2]) pool.mask = tokens[2];
+    } else if (head === 'default-router') {
+      if (!tokens[1]) return incomplete('Incomplete command: default-router <address>');
+      pool.gateway = tokens[1];
+    } else if (head === 'dns-server') {
+      if (!tokens[1]) return incomplete('Incomplete command: dns-server <address...>');
+      pool.dns = tokens.slice(1).join(' ');
+    } else if (head === 'range') {
+      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: range <start> <end>');
+      pool.rangeStart = tokens[1];
+      pool.rangeEnd = tokens[2];
+    } else if (head === 'excluded-address' || (head === 'excluded' && tokens[1] === 'address')) {
+      const from = head === 'excluded' ? 2 : 1;
+      const addrs = tokens.slice(from).filter(Boolean);
+      if (!addrs.length) return incomplete('Incomplete command: excluded-address <address[-address]>');
+      pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
+    } else if (head === 'lease') {
+      // Days by default, like IOS: `lease 0 12 0` is 12 hours.
+      const nums = tokens.slice(1).filter(function (x) { return /^\d+$/.test(x); }).map(Number);
+      if (!nums.length) return incomplete('Incomplete command: lease <days> [hours] [minutes]');
+      const days = nums[0] || 0, hours = nums[1] || 0, mins = nums[2] || 0;
+      const sec = days * 86400 + hours * 3600 + mins * 60;
+      if (sec <= 0) return incomplete('A lease must be longer than zero');
+      pool.leaseSec = String(sec);
+    } else if (head === 'host') {
+      // host <address> <hardware-address> - a reservation, which is how a printer keeps its address.
+      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac>');
+      if (!pool.reservations) pool.reservations = {};
+      pool.reservations[tokens[2]] = tokens[1];
+    } else if (head === 'no') {
+      const what = (tokens[1] || '').toLowerCase();
+      if (what === 'default-router') delete pool.gateway;
+      else if (what === 'dns-server') delete pool.dns;
+      else if (what === 'range') { delete pool.rangeStart; delete pool.rangeEnd; }
+      else if (what === 'lease') delete pool.leaseSec;
+      else if (what === 'excluded-address') pool.excluded = [];
+      else if (what === 'pool') {
+        this.device.config.dhcpPools = pools.filter(function (p) { return p.name !== this.pool; }, this);
+        this.mode = MODE_CONFIG;
+        this.pool = null;
+        out.push('Removed DHCP pool');
+        return out;
+      }
+      return out;
+    } else {
+      return ['% Unrecognized DHCP pool command: ' + tokens.join(' ')];
+    }
+
+    return out;
+  }
+
   // ---------- ping ----------
+  //
+  // `ping 10.0.0.2` and `ping 10.0.0.2 5 at 5000` - the last form asks the question 5 seconds after
+  // power-on, which is the only way to watch a lab come up. Real hardware prints a time in
+  // milliseconds; this prints the delay the engine computed from the path (propagation +
+  // serialisation + store-and-forward), and falls back to the hop count if a link has no length.
   _ping(tokens) {
     const out = [];
     const ip = tokens[0];
-    const count = tokens[1] ? parseInt(tokens[1], 10) : 4;
+    let count = 4;
+    let atMs = null;
+    for (let i = 1; i < tokens.length; i++) {
+      if (tokens[i] === 'at' && tokens[i + 1]) { atMs = Number(tokens[i + 1]); i++; continue; }
+      const n = parseInt(tokens[i], 10);
+      if (Number.isFinite(n) && n > 0) count = n;
+    }
     if (!ip || !net.isIp(ip)) return ['% Invalid ping target: ' + (ip || '(none)')];
     if (!this.sim) return ['% Simulator not attached'];
+    if (atMs !== null) {
+      if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid instant: ' + tokens[tokens.indexOf('at') + 1]];
+      this.sim.setRunTime(atMs);
+    }
     out.push('Type escape sequence to abort.');
-    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + ip + ', timeout is 2 seconds:');
+    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + ip + ', timeout is 2 seconds:' +
+      (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
     const res = this.sim.ping(this.device.id, ip, { count: count });
     const marks = res.replies.map(function (r) { return r.success ? '!' : '.'; }).join('');
     out.push(marks);
     const ok = res.replies.filter(function (r) { return r.success; }).length;
     out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
     for (const r of res.replies) {
-      if (r.success) out.push('Reply from ' + ip + ': bytes=100 time=' + r.hops + ' hops');
-      else out.push('Request timed out (seq ' + r.seq + ')');
+      if (r.success) {
+        const t = (r.rtt === null || r.rtt === undefined)
+          ? (r.hops + ' hops')
+          : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
+        out.push('Reply from ' + ip + ': bytes=100 time=' + t);
+      } else if (r.reason === 'converging') {
+        // Not "request timed out": nothing was lost, the network is not up yet.
+        const who = (r.pending || []).map(function (p) { return p.process + ' on ' + p.device; }).join(', ');
+        out.push('% Still converging at t=' + atMs + ' ms: ' + who +
+          (r.convergingUntilMs !== null ? ' (ready at ' + r.convergingUntilMs + ' ms)' : ''));
+      } else {
+        out.push('Request timed out (seq ' + r.seq + ')');
+      }
     }
     return out;
+  }
+
+  // ---------- converge ----------
+  //
+  // The answer to "when is it up?" - every process, every device, in the order they finish.
+  _converge(tokens) {
+    if (!this.sim) return ['% Simulator not attached'];
+    const sched = this.sim.getConvergence();
+    const out = [];
+    if (!sched.entries.length) {
+      out.push('% Nothing in this lab runs a control plane that converges over time');
+      return out;
+    }
+    const atMs = tokens[0] !== undefined ? Number(tokens[0]) : null;
+    out.push('Process   Device                 Ready   Basis');
+    for (const e of sched.entries) {
+      const mark = (atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs) ? '  (pending)' : '';
+      out.push(pad(e.process, 10) + pad(String(e.device.name || e.deviceId), 23) +
+        pad(e.readyAtMs + ' ms', 10) + (e.basis || '') + mark);
+    }
+    out.push('');
+    out.push('Fully converged at ' + sched.convergedAtMs + ' ms.' +
+      (sched.fromMs ? ' (re-based at the link change at ' + sched.fromMs + ' ms)' : ''));
+    return out;
+  }
+
+  // ---------- cables ----------
+  /**
+   * link <up|down|state> <linkId> [at <ms>]
+   *
+   * The one operation a lab reaches for most often, and the one the engine had no word for: take a
+   * cable down without unplugging it. `at <ms>` is when, in milliseconds since power-on, so a script
+   * can say "the uplink fails at 10 s" and then ask what happens at 11 s.
+   */
+  _link(args) {
+    if (!this.sim) return ['% Simulator not attached'];
+    const out = [];
+    const what = (args[0] || '').toLowerCase();
+    const id = args[1];
+    if (!what || what === '?') {
+      return ['  link <up|down|state> <linkId> [at <ms>]',
+              '  links                            - list every cable and its state'];
+    }
+    if (what === 'state' || what === 'show') {
+      const l = this.topo.links.get(id);
+      if (!l) return ['% No such link: ' + (id || '(none)')];
+      out.push('Link ' + l.id + '  ' + this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b));
+      out.push('  state: ' + l.state + (l.stateSinceMs ? ' since ' + l.stateSinceMs + ' ms' : ''));
+      return out;
+    }
+    if (what !== 'up' && what !== 'down') {
+      return ['% Invalid input: link ' + args.join(' ') + ' - expected up, down or state'];
+    }
+    if (!id) return ['% Incomplete command: link ' + what + ' <linkId>'];
+
+    let atMs = 0;
+    const at = args.indexOf('at');
+    if (at !== -1) {
+      atMs = Number(args[at + 1]);
+      if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid time: ' + (args[at + 1] || '(none)')];
+    }
+
+    const res = this.sim.setLinkState(id, what, { atMs: atMs });
+    if (!res.ok) return ['% ' + (res.code || 'refused') + (res.detail ? ': ' + res.detail : '')];
+    if (!res.changed) {
+      out.push('Link ' + id + ' is already ' + what + '.');
+      return out;
+    }
+
+    const link = this.topo.links.get(id);
+    out.push('Link ' + id + ' (' + this._endpointName(link.a) + ' <-> ' +
+      this._endpointName(link.b) + ') is now ' + what + '.');
+    // The number a lab actually cares about: when the network has finished reacting.
+    out.push('Network converges again at ' + res.reconvergeAtMs + ' ms.');
+    return out;
+  }
+
+  _links() {
+    const out = ['Link   Endpoints                                                  State'];
+    for (const l of this.topo.links.values()) {
+      out.push(pad(l.id, 7) + pad(this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b), 59) +
+        l.state);
+    }
+    return out;
+  }
+
+  _endpointName(end) {
+    const dev = this.topo.getDevice(end.deviceId);
+    return (dev ? dev.name : end.deviceId) + ':' + end.iface;
   }
 
   // ---------- show ----------
@@ -972,6 +1318,8 @@ class CliSession {
           if (String(binds[k].out) === String(id)) out.push('    applied OUT on ' + k);
         }
       }
+    } else if (what === 'vrrp') {
+      out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
       out.push('VLAN Name                             Status    Ports');
       const byVlan = new Map();
@@ -1220,6 +1568,9 @@ class CliSession {
       '  access-list <1-2699> permit|deny ...        (config mode)',
       '  ip access-group <acl> in|out               (interface mode)',
       '  ping <ip> [count]',
+      '  converge [at <ms>]                - when each control plane finishes',
+      '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
+      '  links                             - every cable and its state',
       '  show version | ip interface brief | ip route | arp',
       '  show vlan [brief] | spanning-tree | etherchannel summary',
       '  show access-lists',

@@ -155,6 +155,9 @@ class Device {
       lags: {},                  // lagId -> { mode, hashPolicy, members: [iface] }
       acls: {},                  // aclNumber -> [ { action, ... } ]
       ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
+      // VRRP groups, one entry per vrid per interface:
+      // { vrid, interface, ips: [], priority, preempt, advertSec }
+      vrrp: [],
       dnsServers: [],            // upstream resolvers, by IP
       dnsZones: [],              // zones this device is authoritative for
       bgp: null,                 // { as, routerId, neighbors: [{ address, remoteAs }] }
@@ -260,7 +263,16 @@ class Device {
 
   ownsIpOn(incomingIface, ip) {
     const owner = this.interfaceWithIp(ip);
-    if (!owner) return null;
+    if (!owner) {
+      // Not a configured address - but the group may hold it. A master that does not answer for
+      // its own VIP is a router that forwards a packet addressed to itself.
+      const claim = this.vrrpClaimFor(ip, incomingIface);
+      if (claim) {
+        const held = this.interfaces.get(claim.iface);
+        if (held) return held;
+      }
+      return null;
+    }
     const inIface = this.resolveIface(incomingIface);
     if (!inIface || owner.name === inIface.name) return owner;
 
@@ -295,6 +307,60 @@ class Device {
       return owner;
     }
     return null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // VRRP ownership
+  // ---------------------------------------------------------------------------
+  //
+  // A virtual address is not configured on an interface, so interfaceWithIp() cannot find it. The
+  // master holds it on behalf of the group, and everything that asks "is this address mine?"
+  // - ARP, ICMP, the TTL path - has to get the same answer, or a ping to the VIP is forwarded and
+  // dies three hops later instead of being answered by the router sitting right there.
+
+  // Called by Simulator.computeVrrp() on the elected master only.
+  claimVrrp(claim) {
+    if (!Array.isArray(this.vrrpClaims)) this.vrrpClaims = [];
+    this.vrrpClaims = this.vrrpClaims.filter(function (c) {
+      return !(c.vrid === claim.vrid && c.iface === claim.iface);
+    });
+    this.vrrpClaims.push({
+      vrid: claim.vrid, iface: claim.iface,
+      ips: (claim.ips || []).slice(), mac: claim.mac || null
+    });
+    return this.vrrpClaims;
+  }
+
+  clearVrrp() {
+    this.vrrpClaims = [];
+    return this;
+  }
+
+  // The claim covering this address on this interface, or null.
+  vrrpClaimFor(ip, ifaceName) {
+    const claims = this.vrrpClaims || [];
+    const inName = ifaceName ? this.resolveIface(ifaceName) : null;
+    const inPort = inName ? inName.name : null;
+    for (const c of claims) {
+      if (c.ips.indexOf(ip) === -1) continue;
+      if (inPort && c.iface !== inPort) {
+        // A subinterface's claim is reachable from its parent port, the same rule ownsIpOn() uses.
+        const owner = this.interfaces.get(c.iface);
+        if (!(owner && owner.parent === inPort)) continue;
+      }
+      return c;
+    }
+    return null;
+  }
+
+  // The MAC this device puts on the wire when it answers for an address: the group's virtual MAC
+  // for a VIP, the interface's own otherwise. A host that caches the wrong one black-holes the
+  // moment mastership moves, which is the entire reason VRRP has a virtual MAC.
+  macForIp(ip, ifaceName) {
+    const claim = this.vrrpClaimFor(ip, ifaceName);
+    if (claim && claim.mac) return claim.mac;
+    const owner = this.interfaceWithIp(ip);
+    return owner ? owner.mac : null;
   }
 
   // The interface that represents a bridge group for configuration purposes: the
@@ -570,7 +636,7 @@ class Device {
     // The interface map below runs in a callback, so the device reference has to be
     // captured: `this` is not the device inside it.
     const self = this;
-    return {
+    const out = {
       id: this.id,
       vendor: this.vendor,
       model: this.model,
@@ -637,6 +703,19 @@ class Device {
       // per-interface ACL bindings (acl definitions live in config.acls)
       aclBindings: this.aclBindings || {}
     };
+
+    // Only when there is something in it. A server that forgets its pools on save is broken - the
+    // lab silently stops handing out addresses - but a device with no pools should not grow an
+    // empty array in every saved topology either.
+    if (this.config.dhcpPools && this.config.dhcpPools.length) {
+      out.config.dhcpPools = JSON.parse(JSON.stringify(this.config.dhcpPools));
+    }
+    // Same rule: a router that forgets its virtual gateway on save leaves every host that used it
+    // black-holed, but a router with no groups should not grow an empty array.
+    if (this.config.vrrp && this.config.vrrp.length) {
+      out.config.vrrp = JSON.parse(JSON.stringify(this.config.vrrp));
+    }
+    return out;
   }
 
   // Apply a previously serialized device body onto this instance.
@@ -665,6 +744,10 @@ class Device {
         d.config.gateway6Iface = state.config.gateway6Iface || null;
         d.config.ra = state.config.ra ? JSON.parse(JSON.stringify(state.config.ra)) : null;
         d.config.scionAs = state.config.scionAs || null;
+        d.config.dhcpPools = (state.config && Array.isArray(state.config.dhcpPools))
+          ? JSON.parse(JSON.stringify(state.config.dhcpPools)) : [];
+        d.config.vrrp = (state.config && Array.isArray(state.config.vrrp))
+          ? JSON.parse(JSON.stringify(state.config.vrrp)) : [];
         d.aclBindings = JSON.parse(JSON.stringify(state.aclBindings || {}));
       }
       if (Array.isArray(state.interfaces)) {

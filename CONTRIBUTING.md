@@ -109,3 +109,49 @@ No trailing period, no scope prefixes.
 3. For device additions, the maintainer cross-checks the datasheet.
 
 Thank you for contributing!
+
+## Exemptions have to be claimed
+
+An invariant is only as strong as the classes of hardware it actually checks. Three separate bugs
+in this repository came from the same sentence — a `continue` that quietly removed a group of ports
+from a check because they were "special":
+
+```js
+if (isConsoleOnly(i.hardware)) continue;   // 163 console ports, each claiming a gigabit (#979)
+if (!i.hardware.media.length) continue;    //  84 coax ports that could not be cabled at all (#1039)
+const top = Math.max.apply(null, caps);    //  NaN for caps written "10G", so nothing was compared (#993)
+```
+
+Each was defensible on the day it was written, each had a comment explaining why, and none of them
+appeared in the backlog. `test/skip-audit.test.js` now reads the test sources and requires every
+skip that decides *a piece of hardware is outside a check* — by its type, its prose, its class or
+its media — to carry one of:
+
+```js
+// #1234 - the issue that tracks this exemption, if it is a gap
+if (isConsoleOnly(hw)) continue;
+
+// not an exemption: this loop is looking for something that is not there
+if (!spec) continue;
+
+// A deliberate exemption: a device describing both PoE-in and PoE-out is a passthrough.
+if (POE_IN.test(desc) && POE_OUT.test(desc)) continue;
+```
+
+The audit does not judge whether an exemption is *correct* — only that it is claimed, tracked and
+findable. If you are adding a rule and a class of devices fails it, that is a decision about the
+catalogue: either fix the devices, or open an issue and reference it.
+
+## The Node 18 floor is real
+
+CI runs the suite on Node 18, 20 and 22. If you develop on something newer, `npm test` can be green
+locally and the Node 18 job can fail twenty minutes later, which reads like a flaky runner rather
+than "you used a Node 20 API". `scripts/check-node-surface.js` closes that gap statically, so it
+needs no second interpreter installed:
+
+```
+node scripts/check-node-surface.js          # fails on any post-18 API
+node scripts/check-node-surface.js --list   # what is banned, and what to write instead
+```
+
+It runs in CI before the matrix jobs, so the failure is immediate and names the API.

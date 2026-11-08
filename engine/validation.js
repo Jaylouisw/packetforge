@@ -648,7 +648,12 @@ function validateConnection(input) {
       mediaId = requested;
     }
   } else {
-    mediaId = preferredMedia(common);
+    // Bound the choice by the rate the link will actually run at: the media list is the
+    // connector's whole repertoire, so an SC/UPC cage offers a 2.5G PON medium to a 100M
+    // media converter as well as 100BASE-FX. Without the bound, the fastest medium wins and
+    // a 100 Mbps link gets described as GPON.
+    const rateHint = mate.ok && mate.speedMbps ? mate.speedMbps : negotiateSpeed(portA, portB);
+    mediaId = preferredMedia(common, rateHint);
   }
   verdict.mediaId = mediaId;
 

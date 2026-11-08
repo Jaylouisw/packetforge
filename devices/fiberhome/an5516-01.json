@@ -3,7 +3,7 @@
   "model": "AN5516-01",
   "label": "AN5516-01 OLT",
   "category": "olt",
-  "description": "Fiberhome AN5516-01 large-capacity OLT, 11U 19-inch chassis with 16 service slots and a 3.2 Tbit/s backplane, up to 256 GPON ports. This spec models one GCOB 16-port GPON card (gpon1/1-16) plus one HU2A uplink card: 2x 10GE SFP+ and 2 combo GE optical/electrical positions (each counted as an RJ45 + SFP pair) = 22 ports.",
+  "description": "Fiberhome AN5516-01 large-capacity OLT, 11U 19-inch chassis with 16 service slots and a 3.2 Tbit/s backplane, up to 256 GPON ports. This spec models one GCOB 16-port GPON card (gpon1/1-16) plus one HU2A uplink card: 2x 10GE in XFP cages (XG1-2) and 2 combo GE optical/electrical positions (GE3-4, each counted as an RJ45 + SFP pair) = 22 ports. The 10G ports are XFP, not SFP+: a different, larger cage that an SFP+ module does not fit.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -26,12 +26,20 @@
     {
       "name": "xge1/1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "xfp",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "xge1/2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "xfp",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "ge1/1",
@@ -59,12 +67,22 @@
     {
       "name": "ge1/2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "ge1/2-sfp",
+      "comboRole": "rj45"
     },
     {
       "name": "ge1/2-sfp",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "comboWith": "ge1/2",
+      "comboRole": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
     }
-  ]
+  ],
+  "notes": "HU2A is 2x10GE + 2xGE per FiberHome (XG1-2 are 10GE uplink optical, GE3-4 are GE optical/electrical). 10GE modules for this board are XFP (10G-10km/40km/80km tdM-XFP), so the cages are xfp and the engine refuses an SFP+ optic in them - the same refusal a technician would get. Other uplink boards in the family: HU1A/HU1B (4GE + 1x10GE), GU6F (6xGE). Chassis maximum is 16 service slots / 256 GPON ports, which this spec does not populate - one GCOB and one HU2A are counted."
 }
