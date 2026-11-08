@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- **OSPF refused to form an adjacency between interfaces addressed in different
+  subnets.** The adjacency was built from the cable alone, so two routers that
+  disagreed about the subnet installed routes via a next hop that was on no
+  connected subnet — traffic that never resolves is traffic that is black-holed.
+  Both ends of a broadcast link must now share the subnet **and** the mask, which
+  is the check that makes a misconfigured router a misconfigured router instead of
+  a silently-working one. `test/protocol-regression.test.js` proves the refusal,
+  and proves a matching subnet still forms the adjacency (#240).
+- **DNS reported three different failures as NXDOMAIN.** A name with no `A` record
+  (NODATA), a name the zone does not hold (NXDOMAIN), and a lab with no DNS server
+  configured at all (SERVFAIL) all came back as "no such domain". They are now
+  distinguished — NODATA is NOERROR with an empty answer — and a failed ping says
+  `dns-nodata`, `dns-nxdomain` or `dns-servfail` instead of always
+  `dns-nxdomain` (#241).
+- **`docs/SIMULATION.md` listed five defects as open that were already fixed**
+  (#41, #42, #43, #44, #54). The section now records what each one used to do and
+  what it does instead, so the page does not cry wolf about its own engine.
+
 ### Added
 
 - **The simulator has a notion of time.** Propagation (by medium and length), serialisation
