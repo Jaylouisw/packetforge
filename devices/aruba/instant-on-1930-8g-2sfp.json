@@ -1,0 +1,75 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1930 8G 2SFP (JL680A)",
+  "label": "Aruba Instant On 1930 8G 2SFP Switch (JL680A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1930 8G 2SFP (JL680A) - 8x 1G RJ45 plus 2x 1G SFP uplinks. Fanless smart-managed Layer 2+ switch with IPv4 static routing, web/cloud GUI only (no CLI).",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.netxl.com/aruba/docs/jl684b-acc-datasheet.pdf"
+}
