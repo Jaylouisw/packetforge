@@ -1,0 +1,63 @@
+{
+  "vendor": "fs",
+  "model": "AP-T565",
+  "label": "FS AP-T565",
+  "category": "wireless",
+  "description": "Outdoor Wi-Fi 6 access point: five gigabit Ethernet ports, one of them a PoE port, dual-band 802.11ax to 1775 Mbps combined.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://resource.fs.com/mall/file/datasheet/ap-w6d1775c-access-point-datasheet.pdf",
+  "notes": "Vendor figures from the FS datasheet: 4x 10/100/1000 Mbps RJ45 ports plus 1x 10/100/1000 Mbps RJ45 (PoE) port - five copper ports in total, one of them the PoE port - 802.11ax, and a stated maximum rate of up to 1775 Mbps. 1775 Mbps is the AX1800 aggregate, so the radios are modelled at 574M (2.4 GHz) and 1.2G (5 GHz) rather than putting the aggregate on one interface."
+}

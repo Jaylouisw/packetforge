@@ -1,0 +1,133 @@
+[
+  {
+    "vendor": "fs",
+    "model": "AP-N515",
+    "label": "FS AP-N515",
+    "category": "wireless",
+    "description": "Indoor Wi-Fi 6 access point with a single gigabit Ethernet port.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://resource.fs.com/mall/doc/202307121051483d3v0p.pdf",
+    "notes": "Vendor figures from the FS datasheet: 1x 10/100/1000 1000Base-T RJ45 port, 802.11ax. The datasheet gives the standard but the per-band maximum-rate row did not extract, so the two radios are modelled at the AX1800 split (574M on 2.4 GHz, 1.2G on 5 GHz) that this class uses - treat those two figures as the product class rather than a quoted row."
+  },
+  {
+    "vendor": "fs",
+    "model": "AP-T565",
+    "label": "FS AP-T565",
+    "category": "wireless",
+    "description": "Outdoor Wi-Fi 6 access point: five gigabit Ethernet ports, one of them a PoE port, dual-band 802.11ax to 1775 Mbps combined.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://resource.fs.com/mall/file/datasheet/ap-w6d1775c-access-point-datasheet.pdf",
+    "notes": "Vendor figures from the FS datasheet: 4x 10/100/1000 Mbps RJ45 ports plus 1x 10/100/1000 Mbps RJ45 (PoE) port - five copper ports in total, one of them the PoE port - 802.11ax, and a stated maximum rate of up to 1775 Mbps. 1775 Mbps is the AX1800 aggregate, so the radios are modelled at 574M (2.4 GHz) and 1.2G (5 GHz) rather than putting the aggregate on one interface."
+  },
+  {
+    "vendor": "fs",
+    "model": "PI35A-1",
+    "label": "FS PI35A-1 PoE injector",
+    "category": "powerline",
+    "description": "Single-port gigabit PoE injector: one gigabit data input and one gigabit PoE output.",
+    "capabilities": [
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "lan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "poe",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      }
+    ],
+    "sourceUrl": "https://resource.fs.com/mall/file/datasheet/single-port-101001000m-gigabit-poe-injector.pdf",
+    "notes": "Vendor figures from the FS datasheet: 1x 10/100/1000 Mbps data input and 1x 10/100/1000 Mbps PoE output. It is modelled as two gigabit ports because that is what it is - a pass-through - so a lab can place it between a switch and a powered device and see the link break if either side is wrong."
+  }
+]
