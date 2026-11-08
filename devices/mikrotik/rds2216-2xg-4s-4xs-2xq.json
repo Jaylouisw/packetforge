@@ -3,7 +3,7 @@
   "model": "RDS2216-2XG-4S+4XS-2XQ",
   "label": "ROSE Data server (RDS)",
   "category": "server",
-  "description": "MikroTik ROSE Data server (RDS) (RDS2216-2XG-4S+4XS-2XQ) \u2014 1x 1G RJ45, 2x 10G RJ45, 4x 10G SFP+, 4x 25G SFP28, 2x 100G QSFP28. ARM 64bit 16-core AL73400.",
+  "description": "MikroTik ROSE Data server (RDS) (RDS2216-2XG-4S+4XS-2XQ) — 1x 1G RJ45, 2x 10G RJ45, 4x 10G SFP+, 4x 25G SFP28, 2x 100G QSFP28. ARM 64bit 16-core AL73400.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -70,7 +70,7 @@
       ]
     },
     {
-      "name": "SFP+281",
+      "name": "SFP28-1",
       "type": "ethernet",
       "speed": "25G",
       "connector": "sfp28",
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "name": "SFP+282",
+      "name": "SFP28-2",
       "type": "ethernet",
       "speed": "25G",
       "connector": "sfp28",
@@ -92,7 +92,7 @@
       ]
     },
     {
-      "name": "SFP+283",
+      "name": "SFP28-3",
       "type": "ethernet",
       "speed": "25G",
       "connector": "sfp28",
@@ -103,7 +103,7 @@
       ]
     },
     {
-      "name": "SFP+284",
+      "name": "SFP28-4",
       "type": "ethernet",
       "speed": "25G",
       "connector": "sfp28",
@@ -114,7 +114,7 @@
       ]
     },
     {
-      "name": "qsfp281",
+      "name": "QSFP28-1",
       "type": "ethernet",
       "speed": "100G",
       "connector": "qsfp28",
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "name": "qsfp282",
+      "name": "QSFP28-2",
       "type": "ethernet",
       "speed": "100G",
       "connector": "qsfp28",
