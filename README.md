@@ -55,7 +55,12 @@ Then open **http://localhost:8000**.
 
 1. Click a device in the left palette (e.g. *Router*), then click the canvas to place it.
 2. Place two *PC*s and a *Switch*.
-3. Click a port on one device, then a port on another, to cable them.
+3. Cable them, either way:
+   - **Device first (recommended):** click 🔗 **Create link** (or press `C`), click the switch,
+     then the PC. The panel lists the link types the two boxes can actually share — 1000BASE-T,
+     10GBASE-LR — with the port pairs underneath, and `Esc` cancels. If nothing fits it says why
+     (`E_CONNECTOR_MISMATCH`, `E_NO_FREE_PORTS`, …) instead of failing one guess at a time.
+   - **Port first:** click a port on one device, then a port on another.
 4. Select a PC → **Console** tab → type:
 
    ```

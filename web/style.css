@@ -536,3 +536,35 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .lg-row.link-dsl { --cable: var(--c-dsl); }
 .lg-row.link-powerline { --cable: var(--c-powerline); }
 .lg-row.link-wireless { --cable: var(--c-wireless); }
+
+/* --- Create-link mode (issue #68) ------------------------------------------------------- */
+/* The list of link types: each one is a choice a person can actually make ("10GBASE-LR"),
+   with the port pairs underneath, because "Gi0/1 or Gi0/2" is the detail, not the decision. */
+.lo-box { min-width: 460px; max-width: 620px; max-height: 74vh; overflow-y: auto; }
+.lo-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 4px; }
+.lo-opt {
+  border: 1px solid var(--border-2); border-radius: 8px; padding: 10px 12px;
+  background: var(--bg-2); transition: border-color .12s ease, background .12s ease;
+}
+.lo-opt.sel { border-color: var(--accent, #4f8ef7); }
+.lo-head { display: flex; align-items: baseline; gap: 10px; }
+.lo-media { font-weight: 600; color: var(--text); }
+.lo-speed { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.lo-ports { margin-left: auto; color: var(--text-dim); font-size: 12px; }
+.lo-warn { margin-top: 6px; font-size: 12px; color: #fbbf24; }
+.lo-pairs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.lo-pair {
+  font: inherit; font-size: 12px; cursor: pointer;
+  background: var(--bg-3, #1b2230); color: var(--text);
+  border: 1px solid var(--border-2); border-radius: 6px; padding: 4px 9px;
+}
+.lo-pair:hover { border-color: var(--accent, #4f8ef7); }
+.lo-arrow { color: var(--text-dim); }
+.lo-code {
+  display: inline-block; margin-top: 8px; padding: 3px 8px; border-radius: 5px;
+  background: var(--bg-3, #1b2230); border: 1px solid var(--border-2);
+  font-family: ui-monospace, monospace; font-size: 12px; color: #f87171;
+}
+.lo-refusals { margin-top: 10px; font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+.lo-refusals code { color: var(--text); }
+button.mini.active { background: var(--accent, #4f8ef7); color: #0b1020; border-color: transparent; }
