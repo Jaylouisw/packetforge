@@ -292,8 +292,94 @@ class Simulator {
   getConvergence() {
     // Rebuilt on every call. It is a pure walk over the device list, and a cache here would be one
     // more thing that can disagree with the topology it describes.
-    return convergenceLib.buildSchedule(this.topo);
+    //
+    // After a link change the same timers run again, from the instant of the change: that is what
+    // re-convergence is. Without the offset, a lab that broke a cable would report the network as
+    // converged because it converged once, hours ago, before the cable was pulled.
+    const from = this.reconvergeFromMs !== undefined && this.reconvergeFromMs !== null
+      ? this.reconvergeFromMs
+      : (this.topo.lastChangeAtMs || 0);
+    return convergenceLib.buildSchedule(this.topo, { fromMs: from });
   }
+
+  // ---------------------------------------------------------------------
+  // Link state (what happens when a cable is pulled)
+  // ---------------------------------------------------------------------
+
+  /**
+   * setLinkState(linkId, 'up' | 'down', { atMs })
+   *
+   * Marks a cable up or down *without removing it*, which is the case a lab needs: the port still
+   * exists, the cable is still plugged in at both ends, and nothing gets through.
+   *
+   * A change does three things beyond flipping the flag, all of them what real gear does:
+   *   - the spanning tree is rebuilt, so a redundant topology heals around the failure;
+   *   - every bridge's MAC table is flushed (a topology change notification), so frames are not
+   *     unicast into the port that used to lead somewhere;
+   *   - the convergence schedule is re-based at `atMs`, so the seconds after the change are the
+   *     seconds during which nothing works.
+   */
+  setLinkState(linkId, state, opts) {
+    const o = opts || {};
+    const link = this.topo.getLink(linkId);
+    if (!link) return { ok: false, code: 'E_NO_LINK', linkId: linkId };
+    if (state !== 'up' && state !== 'down') {
+      return { ok: false, code: 'E_BAD_STATE', detail: 'state must be up or down' };
+    }
+
+    const atMs = Number.isFinite(Number(o.atMs)) ? Number(o.atMs) : 0;
+    const before = link.state;
+    link.state = state;
+    if (o.force !== true && before === state) {
+      return { ok: true, linkId: linkId, changed: false, state: state, atMs: atMs };
+    }
+
+    // Topology change: MAC tables age out instantly in the model, and the tree is rebuilt.
+    for (const dev of this.topo.devices.values()) {
+      // A topology change notification flushes the forwarding tables. Keeping them would unicast
+      // frames into the port that used to lead somewhere, which is the single most common way a
+      // real network black-holes after a link failure.
+      if (dev.macTable && typeof dev.macTable.clear === 'function') dev.macTable.clear();
+      if (dev.macTables && typeof dev.macTables.forEach === 'function') {
+        dev.macTables.forEach(function (m) { if (m && typeof m.clear === 'function') m.clear(); });
+      }
+    }
+    this._stpDirty = true;
+    this.recomputeStp();
+    this.reconvergeFromMs = atMs;
+    link.stateSinceMs = atMs;
+    // The network remembers: a later Simulator on this topology still knows when the cable moved.
+    if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
+
+    const stp = convergenceLib.stpTimers({});
+    return {
+      ok: true, linkId: linkId, changed: true, state: state, atMs: atMs,
+      // How long until this change has finished being absorbed.
+      reconvergeAtMs: atMs + stp.forwardAtMs,
+      affects: [link.a.deviceId, link.b.deviceId]
+    };
+  }
+
+  // The tree is a function of the link states, so it is thrown away and rebuilt rather than
+  // patched. Anything that reads stp right after a change sees the network as it is now.
+  recomputeStp() {
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.isBridge || !dev.isBridge()) continue;
+      if (dev.stp) dev.stp.blocked = new Set();
+      if (dev.portStates) dev.portStates = new Map();
+    }
+    this._stpDirty = true;
+    try {
+      this.computeStp();
+    } catch (e) {
+      // A half-built topology can legitimately fail to span; the next run rebuilds it.
+      this._stpDirty = true;
+    }
+    return true;
+  }
+
+  linkDown(linkId, opts) { return this.setLinkState(linkId, 'down', opts); }
+  linkUp(linkId, opts) { return this.setLinkState(linkId, 'up', opts); }
 
   // Has this process on this device finished by the run instant?
   _converged(process, dev) {
@@ -435,6 +521,10 @@ class Simulator {
       const groups = {};
       for (const iface of dev.interfaces.values()) {
         if (!iface.peer) continue;
+        // A port whose cable is down is not a port as far as the spanning tree is concerned - that
+        // is precisely how a redundant topology heals itself when a link fails.
+        const ownLink = this._linkAt(dev.id, iface.name);
+        if (ownLink && !ownLink.isUp()) continue;
         const key = this._logicalPortName(dev, iface.name);
         if (!groups[key]) groups[key] = [];
         groups[key].push(iface);
@@ -2283,6 +2373,13 @@ class Simulator {
     }
     const peer = iface.peer;
     if (!peer) return; // unplugged port (e.g. flood to an empty switch port)
+    // A link that is down carries nothing at all. Link.state existed and nothing read it, so a
+    // cable marked down kept passing every frame - the field was decoration.
+    const crossing = this._linkAt(dev.id, iface.name);
+    if (crossing && !crossing.isUp()) {
+      this._emit({ type: 'drop', reason: 'link down', dev: dev.id, iface: iface.name, link: crossing.id });
+      return;
+    }
     const peerDev = this.topo.getDevice(peer.deviceId);
     if (!peerDev) return;
     this._emit({

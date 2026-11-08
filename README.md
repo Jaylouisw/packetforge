@@ -19,7 +19,7 @@ and they all run the same simulation engine and the same command set.
 - **Real simulation, not canned animation.** The engine does MAC learning,
   flooding, ARP resolution, longest-prefix routing, default gateways, TTL
   decrement and ICMP echo/reply — with a replayable event stream.
-- **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable,
+- **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable, right-click-a-cable-to-pull-it,
   per-device console, live packet animation, WebSocket multi-client sync.
 - **Physically accurate.** 89 media types across nine families (Ethernet, Fibre Channel,
   GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages; per-port speed
@@ -92,6 +92,7 @@ echo/reply travel across the link with a live animation and event log.
 | CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip dhcp pool`, `ip route`, `ping [count] [at <ms>]`, `traceroute`, `converge` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
 | Convergence | Control planes take time: STP Listening/Learning, OSPF hello + SPF hold, DHCP exchange, VRRP master-down. Ask any question at an instant with `setRunTime(ms)` / `ping ... at 5000`; an unfinished process reports `converging`, not "timed out" ([docs](docs/CONVERGENCE.md)) |
+| Link failure | Pull a cable without deleting it: frames die at the link, STP heals around it, MAC tables flush, and every timer re-runs from the instant of the change. `link down l5 at 10000` then ask at 11000 — nothing gets through, and the reply says so ([docs](docs/LINK-STATE.md)) |
 | Latency | Per-link propagation from the medium's velocity, serialisation from frame size and line rate, store-and-forward per hop — so a 40 km span is not the same as a 1 m patch lead |
 | Persistence | save/load topologies as JSON (import/export buttons) |
 | Sync | WebSocket broadcasts topology edits to every connected client in real time |
@@ -136,7 +137,7 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # syntax checker + merge tools
 ├── .github/         # CI/CD workflows, issue/PR templates
-└── docs/            # architecture, registry, CLI, roadmap
+└── docs/            # architecture, registry, CLI, roadmap, link state
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.

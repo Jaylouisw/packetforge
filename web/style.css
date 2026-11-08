@@ -180,6 +180,9 @@ body {
    the event target (see hitTest in canvas.js), and this rule keeps the ghost out of the
    browser's own hit testing too. */
 .link-ghost { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
+/* A cable that is down: dashed, red, and dimmed, so a broken lab reads as broken at a glance. */
+.link.link-down { stroke: var(--red); stroke-dasharray: 5 5; opacity: .55; }
+.link.link-down:hover { stroke: var(--red); opacity: 1; }
 .packet { fill: var(--amber); filter: url(#glow); }
 /* Grid lines are scenery: 400 of them used to be hover/click candidates. */
 .grid-line { stroke: #151a24; stroke-width: 1; pointer-events: none; }

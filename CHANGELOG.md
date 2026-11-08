@@ -2,6 +2,19 @@
 
 ### Added
 
+- **Link state is real, and a pulled cable re-converges** (#1057). `Link` has carried
+  `state: 'up' | 'down' | 'blocked'` since the physical layer was built and **nothing in the engine
+  read it** - a cable marked down still carried every frame, still cost what it cost in the spanning
+  tree, and was still walked by the DHCP segment search. The field was decoration, and the failure it
+  hid was total: a lab could show a cut link passing traffic. Now a down link drops frames with
+  `reason: 'link down'`, is not a bridge port (so STP heals around it), is not walked by the segment
+  search, flushes every bridge's MAC table, and re-bases the convergence schedule at the instant of
+  the change. The change instant lives on the topology so a reloaded lab still knows when its cable
+  was cut. New CLI `link up|down|state <id> [at <ms>]` and `links`; new route
+  `POST /api/topologies/:id/links/:linkId/state`; a down cable is drawn dashed and red with a
+  take-down/bring-up entry in the cable menu. `docs/LINK-STATE.md` documents what is modelled and
+  what is not - no degraded links, no flapping, no RSTP fast convergence.
+
 - **VRRP is in the data path** (#1052). `engine/vrrp.js` elected a master and nothing called it, and
   the CLI had no `vrrp` command at all - a lab could read about a virtual gateway and never build
   one. `Simulator.computeVrrp()` now elects once per (broadcast domain, vrid) before the first

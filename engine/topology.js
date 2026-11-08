@@ -42,6 +42,18 @@ class Topology {
     this.layout = {}; // deviceId -> { x, y }
     this._seq = 1;
     this._macBase = 0x020000000000; // locally administered unicast base
+    // The instant of the last link-state change, in milliseconds since power-on. It belongs to the
+    // network rather than to a query, because the cable that was pulled at t=10 s is still pulled
+    // when the next question is asked at t=41 s.
+    this.lastChangeAtMs = 0;
+  }
+
+  // Record that something changed at an instant, so every later question can say whether the
+  // network has finished reacting to it.
+  markChange(atMs) {
+    const n = Number(atMs);
+    this.lastChangeAtMs = Number.isFinite(n) && n >= 0 ? n : 0;
+    return this.lastChangeAtMs;
   }
 
   addDevice(spec, id) {
@@ -363,6 +375,10 @@ class Topology {
       do { linkId = 'l' + (this._seq++); } while (this.links.has(linkId));
     }
     const link = new Link(linkId, aId, aIface, bId, bIface, {
+      // A cable can be loaded already down: the state is part of the lab, and a topology saved with
+      // a failed link must not come back with every link up.
+      state: opts.state || 'up',
+      stateSinceMs: (opts.stateSinceMs === undefined) ? 0 : opts.stateSinceMs,
       type: 'media',
       mediaId: mediaId,
       speedMbps: opts.speedMbps || verdict.speedMbps || null,
@@ -450,15 +466,20 @@ class Topology {
     const links = Array.from(this.links.values()).map(function (l) { return l.serialize(); });
     // The id sequence is part of the state. Omitting it meant a reloaded topology
     // restarted at d1 and its next addDevice() overwrote an existing device (#13).
-    return {
+    const out = {
       format: 'packetforge-topology', version: 1,
       seq: this._seq,
       devices: devices, links: links, layout: this.layout
     };
+    // Only when a change has happened: a lab built and never disturbed has nothing to say about it,
+    // and a field on every saved file is noise in every diff and every regenerated example.
+    if (this.lastChangeAtMs) out.lastChangeAtMs = this.lastChangeAtMs;
+    return out;
   }
 
   static fromJSON(data) {
     const topo = new Topology();
+    topo.lastChangeAtMs = Number(data.lastChangeAtMs) || 0;
     const devices = data.devices || [];
     // Two passes: create devices, then restore config/links.
     for (const d of devices) {
@@ -491,7 +512,9 @@ class Topology {
           lengthM: l.lengthM, lagId: l.lagId, type: l.type, force: true,
           // Absent in every topology saved before hybrid cords existed, which is
           // exactly what "ordinary fibre" means, so old files load unchanged.
-          patchCord: l.patchCord
+          patchCord: l.patchCord,
+          state: l.state || 'up',
+          stateSinceMs: l.stateSinceMs
         });
       } catch (e) {
         // Skip links that can no longer be made (device/port removed).

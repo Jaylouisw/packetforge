@@ -219,3 +219,18 @@ Gi0/0         10     150  Master     R1          10.0.0.254      00:00:5e:00:01:
 The election runs before the first packet of a run. A master whose interface is down relinquishes,
 the backup takes over, and the virtual MAC does not change — which is the point. See
 [SIMULATION.md §5.4](SIMULATION.md) and [CONVERGENCE.md](CONVERGENCE.md) for the master-down timing.
+
+## Cables
+
+A cable is not owned by a device, so these are accepted from any console in the lab.
+
+```
+links                              # every cable, its ends and its state
+link down <linkId> [at <ms>]       # pull it: frames die, STP rebuilds, tables flush
+link up   <linkId> [at <ms>]       # put it back
+link state <linkId>                # what it is now, and since when
+```
+
+`at <ms>` is when the change happens, in milliseconds since power-on, so a script can say "the
+uplink fails at 10 s" and then ask what the network looks like at 11 s. The command prints when the
+network converges again. See [LINK-STATE.md](LINK-STATE.md).

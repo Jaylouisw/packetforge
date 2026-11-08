@@ -80,3 +80,28 @@ Honestly, and by design:
 
 Each of those is a real gap and each is a candidate for its own issue. What exists is the part a
 technician meets first: the honest *duration* of coming up.
+
+## Re-convergence: a cable is pulled
+
+Everything above describes a network that is being powered on. The same timers run again whenever
+the topology *changes*, and they run from the instant of the change:
+
+```bash
+R1#link down l5 at 10000
+Link l5 (SW1:Fa0/1 <-> SW2:Fa0/1) is now down.
+Network converges again at 40000 ms.
+```
+
+Ten seconds plus the two forward delays, because a switch that has to bring a new port into
+forwarding walks it through Listening and Learning just as it does at boot. Ask inside that window
+and the answer is `reason: 'converging'`, naming the processes that are not done; ask after it and
+the alternate path is carrying traffic.
+
+`getConvergence()` reports `fromMs` — the instant the schedule is based at — and includes the change
+itself as an entry, so nothing in the schedule claims to be ready before the event that caused it.
+
+The change instant lives on the topology (`lastChangeAtMs`) rather than on a `Simulator`, so a lab
+reloaded from disk still knows when its cable was cut and still reports the correct window.
+
+Only 802.1D timers are modelled: RSTP's sub-second proposal/agreement is not, so a simulated
+re-convergence costs the same 30 s as a boot. See [LINK-STATE.md](LINK-STATE.md).

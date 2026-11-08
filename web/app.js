@@ -1720,8 +1720,14 @@
   function showLinkContextMenu(id, x, y) {
     const menu = $('#context-menu');
     if (!menu) { setStatus('Context menu unavailable - use Delete cable in the inspector'); return; }
+    const link = (topo.links || []).filter(function (l) { return l.id === id; })[0];
+    const down = link && link.state && link.state !== 'up';
     menu.innerHTML =
       '<div class="cm-item" data-act="inspect">Inspect cable</div>' +
+      // Pulling a cable and deleting one are different operations: the ports stay patched, the
+      // hardware stays as it is, and only the link dies - which is what actually happens.
+      (down ? '<div class="cm-item" data-act="up">Bring link up</div>'
+            : '<div class="cm-item" data-act="down">Take link down</div>') +
       '<div class="cm-item danger" data-act="delete">Delete cable</div>';
     menu.style.display = 'block';
     menu.style.left = x + 'px';
@@ -1730,9 +1736,41 @@
       const act = e.target.getAttribute('data-act');
       menu.style.display = 'none';
       if (act === 'inspect') selectLink(id);
+      else if (act === 'down') await setLinkState(id, 'down');
+      else if (act === 'up') await setLinkState(id, 'up');
       else if (act === 'delete') await deleteLink(id);
     };
     document.addEventListener('click', function hide() { menu.style.display = 'none'; document.removeEventListener('click', hide); });
+  }
+
+  /**
+   * Take a cable down (or put it back) and let the network re-converge from that instant.
+   *
+   * The simulator re-runs every control-plane timer from the moment of the change, so the answer
+   * comes back with the time at which the lab is whole again - which the status line shows,
+   * because "it will work in thirty seconds" is the useful half of the answer.
+   */
+  async function setLinkState(id, state) {
+    if (!topo) return;
+    try {
+      const res = await fetch('/api/topologies/' + encodeURIComponent(topo.id) + '/links/' +
+        encodeURIComponent(id) + '/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: state, atMs: Date.now() % 100000 })
+      });
+      if (!res.ok) {
+        setStatus('Could not change the link: ' + ((await res.json()).error || res.status));
+        return;
+      }
+      const body = await res.json();
+      await refresh();
+      setStatus(state === 'down'
+        ? 'Link down. The network converges again at ' + body.reconvergeAtMs + ' ms.'
+        : 'Link up. Convergence re-based; whole again at ' + body.reconvergeAtMs + ' ms.');
+    } catch (e) {
+      setStatus('Could not change the link: ' + e.message);
+    }
   }
 
   // The inspector's delete button, wired after each render because the button is part

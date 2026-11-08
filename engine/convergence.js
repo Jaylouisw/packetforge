@@ -146,6 +146,10 @@ function runsDhcpClient(dev) {
  */
 function buildSchedule(topo, opts) {
   opts = opts || {};
+  // `fromMs` re-bases the whole schedule at an instant. It is 0 for a lab that has just been
+  // powered on, and the instant of the change for a lab where a cable was pulled: the timers run
+  // again from there, which is the only honest way to say "the network is converging".
+  const fromMs = Number.isFinite(Number(opts.fromMs)) ? Number(opts.fromMs) : 0;
   const entries = [];
   const devices = topo && topo.devices ? Array.from(topo.devices.values()) : [];
 
@@ -185,6 +189,18 @@ function buildSchedule(topo, opts) {
     }
   }
 
+  for (const e of entries) {
+    e.readyAtMs = fromMs + e.readyAtMs;
+    e.basis = e.basis + (fromMs ? ' (after the change at ' + fromMs + ' ms)' : '');
+  }
+  if (fromMs) {
+    // The schedule is not worth reporting as "converged" before the change happened.
+    entries.push({
+      deviceId: null, device: { name: '(change)', id: null }, process: 'change',
+      readyAtMs: fromMs, basis: 'the link state changed'
+    });
+  }
+
   entries.sort(function (a, b) {
     if (a.readyAtMs !== b.readyAtMs) return a.readyAtMs - b.readyAtMs;
     if (a.process !== b.process) return a.process < b.process ? -1 : 1;
@@ -198,7 +214,7 @@ function buildSchedule(topo, opts) {
     if (!(e.process in byProcess) || e.readyAtMs > byProcess[e.process]) byProcess[e.process] = e.readyAtMs;
   }
 
-  return { entries: entries, convergedAtMs: convergedAtMs, byProcess: byProcess };
+  return { entries: entries, convergedAtMs: convergedAtMs, byProcess: byProcess, fromMs: fromMs };
 }
 
 // The instant one process on one device is done, or null if that device does not run it.

@@ -51,10 +51,16 @@ function sameDomain(a, b) {
 }
 
 // Is this port passing traffic right now?
-function portLive(dev, iface) {
+function portLive(dev, iface, topo) {
   if (!iface) return false;
   if (iface.enabled === false) return false;
   if (!iface.peer) return false;                     // unplugged
+  // A cable that is down passes nothing, whatever the port says about itself.
+  if (topo) {
+    for (const l of topo.links.values()) {
+      if (l.endpoint(dev.id, iface.name) && !l.isUp()) return false;
+    }
+  }
   if (dev.stp && dev.stp.blocked && dev.stp.blocked.has(iface.name)) return false;
   if (dev.stp && dev.stp.states) {
     const logical = (dev.lagFor && dev.lagFor(iface.name)) ? ('lag-' + dev.lagFor(iface.name).id) : iface.name;
@@ -93,6 +99,13 @@ function segmentOf(topo, dev, ifaceName) {
     if (seen.has(id)) continue;
     seen.add(id);
 
+    // The link being crossed has to be up.
+    let crossedUp = true;
+    for (const l of topo.links.values()) {
+      if (l.endpoint(at.device.id, at.iface.name) && !l.isUp()) { crossedUp = false; break; }
+    }
+    if (!crossedUp) continue;
+
     endpoints.push({ device: peerDev, iface: peerIface, via: at.iface.name });
 
     // A bridge passes the frame on to its other ports. Anything else receives it and stops it.
@@ -101,7 +114,7 @@ function segmentOf(topo, dev, ifaceName) {
         if (out.name === peerIface.name) continue;
         if (!out.peer) continue;
         if (!sameDomain(peerIface, out)) continue;
-        if (!portLive(peerDev, out)) continue;
+        if (!portLive(peerDev, out, topo)) continue;
         queue.push({ device: peerDev, iface: out });
       }
     }

@@ -297,6 +297,25 @@ snooping, lease expiry during a run (leases are computed at run start, not aged)
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
 | **Absent** | The `firewall` capability does nothing. 58 firewall models are catalogued and 217 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:90` |
 
+### 5.3b Link state — **in the data path** (since #1057)
+
+`Link` has carried `state: 'up' | 'down' | 'blocked'` since the physical layer was built, and until
+now nothing in the engine read it. A cable marked down still carried every frame, still cost what it
+cost in the spanning tree, and was still walked by the DHCP segment search: the field was
+decoration, and a lab could show a cut link passing traffic.
+
+| Verdict | Behaviour | Where |
+|---|---|---|
+| **Enforced** | A frame crossing a down link is dropped with `reason: 'link down'` and the link id. | `Simulator._run()` dequeue |
+| **In the tree** | A port whose cable is down is not a bridge port, so a redundant topology heals around the failure. | `Simulator.computeStp()` |
+| **In the segment walk** | DHCP will not offer a lease across a cut cable. | `engine/segment.js` |
+| **Flushed** | A topology change empties every bridge MAC table — a stale entry is how a real network black-holes. | `Simulator.setLinkState()` |
+| **Re-based** | The convergence schedule restarts from the instant of the change. | `engine/convergence.js` `fromMs` |
+| **In the drawing** | A down cable is dashed and red, and carries `data-link-state` for anything that wants to know. | `web/canvas.js` |
+
+Not modelled: degraded links (no CRC errors, no flapping), autonegotiation on recovery, interface
+self-test failures, and RSTP fast convergence. See [LINK-STATE.md](LINK-STATE.md).
+
 ### 5.4 VRRP — **in the data path** (since #1052)
 
 | Verdict | Behaviour | Where |

@@ -124,6 +124,10 @@ class CliSession {
           out.push.apply(out, this._ping(tokens.slice(1)));
         } else if (head === 'converge') {
           out.push.apply(out, this._converge(tokens.slice(1)));
+        } else if (head === 'link') {
+          out.push.apply(out, this._link(tokens.slice(1)));
+        } else if (head === 'links') {
+          out.push.apply(out, this._links());
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // stays in exec
         } else if (head === 'help' || head === '?') {
@@ -1148,8 +1152,74 @@ class CliSession {
         pad(e.readyAtMs + ' ms', 10) + (e.basis || '') + mark);
     }
     out.push('');
-    out.push('Fully converged at ' + sched.convergedAtMs + ' ms.');
+    out.push('Fully converged at ' + sched.convergedAtMs + ' ms.' +
+      (sched.fromMs ? ' (re-based at the link change at ' + sched.fromMs + ' ms)' : ''));
     return out;
+  }
+
+  // ---------- cables ----------
+  /**
+   * link <up|down|state> <linkId> [at <ms>]
+   *
+   * The one operation a lab reaches for most often, and the one the engine had no word for: take a
+   * cable down without unplugging it. `at <ms>` is when, in milliseconds since power-on, so a script
+   * can say "the uplink fails at 10 s" and then ask what happens at 11 s.
+   */
+  _link(args) {
+    if (!this.sim) return ['% Simulator not attached'];
+    const out = [];
+    const what = (args[0] || '').toLowerCase();
+    const id = args[1];
+    if (!what || what === '?') {
+      return ['  link <up|down|state> <linkId> [at <ms>]',
+              '  links                            - list every cable and its state'];
+    }
+    if (what === 'state' || what === 'show') {
+      const l = this.topo.links.get(id);
+      if (!l) return ['% No such link: ' + (id || '(none)')];
+      out.push('Link ' + l.id + '  ' + this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b));
+      out.push('  state: ' + l.state + (l.stateSinceMs ? ' since ' + l.stateSinceMs + ' ms' : ''));
+      return out;
+    }
+    if (what !== 'up' && what !== 'down') {
+      return ['% Invalid input: link ' + args.join(' ') + ' - expected up, down or state'];
+    }
+    if (!id) return ['% Incomplete command: link ' + what + ' <linkId>'];
+
+    let atMs = 0;
+    const at = args.indexOf('at');
+    if (at !== -1) {
+      atMs = Number(args[at + 1]);
+      if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid time: ' + (args[at + 1] || '(none)')];
+    }
+
+    const res = this.sim.setLinkState(id, what, { atMs: atMs });
+    if (!res.ok) return ['% ' + (res.code || 'refused') + (res.detail ? ': ' + res.detail : '')];
+    if (!res.changed) {
+      out.push('Link ' + id + ' is already ' + what + '.');
+      return out;
+    }
+
+    const link = this.topo.links.get(id);
+    out.push('Link ' + id + ' (' + this._endpointName(link.a) + ' <-> ' +
+      this._endpointName(link.b) + ') is now ' + what + '.');
+    // The number a lab actually cares about: when the network has finished reacting.
+    out.push('Network converges again at ' + res.reconvergeAtMs + ' ms.');
+    return out;
+  }
+
+  _links() {
+    const out = ['Link   Endpoints                                                  State'];
+    for (const l of this.topo.links.values()) {
+      out.push(pad(l.id, 7) + pad(this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b), 59) +
+        l.state);
+    }
+    return out;
+  }
+
+  _endpointName(end) {
+    const dev = this.topo.getDevice(end.deviceId);
+    return (dev ? dev.name : end.deviceId) + ':' + end.iface;
   }
 
   // ---------- show ----------
@@ -1498,6 +1568,9 @@ class CliSession {
       '  access-list <1-2699> permit|deny ...        (config mode)',
       '  ip access-group <acl> in|out               (interface mode)',
       '  ping <ip> [count]',
+      '  converge [at <ms>]                - when each control plane finishes',
+      '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
+      '  links                             - every cable and its state',
       '  show version | ip interface brief | ip route | arp',
       '  show vlan [brief] | spanning-tree | etherchannel summary',
       '  show access-lists',
