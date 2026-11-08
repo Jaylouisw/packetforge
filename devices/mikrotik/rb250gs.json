@@ -1,0 +1,43 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB250GS",
+  "label": "RB250GS",
+  "category": "switch",
+  "description": "MikroTik RB250GS (RB250GS) — 5x 1G RJ45.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB250GS"
+}
