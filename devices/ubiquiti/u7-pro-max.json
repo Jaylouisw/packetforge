@@ -1,0 +1,46 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Pro-Max",
+  "label": "UniFi U7 Pro Max",
+  "category": "wireless",
+  "description": "UniFi U7 Pro Max (U7-Pro-Max) - 1x 2.5G RJ45. 802.3at PoE-in; WiFi 7; up to 8.6 Gbps PHY rate; 25 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "8.6G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5.8G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro-max"
+}
