@@ -1,0 +1,49 @@
+{
+  "vendor": "mikrotik",
+  "model": "wAP ac LTE6 kit",
+  "label": "MikroTik wAP ac LTE6 kit",
+  "category": "wireless",
+  "description": "Outdoor AP with an embedded LTE6 modem: 2x gigabit, dual-band 802.11ac (300 + 867 Mbit/s), 802.3af PoE in.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/wap_ac_lte6_kit",
+  "notes": "Vendor figures from the MikroTik product page specification table: 2x 10/100/1000 Ethernet ports, PoE in 802.3af, wireless 2.4 GHz max data rate 300 Mbit/s and 5 GHz max 867 Mbit/s. The embedded modem is an LTE Cat 6, modelled at the conservative 50 Mbit/s uplink class the catalogue uses for Cat 6 rather than a peak marketing figure."
+}

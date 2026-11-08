@@ -1,0 +1,67 @@
+{
+  "vendor": "mikrotik",
+  "model": "Chateau LTE18 ax",
+  "label": "MikroTik Chateau LTE18 ax",
+  "category": "router",
+  "description": "LTE18 desktop router with Wi-Fi 6: four gigabit ports plus one 2.5G port, SIM slot, 802.11ax dual band.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/chateaulte18_ax",
+  "notes": "Vendor figures from the MikroTik product page: 'we kept four Gigabit Ethernet ports and added a 2.5 Gigabit Ethernet' port, plus an LTE modem and Wi-Fi 6. The 2.5G port is modelled at 2.5G rather than 1G because that is the whole point of the model - rounding it down would hide the only fast port on the device."
+}

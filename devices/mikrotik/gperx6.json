@@ -1,0 +1,71 @@
+{
+  "vendor": "mikrotik",
+  "model": "GPERx6",
+  "label": "MikroTik GPERx6 (CSS606)",
+  "category": "switch",
+  "description": "Outdoor Layer-2 switch: 3x gigabit with PoE-out on 2, 3x SFP+, and 802.3bt PoE input.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/gperx6",
+  "notes": "Vendor figures from the MikroTik product page specification table: 3x 10/100/1000 Ethernet ports with 2 of them PoE-out, 3x SFP+ ports, PoE in 802.3bt. It is powered by PoE *in* while powering other devices on PoE *out*, so the input budget has to cover the downstream load - the spec shows both directions rather than only one."
+}

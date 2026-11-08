@@ -1,0 +1,67 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB260GSP",
+  "label": "MikroTik RB260GSP",
+  "category": "switch",
+  "description": "Five-port gigabit switch with passive PoE-out and one SFP cage, in a small indoor case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/RB260GSP",
+  "notes": "Vendor figures from the MikroTik product page specification table: 5x 10/100/1000 Ethernet ports, 1x SFP port, passive PoE in - the page describes it as a 'PoE out Ethernet Smart Switch'. The PoE-out here is **passive**, not 802.3af/at: it passes the input voltage through, so a device expecting negotiation will not come up."
+}

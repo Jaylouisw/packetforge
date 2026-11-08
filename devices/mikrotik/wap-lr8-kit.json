@@ -1,0 +1,34 @@
+{
+  "vendor": "mikrotik",
+  "model": "wAP LR8 kit",
+  "label": "MikroTik wAP LR8 kit",
+  "category": "iot",
+  "description": "LoRaWAN gateway kit: 868 MHz LoRa module, 2.4 GHz Wi-Fi, one 10/100 Ethernet port with PoE in, GPS.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/wap_lr8g_kit",
+  "notes": "Vendor figures from the MikroTik product page specification table: 10/100 Ethernet ports 1, a 2.4 GHz WiFi interface, an 868 MHz LoRa module and built-in GPS. The LoRa radio is **not** modelled as an interface: the catalogue's interface speeds are of the form 600M or 4.8G, and a LoRa link's rate is orders of magnitude below that, so putting a number there would be a fabricated figure in a field that looks authoritative. The `lora` capability records that the radio exists; plan the 868 MHz side from the LoRaWAN spec rather than from this file.",
+  "role": [
+    "lora"
+  ]
+}

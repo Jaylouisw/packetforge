@@ -1,0 +1,31 @@
+{
+  "vendor": "mikrotik",
+  "model": "Wireless Wire nRAY",
+  "label": "MikroTik Wireless Wire nRAY",
+  "category": "ptp",
+  "description": "60 GHz point-to-point link kit: two nRAY units, each with one gigabit port with 802.3af PoE in and a 60 GHz radio.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/wireless_wire_nray",
+  "notes": "Vendor figures from the MikroTik product page specification table: the kit is two nRAY units, 1x 10/100/1000 Ethernet port each, PoE in 802.3af. The 60 GHz radio is modelled at the wired port's 1G - the page gives the band and the port rate but no single maximum for the radio, so treat that figure as unconfirmed."
+}

@@ -1,0 +1,382 @@
+[
+  {
+    "vendor": "mikrotik",
+    "model": "RBcAP2nD",
+    "label": "MikroTik cAP-2nD",
+    "category": "wireless",
+    "description": "Ceiling access point, single band 2.4 GHz 802.11b/g/n at 300 Mbit/s, one 10/100 Ethernet port with 802.3af PoE in.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/RBcAP2nD",
+    "notes": "Vendor figures from the MikroTik product page specification table: 1x 10/100 Ethernet port, 2.4 GHz max data rate 300 Mbit/s, PoE in 802.3af. **Single band and fast Ethernet** - it cannot take a 5 GHz channel and it cannot saturate a gigabit uplink, so it is not the same lab object as a cAP ac or cAP ax at the same ceiling position."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RBGrooveGA-52HPacn",
+    "label": "MikroTik GrooveA 52 ac",
+    "category": "ptp",
+    "description": "Outdoor airMAX CPE/base station: one gigabit port with passive PoE, 5 GHz 802.11ac radio at 433 Mbit/s, N-connector for an external antenna.",
+    "capabilities": [
+      "wireless",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.0
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "433M"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/RBGrooveGA-52HPacn",
+    "notes": "Vendor figures from the MikroTik product page specification table: 1x 10/100/1000 Ethernet port, passive PoE in, 5 GHz max data rate 433 Mbit/s. There is no antenna in the box - the radio has an N-connector, so the link budget depends on whatever is fitted, and a plan that treats the CPE as having integrated gain is wrong."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RB260GSP",
+    "label": "MikroTik RB260GSP",
+    "category": "switch",
+    "description": "Five-port gigabit switch with passive PoE-out and one SFP cage, in a small indoor case.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/RB260GSP",
+    "notes": "Vendor figures from the MikroTik product page specification table: 5x 10/100/1000 Ethernet ports, 1x SFP port, passive PoE in - the page describes it as a 'PoE out Ethernet Smart Switch'. The PoE-out here is **passive**, not 802.3af/at: it passes the input voltage through, so a device expecting negotiation will not come up."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "GPERx6",
+    "label": "MikroTik GPERx6 (CSS606)",
+    "category": "switch",
+    "description": "Outdoor Layer-2 switch: 3x gigabit with PoE-out on 2, 3x SFP+, and 802.3bt PoE input.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3at",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/gperx6",
+    "notes": "Vendor figures from the MikroTik product page specification table: 3x 10/100/1000 Ethernet ports with 2 of them PoE-out, 3x SFP+ ports, PoE in 802.3bt. It is powered by PoE *in* while powering other devices on PoE *out*, so the input budget has to cover the downstream load - the spec shows both directions rather than only one."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "wAP ac LTE6 kit",
+    "label": "MikroTik wAP ac LTE6 kit",
+    "category": "wireless",
+    "description": "Outdoor AP with an embedded LTE6 modem: 2x gigabit, dual-band 802.11ac (300 + 867 Mbit/s), 802.3af PoE in.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "l3-forward",
+      "nat",
+      "firewall",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/wap_ac_lte6_kit",
+    "notes": "Vendor figures from the MikroTik product page specification table: 2x 10/100/1000 Ethernet ports, PoE in 802.3af, wireless 2.4 GHz max data rate 300 Mbit/s and 5 GHz max 867 Mbit/s. The embedded modem is an LTE Cat 6, modelled at the conservative 50 Mbit/s uplink class the catalogue uses for Cat 6 rather than a peak marketing figure."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "Wireless Wire nRAY",
+    "label": "MikroTik Wireless Wire nRAY",
+    "category": "ptp",
+    "description": "60 GHz point-to-point link kit: two nRAY units, each with one gigabit port with 802.3af PoE in and a 60 GHz radio.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/wireless_wire_nray",
+    "notes": "Vendor figures from the MikroTik product page specification table: the kit is two nRAY units, 1x 10/100/1000 Ethernet port each, PoE in 802.3af. The 60 GHz radio is modelled at the wired port's 1G - the page gives the band and the port rate but no single maximum for the radio, so treat that figure as unconfirmed."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "wAP LR8 kit",
+    "label": "MikroTik wAP LR8 kit",
+    "category": "iot",
+    "description": "LoRaWAN gateway kit: 868 MHz LoRa module, 2.4 GHz Wi-Fi, one 10/100 Ethernet port with PoE in, GPS.",
+    "capabilities": [
+      "wireless",
+      "lora",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/wap_lr8g_kit",
+    "notes": "Vendor figures from the MikroTik product page specification table: 10/100 Ethernet ports 1, a 2.4 GHz WiFi interface, an 868 MHz LoRa module and built-in GPS. The LoRa radio is **not** modelled as an interface: the catalogue's interface speeds are of the form 600M or 4.8G, and a LoRa link's rate is orders of magnitude below that, so putting a number there would be a fabricated figure in a field that looks authoritative. The `lora` capability records that the radio exists; plan the 868 MHz side from the LoRaWAN spec rather than from this file."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "Chateau LTE18 ax",
+    "label": "MikroTik Chateau LTE18 ax",
+    "category": "router",
+    "description": "LTE18 desktop router with Wi-Fi 6: four gigabit ports plus one 2.5G port, SIM slot, 802.11ax dual band.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "wireless",
+      "wifi-ap",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/chateaulte18_ax",
+    "notes": "Vendor figures from the MikroTik product page: 'we kept four Gigabit Ethernet ports and added a 2.5 Gigabit Ethernet' port, plus an LTE modem and Wi-Fi 6. The 2.5G port is modelled at 2.5G rather than 1G because that is the whole point of the model - rounding it down would hide the only fast port on the device."
+  }
+]
