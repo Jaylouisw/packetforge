@@ -1,0 +1,34 @@
+{
+  "vendor": "cisco",
+  "model": "8865",
+  "label": "Cisco 8865",
+  "category": "phone",
+  "description": "Cisco IP Phone 8865, the 720p-video flagship of the 8800 series, with a 5-inch 800x480 display, five programmable line keys and Intelligent Proximity pairing to a mobile. It carries an internal two-port 10/100/1000 switch for the phone and a co-located PC, draws 802.3at class-4 power on the LAN port, and adds an integrated 802.11a/b/g/n/ac Wi-Fi client so it can also sit on the WLAN with no cable at all.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 25.5
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/collaboration-endpoints/unified-ip-phone-8800-series/datasheet-c78-734731.html",
+  "notes": "Datasheet: 'An internal 2-port Cisco Ethernet switch allows for a direct connection to a 10/100/1000BASE-T Ethernet network ... through an RJ-45 interface with single LAN connectivity for both the phone and a co-located PC', 'IEEE Power over Ethernet class 4 is supported. The phone is compatible with IEEE 802.3af, 802.3at and UPOE switch blades and supports both CDP and LLDP-PoE'. Class 4 is the 25.5 W 802.3at reservation - the phone will boot on an af port but with reduced features, which is exactly the misconfiguration a lab wants to reproduce. Wi-Fi table: 802.11a/b/g/n/ac, 2.4/5 GHz, 802.11r FT and CCKM, WPA2-Enterprise; 867M models a 2x2 80 MHz ac link. Separate 802.1Q VLANs per PC and voice port; two USB ports, AUX and 3.5 mm jack not modelled."
+}

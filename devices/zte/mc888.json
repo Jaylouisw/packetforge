@@ -1,0 +1,49 @@
+{
+  "vendor": "zte",
+  "model": "MC888",
+  "label": "ZTE MC888",
+  "category": "router",
+  "description": "ZTE MC888 Wi-Fi 6 indoor 5G CPE built on the Qualcomm SDX62 platform with WCN6856 Wi-Fi, NSA/SA sub-6 5G with LTE and WCDMA fallback, and support for up to 64 clients. The wired side is deliberately thin - two Gigabit RJ45 LAN ports, no dedicated WAN jack - alongside dual-band 2x2 802.11ax Wi-Fi with 4K QAM and 160 MHz channels, because the cellular link is the uplink.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "600M",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.4G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2.5G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.getic.com/files/catalogue/5133/ztemc888_ds-66e8303e6a1a1.pdf",
+  "notes": "ZTE datasheet: Interface 'Two Gigabit Network Ports'; WLAN '802.11a/b/g/n/ac/ax, 2.4G & 5G dual band, 2*2 MIMO, 4K QAM, 160MHz'; platform SDX62+WCN6856; 'Support Firewall and PP2P / LPTP'; connection number 64; 5G N1/N3/N7/N8/N20/N28/N38/N40/N75/N77/N78, LTE B1/B3/B7/B8/B20/B28/B32/B38/B40/B42/B43. Both copper ports are LAN - cellular is the only WAN - so no wan interface is declared. wlan1 at 2.4G is the 2x2 160 MHz ax PHY rate; wwan0 models the sub-6 NR downlink class of the X62 (2.5 Gbps). Do not confuse with the MC888 Ultra, which swaps in a 2.5GE port plus an RJ11."
+}

@@ -1,0 +1,27 @@
+{
+  "vendor": "yealink",
+  "model": "T46U",
+  "label": "Yealink T46U",
+  "category": "phone",
+  "description": "Yealink SIP-T46U executive desk phone with a 4.3-inch colour display, 16 SIP accounts and Yealink Optima HD voice, built on a two-port Gigabit Ethernet switch whose second RJ45 is a PC passthrough. It is a wired-only endpoint out of the box - the LAN port is the PoE input, there is no radio in the chassis, and Wi-Fi or Bluetooth only appears if a WF40/WF50 or BT40/BT41 USB dongle is fitted.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://support.yealink.com/docs/sip-t46u/yealink-sip-t46u-datasheet/16aa3e79e97649ccb8c7b0ff0f0c0a53",
+  "notes": "Datasheet: 'The SIP-T46U comes with two Gigabit Ethernet ports, one of which is suitable for Power over Ethernet (PoE)', feature list 'Dual-port Gigabit Ethernet', 'PoE support'. The datasheet does not print the PoE class, so 12.95 W is carried as the 802.3af PD ceiling. Radios: none in the chassis - 'Wi-Fi via WF40/WF50', 'Bluetooth via BT40/BT41/BT51' are USB dongles and the two USB 2.0 ports are not modelled, so the phone presents as a wired endpoint with a passthrough. Provisioning RPS/auto-P, TLS/SRTP, 802.1X, LLDP/CDP/DHCP-VLAN, OpenVPN/L2TP, IPv6. Pair with the T54W already in the catalogue to contrast a wired-only T4U against the Wi-Fi T54W."
+}

@@ -1,0 +1,27 @@
+{
+  "vendor": "microsoft",
+  "model": "Xbox Series X",
+  "label": "Microsoft Xbox Series X",
+  "category": "iot",
+  "description": "1 TB Xbox Series X console with one Ethernet port rated 802.3 10/100/1000 - a single gigabit RJ45 - and dual-band 802.11ac (Wi-Fi 5) wireless, plus a dedicated Xbox Wireless radio for controllers that is not an 802.11 interface. Physical layout is HDMI 2.1 out, three USB 3.1 Gen 1 ports, the Ethernet port and an AC inlet; the console is mains powered with no PoE and no second NIC.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.xbox.com/en-US/consoles/xbox-series-x",
+  "notes": "Microsoft's 'PORTS & CONNECTIVITY' block: 'HDMI: 1x HDMI 2.1 port, USB: 3x USB 3.1 Gen 1 ports, Wireless: 802.11ac dual band, Ethernet: 802.3 10/100/1000, Accessories radio: Dedicated dual band XBOX Wireless radio'. So Wi-Fi 5 only - no 6 GHz, no 802.11ax - which is a generation behind the PS5's Wi-Fi 6 and a useful contrast in a lab. 867M is the 2x2 802.11ac figure. The accessory radio links controllers, not the network, so it is not declared."
+}

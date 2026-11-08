@@ -1,0 +1,28 @@
+{
+  "vendor": "lg",
+  "model": "OLED65C4PUA",
+  "label": "LG OLED65C4PUA",
+  "category": "iot",
+  "description": "65-inch LG OLED evo C4 (2024) webOS smart TV. It has exactly one network socket - a single Ethernet RJ45 input that LG does not rate but which is Fast Ethernet (10/100) class in the C-series - alongside Wi-Fi 5 (802.11ac) dual-band and Bluetooth 5.1 for the Magic Remote. The rest of the back panel is four HDMI 2.1 inputs, three USB 2.0 ports, an RF tuner input, optical S/PDIF and an RS-232C service jack, and the set is mains powered with no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.lg.com/ca_en/tv-soundbars/oled/oled65c4pua/",
+  "notes": "LG's own spec list: 'Ethernet Input 1ea', 'Wi-Fi Yes (Wi-Fi 5)', 'Bluetooth Support Yes (v 5.1)', 'IP Control Yes', 'HDMI Input 4ea', 'USB Input 3ea (v 2.0)', 'RF Input 1ea', 'RS-232C Input (Min Jack)'. LG publishes the port but not its rate; C-series sets negotiate at 100 Mbps, so a high-bitrate 4K remux can outrun the wire while Wi-Fi 5 has headroom. 'IP Control' is real: webOS answers its second-screen/SSAP service over HTTP on port 3000, which is why http-server is declared. No PoE, and the RS-232C jack is a service/control port, not a network interface."
+}

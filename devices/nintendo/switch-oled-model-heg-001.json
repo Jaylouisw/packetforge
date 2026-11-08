@@ -1,0 +1,27 @@
+{
+  "vendor": "nintendo",
+  "model": "Switch OLED Model (HEG-001)",
+  "label": "Nintendo Switch OLED Model (HEG-001)",
+  "category": "iot",
+  "description": "Nintendo Switch OLED Model: the console itself is wireless only - Wi-Fi 802.11a/b/g/n/ac on 2.4 and 5 GHz plus Bluetooth 4.1, with no network socket on the tablet - but the bundled HEG-007 dock does add a wired LAN RJ45 that only works in TV mode, and it is USB 2.0-attached so the link is Fast Ethernet (10/100) class. The console's own ports are a USB-C system connector, a 3.5 mm headset jack and a microSD slot; the dock adds HDMI out, the LAN port and two USB 2.0 ports, and everything is mains powered with no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://www.nintendo.com/us/gaming-systems/switch/tech-specs/",
+  "notes": "Correction to the common assumption that the OLED Switch is Wi-Fi only: Nintendo's own tech-spec page gives the console 'Wi-Fi (IEEE 802.11 a/b/g/n/ac compliant) / Bluetooth 4.1' and then, separately, 'Nintendo Switch dock with LAN port ... Wired LAN port (LAN cable sold separately.)'. Nintendo support confirms the bundled dock is model HEG-007 with 'two USB 2.0 ports, one USB-C AC Adapter port, one HDMI port, and one LAN port'. So eth0 is real but conditional: it exists only while the console is docked, and it disappears in handheld mode, where wlan0 is the only path. Nintendo publishes no LAN rate; because the dock's ports are USB 2.0 the wired link is 10/100-class, so 100M rather than 1G. wlan0 is 1x1 802.11ac (433M). No PoE."
+}

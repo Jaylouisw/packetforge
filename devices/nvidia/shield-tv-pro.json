@@ -1,0 +1,28 @@
+{
+  "vendor": "nvidia",
+  "model": "Shield TV Pro",
+  "label": "NVIDIA Shield TV Pro",
+  "category": "iot",
+  "description": "Android TV 11 streaming box with a real wired option: one Gigabit Ethernet RJ45 plus 802.11ac 2x2 MIMO Wi-Fi on 2.4 and 5 GHz, Bluetooth 5.0 + LE for the remote and gamepad, HDMI 2.0b output and two USB 3.0 Type-A ports for storage. It is a mains-powered set-top box with no PoE and no other network interface.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.nvidia.com/en-us/shield/shield-tv-pro/",
+  "notes": "NVIDIA's spec list: 'Wireless: 802.11ac 2x2 MIMO 2.4 GHz and 5 GHz Wi-Fi, Bluetooth 5.0 + LE, Captive Portal support' and 'Interfaces: Gigabit Ethernet, HDMI 2.0b with HDCP 2.2 and CEC, Two USB 3.0 Ports (Type A)'. Gigabit here, unlike the 10/100 port on the Roku Ultra. Android TV answers DIAL/Google Cast on TCP 8008/8009, hence http-server. The two USB 3.0 ports are mass storage only and are not declared as network interfaces."
+}

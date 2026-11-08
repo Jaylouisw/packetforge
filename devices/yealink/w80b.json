@@ -1,0 +1,22 @@
+{
+  "vendor": "yealink",
+  "model": "W80B",
+  "label": "Yealink W80B",
+  "category": "wireless",
+  "description": "Yealink W80B DECT IP multi-cell base station, the radio half of the W80 system (up to 30 bases, 100 handsets, 100 parallel calls under a W80DM), shipping from the factory in base mode and switchable to DM or DM-base at the touch of a button. One 10/100 RJ45 carries both SIP signalling and 802.3af class-1 power, and the DECT air interface runs 1880-1900 MHz in Europe or 1920-1930 MHz in the US rather than anything Ethernet-shaped.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeIn": 3.84
+    }
+  ],
+  "sourceUrl": "https://support.yealink.com/docs/w80dm-w80b/yealink-w80-datasheet/cf55bc85bd344b6c8423f476af1b8a64",
+  "notes": "Datasheet Interface section: '1 x RJ45 10/100M Ethernet port', 'Power over Ethernet (IEEE 802.3af), Class 1' - a single port, no PC passthrough (bases are the leaf, not the tree). 3.84 W is the class-1 reservation the PSE must hold, not the measured draw. Quick Start Guide adds 'IEEE 802.3af compliant PoE Hub/Switch' and a 5 V/1.2 A optional adapter. DECT 1880-1900 MHz (EU) / 1920-1930 MHz (US), 50 m indoor / 300 m outdoor, sync over air or LAN (IEEE1588) with level-1 base backup, third-party DECT devices deliberately unsupported. The DECT air interface and handsets are not modelled as Ethernet interfaces, same convention as the W70B."
+}

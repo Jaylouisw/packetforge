@@ -1,0 +1,22 @@
+{
+  "vendor": "kobo",
+  "model": "Libra Colour",
+  "label": "Kobo Libra Colour",
+  "category": "iot",
+  "description": "7-inch colour E Ink e-reader with a dual-band Wi-Fi radio that Kobo rates at 802.11ac/b/g/n on 2.4 and 5 GHz (1x1), Bluetooth for audiobooks and headphones, and a USB-C port for charging and sideloading only. It has no Ethernet socket and no dock with one, so Wi-Fi is the sole network path.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://ereader.kobo.com/en-us/products/kobo-libra-colour",
+  "notes": "Kobo's technical specs list 'Connectivity: WiFi 802.11 ac/b/g/n (i.e. dual band, 2.4 and 5 GHz), Bluetooth wireless technology, and USB-C'. One radio, 1x1, so 433M is the 80 MHz 802.11ac figure. Kobo syncs the library over HTTPS to Rakuten's store, so it needs a routable path but no inbound port. No Ethernet, no PoE, no USB NIC."
+}

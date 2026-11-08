@@ -1,0 +1,59 @@
+{
+  "vendor": "hughesnet",
+  "model": "HT2000W",
+  "label": "HughesNet HT2000W",
+  "category": "router",
+  "description": "HughesNet HT2000W Ka/Ku-band satellite modem and Wi-Fi router in one box, the consumer Gen5 terminal that feeds a four-port Gigabit LAN switch and dual-band 2.4/5 GHz Wi-Fi from a single F-type coax IFL to the outdoor radio. It is a full router, not a bridge: the web UI exposes Wireless, LAN, DNS, Firewall, NAT with port mapping, QoS, Routing and IPv6 pages, and the optional ATA variant adds an RJ11 for HughesNet Voice.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "25M",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://my.hughesnet.com/support/wp-content/uploads/1041264-0001_a.pdf",
+  "notes": "User guide chapter 1: 'The modem connects to a computer or local area network (LAN) via one of its four (4) Ethernet ports and/or its two (2) wireless networks'; Appendix A Table 3 network interface ports: 'RJ-45 Ethernet LAN port supporting 10BaseT, 100BaseT or 1000BaseT operation'. Wi-Fi is protocol-specified but stream-count-free ('On 2.4GHz you can select b/g/n ... On 5GHz a only, n only, a/n mix, or a/n/ac mix', 20/40/80 MHz on 5 GHz), so 300M and 867M model 2x2 links rather than a datasheet number. The satellite IFL is a single F-type coax carrying DC and IF to the outdoor radio, not an Ethernet port, so the space segment is modelled as wwan0 at 25M (Gen5 service envelope) instead of a fictitious copper WAN. Firewall/NAT/port-mapping/QoS/Routing/IPv6 all live in the web UI at 192.168.0.1; the optional ATA RJ11 is not modelled."
+}

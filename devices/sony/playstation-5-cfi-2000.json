@@ -1,0 +1,27 @@
+{
+  "vendor": "sony",
+  "model": "PlayStation 5 (CFI-2000)",
+  "label": "Sony PlayStation 5 (CFI-2000)",
+  "category": "iot",
+  "description": "Slim PS5 from the CFI-2000 model group: one LAN port rated 10BASE-T/100BASE-TX/1000BASE-T, so a gigabit RJ45, plus Wi-Fi 6 (IEEE 802.11a/b/g/n/ac/ax, 2.4 and 5 GHz) and Bluetooth 5.1 for the DualSense. The back panel is HDMI 2.1 out, the LAN port, one SuperSpeed USB Type-A and the AC inlet, with a SuperSpeed USB-C and a USB Type-A on the front; the console is mains powered only, with no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://blog.playstation.com/2020/11/09/ps5-the-ultimate-faq/",
+  "notes": "Sony's networking line: 'Ethernet (10BASE-T, 100BASE-TX, 1000BASE-T), Wifi: IEEE 802.11 a/b/g/n/ac/ax'. The CFI-2000/2100/7000 model group is confirmed on the support page (https://www.playstation.com/en-us/support/hardware/ps5/), whose back-panel diagram lists 'A) HDMI OUT port B) LAN port C) USB Type-A port D) AC IN connector' - one LAN port, no second NIC. 1.2G is the 2x2 80 MHz Wi-Fi 6 figure. No PoE; optical drive and USB ports are not network interfaces."
+}

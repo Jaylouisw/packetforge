@@ -1,0 +1,28 @@
+{
+  "vendor": "microsoft",
+  "model": "Surface Pro (11th Edition)",
+  "label": "Microsoft Surface Pro (11th Edition)",
+  "category": "laptop",
+  "description": "13-inch Windows 11 2-in-1 (Snapdragon X Elite or X Plus) sold with a Surface Pro Keyboard, so it is modelled as a laptop rather than a slab. Networking is Wi-Fi 7 with Bluetooth 5.4 on every SKU, and the Wi-Fi + 5G SKU adds a 5G-NR/LTE modem with nano-SIM and eSIM; the ports are two USB-C / USB 4 and Surface Connect, with no RJ45 - a wired link needs a Surface Thunderbolt 4 Dock, a Surface Dock or a USB-C Ethernet adapter.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "5.8G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.microsoft.com/en-us/d/surface-pro-for-business-13-inch-11th-edition-snapdragon/8nl1w61jw8zm",
+  "notes": "Microsoft's spec table: 'Ports and charging: 2 X USB-C/USB4 ports ... Surface Pro Keyboard port, Surface Connect port, NanoSIM' and 'Network and connectivity - Wi-Fi only models: Wi-Fi 7, Bluetooth Core 5.4; Wi-Fi+5G models: Wi-Fi 7, Bluetooth Core 5.4 ... 5G-NR SA/NSA Release 15, DL 256 QAM up to 2.9 Gbps, 4x4 MIMO ... 4G Gigabit LTE Advanced Pro Cat 19'. No Ethernet port and no USB NIC declared; 5.8G is the 2x2 320 MHz Wi-Fi 7 figure. Compare Surface Pro 10, which shipped Wi-Fi 6E/7 depending on SKU."
+}

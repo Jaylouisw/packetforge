@@ -1,0 +1,22 @@
+{
+  "vendor": "snom",
+  "model": "M900",
+  "label": "Snom M900",
+  "category": "wireless",
+  "description": "Snom M900 VoIP DECT multicell base station that needs no separate DECT manager - up to 4,000 bases and 16,000 handsets in one network - with handover driven by either DECT or LAN synchronisation (IEEE1588) and OTA handset firmware. Its entire wired footprint is one 10/100 RJ45 that is also the 802.3af class-2 power input.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "lan",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeIn": 6.49
+    }
+  ],
+  "sourceUrl": "https://www.vectordigitals.net/wp-content/uploads/2020/11/snom-m900-datasheet.pdf",
+  "notes": "Datasheet hardware block: 'Ethernet connector: RJ 45', 'LAN interface: 10/100 BASE-T IEEE 802.3', 'Power: Power over Ethernet (PoE) IEEE802.3af Class 2. If PoE is not available, the A5 PoE injector can be used'. 6.49 W is the class-2 reservation. DECT 1880-1900 MHz (EU) / 1920-1930 MHz (US), DECT 6.0, 8 narrowband or 4 wideband calls per base in multicell, 100 repeaters, up to 3000-entry shared phonebook; web UI plus HTTP/HTTPS/TFTP provisioning, LLDP, 802.1Q, TLS 1.2. One port only: there is no daisy-chain port, so each base is a separate PoE access-port drop - the reason a multicell deployment stresses a switch's PoE budget and STP edge config."
+}

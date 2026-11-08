@@ -1,0 +1,28 @@
+{
+  "vendor": "samsung",
+  "model": "QN65LS03D",
+  "label": "Samsung QN65LS03D",
+  "category": "iot",
+  "description": "65-inch Samsung The Frame (LS03D, 2024) art-mode QLED smart TV on Tizen. All of its ports live on the One Connect box that reaches the panel over a single thin cable: one Ethernet LAN RJ45 of Fast Ethernet (10/100) class, Wi-Fi 5 (802.11ac) dual-band and Bluetooth 5.2 for the SolarCell remote, plus four HDMI inputs (HDMI 4 at 4K120), two USB-A ports, optical audio out, an RF input and an Ex-Link RS-232C jack. It is mains powered with no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.samsung.com/ca/business/lifestyle-tvs/the-frame/ls03d-65-inch-qled-4k-art-mode-qn65ls03dafxzc/",
+  "notes": "Samsung's spec detail: 'Ethernet (LAN) 1', 'Wi-Fi Yes (Wi-Fi 5)', 'Bluetooth Yes (BT5.2)', 'HDMI 4', 'USB 2 x USB-A', 'Ex-Link (RS-232C) 1', 'One Connect (Y22 4K)' - the 2024 Frame routes every port through the One Connect box, so the visible ports are on the box, not the panel. Samsung does not publish the LAN rate; current sets are 10/100, hence 100M. Tizen exposes a remote-control/REST API over HTTP (port 8001 for the websocket pairing flow), so http-server is declared. No PoE."
+}

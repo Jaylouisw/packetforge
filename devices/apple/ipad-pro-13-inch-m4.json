@@ -1,0 +1,28 @@
+{
+  "vendor": "apple",
+  "model": "iPad Pro 13-inch (M4)",
+  "label": "Apple iPad Pro 13-inch (M4)",
+  "category": "phone",
+  "description": "Apple's 13-inch M4 iPad Pro (2024) is a slate tablet running iPadOS, not a keyboard-first computer, so it is modelled as a handset-class wireless endpoint. Networking is Wi-Fi 6E (802.11ax) with 2x2 MIMO and simultaneous dual band across 2.4, 5 and 6 GHz, and the cellular SKU adds a 5G sub-6 GHz / Gigabit LTE modem with 4x4 MIMO; there is no RJ45 anywhere - the single wired connector is USB-C (Thunderbolt / USB 4, adapters sold separately) and it carries data, DisplayPort and charging only.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "2.4G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/119891",
+  "notes": "Apple lists, verbatim: 'All models: Wi-Fi 6E (802.11ax) with 2x2 MIMO, Simultaneous dual band, Bluetooth 5.3' and 'Wi-Fi + Cellular models: 5G (sub-6 GHz) with 4x4 MIMO, Gigabit LTE with 4x4 MIMO'. So one Wi-Fi radio (wlan0) on all SKUs and wwan0 only on the cellular SKU; 2.4G is the 2x2 160 MHz Wi-Fi 6E figure. No Ethernet and no USB network interface: wired connectivity exists only through a USB-C dock or adapter, which this model deliberately does not declare. Wi-Fi 6E needs a 6 GHz-capable AP and regional approval, otherwise the device falls back to 2.4/5 GHz."
+}
