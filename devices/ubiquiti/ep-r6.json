@@ -1,0 +1,90 @@
+{
+  "vendor": "ubiquiti",
+  "model": "EP-R6",
+  "label": "EdgePoint R6",
+  "category": "router",
+  "description": "EdgePoint R6 (EP-R6) - 5x 1G RJ45 + 1x 1G SFP. Passive PoE-in; 7 W max.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/ep-r6"
+}
