@@ -22,9 +22,14 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # A job that hangs holds the only runner, and a held runner is a queue that
+  # stops moving: issue #930 documents a task stuck in `running` for over forty
+  # minutes while every other pull request waited behind it. A bound does not make
+  # the job faster, it makes the failure cost ten minutes instead of an afternoon.
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -57,6 +62,7 @@ jobs:
   smoke:
     name: Server smoke test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -68,6 +74,7 @@ jobs:
   docker:
     name: Docker build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       # This job used to be a bare `docker build`. The runner's job image is
