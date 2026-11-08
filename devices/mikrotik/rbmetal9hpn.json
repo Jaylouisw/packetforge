@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBMetal9HPn",
+  "label": "Metal 9",
+  "category": "ptp",
+  "description": "MikroTik Metal 9 (RBMetal9HPn) — 1x 100M RJ45, Wi-Fi 900 MHz. MIPSBE 1-core AR7241.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBMetal9HPn"
+}
