@@ -165,6 +165,15 @@ const MEDIA = {
   // 9.953. Reach is the class budget: 20 km at a 1:32 split.
   'gpon-sc-apc': { name: 'GPON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'gpon-sc-upc': { name: 'GPON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+
+  // ---- fiber, 100M ----
+  // 100BASE-FX: 1300 nm over multimode for 2 km, SC connectors on the media converters that
+  // use it. This entry was missing while both SC cages already offered the id, so a PON
+  // port advertised a medium that resolved to null - and the one device that needs it, the
+  // Allied Telesis AT-MC102XL's sc-upc port at 100M, had no medium to be cabled with. The
+  // id is declared here as sc-upc rather than for both polished SC cages: 100BASE-FX
+  // terminates in a UPC ferrule, so an SC/APC PON port has no business offering it.
+  '100base-fx': { name: '100BASE-FX', family: 'fiber', connector: 'sc-upc', speedMbps: 100, maxRangeM: 2000, fiber: 'mmf', wavelengthNm: 1310 },
   'xgspon-sc-apc': { name: 'XGS-PON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
   'gpon-lc-upc': { name: 'GPON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'xgspon-lc-upc': { name: 'XGS-PON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
@@ -465,9 +474,10 @@ const CAGE_MEDIA = {
   // SC is a connector, not a protocol: it is standard on PON and it is also what older
   // 100BASE-FX and 1000BASE-LX optics use. Offering only PON media left a 100 Mbps SC
   // media converter with no medium and no rate, so it could not be cabled to itself.
+  // The APC variant deliberately does not offer 100BASE-FX or 1000BASE-LX: both terminate
+  // in a UPC ferrule, and an APC ferrule cannot mate with one without a hybrid cord.
   'sc-apc': function (maxMbps) {
-    const out = ['gpon-sc-apc', '100base-fx'];
-    if (maxMbps >= 1000) out.push('1000base-lx');
+    const out = ['gpon-sc-apc'];
     if (maxMbps >= 9000) out.push('xgspon-sc-apc');
     return out;
   },
@@ -1110,8 +1120,22 @@ function canMate(pa, pb) {
 
 // Preferred medium when several are possible (prefer fiber/DAC over copper SFP,
 // prefer the highest speed).
-function preferredMedia(mediaIds) {
+function preferredMedia(mediaIds, maxMbps) {
   if (!mediaIds || !mediaIds.length) return null;
+  // A port that negotiated 100 Mbps must not be described by a 2.5G PON medium. The
+  // fastest-medium rule below is right when the candidates are all candidates, but a media
+  // list is a connector's whole repertoire - the SC/UPC cage offers GPON *and* 100BASE-FX -
+  // so two 100M media converters facing each other were being labelled 'GPON (SC/UPC)'
+  // while running at 100 Mbps. Restrict to media the link can actually run at when any
+  // candidate fits, and otherwise keep the full list rather than refusing to name it.
+  let candidates = mediaIds;
+  if (typeof maxMbps === 'number' && maxMbps > 0) {
+    const fits = mediaIds.filter(function (id) {
+      const m = MEDIA[id];
+      return !m || typeof m.speedMbps !== 'number' || m.speedMbps <= maxMbps;
+    });
+    if (fits.length) candidates = fits;
+  }
   const rank = { fiber: 3, dac: 2, copper: 1, console: 1, wireless: 1 };
   // A `linkOnly` medium describes a SPAN, not a module you choose: '1000base-bx' exists
   // only because a U met a D, and no cage offers it. Two ordinary SFP ports therefore
@@ -1119,14 +1143,14 @@ function preferredMedia(mediaIds) {
   // already named by - instead of being renamed for a pair of modules neither port is
   // known to hold. It still wins when it is the only thing the two ports can share,
   // which is precisely the U-at-one-end/D-at-the-other case.
-  const onlyLinks = mediaIds.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); });
+  const onlyLinks = candidates.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); });
   const rankOf = function (id) {
     const m = MEDIA[id];
     if (m && m.linkOnly && !onlyLinks) return -1;
     return (m && rank[m.family]) || 0;
   };
-  let best = mediaIds[0];
-  for (const id of mediaIds) {
+  let best = candidates[0];
+  for (const id of candidates) {
     const a = MEDIA[best]; const b = MEDIA[id];
     if (!b) continue;
     if (!a) { best = id; continue; }
