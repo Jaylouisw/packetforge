@@ -1,0 +1,31 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-LR",
+  "label": "UniFi Wave Long-Range",
+  "category": "ptp",
+  "description": "UniFi Wave Long-Range (Wave-LR) - 60 GHz long-range PtMP station/AP with one GbE RJ45 uplink and passive PoE in.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "passive-poe",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/wave-lr"
+}
