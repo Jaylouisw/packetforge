@@ -154,5 +154,22 @@ ok(requestCandidates('Ubiquiti airMAX LiteAP LAP-GPS AC PTMP Access Point').inde
   'and it is tried as a candidate');
 ok(requestCandidates('Ubiquiti UniFi Express (UX)').indexOf('UX') !== -1, 'bracketed codes are still candidates');
 
+//
+// 27 Aruba requests sat open with their specs already in the catalogue, because the catalogue
+// stores the part number inside the model name - "2530-48 (J9781A)" - while the request says
+// "Aruba 2530-48 Switch (J9781A)". Indexing the bracketed code closes that gap. The danger is
+// the reverse: a bare token like "M4" indexed as a code made "NetEngine 8000 M4" match an
+// Apple iPad Pro, and "NSM3" match a MacBook Air. So a code has to look like a part number.
+const { looksLikePartNumber } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+
+console.log('\nOnly real part numbers index the catalogue by code:');
+for (const code of ['J9781A', 'JL355A', 'JL693A', 'R2W96A', 'S1T37A', 'R8N87A']) {
+  ok(looksLikePartNumber(code), code + ' looks like a part number');
+}
+for (const code of ['M4', 'MIMO', 'NSM3', 'UX', 'GBE', 'ultra', 'M3', '5']) {
+  ok(!looksLikePartNumber(code), code + ' does not');
+}
+ok(looksLikePartNumber('j9781a'), 'the check normalises case first');
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

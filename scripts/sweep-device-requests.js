@@ -99,11 +99,22 @@ function norm(s) {
     .trim();
 }
 
+// A part number, as opposed to any short token. Aruba/HPE quote J9781A, JL355A, R2W96A, S1T37A -
+// one to three letters, at least three digits, optional trailing letter. "M4" and "NSM3" are not
+// part numbers, and indexing them as if they were made a NetEngine router match an Apple iPad.
+function looksLikePartNumber(code) {
+  // Three or more digits anywhere in the code, at most three leading letters. That admits
+  // J9781A and JL355A (letters, digits, optional letter) and also R2W96A and S1T37A, where the
+  // letters are interleaved - while still rejecting M4, NSM3, MIMO and UX.
+  return /^(?=(?:.*\d){3,})[a-z]{1,3}[a-z0-9]{1,7}$/.test(norm(code));
+}
+
 function loadCatalogue() {
   const { loadCatalog } = require(path.join(ROOT, 'devices', 'registry'));
   const specs = loadCatalog(path.join(ROOT, 'devices'));
   const byModel = new Map();
   const byVendorModel = new Map();
+  const byCode = new Map(); // part number -> entry, from "2530-48 (J9781A)" style models
   for (const s of specs) {
     const vendor = norm(s.vendor), model = norm(s.model);
     if (!model) continue;
@@ -112,10 +123,22 @@ function loadCatalogue() {
     const vm = vendor + model;
     if (!byVendorModel.has(vm)) byVendorModel.set(vm, []);
     byVendorModel.get(vm).push({ vendor: s.vendor, model: s.model, file: s.file || null, category: s.category });
+    // The part number in brackets is the identifier people actually quote: Aruba "2530-48 (J9781A)"
+    // is requested as "Aruba 2530-48 Switch (J9781A)". Without this index those 28 requests read
+    // as missing while their specs sit in the catalogue.
+    for (const group of String(s.model || '').match(/\(([^)]*)\)/g) || []) {
+      const code = norm(group.slice(1, -1));
+      // Part-number shape only: letters then at least three digits (J9781A, JL355A, R2W96A,
+      // S1T37A). Without this, short tokens like "M4" or "NSM3" index whole unrelated products
+      // and a request for a NetEngine router matches an Apple iPad.
+      if (code && looksLikePartNumber(code) && !byCode.has(code)) {
+        byCode.set(code, { vendor: s.vendor, model: s.model, file: s.file || null, category: s.category });
+      }
+    }
   }
   const vendorNames = new Map();
   for (const s of specs) vendorNames.set(norm(s.vendor), s.vendor);
-  return { specs: specs, byModel: byModel, byVendorModel: byVendorModel, vendorNames: vendorNames };
+  return { specs: specs, byModel: byModel, byVendorModel: byVendorModel, byCode: byCode, vendorNames: vendorNames };
 }
 
 // "[Device]: TP-Link TL-SG105E — 5-port gigabit Easy Smart switch" -> "TP-Link TL-SG105E"
@@ -250,6 +273,10 @@ function main() {
       // like "Aruba 2530-48 (EOL, replaced by X)" only matches once the note is dropped.
       const rawSubject = requestSubject(title);
       const subjects = requestCandidates(rawSubject);
+      // The vendor comes from the *title*, not from whichever candidate is being tried. Reading it
+      // off the candidate let a bare token ("M4", "MIMO") bypass the vendor guard entirely, which is
+      // how "NetEngine 8000 M4" matched an Apple iPad Pro.
+      const titleVendor = cat.vendorNames.get(norm(rawSubject.split(/\s+/)[0])) || null;
 
       let hit = null;
       let subject = rawSubject;
@@ -263,7 +290,7 @@ function main() {
         // missing a match - it is closing someone's request by pointing at a different product, which
         // tells them their hardware is modelled when it is not.
         const parts = subject.split(/\s+/);
-        const subjectVendor = cat.vendorNames.get(norm(parts[0])) || null;
+        const subjectVendor = titleVendor || cat.vendorNames.get(norm(parts[0])) || null;
         const codes = explicitCodes(title);
 
         const acceptable = function (info) {
@@ -284,6 +311,15 @@ function main() {
 
         const whole = cat.byVendorModel.get(key) || cat.byModel.get(key);
         if (whole && acceptable(whole[0]) && !variantOfSameCode(title, whole[0].model)) hit = whole;
+        if (!hit) {
+          // A bracketed part number is the identifier the reporter actually quotes, and the
+          // catalogue stores it inside the model name ("2530-48 (J9781A)"). Exact code match
+          // only - a different part number is a different switch.
+          for (const code of codes) {
+            const cand = cat.byCode.get(code);
+            if (cand && acceptable(cand) && !variantOfSameCode(title, cand.model)) { hit = [cand]; break; }
+          }
+        }
         if (!hit) {
           // "MikroTik Cloud Core Router CCR2004-16G-2S+" -> the model is a trailing run of tokens.
           // Only suffixes that pass the same guards are considered, longest first.
@@ -343,6 +379,7 @@ if (require.main === module) {
   main();
 } else {
   module.exports = {
+    looksLikePartNumber: looksLikePartNumber,
     requestSubject: requestSubject,
     requestCandidates: requestCandidates,
     variantOfSameCode: variantOfSameCode,
