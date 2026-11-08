@@ -1,0 +1,31 @@
+{
+  "vendor": "nokia",
+  "model": "G-010S-Q",
+  "label": "Nokia G-010S-Q GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT built into an SFP module (CIG G-97S ODM, Realtek RTL9601CI, 16 MB Macronix MX25L12835F flash) that presents itself to the host router as an HSGMII Ethernet interface at 2.5 Gbit/s; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC with no LAN ports and no Wi-Fi, managed over its web UI or telnet (web UI only while the PON link is down).",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-nokia-g-010s-q/"
+}
