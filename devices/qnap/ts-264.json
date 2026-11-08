@@ -1,0 +1,25 @@
+{
+  "vendor": "qnap",
+  "model": "TS-264",
+  "label": "TS-264 2-bay 2.5GbE NAS",
+  "category": "nas",
+  "description": "QNAP TS-264 is a 2-bay desktop NAS with two built-in 2.5GbE RJ45 ports (2.5G/1G/100M) that can be trunked for 5 Gbps, plus a PCIe slot for a 10GbE card.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.qnap.com/en/product/ts-264/specs/hardware"
+}

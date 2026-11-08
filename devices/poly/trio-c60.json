@@ -1,0 +1,31 @@
+{
+  "vendor": "poly",
+  "model": "Trio C60",
+  "label": "Trio C60 IP conference phone",
+  "category": "phone",
+  "description": "Poly Trio C60 is a 5-inch touchscreen conference phone with a two-port gigabit Ethernet switch: LAN IN is an 802.3at Class 4 PoE PD and LAN OUT an 802.3af PSE, plus a MIMO Wi-Fi radio on standard (non-\"No Radio\") SKUs.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN IN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN OUT",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.content.shi.com/cms-content/accelerator/media/pdfs/poly/poly-060123-trio-c60-datasheet.pdf"
+}

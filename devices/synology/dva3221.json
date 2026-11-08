@@ -1,0 +1,35 @@
+{
+  "vendor": "synology",
+  "model": "DVA3221",
+  "label": "DVA3221 deep-learning NVR, 4 bays",
+  "category": "nvr",
+  "description": "Synology DVA3221 is a 4-bay desktop deep-learning NVR with four independent RJ-45 1GbE LAN ports supporting link aggregation and failover, and no PoE outputs.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/DataSheet/NetworkVideoRecorder/21-year/DVA3221/enu/Synology_DVA3221_Data_Sheet_enu.pdf"
+}

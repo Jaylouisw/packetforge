@@ -1,0 +1,20 @@
+{
+  "vendor": "dahua",
+  "model": "IPC-HDW2431T-AS-S2",
+  "label": "4MP WDR IR eyeball camera",
+  "category": "camera",
+  "description": "Dahua IPC-HDW2431T-AS-S2 is a 4 MP Lite-series eyeball with a built-in mic, one RJ-45 10/100 Base-T port and 12 VDC or PoE power.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/ceen/products/network-products/network-cameras/Lite-Series/4-MP/IPC-HDW2431T-AS-S2"
+}

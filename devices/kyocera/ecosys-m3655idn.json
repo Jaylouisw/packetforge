@@ -1,0 +1,20 @@
+{
+  "vendor": "kyocera",
+  "model": "ECOSYS M3655idn",
+  "label": "ECOSYS M3655idn A4 mono MFP",
+  "category": "printer",
+  "description": "Kyocera ECOSYS M3655idn is a 55 ppm A4 monochrome MFP with standard Gigabit Ethernet (10BaseT/100BaseTX/1000BaseT) and no built-in WLAN; Wi-Fi needs the optional IB-36 kit.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.kyoceradocumentsolutions.us/content/dam/download-center-americas-cf/us/documents/brochures-and-specs/ECOSYS_M3660idn_M3655idn_Vantage_Point_EN_pdf.download.pdf"
+}

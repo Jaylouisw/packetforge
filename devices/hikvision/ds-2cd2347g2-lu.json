@@ -1,0 +1,20 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-2CD2347G2-LU",
+  "label": "4MP ColorVu fixed turret camera",
+  "category": "camera",
+  "description": "Hikvision DS-2CD2347G2-LU is a 4 MP ColorVu turret with a built-in mic and one RJ45 10M/100M self-adaptive port; 802.3af Class 3 PoE draws about 7.6 W, and a 12 VDC barrel jack is the alternative.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.hikvision.com/us-en/products/network-products/network-cameras/colorvu-series/ds-2cd2347g2-lu/"
+}

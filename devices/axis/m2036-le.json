@@ -1,0 +1,20 @@
+{
+  "vendor": "axis",
+  "model": "M2036-LE",
+  "label": "M2036-LE 4MP bullet camera",
+  "category": "camera",
+  "description": "AXIS M2036-LE is a 4 MP (1440p) IK08 outdoor bullet with deep-learning analytics and a single RJ45 10BASE-T/100BASE-TX PoE connector, 802.3af/at Type 1 Class 3 at 5 W typical and 12.95 W max with IR on.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/ee/d3/cd/datasheet-axis-m2036-le-bullet-camera-en-US-519726.pdf"
+}

@@ -1,0 +1,20 @@
+{
+  "vendor": "hanwha",
+  "model": "QNV-8080R",
+  "label": "QNV-8080R 5MP IR dome camera",
+  "category": "camera",
+  "description": "Hanwha Vision QNV-8080R is a 5 MP vandal-resistant IR dome with a 3.2-10 mm varifocal lens and one RJ-45 10/100BASE-T port powered by PoE Class 3.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/QNV-8080R"
+}
