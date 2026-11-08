@@ -1,0 +1,31 @@
+{
+  "vendor": "odi",
+  "model": "DFP-34G-2C2",
+  "label": "ODI ZTE DFP-34G-2C2 GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT built into an SFP module (ZTE ZX279125 @ 600 MHz, ZTE Linux 2.6.32, dual-boot) that presents itself to the host router as a 1 Gbit/s SGMII Ethernet interface (no HSGMII); GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/UPC with no LAN ports and no Wi-Fi, managed over its web UI or telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "host",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-odi-zte-dfp-34g-2c2/"
+}
