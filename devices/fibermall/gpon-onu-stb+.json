@@ -1,0 +1,29 @@
+{
+  "vendor": "fibermall",
+  "model": "GPON-ONU-STB+",
+  "label": "FiberMall GPON-ONU-STB+ GPON/EPON SFP ONT",
+  "category": "ont",
+  "description": "Dual-mode 'PON on a Stick' ONU built into an SFP module with an integrated GPON/EPON MAC (chipset not published) that auto-negotiates a link with either a GPON or EPON OLT; GPON Class B+, 2.488 Gbit/s down / 1.244 Gbit/s up (T1310 nm / R1490 nm, APD-TIA receiver, SFF-8472 v9.5 DDM). SC/UPC connector (the SC/APC variant is the GPON-ONU-STAB+), no LAN ports and no Wi-Fi; host access over the SFP SerDes electrical interface (exact host line rate not published).",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-fibermall-gpon-onu-stb+/"
+}
