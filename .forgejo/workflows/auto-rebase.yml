@@ -21,6 +21,19 @@ name: Auto-rebase
 # `batch` PRs and leaves the rest for the next tick.
 
 on:
+  # The trigger that actually fires.
+  #
+  # Scheduled and dispatched runs are created correctly on this instance - the cron
+  # advances its next-run timestamp every ten minutes, the run row and its jobs
+  # appear - but they are never handed to a runner: `started` stays at epoch 0
+  # forever while pull-request and push runs are dispatched normally. #1071 fixed a
+  # real deadlock in this workflow's concurrency group, and it was not this.
+  #
+  # A push to main is the right moment anyway, and it is a trigger that works: main
+  # just changed, so every open pull request is now stale by definition. The schedule
+  # stays as a safety net for the case where main does not move for a long time.
+  push:
+    branches: [main]
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
