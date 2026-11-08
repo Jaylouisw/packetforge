@@ -1,0 +1,47 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBcAPGi-5acD2nD",
+  "label": "cAP ac",
+  "category": "wireless",
+  "description": "MikroTik cAP ac (RBcAPGi-5acD2nD) — 2x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 4-core IPQ-4018.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/cap_ac"
+}
