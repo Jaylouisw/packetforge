@@ -1,0 +1,38 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-Fiber-ONU",
+  "label": "WaveFiber ONU",
+  "category": "ont",
+  "description": "WaveFiber ONU (Wave-Fiber-ONU) - 1x PON (2.5G) + 1x 2.5G RJ45. 802.3af PoE-in; 5 W max.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G"
+    }
+  ],
+  "icon": "ont",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/wave-fiber-onu"
+}
