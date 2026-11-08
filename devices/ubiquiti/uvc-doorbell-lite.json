@@ -1,0 +1,25 @@
+{
+  "color": "#14b8a6",
+  "vendor": "ubiquiti",
+  "model": "UVC-Doorbell-Lite",
+  "label": "UniFi Doorbell Lite",
+  "category": "camera",
+  "description": "Ubiquiti UniFi Doorbell Lite (UVC-Doorbell-Lite) - 1x 100M RJ45 (802.3af PoE in, 8 W max). Compact 5MP video doorbell with two-way audio, 5 m IR, smart detections, and IPX5 weatherproofing.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "camera",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-doorbell-lite"
+}
