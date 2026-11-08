@@ -13,1129 +13,1137 @@
     {
       "name": "0",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "9",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "10",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "11",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "12",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "13",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "14",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "15",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "16",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "17",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "18",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "19",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "20",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "21",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "22",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "23",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "24",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "25",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "26",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "27",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "28",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "29",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "30",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "31",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "32",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "33",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "34",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "35",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "36",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "37",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "38",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "39",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "40",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "41",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "42",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "43",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "44",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "45",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "46",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "47",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "48",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "49",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "50",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "51",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "52",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "53",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "54",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "55",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "56",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "57",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "58",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "59",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "60",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "61",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "62",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "63",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "64",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "65",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "66",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "67",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "68",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "69",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "70",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "71",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "72",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "73",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "74",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "75",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "76",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "77",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "78",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "79",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "80",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "81",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "82",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "83",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "84",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "85",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "86",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "87",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "88",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "89",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "90",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "91",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "92",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "93",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "94",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "95",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "32G",
+      "connector": "fc-sfp28",
       "speedCaps": [
-        8000,
-        16000,
-        32000
+        8500,
+        14025,
+        28050
       ]
     },
     {
       "name": "icl0",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl1",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl2",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl3",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl4",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl5",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl6",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {
       "name": "icl7",
       "type": "ethernet",
-      "speed": "100G",
-      "connector": "qsfp28",
+      "speed": "128G",
+      "connector": "fc-qsfp28",
       "speedCaps": [
-        128000
+        28050,
+        112200
       ]
     },
     {

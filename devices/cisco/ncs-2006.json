@@ -14,7 +14,7 @@
       "name": "c1/1",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -23,7 +23,7 @@
       "name": "c1/2",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -32,7 +32,7 @@
       "name": "c1/3",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -41,7 +41,7 @@
       "name": "c1/4",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -50,7 +50,7 @@
       "name": "c1/5",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -59,7 +59,7 @@
       "name": "c1/6",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -108,7 +108,7 @@
       "name": "c2/1",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -117,7 +117,7 @@
       "name": "c2/2",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -126,7 +126,7 @@
       "name": "c2/3",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -135,7 +135,7 @@
       "name": "c2/4",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -144,7 +144,7 @@
       "name": "c2/5",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -153,7 +153,7 @@
       "name": "c2/6",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -202,7 +202,7 @@
       "name": "c3/1",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -211,7 +211,7 @@
       "name": "c3/2",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -220,7 +220,7 @@
       "name": "c3/3",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -229,7 +229,7 @@
       "name": "c3/4",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -238,7 +238,7 @@
       "name": "c3/5",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -247,7 +247,7 @@
       "name": "c3/6",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "qsfp+",
+      "connector": "sfp+",
       "speedCaps": [
         10000
       ]
@@ -347,5 +347,6 @@
       ]
     }
   ],
-  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/optical/hardware/ncs/guide/b-hig-ncsinstall/b-hig-ncsinstall_chapter_010001.html"
+  "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/optical/hardware/ncs/guide/b-hig-ncsinstall/b-hig-ncsinstall_chapter_010001.html",
+  "notes": "Port cages corrected: the eighteen 10G client ports were declared in QSFP+ cages. A QSFP+ cage is a 40G cage - the only media it offers are 40GBASE-SR4/LR4 and 40G DAC - so a 10G port in one had no medium at its own rate and could not be cabled to anything, at any distance, with any module. Cisco's NCS 2000 10-port client cards (10x10G-LC) are SFP+ based, and QSFP+ appears on this platform only where 4x10G or 40G aggregation is offered, which these ports are not. They are now SFP+ at 10G. The 100G ports keep QSFP28."
 }

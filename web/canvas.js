@@ -205,13 +205,18 @@
           // copper or glass. Every other medium now carries its own class for the same
           // reason: you should be able to read the plant off the drawing.
           const family = mediumClass(link.mediaId || link.media);
+          // A cable that is down must not look like a working one. In a diagram a failed link is
+          // the most important thing on the page, and drawing it identically is how a lab ends up
+          // showing a cut cable carrying traffic.
+          const dead = link.state && link.state !== 'up';
           el('line', {
             class: 'link' + (family ? ' link-' + family : '') + (sel ? ' selected' : '') +
-              (link.mediaId ? ' link-media' : ''),
+              (link.mediaId ? ' link-media' : '') + (dead ? ' link-down' : ''),
             x1: a.x, y1: a.y, x2: b.x, y2: b.y,
             'data-link-id': link.id,
             'data-medium': family || 'unknown',
-            'data-media-id': link.mediaId || ''
+            'data-media-id': link.mediaId || '',
+            'data-link-state': link.state || 'up'
           }, cableLayer);
         } catch (e) { skip('link', link && link.id, e); }
       }

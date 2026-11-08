@@ -246,24 +246,32 @@ a `/25` connected route regardless of list order.
 
 ## 5. Control plane
 
-### 5.1 DHCP — **absent from the data path**
-
-This is the largest gap between what the repo looks like and what it does.
+### 5.1 DHCP — **in the data path** (since #1051)
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled (as a library)** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js:599`, `engine/dhcp.js:633` |
-| **Exported** | Re-exported from the engine's public API. | `engine/index.js:15` |
-| **Tested** | Covered by its own suite. | `test/dhcp.test.js` |
-| **Absent in the simulator** | `engine/simulator.js` never requires `dhcp.js` and never calls it. No DISCOVER is ever sent, no OFFER ever crosses a link, no lease is ever installed on an interface. | grep `dhcp` in `engine/simulator.js` returns nothing |
-| **Absent in the CLI** | `ip address dhcp` sets `iface.dhcp = true` and prints a confirmation. Nothing reads the flag; `show ip interface brief` prints "DHCP" as a label. `docs/CLI.md:50` calls it "(reserved)" and is correct. | `engine/cli.js:306-308`, `engine/cli.js:897` |
+| **Modelled** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js` |
+| **Wired** | `Simulator.computeDhcp()` runs before the first packet of a run: every interface with `ip address dhcp` sends a DISCOVER into its broadcast domain, a server whose own interface sits in a pool's subnet answers, and the lease is installed on the interface (address, mask, gateway, DNS, lease time). | `engine/simulator.js` `computeDhcp()` |
+| **Broadcast domain** | Walked rather than assumed: bridges pass the DISCOVER on, routers stop it, a spanning-tree blocked port passes nothing, and a VLAN boundary is a boundary. | `engine/segment.js` |
+| **In the timeline** | The exchange is an event, so a lab can see the ACK and read the pool it came from. | `{ type: 'dhcp', phase: 'ack', ip, pool, serverIp, leaseSec }` |
+| **In the CLI** | `ip dhcp pool <name>` with `network`, `default-router`, `dns-server`, `range`, `excluded-address`, `lease`, `host` (reservation). The pool is validated once, on leaving the sub-mode — a half-typed pool is not an error. | `engine/cli.js` `_dhcpPoolMode()` |
 
-A lab that expects hosts to pull addresses from a DHCP server will not work.
-Give every host a static address, or drive the model directly from a script.
+The failures are the ones a real server produces, and each is distinguishable:
 
-Also absent: DHCP relay, Option 82, vendor classes, DHCP snooping, and any
-DHCPv6 (which SLAAC's M-flag tells the host to go and use —
-`engine/simulator.js:1018` — and which does not exist).
+| Reason | Meaning |
+|---|---|
+| `no-server` | nothing in this broadcast domain holds a pool |
+| `no-pool` | a server is present, but its own address is in none of its pools |
+| `pool-exhausted` | every address in range is leased, reserved or excluded |
+| `nak` | the server refused to acknowledge the offered address |
+
+A run asked at an instant before the exchange completes (1000 ms by default) leaves the host
+unaddressed and the ping reports `converging` — see [CONVERGENCE.md](CONVERGENCE.md).
+
+Also absent: DHCP relay (a DISCOVER does not cross a router — a lab with a central server and a
+remote subnet will not work, by design rather than by accident), Option 82, vendor classes, DHCP
+snooping, lease expiry during a run (leases are computed at run start, not aged), and any DHCPv6
+(which SLAAC's M-flag tells the host to go and use — and which does not exist).
 
 ### 5.2 NAT / PAT
 
@@ -289,16 +297,39 @@ DHCPv6 (which SLAAC's M-flag tells the host to go and use —
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
 | **Absent** | The `firewall` capability does nothing. 58 firewall models are catalogued and 217 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:90` |
 
-### 5.4 VRRP — **absent from the data path**
+### 5.3b Link state — **in the data path** (since #1057)
+
+`Link` has carried `state: 'up' | 'down' | 'blocked'` since the physical layer was built, and until
+now nothing in the engine read it. A cable marked down still carried every frame, still cost what it
+cost in the spanning tree, and was still walked by the DHCP segment search: the field was
+decoration, and a lab could show a cut link passing traffic.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled (as a library)** | Group maths, master/backup election by priority and IP, virtual MAC formation, advertisement interval arithmetic — pure functions with tests. | `engine/vrrp.js`, `test/vrrp.test.js` |
-| **Exported** | Re-exported from the public API. | `engine/index.js:18` |
-| **Absent in the simulator** | Never required by `engine/simulator.js`. No VRRP advertisement is ever sent, no group ever elects a master, and — the part that breaks labs — **nothing answers ARP for the virtual IP**. A host pointing at a VRRP virtual address gets no reply and times out. | grep `vrrp` in `engine/simulator.js` returns nothing |
-| **Absent in the CLI** | No `vrrp` command, no `standby`/`hsrp` equivalent. | — |
+| **Enforced** | A frame crossing a down link is dropped with `reason: 'link down'` and the link id. | `Simulator._run()` dequeue |
+| **In the tree** | A port whose cable is down is not a bridge port, so a redundant topology heals around the failure. | `Simulator.computeStp()` |
+| **In the segment walk** | DHCP will not offer a lease across a cut cable. | `engine/segment.js` |
+| **Flushed** | A topology change empties every bridge MAC table — a stale entry is how a real network black-holes. | `Simulator.setLinkState()` |
+| **Re-based** | The convergence schedule restarts from the instant of the change. | `engine/convergence.js` `fromMs` |
+| **In the drawing** | A down cable is dashed and red, and carries `data-link-state` for anything that wants to know. | `web/canvas.js` |
 
-There is no first-hop redundancy of any kind, and no HA failover to demonstrate.
+Not modelled: degraded links (no CRC errors, no flapping), autonegotiation on recovery, interface
+self-test failures, and RSTP fast convergence. See [LINK-STATE.md](LINK-STATE.md).
+
+### 5.4 VRRP — **in the data path** (since #1052)
+
+| Verdict | Behaviour | Where |
+|---|---|---|
+| **Modelled** | Group maths, master/backup election by priority then highest interface address, address-owner priority 255, virtual MAC formation, advertisement/skew/master-down arithmetic. | `engine/vrrp.js` |
+| **Wired** | `Simulator.computeVrrp()` elects once per (broadcast domain, vrid) before the first packet. The winner claims the group's addresses and `ownsIpOn()` serves them, so ARP and ICMP for the VIP are answered locally instead of being forwarded and dying at TTL 1. | `engine/simulator.js` |
+| **Virtual MAC on the wire** | The master answers ARP for the VIP with `00:00:5E:00:01:<vrid>`, not its own, and accepts frames addressed to that MAC although no port owns it. Without both halves a host resolves the gateway and still cannot reach it. | `Device.macForIp()`, `Simulator._handleFrame()` |
+| **Gratuitous ARP on takeover** | The new master announces every virtual address in a broadcast ARP, which re-points the switches' MAC tables. Not decoration: without it the old master's port keeps receiving the traffic and black-holes it. | `Simulator._sendGratuitousArp()` |
+| **Failover** | A master whose interface goes down relinquishes (it is no longer a candidate), and the backup takes the VIP with the same virtual MAC — the host never relearns. | `test/vrrp-in-path.test.js` |
+| **In the CLI** | `vrrp <vrid> ip <address>`, `priority`, `preempt` / `no preempt`, `advertise`, plus `show vrrp` reporting Master/Backup, the virtual IP and the virtual MAC. A group belongs to an interface, so the command is refused outside one. | `engine/cli.js` |
+
+Absent: VRRPv3, IPv6 virtual addresses, authentication beyond storing the text, and any detection of
+lost advertisements — a master is displaced only by losing its interface, never by going quiet.
+HSRP and GLBP do not exist.
 
 ### 5.5 OSPF
 
@@ -502,7 +533,7 @@ actually true.
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
 | "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:1477`, `engine/device.js:484` |
-| "HA exists." | No VRRP/HSRP in the data path, no BFD, no LACP failure detection, no graceful restart. | `engine/index.js:18` vs `engine/simulator.js` |
+| "HA exists." | VRRP is in the data path (#1052), so a virtual gateway fails over. Still absent: HSRP/GLBP, BFD, LACP failure detection, graceful restart, and detection of a master that goes quiet rather than down. | `engine/simulator.js` `computeVrrp()` |
 | "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
@@ -600,8 +631,21 @@ The engine is dependency-free, so every claim above is one command away:
 ```bash
 node -e "const m=require('./engine/media'); console.log(Object.keys(m.MEDIA).length, Object.keys(m.CAGES).length)"
 node -e "const {Simulator,Topology}=require('./engine'); /* build a two-host lab, ping, inspect replies[0].delay */"
-grep -rn "dhcp" engine/simulator.js     # returns nothing: DHCP is not in the data path
-grep -rn "vrrp" engine/simulator.js     # returns nothing: VRRP is not in the data path
+grep -n "computeDhcp()" engine/simulator.js   # DHCP is in the data path (#1051)
+grep -n "computeVrrp()" engine/simulator.js   # so is VRRP (#1052)
 grep -rn "setTimeout\|setInterval\|Date.now" engine/*.js   # comments only: there are no timers
 npm test                                 # the suites that pin the behaviour above
 ```
+
+## Convergence is timed, interleaving is not
+
+Control-plane processes used to finish at t=0, which made "power it on and watch it come up"
+impossible to demonstrate. `Simulator.setRunTime(ms)` now asks a question at an instant: processes
+that have not finished leave their device in the state the standard puts it in — STP ports
+Listening or Learning (and dropping traffic), OSPF without learned routes, no DHCP lease — and a
+failed ping reports `converging` with the process and its ready time instead of pretending a packet
+was lost.
+
+What is not modelled: real-time interleaving (a question is answered *as of* an instant, computed
+from the timers — nothing runs a clock during a run), hello loss and dead-interval expiry, and
+re-convergence after a topology change. See [CONVERGENCE.md](CONVERGENCE.md).

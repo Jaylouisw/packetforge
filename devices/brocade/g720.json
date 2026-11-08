@@ -13,561 +13,617 @@
     {
       "name": "0",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "9",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "10",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "11",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "12",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "13",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "14",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "15",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "16",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "17",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "18",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "19",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "20",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "21",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "22",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "23",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "24",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "25",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "26",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "27",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "28",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "29",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "30",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "31",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "32",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "33",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "34",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "35",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "36",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "37",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "38",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "39",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "40",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "41",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "42",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "43",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "44",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "45",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "46",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "47",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp+",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd0",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd1",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd2",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd3",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd4",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd5",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd6",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {
       "name": "dd7",
       "type": "ethernet",
-      "speed": "40G",
-      "connector": "sfp28",
+      "speed": "64G",
+      "connector": "fc-sfpdd",
       "speedCaps": [
-        32000,
-        64000
+        14025,
+        28050,
+        57800
       ]
     },
     {

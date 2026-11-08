@@ -22,80 +22,80 @@
       "speed": "10G"
     },
     {
-      "name": "SFP28-1",
+      "name": "SFP56-1",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-2",
+      "name": "SFP56-2",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-3",
+      "name": "SFP56-3",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-4",
+      "name": "SFP56-4",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-5",
+      "name": "SFP56-5",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-6",
+      "name": "SFP56-6",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-7",
+      "name": "SFP56-7",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
       ]
     },
     {
-      "name": "SFP28-8",
+      "name": "SFP56-8",
       "type": "ethernet",
-      "speed": "25G",
-      "connector": "sfp28",
+      "speed": "50G",
+      "connector": "sfp56",
       "speedCaps": [
         25000,
         50000
@@ -105,7 +105,7 @@
       "name": "QSFP56-1",
       "type": "ethernet",
       "speed": "200G",
-      "connector": "qsfp28",
+      "connector": "qsfp56",
       "speedCaps": [
         50000,
         100000,
@@ -116,7 +116,7 @@
       "name": "QSFP56-2",
       "type": "ethernet",
       "speed": "200G",
-      "connector": "qsfp28",
+      "connector": "qsfp56",
       "speedCaps": [
         50000,
         100000,
