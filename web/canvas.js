@@ -13,6 +13,7 @@
   // callbacks wired by app.js
   const on = {
     place: null,      // (x, y, spec)
+    placeBlocked: null, // (x, y, spec) - the point was under a floating overlay, nothing placed
     select: null,     // (deviceId | null)
     selectLink: null, // (linkId)
     contextLink: null, // (linkId, x, y) - right-click on a cable
@@ -627,6 +628,30 @@
     }
   });
 
+  // --- is this point covered by something floating over the canvas? -------------
+  //
+  // A press can start on the drawing surface and be released over an overlay: the
+  // toolbar sits on top of the canvas at bottom-left, and pointer capture keeps sending
+  // the events to the SVG. Placing a device at those coordinates creates it *underneath*
+  // the panel, where it cannot be clicked, dragged or deleted - it exists on the server
+  // and is unreachable with the mouse (#33).
+  //
+  // So ask the document what is actually at that pixel. Anything that is not the SVG or
+  // inside it is an overlay, and a placement aimed at an overlay places nothing.
+  function pointElement(clientX, clientY) {
+    if (typeof document === 'undefined' || typeof document.elementFromPoint !== 'function') return null;
+    try { return document.elementFromPoint(clientX, clientY) || null; } catch (ignored) { return null; }
+  }
+
+  // Pure, and exposed on PFCanvas so it can be tested without a browser: does `el`
+  // belong to the drawing surface, or is it something painted over it?
+  function elementCoversPoint(el, root) {
+    if (!el) return false;            // nothing reported - do not block a placement on a guess
+    if (el === root) return false;    // the canvas itself
+    if (root && typeof root.contains === 'function' && root.contains(el)) return false; // a device or port
+    return true;
+  }
+
   svg.addEventListener('pointerup', function (e) {
     const r = rect();
     const sx = e.clientX - r.left, sy = e.clientY - r.top;
@@ -649,7 +674,15 @@
             // following the pointer after the user has given up, and the canvas looks
             // stuck in a mode it will not leave (#61).
             cancelConnecting();
-          } else if (state.placing && on.place) on.place(w.x, w.y, state.placing);
+          } else if (state.placing && on.place) {
+            if (elementCoversPoint(pointElement(e.clientX, e.clientY), svg)) {
+              // Under the toolbar or another floating panel: say so rather than place a
+              // device that will be invisible.
+              if (typeof on.placeBlocked === 'function') on.placeBlocked(w.x, w.y, state.placing);
+            } else {
+              on.place(w.x, w.y, state.placing);
+            }
+          }
           else if (on.select) on.select(null);
         }
       }
@@ -784,6 +817,9 @@
     deviceCenter: deviceCenter,
     // Exposed for the hit-testing tests and for the devtools console: where a socket
     // actually is in world coordinates, and what the mouse would resolve to.
+    // Exposed for the overlay-placement test: the rule that decides whether a point on
+    // the canvas is actually covered by something floating over it (#33).
+    elementCoversPoint: elementCoversPoint,
     portWorld: function (deviceId, iface) {
       const p = portWorld(deviceId, iface);
       return p ? { x: p.x, y: p.y } : null;

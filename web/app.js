@@ -650,6 +650,16 @@
     } catch (e) { toast(e.message); }
   };
 
+  // A placement aimed at a point covered by a floating overlay - the toolbar, which sits
+  // on top of the canvas at bottom-left. Placing there would create a device underneath
+  // the panel: on the server, on the drawing, and impossible to click, drag or delete
+  // (#33). canvas.js refuses and tells us; say why rather than leaving the click silent,
+  // and stay in placing mode so the next click on the canvas works (#33).
+  PFCanvas.on.placeBlocked = function (x, y, spec) {
+    const what = spec && (spec.label || spec.model) ? (spec.label || spec.model) : 'The device';
+    toast(what + ' was not placed: that spot is under the toolbar. Click the canvas.');
+  };
+
   // ---------------------------------------------------------------------------
   // Create-link mode (issue #68)
   // ---------------------------------------------------------------------------
