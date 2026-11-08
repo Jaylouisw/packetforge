@@ -1,0 +1,30 @@
+{
+  "vendor": "hilink",
+  "model": "HL23446",
+  "label": "Hilink HL23446 GPON SFP ONU",
+  "category": "ont",
+  "description": "GPON ONU built into an SFP module (Lantiq PEB98035, OpenWRT) that plugs into the router's SFP/SFP+ cage and presents a 2.5G HSGMII host interface; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC, no LAN ports and no Wi-Fi, managed over its web UI.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "host",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-hilink-hl23446/"
+}
