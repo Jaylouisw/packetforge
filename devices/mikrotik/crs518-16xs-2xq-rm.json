@@ -1,0 +1,219 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS518-16XS-2XQ-RM",
+  "label": "CRS518-16XS-2XQ-RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS518-16XS-2XQ-RM (CRS518-16XS-2XQ-RM) — 1x 100M RJ45, 16x 25G SFP28, 2x 100G QSFP28. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "SFP28-1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-9",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-10",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-11",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-12",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-13",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-14",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-15",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-16",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "QSFP28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "QSFP28-2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs518_16xs_2xq"
+}
