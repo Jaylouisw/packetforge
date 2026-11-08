@@ -1,0 +1,35 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP610-Outdoor",
+  "label": "TP-Link EAP610-Outdoor",
+  "category": "wireless",
+  "description": "AX1800 outdoor Wi-Fi 6 access point: one gigabit port with 802.3at or passive PoE, dual-band 802.11ax.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap610-outdoor/v1.20/",
+  "notes": "Vendor figures from the TP-Link datasheet: 1x gigabit Ethernet RJ-45 port supporting 802.3at PoE and passive PoE; IEEE 802.11ax/ac/n/g/b/a with 802.11ax rates from 8 Mbps to 1201 Mbps (MCS0-MCS11, NSS 1-2, HE20/40/80) on 5 GHz and 802.11ac up to 867 Mbps. Modelled as AX1800: 574M on 2.4 GHz and 1.2G on 5 GHz, the standard 2x2 Wi-Fi 6 split."
+}

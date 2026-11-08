@@ -1,0 +1,29 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP110-Outdoor",
+  "label": "TP-Link EAP110-Outdoor",
+  "category": "wireless",
+  "description": "300 Mbps 2.4 GHz outdoor access point: one 10/100 Ethernet port with 24 V passive PoE, weatherproof housing, Omada-managed.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/outdoor-access-point/eap110-outdoor/",
+  "notes": "Vendor figures from the TP-Link datasheet: one 10/100 Mbps Ethernet port with 24 V passive PoE in; single-band 2.4 GHz 802.11n at up to 300 Mbps, which is the request's stated 300 Mbps class. There is no 5 GHz radio, so the spec carries one wlan interface - a lab cannot put this AP on a 5 GHz channel."
+}

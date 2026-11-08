@@ -1,0 +1,36 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP115-Wall",
+  "label": "TP-Link EAP115-Wall",
+  "category": "wireless",
+  "description": "300 Mbps 2.4 GHz wall-plate access point: one 10/100 uplink plus one 10/100 downlink port, 802.3af PoE in.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/wall-plate-ap/eap115-wall/v1/",
+  "notes": "Vendor figures from the TP-Link datasheet: uplink 1x 10/100 Mbps Ethernet port and downlink 1x 10/100 Mbps Ethernet port; IEEE 802.11n/g/b at up to 300 Mbps; PoE IEEE 802.3af. The downlink port is modelled because it is the reason to fit a wall plate instead of a ceiling AP - it passes a wired connection through to whatever is in the room."
+}

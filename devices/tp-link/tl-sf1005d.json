@@ -1,0 +1,44 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SF1005D",
+  "label": "TP-Link TL-SF1005D",
+  "category": "switch",
+  "description": "5-port 10/100 desktop switch: five fast Ethernet RJ45 ports, unmanaged, plastic case.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/home-networking/5-port-switch/tl-sf1005d/",
+  "notes": "Vendor figures from the TP-Link datasheet: 5x 10/100 Mbps auto-negotiation RJ45 ports supporting auto MDI/MDIX. Unmanaged and unpowered: no PoE, no CLI, no web interface is claimed, only the L2 forwarding the hardware performs."
+}

@@ -1,0 +1,57 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP225-Wall",
+  "label": "TP-Link EAP225-Wall",
+  "category": "wireless",
+  "description": "AC1200 wall-plate access point: one 10/100 uplink (PoE in), two 10/100 downlink ports and a third 10/100 port with PoE passthrough, dual-band Wi-Fi 5.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap225-wall/v2/",
+  "notes": "Vendor figures from the TP-Link datasheet: 1x 10/100 Mbps Ethernet uplink port that accepts 802.3af/at as a powered device, 2x 10/100 Mbps Ethernet ports, and 1x 10/100 Mbps port with PoE passthrough; 5 GHz up to 867 Mbps and 2.4 GHz up to 300 Mbps (IEEE 802.11n/g/b/ac). Note the uplink is fast Ethernet on this model - the Wi-Fi is faster than the wire, which is a real constraint when planning backhaul."
+}

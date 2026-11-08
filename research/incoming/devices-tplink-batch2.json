@@ -1,0 +1,864 @@
+[
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG1218MP",
+    "label": "TP-Link TL-SG1218MP",
+    "category": "switch",
+    "description": "18-port rackmount PoE+ switch: 16x gigabit PoE+ ports, 2x gigabit non-PoE ports and 2x combo gigabit SFP slots, with a 250 W POE budget.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1218mp/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: 16x PoE+ gigabit RJ45 ports, 2x gigabit non-PoE RJ45 ports and 2x combo gigabit SFP slots; PoE standard 802.3at/802.3af on ports 1-16 with a 250 W budget. The two non-PoE ports are modelled without PoE: on this switch the last two copper ports are deliberately unpowered, which is easy to get wrong when planning budgets."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG2218",
+    "label": "TP-Link TL-SG2218",
+    "category": "switch",
+    "description": "16-port gigabit JetStream smart switch with 2x gigabit SFP slots. No PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-smart/tl-sg2218/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: 16x 10/100/1000 Mbps RJ45 ports and 2x gigabit SFP slots; 100-240 V AC input. No PoE on this model, so no PoE capability is claimed."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG2428P",
+    "label": "TP-Link TL-SG2428P",
+    "category": "switch",
+    "description": "28-port JetStream smart PoE switch: 24x gigabit PoE+ ports and 4x gigabit SFP slots, with a 250 W POE budget.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "http-server",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg2428p/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: 24x 10/100/1000 Mbps RJ45 ports (auto negotiation / auto MDI/MDIX) and 4x gigabit SFP slots; PoE standard 802.3at/af on all 24 copper ports with a 250 W budget. Every copper port is powered here, unlike the TL-SG1016PE where only half the row is."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SG2008",
+    "label": "TP-Link TL-SG2008",
+    "category": "switch",
+    "description": "8-port gigabit JetStream smart switch, no PoE, external 12 V adapter.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/smart-switch/tl-sg2008/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: 8x 10/100/1000 Mbps RJ45 ports (auto negotiation / auto MDI/MDIX); 100-240 V AC input via external 12 V DC 1 A adapter. No PoE."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "TL-SF1005D",
+    "label": "TP-Link TL-SF1005D",
+    "category": "switch",
+    "description": "5-port 10/100 desktop switch: five fast Ethernet RJ45 ports, unmanaged, plastic case.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/home-networking/5-port-switch/tl-sf1005d/",
+    "notes": "Vendor figures from the TP-Link datasheet: 5x 10/100 Mbps auto-negotiation RJ45 ports supporting auto MDI/MDIX. Unmanaged and unpowered: no PoE, no CLI, no web interface is claimed, only the L2 forwarding the hardware performs."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP110-Outdoor",
+    "label": "TP-Link EAP110-Outdoor",
+    "category": "wireless",
+    "description": "300 Mbps 2.4 GHz outdoor access point: one 10/100 Ethernet port with 24 V passive PoE, weatherproof housing, Omada-managed.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/outdoor-access-point/eap110-outdoor/",
+    "notes": "Vendor figures from the TP-Link datasheet: one 10/100 Mbps Ethernet port with 24 V passive PoE in; single-band 2.4 GHz 802.11n at up to 300 Mbps, which is the request's stated 300 Mbps class. There is no 5 GHz radio, so the spec carries one wlan interface - a lab cannot put this AP on a 5 GHz channel."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP115-Wall",
+    "label": "TP-Link EAP115-Wall",
+    "category": "wireless",
+    "description": "300 Mbps 2.4 GHz wall-plate access point: one 10/100 uplink plus one 10/100 downlink port, 802.3af PoE in.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/wall-plate-ap/eap115-wall/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: uplink 1x 10/100 Mbps Ethernet port and downlink 1x 10/100 Mbps Ethernet port; IEEE 802.11n/g/b at up to 300 Mbps; PoE IEEE 802.3af. The downlink port is modelled because it is the reason to fit a wall plate instead of a ceiling AP - it passes a wired connection through to whatever is in the room."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP225-Wall",
+    "label": "TP-Link EAP225-Wall",
+    "category": "wireless",
+    "description": "AC1200 wall-plate access point: one 10/100 uplink (PoE in), two 10/100 downlink ports and a third 10/100 port with PoE passthrough, dual-band Wi-Fi 5.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap225-wall/v2/",
+    "notes": "Vendor figures from the TP-Link datasheet: 1x 10/100 Mbps Ethernet uplink port that accepts 802.3af/at as a powered device, 2x 10/100 Mbps Ethernet ports, and 1x 10/100 Mbps port with PoE passthrough; 5 GHz up to 867 Mbps and 2.4 GHz up to 300 Mbps (IEEE 802.11n/g/b/ac). Note the uplink is fast Ethernet on this model - the Wi-Fi is faster than the wire, which is a real constraint when planning backhaul."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP225-Outdoor",
+    "label": "TP-Link EAP225-Outdoor",
+    "category": "wireless",
+    "description": "AC1200 outdoor access point: one gigabit port with 802.3af or 24 V passive PoE, dual-band Wi-Fi 5, weatherproof.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap225-outdoor/v1/",
+    "notes": "Vendor figures from the TP-Link datasheet: 1x gigabit Ethernet RJ-45 port; 802.11ac 5 GHz 6.5-867 Mbps and 2.4 GHz 78-300 Mbps (802.11a/b/g/n/ac); powered by 802.3af PoE or 24 V passive PoE via the included injector. Gigabit uplink here, unlike the EAP225-Wall."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "EAP610-Outdoor",
+    "label": "TP-Link EAP610-Outdoor",
+    "category": "wireless",
+    "description": "AX1800 outdoor Wi-Fi 6 access point: one gigabit port with 802.3at or passive PoE, dual-band 802.11ax.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3at",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap610-outdoor/v1.20/",
+    "notes": "Vendor figures from the TP-Link datasheet: 1x gigabit Ethernet RJ-45 port supporting 802.3at PoE and passive PoE; IEEE 802.11ax/ac/n/g/b/a with 802.11ax rates from 8 Mbps to 1201 Mbps (MCS0-MCS11, NSS 1-2, HE20/40/80) on 5 GHz and 802.11ac up to 867 Mbps. Modelled as AX1800: 574M on 2.4 GHz and 1.2G on 5 GHz, the standard 2x2 Wi-Fi 6 split."
+  }
+]
