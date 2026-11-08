@@ -334,6 +334,11 @@ const CAGES = {
   // the Ethernet cages, an SFP+ port that declares no speedCaps would inherit 8G/16G as its
   // defaults and an Ethernet-to-Ethernet link could negotiate a Fibre Channel rate.
   sfp56: { name: 'SFP56', family: 'optical', label: 'SFP56 cage (50G)' },
+  // XFP came before SFP+ and is larger: 10 Gbit/s only, and an SFP+ module does not fit it.
+  // OLT uplink cards are where it survives - FiberHome's HU2A is 2x10GE in XFP cages and
+  // Huawei's H801X2CA is 2x10GE XFP - so modelling it as SFP+ would let a lab cable a module
+  // that physically will not seat.
+  xfp: { name: 'XFP', family: 'optical', label: 'XFP cage (10G)' },
   'fc-sfp': { name: 'SFP+ (FC)', family: 'fibre-channel', label: 'SFP+ cage, Fibre Channel 2/4/8/16G' },
   'fc-sfp28': { name: 'SFP28 (FC)', family: 'fibre-channel', label: 'SFP28 cage, Fibre Channel 32G' },
   'fc-sfpdd': { name: 'SFP-DD (FC)', family: 'fibre-channel', label: 'SFP-DD cage, Fibre Channel 64G' },
@@ -410,6 +415,7 @@ const CAGE_MATE = {
   combo: ['combo', 'rj45', 'sfp', 'sfp+', 'sfp28'],
   sfp: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28'],
   'sfp+': ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
+  xfp: ['xfp'],
   sfp28: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
   sfp56: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo'],
   'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
@@ -539,6 +545,7 @@ const CAGE_MEDIA = {
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
   sfp56: function () { return ['50gbase-sr', '50gbase-lr', '25gbase-sr', '25gbase-lr', 'dac-25g']; },
+  xfp: function () { return ['10gbase-sr', '10gbase-lr', '10gbase-er']; },
   'fc-sfp': function () {
     return ['2gfc-sw', '2gfc-lw', '4gfc-sw', '4gfc-lw', '8gfc-sw', '8gfc-lw', '10gfc-sw', '10gfc-lw', '16gfc-sw', '16gfc-lw'];
   },
@@ -695,6 +702,7 @@ const CAGE_SPEEDS = {
   qsfp56: function () { return [40000, 100000, 200000]; },
   'fc-sfp': function () { return [2125, 4250, 8500, 10519, 14025]; },
   sfp56: function () { return [25000, 50000]; },
+  xfp: function () { return [10000]; },
   'fc-sfp28': function () { return [8500, 14025, 28050]; },
   'fc-sfpdd': function () { return [14025, 28050, 57800]; },
   'fc-qsfp28': function () { return [28050, 112200]; },

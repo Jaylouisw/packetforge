@@ -162,6 +162,11 @@ const EXPECTED_ROWS = [
   ['sfp+', 'sfp+', 'accept'],
   ['sfp+', 'sfp28', 'accept'],
   ['sfp28', 'sfp28', 'accept'],
+  // XFP is 10G in a larger cage than SFP+. It is not a member of the SFP ladder: an SFP+ module
+  // does not fit, and the only thing an XFP port takes is an XFP module.
+  ['xfp', 'xfp', 'accept'],
+  ['xfp', '*', 'refuse'],
+
   // SFP56 is the 50G member of the SFP family: an SFP28 module seats in it and runs at 25G,
   // and a QSFP of any flavour does not fit at all.
   ['sfp28', 'sfp56', 'accept'],   // the module decides the rate, and the catalogue has 1G SFP28 ports too

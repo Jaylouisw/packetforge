@@ -2,6 +2,15 @@
 
 ### Added
 
+- **OLT uplinks are real ports now** (#987). The Adtran SDX 6320's 4x100GbE + 4x10GbE uplinks
+  declared no connector (so a 10G uplink was guessed as copper, #1069 again), the FiberHome
+  AN5516-01's HU2A card was missing its second combo position, and the Huawei MA5600T had no uplink
+  at all despite naming the H801X2CS in its own description. All three are modelled, cited to their
+  datasheets, and the three name-based quarantines in `test/spec-vs-description.test.js` are gone.
+- **`xfp` cage.** XFP is 10G in a larger cage than SFP+ and an SFP+ module does not seat in it. The
+  FiberHome HU2A's 10GE ports are XFP and the Huawei H801X2CA is its XFP variant of the same 2x10GE
+  card as the SFP+ H801X2CS - so the cage is now a hardware fact, and the engine refuses the pair.
+
 - **`scripts/check-node-surface.js`** runs in CI and in `npm test`: it fails the build if any source
   file uses an API that arrived after Node 18 (`toSorted`, `Object.groupBy`,
   `Promise.withResolvers`, and the rest), because a green suite on a newer local interpreter says

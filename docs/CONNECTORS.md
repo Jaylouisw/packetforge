@@ -848,3 +848,28 @@ chassis in `devices/` were doing.
 An **MCX** connector (CMTS RF modules, small-cell gear) resolves to the coax cage: the shapes
 differ, and every real install reaches the plant through an MCX-to-F jumper, which is the adapter
 the model assumes rather than making two dozen ports uncablable.
+
+## XFP is not SFP+
+
+XFP came before SFP+ and is a different size: 10 Gbit/s only, and an **SFP+ module does not seat in
+an XFP cage**. That distinction survives in access equipment, which is where it bites - OLT uplink
+cards are still built with XFP:
+
+| Card | Uplinks |
+|---|---|
+| FiberHome HU2A | 2 x 10GE **XFP** + 2 x GE SFP/electrical combo |
+| FiberHome HU1A / HU1B | 4GE + 1 x 10GE |
+| Huawei H801X2CA | 2 x 10GE **XFP** |
+| Huawei H801X2CS / H802X2CS | 2 x 10GE **SFP+** (SyncE on X2CS) |
+
+Modelling HU2A's 10G ports as SFP+ would let a lab cable a module that physically will not seat, so
+the engine refuses it:
+
+```
+canMate(xfpPort, sfpPlusPort)
+// { ok: false, code: 'E_CONNECTOR_MISMATCH', ... }
+```
+
+The two same-numbered Huawei cards are the clearest illustration of why the cage is a hardware fact
+rather than a label: **X2CA and X2CS are both "2x 10GE"**, and only the last letter tells you whether
+the optic is XFP or SFP+.

@@ -72,9 +72,6 @@ function speedOf(port) {
 // Specs the check cannot adjudicate yet, each with the issue that tracks it. A name here is
 // debt, not an exemption: the alternative is a test that fails for months and gets ignored.
 const KNOWN = {
-  'adtran/SDX 6320': '#987 (uplinks not modelled)',
-  'fiberhome/AN5516-01': '#987 (uplinks not modelled)',
-  'huawei/MA5600T': '#987 (uplinks not modelled)',
 };
 
 console.log('Descriptions and ports agree:');

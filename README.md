@@ -22,7 +22,7 @@ and they all run the same simulation engine and the same command set.
 - **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable,
   per-device console, live packet animation, WebSocket multi-client sync.
 - **Physically accurate.** 89 media types across nine families (Ethernet, Fibre Channel,
-  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 25 connector cages; per-port speed
+  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages; per-port speed
   capabilities and PoE budgets. Impossible cables are
   *refused*, not drawn — an SC/APC patch lead will not go into an SC/UPC socket.
   See [docs/PHYSICAL_LAYER.md](docs/PHYSICAL_LAYER.md) and
@@ -87,7 +87,7 @@ echo/reply travel across the link with a live animation and event log.
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP (request/reply, cache), ICMP echo request/reply, TTL handling |
-| Physical layer | 89 media types, 25 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
+| Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
 | L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
 | CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
