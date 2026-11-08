@@ -1,0 +1,88 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB2011UiAS-2HnD-IN",
+  "label": "RB2011UiAS-2HnD-IN",
+  "category": "wireless",
+  "description": "MikroTik RB2011UiAS-2HnD-IN (RB2011UiAS-2HnD-IN) — 5x 100M RJ45, 5x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB2011UiAS-2HnD-IN"
+}
