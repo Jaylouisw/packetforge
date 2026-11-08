@@ -1,0 +1,47 @@
+{
+  "vendor": "mikrotik",
+  "model": "L41G-2axD",
+  "label": "hAP ax lite",
+  "category": "wireless",
+  "description": "MikroTik hAP ax lite (L41G-2axD) — 4x 1G RJ45, Wi-Fi 2.4 GHz. ARM 32bit 2-core IPQ-5010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hap_ax_lite"
+}

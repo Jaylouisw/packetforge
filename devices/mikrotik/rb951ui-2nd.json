@@ -1,0 +1,54 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB951Ui-2nD",
+  "label": "hAP",
+  "category": "wireless",
+  "description": "MikroTik hAP (RB951Ui-2nD) — 5x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB951Ui-2nD"
+}
