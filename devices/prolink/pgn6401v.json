@@ -1,0 +1,46 @@
+{
+  "vendor": "prolink",
+  "model": "PGN6401V",
+  "label": "Prolink PGN6401V GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9607Cv2, 256MB RAM / SPI NAND 128MB flash, Linux 4.4.140 (GCC Realtek MSDK-4.8.5p1 Build 3068)) with 4× 1G LAN and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-upc, managed over web UI + SSH + telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-prolink-pgn6401v/"
+}
