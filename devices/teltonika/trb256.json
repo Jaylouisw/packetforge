@@ -1,0 +1,37 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB256",
+  "label": "Teltonika TRB256",
+  "category": "iot",
+  "description": "An NB-IoT and LTE Cat M1 gateway: one 10/100 Ethernet port, I/O and serial pins, and a low-power wide-area modem rather than a broadband one.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/gateways/trb256",
+  "notes": "Vendor figures from the TRB256 datasheet: 1 x ETH port 10/100 Mbps (IEEE 802.3); a connector block with I/O and RS232/RS485; LTE Cat M1 / NB-IoT. The cellular interface is modelled at 1M because Cat M1 tops out around 1 Mbps - two orders of magnitude below the Cat 4 units, and the reason this device exists is that it does not need more."
+}

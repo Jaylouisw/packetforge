@@ -1,0 +1,33 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB160",
+  "label": "Teltonika TRB160",
+  "category": "iot",
+  "description": "A gigabit 4G Cat 6 gateway in a small industrial case: one RJ45 at 10/100/1000, USB Type-C, no switch and no radio.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/gateways/trb160",
+  "notes": "Vendor figures from the TRB160 datasheet: 1 x RJ45 port 10/100/1000 Mbps Ethernet; USB Type-C; 4G LTE Cat 6, modelled at the 300 Mbps downlink class. No Wi-Fi."
+}

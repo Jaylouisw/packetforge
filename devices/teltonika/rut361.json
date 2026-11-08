@@ -1,0 +1,38 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT361",
+  "label": "Teltonika RUT361",
+  "category": "router",
+  "description": "A compact industrial cellular router: 1 WAN + 1 LAN at 10/100 and a 4G Cat 4 modem in a DIN-rail case.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut361",
+  "notes": "Vendor figures from the RUT361 datasheet: 1 x WAN Ethernet port and 1 x LAN port at 10/100 Mbps (IEEE 802.3/802.3u); 4G LTE Cat 4. No Wi-Fi is claimed here because the datasheet section confirming a radio was not captured during intake - if the unit does have one, it is a gap in this spec and worth a comment on the request."
+}

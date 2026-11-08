@@ -1,0 +1,45 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM10",
+  "label": "Teltonika RUTM10",
+  "category": "router",
+  "description": "A wired industrial router with no modem and no radio: 1 WAN + 3 LAN, all gigabit. For a cabinet that already has an uplink and needs routing, VLANs and a firewall rather than another radio.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutm10",
+  "notes": "Vendor figures from the RUTM10 datasheet: 1 x WAN port 10/100/1000 Mbps and 3 x LAN ports 10/100/1000 Mbps, IEEE 802.3 with auto MDI/MDIX. No cellular modem and no Wi-Fi on this model."
+}
