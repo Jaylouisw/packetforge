@@ -1,0 +1,48 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR2004-1G-2XS-PCIe",
+  "label": "CCR2004-1G-2XS-PCIe",
+  "category": "router",
+  "description": "MikroTik CCR2004-1G-2XS-PCIe (CCR2004-1G-2XS-PCIe) — 1x 1G RJ45, 2x 25G SFP28. ARM 64bit 4-core AL52400.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP28-1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ccr2004_1g_2xs_pcie"
+}
