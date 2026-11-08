@@ -1,0 +1,25 @@
+{
+  "vendor": "synology",
+  "model": "DS224+",
+  "label": "DS224+ 2-bay DiskStation NAS",
+  "category": "nas",
+  "description": "Synology DiskStation DS224+ is a 2-bay desktop NAS (Intel Celeron J4125) with two RJ-45 1GbE LAN ports that support link aggregation and failover.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN 1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.synology.com/en-us/products/DS224+"
+}

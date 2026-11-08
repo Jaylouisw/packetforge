@@ -1,0 +1,26 @@
+{
+  "vendor": "hubitat",
+  "model": "C-8 Pro",
+  "label": "Hubitat Elevation C-8 Pro hub",
+  "category": "iot",
+  "description": "Hubitat Elevation C-8 Pro is a local home-automation controller (2.0 GHz, 2 GB RAM) with built-in Zigbee 3.0, Z-Wave 800 (including Long Range) and Matter, and it is dual-homed on IP: one RJ45 Ethernet port plus a built-in 2.4 GHz Wi-Fi radio.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://hubitat.com/products/7194320273451"
+}

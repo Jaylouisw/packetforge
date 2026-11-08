@@ -1,0 +1,26 @@
+{
+  "vendor": "aqara",
+  "model": "Hub M3",
+  "label": "Aqara Hub M3 Matter/Thread hub",
+  "category": "iot",
+  "description": "Aqara Hub M3 is an all-in-one Zigbee 3.0 / Thread / Matter hub and Thread border router with dual-band 2.4/5 GHz Wi-Fi and a PoE RJ45 port, so it can be powered and back-hauled over a single Ethernet cable.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://eu.aqara.com/products/aqara-smart-hub-m3"
+}

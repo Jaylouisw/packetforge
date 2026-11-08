@@ -1,0 +1,20 @@
+{
+  "vendor": "ricoh",
+  "model": "IM C3000",
+  "label": "IM C3000 A3 colour MFP",
+  "category": "printer",
+  "description": "Ricoh IM C3000 is a 30 ppm A3 colour multifunction printer with a 320 GB HDD and a single standard 10/100/1000BASE-T RJ45 port; wireless LAN is an option, not fitted as standard.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://assets.ricoh-usa.com/j2jqn9lauv41/6MrL4kDitHAhx5l3ejEkcW/f5f72732903876fed596025d46b6f3ab/im-c3000-c3500-spec-sheet.pdf"
+}
