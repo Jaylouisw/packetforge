@@ -1,0 +1,34 @@
+{
+  "vendor": "fs",
+  "model": "XGS-ONU-25-20NI",
+  "label": "FS.com XGS-ONU-25-20NI XGS-PON SFP+ ONU",
+  "category": "ont",
+  "description": "XGS-PON ONU built into an SFP+ module (Cortina CA8271A, Saturn SDK Linux, SC/APC BOSA) that presents a 2500BASE-X or 10GBASE-R host interface to the router's SFP+ cage; XGS-PON line rate 9.953 Gbit/s symmetric with no LAN ports and no Wi-Fi, managed over telnet or its TTL serial console.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "host",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        2500,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-fs-XGS-ONU-25-20NI/"
+}
