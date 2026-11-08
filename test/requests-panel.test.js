@@ -143,5 +143,6 @@ ok(/if \(q\) \{\s*\n\s*const asked = renderRequestedSection/.test(appjs), 'the s
 ok(/\.requested-group/.test(css) && /\.requested-item/.test(css), 'both are styled');
 ok(/\.requested-item:focus-visible/.test(css), 'and the rows are reachable by keyboard');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' requests-panel check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' requests-panel checks passed.');

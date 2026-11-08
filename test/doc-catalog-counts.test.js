@@ -65,5 +65,6 @@ console.log('\nThe document says where the truth lives:');
 ok(/GET \/api\/catalog/.test(doc), 'it points at /api/catalog as authoritative');
 ok(/the directory is right/i.test(doc), 'and says the directory wins over the prose');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' doc-catalog-counts check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' doc-catalog-counts checks passed.');

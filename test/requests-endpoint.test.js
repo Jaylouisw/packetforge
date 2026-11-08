@@ -132,6 +132,7 @@ function fakeFetch(pages) {
   ok(/await requestCache\.get\(\)/.test(src), 'and answers from the cache');
   ok(/createRequestCache\(\{\}\)/.test(src), 'the cache is built once, not per request');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
   if (failed) { console.error('\n' + failed + ' requests-endpoint check(s) failed'); process.exit(1); }
   console.log('\n' + passed + ' requests-endpoint checks passed.');
 })();

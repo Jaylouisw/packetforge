@@ -110,5 +110,6 @@ ok(/palette-empty-why/.test(appjs), 'the message is its own element, not the who
 ok(/\.palette-empty-why/.test(css), 'and it is styled');
 ok(/\.palette-empty \.btn/.test(css), 'so is the control inside the empty state');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' palette-empty check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' palette-empty checks passed.');

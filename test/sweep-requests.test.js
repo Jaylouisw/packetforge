@@ -133,3 +133,6 @@ try {
   tokenError = /no token: this script needs a Forgejo token[\s\S]*FORGEJO_TOKEN[\s\S]*Report it: https:\/\/git\.jayw\.uk/.test(src);
 } catch (e) { tokenError = false; }
 ok(tokenError === true, 'the failure names the variable, the remote alternative and the bug-report link');
+
+console.log('\n' + passed + ' passed, ' + failed + ' failed');
+process.exit(failed ? 1 : 0);

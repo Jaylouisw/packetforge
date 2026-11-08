@@ -106,5 +106,6 @@ console.log('\nThe normal path is untouched:');
 ok(/on\.place\(w\.x, w\.y, state\.placing\);/.test(canvasjs), 'a placement on the canvas still places');
 ok(/else if \(state\.placing && on\.place\) \{/.test(canvasjs), 'gated inside the existing placing check');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' overlay-placement check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' overlay-placement checks passed.');

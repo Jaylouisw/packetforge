@@ -117,5 +117,6 @@ function waitFor(fn, ms) {
 function finish() {
   if (failed) { console.error('\n' + failed + ' startup-error check(s) failed'); process.exit(1); }
   console.log('\n' + passed + ' startup-error checks passed.');
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(0);
 }

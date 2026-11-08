@@ -168,5 +168,6 @@ ok(/\.device-card\.kbd-active/.test(css), 'the highlight is styled');
 ok(/outline/.test(css.slice(css.indexOf('.device-card.kbd-active'))),
   'and it uses an outline, so highlighting does not shift the layout');
 
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' palette-keyboard check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' palette-keyboard checks passed.');

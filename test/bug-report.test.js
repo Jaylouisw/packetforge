@@ -175,6 +175,7 @@ function makeCtx(openResult, warnSink) {
 }
 
 function finish() {
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
   if (failed) { console.error('\n' + failed + ' bug-report check(s) failed'); process.exit(1); }
   console.log('\n' + passed + ' bug-report checks passed.');
 }
