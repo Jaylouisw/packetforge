@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "LAP-120",
+  "label": "airMAX LiteAP AC",
+  "category": "ptp",
+  "description": "5 GHz airMAX ac sector access point with integrated 16 dBi 120-degree antenna, 25 dBm max TX, 7 W, 24 V passive PoE in. Ports: 1x GbE RJ45 (PoE in).",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://dl.ui.com/datasheets/LiteAP_ac/LiteAP_AC_DS.pdf"
+}
