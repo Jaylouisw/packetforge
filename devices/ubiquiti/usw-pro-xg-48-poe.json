@@ -1,0 +1,752 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Pro-XG-48-PoE",
+  "label": "UniFi Pro XG 48 PoE",
+  "category": "switch",
+  "description": "UniFi Pro XG 48 PoE (USW-Pro-XG-48-PoE) - 16x 2.5G RJ45 (16 PoE+++) + 32x 10G RJ45 (32 PoE+++) + 4x 25G SFP28 (25G/10G/1G). 1080 W PoE budget; Layer 3; 920 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth29",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth30",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth31",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth32",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth33",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth34",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth35",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth36",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth37",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth38",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth39",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth40",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "eth47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+++"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-48-poe"
+}
