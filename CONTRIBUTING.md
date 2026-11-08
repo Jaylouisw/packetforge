@@ -73,6 +73,11 @@ The catalog is pure JSON. Adding a model = adding one file:
 3. Run `npm test` and `npm run syntax`.
 4. Open a pull request.
 
+Before adding a model, it is worth asking whether it is already here under a different spelling —
+`node scripts/sweep-device-requests.js --limit 700` answers that against the live request queue,
+and [docs/DEVICE_REQUEST_SWEEP.md](docs/DEVICE_REQUEST_SWEEP.md) explains what its guards do and
+why each one exists.
+
 Minimal example:
 
 ```json
