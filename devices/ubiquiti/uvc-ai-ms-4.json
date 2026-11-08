@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-AI-MS-4",
+  "label": "UniFi AI Multi Sensor 4",
+  "category": "camera",
+  "description": "UniFi AI Multi Sensor 4 (UVC-AI-MS-4) - 1x 1G RJ45. 802.3bt PoE-in; 32MP; 34.6 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-ai-ms-4"
+}
