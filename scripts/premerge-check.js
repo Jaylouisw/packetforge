@@ -41,12 +41,23 @@ function main(argv) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pfc-'));
   const results = [];
 
+  // Fetch once, not per branch: a fetch per branch dominated the runtime when this
+  // checked twenty-four of them, and none of them change during the run. All heads,
+  // not just main, so a branch name resolves without a local checkout.
+  git(['fetch', '--no-tags', '-q', 'origin', '+refs/heads/*:refs/remotes/origin/*']);
+
   for (const branch of branches) {
-    const ref = branch.includes('/') || !branch.includes('..') ? branch : branch;
+    let ref = branch;
+    if (!branch.startsWith('origin/') && !branch.startsWith('refs/')) {
+      try {
+        git(['rev-parse', '--verify', '--quiet', `refs/remotes/origin/${branch}^{commit}`]);
+        ref = `origin/${branch}`;
+      } catch {
+        // not a remote branch; let git report the failure below
+      }
+    }
     let worktree = null;
     try {
-      git(['fetch', '--no-tags', '-q', 'origin', `+refs/heads/main:refs/remotes/origin/main`]);
-
       // The tree a merge would produce: current `main`, then this branch's changed
       // files laid over it. The merge base is the wrong starting point — it is as old
       // as the branch, so it still contains defects that `main` has since fixed, and
