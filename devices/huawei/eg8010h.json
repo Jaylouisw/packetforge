@@ -1,0 +1,31 @@
+{
+  "vendor": "huawei",
+  "model": "EG8010H",
+  "label": "Huawei EchoLife EG8010H GPON ONT",
+  "category": "ont",
+  "description": "Bridging-type GPON ONT (ITU-T G.984, 2.488 Gbit/s down / 1.244 Gbit/s up) with a single 10/100/1000Base-T LAN port and no Wi-Fi or POTS; HiSilicon A9 dual-core (ARMv7) SoC running Dopra Linux, SC/APC (or SC/UPC) optical connector, managed over its web UI or telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-huawei-eg8010h/"
+}
