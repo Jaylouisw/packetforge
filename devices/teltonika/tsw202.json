@@ -1,0 +1,94 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW202",
+  "label": "Teltonika TSW202",
+  "category": "switch",
+  "description": "A managed 8-port Gigabit PoE+ switch with two SFP cages - the managed counterpart of the TSW200, for a ring or a fibre uplink.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "l3-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "SFP-1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP-2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW202",
+  "notes": "Vendor figures (Teltonika datasheet teltonika-tsw-202): 8 x PoE ports with 802.3af/at and 2 x SFP cages, confirmed by the status-LED line (16 LAN LEDs, 2 SFP LEDs). Managed."
+}

@@ -1,0 +1,1037 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "TSW030",
+    "label": "Teltonika TSW030",
+    "category": "switch",
+    "description": "A DIN-rail unmanaged switch with eight 10/100 RJ45 ports. No PoE, no management, no fan - a dumb switch that survives a cabinet.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW030",
+    "notes": "Vendor figures (Teltonika wiki): eight 10/100 RJ45 ports, unmanaged, integrated DIN rail mounting. Unmanaged, so no CLI or web interface is claimed beyond the L2 forwarding the hardware does."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW040",
+    "label": "Teltonika TSW040",
+    "category": "switch",
+    "description": "An unmanaged 8-port PoE+ switch: eight RJ45 ports with a 240 W total budget and up to 30 W on any one port.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": 30
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW040",
+    "notes": "Vendor figures (Teltonika wiki): eight RJ45 PoE+ ports, 240 W total power budget, up to 30 W per port, 2-pin power input, integrated DIN rail mount. Unmanaged."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW100",
+    "label": "Teltonika TSW100",
+    "category": "switch",
+    "description": "A five-port industrial Gigabit switch with PoE+ on four of them: the fifth port is the uplink, the other four power cameras and access points.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW100",
+    "notes": "Vendor figures (Teltonika wiki): 5 x Gigabit Ethernet ports, 4 of which can power connected devices via PoE 802.3af/802.3at. eth0 is modelled without PoE because the vendor says four of the five ports are PoE-capable; the fifth is the uplink."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW110",
+    "label": "Teltonika TSW110",
+    "category": "switch",
+    "description": "The five-port Gigabit switch from the TSW100 family with the PoE removed - unmanaged, fanless, DIN rail.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW110",
+    "notes": "Vendor figures (Teltonika wiki): described as an unmanaged Gigabit Ethernet switch and the non-PoE version of the TSW100, which carries five Gigabit ports. Modelled as five plain Gigabit RJ45 ports with no PoE."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW200",
+    "label": "Teltonika TSW200",
+    "category": "switch",
+    "description": "An industrial 8-port Gigabit switch with 802.3af/at PoE on every port - the first Teltonika switch with PoE on all eight.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW200",
+    "notes": "Vendor figures (Teltonika wiki and TSW200 v1 datasheet): eight Gigabit Ethernet ports supporting IEEE 802.3af and 802.3at PoE; datasheet port table states 8 x PoE ports."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW202",
+    "label": "Teltonika TSW202",
+    "category": "switch",
+    "description": "A managed 8-port Gigabit PoE+ switch with two SFP cages - the managed counterpart of the TSW200, for a ring or a fibre uplink.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "SFP-1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW202",
+    "notes": "Vendor figures (Teltonika datasheet teltonika-tsw-202): 8 x PoE ports with 802.3af/at and 2 x SFP cages, confirmed by the status-LED line (16 LAN LEDs, 2 SFP LEDs). Managed."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW210",
+    "label": "Teltonika TSW210",
+    "category": "switch",
+    "description": "An unmanaged industrial switch with eight Gigabit Ethernet ports and two SFP cages.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP-1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW210",
+    "notes": "Vendor figures (Teltonika wiki): eight Gigabit Ethernet and two SFP ports, industrial grade, unmanaged."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW212",
+    "label": "Teltonika TSW212",
+    "category": "switch",
+    "description": "The managed version of the TSW210: eight Gigabit ports, two SFP cages, L2 management with VLANs and port mirroring.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP-1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW212",
+    "notes": "Vendor figures (Teltonika wiki): eight Gigabit Ethernet and two SFP ports, L2 managed."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSF000",
+    "label": "Teltonika TSF000",
+    "category": "switch",
+    "description": "A low-profile switch for tight industrial spaces: five Ethernet ports, four of them PoE+ with a 120 W budget, in a flat housing.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSF000",
+    "notes": "Vendor figures (Teltonika wiki): 4 x PoE+ outputs with a 120 W power budget, 5 x Ethernet ports total, low-profile housing, DIN rail mount, unmanaged. eth0 carries no PoE because the PoE budget is stated for four outputs."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "SWM280",
+    "label": "Teltonika SWM280",
+    "category": "switch",
+    "description": "A 24-port L2/L3 managed switch: twelve PoE+ ports, twelve more Gigabit ports and four SFP cages. The mixed variant - half the row powered, half plain.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 30
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP-1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-3",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-4",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/SWM280",
+    "notes": "Vendor figures (Teltonika wiki): 24-port switch combining 12 PoE+ ports, 12 Gigabit Ethernet ports and 4 SFP ports; L2 managed with L3 features. Ports eth0-eth11 carry PoE; eth12-eth23 are the plain Gigabit half, which is the whole point of this model over the SWM282."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "SWM281",
+    "label": "Teltonika SWM281",
+    "category": "switch",
+    "description": "The unpowered member of the SWM family: 24 Gigabit Ethernet ports and four SFP cages, L2 managed with L3 features.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP-1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-3",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      },
+      {
+        "name": "SFP-4",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          "1G"
+        ]
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/SWM281",
+    "notes": "Vendor figures (Teltonika wiki): 24 Gigabit Ethernet ports and 4 dedicated SFP ports; L2 managed with added L3 functionality. No PoE on this model."
+  }
+]

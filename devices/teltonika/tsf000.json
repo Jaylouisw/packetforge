@@ -1,0 +1,53 @@
+{
+  "vendor": "teltonika",
+  "model": "TSF000",
+  "label": "Teltonika TSF000",
+  "category": "switch",
+  "description": "A low-profile switch for tight industrial spaces: five Ethernet ports, four of them PoE+ with a 120 W budget, in a flat housing.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSF000",
+  "notes": "Vendor figures (Teltonika wiki): 4 x PoE+ outputs with a 120 W power budget, 5 x Ethernet ports total, low-profile housing, DIN rail mount, unmanaged. eth0 carries no PoE because the PoE budget is stated for four outputs."
+}

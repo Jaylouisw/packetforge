@@ -1,0 +1,46 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW110",
+  "label": "Teltonika TSW110",
+  "category": "switch",
+  "description": "The five-port Gigabit switch from the TSW100 family with the PoE removed - unmanaged, fanless, DIN rail.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW110",
+  "notes": "Vendor figures (Teltonika wiki): described as an unmanaged Gigabit Ethernet switch and the non-PoE version of the TSW100, which carries five Gigabit ports. Modelled as five plain Gigabit RJ45 ports with no PoE."
+}

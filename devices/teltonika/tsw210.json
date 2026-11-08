@@ -1,0 +1,82 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW210",
+  "label": "Teltonika TSW210",
+  "category": "switch",
+  "description": "An unmanaged industrial switch with eight Gigabit Ethernet ports and two SFP cages.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP-1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP-2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW210",
+  "notes": "Vendor figures (Teltonika wiki): eight Gigabit Ethernet and two SFP ports, industrial grade, unmanaged."
+}

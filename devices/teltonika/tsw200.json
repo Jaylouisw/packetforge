@@ -1,0 +1,76 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW200",
+  "label": "Teltonika TSW200",
+  "category": "switch",
+  "description": "An industrial 8-port Gigabit switch with 802.3af/at PoE on every port - the first Teltonika switch with PoE on all eight.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "l3-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW200",
+  "notes": "Vendor figures (Teltonika wiki and TSW200 v1 datasheet): eight Gigabit Ethernet ports supporting IEEE 802.3af and 802.3at PoE; datasheet port table states 8 x PoE ports."
+}

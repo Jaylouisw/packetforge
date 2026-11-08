@@ -1,0 +1,75 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW040",
+  "label": "Teltonika TSW040",
+  "category": "switch",
+  "description": "An unmanaged 8-port PoE+ switch: eight RJ45 ports with a 240 W total budget and up to 30 W on any one port.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW040",
+  "notes": "Vendor figures (Teltonika wiki): eight RJ45 PoE+ ports, 240 W total power budget, up to 30 W per port, 2-pin power input, integrated DIN rail mount. Unmanaged."
+}

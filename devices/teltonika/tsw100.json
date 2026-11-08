@@ -1,0 +1,53 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW100",
+  "label": "Teltonika TSW100",
+  "category": "switch",
+  "description": "A five-port industrial Gigabit switch with PoE+ on four of them: the fifth port is the uplink, the other four power cameras and access points.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 30
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW100",
+  "notes": "Vendor figures (Teltonika wiki): 5 x Gigabit Ethernet ports, 4 of which can power connected devices via PoE 802.3af/802.3at. eth0 is modelled without PoE because the vendor says four of the five ports are PoE-capable; the fifth is the uplink."
+}
