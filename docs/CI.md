@@ -85,14 +85,19 @@ Merge commits are not used. One pull request becomes one commit on `main`.
 ## The runner
 
 Self-hosted, running on the forge host, `capacity: 2` — two jobs at a time.
-That number is the throughput ceiling of the entire project: measured at capacity
-1, the instance started ~1.1 jobs a minute and merged ~13 pull requests an hour;
-at capacity 2, ~2.2 jobs a minute. Mean job duration is about 50 seconds and did
-not change between the two, so the second slot is not paid for by slowing the
-first.
+That number is the throughput ceiling of the entire project. Measured on the same
+host, same day:
 
-If you are tempted to raise it further, watch memory, not CPU — the host is
-shared with other services.
+| capacity | job starts | mean job duration | effective throughput |
+|---|---|---|---|
+| 1 | ~1.1 / min | ~50 s | 1.0× |
+| 2 | ~2.2 / min | ~63 s | ~1.6× |
+
+The second slot is not free: jobs take about a quarter longer when two run at once,
+because they compete for the same disk and the same forty cores. Two slots still
+beat one, but by roughly 1.6× rather than 2×, and the load average roughly doubles.
+Watch memory rather than CPU if you raise it again — the host is shared with other
+services, and a job that has to swap makes the whole queue slower.
 
 ## Troubleshooting
 
