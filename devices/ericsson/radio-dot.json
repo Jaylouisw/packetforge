@@ -1,0 +1,18 @@
+{
+  "vendor": "ericsson",
+  "model": "Radio Dot",
+  "label": "Ericsson Radio Dot indoor small cell",
+  "category": "wireless",
+  "description": "Indoor 4G/5G SA small cell of the Radio Dot System, up to 4x4 MIMO and mid-band NR, powered and backhauled over the single Ethernet cable (PoE++) to an Indoor Radio Unit that serves up to eight Dots. Only that 1 Gigabit Ethernet port is modelled: the NR air interface is not a Wi-Fi radio, so no wireless port is declared.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://cradlepoint.ericsson.com/products/radios/ericsson-radio-dot-system/"
+}

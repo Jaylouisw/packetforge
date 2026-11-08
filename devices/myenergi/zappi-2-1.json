@@ -1,0 +1,26 @@
+{
+  "vendor": "myenergi",
+  "model": "zappi 2.1",
+  "label": "myenergi zappi v2.1 solar-aware EV charger",
+  "category": "iot",
+  "description": "myenergi zappi v2.1 is a 7 kW single-phase or 22 kW three-phase EV charger that diverts surplus solar generation with ECO and ECO+ modes and a grid current sensor. It is one of the better-connected chargers: an RJ45 Ethernet port plus built-in 2.4 GHz 802.11 b/g/n Wi-Fi up to 150 Mbps, with a separate 868/915 MHz proprietary radio for myenergi sensors and remote monitoring.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.myenergi.com/product/zappi-ev-charger/"
+}

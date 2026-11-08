@@ -1,0 +1,36 @@
+{
+  "vendor": "distech-controls",
+  "model": "ECY-S1000",
+  "label": "ECLYPSE S1000 connected controller",
+  "category": "iot",
+  "description": "ECLYPSE building controller with 2 switched RJ45 Ethernet ports at 10/100 Mbps that can be configured individually for daisy-chain wiring, speaking BACnet/IP, Modbus TCP and REST. Up to three RS-485 ports carry BACnet MS/TP or Modbus RTU, and up to 20 I/O extension modules can be added.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "rs485-1",
+      "type": "console"
+    },
+    {
+      "name": "rs485-2",
+      "type": "console"
+    },
+    {
+      "name": "rs485-3",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://lit.stromquist.com/docs/Distech/ECY-S1000data.pdf"
+}

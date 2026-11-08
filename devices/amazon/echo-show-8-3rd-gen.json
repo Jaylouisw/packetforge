@@ -1,0 +1,20 @@
+{
+  "vendor": "amazon",
+  "model": "Echo Show 8 (3rd gen)",
+  "label": "Amazon Echo Show 8 (3rd gen) smart display",
+  "category": "iot",
+  "description": "Echo Show 8 (3rd gen, 2023) is an 8-inch Alexa smart display that also acts as a Zigbee hub and Thread border router for Matter. Its only network interface is Wi-Fi 6E (IEEE 802.11ax) at 2.4, 5 or 6 GHz - there is no Ethernet port and no PoE, and the power lead is a USB-C supply rather than a data link.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.amazon.com/dp/B0DC8ZMR1P"
+}

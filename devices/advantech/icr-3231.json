@@ -1,0 +1,42 @@
+{
+  "vendor": "advantech",
+  "model": "ICR-3231",
+  "label": "ICR-3231 industrial LTE router",
+  "category": "router",
+  "description": "DIN-rail LTE Cat 4 router/gateway with two independent 10/100 Mbps Ethernet ports (ETH0, ETH1), one RS-232 and one RS-485 serial port, and digital I/O. Dual SIM for carrier failover, Linux-based ICR-OS with NAT, firewall and VPN; Wi-Fi and GNSS are optional modules, not fitted on the base model.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://icr.advantech.com/support/router-models/download/301/icr-3231-hardware-manual-20260213.pdf"
+}

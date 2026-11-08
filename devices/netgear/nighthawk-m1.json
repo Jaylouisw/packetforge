@@ -1,0 +1,39 @@
+{
+  "vendor": "netgear",
+  "model": "Nighthawk M1",
+  "label": "Netgear Nighthawk M1 LTE Cat 16 hotspot (MR1100)",
+  "category": "router",
+  "description": "LTE Cat 16 mobile router (MR1100) at 1 Gbps down / 150 Mbps up with 4-band carrier aggregation and 4x4 MIMO. One Gigabit Ethernet port plus dual-band 802.11ac Wi-Fi at 867 + 300 Mbps; the LTE uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.netgear.com/images/datasheet/mobile/MR1100_100NAS.pdf"
+}

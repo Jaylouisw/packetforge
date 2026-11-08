@@ -1,0 +1,32 @@
+{
+  "vendor": "hms",
+  "model": "IN7004852500000",
+  "label": "Intesis Modbus to BACnet/IP gateway",
+  "category": "iot",
+  "description": "Intesis protocol translator (250 points) that presents Modbus TCP/RTU devices to a BACnet/IP or BACnet MS/TP BMS. One Ethernet 10/100 Mbps RJ45 port, two independent EIA-485 ports for Modbus RTU lines and one EIA-232 port; DIN-rail mount, 9 to 36 VDC.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "porta",
+      "type": "console"
+    },
+    {
+      "name": "portb",
+      "type": "console"
+    },
+    {
+      "name": "rs232",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://media.hms-networks.com/image/upload/v1786566390/Documents/Generated_Datasheets/Production/en/hms-IN7004852500000_BAC_MBS-en-Modbus-TCP--RTU-Master-to-BACnetIP--MSTP-Server-Application.pdf"
+}

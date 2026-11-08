@@ -1,0 +1,18 @@
+{
+  "vendor": "quectel",
+  "model": "EC25-E",
+  "label": "Quectel EC25-E LTE Cat 4 mini PCIe module",
+  "category": "modem",
+  "description": "LTE Cat 4 mini PCIe module (30 x 51 x 4.9 mm) at 150 Mbps down / 50 Mbps up with LTE-FDD/TDD, WCDMA and GSM fallback. The module exposes no ports of its own, so the host-facing data path is modelled as wan5g and a mini PCIe carrier is required.",
+  "capabilities": [
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.quectel.com/product/lte-ec25-mini-pcie-series/"
+}

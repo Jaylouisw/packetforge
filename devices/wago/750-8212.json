@@ -1,0 +1,30 @@
+{
+  "vendor": "wago",
+  "model": "750-8212",
+  "label": "PFC200 G2 controller, 2 x Ethernet",
+  "category": "iot",
+  "description": "WAGO PFC200 2nd-generation PLC/edge controller with 2 x ETHERNET RJ45 ports at 10/100 Mbit/s (internal switch, daisy-chain capable) plus one RS-232/RS-485 interface. Runs Linux with a web-based management UI, SSH and Modbus TCP, EtherNet/IP, BACnet/IP and OPC UA.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "x1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "x2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.wago.com/us/controllers-bus-couplers-i-o/controller-pfc200/p/750-8212"
+}

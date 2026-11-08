@@ -1,0 +1,173 @@
+{
+  "vendor": "siemens",
+  "model": "SCALANCE XC216-4C",
+  "label": "SCALANCE XC216-4C managed IE switch",
+  "category": "switch",
+  "description": "DIN-rail / S7-rail Layer 2 managed industrial Ethernet switch (6GK5216-4BS00-2AC2) with 12 x 10/100 Mbit/s RJ45 ports, 4 gigabit combo ports that take either a 1000 Mbit/s SFP or a 10/100/1000 RJ45, and an RJ11 console port. PROFINET IO device with MRP/HRP/PRP redundancy, -40 to +70 C.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "13-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "13-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "13",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "14-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "14-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "14",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "15-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "15-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "15",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G",
+      "comboWith": "16-sfp",
+      "comboRole": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "16-sfp",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "16",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6GK5216-4BS00-2AC2&language=en&caller=SIOS"
+}

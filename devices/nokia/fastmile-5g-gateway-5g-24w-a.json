@@ -1,0 +1,56 @@
+{
+  "vendor": "nokia",
+  "model": "FastMile 5G Gateway 5G-24W-A",
+  "label": "Nokia FastMile 5G Gateway (5G-24W-A)",
+  "category": "router",
+  "description": "Indoor 5G FWA gateway (5G-24W-A) with a 2.5 Gigabit Ethernet WAN port and three Gigabit LAN ports, plus 3x3 802.11n 2.4 GHz and 4x4 802.11ac MU-MIMO 5 GHz Wi-Fi. The 5G NR sub-6 uplink with 4G fallback is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "450M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.7G"
+    }
+  ],
+  "sourceUrl": "https://www.nokia.com/sites/default/files/2022-11/fastmile-5g-r1_0_03-gateway-end-user-guide.pdf"
+}

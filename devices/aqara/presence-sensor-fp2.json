@@ -1,0 +1,19 @@
+{
+  "vendor": "aqara",
+  "model": "Presence Sensor FP2",
+  "label": "Aqara Presence Sensor FP2 (mmWave)",
+  "category": "iot",
+  "description": "Aqara Presence Sensor FP2 is a 60 GHz mmWave presence sensor that tracks up to five people, splits a room into zones and also reports lux and distance, exposed to Matter through an Aqara hub or natively over Wi-Fi. It is wireless-only with a 5 V USB-C power input: 2.4 GHz 802.11 b/g/n Wi-Fi plus Bluetooth 4.2 and no RJ45 jack - ceiling-mounted but not PoE-powered, whatever the install photos suggest.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.aqara.com/us/product/presence-sensor-fp2/specs/"
+}

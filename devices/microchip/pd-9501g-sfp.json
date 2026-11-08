@@ -1,0 +1,40 @@
+{
+  "vendor": "microchip",
+  "model": "PD-9501G-SFP",
+  "label": "60 W PoE midspan / SFP media converter",
+  "category": "powerline",
+  "description": "Industrial single-port PoE midspan that can inject up to 60 W of 802.3at power into a gigabit link: three ports, an SFP cage for the data uplink, an RJ45 data-in port and an RJ45 PoE-out port, all active simultaneously. Full 802.3af/at detection, so it refuses passive 24 V or 48 V devices.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp-uplink",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "data-in",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "poe-out",
+      "type": "ethernet",
+      "speed": "1G",
+      "hardware": {
+        "poeOut": 60
+      }
+    }
+  ],
+  "sourceUrl": "https://ww1.microchip.com/downloads/aemDocuments/documents/POE/ProductDocuments/DataSheets/PD-9501G-SFP-Datasheet-August2018.pdf",
+  "poe": {
+    "budgetW": 60,
+    "standard": "802.3bt",
+    "psePorts": 1
+  }
+}

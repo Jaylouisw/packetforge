@@ -1,0 +1,59 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT906",
+  "label": "Teltonika RUT906 industrial 4G router",
+  "category": "router",
+  "description": "Industrial 4G LTE Cat 4 router with 4 x 10/100 Mbps Ethernet ports (1 WAN + 3 LAN), a single 2.4 GHz Wi-Fi 4 radio, RS-232 on DB9 and RS-485 on a 6-pin socket. Dual SIM, GNSS, RutOS with firewall/NAT/VPN; the USB-A port is for storage only.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.tme.eu/Document/baaf30aa2fa5b3a2cec258731b6f5e4a/Datasheet_RUT906_1.13.pdf"
+}

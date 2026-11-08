@@ -1,0 +1,35 @@
+{
+  "vendor": "moxa",
+  "model": "OnCell G4302-LTE4",
+  "label": "Moxa OnCell G4302-LTE4 industrial LTE gateway",
+  "category": "router",
+  "description": "Industrial LTE Cat 4 cellular secure router with a 2-port Gigabit switch (2x 10/100/1000BaseT(X) RJ45) and dual SIM for failover. The LTE uplink tops out at 150 Mbps downlink and is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/en/products/industrial-network-infrastructure/cellular-gateways-routers/cellular-routers/oncell-g4302-lte4-series"
+}

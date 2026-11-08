@@ -1,0 +1,24 @@
+{
+  "vendor": "moxa",
+  "model": "NPort 5150A",
+  "label": "NPort 5150A 1-port serial device server",
+  "category": "iot",
+  "description": "Single-port serial device server with one 10/100BaseT(X) RJ45 Ethernet port and one DB9 male RS-232/422/485 port, so legacy serial meters and PLCs become TCP endpoints. 1.5 kV magnetic isolation, 1 W typical draw, web and Telnet configuration.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/getmedia/2c359aa1-a851-4b7b-a2ec-a54f7ab207e0/moxa-nport-5100a-series-datasheet-v2.0.pdf"
+}

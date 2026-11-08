@@ -1,0 +1,44 @@
+{
+  "vendor": "netgear",
+  "model": "Nighthawk M6 Pro",
+  "label": "Netgear Nighthawk M6 Pro 5G mmWave hotspot (MR6550)",
+  "category": "router",
+  "description": "5G mmWave and sub-6 hotspot (MR6550) with one 2.5 Gigabit Ethernet port and Wi-Fi 6E rated 3.6 Gbps aggregate (the 6 GHz band needs mains power and is indoor-only). Cellular runs over both mmWave and sub-6 carriers, carried here as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.netgear.com/mobile-wifi/hotspots/mr6550/"
+}

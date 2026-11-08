@@ -1,0 +1,18 @@
+{
+  "vendor": "samsung",
+  "model": "Link Cell",
+  "label": "Samsung Link Cell indoor 5G mmWave small cell",
+  "category": "wireless",
+  "description": "Integrated indoor 5G mmWave small cell with baseband, radio and antenna in one unit, connected to the virtualized CU by a single Cat.6 Ethernet backhaul instead of a fibre fronthaul. That 1 Gigabit Ethernet port is the only modelled interface - the mmWave air interface is not a Wi-Fi radio, so no wireless port is declared.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.samsung.com/global/business/networks/products/radio-access/indoor-solutions/"
+}

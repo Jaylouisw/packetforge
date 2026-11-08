@@ -1,0 +1,25 @@
+{
+  "vendor": "google",
+  "model": "Google TV Streamer (4K)",
+  "label": "Google TV Streamer (4K) with Thread border router",
+  "category": "iot",
+  "description": "Google TV Streamer (4K) is Google's set-top box with Google TV, Matter and a built-in Thread border router for the home. Unlike the older Chromecast dongles it has a genuine wired option: one 10/100/1000 Mbps Ethernet port beside 802.11ac Wi-Fi on 2.4/5 GHz and Bluetooth 5.1, and its USB-C port is power/data rather than networking.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://store.google.com/product/google_tv_streamer_specs?hl=en-US"
+}

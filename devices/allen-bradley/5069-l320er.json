@@ -1,0 +1,24 @@
+{
+  "vendor": "allen-bradley",
+  "model": "5069-L320ER",
+  "label": "CompactLogix 5380 2MB Enet controller",
+  "category": "iot",
+  "description": "CompactLogix 5380 EtherNet/IP controller (2 MB, 16 local I/Os, 40 EtherNet/IP nodes) with exactly 2 x 1 Gb EtherNet ports on embedded RJ45 connectors, usable as a device-level ring (DLR) pair. There is also a USB port for local programming, which is not a network interface.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.rockwellautomation.com/en-us/products/details.5069-L320ER.html"
+}

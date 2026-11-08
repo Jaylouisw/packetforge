@@ -1,0 +1,21 @@
+{
+  "vendor": "athom",
+  "model": "Homey Pro (2023)",
+  "label": "Athom Homey Pro (2023) smart-home hub",
+  "category": "iot",
+  "description": "Athom Homey Pro (early 2023) is a local-first home-automation controller with Zigbee 3.0, Z-Wave 700, Thread, Matter, Bluetooth LE 5.0, 433 MHz and an IR blaster, serving its own web app on the LAN. Networking is Wi-Fi only as shipped - dual-band 2.4/5 GHz 802.11 b/g/n/ac - because the box has no RJ45 jack; Ethernet is possible only through the separately sold Homey Pro Ethernet Adapter that plugs into its USB-C port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://homey.app/en-us/homey-pro/"
+}

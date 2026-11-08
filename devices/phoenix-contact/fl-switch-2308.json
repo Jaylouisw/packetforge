@@ -1,0 +1,54 @@
+{
+  "vendor": "phoenix-contact",
+  "model": "FL SWITCH 2308",
+  "label": "FL SWITCH 2308 managed switch",
+  "category": "switch",
+  "description": "DIN-rail managed switch (2702652, Managed Switch 2000 series) with 8 x RJ45 ports at 10/100/1000 Mbps and no separate uplink cage. PROFINET Conformance Class B, -40 to 70 C, 12 to 57 V DC input.",
+  "capabilities": [
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.phoenixcontact.com/en-us/products/switch-fl-switch-2308-2702652"
+}

@@ -1,0 +1,27 @@
+{
+  "vendor": "huawei",
+  "model": "5G CPE Win",
+  "label": "Huawei 5G CPE Win outdoor 5G CPE (H312-371)",
+  "category": "router",
+  "description": "Outdoor 5G CPE (H312-371) on the Balong 5000, 5G sub-6 NSA/SA rated 1.65 Gbps down / 250 Mbps up with 4G fallback. Its whole wired side is one Gigabit Ethernet port, which also carries the passive PoE feed, so no Wi-Fi radio is declared and the 5G uplink is carried as wan5g.",
+  "capabilities": [
+    "dhcp-client",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.5g-cell.com/product/huawei-5g-cpe-win-h312-371/"
+}

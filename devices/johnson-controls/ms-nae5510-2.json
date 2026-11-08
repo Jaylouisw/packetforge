@@ -1,0 +1,35 @@
+{
+  "vendor": "johnson-controls",
+  "model": "MS-NAE5510-2",
+  "label": "Metasys NAE55 network engine",
+  "category": "iot",
+  "description": "Metasys NAE55 network automation engine with one 10/100/1000 Mbps RJ45 Ethernet port for the BACnet/IP site network. Field buses are two optically isolated RS-485 ports and two RS-232-C ports, and it runs an embedded web server for the site UI.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "rs485-1",
+      "type": "console"
+    },
+    {
+      "name": "rs485-2",
+      "type": "console"
+    },
+    {
+      "name": "rs232-1",
+      "type": "console"
+    },
+    {
+      "name": "rs232-2",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://docs.johnsoncontrols.com/bas/r/Metasys/en-US/NAE55-Catalog-Page/12.0/Ordering-information"
+}

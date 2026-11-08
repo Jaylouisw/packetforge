@@ -1,0 +1,61 @@
+{
+  "vendor": "mikrotik",
+  "model": "Chateau 5G",
+  "label": "MikroTik Chateau 5G home router",
+  "category": "router",
+  "description": "Chateau 5G (D53G-5HacD2HnD-TC&RG502Q-EA) pairs a 5G sub-6 RG502Q-EA modem with five Gigabit Ethernet ports and 2x2 802.11ac dual-band Wi-Fi at 867 + 300 Mbps. The 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/chateau_5g"
+}

@@ -1,0 +1,20 @@
+{
+  "vendor": "roborock",
+  "model": "S8",
+  "label": "Roborock S8 robot vacuum with LiDAR maps",
+  "category": "iot",
+  "description": "Roborock S8 is a 6000 Pa robot vacuum and sonic mop with PreciSense LiDAR navigation, multi-floor map storage and Reactive 3D obstacle avoidance. It is Wi-Fi only and 2.4 GHz only - Roborock does not support 5 GHz on its robots - with no Ethernet port, so the vacuum and its dock only ever exist on the wireless side of a lab.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://us.roborock.com/products/roborock-s8"
+}

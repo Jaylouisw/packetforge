@@ -1,0 +1,26 @@
+{
+  "vendor": "shelly",
+  "model": "Pro 1PM",
+  "label": "Shelly Pro 1PM DIN-rail smart relay with LAN",
+  "category": "iot",
+  "description": "Shelly Pro 1PM is a single-channel 16 A DIN-rail smart relay with power metering, over-temperature and over-voltage protection, a local web UI, MQTT and KNXnet/IP support. It has one RJ45 Ethernet port (100M) plus 2.4 GHz Wi-Fi and Bluetooth for setup, but it is mains-fed from the DIN rail and is not PoE-powered, so the LAN cable is data only.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://us.shelly.com/products/shelly-pro-1pm/"
+}
