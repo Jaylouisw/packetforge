@@ -1,0 +1,438 @@
+{
+  "_": "Evidence for docs/UPSTREAM-DESIGN.md (issue #30). Every value below was produced by running",
+  "_2": "the real engine (node v24) against the tree at the commit in verifiedAt. No engine, web,",
+  "_3": "server, device or config file was modified to obtain it.",
+  "verifiedAt": {
+    "commit": "d399dff42d2f0c799d533b690d9f84468aa5c4c4",
+    "subject": "Resolve port names through one alias table so old labs keep working",
+    "note": "line numbers in UPSTREAM-DESIGN.md are pinned to this commit; anchors name the function, not just the line",
+    "also_measured_at": "319b875 - the tree gained four commits while the document was being written; every figure below was re-run at the commit above and is unchanged"
+  },
+  "howToReproduce": {
+    "engine_entry": "require('./engine').{Topology,Simulator}",
+    "steps": [
+      "new Topology(); addDevice(spec, id) with the shipped devices/generic/generic-cloud.json and devices/peplink/max-br1-pro-5g.json",
+      "topo.validateLink(aDev, aIface, bDev, bIface, {}) -> verdict {ok, errors:[{code,message}], media, mediaId, speedMbps}",
+      "assign interface.ip/mask by hand, push config.routes, then new Simulator(topo).ping(srcId, dstIp, {count:1})",
+      "read only the span after the last {type:'ping'} event: LLDP and RA announcements run before it"
+    ],
+    "gotcha": "ping success depends on the far end having a route back; the egress-port list, not success, is the signal for route selection"
+  },
+  "A_the_cloud_port_today": {
+    "name": "eth0",
+    "cage": "rj45",
+    "cageName": "RJ45",
+    "family": "copper",
+    "mediaCount": 6,
+    "speedCaps": [
+      10,
+      100,
+      1000,
+      2500,
+      5000,
+      10000
+    ],
+    "portCount": 1
+  },
+  "B_a_5g_router_today": {
+    "wwan0": {
+      "name": "wwan0",
+      "declaredType": "wireless",
+      "cage": "antenna",
+      "family": "wireless",
+      "media": [
+        "wireless-2.4",
+        "wireless-5",
+        "wireless-6"
+      ]
+    },
+    "wan": {
+      "name": "wan",
+      "cage": "rj45",
+      "family": "copper"
+    },
+    "wwan0_to_cloud": {
+      "ok": false,
+      "codes": [
+        "E_WIRELESS_TO_WIRED"
+      ],
+      "messages": [
+        "Peplink MAX BR1 Pro 5G mobile router/wwan0 <-> Cloud / Internet/eth0: A wireless radio cannot be cabled to a wired port."
+      ]
+    },
+    "wan_to_cloud": {
+      "ok": true,
+      "mediaId": "2.5gbase-t",
+      "speedMbps": 2500,
+      "codes": []
+    }
+  },
+  "C_pon_to_cloud": {
+    "ok": false,
+    "codes": [
+      "E_CONNECTOR_MISMATCH"
+    ],
+    "media": []
+  },
+  "D_two_default_routes": {
+    "routeTo_picks": {
+      "picked": {
+        "iface": "wan1",
+        "via": "203.0.113.1",
+        "type": "static",
+        "prefix": 0,
+        "ad": 1
+      },
+      "routeCount": 2,
+      "verdict": "routeTo returns a single object; the second default is never consulted"
+    },
+    "static_route_fields": {
+      "fieldsStaticRouteCarries": [
+        "dest",
+        "mask",
+        "gw",
+        "iface"
+      ],
+      "cliGrammar": "cli.js:194 'ip route DEST MASK GW [iface]' -- no distance token",
+      "routeToStaticAd": "hard-coded ad:1 for every static (device.js:394)"
+    },
+    "probe_note": "Device.routeTo() returns ONE route object; there is no candidate list and no ECMP"
+  },
+  "E_failover_matrix": {
+    "summary": "same lab, one change each; egress is read from events {type:'frame', from:'edge'}",
+    "both_links_up": {
+      "label": "two equal static defaults; both WAN links up",
+      "pingSuccess": false,
+      "egressFromEdge": [
+        "lan1",
+        "wan1",
+        "wan1"
+      ],
+      "routeEvents": [
+        "wan1 via 203.0.113.1"
+      ],
+      "arp": [
+        "eth0 -> 192.168.1.1",
+        "wan1 -> 203.0.113.1"
+      ],
+      "drops": [
+        "ispA: no route to 8.8.8.8"
+      ],
+      "outcomes": [
+        "arp-reply",
+        "arp-reply"
+      ]
+    },
+    "primary_link_state_down": {
+      "label": "identical, but wan1 Link.state = \"down\"",
+      "pingSuccess": false,
+      "egressFromEdge": [
+        "lan1",
+        "wan1",
+        "wan1"
+      ],
+      "routeEvents": [
+        "wan1 via 203.0.113.1"
+      ],
+      "arp": [
+        "eth0 -> 192.168.1.1",
+        "wan1 -> 203.0.113.1"
+      ],
+      "drops": [
+        "ispA: no route to 8.8.8.8"
+      ],
+      "outcomes": [
+        "arp-reply",
+        "arp-reply"
+      ]
+    },
+    "primary_iface_disabled": {
+      "label": "identical, but wan1 iface.enabled = false",
+      "pingSuccess": false,
+      "egressFromEdge": [
+        "lan1"
+      ],
+      "routeEvents": [],
+      "arp": [
+        "eth0 -> 192.168.1.1"
+      ],
+      "drops": [
+        "edge: no usable egress interface"
+      ],
+      "outcomes": [
+        "arp-reply"
+      ]
+    },
+    "primary_nexthop_unplugged": {
+      "label": "identical, but ispA has no IP (cable in, nothing answering)",
+      "pingSuccess": false,
+      "egressFromEdge": [
+        "lan1",
+        "wan1"
+      ],
+      "routeEvents": [
+        "wan1 via 203.0.113.1"
+      ],
+      "arp": [
+        "eth0 -> 192.168.1.1",
+        "wan1 -> 203.0.113.1"
+      ],
+      "drops": [],
+      "outcomes": [
+        "arp-reply"
+      ]
+    },
+    "verdict": [
+      "Link.state='down' changes nothing: the trace is identical to case 1 because neither _deliver() nor _forwardL3() consults Link.isUp()",
+      "disabling the interface does NOT fail over: the packet dies with 'no usable egress interface' while a valid second default sits in config.routes",
+      "an unplugged next hop is silence (ARP never answered), never a switch to the other default"
+    ]
+  },
+  "F_per_destination": {
+    "dst_only_reachable_via_secondary_isp": {
+      "dst": "10.10.2.10 (behind ISP B / wan2)",
+      "success": false,
+      "routeEvents": [
+        "wan1 via 203.0.113.1"
+      ],
+      "drops": [
+        "ispA: no route to 10.10.2.10"
+      ]
+    },
+    "same_with_primary_default_removed": {
+      "success": false,
+      "routeEvents": [
+        "wan2 via 198.51.100.1",
+        "eth1 via 10.10.2.10"
+      ],
+      "drops": [
+        "ispB: no route to 192.168.1.10"
+      ]
+    }
+  },
+  "G_nat_runs_before_routing": {
+    "probe": {
+      "rule": "pat 192.168.1.0/24 -> 203.0.113.2 (the wan1 address)",
+      "translations": [],
+      "note": "NAT picks the rule's insideGlobal, not the egress interface address; a secondary-WAN flow is translated to the primary WAN address"
+    },
+    "code_evidence": "_forwardL3() calls _natOutbound() (~1898) BEFORE dev.routeTo() (~1904), so NAT cannot know the egress WAN; nat.js translateOutbound(table, pkt, step) takes no interface argument",
+    "icmp_note": "ping/ICMP carries no l4 header, so _natOutbound returns 'pass' at the !frame.l4 guard; the ordering, not a trace, is the evidence"
+  },
+  "H_catalogue": {
+    "devices_with_two_or_more_wanish_ports": 19,
+    "sample": [
+      {
+        "device": "devices/casa/c3200.json",
+        "ports": [
+          "uplink1:ethernet@1G",
+          "uplink2:ethernet@1G",
+          "uplink3:ethernet@1G",
+          "uplink4:ethernet@1G",
+          "uplink5:ethernet@1G",
+          "uplink6:ethernet@1G",
+          "uplink7:ethernet@1G",
+          "uplink8:ethernet@1G",
+          "uplink9:ethernet@1G",
+          "uplink10:ethernet@1G",
+          "uplink11:ethernet@1G",
+          "uplink12:ethernet@1G"
+        ]
+      },
+      {
+        "device": "devices/cradlepoint/e3000.json",
+        "ports": [
+          "wan:ethernet@2.5G",
+          "wwan0:wireless@2.5G"
+        ]
+      },
+      {
+        "device": "devices/cradlepoint/r1900.json",
+        "ports": [
+          "wan:ethernet@1G",
+          "wwan0:wireless@2.5G"
+        ]
+      },
+      {
+        "device": "devices/digi/ix20.json",
+        "ports": [
+          "wan:ethernet@100M",
+          "wwan0:wireless@100M"
+        ]
+      },
+      {
+        "device": "devices/draytek/vigor2927.json",
+        "ports": [
+          "wan1:ethernet@1G",
+          "wan2-lan:ethernet@1G"
+        ]
+      },
+      {
+        "device": "devices/fortinet/fortigate-100f.json",
+        "ports": [
+          "wan1:ethernet@1G",
+          "wan2:ethernet@1G"
+        ]
+      },
+      {
+        "device": "devices/fortinet/fortigate-60f.json",
+        "ports": [
+          "wan1:ethernet@1G",
+          "wan2:ethernet@1G"
+        ]
+      },
+      {
+        "device": "devices/fortinet/fortigate-80f.json",
+        "ports": [
+          "wan1:ethernet@1G",
+          "wan2:ethernet@1G"
+        ]
+      },
+      {
+        "device": "devices/fortinet/fortigate-90g.json",
+        "ports": [
+          "wan1:ethernet@2.5G",
+          "wan2:ethernet@2.5G"
+        ]
+      },
+      {
+        "device": "devices/huawei/5g-cpe-pro.json",
+        "ports": [
+          "wan:ethernet@1G",
+          "wwan0:wireless@2.5G"
+        ]
+      },
+      {
+        "device": "devices/netgate/8200.json",
+        "ports": [
+          "WAN1:ethernet@1G",
+          "WAN2:ethernet@1G",
+          "WAN1-SFP:ethernet@1G",
+          "WAN2-SFP:ethernet@1G",
+          "WAN3:ethernet@10G",
+          "WAN4:ethernet@10G"
+        ]
+      },
+      {
+        "device": "devices/peplink/balance-20x.json",
+        "ports": [
+          "wan:ethernet@1G",
+          "wwan0:wireless@100M"
+        ]
+      }
+    ],
+    "cellular_ports": {
+      "portsNamedCellular": 54,
+      "declaredTypeWireless": 53
+    },
+    "odd_cellular_ports": [
+      {
+        "device": "devices/huawei/airengine5760-51.json",
+        "port": {
+          "name": "5GE",
+          "type": "ethernet",
+          "speed": "5G"
+        }
+      }
+    ]
+  },
+  "I_media_catalogue": {
+    "count": 57,
+    "families": {
+      "copper": 7,
+      "fiber": 25,
+      "coax": 4,
+      "dsl": 3,
+      "powerline": 4,
+      "dac": 7,
+      "console": 2,
+      "wireless": 5
+    },
+    "cages": [
+      "rj45",
+      "sfp",
+      "sfp+",
+      "sfp28",
+      "combo",
+      "qsfp+",
+      "qsfpdd",
+      "qsfp28",
+      "sc-apc",
+      "lc-upc",
+      "lc-apc",
+      "sc-upc",
+      "coax",
+      "dsl",
+      "powerline",
+      "console",
+      "usb",
+      "antenna"
+    ],
+    "cellular_media": [
+      "2.5gbase-t",
+      "5gbase-t",
+      "25gbase-sr",
+      "25gbase-lr",
+      "dac-25g"
+    ],
+    "asymmetric_media": [
+      {
+        "id": "docsis-31",
+        "down": 10000,
+        "up": 1000
+      },
+      {
+        "id": "docsis-30",
+        "down": 1000,
+        "up": 200
+      },
+      {
+        "id": "gpon-sc-apc",
+        "down": 2488,
+        "up": 1244
+      },
+      {
+        "id": "gpon-sc-upc",
+        "down": 2488,
+        "up": 1244
+      },
+      {
+        "id": "xgspon-sc-apc",
+        "down": 9953,
+        "up": 9953
+      },
+      {
+        "id": "gpon-lc-upc",
+        "down": 2488,
+        "up": 1244
+      },
+      {
+        "id": "xgspon-lc-upc",
+        "down": 9953,
+        "up": 9953
+      },
+      {
+        "id": "xgspon-sc-upc",
+        "down": 9953,
+        "up": 9953
+      },
+      {
+        "id": "gpon-sc-hybrid",
+        "down": 2488,
+        "up": 1244
+      },
+      {
+        "id": "xgspon-sc-hybrid",
+        "down": 9953,
+        "up": 9953
+      }
+    ],
+    "dead_field": "upstreamMbps is declared on 10 media entries (media.js 97,98,114-119,125,126) and read by nothing in engine/, web/, server/ or test/"
+  },
+  "J_what_this_means": [
+    "the physical layer can already express fibre/coax/DSL/PON upstreams - the media and cages exist",
+    "there is no cellular medium at all: 53 of 54 modem ports are declared type 'wireless' and resolve to the Wi-Fi antenna cage",
+    "the far end is the problem: generic-cloud has exactly one RJ45 port, so every lab terminates on copper",
+    "practically one default route: a second default is stored, never selected, and never fails over"
+  ]
+}
