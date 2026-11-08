@@ -67,6 +67,11 @@ body {
 }
 .btn:hover { background: #202837; border-color: var(--accent); }
 
+/* The bug-report control is an anchor so that it keeps working when the script
+   that would style it as a button is itself the thing that broke. Give it the
+   button's box without the link's underline. */
+a.btn { text-decoration: none; display: inline-block; line-height: normal; }
+
 /* The bug-report button sits visually last in the bar: present and obvious, but
    not competing with the actions a user reaches for while building a topology. */
 .btn-quiet { border-style: dashed; color: var(--text-dim, #9aa7bd); }
