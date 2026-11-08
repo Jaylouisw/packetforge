@@ -118,16 +118,35 @@ ok((bare.match(/unknown/g) || []).length >= 4, 'unset fields are spelled out as 
 ok(pf.bugReportUrl({}).indexOf('body=') !== -1, 'a report can still be opened with no environment at all');
 
 // --- one click, and it is reachable ---------------------------------------
-console.log('\nThe button is in the app, in the top bar, with a name:');
-const btn = (html.match(/<button[^>]*id="btn-bug"[^>]*>([\s\S]*?)<\/button>/) || []);
-ok(btn.length > 0, 'index.html declares a #btn-bug button');
+console.log('\nThe control is in the app, in the top bar, with a name:');
+const btn = (html.match(/<a[^>]*id="btn-bug"[^>]*>([\s\S]*?)<\/a>/) || []);
+ok(btn.length > 0, 'index.html declares a #btn-bug control');
 const btnTag = btn[0] || '';
-ok(/aria-label="[^"]+"/.test(btnTag), 'the button has an accessible name (aria-label)');
-ok(/title="[^"]+"/.test(btnTag), 'the button explains itself on hover (title)');
-ok(/Report a bug/i.test(btn[1] || ''), 'the button is labelled in words, not an icon alone');
+ok(/aria-label="[^"]+"/.test(btnTag), 'it has an accessible name (aria-label)');
+ok(/title="[^"]+"/.test(btnTag), 'it explains itself on hover (title)');
+ok(/Report a bug/i.test(btn[1] || ''), 'it is labelled in words, not an icon alone');
 const topbar = (html.match(/<div class="topbar-actions">([\s\S]*?)<\/div>/) || ['', ''])[1];
-ok(topbar.indexOf('btn-bug') !== -1, 'the button lives in the top bar, not behind a menu');
+ok(topbar.indexOf('btn-bug') !== -1, 'it lives in the top bar, not behind a menu');
 ok(appjs.indexOf("$('#btn-bug')") !== -1, 'app.js binds a click handler to it');
+
+// --- the case that matters most: the app is what broke ---------------------
+// A button that only works when JavaScript runs cannot report "the page is blank".
+// The control is an anchor with a real href, so the reporting path survives the
+// failure it exists to report.
+console.log('\nReporting still works when the script does not:');
+const href = (btnTag.match(/href="([^"]+)"/) || [])[1] || '';
+ok(href.length > 0, 'the control is an anchor with a static href, not a script-only button');
+ok(/^https:\/\/git\.jayw\.uk\/jaylouisw\/packetforge\/issues\/new\?title=/.test(href),
+  'the static href opens the new-issue form directly');
+ok(btnTag.indexOf('target="_blank"') !== -1, 'it opens in a new tab, leaving the app open');
+ok(/rel="noopener"/.test(btnTag), 'and it does not hand the issue tracker window.opener');
+const staticBody = decodeURIComponent((href.split('&body=')[1] || ''));
+ok(staticBody.indexOf('### What happened') !== -1, 'the static form still asks what happened');
+ok(staticBody.indexOf('### Steps to reproduce') !== -1, 'and still asks for reproduction steps');
+ok(staticBody.indexOf('undefined') === -1 && staticBody.indexOf('null') === -1,
+  'the static form contains no undefined or null');
+ok(/<button[^>]*id="btn-bug"/.test(html) === false, 'it is not a <button>, which would be inert without app.js');
+ok(/preventDefault/.test(appjs), 'the handler takes over from the anchor rather than firing twice');
 
 // --- a blocked popup must still leave the reporter somewhere to go ---------
 // The first version of this button toasted "the link is in the console" and wrote

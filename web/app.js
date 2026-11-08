@@ -1964,7 +1964,13 @@
     // One click to a pre-filled report. Deliberately in the top bar rather than
     // behind a menu: a bug that is hard to report is a bug that goes unreported.
     const bugBtn = $('#btn-bug');
-    if (bugBtn) bugBtn.addEventListener('click', function () { openBugReport(); });
+    if (bugBtn) bugBtn.addEventListener('click', function (ev) {
+      // #btn-bug is an anchor with a working static href, so reporting survives a
+      // bundle that fails to run. When the app is alive, take over and open the
+      // richer report instead of letting the anchor fire as well.
+      if (ev && ev.preventDefault) ev.preventDefault();
+      openBugReport();
+    });
 
     $('#btn-zoom-in').addEventListener('click', function () { PFCanvas.zoomBy(1.2); });
     $('#btn-zoom-out').addEventListener('click', function () { PFCanvas.zoomBy(0.8); });
