@@ -9,6 +9,18 @@ on:
 permissions:
   contents: read
 
+# A pull request that gets rebased or amended starts a new run, but the run it
+# superseded stays in the queue and is still executed. On this host there is a
+# single runner, so those dead runs are not free: they are the difference between
+# the queue draining in hours and in days, and they report on a commit nobody
+# will merge. Cancel the superseded run instead of paying for it.
+#
+# Pushes to main are never cancelled - each one describes a different commit and
+# a cancelled push run is a gap in the history of the default branch.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Test (Node ${{ matrix.node }})
@@ -30,6 +42,11 @@ jobs:
         # A green suite on the newest Node means nothing for the oldest matrix job, and that
         # failure reads like a flaky runner rather than "you used a Node 20 API".
         run: node scripts/check-node-surface.js
+      - name: Every project URL points at Forgejo
+        # The project moved and the links did not follow: the README said to clone from GitHub and
+        # SECURITY.md sent reports to a GitHub advisory page. Nothing failed, because a stale URL
+        # looks like every other string in the repo.
+        run: node scripts/check-canonical-urls.js
       - name: Full test suite
         run: npm test
       - name: Build & verify example labs

@@ -24,7 +24,7 @@ common paths.
 There is no install step and no build step:
 
 ```bash
-git clone https://github.com/Jaylouisw/packetforge.git
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js        # UI + JSON API on http://localhost:8000
 ```

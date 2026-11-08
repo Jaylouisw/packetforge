@@ -6,7 +6,7 @@ main way this project grows**, and they are welcome.
 
 ## File a request
 
-[**Open a hardware request →**](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)
+[**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
 The form asks for five things. Two of them actually matter:
 

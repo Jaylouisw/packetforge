@@ -4,7 +4,7 @@ PacketForge has **no runtime dependencies**. Node 18 or newer and a browser is t
 list - no npm install, no Docker, no database.
 
 ```bash
-git clone https://github.com/Jaylouisw/packetforge.git
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js          # http://localhost:8000
 ```

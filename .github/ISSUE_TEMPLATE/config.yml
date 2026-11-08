@@ -2,11 +2,11 @@ blank_issues_enabled: false
 
 contact_links:
   - name: Device registry guide
-    url: https://github.com/Jaylouisw/packetforge/blob/main/docs/DEVICE_REGISTRY.md
+    url: https://git.jayw.uk/jaylouisw/packetforge/src/branch/main/docs/DEVICE_REGISTRY.md
     about: How a device model is defined — read this before requesting new hardware
   - name: Architecture overview
-    url: https://github.com/Jaylouisw/packetforge/blob/main/docs/ARCHITECTURE.md
+    url: https://git.jayw.uk/jaylouisw/packetforge/src/branch/main/docs/ARCHITECTURE.md
     about: How the engine, server and web UI fit together
   - name: Contributing guide
-    url: https://github.com/Jaylouisw/packetforge/blob/main/CONTRIBUTING.md
+    url: https://git.jayw.uk/jaylouisw/packetforge/src/branch/main/CONTRIBUTING.md
     about: Ground rules, code style and the review process
