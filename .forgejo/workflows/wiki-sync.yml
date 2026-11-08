@@ -1,0 +1,98 @@
+name: Wiki sync
+
+# `docs/wiki/` is the source of truth for the wiki; the wiki itself is a
+# separate git repository (<owner>/<repo>.wiki). This workflow mirrors the two
+# on every push to `main` that touches a wiki page, so a PR can review a wiki
+# change the same way it reviews code and the published wiki never drifts.
+#
+# Why a dedicated token: the Actions token (secrets.GITHUB_TOKEN) is scoped to
+# this repository. The wiki is a different repository, so pushing to it needs a
+# credential of its own - a Forgejo access token with write access to the wiki
+# repo, stored here as the `WIKI_TOKEN` secret.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/wiki/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A sync, not a test: only the newest commit's content matters, so a newer run
+# may cancel an older one. The push is a single atomic ref update, so a run
+# cancelled mid-push cannot leave the wiki half-updated.
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Mirror docs/wiki into the wiki repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Push docs/wiki to the wiki repository
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${WIKI_TOKEN:-}" ]; then
+            echo "WIKI_TOKEN secret is not set - cannot push to the wiki" >&2
+            exit 1
+          fi
+
+          # Derive the wiki repo's HTTP URL from the origin the checkout action
+          # gave us, so the host is exactly the one this runner can already
+          # reach, whatever the instance advertises to its runners.
+          origin="$(git remote get-url origin)"
+          case "$origin" in
+            http://*|https://*) ;;
+            *) echo "origin is not an http(s) remote ($origin); cannot push" >&2; exit 1 ;;
+          esac
+          scheme="${origin%%://*}"
+          rest="${origin#*://}"            # host[:port]/owner/repo.git
+          host="${rest%%/*}"               # host[:port]
+          path="${rest#*/}"                # owner/repo.git
+          owner="${path%%/*}"
+          repo="${path##*/}"; repo="${repo%.git}"
+          wiki_url="${scheme}://git:${WIKI_TOKEN}@${host}/${owner}/${repo}.wiki.git"
+
+          git clone --quiet "$wiki_url" wiki
+          cd wiki
+
+          # `main` is the branch Forgejo renders. Land on it explicitly in case
+          # the wiki repo's HEAD points elsewhere.
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            git checkout -q -B main origin/main
+          else
+            git checkout -q --orphan main
+          fi
+
+          # Mirror, not append: drop pages that no longer exist upstream, then
+          # copy the current set. The wiki holds only markdown pages.
+          for f in *.md; do
+            [ -e "$f" ] || continue
+            if [ ! -f "$GITHUB_WORKSPACE/docs/wiki/$f" ]; then
+              git rm -q --ignore-unmatch "$f"
+            fi
+          done
+          cp "$GITHUB_WORKSPACE"/docs/wiki/*.md .
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Wiki already matches docs/wiki - nothing to push."
+            exit 0
+          fi
+
+          git -c user.name='packetforge-bot' \
+              -c user.email='packetforge@localhost' \
+              commit -q -m "Sync from docs/wiki (${GITHUB_SHA})"
+          git push -q origin main
+          echo "Pushed wiki at ${GITHUB_SHA}."
