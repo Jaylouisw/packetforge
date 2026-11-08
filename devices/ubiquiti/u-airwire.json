@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U-AirWire",
+  "label": "AirWire",
+  "category": "wireless",
+  "description": "AirWire (U-AirWire) - 1x 5G RJ45. WiFi 7; up to 5.8 Gbps PHY rate; 18 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "4.3G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "5.8G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u-airwire"
+}
