@@ -67,6 +67,12 @@ body {
 }
 .btn:hover { background: #202837; border-color: var(--accent); }
 
+/* The bug-report button sits visually last in the bar: present and obvious, but
+   not competing with the actions a user reaches for while building a topology. */
+.btn-quiet { border-style: dashed; color: var(--text-dim, #9aa7bd); }
+.btn-quiet:hover { color: var(--text); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* ---------- palette ---------- */
 #palette {
   grid-area: palette;

@@ -119,6 +119,18 @@ function makeClient(port) {
     check(media.status === 200 && mediaIds.length > 20, 'GET /api/media serves the physical media',
       media.status + ', ' + mediaIds.length + ' media');
 
+    // The bug-report button reads this to fill in "what were you running". If it
+    // silently stops answering, every future report loses that field and nobody
+    // notices until someone tries to reproduce one.
+    const version = await req('GET', '/api/version');
+    const vb = version.body || {};
+    check(version.status === 200 && typeof vb.version === 'string' && vb.version.length > 0,
+      'GET /api/version says which build is running',
+      version.status + ', version ' + vb.version + ', node ' + vb.node);
+    check(version.status === 200 && typeof vb.devices === 'number' && vb.devices === specs.length,
+      'GET /api/version counts the same catalogue as /api/catalog',
+      vb.devices + ' vs ' + specs.length);
+
     const root = await req('GET', '/');
     check(root.status === 200, 'GET / serves the UI shell', String(root.status));
 

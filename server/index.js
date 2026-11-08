@@ -246,6 +246,22 @@ async function handleApi(req, res, urlPath) {
       return sendJSON(res, 200, { specs: catalog, categories: groupByCategory(catalog) });
     }
 
+    // GET /api/version -- which build is answering. A bug report that does not say
+    // what it was running against is a conversation, not a report, so the app reads
+    // this to fill that in for the person filing it.
+    if (parts[1] === 'version' && method === 'GET') {
+      let pkg = {};
+      try { pkg = require('../package.json'); } catch (e) { /* packaged without it */ }
+      return sendJSON(res, 200, {
+        name: pkg.name || 'packetforge',
+        version: pkg.version || 'unknown',
+        commit: process.env.PF_COMMIT || null,
+        node: process.version,
+        platform: process.platform + '/' + process.arch,
+        devices: catalog.length
+      });
+    }
+
     // GET /api/media -- physical media + cage catalogue (link-type picker)
     if (parts[1] === 'media' && method === 'GET') {
       return sendJSON(res, 200, { media: media.MEDIA, cages: media.CAGES });
