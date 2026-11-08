@@ -1,0 +1,22 @@
+{
+  "vendor": "amazon",
+  "model": "Fire TV Stick 4K Max (2nd Gen)",
+  "label": "Fire TV Stick 4K Max (2nd gen) streaming stick, Wi-Fi 6E only",
+  "category": "iot",
+  "description": "Amazon Fire TV Stick 4K Max (2nd generation, 2023, build model AFTKRT) — 4K HDR streaming stick with Wi-Fi 6E (802.11ax tri-band, 2.4/5/6 GHz) and Bluetooth 5.2. Its only connector is HDMI 2.1 output; there is no RJ45 on the device and no Ethernet interface in the box, so it can only join a lab over the air.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://developer.amazon.com/docs/device-specs/device-specifications-fire-tv-streaming-media-player.html?v=ftvstick4kmax_gen2_16",
+  "notes": "Wi-Fi is Wi-Fi 6E: Amazon's spec sheet says 'Wi-FI 6E: 802.11 a/b/g/n/ac/ax (2.4 GHz, 5.0 GHz, and 6 GHz tri band)', so the radio carries the 6 GHz band and not just 2.4/5. The cable list for this model is HDMI 2.1 output (ARC) and nothing else — no USB port is listed and there is no RJ45, so this endpoint has exactly one interface and goes dark if the SSID goes away. Amazon publishes no PHY rate for the stick: the 1.2G here is the 2x2, 80 MHz 802.11ax client rate, the same convention the catalogue uses for Wi-Fi 6 clients (cf. Roku Ultra), and it is the rate that places the radio in the ax band set. Amazon does list Ethernet as '10/100 Mbps (with external dongle)': that is the separately sold Amazon Ethernet Adapter hanging off USB, not a port on the device, so it is deliberately not modelled as eth0 — a lab that wants a cabled Fire TV needs the Cube. Bluetooth 5.2 + BLE is for the remote and headphones, not networking."
+}
