@@ -1,0 +1,27 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBCRD",
+  "label": "Crossroads",
+  "category": "router",
+  "description": "MikroTik Crossroads (RBCRD) — 1x 100M RJ45. MIPS-LE -core .",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBCRD"
+}
