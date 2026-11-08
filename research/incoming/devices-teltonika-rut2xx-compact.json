@@ -1,0 +1,128 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUT281",
+    "label": "Teltonika RUT281",
+    "category": "router",
+    "description": "A compact 4G router: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi 4 and an LTE Cat 4 modem. The smallest cellular router in the current line that still has a separate WAN port.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut281",
+    "notes": "Vendor figures from the RUT281 datasheet: 1 x WAN port 10/100 Mbps and 1 x LAN port 10/100 Mbps (IEEE 802.3); 4G LTE Cat 4 up to 150 Mbps down / 50 Mbps up; 802.11b/g/n (Wi-Fi 4) access point and station, modelled at the 300 Mbps 2x2 rate the standard gives. Two Ethernet ports, not a switch."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT286",
+    "label": "Teltonika RUT286",
+    "category": "router",
+    "description": "An industrial global 4G router: 1 WAN + 1 LAN at 10/100, 2.4 GHz Wi-Fi 4, LTE Cat 4 and mesh support. The rugged version of the RUT281.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut286",
+    "notes": "Vendor figures from the RUT286 datasheet: 1 x WAN port 10/100 Mbps and 1 x LAN port 10/100 Mbps (IEEE 802.3); 4G LTE Cat 4 up to 150 Mbps down / 50 Mbps up; 802.11b/g/n (Wi-Fi 4) with AP, station and mesh (802.11s) support, modelled at 300 Mbps. Same port shape as the RUT281, in an industrial case."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT261",
+    "label": "Teltonika RUT261",
+    "category": "router",
+    "description": "A two-port industrial router with LTE Cat 6: 1 WAN + 1 LAN at 10/100 and a 300 Mbps modem. Twice the cellular throughput of the Cat 4 two-port units.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut261",
+    "notes": "Vendor figures from the RUT261 datasheet: 1 x WAN port 10/100 Mbps and 1 x LAN port 10/100 Mbps (IEEE 802.3); 4G LTE Cat 6 up to 300 Mbps down / 50 Mbps up, 3G up to 42 Mbps - modelled at the 300 Mbps class, twice the Cat 4 units. No Wi-Fi is claimed: the only 802.11 reference in the datasheet is 802.11e QoS on the bridge, which is not a radio. If your unit has a radio, that is a gap worth a comment."
+  }
+]
