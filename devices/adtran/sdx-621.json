@@ -1,31 +1,28 @@
 {
   "vendor": "adtran",
   "model": "SDX 621",
-  "label": "SDX 621 XGS-PON ONT",
+  "label": "Adtran SDX 621 XGS-PON ONT",
   "category": "ont",
-  "description": "ADTRAN SDX 621 XGS-PON ONT (ITU-T G.9807.1, 10G/10G, SC/APC): one auto-sensing 100M/1G/2.5G/5G/10G RJ-45 UNI port and no Wi-Fi or voice, the 10GE member of the SDX 620 series. Managed zero-touch through Mosaic One.",
+  "description": "XGS-PON ONT (Mosaic OS) with 1× 10G LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over no published management.",
   "capabilities": [
-    "host",
     "l2-forward",
-    "http-server"
+    "host"
   ],
-  "portTemplate": {
-    "prefix": "pon",
-    "start": 1,
-    "count": 1,
-    "type": "pon",
-    "speed": "10G",
-    "connector": "sc-apc",
-    "speedCaps": [
-      9953
-    ]
-  },
   "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
     {
       "name": "lan1",
       "type": "ethernet",
       "speed": "10G"
     }
   ],
-  "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-620-series.pdf"
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-adtran-sdx-621/"
 }
