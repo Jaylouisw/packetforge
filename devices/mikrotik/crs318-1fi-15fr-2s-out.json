@@ -1,0 +1,118 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS318-1Fi-15Fr-2S-OUT",
+  "label": "netPower 15FR",
+  "category": "l3-switch",
+  "description": "MikroTik netPower 15FR (CRS318-1Fi-15Fr-2S-OUT) — 16x 100M RJ45, 2x SFP. ARM 32bit 2-core 98DX224S.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs318_1fi_15fr_2s_out"
+}
