@@ -2,6 +2,15 @@
 
 ### Added
 
+### Added
+
+- **`test/skip-audit.test.js`**: every skip that exempts a class of hardware from a check must name
+  an issue, or declare itself ordinary control flow / deliberate with a reason. The three silent
+  holes of the last two releases (a `Math.max` over strings, a console skip, an empty-media skip)
+  were all of this shape and all invisible to the backlog. The audit carries a self-test that
+  writes an untracked exemption to a temp file and asserts it is flagged, because a lint that cannot
+  fail is the same disease it is meant to cure.
+
 - **DOCSIS has an upstream medium** (#1039). The coax cage offered only downstream media (1G on
   3.0, 10G on 3.1), so a 200 Mbps return-path port shared no rate with anything: its media list came
   out empty, the cable picker offered nothing, and the rate invariant skipped it with an early

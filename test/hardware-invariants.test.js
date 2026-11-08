@@ -72,6 +72,9 @@ console.log('Every device exposes ports it can actually cable:');
   const uncablable = [];
   for (const x of all) {
     for (const i of x.ifaces) {
+      // not an exemption: this check is about Ethernet port counts by definition. Optical, PON
+      // and radio ports are checked by the cages-and-media section below and by
+      // test/spec-vs-description.test.js, which reads every port type.
       if (i.type !== 'ethernet') continue;
       if (!i.hardware.media || !i.hardware.media.length) {
         uncablable.push(x.spec.model + '/' + i.name);
@@ -192,6 +195,8 @@ console.log('\nCages and media agree with each other:');
     for (const i of x.ifaces) {
       const caps = i.hardware.speedCaps;
       if (!caps || !caps.length) continue;
+      // not an exemption: a missing media array means there is nothing to intersect, and the
+      // question of a port with NO medium is owned by test/wired-port-has-media.test.js (#1039).
       if (!i.hardware.media) continue;
       // A port with an empty media list has no medium at all in the model: nothing can be cabled
       // to it at any rate. That is a gap of its own, and it is skipped here only because this
@@ -259,6 +264,7 @@ console.log('\nCages and media agree with each other:');
   const radioNoRate = [];
   for (const x of all) {
     for (const i of x.ifaces) {
+      // not an exemption: this section is about wireless ports, by construction.
       if (i.type !== 'wireless') continue;
       const caps = i.hardware.speedCaps;
       if (!caps || !caps.length) radioNoRate.push(x.spec.model + '/' + i.name);

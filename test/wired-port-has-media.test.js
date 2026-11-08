@@ -55,6 +55,8 @@ section('1. Every wired port has a medium it can run at its own rate');
     let dev;
     try { dev = topo.addDevice(spec); } catch (e) { continue; }
     for (const iface of dev.interfaces.values()) {
+      // not an exemption: the suite's subject is wired data ports, and this loop is one of the
+      // checks that defines them. PON is included because a PON port is cabled too.
       if (iface.type !== 'ethernet' && iface.type !== 'pon') continue;
       const supported = iface.supportedMedia || [];
       if (!supported.length) continue;   // wireless/console handled elsewhere
@@ -139,8 +141,14 @@ console.log('\nEvery port can be cabled with something:');
     let dev;
     try { dev = new Topology().addDevice(spec); } catch (e) { continue; }
     for (const p of dev.interfaces.values()) {
+      // not an exemption: the inverse. This assertion exists to find ports WITHOUT a medium, so
+      // a port that has one is the pass case.
+      // An antenna is not a cable: a radio port has no connector to cable, which is the one
+      // exclusion this assertion makes (see the radio check below).
       if ((p.hardware.media || []).length) continue;
       // A radio is an antenna, not a cabled port.
+      // not an exemption: a radio port is an antenna, not a cable, and this assertion is about
+      // cabled ports. Radios are covered by test/wireless-link.test.js.
       if (p.hardware.cage === 'antenna' || p.type === 'wireless') continue;
       bare.push(spec.vendor + '/' + spec.model + '/' + p.name + ' (' + p.hardware.cage + ')');
     }

@@ -239,6 +239,8 @@ console.log('Paint order puts devices above cables:');
   const kids = roots.world.children;
   const idxOf = function (re) {
     for (let i = 0; i < kids.length; i++) {
+        // not an exemption: matching a DOM class to find the node under the cursor. Nothing here
+        // decides which hardware is checked.
       if (re.test(String(kids[i].attrs.class || ''))) return i;
     }
     return -1;

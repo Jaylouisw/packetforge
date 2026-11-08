@@ -130,6 +130,12 @@ t('a device described as PoE-powered does not source power', () => {
   const bad = [];
   for (const { spec, ifaces } of all) {
     const desc = String(spec.description || '');
+    // A deliberate exemption, and it states its reason: a device whose description mentions both
+    // PoE-in and
+    // PoE-out is describing a passthrough (a splitter, or a switch port documented as feeding
+    // itself), so the "says PoE-powered but sources power" rule does not apply to it. Tracked
+    // rather than silent, because this is how a switch with a passthrough port stops being
+    // checked for sourcing power at all.
     if (!desc || !POE_IN.test(desc) || POE_OUT.test(desc)) continue;
     const sourcing = ifaces.filter(p => p.hardware && p.hardware.poeOut);
     if (sourcing.length && !KNOWN[spec.vendor + '/' + spec.model]) {

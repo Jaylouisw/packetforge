@@ -374,6 +374,8 @@ function problemsFor(A, B, want, v) {
 }
 
 function codesOf(v) {
+    // not an exemption: looking for a refusal to inspect. Array.isArray() and the null guard
+    // are how this loop finds one, not a decision about which hardware is subject to the spec.
   if (!v || !Array.isArray(v.errors) || !v.errors.length) return 'no code';
   return v.errors.map(function (e) { return e.code || '(no code)'; }).join('+');
 }
