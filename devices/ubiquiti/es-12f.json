@@ -134,28 +134,41 @@
       "name": "sfp9",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "100M"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     },
     {
       "name": "sfp10",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "100M"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     },
     {
       "name": "sfp11",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "100M"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     },
     {
       "name": "sfp12",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "100M"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-12f"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-12f",
+  "notes": "Port rates corrected against Ubiquiti's own figures: the ES-12F has (8) 100/1000 Mbps SFP ports (ports 1-8) and (4) 1000 Mbps SFP ports (ports 9-12), plus (4) 10/100/1000 RJ45. The catalogue had the last four declared as 100 Mbps only, which left them with no medium at their own rate - an SFP cage offers 1G optics, not 100M - so those four ports could not be cabled to anything. Ports 1-8 were already right."
 }

@@ -1,0 +1,29 @@
+{
+  "vendor": "zyxel",
+  "model": "PMG1005-T20B",
+  "label": "Zyxel PMG1005-T20B GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT with 1× 1G LAN and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-zyxel-pmg1005-t20b/"
+}

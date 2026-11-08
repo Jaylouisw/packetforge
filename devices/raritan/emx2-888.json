@@ -18,8 +18,7 @@
     },
     {
       "name": "console1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     }
   ],
   "sourceUrl": "http://assets.raritan.com/resources/data_sheets/raritan-ds-EMX_rack_monitoring.pdf",

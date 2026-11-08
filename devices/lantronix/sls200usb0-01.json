@@ -18,8 +18,7 @@
     },
     {
       "name": "console1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     }
   ],
   "sourceUrl": "https://cdn.lantronix.com/wp-content/uploads/pdf/900-495j_Spider_Spider_Duo_UG.pdf",

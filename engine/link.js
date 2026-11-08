@@ -32,6 +32,10 @@ class Link {
     // never mentions a cord is not charged one.
     this.patchCord = o.patchCord || null;
     this.state = o.state || 'up';         // 'up' | 'down' | 'blocked' (STP)
+    // When this state last changed. A cable that was pulled at t=10 s is still pulled at t=41 s,
+    // and every later question has to know when it happened to say whether the network has
+    // finished reacting to it.
+    this.stateSinceMs = (o.stateSinceMs === undefined) ? 0 : Number(o.stateSinceMs);
   }
 
   // The endpoint record matching (deviceId, iface), or null.
@@ -54,7 +58,7 @@ class Link {
   isUp() { return this.state === 'up'; }
 
   serialize() {
-    return {
+    const out = {
       id: this.id,
       a: this.a,
       b: this.b,
@@ -67,6 +71,10 @@ class Link {
       patchCord: this.patchCord,
       state: this.state
     };
+    // Only for a cable that is not up: an up link at t=0 is the default and does not need a field,
+    // and adding one to every saved lab would be noise in every diff.
+    if (this.state !== 'up' || this.stateSinceMs) out.stateSinceMs = this.stateSinceMs;
+    return out;
   }
 }
 

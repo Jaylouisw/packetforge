@@ -19,6 +19,10 @@ const scionLib = require('./scion');
 const natLib = require('./nat');
 const flowLib = require('./flow');
 const latencyLib = require('./latency');
+const convergenceLib = require('./convergence');
+const dhcpLib = require('./dhcp');
+const vrrpLib = require('./vrrp');
+const segmentLib = require('./segment');
 const mediaModel = require('./media');
 
 // Two routers advertise the same OSPF network; when the SPF cost ties, the
@@ -95,6 +99,9 @@ class Simulator {
     // request but hands it the same table, so a flow opened in one request is
     // still there to be listed, closed or counted in the next.
     const o = opts || {};
+    // Which instant questions are asked at. Infinity = fully converged, the behaviour every
+    // existing lab and test relies on. See setRunTime().
+    this.runAtMs = Infinity;
     this.flowState = o.flowState || flowLib.createFlowState();
     this.reset();
   }
@@ -108,6 +115,9 @@ class Simulator {
     this.queue = [];          // pending transmissions: {devId, iface, frame}
     this.step = 0;
     this.maxSteps = 8000;
+    // NB: runAtMs is deliberately NOT reset here. reset() rewinds a run, and the instant the
+    // question is asked at is a property of the question, not of the run - ping() calls reset()
+    // first, so resetting it here would silently make every run "converged" again.
     this.icmpReplies = [];    // {dst, id, seq, step}
     this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
     this.scion = null;        // last computed SCION beaconing state
@@ -115,6 +125,11 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
+    // Lease state per server device, rebuilt each run: a lease is a property of a run, not of the
+    // topology, and a stale one would make the second ping in a lab answer with an address nobody
+    // was offered.
+    this._dhcpStates = new Map();
+    this.dhcpLeases = [];
     // reset() rewinds a run, not the connection table: a ping must not tear down
     // somebody's TCP session.
     if (!this.flowState) this.flowState = flowLib.createFlowState();
@@ -252,15 +267,153 @@ class Simulator {
     return latencyLib.roundTripDetail(forward, reverse);
   }
 
+  // ---------------------------------------------------------------------
+  // Run instant (engine/convergence.js)
+  // ---------------------------------------------------------------------
+  //
+  // Every control plane used to finish at t=0, because finish is the only thing it could do:
+  // computeStp() blocked its ports and computeOspf() installed its routes before the first packet
+  // was sent. That is the converged answer, always. A lab cannot show "power it on and watch it
+  // come up" if coming up is instantaneous.
+  //
+  // `runAtMs` says which instant the question is being asked at. Infinity (the default) means
+  // "once everything has converged", which is the behaviour every existing lab and test relies on.
+  // A finite value leaves the processes that have not finished yet in the state they would really
+  // be in: STP ports Listening or Learning (so they drop traffic), OSPF without its learned routes,
+  // VRRP not yet owning the VIP.
+
+  setRunTime(atMs) {
+    const n = Number(atMs);
+    this.runAtMs = Number.isFinite(n) && n >= 0 ? n : Infinity;
+    return this.runAtMs;
+  }
+
+  // The schedule of when each process finishes, as data.
+  getConvergence() {
+    // Rebuilt on every call. It is a pure walk over the device list, and a cache here would be one
+    // more thing that can disagree with the topology it describes.
+    //
+    // After a link change the same timers run again, from the instant of the change: that is what
+    // re-convergence is. Without the offset, a lab that broke a cable would report the network as
+    // converged because it converged once, hours ago, before the cable was pulled.
+    const from = this.reconvergeFromMs !== undefined && this.reconvergeFromMs !== null
+      ? this.reconvergeFromMs
+      : (this.topo.lastChangeAtMs || 0);
+    return convergenceLib.buildSchedule(this.topo, { fromMs: from });
+  }
+
+  // ---------------------------------------------------------------------
+  // Link state (what happens when a cable is pulled)
+  // ---------------------------------------------------------------------
+
+  /**
+   * setLinkState(linkId, 'up' | 'down', { atMs })
+   *
+   * Marks a cable up or down *without removing it*, which is the case a lab needs: the port still
+   * exists, the cable is still plugged in at both ends, and nothing gets through.
+   *
+   * A change does three things beyond flipping the flag, all of them what real gear does:
+   *   - the spanning tree is rebuilt, so a redundant topology heals around the failure;
+   *   - every bridge's MAC table is flushed (a topology change notification), so frames are not
+   *     unicast into the port that used to lead somewhere;
+   *   - the convergence schedule is re-based at `atMs`, so the seconds after the change are the
+   *     seconds during which nothing works.
+   */
+  setLinkState(linkId, state, opts) {
+    const o = opts || {};
+    const link = this.topo.getLink(linkId);
+    if (!link) return { ok: false, code: 'E_NO_LINK', linkId: linkId };
+    if (state !== 'up' && state !== 'down') {
+      return { ok: false, code: 'E_BAD_STATE', detail: 'state must be up or down' };
+    }
+
+    const atMs = Number.isFinite(Number(o.atMs)) ? Number(o.atMs) : 0;
+    const before = link.state;
+    link.state = state;
+    if (o.force !== true && before === state) {
+      return { ok: true, linkId: linkId, changed: false, state: state, atMs: atMs };
+    }
+
+    // Topology change: MAC tables age out instantly in the model, and the tree is rebuilt.
+    for (const dev of this.topo.devices.values()) {
+      // A topology change notification flushes the forwarding tables. Keeping them would unicast
+      // frames into the port that used to lead somewhere, which is the single most common way a
+      // real network black-holes after a link failure.
+      if (dev.macTable && typeof dev.macTable.clear === 'function') dev.macTable.clear();
+      if (dev.macTables && typeof dev.macTables.forEach === 'function') {
+        dev.macTables.forEach(function (m) { if (m && typeof m.clear === 'function') m.clear(); });
+      }
+    }
+    this._stpDirty = true;
+    this.recomputeStp();
+    this.reconvergeFromMs = atMs;
+    link.stateSinceMs = atMs;
+    // The network remembers: a later Simulator on this topology still knows when the cable moved.
+    if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
+
+    const stp = convergenceLib.stpTimers({});
+    return {
+      ok: true, linkId: linkId, changed: true, state: state, atMs: atMs,
+      // How long until this change has finished being absorbed.
+      reconvergeAtMs: atMs + stp.forwardAtMs,
+      affects: [link.a.deviceId, link.b.deviceId]
+    };
+  }
+
+  // The tree is a function of the link states, so it is thrown away and rebuilt rather than
+  // patched. Anything that reads stp right after a change sees the network as it is now.
+  recomputeStp() {
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.isBridge || !dev.isBridge()) continue;
+      if (dev.stp) dev.stp.blocked = new Set();
+      if (dev.portStates) dev.portStates = new Map();
+    }
+    this._stpDirty = true;
+    try {
+      this.computeStp();
+    } catch (e) {
+      // A half-built topology can legitimately fail to span; the next run rebuilds it.
+      this._stpDirty = true;
+    }
+    return true;
+  }
+
+  linkDown(linkId, opts) { return this.setLinkState(linkId, 'down', opts); }
+  linkUp(linkId, opts) { return this.setLinkState(linkId, 'up', opts); }
+
+  // Has this process on this device finished by the run instant?
+  _converged(process, dev) {
+    if (this.runAtMs === Infinity) return true;
+    const sched = this.getConvergence();
+    const t = convergenceLib.readyAt(sched, process, dev.id);
+    return t === null ? true : t <= this.runAtMs;
+  }
+
+  // Processes still running at the run instant, earliest first - the honest reason a packet
+  // went nowhere.
+  _stillConverging() {
+    if (this.runAtMs === Infinity) return [];
+    const sched = this.getConvergence();
+    return convergenceLib.at(sched, this.runAtMs).pending;
+  }
+
   // --- public: run a ping from srcDeviceId to dstIp ---
   ping(srcId, dstIp, opts) {
     opts = opts || {};
     const count = opts.count || 4;
+    // Ask the question at an instant, if the caller named one. setRunTime() is the assignment;
+    // this is the convenience form, so `ping(a, b, { atMs: 5000 })` cannot quietly be ignored.
+    if (opts.atMs !== undefined) this.setRunTime(opts.atMs);
     this.reset();
     // Recompute spanning tree before the run so blocked ports are honoured.
     this.computeStp();
     // Resolve PoE power before the run: an unpowered device must not transmit.
     this.computePoe();
+    // Elect the virtual gateways first: a host that pulls a gateway from DHCP should be pulling the
+    // address something actually answers for.
+    this.computeVrrp();
+    // Let hosts pull addresses before anything is asked of them.
+    this.computeDhcp();
     // Announce ourselves on every cabled port, the way real gear does on link-up.
     this.announceLldp();
     // Then let the routers hand out IPv6 prefixes, so a host configured for
@@ -318,9 +471,17 @@ class Simulator {
       const delay = got
         ? this._roundTripFor(this.events.slice(evStart), net.ICMP_ECHO_REQUEST, net.ICMP_ECHO_REPLY, id, seq, bits)
         : null;
+      // A run asked at an instant before everything has converged deserves the reason, not just
+      // silence: "no reply" and "the spanning tree is still learning" look identical otherwise.
+      const pending = got ? [] : this._stillConverging();
       replies.push({
         seq: seq,
         success: !!got,
+        reason: got ? null : (pending.length ? 'converging' : null),
+        pending: pending.map(function (e) {
+          return { process: e.process, device: e.device.name, readyAtMs: e.readyAtMs };
+        }),
+        convergingUntilMs: pending.length ? pending[0].readyAtMs : null,
         hops: got ? (got.step - startStep) : null,
         rtt: delay ? delay.totalMs : null,
         rttUs: delay ? delay.totalUs : null,
@@ -360,6 +521,10 @@ class Simulator {
       const groups = {};
       for (const iface of dev.interfaces.values()) {
         if (!iface.peer) continue;
+        // A port whose cable is down is not a port as far as the spanning tree is concerned - that
+        // is precisely how a redundant topology heals itself when a link fails.
+        const ownLink = this._linkAt(dev.id, iface.name);
+        if (ownLink && !ownLink.isUp()) continue;
         const key = this._logicalPortName(dev, iface.name);
         if (!groups[key]) groups[key] = [];
         groups[key].push(iface);
@@ -421,8 +586,294 @@ class Simulator {
         }
       }
     }
+
+    // A port that is *destined* to forward is not forwarding yet: it is somewhere between
+    // Listening and Learning, and it drops traffic in both. This is the whole point of asking a
+    // question at an instant - the cable is green, the switch is up, and nothing passes.
+    if (this.runAtMs !== Infinity) {
+      for (const dev of this.topo.devices.values()) {
+        if (!dev.isL2() || !dev.stp) continue;
+        if (this._converged('stp', dev)) continue;
+        for (const logicalName of Object.keys(dev.stp.states || {})) {
+          const steady = dev.stp.states[logicalName];
+          if (steady === 'blocking') continue;
+          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs);
+          dev.stp.states[logicalName] = now;
+          if (!convergenceLib.stpForwardsIn(now)) {
+            for (const iface of dev.interfaces.values()) {
+              if (this._logicalPortName(dev, iface.name) === logicalName) {
+                dev.stp.blocked.add(iface.name);
+              }
+            }
+          }
+        }
+      }
+    }
     this._stpDirty = false;
     return res;
+  }
+
+  // ---------------------------------------------------------------------
+  // VRRP (engine/vrrp.js)
+  // ---------------------------------------------------------------------
+  //
+  // The election was implemented and never called: a lab could configure a virtual gateway and no
+  // device would answer for it, so every host pointing at the VIP black-holed and the failure looked
+  // like a routing mistake. This runs the election over each L2 segment before the first packet,
+  // hands the winner its group's addresses, and lets ownsIpOn() serve them.
+  //
+  // Candidates are the routers in the same broadcast domain with the same vrid - a VRRP peer that
+  // cannot hear you is not a peer - and the winner answers ARP with the group's virtual MAC, which
+  // is what makes a failover invisible to the hosts.
+
+  computeVrrp() {
+    const events = [];
+    for (const dev of this.topo.devices.values()) dev.clearVrrp();
+
+    // Group the candidates by (segment, vrid): peers are whoever shares a broadcast domain.
+    const elections = new Map();
+    for (const dev of this.topo.devices.values()) {
+      const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
+      for (const raw of groups) {
+        const g = vrrpLib.normalizeGroup(raw);
+        if (!g.ips.length) continue;
+        const ifaceName = dev.resolveIface(g.interfaceName || '') || dev.interfaces.get(g.interfaceName);
+        if (!ifaceName) continue;
+        if (ifaceName.enabled === false || !ifaceName.ip) continue;
+
+        // The set of routers that can hear each other on this interface.
+        const segment = segmentLib.segmentOf(this.topo, dev, ifaceName.name);
+        // A VRRP peer is a device that can hold an L3 address in this domain. There is no
+        // isRouter() on Device - the capability is isL3(), and a bridged L3 switch can hold a
+        // virtual gateway too.
+        const peerIds = segment
+          .filter(function (e) { return e.device && e.device.isL3 && e.device.isL3(); })
+          .map(function (e) { return e.device.id; });
+        peerIds.push(dev.id);
+        const key = peerIds.slice().sort().join('|') + '#vrid' + g.vrid;
+
+        if (!elections.has(key)) {
+          elections.set(key, { vrid: g.vrid, group: g, peerIds: peerIds, candidates: [] });
+        }
+        const e = elections.get(key);
+        if (!e.candidates.some(function (c) { return c.id === dev.id; })) {
+          e.candidates.push({
+            id: dev.id, dev: dev, iface: ifaceName,
+            priority: g.priority, ip: ifaceName.ip,
+            // A group on a down interface relinquishes mastership - that is the failover every
+            // lab is built to demonstrate.
+            up: ifaceName.enabled !== false && !!(ifaceName.ip)
+          });
+        }
+      }
+    }
+
+    for (const e of elections.values()) {
+      // Only routers that actually belong to the segment and run this vrid can win it.
+      const voters = e.candidates.filter(function (c) { return e.peerIds.indexOf(c.id) !== -1; });
+      if (!voters.length) continue;
+
+      const res = vrrpLib.electMaster(voters.map(function (c) {
+        return { id: c.id, priority: c.priority, ip: c.ip, up: c.up };
+      }), e.group);
+
+      const master = voters.filter(function (c) { return c.id === res.masterId; })[0];
+      if (!master) continue;
+
+      // A master whose own group has not finished converging does not own the VIP yet.
+      const owning = this._converged('vrrp', master.dev);
+      if (owning) {
+        master.dev.claimVrrp({
+          vrid: e.vrid, iface: master.iface.name,
+          ips: e.group.ips, mac: vrrpLib.virtualMac(e.vrid)
+        });
+        // A gratuitous ARP per virtual address, and it is not decoration: a switch's MAC table
+        // still points the virtual MAC at the *old* master's port, so without this every frame for
+        // the gateway is unicast into a box that no longer owns it and black-holes. This is exactly
+        // why real VRRP masters send one on takeover.
+        for (const vip of e.group.ips) {
+          this._sendGratuitousArp(master.dev, master.iface, vip, vrrpLib.virtualMac(e.vrid));
+          events.push({
+            type: 'garp', dev: master.dev.id, devName: master.dev.name, iface: master.iface.name,
+            ip: vip, mac: vrrpLib.virtualMac(e.vrid), vrid: e.vrid
+          });
+        }
+      }
+
+      events.push({
+        type: 'vrrp', vrid: e.vrid, ips: e.group.ips.slice(),
+        master: master.dev.id, masterName: master.dev.name, iface: master.iface.name,
+        priority: master.priority, reason: res.reason,
+        backups: voters.filter(function (c) { return c.id !== master.dev.id; })
+          .map(function (c) { return c.dev.name; }),
+        mac: vrrpLib.virtualMac(e.vrid),
+        owning: owning
+      });
+    }
+
+    for (const ev of events) this._emit(ev);
+    return events;
+  }
+
+  // A gratuitous ARP: a broadcast *request* whose sender address is the address being announced,
+  // so every switch relearns the MAC on the new port and every host replaces a stale cache entry.
+  _sendGratuitousArp(dev, iface, ip, mac) {
+    if (!iface || iface.enabled === false) return null;
+    const frame = arpRequest(mac, ip, ip);
+    this._sendFromOwnIp(dev, iface, frame, portPvid(iface));
+    return frame;
+  }
+
+  // ---------------------------------------------------------------------
+  // DHCP (engine/dhcp.js, engine/segment.js)
+  // ---------------------------------------------------------------------
+  //
+  // The library modelled the exchange completely and nothing called it: `ip address dhcp` set a
+  // flag, no DISCOVER was ever sent, and the host stayed unaddressed for the life of the lab. This
+  // is the caller.
+  //
+  // A DISCOVER is a broadcast, so the servers are whatever sits in the same broadcast domain and
+  // holds a pool covering its own interface subnet. The exchange runs before the first packet the
+  // user asked for, which is when a real host would have done it too.
+
+  computeDhcp() {
+    const events = [];
+    for (const dev of this.topo.devices.values()) {
+      // Which interfaces are asking?
+      const clients = [];
+      for (const iface of dev.interfaces.values()) {
+        if (iface.dhcp && iface.enabled !== false) clients.push(iface);
+      }
+      if (!clients.length) continue;
+
+      // A run asked at an instant before the exchange finished leaves the host unaddressed, which
+      // is exactly what a real host is at that moment - and the ping path reports it as converging
+      // rather than as a broken lab.
+      if (!this._converged('dhcp', dev)) continue;
+
+      for (const clientIface of clients) {
+        const segment = segmentLib.segmentOf(this.topo, dev, clientIface.name);
+        const servers = segment.filter(function (e) {
+          return e.device && e.device !== dev && e.device.config &&
+            Array.isArray(e.device.config.dhcpPools) && e.device.config.dhcpPools.length &&
+            e.iface.ip;
+        });
+
+        const result = this._runDhcpExchange(dev, clientIface, servers);
+        events.push(result.event);
+        if (result.lease) {
+          clientIface.ip = result.lease.ip;
+          clientIface.mask = result.lease.mask;
+          clientIface.dhcpLease = result.lease;
+          if (!dev.config.defaultGateway && result.lease.gateway) {
+            dev.config.defaultGateway = result.lease.gateway;
+          }
+          this.dhcpLeases.push(result.lease);
+        }
+      }
+    }
+    for (const e of events) this._emit(e);
+    return events;
+  }
+
+  // One client, one interface, one DISCOVER -> OFFER -> REQUEST -> ACK.
+  _runDhcpExchange(client, clientIface, servers) {
+    const mac = clientIface.mac || (client.macAddress || '00:00:00:00:00:00');
+    const base = {
+      type: 'dhcp', client: client.id, clientName: client.name,
+      iface: clientIface.name, mac: mac
+    };
+
+    if (!servers.length) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'no-server',
+          detail: 'no DHCP server in this broadcast domain'
+        })
+      };
+    }
+
+    // A server answers only for a pool that covers the subnet its own interface is in. The first
+    // match wins, in device order, so a run is deterministic.
+    let chosen = null;
+    for (const s of servers) {
+      for (const rawPool of s.device.config.dhcpPools) {
+        const pool = dhcpLib.normalizePool(rawPool);
+        const check = dhcpLib.validatePool(pool);
+        if (!check.ok) continue;
+        // The question is "is this server's interface inside the pool's subnet", not "could this
+        // address be handed out" - the gateway is deliberately not allocatable, and asking
+        // ipInPool() would reject every correctly configured router.
+        if (net.ipInSubnet(s.iface.ip, pool.network, pool.mask)) {
+          chosen = { server: s, pool: pool };
+          break;
+        }
+      }
+      if (chosen) break;
+    }
+
+    if (!chosen) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'no-pool',
+          server: servers[0].device.id, serverName: servers[0].device.name,
+          detail: 'the address of ' + servers[0].iface.ip + ' is in none of the server pools'
+        })
+      };
+    }
+
+    const serverDev = chosen.server.device;
+    if (!this._dhcpStates.has(serverDev.id)) {
+      this._dhcpStates.set(serverDev.id, dhcpLib.createLeaseState());
+    }
+    const state = this._dhcpStates.get(serverDev.id);
+
+    const offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: this.step });
+    if (!offer) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'pool-exhausted',
+          server: serverDev.id, serverName: serverDev.name, pool: chosen.pool.name,
+          detail: 'pool ' + chosen.pool.name + ' has no address left to offer'
+        })
+      };
+    }
+
+    const ack = dhcpLib.handleRequest(chosen.pool, state, {
+      mac: mac, requestedIp: offer.ip, step: this.step
+    });
+    if (!ack || ack.type !== dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
+      return {
+        lease: null,
+        event: Object.assign({}, base, {
+          phase: 'failed', reason: 'nak',
+          server: serverDev.id, serverName: serverDev.name, pool: chosen.pool.name,
+          detail: 'the server refused to acknowledge ' + offer.ip
+        })
+      };
+    }
+
+    // normalizePool() already resolved the lease to seconds; taking it from there keeps the
+    // configured value instead of quietly reporting the library default.
+    const leaseSec = Number(chosen.pool.leaseSec);
+    return {
+      lease: {
+        ip: ack.ip, mask: chosen.pool.mask,
+        gateway: chosen.pool.gateway || null,
+        dns: (chosen.pool.dns || []).slice(),
+        server: chosen.server.iface.ip, pool: chosen.pool.name,
+        leaseSec: leaseSec, client: client.id, iface: clientIface.name, mac: mac
+      },
+      event: Object.assign({}, base, {
+        phase: 'ack', ok: true, ip: ack.ip, mask: chosen.pool.mask,
+        server: serverDev.id, serverName: serverDev.name,
+        serverIp: chosen.server.iface.ip, pool: chosen.pool.name,
+        gateway: chosen.pool.gateway || null, leaseSec: leaseSec
+      })
+    };
   }
 
   // ---------------------------------------------------------------------
@@ -568,7 +1019,13 @@ class Simulator {
         }
       }
 
-      byId[r.id].dev.ospfRoutes = routes;
+      // Routes land when the adjacency has finished and SPF has run, not with the cable.
+      const ospfDev = byId[r.id].dev;
+      if (this._converged('ospf', ospfDev)) {
+        ospfDev.ospfRoutes = routes;
+      } else {
+        ospfDev.ospfRoutes = [];
+      }
       result[r.id] = routes;
     }
 
@@ -1916,6 +2373,13 @@ class Simulator {
     }
     const peer = iface.peer;
     if (!peer) return; // unplugged port (e.g. flood to an empty switch port)
+    // A link that is down carries nothing at all. Link.state existed and nothing read it, so a
+    // cable marked down kept passing every frame - the field was decoration.
+    const crossing = this._linkAt(dev.id, iface.name);
+    if (crossing && !crossing.isUp()) {
+      this._emit({ type: 'drop', reason: 'link down', dev: dev.id, iface: iface.name, link: crossing.id });
+      return;
+    }
     const peerDev = this.topo.getDevice(peer.deviceId);
     if (!peerDev) return;
     this._emit({
@@ -1989,7 +2453,14 @@ class Simulator {
     // flooded exactly like broadcast, or neighbour discovery never arrives.
     const mcast = net.isMulticastMac(f.dstMac);
     const flood = bcast || mcast;
-    const mine = dev.interfaceWithMac(f.dstMac);
+    // A frame addressed to a group's virtual MAC is addressed to this device when this device is
+    // the master of that group. Without this the master answers ARP for the VIP and then drops
+    // every packet sent to it - the host resolves the gateway and still cannot reach it.
+    let mine = dev.interfaceWithMac(f.dstMac);
+    if (!mine && Array.isArray(dev.vrrpClaims) && inIface) {
+      const claim = dev.vrrpClaims.filter(function (c) { return c.mac === f.dstMac; })[0];
+      if (claim) mine = dev.interfaces.get(claim.iface) || null;
+    }
 
     // LLDP is sent to the nearest-bridge multicast group, which a bridge must NOT
     // forward: the frame carries one hop and dies. Flooding it would invent
@@ -2238,6 +2709,10 @@ class Simulator {
     const vid = frame.vid || 1;
     if (arp.op === 'request') {
       const inIf = dev.resolveIface(inIface);
+      // RFC 826: a station updates its table from any ARP it receives, not only from replies.
+      // This is what makes a gratuitous ARP work - it is a request, and the whole point is that
+      // the hosts who did not ask for it still believe it.
+      if (arp.senderIp && arp.senderMac) dev.arp.set(arp.senderIp, arp.senderMac);
       const owner = dev.ownsIpOn(inIf, arp.targetIp);
       if (owner) {
         // Reply out of the port that asked: inside a bridge group every port reaches
@@ -2250,8 +2725,17 @@ class Simulator {
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
         const replyIface = sameGroup ? inIf : owner;
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
-        this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyIface.mac, vlan: vid });
-        this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyIface.mac, owner.ip), vid);
+        // A virtual address is answered with the group's virtual MAC, not the box's own: that is
+        // what lets a host keep its cache entry when mastership moves to the other router.
+        // The address being defended is the one that was asked for. owner.ip is the interface's own
+        // address, which for a virtual gateway is *not* the VIP - answering with it told the host
+        // that 10.0.0.254 was at the router's own MAC under the router's own address, so the host
+        // cached nothing usable for the gateway and every packet it sent died at that step.
+        const claimed = (typeof dev.vrrpClaimFor === 'function') ? dev.vrrpClaimFor(arp.targetIp, replyIface.name) : null;
+        const answerIp = claimed ? arp.targetIp : owner.ip;
+        const replyMac = (typeof dev.macForIp === 'function' ? dev.macForIp(answerIp, replyIface.name) : null) || replyIface.mac;
+        this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyMac, vlan: vid });
+        this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyMac, answerIp), vid);
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
@@ -2281,7 +2765,10 @@ class Simulator {
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
       this._emit({ type: 'icmp-reply', dev: dev.id, iface: replyIface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
-      this._sendFromOwnIp(dev, replyIface, ethFrame(frame.srcMac, replyIface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
+      // An echo to the VIP is answered from the VIP and with the group's virtual MAC, so the reply
+      // looks identical whichever router in the group happens to be master.
+      const echoMac = (typeof dev.macForIp === 'function' ? dev.macForIp(frame.ip.dst, replyIface.name) : null) || replyIface.mac;
+      this._sendFromOwnIp(dev, replyIface, ethFrame(frame.srcMac, echoMac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });

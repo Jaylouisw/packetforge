@@ -1,0 +1,33 @@
+{
+  "vendor": "draytek",
+  "model": "VigorSwitch G2540X",
+  "label": "DrayTek VigorSwitch G2540X",
+  "category": "switch",
+  "description": "48-port Gigabit Layer 2+ managed switch with six 10G SFP+ uplinks, and the non-PoE sibling of the VigorSwitch P2540x. Same 216 Gbps switching capacity, static routing and DHCP server for inter-VLAN traffic; the 48 RJ-45 ports carry no power budget.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45"
+  },
+  "interfaces": [
+    { "name": "sfp49", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp50", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp51", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp52", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp53", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "sfp54", "type": "ethernet", "speed": "10G", "connector": "sfp+", "speedCaps": [1000, 10000] },
+    { "name": "console", "type": "console" }
+  ],
+  "sourceUrl": "https://www.draytek.co.uk/support/downloads/vigorswitch-p2540x/send/876-vsp2540x/2226-datasheet-vsp2540x",
+  "notes": "The 2540x datasheet covers both members: 48 x RJ-45 Gigabit Ethernet (10/100/1000) and 6 x SFP+ at 10 Gbps numbered 49-54, 1 x RJ-45 console, 216 Gbps switching capacity. The G2540X is the model without PoE - no PSE budget, no 802.3af/at capability, and no poeOut on the copper ports - so a lab that needs to power an access point or camera must pick the P2540X. Kept as its own spec rather than a flag because the two differ in exactly the field that decides whether a powered device boots, which is the kind of difference this catalogue exists to record."
+}

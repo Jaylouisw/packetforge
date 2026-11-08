@@ -1,3 +1,127 @@
+## Unreleased
+
+### Added
+
+- **Link state is real, and a pulled cable re-converges** (#1057). `Link` has carried
+  `state: 'up' | 'down' | 'blocked'` since the physical layer was built and **nothing in the engine
+  read it** - a cable marked down still carried every frame, still cost what it cost in the spanning
+  tree, and was still walked by the DHCP segment search. The field was decoration, and the failure it
+  hid was total: a lab could show a cut link passing traffic. Now a down link drops frames with
+  `reason: 'link down'`, is not a bridge port (so STP heals around it), is not walked by the segment
+  search, flushes every bridge's MAC table, and re-bases the convergence schedule at the instant of
+  the change. The change instant lives on the topology so a reloaded lab still knows when its cable
+  was cut. New CLI `link up|down|state <id> [at <ms>]` and `links`; new route
+  `POST /api/topologies/:id/links/:linkId/state`; a down cable is drawn dashed and red with a
+  take-down/bring-up entry in the cable menu. `docs/LINK-STATE.md` documents what is modelled and
+  what is not - no degraded links, no flapping, no RSTP fast convergence.
+
+- **VRRP is in the data path** (#1052). `engine/vrrp.js` elected a master and nothing called it, and
+  the CLI had no `vrrp` command at all - a lab could read about a virtual gateway and never build
+  one. `Simulator.computeVrrp()` now elects once per (broadcast domain, vrid) before the first
+  packet; the winner claims the group's addresses so ARP and ICMP for the VIP are answered locally,
+  answers with the **virtual** MAC and accepts frames addressed to it, and announces the VIP with a
+  gratuitous ARP on takeover - without which the switches keep pointing the virtual MAC at the old
+  master's port and the failover black-holes. New CLI: `vrrp <vrid> ip|priority|preempt|advertise`
+  per interface and `show vrrp`. Groups survive save/load.
+
+- **DHCP is in the data path** (#1051). `engine/dhcp.js` was a complete, tested model with no
+  caller: `ip address dhcp` set a flag, no DISCOVER was ever sent, and a host stayed unaddressed for
+  the life of the lab. `Simulator.computeDhcp()` now runs the exchange before the first packet, walks
+  the broadcast domain properly (`engine/segment.js`: bridges pass, routers stop, STP-blocked ports
+  pass nothing, VLANs are boundaries), installs the lease on the interface, and reports the failures
+  a real server produces — `no-server`, `no-pool`, `pool-exhausted`, `nak`. New CLI sub-mode
+  `ip dhcp pool` with network/range/exclusions/reservations/lease, validated on exit rather than on
+  every keystroke. Pools survive save/load.
+
+- **README corrections.** The protocol table claimed DHCP client/server and VRRP, and the CLI row
+  claimed `ip dhcp pool` and `vrrp`. `engine/simulator.js` requires neither library, and the CLI has
+  no `vrrp` command at all — `docs/SIMULATION.md` §5.1 has documented DHCP as absent from the data
+  path the whole time. Both are now listed under "What this does not model yet" with their issues
+  (#1051, #1052) rather than advertised as features.
+
+- **Control planes take time now** (#1049). Every timer in the engine was parsed, range-checked and
+  then discarded: `computeStp()` blocked its ports and `computeOspf()` installed its routes at t=0,
+  so a lab could only ever show the converged answer. `Simulator.setRunTime(ms)` asks a question at
+  an instant - STP ports Listening/Learning and dropping traffic, OSPF without learned routes, no
+  DHCP lease - and a failed ping reports `converging` with the process and its ready time instead of
+  pretending a packet was lost. New `converge` command, `ping ... at <ms>`, and ping replies that
+  print a real millisecond time from propagation + serialisation + store-and-forward. See
+  [docs/CONVERGENCE.md](docs/CONVERGENCE.md).
+
+- **`scripts/sweep-device-requests.js`** answers "is this hardware request already modelled?" against
+  the ~800-issue backlog, with no fuzzy matching: a vendor-agreement guard and a model-key guard,
+  because the first version closed three Ubiquiti requests pointing at `roku/Ultra`. See
+  [docs/TRIAGE.md](docs/TRIAGE.md). 41 requests closed with per-issue comments naming the file.
+
+- **OLT uplinks are real ports now** (#987). The Adtran SDX 6320's 4x100GbE + 4x10GbE uplinks
+  declared no connector (so a 10G uplink was guessed as copper, #1069 again), the FiberHome
+  AN5516-01's HU2A card was missing its second combo position, and the Huawei MA5600T had no uplink
+  at all despite naming the H801X2CS in its own description. All three are modelled, cited to their
+  datasheets, and the three name-based quarantines in `test/spec-vs-description.test.js` are gone.
+- **`xfp` cage.** XFP is 10G in a larger cage than SFP+ and an SFP+ module does not seat in it. The
+  FiberHome HU2A's 10GE ports are XFP and the Huawei H801X2CA is its XFP variant of the same 2x10GE
+  card as the SFP+ H801X2CS - so the cage is now a hardware fact, and the engine refuses the pair.
+
+- **`scripts/check-node-surface.js`** runs in CI and in `npm test`: it fails the build if any source
+  file uses an API that arrived after Node 18 (`toSorted`, `Object.groupBy`,
+  `Promise.withResolvers`, and the rest), because a green suite on a newer local interpreter says
+  nothing about the oldest job in the matrix. This dev machine runs Node 24 while CI tests 18/20/22.
+
+### Added
+
+- **`test/skip-audit.test.js`**: every skip that exempts a class of hardware from a check must name
+  an issue, or declare itself ordinary control flow / deliberate with a reason. The three silent
+  holes of the last two releases (a `Math.max` over strings, a console skip, an empty-media skip)
+  were all of this shape and all invisible to the backlog. The audit carries a self-test that
+  writes an untracked exemption to a temp file and asserts it is flagged, because a lint that cannot
+  fail is the same disease it is meant to cure.
+
+- **DOCSIS has an upstream medium** (#1039). The coax cage offered only downstream media (1G on
+  3.0, 10G on 3.1), so a 200 Mbps return-path port shared no rate with anything: its media list came
+  out empty, the cable picker offered nothing, and the rate invariant skipped it with an early
+  `continue`. `docsis-30-us` (200 Mbps) and `docsis-31-us` (1 Gbps) now exist, the plant rates on
+  five CCAP chassis and one HFC node are corrected to what they carry, and
+  `test/coax-docsis.test.js` pins the asymmetry.
+
+- **Console ports have a baud rate, not a line rate** (#979). Five RS-232 rates (9600/19200/38400/
+  57600/115200) are separate media, a spec states `baud: 115200`, and a multi-baud port negotiates
+  **down** to the highest rate both ends share. A 9600-to-115200 cable now refuses with
+  `E_BAUD_MISMATCH` naming both rates instead of "no shared medium", and a console cabled to a data
+  port refuses with `E_PROTOCOL_MISMATCH` explaining that a console is out-of-band.
+
+### Added
+
+- **Fibre Channel is a first-class link type** (#980). Four FC cages (`fc-sfp`, `fc-sfp28`,
+  `fc-sfpdd`, `fc-qsfp28`), sixteen FC media across 2/4/8/10/16/32/64/128G, and the real rate
+  ladder: a 32G port runs at 28.05 Gbit/s and a 64G port at 57.8, because FC frames its payload.
+  Two FC ports link and negotiate down the ladder; an FC port cabled to an Ethernet port is refused
+  with `E_PROTOCOL_MISMATCH` naming both protocols, since the optic seats and the frames never
+  cross. Seven SAN switches moved from Ethernet cages to FC ones, including Dell DS-6630B, which
+  was hiding 96 × 32G and 8 × 128GFC behind an SFP28 model. See [docs/FIBRE-CHANNEL.md](docs/FIBRE-CHANNEL.md).
+- **SFP56 cage and 50GBASE-SR/LR**, so a 50G SFP-form port is neither understated as 25G nor given
+  a QSFP connector.
+
+### Fixed
+
+- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
+  only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
+  omitted them and no check noticed.
+- **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
+  ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
+  115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer
+  widens a 9600-baud port to the whole five-rate ladder.
+- **Console ports were exempt from the cage-rate invariant**, which is how those 163 ports stayed
+  green. The exemption is gone; "slow is correct" (DSL, PON, console) still excuses a low rate, and
+  the overreach check now runs on console ports like any other.
+- `derivePortHardware` took a port's line rate from its `speed` label instead of its `speedCaps`.
+  Where the two disagree the caps are the truth, and on `qlogic/5800V` the disagreement was a real
+  one: 32G of FC claimed as 32000 Mbps on a 28050 Mbps port.
+- The `qlogic/5800V` notes said its ports were "modelled at the nearest step (10G) with the real
+  2/4/8G rates in speedCaps" — true when written, false once FC had cages. Its 4 ISL ports are now
+  10GFC and the note describes what the model actually does.
+- `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
+  check learned that `SFP56` is not `SFP`.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

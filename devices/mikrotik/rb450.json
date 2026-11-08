@@ -1,0 +1,47 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB450",
+  "label": "RB450",
+  "category": "router",
+  "description": "MikroTik RB450 (RB450) \u2014 5x 100M RJ45. MIPSBE 1-core AR7161.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB450"
+}
