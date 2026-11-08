@@ -1,0 +1,43 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBD25G-5HPacQD2HPnD",
+  "label": "Audience",
+  "category": "wireless",
+  "description": "MikroTik Audience (RBD25G-5HPacQD2HPnD) — 2x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 4-core IPQ-4019.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/audience"
+}
