@@ -147,6 +147,10 @@ a.btn { text-decoration: none; display: inline-block; line-height: normal; }
 .dc-badge-host, .dc-badge-server { color: #e7ecf5; border-color: #e7ecf555; }
 .dc-badge-cloud { color: #22d3ee; border-color: #22d3ee55; }
 .palette-empty { color: var(--muted); font-size: 12px; padding: 14px 8px; text-align: center; }
+/* The empty state is a place someone is stuck, not a status line: say what did not
+   match, then offer the way out. */
+.palette-empty-why { margin: 0 0 10px; }
+.palette-empty .btn { font-size: 12px; padding: 5px 10px; }
 /* The count of what is on screen. The palette holds the whole catalogue, so saying how
    much of it the current query shows is cheaper than making people count vendor groups. */
 .palette-summary {
