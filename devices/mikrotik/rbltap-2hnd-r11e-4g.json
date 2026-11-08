@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLtAP-2HnD&R11e-4G",
+  "label": "LtAP 4G kit",
+  "category": "wireless",
+  "description": "MikroTik LtAP 4G kit (RBLtAP-2HnD&R11e-4G) — 1x 1G RJ45, Wi-Fi 2.4 GHz, LTE radio. MMIPS 2-core MT7621A.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ltap_4g_kit"
+}
