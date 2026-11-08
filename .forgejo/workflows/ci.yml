@@ -93,14 +93,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      # This job used to be a bare `docker build`. The runner's job image is
-      # node:20-bookworm, which has no docker binary and no /var/run/docker.sock, so the
-      # step could not succeed for any change - a red check on every pull request for
-      # reasons unrelated to the code. The Dockerfile is checked statically first, which
-      # catches everything a build would catch early; the real build then runs wherever a
-      # daemon actually exists, and says so plainly where it does not.
+      # node:20-bookworm ships no docker binary. The runner mounts the host
+      # /var/run/docker.sock into the job (config `docker_host: automount`), so
+      # installing the CLI is enough to build against the host daemon. The Dockerfile is
+      # still checked statically first (fast, catches everything a build would catch
+      # early), and the fallback below keeps the job honest on runners that provide
+      # neither a binary nor a socket.
       - name: Dockerfile static checks
         run: node scripts/check-dockerfile.js
+      - name: Install Docker CLI
+        run: apt-get update && apt-get install -y docker.io
       - name: Build image (only where a docker daemon is available)
         run: |
           if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
