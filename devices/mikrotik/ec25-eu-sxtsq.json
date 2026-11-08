@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "EC25-EU&SXTsq",
+  "label": "SXTsq Embedded LTE4",
+  "category": "ptp",
+  "description": "MikroTik SXTsq Embedded LTE4 (EC25-EU&SXTsq) \u2014 1x 1G RJ45, LTE radio. ARM 32bit 1-core Cortex A7.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/sxtsq_emb_lte4"
+}
