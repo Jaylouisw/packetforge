@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBQRTG-2SHPnD",
+  "label": "QRT 2",
+  "category": "ptp",
+  "description": "MikroTik QRT 2 (RBQRTG-2SHPnD) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9342.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBQRTG-2SHPnDr2"
+}
