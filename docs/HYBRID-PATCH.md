@@ -281,38 +281,46 @@ rather than left to whoever reads the datasheet last.
 
 ## 7. `catalogue/optics/hybrid-patch-cords.json`
 
-### 7.1 Loader status — read this before expecting the parts to work
+### 7.1 Loader status — the parts are live
 
-The file is **inert today**. `engine/optical.js:245` (`odnParts()`) loads exactly
-one file, `catalogue/optics/odn.json`, and `patchCords()` (`:278`) filters that
-array. `validation.js` resolves declared parts through `optical.patchCord()`, so
-until a follow-up teaches the loader about the second file:
-
-- `optical.patchCord('ADAEP-ARYL003')` → `null`,
-- `patchCord: 'FCA-S2SR-SCASCU-02M'` on a link → `E_PATCH_CORD_UNKNOWN`,
-- the only parts the engine will accept are the two in `odn.json`: `SMSCSX`
-  (`patch-cord-hybrid-sc-upc-apc`) and `SMLCSX` (`patch-cord-hybrid-lc-upc-apc`).
-
-That is deliberate for this change (data only, no engine edits). The recommended
-follow-up is a pure append in `odnParts()`:
+**This section used to say the file was inert. It is not.** `engine/optical.js`
+loads `odn.json` and `hybrid-patch-cords.json` together (`ODN_FILES`), so every assembly in
+this catalogue is selectable by part number or catalogue id:
 
 ```js
-// engine/optical.js — follow-up, not part of this change
-_odn = [].concat(Array.isArray(raw) ? raw : [], _loadMany('hybrid-patch-cords.json'));
+const ODN_FILES = ['odn.json', 'hybrid-patch-cords.json'];
 ```
 
-Because this file is an array of the same shape as `odn.json`, that append needs
-no other change: `patchCords()` picks up `kind: "patch-cord"`, `patchCord()` finds
-them by `partNumber` or `id`, `cordFits()` compares `endA`/`endB`, `cordLossDb()`
-reads `insertionLossDb`, and `hybridCord()` answers both argument orders.
+Parts are keyed on the orderable part number. Where both files describe the same part
+(`SMSCSX`, `SMLCSX`), the `odn.json` record keeps its identity and the hybrid record fills
+the gaps it does not have — `polishBridge`, `insertionLossBasis`, vendor — and its catalogue
+id is kept as an `aliasIds` entry so either id resolves. Records with no part number (a
+splitter has a model and a ratio, not a stock number) are appended rather than merged.
+A missing or malformed file is skipped, not fatal, so a checkout without this catalogue
+still runs.
 
-**Ordering is user-visible.** `hybridCord()` returns the first match
-(`engine/optical.js:324-327`), and that part number is printed in the
-`E_POLISH_MISMATCH` message. With the file loaded as written, an
-`sc-upc`↔`sc-apc` refusal names `SMSCSX`; add a part above it and the message
-changes. If that instability matters, the loader should prefer an explicit
-`"default": true` entry (or sort by `insertionLossDb`) instead of relying on
-file order.
+**Selection rules** (`engine/validation.js`):
+
+| Situation | Outcome |
+|---|---|
+| Same connector shape, different polish, cord declared on the link | Accepted, `ok: true`, with warning `W_HYBRID_CORD` naming the part and its loss |
+| Same connector shape, different polish, no cord declared | Refused `E_POLISH_MISMATCH`, naming the part that would fix it and its dB |
+| Same connector shape, different polish, no catalogue part bridges them | Refused, saying so: *"No hybrid patch cord in the catalogue … bridges these two polishes"* |
+| Different connector **shape** | Still `E_CONNECTOR_MISMATCH` — a cord cannot fix geometry, and `polishBridge: false` assemblies are never offered |
+| Cord declared between two ports of the *same* polish | `E_PATCH_CORD_ENDS`; the cord is cleared, so nothing is bridged, recorded or charged |
+
+A cord must fit at **both** ends (`cordFits()` compares connector and polish, order
+independently), so a cord is chosen per link rather than per device.
+
+**Loss is charged, not absorbed.** The accepted verdict carries `patchCord` and
+`patchCordLossDb`; `ponBudget({ patchCordLossDb })` charges the cord exactly as it charges a
+splice. A branch that fits bare but not once corded is refused on `E_OPTICAL_BUDGET` — for
+loss, not for polish, which is the honest reason.
+
+**Ordering is still user-visible.** `hybridCord()` returns the first match, so an
+`sc-upc`↔`sc-apc` refusal names `SMSCSX` (FS, 0.3 dB) because it comes first in the file.
+Adding a part above it changes the part number printed in the refusal. If that instability
+ever matters, prefer an explicit `"default": true` entry over relying on file order.
 
 ### 7.2 Schema
 
