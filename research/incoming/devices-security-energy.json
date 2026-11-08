@@ -1,0 +1,320 @@
+[
+  {
+    "vendor": "2n",
+    "model": "IP Style",
+    "label": "2N IP Style 10-inch SIP video intercom",
+    "category": "camera",
+    "description": "2N IP Style is a 10.1-inch touchscreen SIP video door intercom built on an AXIS ARTPEC-7 SoC, with a 5 MP camera, two-way full-duplex audio, a 125 kHz/13.56 MHz RFID reader and a Bluetooth 5.0 LE WaveKey reader. One RJ45 10/100BASE-TX LAN port with Auto-MDIX; powered by PoE+ IEEE 802.3at Class 4 (25.5 W) or 12 V / 4 A DC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 25.5
+      }
+    ],
+    "sourceUrl": "https://www.2n.com/en-US/products/intercoms/2n-ip-style/",
+    "notes": "PoE class 802.3at Type 2 Class 4 = 25.5 W; a 12 V DC input is the alternative. Protocols: SIP (UDP/TCP/TLS), SIPS, RTSP/RTP/SRTP, HTTP/HTTPS, DHCP (incl. option 66), SMTP, SNMP, TR-069, 802.1X, Syslog, ONVIF. Exactly one LAN port - there is no second RJ45 to daisy-chain or to give the unit a separate management network, so in a lab it occupies one switch port like any camera."
+  },
+  {
+    "vendor": "akuvox",
+    "model": "E16C",
+    "label": "Akuvox E16C face-recognition SIP door phone",
+    "category": "camera",
+    "description": "Akuvox E16C is a 5-inch touchscreen SIP door phone with two 2 MP cameras (main plus low-light auxiliary), face/card/PIN/BLE/QR identification and an embedded web UI. One RJ45 10/100 Mbps auto-negotiating Ethernet port, powered by 802.3af PoE or a 12 V DC input.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      }
+    ],
+    "sourceUrl": "https://www.akuvox.com/productsDownloadFile?did=1175",
+    "notes": "802.3af PoE (12.95 W class) or 12 V DC. No Wi-Fi radio on the E16C - Bluetooth 5.0 is used only for BLE identification and provisioning, so the wired port is the only network path. Downstream door hardware attaches over the on-board RS-485 and Wiegand ports plus one relay output; SIP and ONVIF are both supported."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "DS-KV8113-WME1(C)",
+    "label": "DS-KV8113-WME1(C) villa video intercom door station",
+    "category": "camera",
+    "description": "Hikvision DS-KV8113-WME1(C) is a 2 MP villa door station with IR supplement, two-way audio, a 13.56 MHz Mifare reader and 2.4 GHz Wi-Fi. Wired side is a single 10/100 Mbps Ethernet LAN port, powered by standard IEEE 802.3af PoE (under 10 W) or 12 V DC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "internal",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000083/S000000129/S000000131/OFR000170/M000009612/Data_Sheet/DS-KV8113-WME1_Villa-Door-Station_Datasheet_V1.0_20210428.pdf",
+    "notes": "802.3af, power consumption < 10 W. Wired network is 10/100 Mbps; the 2.4 GHz Wi-Fi radio is an alternative path, not a second wired port. Two relays, four alarm inputs, RS-485 and a debugging port drive the door hardware. IP65/IK08, -40 to 53 C."
+  },
+  {
+    "vendor": "axis",
+    "model": "A8207-VE",
+    "label": "AXIS A8207-VE network video door station",
+    "category": "camera",
+    "description": "AXIS A8207-VE combines a 6 MP 180-degree door camera, two-way audio with echo cancellation, an induction loop and a multi-frequency RFID reader (13.56 MHz MIFARE/DESFire/iCLASS, 125 kHz Prox/EM) in one IP66/IK08 unit. Single RJ45 10BASE-T/100BASE-TX port with Power over Ethernet 802.3af/802.3at Type 1 Class 3.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      }
+    ],
+    "sourceUrl": "https://www.axis.com/dam/public/37/e3/2b/datasheet-axis-a8207-ve-network-video-door-station-en-US-378343.pdf",
+    "notes": "PoE 802.3af/802.3at Type 1 Class 3 (12.95 W); PoE+ or 10-30 V DC raises the peripheral budget for locks and readers (7.5 W with PoE, 14 W with DC). One network connector only - HDMI, RS485, relays and I/O are separate terminal blocks, not extra Ethernet ports. SIP, VAPIX, ONVIF Profiles S/G/T/M, MQTT, 802.1X, LLDP."
+  },
+  {
+    "vendor": "dahua",
+    "model": "VTO2211G-WP",
+    "label": "VTO2211G-WP IP and Wi-Fi villa door station",
+    "category": "camera",
+    "description": "Dahua VTO2211G-WP is a 2 MP wide-angle villa outdoor station with two-way talk, a 13.56 MHz IC card reader and 2.4 GHz Wi-Fi. Network side is one RJ45 10/100 Mbps port, powered by PoE IEEE 802.3af Class 0 or 12 V DC 1 A.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "internal",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://www.dahuawiki.com/images/9/99/Datasheet_Intercom_IP_OutdoorStation_DHI-VTO2211G-WP_v001_004.pdf",
+    "notes": "Ethernet: one RJ45 10/100 Mbps. PoE 802.3af Class 0, working draw <= 7 W, standby <= 1 W, 12 V DC 200 mA pass-through for a lock. Wi-Fi is 802.11b/g/n 2.4 GHz only. Protocols SIP/P2P/IPv4/DNS/RTSP/RTP/TCP/UDP, ONVIF; one RS-485 port and one alarm in/out. IP65."
+  },
+  {
+    "vendor": "axis",
+    "model": "A1001",
+    "label": "AXIS A1001 network door controller",
+    "category": "iot",
+    "description": "AXIS A1001 is a two-door network door controller with reader interfaces, lock power outputs and an embedded access-management web UI (AXIS Entry Manager). Network connector is a single RJ45 10BASE-T/100BASE-TX; power is PoE IEEE 802.3af/802.3at Type 1 Class 3 or 10-30 V DC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      }
+    ],
+    "sourceUrl": "https://www.axis.com/dam/public/eb/bc/9d/datasheet-axis-a1001-network-door-controller-en-US-286869.pdf",
+    "notes": "One RJ45 10BASE-T/100BASE-TX; the rest of the I/O (RS-485 full/half duplex, Wiegand, 12 V lock power, configurable inputs/outputs) is on terminal blocks. PoE 802.3af/at Type 1 Class 3 = 12.95 W, which leaves 625 mA at 12 V for locks and readers; 10-30 V DC gives 1166 mA. ONVIF Profile A/C and VAPIX; credentials live on the controller (up to 400 in Entry Manager, 50 000 with third-party software)."
+  },
+  {
+    "vendor": "mercury",
+    "model": "MP1502",
+    "label": "Mercury MP1502 two-reader intelligent controller",
+    "category": "iot",
+    "description": "Mercury MP1502 (HID Global) is a two-reader intelligent access controller providing decision making, event reporting and local cardholder storage for the Mercury hardware platform. Host communication runs over the on-board 10-BaseT/100Base-TX Ethernet port; the board is powered from 12-24 V DC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://www.mercury-security.com/wp-content/uploads/2026/08/PLT-07611-A.3-Mercury-MP1502-Controller-Installation-and-Specifications.pdf",
+    "notes": "Single on-board 10-BaseT/100Base-TX Ethernet port (the micro-USB 2.0 port needs a USB-to-Ethernet adapter and is not a second NIC). No PoE - the controller requires 12-24 V DC, so plan a local PSU rather than a switch port. Reader ports take TTL, F/2F or 2-wire RS-485 (OSDP); four Form-C relays and eight supervised inputs; web configuration page, SNMP and Zeroconf should be disabled in production."
+  },
+  {
+    "vendor": "hid",
+    "model": "Aero X1100",
+    "label": "HID Aero X1100 intelligent access controller",
+    "category": "iot",
+    "description": "HID Aero X1100 is a two-door intelligent controller on HID Mercury technology, driving two Wiegand or four OSDP readers on-board and up to 64 readers with X100/X200/X300 expansion IO modules. It talks to the host over an on-board Ethernet 10-BaseT/100Base-TX port and is powered from 12-24 V DC.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://manuals.plus/m/11620effe4059145d1b7d5d1695ce8aa1ea25e17c17b544b3d3231ffabc9b694",
+    "notes": "One Ethernet port (CAT-5, 100 m to the switch); the RS-485 ports to X100/X200/X300 IO modules and the reader ports are serial, not IP. Input voltage 12-24 V DC +/-10%, no PoE, so the unit needs its own supply in a cabinet. TLS 1.2 to host software, AES-256 to IO modules, OSDP secure channel to readers; UL 294 recognised component."
+  },
+  {
+    "vendor": "alfen",
+    "model": "Eve Single Pro-line",
+    "label": "Alfen Eve Single Pro-line 22 kW AC charge point",
+    "category": "iot",
+    "description": "Alfen Eve Single Pro-line (904460023, 3-phase, type 2 socket) is a 22 kW AC EV charge point with a 3.5-inch display, RFID authorisation, MID-certified energy metering and 6 mA DC fault detection. It has a dedicated RJ45 LAN connection plus 2.4 GHz Wi-Fi and an optional LTE modem.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "internal",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://eu-assets.contentstack.com/v3/assets/blt08d332658a89f766/blta4f9411e56ab5073/69cb8d6be953b74d95580f3a/904460xxx-ace-ds-1200-1.3-en_datasheet_eve_single_int.pdf",
+    "notes": "Datasheet lists a dedicated Ethernet/LAN network connection; the installation manual names the physical port as an RJ-45 connector for LAN and does not publish a line rate, so 100BASE-TX is modelled as the typical figure for this class of controller. OCPP 1.6J to the backend; RS-485 Modbus RTU for an external energy meter; RJ-11 (or TIC over RS-485 in France) for a smart meter; Wi-Fi 802.11 b/g/n 2.4 GHz and LTE are alternatives to the wired port, not extra ports. 22 kW only guaranteed to 40 C ambient; IP55/IK10."
+  },
+  {
+    "vendor": "wallbox",
+    "model": "Commander 2",
+    "label": "Wallbox Commander 2 22 kW AC charger with touchscreen",
+    "category": "iot",
+    "description": "Wallbox Commander 2 is a 22 kW three-phase AC charge point with a 7-inch touchscreen, PIN and RFID identification and OCPP 1.6J support. Its connectivity set is Ethernet, Wi-Fi and Bluetooth, with an optional 4G dongle; the Ethernet cable is landed on an RJ45 port inside the enclosure.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "internal",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://support.wallbox.com/wp-content/uploads/ht_kb/2024/02/EN_MASTER_DS_Commander-2_20240201.pdf",
+    "notes": "Installation guide: remove the knock-out beside the supply gland, crimp an RJ45 on the cable and plug it into the single Ethernet port in the charger. No PoE - the unit is mains powered. Wi-Fi is 2.4 GHz 802.11b/g/n (Wallbox's own guidance recommends 2.4 GHz and warns 5 GHz may be unsupported) and needs WPA2. OCPP 1.6J to a CSMS over HTTPS/TCP 443; the 4G dongle is an optional extra path. No IPv6 support on Wallbox chargers."
+  },
+  {
+    "vendor": "fronius",
+    "model": "Symo GEN24 10.0 Plus",
+    "label": "Fronius Symo GEN24 10.0 Plus hybrid PV inverter",
+    "category": "iot",
+    "description": "Fronius Symo GEN24 10.0 Plus is a 10 kW three-phase hybrid PV inverter with an integrated datalogger, web server and battery input. The datasheet specifies WLAN plus 2 x Ethernet LAN, and the operating instructions give the port as RJ 45, 10/100 Mbit; Modbus TCP SunSpec and the Fronius Solar API (JSON) run over it.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "antenna",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://www.fronius.com/en/~/downloads/Solar%20Energy/Datasheets/SE_DS_GEN24_GEN24Plus_Symo_EN_AU.pdf",
+    "notes": "Two RJ45 10/100 ports (LAN1/LAN2) - the second one lets the inverter be daisy-chained or kept on a separate service VLAN, which is why this is a 2-port box rather than 1. Modbus TCP SunSpec server, Fronius Solar API JSON, Solar.web; Modbus RTU (2x RS-485, SunSpec) for meters plus 6 digital inputs and 6 digital in/out for ripple control; wired shutdown (WSD) chains up to 28 devices over the same RJ45 style cabling. Wi-Fi is 802.11b/g/n 2.4 GHz."
+  },
+  {
+    "vendor": "shelly",
+    "model": "Pro 3EM",
+    "label": "Shelly Pro 3EM DIN-rail three-phase energy meter",
+    "category": "iot",
+    "description": "Shelly Pro 3EM is a DIN-rail three-phase energy meter with 1% active-energy accuracy (class B), per-phase voltage/current/power and 60 days of 1-minute history on device. It has a single RJ45 LAN port alongside 2.4 GHz Wi-Fi and Bluetooth, and speaks Modbus TCP, MQTT and HTTP.",
+    "capabilities": [
+      "host",
+      "dhcp-client",
+      "http-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "connector": "internal",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://www.shelly.com/products/shelly-pro-3em-x1",
+    "notes": "One RJ45 LAN port; Ethernet and Wi-Fi can be used simultaneously and the LAN LED is documented, but Shelly does not publish the port line rate on the datasheet - 100BASE-TX is modelled as the figure for this Pro-series platform. No relay on board (a Pro 3EM Switch Add-on is needed to control a contactor). Modbus TCP for industrial integrators, MQTT/WebSocket/UDP/mTLS for the rest; Bluetooth is only for inclusion. Powered from the measured circuit, 100-260 V AC, < 3 W."
+  }
+]
