@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ENVR",
+  "label": "UniFi Enterprise NVR",
+  "category": "nvr",
+  "description": "UniFi Enterprise NVR (ENVR) - 2x 10G SFP+ + 1x 10G RJ45. 410 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    }
+  ],
+  "icon": "nvr",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/envr"
+}
