@@ -1,0 +1,42 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP230-Wall",
+  "label": "TP-Link EAP230-Wall",
+  "category": "wireless",
+  "description": "AC1200 wall-plate access point: one gigabit uplink (PoE in) and one gigabit downlink, dual-band Wi-Fi 5.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "802.3at",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap230-wall/v1/",
+  "notes": "Vendor figures from the TP-Link datasheet: uplink 1x 10/100/1000 Mbps Ethernet port and downlink 1x 10/100/1000 Mbps Ethernet port; 5 GHz up to 867 Mbps and 2.4 GHz up to 300 Mbps (IEEE 802.11n/g/b/ac); powered by 802.3af or 802.3at PoE. Gigabit on both ports, unlike the older EAP225-Wall whose uplink is fast Ethernet."
+}

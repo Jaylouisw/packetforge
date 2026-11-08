@@ -1,0 +1,57 @@
+{
+  "vendor": "tp-link",
+  "model": "EAP235-Wall",
+  "label": "TP-Link EAP235-Wall",
+  "category": "wireless",
+  "description": "AC1200 wall-plate access point with a four-port faceplate: one gigabit uplink (PoE in) and three gigabit downlinks, one of them with PoE passthrough.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-wifi-wall-plate/eap235-wall/v1.20/",
+  "notes": "Vendor figures from the TP-Link datasheet: uplink 1x gigabit Ethernet port, downlink 3x gigabit Ethernet ports of which one supports PoE passthrough; 802.3af/at PoE input. The radios are modelled as AC1200 (300M + 867M) from the product's stated class; the per-band rate row was not captured on this page, so the figure follows the family rather than a quoted row - worth a comment if the exact rates matter."
+}

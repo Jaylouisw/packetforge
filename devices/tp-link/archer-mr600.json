@@ -1,0 +1,60 @@
+{
+  "vendor": "tp-link",
+  "model": "Archer MR600",
+  "label": "TP-Link Archer MR600",
+  "category": "router",
+  "description": "AC1200 4G LTE router: one gigabit LAN/WAN port, three gigabit LAN ports, a nano SIM slot and dual-band Wi-Fi 5.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "l2-forward",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.tp-link.com/us/service-provider/lte-router/archer-mr600/",
+  "notes": "Vendor figures from the TP-Link datasheet: 1x 10/100/1000 Mbps LAN/WAN port, 3x 10/100/1000 Mbps LAN ports and 1x nano SIM card slot; 802.11a/n/ac on 5 GHz and 802.11b/g/n on 2.4 GHz at 300 Mbps and 867 Mbps respectively. The LTE category was not captured during intake - the SIM slot and the 4G class are confirmed, but the modem is modelled at the conservative 100M Cat 4 class rather than guessing Cat 6. If your unit is Cat 6, say so and the interface rate gets corrected."
+}
