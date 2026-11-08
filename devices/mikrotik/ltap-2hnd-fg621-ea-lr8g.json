@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "LtAP-2HnD&FG621-EA&LR8G",
+  "label": "LtAP LR8G LTE6 kit",
+  "category": "iot",
+  "description": "MikroTik LtAP LR8G LTE6 kit (LtAP-2HnD&FG621-EA&LR8G) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz, LTE radio. MMIPS 2-core MT7621AT.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ltap_lr8g_lte6_kit"
+}
