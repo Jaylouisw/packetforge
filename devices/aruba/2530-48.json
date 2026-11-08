@@ -1,0 +1,285 @@
+{
+  "vendor": "aruba",
+  "model": "2530-48 (J9781A)",
+  "label": "Aruba 2530-48 Switch (J9781A)",
+  "category": "switch",
+  "description": "Aruba 2530-48 (J9781A) - 48x 10/100 RJ45, 2x 1G RJ45 and 2x fixed 1G SFP uplinks. Rack-mount ArubaOS-Switch L2 access switch.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "48",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "49",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "50",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "51",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "52",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111414"
+}
