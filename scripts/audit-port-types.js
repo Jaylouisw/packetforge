@@ -121,7 +121,11 @@ function checkPort(type, connector, cage) {
 
   // --- declared type vs resolved cage -------------------------------------
   if (type === 'wireless' || type === 'radio') {
-    if (eff !== 'antenna') {
+    // A radio may present an antenna OR a cellular cage: both are radios that take no cable,
+    // and since #129 the engine distinguishes "5G modem" from "Wi-Fi radio" by cage rather
+    // than by pretending one of them is the other. Either is consistent with the declared
+    // type; anything else is the defect this rule exists for.
+    if (eff !== 'antenna' && eff !== 'wwan') {
       hits.push({
         rule: 'wireless-not-antenna',
         severity: isFibreCage(eff) || eff === 'rj45' ? 'high' : 'medium',

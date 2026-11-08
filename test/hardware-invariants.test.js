@@ -286,7 +286,15 @@ console.log('\nEvery device can be plugged into a copy of itself:');
       }
       if (mated) break;
     }
-    if (!mated) islands.push(x.spec.vendor + '/' + x.spec.model);
+    if (!mated) {
+      // A device whose every port is a radio cannot be cabled at all - an M.2 5G module, a
+      // satellite terminal. Calling that an island would force a fake Ethernet port onto
+      // hardware that has none, which is the defect #129 exists to remove.
+      const onlyRadios = x.ifaces.every(function (p) {
+        return p.hardware.cage === 'antenna' || p.hardware.cage === 'wwan';
+      });
+      if (!onlyRadios) islands.push(x.spec.vendor + '/' + x.spec.model);
+    }
   }
   ok(islands.length === 0, 'all ' + catalog.length + ' devices can be cabled to themselves' +
     (islands.length ? ' (' + islands.slice(0, 5).join(', ') + ')' : ''));
@@ -330,7 +338,9 @@ console.log('\nA port connector agrees with the port type:');
   // lead. Drawing a physical link that cannot exist is the thing this project exists
   // to refuse.
   const TYPE_CAGES = {
-    wireless: ['antenna'],
+    // Antenna for Wi-Fi, wwan for cellular: since #129 both are radios and the cage
+    // distinguishes them, so both are legitimate resolutions of the wireless type.
+    wireless: ['antenna', 'wwan'],
     console: ['console'],
     coax: ['coax'],
     dsl: ['dsl'],

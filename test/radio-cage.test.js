@@ -47,10 +47,13 @@ console.log('Every way a spec can spell a radio derives the antenna cage:');
     { name: 'wifi0', type: 'wifi', speed: '574M' },
     { name: 'wifi0', type: 'wi-fi', speed: '574M' },
     { name: 'wlan0', type: 'wlan', speed: '867M' },
-    { name: 'wwan0', type: 'wwan', speed: '25M' },
-    { name: 'lte0', type: 'cellular', speed: '150M' },
-    { name: 'lte0', type: 'lte', speed: '150M' },
-    { name: 'mmw0', type: '5g-nr', speed: '1200M' },
+    // Cellular spellings are radios too, but they resolve to the cellular cage rather than
+    // to an antenna - a 5G modem and a Wi-Fi radio are both unc-ablable and both radios, and
+    // since #129 the engine can say which one a box has instead of flattening them.
+    { name: 'wwan0', type: 'wwan', speed: '25M', cage: 'wwan' },
+    { name: 'lte0', type: 'cellular', speed: '150M', cage: 'wwan' },
+    { name: 'lte0', type: 'lte', speed: '150M', cage: 'wwan' },
+    { name: 'mmw0', type: '5g-nr', speed: '1200M', cage: 'wwan' },
     // the connector, on a spec that calls itself ethernet
     { name: 'ant1', type: 'ethernet', speed: '1G', connector: 'antenna' },
     { name: 'ant1', type: 'ethernet', speed: '1G', connector: 'sma' },
@@ -62,16 +65,19 @@ console.log('Every way a spec can spell a radio derives the antenna cage:');
     // nothing but the name
     { name: 'wlan0', speed: '300M' },
     { name: 'radio1', speed: '867M' },
-    { name: 'wwan0', speed: '25M' }
+    { name: 'wwan0', speed: '25M', cage: 'wwan' }
   ];
   const wrong = [];
   for (const s of SPELLINGS) {
     const p = hw(s);
     const label = JSON.stringify(s);
-    if (p.cage !== 'antenna') wrong.push(label + ' -> cage ' + p.cage);
+    // A spelling may say which radio cage it is (cellular vs Wi-Fi); everything else must
+    // land on the antenna. Both are radios, and both must be a wireless-family cage.
+    const want = s.cage || 'antenna';
+    if (p.cage !== want) wrong.push(label + ' -> cage ' + p.cage);
     else if (p.family !== 'wireless') wrong.push(label + ' -> family ' + p.family);
   }
-  ok(wrong.length === 0, SPELLINGS.length + ' radio spellings all resolve to the antenna cage' +
+  ok(wrong.length === 0, SPELLINGS.length + ' radio spellings all resolve to a radio cage' +
     (wrong.length ? ': ' + wrong.join('; ') : ''));
   const one = hw({ name: 'wlan0', type: 'wireless', speed: '867M' });
   ok(one.cageName === 'Antenna', 'and the cage is named Antenna (' + one.cageName + '), not RJ45');
@@ -266,7 +272,7 @@ console.log('\nThe catalogue agrees:');
     const d = new Topology().addDevice(spec);
     for (const i of d.interfaces.values()) {
       const h = i.hardware;
-      if (h.cage === 'antenna') {
+      if (h.cage === 'antenna' || h.cage === 'wwan') {
         radios.push(spec.vendor + '/' + spec.model + '/' + i.name);
         if (!onlyWireless(h)) dirty.push(spec.vendor + '/' + spec.model + '/' + i.name + ' [' + h.media.join(',') + ']');
         // "Every radio declares the rate it runs at": one honest number, echoed by the
@@ -278,6 +284,8 @@ console.log('\nThe catalogue agrees:');
             JSON.stringify(caps) + ' max ' + h.maxSpeedMbps);
         }
       } else if (/^(wireless|radio|wifi|wi-fi|wlan|wwan|cellular|lte|nr5g|5g-nr)$/.test(String(i.type || '').toLowerCase())) {
+        // A radio type landing on a wired cage is the defect this rule names; a cellular
+        // type landing on a cellular cage is the rule working (issue #129).
         notRadios.push(spec.vendor + '/' + spec.model + '/' + i.name + ' (type ' + i.type + ' -> ' + h.cage + ')');
       }
     }

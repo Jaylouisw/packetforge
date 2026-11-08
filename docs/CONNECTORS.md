@@ -36,7 +36,7 @@ connect" are different mistakes. See section 4.
 
 ---
 
-## 2. The eighteen cages
+## 2. The nineteen cages
 
 Family is the value the engine reports in `port.hardware.family`. The
 `combo`, `coax`, `dsl`, `powerline` and `management` values are the
@@ -63,13 +63,21 @@ console / other.
 | `console` | Console | management | `console` only | `console-rs232` | 0.1152 (115200 baud) |
 | `usb` | USB | management | `usb`, `console` | `usb-console` | 12 |
 | `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
+| `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
-That is **18 cages**. `CAGES` is the authority; if you add one, this table and
+That is **19 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
+
+`wwan` is the odd one out: it mates with nothing at all, including itself. A cellular modem
+connects to a base station, not to a patch lead, so a lab with two 5G CPEs in it has two
+subscribers to a network neither of them contains — not a cable between them. It sits in the
+`wireless` family so it carries no power, and it is a separate cage from `antenna` so the
+link inspector can say which kind of radio a box has instead of calling every radio a Wi-Fi
+radio (issue #129).
 
 ### Reading the table
 
-- **`rj45` is not a synonym for "ethernet".** It is one cage among eighteen. A
+- **`rj45` is not a synonym for "ethernet".** It is one cage among nineteen. A
   10GBASE-T port is `rj45`; a 10GBASE-SR port is `sfp+`. Only the cage decides
   what plugs in.
 - **The SFP family intermates across rates.** `sfp`, `sfp+` and `sfp28` all mate

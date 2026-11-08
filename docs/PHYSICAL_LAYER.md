@@ -77,8 +77,8 @@ device declares the `poe-pse` capability.
 
 ## 2. Medium catalogue
 
-53 media across eight families (copper, fibre, DAC, coax, DSL, powerline,
-console, wireless), carried by 18 cages — see [CONNECTORS.md](CONNECTORS.md) for
+64 media across eight families (copper, fibre, DAC, coax, DSL, powerline,
+console, wireless), carried by 19 cages — see [CONNECTORS.md](CONNECTORS.md) for
 the cage-by-cage table. Selected highlights:
 
 | Family | Medium | Speed | Connector | Reach |
