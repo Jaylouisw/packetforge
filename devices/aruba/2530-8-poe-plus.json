@@ -1,0 +1,69 @@
+{
+  "vendor": "aruba",
+  "model": "2530-8-PoE+ (J9780A)",
+  "label": "Aruba 2530-8-PoE+ Switch (J9780A)",
+  "category": "switch",
+  "description": "Aruba 2530-8-PoE+ (J9780A) - 8x 10/100 PoE+ (802.3at Class 4, 67 W budget) plus 2 dual-personality ports that are either 1G RJ45 or 1G SFP. Fanless ArubaOS-Switch L2 access switch (ProVision ASIC).",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    { "name": "9", "type": "ethernet", "speed": "1G", "comboWith": "9-sfp", "comboRole": "rj45" },
+    { "name": "9-sfp", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000], "comboWith": "9", "comboRole": "sfp" },
+    { "name": "10", "type": "ethernet", "speed": "1G", "comboWith": "10-sfp", "comboRole": "rj45" },
+    { "name": "10-sfp", "type": "ethernet", "speed": "1G", "connector": "sfp", "speedCaps": [1000], "comboWith": "10", "comboRole": "sfp" }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111414",
+  "poe": {
+    "budgetW": 67,
+    "sourceUrl": "https://support.hpe.com/hpesc/public/api/document/c04111414",
+    "note": "J9780A: 67 W PoE budget across the 8 10/100 PoE+ ports."
+  }
+}
