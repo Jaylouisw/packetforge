@@ -1,0 +1,23 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UISP Fiber XGS",
+  "label": "Ubiquiti UISP Fiber XGS XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT with 1× Ethernet LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-ufiber-uisp-fiber-xgs/"
+}
