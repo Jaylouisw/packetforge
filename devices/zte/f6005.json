@@ -1,0 +1,36 @@
+{
+  "vendor": "zte",
+  "model": "F6005",
+  "label": "ZTE ZXHN F6005 GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (CIG G-97CP ODM, ITU-T G.984, 2.488 Gbit/s down / 1.244 Gbit/s up, SC/APC) with a single 2.5GBase-T LAN port and no Wi-Fi or POTS; Realtek RTL9601D running Linux (Luna SDK 1.9.0), managed over its web UI.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-zte-f6005/"
+}
