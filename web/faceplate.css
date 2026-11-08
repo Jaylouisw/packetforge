@@ -78,7 +78,7 @@
 }
 
 /* ---------- groups ---------- */
-.fp-groups { display: flex; flex-direction: column; gap: 11px; }
+.fp-groups { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
 
 .fp-group-head {
   display: flex;
@@ -114,11 +114,18 @@
  * A row is one physical row of sockets. Cells share the row width evenly
  * (minmax(0,1fr)) so twelve columns still fit the 340px inspector, while a short
  * fibre group simply gets wider cages — which is what the hardware does.
+ *
+ * The row width is chosen by web/faceplate.js from the measured label, not assumed:
+ * it emits fp-cols-N and data-columns="N" together. The numbers below are the ones
+ * its METRICS mirrors (padding 10px 12px, --fp-gap, .fp-port padding/border/font
+ * size), so changing one here means changing it there as well.
+ * test/faceplate-clipping.test.js reads this file and fails if they disagree.
  */
 .fp-row {
   display: grid;
   gap: var(--fp-gap);
   margin-bottom: var(--fp-gap);
+  min-width: 0;
 }
 .fp-row:last-child { margin-bottom: 0; }
 
@@ -142,6 +149,7 @@
   align-items: flex-end;
   justify-content: center;
   height: var(--fp-cell-h);
+  /* these four numbers are mirrored by METRICS in web/faceplate.js */
   padding: 0 2px 2px;
   /* dark recess: the hole in the panel, with the family tint on its lip */
   background: #0b0f16;
@@ -153,6 +161,7 @@
   line-height: 1;
   cursor: pointer;
   user-select: none;
+  min-width: 0;
   overflow: hidden;
   transition: border-color 0.12s, background 0.12s;
 }
@@ -182,8 +191,20 @@
 }
 .fp-port:active { background: #1a2331; }
 
+/* The label. Issue #26: with overflow:hidden and no ellipsis, a label that did not fit
+ * was simply cut off at the cell edge — through the middle of a glyph — and if it broke
+ * at a hyphen it wrapped instead, where the cell's fixed height hid the second line.
+ * Either way the port number stopped being readable. The layout now picks a row width
+ * the text fits; this is the belt to the layout's braces: a label can only ever end in
+ * an ellipsis. */
 .fp-port-name {
   position: relative;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -271,6 +292,8 @@
 }
 
 @media (max-width: 420px) {
+  /* A narrower panel gets a smaller font and a tighter gap, so every cell gains room
+   * relative to the 9px/3px the layout assumes. The estimate stays conservative. */
   .faceplate { --fp-gap: 2px; --fp-cell-h: 24px; padding: 8px; }
   .fp-port { font-size: 8px; }
 }
