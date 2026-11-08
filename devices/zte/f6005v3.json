@@ -1,0 +1,37 @@
+{
+  "vendor": "zte",
+  "model": "F6005v3",
+  "label": "ZTE F6005v3 GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (ZTE ZX279133 dual-core A53 SoC, 2.488 Gbit/s down / 1.244 Gbit/s up, SC/APC) with a single 2.5GBase-T LAN port and no Wi-Fi or POTS; Customized ZTE Linux, managed over its web UI or telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-zte-f6005v3/"
+}
