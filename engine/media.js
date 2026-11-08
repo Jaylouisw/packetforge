@@ -227,7 +227,15 @@ const MEDIA = {
   '1000base-t-sfp': { name: '1000BASE-T SFP', family: 'copper', connector: 'sfp', speedMbps: 1000, maxRangeM: 100, cable: 'cat5e', poe: false },
 
   // ---- console / serial ----
-  'console-rs232': { name: 'Console (RS-232)', family: 'console', connector: 'console', speedMbps: 0.1152, maxRangeM: 15 },
+  // A console port is not a data path and does not have a "line rate" - it has a baud rate,
+  // and the baud rate is the thing that actually goes wrong. 9600 is the default on most
+  // network hardware and 115200 is what everyone sets it to; a cable between a 9600 port and a
+  // 115200 port is a real, common, silent failure, so each baud is its own medium.
+  'console-rs232':      { name: 'Console (RS-232, 115200 baud)', family: 'console', connector: 'console', speedMbps: 0.1152, maxRangeM: 15, baud: 115200 },
+  'console-rs232-57600': { name: 'Console (RS-232, 57600 baud)',  family: 'console', connector: 'console', speedMbps: 0.0576, maxRangeM: 15, baud: 57600 },
+  'console-rs232-38400': { name: 'Console (RS-232, 38400 baud)',  family: 'console', connector: 'console', speedMbps: 0.0384, maxRangeM: 15, baud: 38400 },
+  'console-rs232-19200': { name: 'Console (RS-232, 19200 baud)',  family: 'console', connector: 'console', speedMbps: 0.0192, maxRangeM: 15, baud: 19200 },
+  'console-rs232-9600':  { name: 'Console (RS-232, 9600 baud)',   family: 'console', connector: 'console', speedMbps: 0.0096, maxRangeM: 15, baud: 9600 },
   'usb-console': { name: 'USB Console', family: 'console', connector: 'usb', speedMbps: 12, maxRangeM: 5 },
 
   // ---- wireless ----
@@ -597,7 +605,9 @@ const CAGE_MEDIA = {
     if (maxMbps >= 2500) out.push('ghn-25');
     return out;
   },
-  console: function () { return ['console-rs232']; },
+  console: function () {
+    return ['console-rs232', 'console-rs232-57600', 'console-rs232-38400', 'console-rs232-19200', 'console-rs232-9600'];
+  },
   usb: function () { return ['usb-console']; },
   // A radio carries bands, not a cable (issue #77). There is no copper here and no
   // optic: the medium is the band set its generation covers, and the generation follows
@@ -709,7 +719,7 @@ const CAGE_SPEEDS = {
     // negotiating 2500M because this list ignored maxMbps.
     return [200, 1000, 1700, 2500].filter(function (v) { return v <= maxMbps; });
   },
-  console: function () { return [0.1152]; },
+  console: function () { return [0.0096, 0.0192, 0.0384, 0.0576, 0.1152]; },
   usb: function () { return [12]; },
   // A radio has no autonegotiation ladder: it runs at the rate the interface declares
   // and at nothing else. The 10/100/1000 rungs belong to an RJ45 cage, and offering
@@ -846,11 +856,36 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   // A port's declared speedCaps are what it can actually train at; `speed` is the label on the
   // box. Fibre Channel makes the difference visible: a "32G" FC port runs at 28.05 Gbit/s, so
   // taking the label as the rate would claim 32000 Mbps on a 28050 Mbps cage.
-  const capMbps = (Array.isArray(spec.speedCaps) ? spec.speedCaps : [])
+  let capMbps = (Array.isArray(spec.speedCaps) ? spec.speedCaps : [])
     .map(function (c) { return typeof c === 'number' ? c : parseSpeedMbps(c); })
     .filter(function (n) { return typeof n === 'number' && isFinite(n) && n > 0; });
-  const maxMbps = capMbps.length ? Math.max.apply(null, capMbps)
-    : (parseSpeedMbps(spec.speed) || 1000);
+  // A console port has a baud rate, and a spec author writes `baud: 115200`, not 0.1152 Mbps -
+  // nobody thinks of RS-232 in megabits. Accepting the number in its own unit is the difference
+  // between a spec that reads like a datasheet and one that quietly offers no medium at all when
+  // the author writes 9600 and the engine hears 9600 Mbps. An explicit speedCaps in Mbps still
+  // wins, because that field is unambiguous.
+  if (!capMbps.length && spec.baud !== undefined && spec.baud !== null) {
+    const baudList = Array.isArray(spec.baud) ? spec.baud : [spec.baud];
+    capMbps = baudList.map(function (b) { return Number(b) / 1000000; })
+      .filter(function (n) { return isFinite(n) && n > 0; });
+  }
+  // With no caps and no label, the rate is whatever the cage can carry. The old fallback was a
+  // flat 1000 Mbps, which gave every console port in the catalogue a gigabit it could never run
+  // and 84 coax ports a rate their medium does not have: a console cage carries 9600 baud to
+  // 115200, and asking for a gigabit on one is a modelling error, not a fast port.
+  //
+  // The cage is resolved from the spec here rather than from `cage` below, because `cage` is what
+  // inferCage() computes FROM this rate - asking the cage for its rates before that would be
+  // circular. A spec that names its connector ('console', 'coax', 'sc-apc') has enough to answer.
+  const cageRatesForDefault = (function () {
+    const named = CAGE_ALIAS[String(spec.cage || spec.connector || '')] || String(spec.cage || spec.connector || '');
+    const fn = CAGE_SPEEDS[named];
+    if (!fn) return [];
+    try { return fn(parseSpeedMbps(spec.speed) || 1000) || []; } catch (e) { return []; }
+  })();
+  let maxMbps = capMbps.length ? Math.max.apply(null, capMbps)
+    : (parseSpeedMbps(spec.speed)
+      || (cageRatesForDefault.length ? Math.max.apply(null, cageRatesForDefault) : 1000));
   let cage = String(spec.cage || spec.connector || inferCage(spec, maxMbps));
 
   // A handful of spec authors write the bare fibre token ('lc') because that is what
@@ -871,6 +906,13 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   const cageDef = known ? CAGES[cage]
     : { name: cage, family: 'unknown', label: cage + ' (not a modelled connector)' };
   let media = known ? (CAGE_MEDIA[cage] || CAGE_MEDIA.rj45)(maxMbps) : [];
+  // A spec that names neither caps nor a rate is now given the cage's own top speed, computed
+  // here because only here is the cage known: a port listing just its type ("console", "serial")
+  // used to take the flat 1000 Mbps fallback and advertise a gigabit on a 115200 baud cage.
+  if (!capMbps.length && !parseSpeedMbps(spec.speed) && known) {
+    const ladder = (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) || [];
+    if (ladder.length) maxMbps = Math.max.apply(null, ladder);
+  }
   let speeds = known ? (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) : [];
 
   // Belt and braces. A cage table that forgets to filter by maxMbps is exactly how a
@@ -929,7 +971,9 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     cageName: cageDef.name,
     family: cageDef.family,
     media: media,
-    speedCaps: (hw.speedCaps || spec.speedCaps || speeds).slice(),
+    // A port that stated its rate - in speedCaps or in baud - keeps it. Falling back to the cage
+    // ladder here is what silently widened a 9600-baud console into a 115200 one.
+    speedCaps: (hw.speedCaps || (capMbps.length ? capMbps : speeds)).slice(),
     maxSpeedMbps: maxMbps,
     // PoE
     poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null),
@@ -1170,6 +1214,31 @@ function canMate(pa, pb) {
       return { ok: false, code: 'E_WIRELESS_TO_WIRED', message: 'A wireless radio cannot be cabled to a wired port.' };
     }
   }
+  // Out-of-band before in-band: a console port is not a data port, and "these connectors do not
+  // fit" is a worse explanation than "this is a management console". A USB console talking to a
+  // USB console still mates, so this only fires when exactly one side is console-only.
+  function consoleOnly(hw) {
+    const list = (hw && hw.media) || [];
+    if (!list.length) {
+      // A console port with no medium at all is still a console port: the cage says so, and
+      // that is what lets the refusal below explain the baud rate instead of the connector.
+      return !!hw && (hw.cage === 'console' || hw.cage === 'usb');
+    }
+    return list.every(function (id) {
+      const d = MEDIA[id];
+      return d && (d.family === 'console' || d.family === 'management');
+    });
+  }
+  if (consoleOnly(pa) !== consoleOnly(pb) && !(consoleOnly(pa) && consoleOnly(pb))) {
+    const c = consoleOnly(pa) ? pa : pb;
+    const o = consoleOnly(pa) ? pb : pa;
+    return {
+      ok: false, code: 'E_PROTOCOL_MISMATCH',
+      message: c.cageName + ' is an out-of-band management console and ' + o.cageName +
+        ' is a data port. A console link carries an operator typing at a baud rate, not frames ' +
+        'from a network stack, so nothing routable ever crosses it. Cable the data port instead.'
+    };
+  }
   if (!cagesMate(pa.cage, pb.cage)) {
     if (polishMismatch(pa.cage, pb.cage)) {
       const fa = ferrule(pa.cage), fb = ferrule(pb.cage);
@@ -1186,6 +1255,30 @@ function canMate(pa, pb) {
       ok: false, code: 'E_CONNECTOR_MISMATCH',
       message: 'Cannot mate ' + pa.cageName + ' to ' + pb.cageName + ' (incompatible connectors).'
     };
+  }
+  // Two console ports that share no baud rate: the cable fits, both ends are consoles, and every
+  // character arrives as noise. Asked of the ports' declared rates rather than of commonMedia(),
+  // because that intersects what the *cage* offers - both ends would appear to speak 9600 and the
+  // link would come up "successfully" only to fail negotiation with a message about speed.
+  if (consoleOnly(pa) && consoleOnly(pb)) {
+    const baudSet = function (hw) {
+      const fromCaps = ((hw && hw.speedCaps) || [])
+        .map(function (n) { return Math.round(Number(n) * 1000000); })
+        .filter(function (n) { return isFinite(n) && n > 0; });
+      if (fromCaps.length) return fromCaps;
+      return ((hw && hw.media) || []).map(function (id) { return MEDIA[id] && MEDIA[id].baud; })
+        .filter(Boolean);
+    };
+    const ba = baudSet(pa), bb = baudSet(pb);
+    if (ba.length && bb.length && !ba.some(function (n) { return bb.indexOf(n) !== -1; })) {
+      return {
+        ok: false, code: 'E_BAUD_MISMATCH',
+        message: pa.cageName + ' runs at ' + ba.join('/') + ' baud and ' + pb.cageName +
+          ' runs at ' + bb.join('/') + ' baud. No shared baud rate means the link comes up and ' +
+          'every character arrives as noise - the classic console failure. Set both ends to ' +
+          'the same speed.'
+      };
+    }
   }
   const media = commonMedia(pa, pb);
   if (!media.length) {

@@ -2,6 +2,14 @@
 
 ### Added
 
+- **Console ports have a baud rate, not a line rate** (#979). Five RS-232 rates (9600/19200/38400/
+  57600/115200) are separate media, a spec states `baud: 115200`, and a multi-baud port negotiates
+  **down** to the highest rate both ends share. A 9600-to-115200 cable now refuses with
+  `E_BAUD_MISMATCH` naming both rates instead of "no shared medium", and a console cabled to a data
+  port refuses with `E_PROTOCOL_MISMATCH` explaining that a console is out-of-band.
+
+### Added
+
 - **Fibre Channel is a first-class link type** (#980). Four FC cages (`fc-sfp`, `fc-sfp28`,
   `fc-sfpdd`, `fc-qsfp28`), sixteen FC media across 2/4/8/10/16/32/64/128G, and the real rate
   ladder: a 32G port runs at 28.05 Gbit/s and a 64G port at 57.8, because FC frames its payload.
@@ -14,6 +22,13 @@
 
 ### Fixed
 
+- **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
+  ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
+  115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer
+  widens a 9600-baud port to the whole five-rate ladder.
+- **Console ports were exempt from the cage-rate invariant**, which is how those 163 ports stayed
+  green. The exemption is gone; "slow is correct" (DSL, PON, console) still excuses a low rate, and
+  the overreach check now runs on console ports like any other.
 - `derivePortHardware` took a port's line rate from its `speed` label instead of its `speedCaps`.
   Where the two disagree the caps are the truth, and on `qlogic/5800V` the disagreement was a real
   one: 32G of FC claimed as 32000 Mbps on a 28050 Mbps port.

@@ -13,8 +13,7 @@
   "interfaces": [
     {
       "name": "serial1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     },
     {
       "name": "net1",

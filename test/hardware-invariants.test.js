@@ -193,12 +193,15 @@ console.log('\nCages and media agree with each other:');
       const caps = i.hardware.speedCaps;
       if (!caps || !caps.length) continue;
       if (!i.hardware.media) continue;
-      // A port with an empty media list has no medium at all in the model - serial and
-      // console ports today (240 of them declare "1G" caps on a 115 kb/s cage). That is a
-      // modelling gap in its own right, not a cage carrying more than it can: nothing can be
-      // cabled to these ports at any rate. Issue #979 tracks it.
+      // A port with an empty media list has no medium at all in the model: nothing can be cabled
+      // to it at any rate. That is a gap of its own, and it is skipped here only because this
+      // check is about rates rather than cabling. Issue #1039 tracks the 84 remaining coax ports
+      // (a CMTS port declaring 100 Mbps shares no rate with a 38 Mbps DOCSIS channel), and
+      // test/wired-port-has-media.test.js is the check that owns this question.
       if (!i.hardware.media.length) continue;
-      if (isConsoleOnly(i.hardware)) continue;
+      // Console ports used to be skipped outright here, which is how 163 of them carried a
+      // gigabit (and later 100 Mbps) on a 115.2 kbps cage through a green suite. They are checked
+      // now: a USB console runs at 12 Mbps and an RS-232 one at 0.1152, and both fit their cage.
       // NOTE: speedCaps are whatever the spec wrote - often "10G"/"1G" strings. The old
       // Math.max.apply(null, caps) therefore returned NaN for those, and every comparison
       // against NaN is false, so a port that declared its caps as text was never checked at
@@ -225,7 +228,11 @@ console.log('\nCages and media agree with each other:');
       // ADSL at 8. Flagging that as a defect would push contributors to inflate the
       // one number a DSLAM must state honestly. PON is exempt for the same reason
       // in reverse - its rates are asymmetric and fine-grained.
-      const slowIsCorrect = i.hardware.cage === 'dsl' || i.hardware.cage === 'pon';
+      // A console is legitimately slow: 9600 baud to 115200 is the whole point of the port, so
+      // it joins DSL and PON in the "slow is correct" set. That excuses the rate being LOW; it
+      // does not excuse it being wrong, which is why the console skip below is gone.
+      const slowIsCorrect = i.hardware.cage === 'dsl' || i.hardware.cage === 'pon' ||
+        i.hardware.cage === 'console' || i.hardware.cage === 'serial';
       // A radio is not a cage. A HughesNet terminal's 25 Mbit/s downlink is the
       // honest number and a Wi-Fi 4 radio's 300 Mbit/s is not a 1G claim - this
       // check exists to stop a WIRED cage being understated, so it does not

@@ -784,3 +784,44 @@ socket to socket instead of being erased for that span. If you add a medium to
 `engine/media.js`, give it a rule in `MEDIUM_RULES` (`web/canvas.js`) and a stroke in
 `web/style.css`, or it will draw in the neutral default and `test/canvas-cables.test.js`
 will tell you so.
+
+## Console and serial cables
+
+A console port is not a data port: it has a **baud rate**, not a line rate, and the baud rate is
+the thing that actually goes wrong. PacketForge models each standard rate as its own medium, so a
+mismatched pair refuses with a reason an operator can act on:
+
+| Medium | Rate |
+|---|---|
+| `console-rs232-9600` | 9,600 baud (0.0096 Mbps) |
+| `console-rs232-19200` | 19,200 baud |
+| `console-rs232-38400` | 38,400 baud |
+| `console-rs232-57600` | 57,600 baud |
+| `console-rs232` | 115,200 baud (the default everyone sets) |
+| `usb-console` | USB CDC-ACM console |
+
+```js
+canMate(baud9600, baud115200)
+// { ok: false, code: 'E_BAUD_MISMATCH',
+//   message: 'Console runs at 9600 baud and Console runs at 115200 baud. No shared baud rate
+//             means the link comes up and every character arrives as noise - the classic
+//             console failure. Set both ends to the same speed.' }
+```
+
+A multi-baud console (the ladder in `speedCaps` or `baud: [9600, 115200]`) negotiates **down** to
+the highest rate both ends share, so a 9600-only terminal links to a 115200 switch at 9600 rather
+than pretending to run at 115200.
+
+A console port cabled to a data port refuses with `E_PROTOCOL_MISMATCH`: the connectors may be
+different shapes, but the more useful explanation is that a console carries an operator typing
+rather than frames from a network stack.
+
+Specs state the rate the way a datasheet does, in baud:
+
+```json
+{ "name": "console", "type": "console", "connector": "console", "baud": 115200 }
+```
+
+A spec that names nothing but its type gets the cage's own top rate (115,200 baud), not a
+gigabit — a default line rate of 1000 Mbps used to make every console port in the catalogue claim
+a rate its medium could never carry.

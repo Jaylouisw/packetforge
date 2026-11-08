@@ -18,8 +18,7 @@
     },
     {
       "name": "console1",
-      "type": "console",
-      "speed": "100M"
+      "type": "console"
     }
   ],
   "sourceUrl": "https://www.raritan.com/assets/ram/resources/data_sheets/dominion-kx-iv-101-datasheet.pdf",
