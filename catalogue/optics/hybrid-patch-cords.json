@@ -1,0 +1,419 @@
+[
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-upc-apc-fs-smscsx",
+    "partNumber": "SMSCSX",
+    "vendor": "FS.com",
+    "model": "FS SMSCSX fiber patch cable, 1 fiber, SC/UPC simplex to SC/APC simplex, OS2 9/125um, 2.0mm, riser (OFNR)",
+    "endA": "sc-upc",
+    "endB": "sc-apc",
+    "connector": "sc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "G.657.A1 (compatible with G.652.D)",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      1,
+      2,
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.fs.com/products/96103.html",
+    "note": "The reference part for the issue #18 case: SC/UPC (flat, blue) on one end, SC/APC (8 degree, green) on the other, one factory assembly. FS datasheet states connector insertion loss SMF <=0.3 dB, return loss UPC >=50 dB / APC >=60 dB. Stocked 1/2/3 m (SKU 96103/96104/96105), custom lengths to order (96106)."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-upc-apc-3m-adaep",
+    "partNumber": "ADAEP-ARYL003",
+    "vendor": "3M",
+    "model": "3M singlemode patch cord SC/UPC-SC/APC, A2/B2 bend-insensitive, simplex, OFNR, 1.6mm jacket, yellow, 3 m",
+    "endA": "sc-upc",
+    "endB": "sc-apc",
+    "connector": "sc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "G.657.A2/B2 (backward compatible with G.652.D)",
+    "jacket": "OFNR riser, 1.6mm",
+    "lengthM": [
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-typical",
+    "returnLossDb": {
+      "upc": 45,
+      "apc": 65
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://multimedia.3m.com/mws/media/1090868O/3m-fiber-optic-patch-cords-and-pigtails-data-sheet.pdf",
+    "note": "Same family in 1/3/5/10 m: ADAEP-ARYL001/003/005/010. 3M quotes attenuation 0.3 dB per connector typical singlmode and reflection -45 dB SC/UPC, -65 dB SC/APC typical. Typical rather than max, so budget the ceiling from another vendor if you need a worst case."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-upc-apc-siemon-fj1",
+    "partNumber": "FJ1-SCUSCAL-03P",
+    "vendor": "Siemon",
+    "model": "Siemon XGLO singlemode SC UPC to SC APC yellow simplex jumper, riser (OFNR), 3 m",
+    "endA": "sc-upc",
+    "endB": "sc-apc",
+    "connector": "sc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "OS1/OS2 G.657.A2/B2",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      3
+    ],
+    "insertionLossDb": 0.4,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 55,
+      "apc": 65
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1550
+    ],
+    "sourceUrl": "https://files.siemon.com/en/specsheet/siemon-xglo-simplex-singlemode-lc-and-sc-jumpers_spec-sheet.pdf",
+    "note": "Order code (XX) sets length: 01/02/03/05/10 m; use P for riser, H for LSOH (FJ1-SCUSCAL-03H). Siemon publishes max insertion loss 0.40 dB (0.15 typical APC, 0.10 typical UPC) and min return loss 65 dB APC / 55 dB UPC. One of the few vendors that publishes a max rather than a typical."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-apc-upc-lcom",
+    "partNumber": "FCA-S2SR-SCASCU-02M",
+    "vendor": "L-com",
+    "model": "L-com SC/APC to SC/UPC 9/125um singlemode simplex fiber patch cable, riser, OS2, 2 m",
+    "endA": "sc-apc",
+    "endB": "sc-upc",
+    "connector": "sc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "OS2 9/125um",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      2
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.l-com.com/sc-apc-sc-upc-9-125-single-mode-simplex-fiber-patch-cable-os2-2-meter-fca-s2sr-scascu-02m",
+    "note": "L-com lists the part APC-end-first (A = APC, B = UPC); the engine ignores argument order, so hybridCord('sc-upc','sc-apc') finds it either way. Whole FCA-S2SR family is 01M/02M/03M/05M/10M/15M. L-com's assembly datasheets state insertion loss 0.3 dB max and return loss >=60 dB on APC builds / >=50 dB on UPC builds; the SKU page states only that each assembly is 100% tested for insertion loss."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-upc-apc-commscope-ocj",
+    "partNumber": "OCJ-S1-05MASIA-S2",
+    "vendor": "CommScope",
+    "model": "CommScope OCJ fiber optic patch cord, simplex, singlemode, SC/UPC to SC/APC, yellow, 5 m (base product code 2160363-5)",
+    "endA": "sc-upc",
+    "endB": "sc-apc",
+    "connector": "sc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "ITU-T G.657.A1",
+    "jacket": "LSZH, yellow",
+    "lengthM": [
+      5
+    ],
+    "insertionLossDb": 0.5,
+    "insertionLossBasis": "iec-61755-1-grade-c-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1550
+    ],
+    "sourceUrl": "https://www.commscope.com/product-type/cable-assemblies/fiber-cable-assemblies/fiber-patch-cords/item2160363-5/",
+    "note": "The one part here from a tier-1 OSP vendor, and the one whose loss is quoted as a grade rather than a number: CommScope builds OCJ against IEC 61755-1 Grade C as standard and Grade B on request. Grade C ceiling is 0.50 dB per connector and Grade B 0.25 dB, so the 0.5 above is the standard-grade ceiling, not a measured figure. OCJ lengths run 1-30 m. Supplier part number is the base code 2160363-5; OCJ-S1-05MASIA-S2 is the orderable suffix."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-upc-apc-fs-smlcsx",
+    "partNumber": "SMLCSX",
+    "vendor": "FS.com",
+    "model": "FS SMLCSX fiber patch cable, 1 fiber, LC/UPC simplex to LC/APC simplex, OS2 9/125um, 2.0mm, riser (OFNR)",
+    "endA": "lc-upc",
+    "endB": "lc-apc",
+    "connector": "lc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "G.657.A1 (compatible with G.652.D)",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      1,
+      2,
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.fs.com/products/123906.html",
+    "note": "LC equivalent of SMSCSX, for SFP/SFP+ PON ports (some OLT and ONT modules are LC) meeting an APC ODN. Same <=0.3 dB connector IL, UPC >=50 dB / APC >=60 dB return loss, stocked 1/2/3 m, longer to order."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-upc-apc-siemon-fj1",
+    "partNumber": "FJ1-LCALCUL-03P",
+    "vendor": "Siemon",
+    "model": "Siemon XGLO singlemode LC APC to LC UPC yellow simplex jumper, riser (OFNR), 3 m",
+    "endA": "lc-apc",
+    "endB": "lc-upc",
+    "connector": "lc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "OS1/OS2 G.657.A2/B2",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      3
+    ],
+    "insertionLossDb": 0.4,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 55,
+      "apc": 65
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1550
+    ],
+    "sourceUrl": "https://files.siemon.com/en/specsheet/siemon-xglo-simplex-singlemode-lc-and-sc-jumpers_spec-sheet.pdf",
+    "note": "Siemon catalogue spells the hybrid LC code LCALCUL (APC end first). Riser P, LSOH H, lengths 01/02/03/05/10 m. Same 0.40 dB max / 65 dB APC, 55 dB UPC return loss as the SC version."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-duplex-upc-apc-fs-smlcdx",
+    "partNumber": "SMLCDX",
+    "vendor": "FS.com",
+    "model": "FS SMLCDX fiber patch cable, 2 fibers, LC/UPC duplex to LC/APC duplex, OS2 9/125um, 2.0mm, riser (OFNR)",
+    "endA": "lc-upc",
+    "endB": "lc-apc",
+    "connector": "lc",
+    "duplex": true,
+    "fiber": "smf",
+    "fiberGrade": "G.657.A1 (compatible with G.652.D)",
+    "jacket": "OFNR riser, zipcord",
+    "lengthM": [
+      1,
+      2,
+      3
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.fs.com/products/177395.html",
+    "note": "Duplex hybrid: both fibres carry one UPC end and one APC end, so a Tx/Rx pair crosses the polish change together and polarity stays straight-through. 1 m is SKU 177395, 2 m 151409, 3 m 151410, custom 151417. Charge the loss per fibre, not per cord."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-duplex-apc-upc-lcom",
+    "partNumber": "FCA-LALU-DPS2Z-05",
+    "vendor": "L-com",
+    "model": "L-com LC/APC to LC/UPC duplex 9/125um singlemode OS2 LSZH fiber patch cable, 5 m",
+    "endA": "lc-apc",
+    "endB": "lc-upc",
+    "connector": "lc",
+    "duplex": true,
+    "fiber": "smf",
+    "fiberGrade": "OS2 9/125um",
+    "jacket": "LSZH",
+    "lengthM": [
+      5
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.l-com.com/fiber-optic-patch-cable-lc-apc-lc-upc-duplex-9-125-single-mode-os2-lszh-5-meter-fca-lalu-dps2z-05",
+    "note": "SKU pattern FCA-LALU-DPS2Z-<len>: LA = LC/APC, LU = LC/UPC, D = duplex, P2 = 2.0mm, Z = LSZH (P = plenum). The same family in 1/2/3/10/15 m. Useful where a duplex LC PON uplink meets an APC patch field."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-duplex-apc-upc-panduit",
+    "partNumber": "F923RANSNSNM001",
+    "vendor": "Panduit",
+    "model": "Panduit Opti-Core 2 fiber OS2, SC/APC duplex to SC/UPC duplex, 3mm jacket, riser (OFNR), 1 m",
+    "endA": "sc-apc",
+    "endB": "sc-upc",
+    "connector": "sc",
+    "duplex": true,
+    "fiber": "smf",
+    "fiberGrade": "OS2 9/125um",
+    "jacket": "OFNR riser, 3.0mm",
+    "lengthM": [
+      1
+    ],
+    "insertionLossDb": 0.5,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": true,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1550
+    ],
+    "sourceUrl": "https://www.panduit.com/en/products/fiber-optic-systems/fiber-optic-cable-assemblies/fiber-optic-interconnects-patch-cords-pigtails/f923ransnsnm001.html",
+    "note": "Panduit product page lists Connector 1 SC-APC Duplex and Connector 2 SC Duplex (SC with no polish letter is UPC in Panduit's scheme), 2 fibers, 3.0mm riser. Panduit Opti-Core standard IL is 0.50 dB max per connector for SC OS2 (0.25 dB for LC OS2), so this is the worst of the SC hybrids here - worth knowing before it lands in a 28 dB budget."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-sc-apc-lc-upc-duplex-lcom",
+    "partNumber": "FCA-SALU-DPS2P-02",
+    "vendor": "L-com",
+    "model": "L-com SC/APC to LC/UPC duplex 9/125um singlemode OS2 OFNP fiber patch cable, 2 m",
+    "endA": "sc-apc",
+    "endB": "lc-upc",
+    "connector": "sc",
+    "duplex": true,
+    "fiber": "smf",
+    "fiberGrade": "OS2 9/125um",
+    "jacket": "OFNP plenum",
+    "lengthM": [
+      2
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": false,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://www.l-com.com/fiber-optic-patch-cable-sc-apc-lc-upc-duplex-9-125-single-mode-os2-ofnp-2-meter-fca-salu-dps2p-02",
+    "note": "Shape hybrid AND polish hybrid: SC/APC on one end, LC/UPC on the other. Catalogue it because it is a real purchasable assembly, but polishBridge is false: a cord cannot convert a 2.5mm ferrule to a 1.25mm one, and the engine models that as E_CONNECTOR_MISMATCH, not as a polish bridge. The field answer is an LC pass-through panel and two cords."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-apc-sc-upc-corning",
+    "partNumber": "F225801G1Z20007M",
+    "vendor": "Corning",
+    "model": "Corning Basic 2.0mm 1 fiber patch cord, SMF-28 Ultra, single-mode, CPR Dca, LC APC simplex to SC UPC simplex, 7 m",
+    "endA": "lc-apc",
+    "endB": "sc-upc",
+    "connector": "lc",
+    "duplex": false,
+    "fiber": "smf",
+    "fiberGrade": "ITU-T G.657.A1 / G.652.D",
+    "jacket": "LSZH/FRNC, Dca",
+    "lengthM": [
+      7
+    ],
+    "insertionLossDb": 0.25,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 45,
+      "apc": 60
+    },
+    "polishBridge": false,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1550
+    ],
+    "sourceUrl": "https://ecatalog.corning.com/optical-communications/EMEA/en/Fiber-Optic-Cable-Assemblies/Indoor-Cable-Assemblies/Simplex-Indoor-Cable-Assemblies/Basic-2-0-mm-1-Fiber-Patch-Cord/p/F225801G1Z20007M",
+    "note": "Corning's per-connector spec sheet is the most complete of the set: insertion loss max 0.25 dB at both ends, reflectance <=-60 dB APC and <=-45 dB UPC, 500/1000 remating durability, CPR Dca jacket. Shape hybrid again (LC APC to SC UPC), so polishBridge is false and the engine will not use it to rescue a mismatch. Corning's part number encodes both ends and the length, so variants are separate orderable numbers."
+  },
+  {
+    "kind": "patch-cord",
+    "id": "patch-cord-hybrid-lc-upc-sc-apc-duplex-tripplite",
+    "partNumber": "N366-02M-AP",
+    "vendor": "Eaton Tripp Lite",
+    "model": "Tripp Lite duplex singlemode 9/125 fiber patch cable, LC/UPC to SC/APC, 2 m (6 ft)",
+    "endA": "lc-upc",
+    "endB": "sc-apc",
+    "connector": "lc",
+    "duplex": true,
+    "fiber": "smf",
+    "fiberGrade": "OS2 9/125um",
+    "jacket": "OFNR riser",
+    "lengthM": [
+      2
+    ],
+    "insertionLossDb": 0.3,
+    "insertionLossBasis": "per-connector-max",
+    "returnLossDb": {
+      "upc": 50,
+      "apc": 60
+    },
+    "polishBridge": false,
+    "bidirectional": true,
+    "wavelengthNm": [
+      1310,
+      1490,
+      1550
+    ],
+    "sourceUrl": "https://assets.tripplite.com/product-pdfs/en/n36602map.pdf",
+    "note": "LC/UPC (blue) to SC/APC (green) duplex, 2 m, 0.30 dB insertion loss on the datasheet. Shape hybrid, so catalogued but polishBridge false. Good example of why the part number suffix matters: N366-02M is the UPC/UPC version of the same cable."
+  }
+]
