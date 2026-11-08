@@ -1,0 +1,20 @@
+{
+  "vendor": "samsung",
+  "model": "SmartThings Station (EP-P9500)",
+  "label": "Samsung SmartThings Station hub and wireless charger",
+  "category": "iot",
+  "description": "SmartThings Station is a 15 W Qi wireless charger that doubles as a SmartThings hub with Matter support and built-in Thread, Zigbee and BLE 5.2 radios. It has no Ethernet and no PoE - the only network interface is dual-band 802.11 a/b/g/n/ac Wi-Fi in infrastructure mode at 2.4 or 5 GHz.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://www.samsung.com/sec/support/model/EP-P9500TBEGKR/"
+}

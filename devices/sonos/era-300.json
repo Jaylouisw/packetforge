@@ -1,0 +1,20 @@
+{
+  "vendor": "sonos",
+  "model": "Era 300",
+  "label": "Sonos Era 300 spatial-audio smart speaker",
+  "category": "iot",
+  "description": "Sonos Era 300 is a six-driver spatial-audio speaker with Dolby Atmos support, Sonos voice control, AirPlay 2 and Bluetooth 5.3. Networking is Wi-Fi only: Wi-Fi 6 on 802.11 a/b/g/n/ac/ax at 2.4 and 5 GHz; the speaker has no RJ45 jack, and Ethernet is reachable only through the sold-separately Sonos USB-C Combo Adapter, so treat it as a wireless client.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.sonos.com/en-us/shop/era-300"
+}

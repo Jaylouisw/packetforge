@@ -1,0 +1,56 @@
+{
+  "vendor": "cudy",
+  "model": "P5",
+  "label": "Cudy P5 5G AX3000 Wi-Fi 6 router",
+  "category": "router",
+  "description": "Cudy P5 2.0, a 5G Rel.16 CPE on the Snapdragon X62 rated 3.4 Gbps downlink in NSA and 2.4 Gbps in SA, with LTE Cat 19 fallback. Four Gigabit Ethernet ports (WAN/LAN switchable) and 4-stream Wi-Fi 6 at 2402 + 574 Mbps; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "sourceUrl": "https://www.cudy.com/products/p5-2-0"
+}

@@ -1,0 +1,18 @@
+{
+  "vendor": "sierra-wireless",
+  "model": "EM9191",
+  "label": "Sierra Wireless EM9191 5G NR sub-6 M.2 module",
+  "category": "modem",
+  "description": "5G NR sub-6 GHz M.2 module (3GPP Rel.15, LTE Cat 20 fallback) with a 4.5 Gbps down / 660 Mbps up peak; mmWave needs the sibling EM9190. No Ethernet port exists on the module, so its host data path is modelled as wan5g.",
+  "capabilities": [
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.sierrawireless.com/iot-modules/5g-modules/em9191/"
+}

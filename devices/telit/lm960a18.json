@@ -1,0 +1,18 @@
+{
+  "vendor": "telit",
+  "model": "LM960A18",
+  "label": "Telit LM960A18 LTE Cat 18 mini PCIe card",
+  "category": "modem",
+  "description": "LTE Cat 18 mini PCIe data card at 1.2 Gbps down / 150 Mbps up with up to 5x downlink carrier aggregation and 4x4 MIMO, band 48 (CBRS) included. It has no connectors of its own, so the host data path is modelled as wan5g.",
+  "capabilities": [
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.telit.com/wp-content/uploads/2024/10/TC_LM960A18_Product_Brief.pdf"
+}

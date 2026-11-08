@@ -1,0 +1,26 @@
+{
+  "vendor": "hubitat",
+  "model": "Elevation C-8",
+  "label": "Hubitat Elevation C-8 home automation hub",
+  "category": "iot",
+  "description": "Hubitat Elevation C-8 is a local automation hub with Zigbee 3.0, Z-Wave 800, Matter and Bluetooth radios plus its own web administration interface. It is dual-homed on the IP side - a 10/100 RJ45 Ethernet port and built-in 2.4 GHz Wi-Fi (C-8 and later) - and Hubitat explicitly warns that the hub does not support PoE, so the Ethernet port must be fed from a normal access port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://docs2.hubitat.com/en/user-interface/settings/networking"
+}

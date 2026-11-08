@@ -1,0 +1,27 @@
+{
+  "vendor": "zte",
+  "model": "MC7010",
+  "label": "ZTE NetBox MC7010 outdoor 5G CPE",
+  "category": "router",
+  "description": "ZTE NetBox outdoor 5G CPE (Snapdragon X55M, sub-6 NSA/SA) rated 3.8 Gbps down / 331 Mbps up with LTE Cat 22/20 fallback. A single 2.5 Gigabit RJ45 port carries the data and the standard PoE feed; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "dhcp-client",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.router-switch.com/pdf2html/pdf/zt:mc7010-datasheet.pdf"
+}

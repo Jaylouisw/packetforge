@@ -1,0 +1,68 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-4008-2GT-2GS-LV-T",
+  "label": "EDS-4008 managed FE switch, 2GT+2SFP",
+  "category": "switch",
+  "description": "Compact managed Fast Ethernet switch with 4 x 10/100BaseT(X) RJ45 ports, 2 x 1000BaseT(X) RJ45 uplinks and 2 x 1000BaseSFP slots - 8 Ethernet ports in total - plus an RS-232 8-pin RJ45 console port. -40 to 75 C, Turbo Ring/Turbo Chain redundancy and IEC 62443-4-2 Security Level 2 certification.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "gt1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "gt2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://moxa.com/getmedia/5350a622-e96a-46df-926c-547406461e5b/moxa-eds-4008-series-datasheet-v1.8.pdf"
+}

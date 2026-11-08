@@ -1,0 +1,19 @@
+{
+  "vendor": "aqara",
+  "model": "Smart Video Doorbell G4",
+  "label": "Aqara Smart Video Doorbell G4",
+  "category": "camera",
+  "description": "Aqara Smart Video Doorbell G4 is a 1080p battery-or-wired doorbell camera with on-device face recognition, HomeKit Secure Video and a local chime repeater. Its only network interface is 2.4 GHz 802.11 b/g/n Wi-Fi (1T1R), and it can also repeat Wi-Fi for nearby Aqara devices; there is no Ethernet port, and the USB-C socket is a 5 V/1 A power input rather than a data link.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.aqara.com/en/product/smart-video-doorbell-g4/specs/"
+}

@@ -1,0 +1,36 @@
+{
+  "vendor": "perle",
+  "model": "IOLAN STS4",
+  "label": "IOLAN STS4 terminal server, 4 x RS232",
+  "category": "iot",
+  "description": "1U rack terminal server with 4 RS-232 serial ports on RJ45 connectors and a single 10/100/1000 Ethernet port. Each serial port can be reached by Telnet, SSH or raw TCP, which makes it a serial console server for OT equipment in a rack.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "serial3",
+      "type": "console"
+    },
+    {
+      "name": "serial4",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.perle.com/products/iolan-sts-terminal-server.shtml"
+}

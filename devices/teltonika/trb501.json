@@ -1,0 +1,29 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB501",
+  "label": "Teltonika TRB501 5G IoT gateway with eSIM",
+  "category": "router",
+  "description": "Industrial 5G gateway, 3GPP Rel.16 sub-6 at 2.4 Gbps downlink in SA and 3.4 Gbps in NSA, with eSIM plus bootstrap so a profile can be pulled over the air before an Ethernet WAN exists. One 2.5 Gigabit Ethernet LAN port; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.teltonika-networks.com/products/gateways/trb501"
+}

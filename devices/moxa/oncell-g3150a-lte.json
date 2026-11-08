@@ -1,0 +1,38 @@
+{
+  "vendor": "moxa",
+  "model": "OnCell G3150A-LTE",
+  "label": "OnCell G3150A-LTE cellular gateway",
+  "category": "router",
+  "description": "Rugged LTE serial/Ethernet-to-cellular gateway with exactly one 10/100BaseT(X) RJ45 LAN port and one DB9 RS-232/422/485 serial port, plus an RJ45 RS-232 console port. Dual SIM with GuaranLink, IPsec/OpenVPN, NAT and a MAC/IP/port firewall; ATEX Zone 2 rated, -30 to 70 C on the wide-temp models.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/Moxa/media/PDIM/S100000289/moxa-oncell-g3150a-lte-series-datasheet-v1.0.pdf"
+}

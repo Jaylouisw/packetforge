@@ -1,0 +1,39 @@
+{
+  "vendor": "netgear",
+  "model": "Nighthawk M6",
+  "label": "Netgear Nighthawk M6 5G hotspot (MR6150)",
+  "category": "router",
+  "description": "5G sub-6 mobile hotspot (MR6150) rated to 2.5 Gbps downlink with Wi-Fi 6 up to 3.6 Gbps for 32 clients. The only wired port is a single 1 Gigabit Ethernet jack for tethering a router or laptop; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "sourceUrl": "https://www.netgear.com/mobile-wifi/hotspots/mr6150/"
+}

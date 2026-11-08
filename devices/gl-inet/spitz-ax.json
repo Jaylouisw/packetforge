@@ -1,0 +1,46 @@
+{
+  "vendor": "gl-inet",
+  "model": "Spitz AX",
+  "label": "GL.iNet Spitz AX 5G NR router (GL-X3000)",
+  "category": "router",
+  "description": "GL.iNet Spitz AX (GL-X3000) is a dual-SIM Wi-Fi 6 5G router built on a Quectel RM520N-GL module (5G sub-6, 2.4 Gbps downlink in SA). One 2.5 Gigabit Ethernet WAN port, one Gigabit LAN port and Wi-Fi 6 at 574 + 2402 Mbps; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "sourceUrl": "https://www.gl-inet.com/en-us/products/gl-x3000/"
+}

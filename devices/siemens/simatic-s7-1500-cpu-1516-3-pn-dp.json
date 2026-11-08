@@ -1,0 +1,29 @@
+{
+  "vendor": "siemens",
+  "model": "SIMATIC S7-1500 CPU 1516-3 PN/DP",
+  "label": "S7-1500 CPU 1516-3 PN/DP",
+  "category": "iot",
+  "description": "High-end PLC (6ES7516-3AN02-0AB0) with three gigabit RJ45 ports: X1 is a two-port PROFINET IRT switch and X2 is a separate single-port PROFINET RT interface, so 3 x 1 Gbit/s Ethernet in total. A third interface is PROFIBUS DP on a 9-pin sub-D, not Ethernet; integrated web server.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "x1p1r",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x1p2r",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "x2p1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6ES7516-3AN02-0AB0&language=en&caller=SIOS"
+}

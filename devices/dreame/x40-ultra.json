@@ -1,0 +1,19 @@
+{
+  "vendor": "dreame",
+  "model": "X40 Ultra",
+  "label": "Dreame X40 Ultra robot vacuum and mop",
+  "category": "iot",
+  "description": "Dreame X40 Ultra is a 12000 Pa robot vacuum and mop with an extending side brush, a self-cleaning mop dock and multi-floor LiDAR maps managed from the Dreamehome app. Its only network interface is 2.4 GHz Wi-Fi (no 5 GHz support, no Ethernet port and no PoE), so it is a pure wireless client on the IoT SSID.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://global.dreametech.com/products/x40-ultra"
+}

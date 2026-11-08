@@ -1,0 +1,53 @@
+{
+  "vendor": "advantech",
+  "model": "EKI-5728I",
+  "label": "EKI-5728I 8-port gigabit unmanaged switch",
+  "category": "switch",
+  "description": "DIN-rail unmanaged gigabit switch with 8 x 10/100/1000 Mbps RJ45 ports and no uplink cages or console. ATEX/C1D2 rated, -40 to 75 C, redundant 12 to 48 V DC input, and it answers SNMP and Modbus/TCP for monitoring.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.advantech.com/en-us/products/60707cfd-c070-4037-82fb-d6533ac71635/eki-5728i/mod_aec25fc0-171c-44f5-82b3-8e0ad895ada0"
+}

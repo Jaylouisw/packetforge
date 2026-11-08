@@ -1,0 +1,20 @@
+{
+  "vendor": "google",
+  "model": "Nest Hub Max",
+  "label": "Google Nest Hub Max smart display",
+  "category": "iot",
+  "description": "Nest Hub Max is a 10-inch Google Assistant display with Chromecast built in, a camera and a Thread border router (802.15.4 at 2.4 GHz) for Matter. It is wireless-only - 802.11 b/g/n/ac Wi-Fi at 2.4 or 5 GHz plus Bluetooth 5.0 - with no Ethernet jack; the only cable it takes is its power adapter.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://store.google.com/product/google_nest_hub_max_tech_specs?hl=en-US"
+}

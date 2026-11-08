@@ -1,0 +1,19 @@
+{
+  "vendor": "eufy",
+  "model": "Video Doorbell S330",
+  "label": "Eufy Security Video Doorbell S330 (dual camera)",
+  "category": "camera",
+  "description": "Eufy Video Doorbell S330 is a 2K dual-camera doorbell (front 160-degree lens plus a low-angle package camera) with on-device person detection, storing clips on a HomeBase 2/3 rather than in the cloud. It is wireless-only: 2.4 GHz Wi-Fi for the doorbell itself, with no Ethernet and no PoE; the doorbell wiring it accepts is 16-24 VAC for power, otherwise it runs on its battery pack.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://www.eufy.com/products/e8203111"
+}

@@ -1,0 +1,19 @@
+{
+  "vendor": "athom",
+  "model": "Homey Bridge",
+  "label": "Athom Homey Bridge radio bridge",
+  "category": "iot",
+  "description": "Homey Bridge adds Zigbee, Z-Wave, Bluetooth LE, 433 MHz and infrared radios to Homey Cloud or to a Homey Pro as a satellite, and needs a live internet connection to work at all. Its only network interface is 2.4 GHz Wi-Fi (no 5 GHz support, no Ethernet port, powered from a USB-C supply), so it always appears on the LAN as a wireless client.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://homey.app/en-us/homey-bridge/"
+}

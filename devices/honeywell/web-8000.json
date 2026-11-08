@@ -1,0 +1,38 @@
+{
+  "vendor": "honeywell",
+  "model": "WEB-8000",
+  "label": "WEB-8000 building controller",
+  "category": "iot",
+  "description": "Niagara-based WEB-8000 plant controller with two RJ45 10/100 Ethernet ports, PRI (LAN1) enabled by default and SEC (LAN2) shipped disabled. It also exposes RS-485 field-bus ports and an integral 802.11a/b/g/n Wi-Fi adapter on an RP-SMA antenna connector.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "pri",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "sec",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "rs485-1",
+      "type": "console"
+    },
+    {
+      "name": "rs485-2",
+      "type": "console"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://prod-edam.honeywell.com/content/dam/honeywell-edam/hbt/en-us/documents/manuals-and-guides/reference-guides/HBT-BMS-WEB-8000-Quick-Start-Guide-31-00091.pdf"
+}

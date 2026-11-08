@@ -1,0 +1,19 @@
+{
+  "vendor": "siemens",
+  "model": "SIMATIC S7-1200 CPU 1214C",
+  "label": "S7-1200 CPU 1214C DC/DC/DC",
+  "category": "iot",
+  "description": "Compact PLC (6ES7214-1AG40-0XB0) with 14 DI / 10 DO and a single PROFINET RJ45 port running at 10/100 Mbit/s - one port, no integrated switch, so it is a leaf on the plant network. Integrated web server plus OPC UA server; the RS-485 expansion module is a separate part.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "x1p1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://apim.industry.siemens.cloud/ted/datasheet?format=pdf&mlfbs=6ES7214-1AG40-0XB0&language=en&caller=SIOS"
+}

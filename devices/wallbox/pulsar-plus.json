@@ -1,0 +1,19 @@
+{
+  "vendor": "wallbox",
+  "model": "Pulsar Plus",
+  "label": "Wallbox Pulsar Plus 7.4-22 kW EV charger",
+  "category": "iot",
+  "description": "Wallbox Pulsar Plus is a Mode 3 AC EV charger (7.4, 11 or 22 kW) with dynamic power sharing, OCPP support and control through the myWallbox app and portal. Per Wallbox's own datasheet its connectivity is Wi-Fi plus Bluetooth only - there is no Ethernet port and no PoE, and the only cabling it takes is the supply feed and the Type 2 charge cable.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://support.wallbox.com/wp-content/uploads/2021/12/EN_Pulsar_Plus_Datasheet_English.pdf"
+}

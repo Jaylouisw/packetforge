@@ -1,0 +1,19 @@
+{
+  "vendor": "ohme",
+  "model": "Home Pro",
+  "label": "Ohme Home Pro smart EV charger",
+  "category": "iot",
+  "description": "Ohme Home Pro is a 7 kW / 11 kW tethered smart charger with a colour LCD, three control buttons and tariff-aware scheduling through the Ohme app. Connectivity ships in two variants: a Wi-Fi/Bluetooth model with 2.4 GHz 802.11 b/g/n plus Bluetooth, or a 4G model with a pre-fitted multi-network SIM; neither variant has an Ethernet port or PoE.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://ohme-ev.com/product/ohme-home-pro/"
+}

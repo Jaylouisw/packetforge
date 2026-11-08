@@ -1,0 +1,24 @@
+{
+  "vendor": "moxa",
+  "model": "MGate MB3180",
+  "label": "MGate MB3180 Modbus TCP gateway",
+  "category": "iot",
+  "description": "One-port Modbus gateway that converts Modbus TCP to Modbus RTU/ASCII: a single 10/100BaseT(X) RJ45 port on the Ethernet side and one DB9 male RS-232/422/485 serial port on the field side. 16 simultaneous Modbus TCP masters, DIN-rail or wall mount, 12 to 48 VDC.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/getmedia/863d6b9f-284e-42dd-860d-1679161ee174/moxa-mgate-mb3180-mb3280-mb3480-series-datasheet-v1.9.pdf"
+}

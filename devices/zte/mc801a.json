@@ -1,0 +1,46 @@
+{
+  "vendor": "zte",
+  "model": "MC801A",
+  "label": "ZTE MC801A 5G indoor CPE",
+  "category": "router",
+  "description": "ZTE 5G indoor CPE (Snapdragon X55, sub-6 NSA/SA with LTE Cat 22 fallback) quoting 4.6 Gbps peak 5G downlink and 3.8 Gbps in EN-DC. Two Gigabit RJ45 LAN ports, one of which can be switched to WAN mode, plus dual-band Wi-Fi 6; the 5G uplink is carried as the Ethernet-class interface wan5g.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan5g",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "sourceUrl": "https://www.4gltemall.com/blog/tag/zte-mc801a/"
+}
