@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "IS-M5",
+  "label": "airMAX IsoStation M5",
+  "category": "ptp",
+  "description": "5 GHz airMAX M-series IsoStation with integrated 14 dBi isolation horn, 6.5 W, 24 V 0.5 A passive PoE in. Ports: 1x GbE RJ45 (PoE in); modular Horn-5 antenna mount.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/is-m5"
+}
