@@ -1,0 +1,69 @@
+{
+  "vendor": "huawei",
+  "model": "MA5801-GP16",
+  "label": "MA5801-GP16 OLT",
+  "category": "olt",
+  "description": "Huawei OptiXaccess MA5801-GP16, a 1U box-shaped OLT (442 x 220 x 43.6 mm) with the control and service functions integrated on one board: 16 GPON service ports and 4 GE/10GE upstream SFP+ ports, 140 Gbit/s switching capacity. There are no line-card slots - the box is the configuration, so unlike the MA5800 chassis this spec is the whole device, not one populated slot. The 4 'common interfaces' the datasheet lists (console, alarm and BITS-style dry contacts) are not IP interfaces and are not modelled. Requested in #198; port counts and capacity from Huawei's MA5801 specification table.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "source": "https://e.huawei.com/en/products/optical-access/ma5801"
+}

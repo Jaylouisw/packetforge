@@ -1,0 +1,70 @@
+{
+  "vendor": "huawei",
+  "model": "MA5801-FL16",
+  "label": "MA5801-FL16 OLT",
+  "category": "olt",
+  "description": "Huawei OptiXaccess MA5801-FL16, the Flex-PON member of the MA5801 family: the same 1U box and the same 4 GE/10GE upstream SFP+ ports, but each of its 16 service ports can be provisioned as GPON (2.5G downstream), XGS-PON (10G) or a GPON+XGS-PON combo, and the switching capacity rises to 460 Gbit/s. Modelled as one PON port that accepts either rate, because the hardware decides at provisioning time which of the three it is - a port pinned to one rate is a software choice, not a different box. Combo mode carries both wavelengths on one port simultaneously; this model carries the rate, not the second wavelength. Requested in #198; figures from Huawei's MA5801 specification table.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "source": "https://e.huawei.com/en/products/optical-access/ma5801"
+}
