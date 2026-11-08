@@ -112,11 +112,24 @@ console.log('\nEvery exception says why');
       rel + ' has a reason a reader can judge');
     ok(fs.existsSync(path.join(ROOT, rel)), rel + ' exists');
   }
-  // The two files that must never be allowed to advertise GitHub as the place to work.
+  // README must never be allowed to advertise GitHub as the place to work: it is the file everyone
+  // follows, and it is where a stale clone instruction does the most damage.
   ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'README.md'),
     'README is not exempt - it is the file everyone follows');
-  ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md'),
-    'CONTRIBUTING is not exempt - it is where contributors are told what to do');
+
+  // CONTRIBUTING is different now, and the difference is deliberate rather than convenient:
+  // contributions arrive through the GitHub mirror, so this file has to be able to name it. What must
+  // stay true is that it still sends people to the forge to read and to clone, and that the exemption
+  // says why rather than being a silent skip.
+  ok(Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md'),
+    'CONTRIBUTING may name the mirror, and the exemption is reasoned');
+  ok(/github/i.test(canonical.ALLOW['CONTRIBUTING.md'] || ''),
+    'and the reason says GitHub means the shopfront, not the workshop');
+  const contributing = fs.readFileSync(path.join(ROOT, 'CONTRIBUTING.md'), 'utf8');
+  ok(contributing.indexOf(canonical.BASE) !== -1,
+    'CONTRIBUTING still points at the forge as the canonical home');
+  ok(/mirror/i.test(contributing),
+    'and calls GitHub what it is: the mirror, not a second source of truth');
 }
 
 console.log('\nThe changelog keeps its history');
