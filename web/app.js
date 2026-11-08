@@ -468,6 +468,65 @@
   // mode, including while the ghost cable is being dragged, so completing a link is the
   // same operation as starting one - there is no separate "drop" handler to get out of
   // step with this one (issues #61/#66).
+  // Does this refusal come with an actionable fix? (issue #92)
+  //
+  // The engine answers a UPC-against-APC pair with E_POLISH_MISMATCH and a sentence naming
+  // the hybrid cord that joins them. A sentence is not something an interface can act on,
+  // so validateLink also returns `patchCordOptions` and marks the error with
+  // `suggestion: { code: 'S_PATCH_CORD_REQUIRED', field: 'patchCord', value: 'SMSCSX' }`.
+  // This function is the whole of the UI's opinion about that: hand back the offer, or null.
+  function cordOfferFor(verdict) {
+    if (!verdict || verdict.ok !== false) return null;
+    const errors = verdict.errors || [];
+    for (let i = 0; i < errors.length; i++) {
+      const s = errors[i] && errors[i].suggestion;
+      if (s && s.code === 'S_PATCH_CORD_REQUIRED' && s.value) {
+        return { field: s.field || 'patchCord', value: s.value,
+          lossDb: s.lossDb, label: s.message || ('Add ' + s.value) };
+      }
+    }
+    // Fall back to the options list: an older server sends the parts but not the marker.
+    const opts = verdict.patchCordOptions || [];
+    if (opts.length && opts[0] && opts[0].patchCord) {
+      return { field: 'patchCord', value: opts[0].patchCord, lossDb: opts[0].lossDb,
+        label: 'Add ' + (opts[0].label || opts[0].patchCord) };
+    }
+    return null;
+  }
+
+  // "This run needs a part - add it?" Returns true if the user said yes.
+  function askAddCord(offer) {
+    return new Promise(function (resolve) {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML =
+        '<div class="modal" role="dialog" aria-label="Hybrid patch cord required">' +
+        '<h2 style="margin:0 0 8px;font-size:15px">This run needs a hybrid patch cord</h2>' +
+        '<div style="color:var(--text-dim);font-size:12px;line-height:1.5;margin-bottom:12px">' +
+        'These two ports take the same connector with different polish, so they only join ' +
+        'through a factory-terminated lead with one endface of each. The catalogue has one:' +
+        '<div class="mono" style="margin:8px 0;color:var(--text)">' +
+        String(offer.label) + '</div>' +
+        (offer.lossDb !== undefined && offer.lossDb !== null
+          ? '<div>Insertion loss ' + offer.lossDb + ' dB, which counts against the optical budget.</div>'
+          : '') +
+        '</div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button class="btn" data-act="cancel">Leave it disconnected</button>' +
+        '<button class="btn primary" data-act="add">Add the cord</button></div></div>';
+      function close(v) { overlay.remove(); document.removeEventListener('keydown', onKey); resolve(v); }
+      function onKey(e) { if (e.key === 'Escape') close(false); }
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) { close(false); return; }
+        const act = e.target.getAttribute && e.target.getAttribute('data-act');
+        if (act === 'cancel') close(false);
+        if (act === 'add') close(true);
+      });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(overlay);
+    });
+  }
+
   PFCanvas.on.portClick = async function (deviceId, iface) {
     const c = PFCanvas.getConnecting();
     if (!c) {
@@ -494,6 +553,30 @@
       options = v.mediaOptions || [];
     } catch (e) { /* fall through; the server will decide */ }
 
+    // A refusal that names a part is a refusal you can act on (issue #92). Before this,
+    // the engine explained that an SC/UPC port and an SC/APC port are joined by a hybrid
+    // cord and named the part number - and the interface could do nothing with it, so the
+    // only way to build that run was to hand-edit the topology file. If the verdict carries
+    // a suggestion, offer to apply it rather than printing a wall of text at the user.
+    let patchCord = null;
+    const offer = cordOfferFor(verdict);
+    if (offer) {
+      const accepted = await askAddCord(offer);
+      if (accepted) {
+        patchCord = offer.value;
+        // Re-ask the engine with the cord declared. The cord is what makes the pair legal,
+        // so the verdict is expected to flip rather than be overridden locally.
+        try {
+          verdict = await api('POST', '/topologies/' + TOPO + '/validate-link', {
+            a: { deviceId: c.deviceId, iface: c.iface },
+            b: { deviceId: deviceId, iface: iface },
+            patchCord: patchCord
+          });
+          options = (verdict && verdict.mediaOptions) || options;
+        } catch (e) { /* fall through to the refusal below */ }
+      }
+    }
+
     if (verdict && verdict.ok === false) {
       const err = (verdict.errors && verdict.errors[0]) || null;
       toast('Impossible: ' + (err ? err.message : 'incompatible ports'));
@@ -519,7 +602,8 @@
         a: { deviceId: c.deviceId, iface: c.iface },
         b: { deviceId: deviceId, iface: iface },
         mediaId: mediaId,
-        lengthM: lengthM
+        lengthM: lengthM,
+        patchCord: patchCord || undefined
       });
       topo = r.state || topo;
       PFCanvas.setConnecting(null);
@@ -1722,6 +1806,7 @@
     selectLink: function (id) { selectedLink = id; selectedId = null; },
     deleteTarget: deleteTarget,
     deleteLink: deleteLink,
+    cordOfferFor: cordOfferFor,
     renderDeviceTab: renderDeviceTab,
     renderLinkInspector: renderLinkInspector,
     ifaceRowHTML: ifaceRowHTML,

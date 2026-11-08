@@ -546,6 +546,10 @@ function validateConnection(input) {
   verdict.patchCordLossDb = cordLossDb;
 
   // -- connector / media / speed verdicts (delegated to canMate) ------------
+  // A machine-readable "what would fix this", for callers that are interfaces rather than
+  // people. Prose in `message` is the explanation; `suggestion` is the instruction.
+  let suggestion = null;
+  verdict.patchCordOptions = [];
   let mate = canMate(portA, portB);
   if (!mate.ok && mate.code === 'E_POLISH_MISMATCH' && cord) {
     // Same shape, different polish, and the cord carries exactly those two ends:
@@ -595,11 +599,36 @@ function validateConnection(input) {
           portB.cageName + ', so the fix is to re-terminate one end or land the span ' +
           'on a patch panel.';
       }
+      // The prose above is for a person; this is for the UI. Issue #92 was that the
+      // refusal named a part number and nothing could act on it: a caller had to
+      // regex the sentence out of the message, which no interface should do. The
+      // suggestion says exactly which field to set and with what value, so "this run
+      // needs a cord" becomes one click instead of a hand-edited topology file.
+      if (couldBridge) {
+        verdict.patchCordOptions = [{
+          patchCord: couldBridge.partNumber || couldBridge.id,
+          id: couldBridge.id || couldBridge.partNumber,
+          label: couldBridge.partNumber + ' (' + couldBridge.endA + ' → ' +
+            couldBridge.endB + ')',
+          endA: couldBridge.endA,
+          endB: couldBridge.endB,
+          lossDb: optical.cordLossDb(couldBridge)
+        }];
+        suggestion = {
+          code: 'S_PATCH_CORD_REQUIRED',
+          field: 'patchCord',
+          value: verdict.patchCordOptions[0].patchCord,
+          lossDb: verdict.patchCordOptions[0].lossDb,
+          message: 'Add ' + verdict.patchCordOptions[0].label + ' and this link is buildable.'
+        };
+      }
     }
-    errors.push({
+    const err = {
       code: mate.code,
       message: lblA + ' <-> ' + lblB + ': ' + msg
-    });
+    };
+    if (suggestion) err.suggestion = suggestion;
+    errors.push(err);
   }
 
   // -- medium selection -----------------------------------------------------
