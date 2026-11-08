@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBSXTG-5HPnD-HGr2",
+  "label": "SXT HG5",
+  "category": "ptp",
+  "description": "MikroTik SXT HG5 (RBSXTG-5HPnD-HGr2) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBSXTG-5HPnD-HGr2"
+}
