@@ -1,0 +1,38 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On AP15 (R2X06A)",
+  "label": "Aruba Instant On AP15 (RW) 4x4 11ac Wave2 Indoor Access Point (R2X06A)",
+  "category": "wireless",
+  "description": "Aruba Instant On AP15 (R2X06A) - dual-radio 802.11ac Wave 2 indoor AP, 4x4:4 on both bands (300 Mbps 2.4 GHz + 1.7 Gbps 5 GHz). Single 1G RJ45 uplink with 802.3af PoE-in or 12 V DC, USB host port, BLE radio; supports Instant On gateway/router mode.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 14.0
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.7G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.insight.com/content/dam/insight-web/emea/partner/hpe/hpe-aruba-ap15-data-sheet.pdf"
+}
