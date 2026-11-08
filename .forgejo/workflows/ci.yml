@@ -21,8 +21,20 @@ permissions:
 #
 # Pushes to main are never cancelled - each one describes a different commit and
 # a cancelled push run is a gap in the history of the default branch.
+#
+# Group by pull request, not by branch. Two runs of the same PR are the same
+# question asked twice - the newer wins, so the older is cancelled. Two runs on
+# `main` are different questions: each one verifies a different commit, and a
+# cancelled one is a commit nobody ever tested.
+#
+# `github.event.pull_request.number || github.sha` does both. It previously fell
+# back to `github.ref`, which is `refs/heads/main` for every push - so every
+# post-merge verification shared one group, and as soon as merges got quick they
+# started cancelling each other. Measured on 2026-11-08 after the runner's
+# capacity was doubled: runs 672, 674 and 675 are three consecutive pushes to
+# main, all cancelled before starting, inside two minutes.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
