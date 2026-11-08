@@ -1,0 +1,31 @@
+{
+  "vendor": "fs",
+  "model": "GPON-ONU-34-20BI",
+  "label": "FS.com GPON-ONU-34-20BI GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT built into an SFP module (SourcePhotonics SPS-34-24T-HP-TDFO ODM, Lantiq PEB98035 SoC, OpenWrt 14.07 on kernel 3.10.49, MIPS 34Kc at 400 MHz, SC/APC BOSA) that presents itself to the host router as an HSGMII Ethernet interface at 2.5 Gbit/s; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up with no LAN ports and no Wi-Fi, managed over its TTL serial console (115200 8N1) or SSH.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "hsgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-fs-com-gpon-onu-stick-with-mac/"
+}
