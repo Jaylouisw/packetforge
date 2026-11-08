@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax check (all JS)
+        run: node scripts/syntax-check.js
+      - name: No control bytes in source
+        run: node scripts/check-control-bytes.js
+      - name: Full test suite
+        run: npm test
+      - name: Build & verify example labs
+        run: node examples/build-examples.js
+      - name: Every lab model exists in the catalogue
+        run: node scripts/missing-devices.js examples --no-issues
+
+  smoke:
+    name: Server smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Drive the API end to end
+        run: node scripts/smoke-http.js
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t packetforge:ci .
