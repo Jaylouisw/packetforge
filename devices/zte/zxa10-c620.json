@@ -1,0 +1,68 @@
+{
+  "vendor": "zte",
+  "model": "ZXA10 C620",
+  "label": "ZXA10 C620 compact OLT",
+  "category": "olt",
+  "description": "ZTE ZXA10 C620 2U compact TITAN OLT: 2 universal line-card slots plus 2 switch-and-control (SPUF) slots, 1.8 Tbit/s backplane and up to 32 GPON/XGS-PON ports. This spec models one 16-port GPON card (gpon1/1-16, SC/APC) with one SPUF card's 4x 10GE/GE SFP+ uplinks = 20 ports; the second line-card slot and the redundant SPUF are empty.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge1/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge1/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge1/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "xge1/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.zte.com.cn/global/product_index/optical_access_en/pon-olt/zxa10/zxa10-c620.html"
+}

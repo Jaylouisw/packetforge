@@ -1,0 +1,55 @@
+{
+  "vendor": "edgecore",
+  "model": "AS7726-32X",
+  "label": "AS7726-32X 100G open switch",
+  "category": "switch",
+  "description": "Edgecore AS7726-32X (DCS204) 1RU 100G open-networking ToR/spine: 32x QSFP28 100G ports (2x50G, 4x25G, 1x40G or 4x10G via breakout, 3.2 Tbps) plus 2x SFP+ 10G ports and one 1G RJ-45 Ethernet management port. Ships with ONIE for SONiC or another NOS.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      100000,
+      50000,
+      40000,
+      25000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.edge-core.com/product/dcs204/"
+}

@@ -1,0 +1,67 @@
+{
+  "vendor": "adtran",
+  "model": "SDX 6312-4",
+  "label": "SDX 6312-4 sealed 10G Combo PON OLT",
+  "category": "olt",
+  "description": "ADTRAN SDX 6312-4 fanless IP68-sealed 10G Combo PON remote OLT: 4 PON ports that each carry XGS-PON and GPON simultaneously through one pluggable combo-PON optic (SC/APC, up to 512 subscribers across the four ports), plus 4x 10GE SFP+ uplinks = 8 ports. Strand-, pole- or cabinet-mount with span or AC/DC power options.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "pon1/",
+    "start": 1,
+    "count": 4,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      9953,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.adtran.com/-/media/adtran/resources/data-sheets/pdfs/sdx-6000-series.pdf"
+}

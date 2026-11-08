@@ -1,0 +1,68 @@
+{
+  "vendor": "nokia",
+  "model": "Lightspan MF-2",
+  "label": "Lightspan MF-2 fibre access node",
+  "category": "olt",
+  "description": "Nokia Lightspan MF-2 2RU two-slot fibre access node on the Quillion chipset: one 16-port Multi-PON line card (GPON today, XGS-PON or 25G/50G with a different PON module, SC/APC) in slot 1 plus the LMNT-C network termination card's 4x SFP+ 10GE/1GE uplinks = 20 ports. The LMNT-D NT card replaces those with 2x QSFP 100GE cages.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server"
+  ],
+  "portTemplate": {
+    "prefix": "pon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+1/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://onestore.nokia.com/asset/i/207139/"
+}

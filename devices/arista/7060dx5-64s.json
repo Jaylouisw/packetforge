@@ -1,0 +1,50 @@
+{
+  "vendor": "arista",
+  "model": "7060DX5-64S",
+  "label": "7060DX5-64S 400G switch",
+  "category": "switch",
+  "description": "Arista 7060DX5-64S 2RU 400G data-centre switch: 64x QSFP-DD 400G ports (Ethernet1-64, 25.6 Tbps, 4x100G breakout per port) plus 2x SFP+ 10G ports (Ethernet65-66). Runs EOS with 400G/200G/100G optics or DACs.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 64,
+    "type": "ethernet",
+    "speed": "400G",
+    "connector": "qsfpdd",
+    "speedCaps": [
+      400000,
+      200000,
+      100000,
+      40000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet65",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "Ethernet66",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7060X5-Datasheet.pdf"
+}

@@ -1,0 +1,26 @@
+{
+  "vendor": "nokia",
+  "model": "G-010S-A",
+  "label": "G-010S-A GPON SFP ONT",
+  "category": "ont",
+  "description": "Nokia G-010S-A GPON ONT in SFP form factor (Lantiq PEB98035): one SC/UPC angled-free GPON port (2.488/1.244 Gbit/s) and an HSGMII host interface on the SFP edge connector, with no RJ45 and no Wi-Fi. It is the SC/UPC sibling of the SC/APC G-010S-P and is managed by OMCI or its own CLI.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-upc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [],
+  "sourceUrl": "https://onestore.nokia.com/asset/f/201221"
+}

@@ -1,0 +1,31 @@
+{
+  "vendor": "calix",
+  "model": "GP1100G",
+  "label": "GigaPoint GP1100G 2.5G GPON ONU",
+  "category": "ont",
+  "description": "Calix GigaPoint GP1100G indoor 2.5 Gbit/s GPON SFU: one SC/APC GPON drop and one 2.5 Gigabit RJ-45 Ethernet UNI in a half-depth wall/desk housing, with a single POTS line for voice and no Wi-Fi.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "portTemplate": {
+    "prefix": "pon",
+    "start": 1,
+    "count": 1,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.calix.com/products/platform/unlimited-subscriber/gigapoint-ont-onu.html"
+}

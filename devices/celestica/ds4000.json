@@ -1,0 +1,37 @@
+{
+  "vendor": "celestica",
+  "model": "DS4000",
+  "label": "DS4000 400GbE data-centre switch",
+  "category": "switch",
+  "description": "Celestica DS4000 1U 400GbE open-networking switch: 32x QSFP-DD 400G ports (any rate 10G-400G, up to 144 sub-rate 10/25/50G ports with breakout, 12.8 Tbps) plus one shared CPU/BMC 1G RJ-45 management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "400G",
+    "connector": "qsfpdd",
+    "speedCaps": [
+      400000,
+      200000,
+      100000,
+      50000,
+      40000,
+      25000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/networking/networking-list/cls_datasheet_DS4000.pdf"
+}
