@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Merging through the API does not reach the runner as a push event, so `main`
+  # is the branch nothing verifies. This makes that a choice rather than a gap:
+  # the same matrix can be run against any branch on demand.
+  workflow_dispatch:
 
 permissions:
   contents: read
