@@ -10,7 +10,7 @@
 // distinguishable at all. Measured against the live backlog: 0 of 250 requests matched
 // before, 30 of 250 after. These checks hold the parsing that difference depends on.
 const path = require('path');
-const { requestSubject, norm } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+const { requestSubject, requestCandidates, norm } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -60,10 +60,28 @@ console.log('\nThe parenthetical is tried both ways, never dropped blindly:');
 const src = require('fs').readFileSync(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'), 'utf8');
 ok(/for \(const candidate of subjects\)/.test(src),
   'the matcher loops over both forms of the subject');
-ok(/rawSubject\.replace\(\/\\s\*\\\(\[\^\)\]\*\\\)\/g/.test(src),
-  'the bracket-free form is built for the fallback');
+ok(/function requestCandidates/.test(src) && /const subjects = requestCandidates\(rawSubject\)/.test(src),
+  'the bracket-free form is built for the fallback, in one function main() calls');
 ok(!/\\s\+\\\(/.test(src.split('\n').filter(function (l) { return /const cut = t\.search/.test(l); })[0] || ''),
   'and the subject is no longer cut at a bracket before matching');
 
 if (failed) { console.error('\n' + failed + ' sweep-requests check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' sweep-requests checks passed.');
+
+// ---------------------------------------------------------------------------
+// The other half of the same defect: the model code is in the parentheses, and
+// the catalogue is keyed on the code. "Ubiquiti UniFi Switch Pro XG 24" is not
+// a model name; "USW-Pro-XG-24" is. Until both forms were tried, a request whose
+// device was modelled word-for-word still read as open - 189 Ubiquiti requests
+// looked like work and were a backlog of answers nobody had sent.
+// ---------------------------------------------------------------------------
+const cands = requestCandidates(requestSubject('[Device]: Ubiquiti UniFi Switch Pro XG 24 (USW-Pro-XG-24)'));
+ok(cands.indexOf('USW-Pro-XG-24') !== -1, 'the bracketed model code is tried as its own candidate', JSON.stringify(cands));
+ok(cands.indexOf('Ubiquiti UniFi Switch Pro XG 24') !== -1, 'and the title with the parenthetical removed', JSON.stringify(cands));
+ok(cands[0] === 'Ubiquiti UniFi Switch Pro XG 24 (USW-Pro-XG-24)', 'the subject as written is still tried first');
+ok(requestCandidates('plain model name').length === 1, 'a subject with no brackets yields one candidate');
+ok(requestCandidates('').length === 1, 'an empty subject does not throw or loop');
+const two = requestCandidates('Vendor Thing (AAA-1, BBB-2)');
+ok(two.indexOf('AAA-1') !== -1 && two.indexOf('BBB-2') !== -1, 'two codes in one bracket are both tried', JSON.stringify(two));
+const dup = requestCandidates('X (X)');
+ok(dup.filter(function (c) { return c === 'X'; }).length === 1, 'a code repeated as the whole title is not tried twice');

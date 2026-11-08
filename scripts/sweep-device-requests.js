@@ -114,6 +114,27 @@ function requestSubject(title) {
   return t.trim();
 }
 
+// Every form of the subject worth trying against the catalogue.
+//
+// The model code lives in the parentheses more often than not, and the catalogue is keyed
+// on the code rather than the marketing name around it: "Ubiquiti UniFi Switch Pro XG 24
+// (USW-Pro-XG-24)" normalises to the whole sentence, which matches nothing, while
+// "USW-Pro-XG-24" is in the catalogue verbatim. Both forms are tried, plus the title with
+// its parentheticals removed, because a note like "(EOL, replaced by X)" is noise.
+function requestCandidates(rawSubject) {
+  const subjects = [rawSubject];
+  const noParen = String(rawSubject || '').replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  if (noParen && subjects.indexOf(noParen) === -1) subjects.push(noParen);
+  for (const group of String(rawSubject || '').match(/\(([^)]*)\)/g) || []) {
+    const inner = group.slice(1, -1);
+    for (const part of inner.split(/[,/]| and /i)) {
+      const p = part.trim();
+      if (p && subjects.indexOf(p) === -1) subjects.push(p);
+    }
+  }
+  return subjects;
+}
+
 function main() {
   const tok = token();
   const cat = loadCatalogue();
@@ -143,9 +164,7 @@ function main() {
       // are tried: a model code lives in the parentheses as often as not, while a title
       // like "Aruba 2530-48 (EOL, replaced by X)" only matches once the note is dropped.
       const rawSubject = requestSubject(title);
-      const subjects = [rawSubject];
-      const noParen = rawSubject.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
-      if (noParen && noParen !== rawSubject) subjects.push(noParen);
+      const subjects = requestCandidates(rawSubject);
 
       let hit = null;
       let subject = rawSubject;
@@ -234,5 +253,5 @@ function main() {
 if (require.main === module) {
   main();
 } else {
-  module.exports = { requestSubject: requestSubject, norm: norm };
+  module.exports = { requestSubject: requestSubject, requestCandidates: requestCandidates, norm: norm };
 }
