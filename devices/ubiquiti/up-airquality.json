@@ -1,0 +1,25 @@
+{
+  "color": "#14b8a6",
+  "vendor": "ubiquiti",
+  "model": "UP-AirQuality",
+  "label": "UniFi Vape Detection & Air Quality Sensor",
+  "category": "iot",
+  "description": "Ubiquiti UniFi Vape Detection & Air Quality Sensor (UP-AirQuality) - 1x 100M RJ45 (802.3af PoE in, 2.2 W max). Indoor sensor measuring vape index, CO2, PM1/PM2.5/PM4/PM10, VOC, NOx, temperature, and humidity.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "iot",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/up-airquality"
+}
