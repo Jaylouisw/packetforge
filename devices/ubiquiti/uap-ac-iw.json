@@ -1,0 +1,49 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAP-AC-IW",
+  "label": "UniFi AC In-Wall",
+  "category": "wireless",
+  "description": "UniFi AC In-Wall (UAP-AC-IW) - 3x 1G RJ45. 802.3af PoE-in; WiFi 5; up to 867 Mbps PHY rate; 7 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-iw"
+}
