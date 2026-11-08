@@ -1,0 +1,36 @@
+{
+  "vendor": "yotc",
+  "model": "M2-2050-G40",
+  "label": "YOTC M2-2050-G40 GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9607C, Formosa MIPS interAptiv @ 900 MHz, Linux 4.4.140 Realtek MSDK) with 2× Gigabit Ethernet LAN ports and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC, managed over its web UI or telnet (no SSH).",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-yotc-m2-2050-g40/"
+}
