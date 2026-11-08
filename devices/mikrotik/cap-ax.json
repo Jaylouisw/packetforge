@@ -1,0 +1,44 @@
+{
+  "vendor": "mikrotik",
+  "model": "cAP ax",
+  "label": "MikroTik cAP ax",
+  "category": "wireless",
+  "description": "Ceiling access point, Wi-Fi 6 dual band: 2x gigabit Ethernet (one with PoE-out), 802.11ax 574 Mbit/s on 2.4 GHz and 1200 Mbit/s on 5 GHz.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/cap_ax",
+  "notes": "Vendor figures from the MikroTik product page specification table: 2x 10/100/1000 Ethernet ports with 1 of them offering PoE-out; wireless 2.4 GHz max data rate 574 Mbit/s (802.11b/g/n/ax) and 5 GHz max data rate 1200 Mbit/s. The PoE-out port is the one marked, so a lab should not assume it can power a second device from either port."
+}

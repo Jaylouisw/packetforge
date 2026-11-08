@@ -11,7 +11,9 @@
     "firewall",
     "dhcp-server",
     "dhcp-client",
-    "http-server"
+    "http-server",
+    "l2-forward",
+    "passive-poe"
   ],
   "interfaces": [
     {
@@ -76,5 +78,6 @@
     }
   ],
   "icon": "router",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "Vendor figures from the MikroTik product page specification table: 10x 10/100/1000 Ethernet ports, 1x SFP+ port, 1x RJ45 serial console, passive PoE in. This is the non-wireless RB4011 - the 5HacQ2HnD-IN variant in the same family carries radios, so a lab that needs Wi-Fi should not pick this one."
 }

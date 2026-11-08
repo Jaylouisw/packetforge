@@ -1,0 +1,563 @@
+[
+  {
+    "vendor": "mikrotik",
+    "model": "CRS518-16XS-2XQ-RM",
+    "label": "MikroTik CRS518-16XS-2XQ-RM",
+    "category": "switch",
+    "description": "Cloud Router Switch with 16x 25G SFP28 ports, 2x 100G QSFP28 ports, a 100M management port and a Marvell Prestera switch chip.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "SFP281",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP282",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP283",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP284",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP285",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP286",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP287",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP288",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP289",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2810",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2811",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2812",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2813",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2814",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2815",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP2816",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "QSFP281",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "QSFP282",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          40000,
+          25000,
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/crs518_16xs_2xq",
+    "notes": "Vendor figures from the MikroTik product page specification table: 16x SFP28 ports (25G), 2x QSFP28 ports (100G), 1x 10/100 Ethernet port, 1x RJ45 serial console, 1x USB. The switch chip does full L3 hardware offload, which is what the l3-forward capability reflects - it is not a RouterOS-only software path."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "CRS112-8P-4S-IN",
+    "label": "MikroTik CRS112-8P-4S-IN",
+    "category": "switch",
+    "description": "Eight-port gigabit PoE-out switch with four SFP cages in an indoor case: 8x 1G RJ45 with 802.3af/at PoE-out and 4x 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "SFP2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "SFP3",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "SFP4",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/crs112_8p_4s_in",
+    "notes": "Vendor figures from the MikroTik product page specification table: 8x 10/100/1000 Ethernet ports, all 8 with PoE-out, 4x SFP ports, 1x RJ45 serial console. All eight copper ports are powered, which is the point of this model against the CRS112-8G-4S-IN that has no PoE."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "RB4011iGS+RM",
+    "label": "MikroTik RB4011iGS+RM",
+    "category": "router",
+    "description": "Ten-port gigabit router with a single 10G SFP+ uplink, 1U rackmount, no wireless.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/rb4011igs_rm",
+    "notes": "Vendor figures from the MikroTik product page specification table: 10x 10/100/1000 Ethernet ports, 1x SFP+ port, 1x RJ45 serial console, passive PoE in. This is the non-wireless RB4011 - the 5HacQ2HnD-IN variant in the same family carries radios, so a lab that needs Wi-Fi should not pick this one."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "cAP ax",
+    "label": "MikroTik cAP ax",
+    "category": "wireless",
+    "description": "Ceiling access point, Wi-Fi 6 dual band: 2x gigabit Ethernet (one with PoE-out), 802.11ax 574 Mbit/s on 2.4 GHz and 1200 Mbit/s on 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/cap_ax",
+    "notes": "Vendor figures from the MikroTik product page specification table: 2x 10/100/1000 Ethernet ports with 1 of them offering PoE-out; wireless 2.4 GHz max data rate 574 Mbit/s (802.11b/g/n/ax) and 5 GHz max data rate 1200 Mbit/s. The PoE-out port is the one marked, so a lab should not assume it can power a second device from either port."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "Audience",
+    "label": "MikroTik Audience",
+    "category": "wireless",
+    "description": "Tri-band home mesh access point: three radios (2.4 GHz plus two 5 GHz) and two gigabit ports.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "mesh",
+      "cli",
+      "http-server",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      },
+      {
+        "name": "wlan2",
+        "type": "wireless",
+        "speed": "1.7G"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/audience",
+    "notes": "Vendor figures from the MikroTik product page specification table: 2x 10/100/1000 Ethernet ports, passive PoE in; 2.4 GHz max data rate 300 Mbit/s (802.11b/g/n), 5 GHz max 867 Mbit/s (802.11a/n/ac) and a second 5 GHz radio at max 1733 Mbit/s. The third radio is the mesh backhaul, and it is modelled separately because a three-radio AP is not the same lab object as a dual-band one."
+  },
+  {
+    "vendor": "mikrotik",
+    "model": "Wireless Wire Cube Pro",
+    "label": "MikroTik Wireless Wire Cube Pro",
+    "category": "ptp",
+    "description": "Preconfigured 60 GHz link kit: two Cube 60Pro ac units, each with one gigabit port, an 802.11ay 60 GHz radio and a 5 GHz 802.11ac radio.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "802.3af",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "433M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://mikrotik.com/product/wireless_wire_cube_pro",
+    "notes": "Vendor figures from the MikroTik product page specification table: the kit is two Cube 60Pro ac devices; wireless 5 GHz max data rate 433 Mbit/s (802.11a/n/ac) and the 60 GHz radio runs 802.11ay. The 60 GHz radio (radio1) is modelled at 1G - the wired port's rate - because the specification table states the standard but not a single maximum rate for that radio; treat that figure as unconfirmed and the 433 Mbit/s 5 GHz figure as quoted."
+  }
+]

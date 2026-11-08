@@ -7,70 +7,115 @@
   "capabilities": [
     "l2-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "l3-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "connector": "rj45"
     },
     {
       "name": "SFP1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "SFP2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "SFP3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "SFP4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "Vendor figures from the MikroTik product page specification table for the CRS112-8P-4S-IN: 8x 10/100/1000 Ethernet ports, all 8 with PoE-out, 4x SFP ports, 1x RJ45 serial console. The spec had the port count right but no PoE on any of them and no connector on the cages - the -8P in the model name is the PoE, so a lab that planned this switch against a passive-PoE load was drawing a budget the spec did not admit."
 }

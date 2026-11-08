@@ -1,0 +1,35 @@
+{
+  "vendor": "mikrotik",
+  "model": "Wireless Wire Cube Pro",
+  "label": "MikroTik Wireless Wire Cube Pro",
+  "category": "ptp",
+  "description": "Preconfigured 60 GHz link kit: two Cube 60Pro ac units, each with one gigabit port, an 802.11ay 60 GHz radio and a 5 GHz 802.11ac radio.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "802.3af",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "433M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://mikrotik.com/product/wireless_wire_cube_pro",
+  "notes": "Vendor figures from the MikroTik product page specification table: the kit is two Cube 60Pro ac devices; wireless 5 GHz max data rate 433 Mbit/s (802.11a/n/ac) and the 60 GHz radio runs 802.11ay. The 60 GHz radio (radio1) is modelled at 1G - the wired port's rate - because the specification table states the standard but not a single maximum rate for that radio; treat that figure as unconfirmed and the 433 Mbit/s 5 GHz figure as quoted."
+}
