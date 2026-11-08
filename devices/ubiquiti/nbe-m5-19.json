@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "NBE-M5-19",
+  "label": "Ubiquiti NanoBeam M5 19 dBi",
+  "category": "ptp",
+  "description": "airMAX M 5 GHz CPE/bridge with a 19 dBi integrated dish: one 10/100 Ethernet port, passive PoE, 5170-5875 MHz.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://dl.ubnt.com/guides/nanobeam/NBE_M5_19_QSG.pdf",
+  "notes": "Vendor figures from the Ubiquiti quick start guide: networking interface (1) 10/100 Ethernet port; operating frequency worldwide 5170-5875 MHz; gain 19 dBi; power method passive PoE (pairs 4, 5+; 7, 8 return). This is the M5 19 dBi dish - the NBE-M5-16 in the catalogue is a different antenna gain on the same radio, so both stay."
+}
