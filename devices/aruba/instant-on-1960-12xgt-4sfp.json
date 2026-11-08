@@ -1,0 +1,117 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1960 12XGT 4SFP+ (JL805A)",
+  "label": "Aruba Instant On 1960 12XGT 4SFP+ Switch (JL805A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1960 12XGT 4SFP+ (JL805A) - 12x 100M/1G/10G BASE-T RJ45 plus 4x 1G/10G SFP+ uplinks. Stackable (up to 4) smart-managed Layer 2+ multi-gigabit switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1960switchseries.pdf"
+}
