@@ -3,7 +3,7 @@
   "model": "2930F 48G PoE+ 4SFP+",
   "label": "Aruba 2930F 48G PoE+ 4SFP+ (JL256A)",
   "category": "l3-switch",
-  "description": "Aruba 2930F 48G PoE+ 4SFP+ - 48x 1G PoE+ RJ45 plus 4x 10G SFP+ uplinks. ArubaOS-Switch L3 lite access switch, stackable (VSF).",
+  "description": "Aruba 2930F 48G PoE+ 4SFP+ - 48x 1G PoE+ RJ45 plus 4x 10G SFP+ uplinks. ArubaOS-Switch L3 lite access switch, stackable (VSF). All four uplinks are identical 10G SFP+ ports; they run at 1G when a 1G SFP module is fitted, which is why their rate ladder lists both. Earlier revisions of this spec modelled port 49 as a 1G port in an SFP+ cage, which is a 10G cage that refuses 10G.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -254,10 +254,11 @@
     {
       "name": "49",
       "type": "ethernet",
-      "speed": "1G",
+      "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000
+        1000,
+        10000
       ]
     },
     {
@@ -266,6 +267,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -275,6 +277,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -284,6 +287,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     }
