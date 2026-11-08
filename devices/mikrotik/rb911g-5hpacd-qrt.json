@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB911G-5HPacD-QRT",
+  "label": "QRT 5 ac",
+  "category": "ptp",
+  "description": "MikroTik QRT 5 ac (RB911G-5HPacD-QRT) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB911G-5HPacD-QRT"
+}
