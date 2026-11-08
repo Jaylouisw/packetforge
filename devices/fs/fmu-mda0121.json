@@ -16,7 +16,7 @@
       "name": "west-in",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -27,7 +27,7 @@
       "name": "west-out",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -38,7 +38,7 @@
       "name": "east-in",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -49,7 +49,7 @@
       "name": "east-out",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -60,7 +60,7 @@
       "name": "add",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -71,7 +71,7 @@
       "name": "drop",
       "type": "ethernet",
       "speed": "10G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,

@@ -20,7 +20,7 @@
       "name": "in",
       "type": "ethernet",
       "speed": "100G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
@@ -31,7 +31,7 @@
       "name": "out",
       "type": "ethernet",
       "speed": "100G",
-      "connector": "lc",
+      "connector": "lc-upc",
       "speedCaps": [
         10000,
         40000,
