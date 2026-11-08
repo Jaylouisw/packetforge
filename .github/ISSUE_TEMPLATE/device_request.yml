@@ -9,7 +9,7 @@ body:
         PacketForge grows by **one JSON file per device**, so a good request is mostly a good datasheet link.
 
         You do not need to write the JSON yourself — but if you want to, see
-        [docs/DEVICE_REGISTRY.md](https://github.com/Jaylouisw/packetforge/blob/main/docs/DEVICE_REGISTRY.md).
+        [docs/DEVICE_REGISTRY.md](https://git.jayw.uk/jaylouisw/packetforge/src/branch/main/docs/DEVICE_REGISTRY.md).
         Requests with a real manufacturer datasheet get implemented; requests without one usually
         stall, because we will not invent port counts.
 

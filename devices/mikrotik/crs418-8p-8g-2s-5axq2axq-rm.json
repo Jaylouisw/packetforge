@@ -1,0 +1,137 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS418-8P-8G-2S+5axQ2axQ-RM",
+  "label": "CRS418-8P-8G-2S+5axQ2axQ-RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS418-8P-8G-2S+5axQ2axQ-RM (CRS418-8P-8G-2S+5axQ2axQ-RM) — 17x 1G RJ45, 2x 10G SFP+, Wi-Fi 2.4 GHz + 5 GHz. ARM 64bit 4-core IPQ-8072A.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1.1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs418_8p_8g_2s_wifi"
+}
