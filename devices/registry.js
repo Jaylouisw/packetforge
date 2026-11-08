@@ -48,6 +48,63 @@ function modelKey(spec) {
   return squash(spec && spec.vendor) + '|' + squash(spec && spec.model);
 }
 
+// ---------------------------------------------------------------------------
+// Effective interfaces for a spec
+// ---------------------------------------------------------------------------
+// A spec describes its ports in one of three ways:
+//   - explicitly:        "interfaces": [ {"name":"Gi1/0/1", ...}, ... ]
+//   - compactly:         "portTemplate": {"prefix":"Et","start":1,"count":12,...}
+//   - both at once:      "24x RJ45 + 4x SFP" as one template plus four interfaces
+//
+// The engine expands the template when it builds a device (engine/topology.js ->
+// expandInterfaces), so the RUNTIME always has the ports. Anything that inspects a
+// SPEC - an audit, an invariant, an importer - has to expand it the same way, or it
+// reads an empty port list and reports nothing (issue #71: 187 of 905 specs are
+// template-only, so the port-type audit and the hardware invariants were silent by
+// construction for a fifth of the catalogue. That is how the FortiGate 200G shipped
+// with its copper ports missing, see #60).
+//
+// This is the one place to ask, and it deliberately mirrors the engine rule rather
+// than inventing a second one:
+//   - generated ports first, then explicit ones, so a spec can say
+//     "24x RJ45 + 4x SFP" as a template plus four interfaces;
+//   - a template carries its hardware hints (cage / connector / speedCaps / media /
+//     PoE / hardware) onto every port it generates, because those ports share one
+//     physical design;
+//   - a spec that declares nothing at all still gets one eth0, so callers never have
+//     to special-case an empty list.
+// test/template-expansion.test.js asserts this stays byte-identical to the engine's
+// expansion over the whole catalogue.
+//
+// The cleanest end state is for engine/topology.js to call this function instead of
+// keeping its own copy; that edit is out of scope for #71 (engine/** is frozen here),
+// so for now the two are kept in step by that test.
+function effectiveInterfaces(spec) {
+  const out = [];
+  const s = spec || {};
+  if (s.portTemplate) {
+    const t = s.portTemplate;
+    const prefix = t.prefix || 'eth';
+    const start = (t.start === undefined || t.start === null) ? 1 : t.start;
+    const count = (t.count === undefined || t.count === null) ? 1 : t.count;
+    const type = t.type || 'ethernet';
+    const speed = t.speed || '1G';
+    // carry explicit hardware hints onto every generated port
+    const extra = {};
+    for (const k of ['cage', 'connector', 'media', 'supportedMedia', 'speedCaps', 'poeOut', 'poeIn', 'hardware']) {
+      if (t[k] !== undefined) extra[k] = t[k];
+    }
+    for (let i = 0; i < count; i++) {
+      out.push(Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra));
+    }
+  }
+  if (Array.isArray(s.interfaces)) {
+    for (const i of s.interfaces) out.push(Object.assign({}, i));
+  }
+  if (!out.length) out.push({ name: 'eth0', type: 'ethernet', speed: '1G' });
+  return out;
+}
+
 // Group catalog by category for palette rendering.
 function groupByCategory(specs) {
   const groups = {};
@@ -59,4 +116,4 @@ function groupByCategory(specs) {
   return groups;
 }
 
-module.exports = { loadCatalog, groupByCategory, modelKey, CATEGORY_ORDER };
+module.exports = { loadCatalog, groupByCategory, modelKey, effectiveInterfaces, CATEGORY_ORDER };
