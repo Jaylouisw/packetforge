@@ -34,6 +34,18 @@
       </div>
     </div>
     <div id="palette-list" class="palette-list"></div>
+    <!-- Nine cable families are drawn in nine colours on the canvas (MEDIUM_RULES in
+         canvas.js, the .link-* rules in style.css) and nothing said which was which.
+         The key lives here in the palette rather than floating over the drawing, so it
+         can never cover a device, and its collapsed state is kept in localStorage. -->
+    <div id="cable-legend" class="cable-legend">
+      <button id="legend-toggle" class="legend-toggle" type="button" aria-controls="legend-body" aria-expanded="true">
+        <span id="legend-caret" class="legend-caret">▾</span>
+        <span>Cable colours</span>
+      </button>
+      <div id="legend-body" class="legend-body"></div>
+    </div>
+
     <div class="palette-footer">
       <span class="hint">Click a device, then click the canvas to place it.</span>
     </div>

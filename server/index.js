@@ -399,7 +399,14 @@ async function handleApi(req, res, urlPath) {
         for (const l of r.output) lines.push(l);
       }
       broadcast(topoId);
-      return sendJSON(res, 200, { output: lines.join('\n'), lines: lines, prompt: session.prompt(), device: dev.serialize() });
+      // Same envelope as every other mutating endpoint. This one used to return only
+      // output/lines/prompt/device, so the UI's `topo = r.state` stored undefined and
+      // handed the renderer nothing to draw: setting a hostname blanked the board
+      // while the server still held it (issue #38).
+      return sendJSON(res, 200, {
+        output: lines.join('\n'), lines: lines, prompt: session.prompt(),
+        device: dev.serialize(), state: fullState(topo)
+      });
     }
 
     // /interfaces/:devId/:iface  (direct property edit — nice UI shortcut)

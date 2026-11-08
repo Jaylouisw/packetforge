@@ -231,6 +231,77 @@
     return m[s.category] || m[s.icon] || '📦';
   }
 
+  // ---------- cable-colour legend ----------
+  // The canvas draws nine cable families in nine colours (MEDIUM_RULES in canvas.js,
+  // styled by the .link-* rules here) and nothing in the UI said which colour was
+  // which, so a copper patch lead and a fibre uplink were only tellable apart if you
+  // already knew the answer. The key lives in the palette rather than floating over
+  // the drawing, so it can never sit on top of a device, and it collapses - remembered
+  // in localStorage, because a preference that resets on every reload is not one.
+  const CABLE_FAMILIES = [
+    { id: 'copper', label: 'Copper — Cat5e/6/6a patch lead' },
+    { id: 'fiber', label: 'Fibre — LC or MPO optic' },
+    { id: 'dac', label: 'DAC — twinax, in-cabinet' },
+    { id: 'aoc', label: 'AOC — active optical' },
+    { id: 'pon', label: 'PON — shared splitter drop' },
+    { id: 'coax', label: 'Coax — DOCSIS / MoCA' },
+    { id: 'dsl', label: 'DSL — one twisted pair' },
+    { id: 'powerline', label: 'Powerline — G.hn / HomePlug' },
+    { id: 'wireless', label: 'Wireless — over the air' }
+  ];
+  const LEGEND_KEY = 'pf.cableLegend.collapsed';
+
+  function legendStore() {
+    // Private-mode browsers throw on access, and a UI preference is not worth a crash.
+    try { if (typeof localStorage !== 'undefined' && localStorage) return localStorage; }
+    catch (e) { return null; }
+    return null;
+  }
+
+  function legendCollapsed() {
+    const s = legendStore();
+    try { return !!(s && s.getItem(LEGEND_KEY) === '1'); } catch (e) { return false; }
+  }
+
+  // One row per family, carrying the very class the canvas puts on the cable
+  // (link-copper, link-pon, ...), so the swatch and the drawn line cannot drift apart.
+  function cableLegendHTML() {
+    return CABLE_FAMILIES.map(function (f) {
+      return '<div class="lg-row link-' + f.id + '" data-family="' + f.id + '">' +
+        '<span class="lg-chip" aria-hidden="true"></span>' +
+        '<span class="lg-name">' + f.label + '</span></div>';
+    }).join('');
+  }
+
+  function renderCableLegend() {
+    const body = $('#legend-body');
+    if (body) body.innerHTML = cableLegendHTML();
+    const collapsed = legendCollapsed();
+    const box = $('#cable-legend');
+    if (box && box.classList) box.classList.toggle('collapsed', collapsed);
+    const btn = $('#legend-toggle');
+    if (btn && btn.setAttribute) btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    const caret = $('#legend-caret');
+    if (caret) caret.textContent = collapsed ? '▸' : '▾';
+    return collapsed;
+  }
+
+  function setLegendCollapsed(collapsed) {
+    const s = legendStore();
+    try { if (s) s.setItem(LEGEND_KEY, collapsed ? '1' : '0'); } catch (e) { /* quota, private mode */ }
+    return renderCableLegend();
+  }
+
+  function bindLegend() {
+    const btn = $('#legend-toggle');
+    if (!btn || !btn.addEventListener) return;
+    btn.addEventListener('click', function () {
+      const box = $('#cable-legend');
+      const isCollapsed = !!(box && box.classList && box.classList.contains('collapsed'));
+      setLegendCollapsed(!isCollapsed);
+    });
+  }
+
   $('#pf-search').addEventListener('input', function () { paletteFilter.q = this.value; renderPalette(); });
   $('#pf-vendor').addEventListener('change', function () { paletteFilter.vendor = this.value; renderPalette(); });
   $('#pf-type').addEventListener('change', function () { paletteFilter.type = this.value; renderPalette(); });
@@ -239,7 +310,7 @@
   PFCanvas.on.place = async function (x, y, spec) {
     try {
       const r = await api('POST', '/topologies/' + TOPO + '/devices', { vendor: spec.vendor, model: spec.model, x: Math.round(x), y: Math.round(y) });
-      topo = r.state;
+      topo = r.state || topo;
       placing = null;
       document.querySelectorAll('.device-card').forEach(function (c) { c.classList.remove('active'); });
       PFCanvas.setPlacing(null);
@@ -434,7 +505,7 @@
         mediaId: mediaId,
         lengthM: lengthM
       });
-      topo = r.state;
+      topo = r.state || topo;
       PFCanvas.setConnecting(null);
       PFCanvas.setTopology(topo);
       const via = (r.link && r.link.mediaId) ? ' via ' + r.link.mediaId : '';
@@ -638,7 +709,7 @@
         const cur = d.interfaces.find(function (i) { return i.name === iface; });
         try {
           const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { enabled: !cur.enabled });
-          topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+          topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
         } catch (e) { toast(e.message); }
       });
     });
@@ -655,7 +726,7 @@
         const next = opts[(opts.indexOf(cur.role) + 1) % opts.length];
         try {
           const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { role: next });
-          topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+          topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
           toast(iface + ' is now a ' + next.toUpperCase() + ' port');
         } catch (e) { toast(e.message); }
       });
@@ -664,7 +735,7 @@
     if (hn) hn.addEventListener('change', async function () {
       try {
         const r = await api('POST', '/topologies/' + TOPO + '/config/' + d.id, { commands: ['configure terminal', 'hostname ' + hn.value.trim()] });
-        topo = r.state; PFCanvas.setTopology(topo); select(d.id);
+        topo = r.state || topo; PFCanvas.setTopology(topo); select(d.id);
       } catch (e) { toast(e.message); }
     });
   }
@@ -717,7 +788,7 @@
           delete pendingIp[key];
           const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface,
             { ip: null, mask: null });
-          topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+          topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
           toast('Cleared ' + iface);
           return;
         }
@@ -736,7 +807,7 @@
         const mask = maskFromShorthand(raw);
         const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface, { ip: ip, mask: mask });
         delete pendingIp[key];
-        topo = r.state; PFCanvas.setTopology(topo); renderDeviceTab();
+        topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
         toast('Set ' + iface + ' to ' + ip + '/' + maskBits(mask));
         return;
       }
@@ -938,6 +1009,105 @@
     return h;
   }
 
+  // ---------- catalogue parts for a medium ----------
+  // "10gbase-lr" is a standard, not a part. The link inspector used to stop there, so a
+  // cable told you what it was called and nothing about what you would actually order:
+  // SFP-10G-LR reaches 10 km, terminates in an LC/UPC ferrule and transmits at 1310 nm.
+  // Those numbers live in catalogue/optics/transceivers.json, which is outside the static
+  // root (the server serves web/ only), so the browser cannot fetch it: hence this
+  // snapshot, one line per part, in this order -
+  //
+  //   part number | form factor | standard implemented | line rate Mbps | reach m | ferrule | wavelength nm
+  //
+  // test/link-parts.test.js diffs it field by field against the JSON, so an edited
+  // catalogue fails the build instead of the UI quietly quoting a reach nobody sells.
+  const PART_ROWS = [
+    'GLC-SX-MMD|sfp|1000BASE-SX|1000|550|LC/UPC|850',
+    'GLC-LH-SMD|sfp|1000BASE-LX/LH|1000|10000|LC/UPC|1310',
+    'GLC-TE|sfp|1000BASE-T|1000|100|RJ45|',
+    'GLC-ZX-SMD|sfp|1000BASE-ZX|1000|70000|LC/UPC|1550',
+    'SFP-10G-SR|sfp+|10GBASE-SR|10000|400|LC/UPC|850',
+    'SFP-10G-LR|sfp+|10GBASE-LR|10000|10000|LC/UPC|1310',
+    'SFP-10G-ER|sfp+|10GBASE-ER|10000|40000|LC/UPC|1550',
+    'SFP-10G-T-X|sfp+|10GBASE-T|10000|30|RJ45|',
+    'SFP-10G-BXU-I|sfp+|10GBASE-BX10-U|10000|10000|LC/UPC|1270',
+    'SFP-10G-BXD-I|sfp+|10GBASE-BX10-D|10000|10000|LC/UPC|1330',
+    'CWDM-SFP10G-40L|sfp+|10GBASE-ER/EW (CWDM)|10000|40000|LC/UPC|1470',
+    'SFP-25G-SR-S|sfp28|25GBASE-SR|25000|100|LC/UPC|850',
+    'SFP-10/25G-LR-S|sfp28|25GBASE-LR|25000|10000|LC/UPC|1310',
+    'QSFP-40G-SR4-S|qsfp+|40GBASE-SR4|40000|150|MPO/UPC|850',
+    'QSFP-40G-LR4-S|qsfp+|40GBASE-LR4|40000|10000|LC/UPC|1310',
+    'QSFP-40G-SR-BD|qsfp+|40GBASE-SR-BiDi|40000|150|LC/UPC|850',
+    'QSFP-100G-SR4-S|qsfp28|100GBASE-SR4|100000|100|MPO/UPC|850',
+    'QSFP28-LR4-100G|qsfp28|100GBASE-LR4|100000|10000|LC/UPC|1310',
+    'QSFP28-IR4-100G|qsfp28|100GBASE-CWDM4|100000|2000|LC/UPC|1310',
+    'GSFP-43-20C|sfp|GPON OLT Class C+ (ITU-T G.984.2)|2488|20000|SC/UPC|1490',
+    'XGS-SFP-52-20N2I|sfp+|XGS-PON OLT Class N2 (ITU-T G.9807.1)|9953|20000|SC/UPC|1577',
+    'GSFP-34-20B-I|sfp|GPON ONU Class B+ (ITU-T G.984.2)|2488|20000|SC/UPC|1310',
+    'XGS-SFP-25-20I|sfp+|XGS-PON ONU Class N1/N2 (ITU-T G.9807.1)|9953|20000|SC/APC|1270'
+  ];
+
+  // "10GBASE-ER/EW (CWDM)" -> "10gbase-er": the first token is the medium the part
+  // serves, and it is the only part of the standard that maps onto a mediaId.
+  function standardKey(standard) {
+    return String(standard || '').toLowerCase().split(/[\s/()]+/)[0];
+  }
+
+  const OPTIC_PARTS = PART_ROWS.map(function (row) {
+    const f = row.split('|');
+    return {
+      partNumber: f[0], formFactor: f[1], standard: f[2],
+      speedMbps: Number(f[3]), reachM: Number(f[4]), ferrule: f[5],
+      wavelengthNm: f[6] ? Number(f[6]) : null,
+      standardKey: standardKey(f[2])
+    };
+  });
+
+  function reachLabel(m) {
+    const n = Number(m);
+    if (!isFinite(n) || n <= 0) return 'reach not stated';
+    return n >= 1000 ? (Math.round(n / 100) / 10) + ' km' : n + ' m';
+  }
+
+  function partsForMedia(mediaId) {
+    const id = String(mediaId || '').toLowerCase().trim();
+    if (!id) return [];
+    const exact = [], prefixed = [];
+    for (const p of OPTIC_PARTS) {
+      if (p.standardKey === id) { exact.push(p); continue; }
+      // A PON module implements a whole family ("GPON") while the medium names the
+      // connector too ("gpon-sc-apc"), so extend a match only on a word boundary. That
+      // keeps 10GBASE-LR off a 10GBASE-LR4 run: "-lr" prefixes "-lr4" mid-word.
+      if (id.length > p.standardKey.length + 1 && id.indexOf(p.standardKey) === 0 &&
+          /[-_.\/ ]/.test(id.charAt(p.standardKey.length))) prefixed.push(p);
+    }
+    // An exact hit is a statement about this medium; a prefix hit only places the part
+    // in the family, so it must never outrank one that names the medium itself.
+    return exact.length ? exact : prefixed;
+  }
+
+  function partsHTML(mediaId) {
+    const parts = partsForMedia(mediaId);
+    if (!parts.length) {
+      // Say it out loud. An empty box reads as a broken inspector; "the catalogue has
+      // no part" is an answer, and it is the honest one for coax, DSL or wireless.
+      return '<div class="parts-none">The catalogue has no part for this medium - ' +
+        'catalogue/optics/transceivers.json lists no transceiver that implements ' +
+        '<span class="mono">' + esc(String(mediaId || 'unknown')) + '</span>, so there ' +
+        'is no part number, reach or ferrule to quote.</div>';
+    }
+    let h = '<div class="parts-list">';
+    for (const p of parts) {
+      const spec = [cageLabel(p.formFactor), reachLabel(p.reachM),
+        p.wavelengthNm ? p.wavelengthNm + ' nm' : null, p.ferrule]
+        .filter(Boolean).join(' · ');
+      h += '<div class="part-row" data-part="' + esc(p.partNumber) + '">' +
+        '<span class="part-no mono">' + esc(p.partNumber) + '</span>' +
+        '<span class="part-spec">' + spec + '</span></div>';
+    }
+    return h + '</div>';
+  }
+
   // Inspector for a selected cable: media, negotiated rate, both ends.
   function renderLinkInspector(wrap) {
     const link = (topo.links || []).find(function (l) { return l.id === selectedLink; });
@@ -971,6 +1141,12 @@
     if (link.lagId) html += '<div class="kv"><span class="k">LAG</span><span>group ' + link.lagId + '</span></div>';
     html += '<div class="kv"><span class="k">State</span><span>' + (link.state || 'up') + '</span></div>';
 
+    // What a medium is called is not what you order. Name the parts the catalogue
+    // says implement it, with the reach and the ferrule that go with them.
+    const mediaKey = link.mediaId || link.media || '';
+    html += '<div class="field-label">Catalogue parts</div>';
+    html += partsHTML(mediaKey);
+
     html += '<div class="field-label">Endpoints</div>';
     html += endpointHTML(da, link.a.iface, ia);
     html += endpointHTML(db, link.b.iface, ib);
@@ -989,7 +1165,7 @@
         const value = raw === '' ? null : parseFloat(raw);
         try {
           const r = await api('PATCH', '/topologies/' + TOPO + '/links/' + link.id, { lengthM: value });
-          topo = r.state;
+          topo = r.state || topo;
           PFCanvas.setTopology(topo);
           renderLinkInspector(wrap);
           const warn = (r.warnings || [])[0];
@@ -1032,7 +1208,7 @@
         if (l === oldPrompt + cmd) continue; // skip server's echo of the command
         st.lines.push({ t: l, k: l.charAt(0) === '%' ? 'err' : 'out' });
       }
-      topo = r.state; PFCanvas.setTopology(topo);
+      topo = r.state || topo; PFCanvas.setTopology(topo);
       if (selectedId === d.id) renderDeviceTab();
     } catch (e) {
       st.lines.push({ t: '% ' + e.message, k: 'err' });
@@ -1206,7 +1382,7 @@
   async function deleteDevice(id) {
     try {
       const r = await api('DELETE', '/topologies/' + TOPO + '/devices/' + id);
-      topo = r.state;
+      topo = r.state || topo;
       if (selectedId === id) selectedId = null;
       PFCanvas.setTopology(topo); PFCanvas.setSelected(null);
       renderDeviceTab(); renderSimulateTab();
@@ -1234,7 +1410,7 @@
         try {
           const doc = JSON.parse(text);
           const r = await api('POST', '/topologies/' + TOPO + '/load', doc);
-          topo = r.state; selectedId = null;
+          topo = r.state || topo; selectedId = null;
           PFCanvas.setTopology(topo); PFCanvas.setSelected(null);
           renderDeviceTab(); renderSimulateTab();
           toast('Topology imported');
@@ -1247,7 +1423,7 @@
       if (!confirm('Start a new empty topology? Unsaved work will be lost.')) return;
       try {
         const r = await api('POST', '/topologies/' + TOPO + '/load', { format: 'packetforge-topology', version: 1, devices: [], links: [], layout: {} });
-        topo = r.state; selectedId = null;
+        topo = r.state || topo; selectedId = null;
         PFCanvas.setTopology(topo); PFCanvas.setSelected(null);
         renderDeviceTab(); renderSimulateTab();
         setStatus('New empty topology');
@@ -1381,7 +1557,9 @@
       try {
         const m = JSON.parse(ev.data);
         if (m.type === 'topology') {
-          topo = m.state;
+          // A socket frame without a state is not a board: adopting it would
+          // blank the canvas exactly the way issue #38 did.
+          topo = m.state || topo;
           PFCanvas.setTopology(topo);
           if (selectedId && !deviceById(selectedId)) { selectedId = null; PFCanvas.setSelected(null); }
           renderDeviceTab(); renderSimulateTab();
@@ -1410,6 +1588,10 @@
   // ---------- boot ----------
   async function boot() {
     bindTopbar();
+    // Static content: draw it before the first API call so a slow or failed
+    // /api/catalog does not leave the canvas colours unexplained.
+    renderCableLegend();
+    bindLegend();
     switchTab('device');
     try {
       const cat = await api('GET', '/catalog');
@@ -1449,6 +1631,17 @@
     cageLabel: cageLabel,
     vlanSummary: vlanSummary,
     filterDevices: filterDevices,
-    searchKey: searchKey
+    searchKey: searchKey,
+    renderCableLegend: renderCableLegend,
+    bindLegend: bindLegend,
+    setLegendCollapsed: setLegendCollapsed,
+    legendCollapsed: legendCollapsed,
+    cableLegendHTML: cableLegendHTML,
+    cableFamilies: CABLE_FAMILIES,
+    partsForMedia: partsForMedia,
+    partsHTML: partsHTML,
+    reachLabel: reachLabel,
+    standardKey: standardKey,
+    opticParts: OPTIC_PARTS
   };
 })();
