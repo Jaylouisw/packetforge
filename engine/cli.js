@@ -877,6 +877,40 @@ class CliSession {
   }
 
   // ---------- show ----------
+  // show ip bgp [summary]
+  //
+  // The interesting column is State, and the interesting news is that it can be something
+  // other than Established. Before the session walk existed, every configured neighbour was
+  // Established by definition - which is the one thing a lab must not teach, because the
+  // whole skill is reading Active or OpenSent and knowing what it means.
+  _showBgp(args) {
+    const dev = this.device;
+    const cfg = dev.config && dev.config.bgp;
+    const out = [];
+    if (!cfg || !cfg.as) { out.push('% BGP is not enabled'); return out; }
+
+    const rows = dev.bgpNeighbors || [];
+    out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
+      ', local AS number ' + cfg.as);
+    out.push('');
+    out.push(pad('Neighbor', 17) + pad('V', 3) + pad('AS', 8) + pad('State', 16) + 'Reason');
+    if (!rows.length) {
+      out.push('(no neighbours have been evaluated yet - run a simulation)');
+    } else {
+      for (const r of rows) {
+        out.push(pad(r.address, 17) + pad('4', 3) + pad(String(r.remoteAs == null ? '?' : r.remoteAs), 8) +
+          pad(r.established ? 'Established' : 'Idle', 16) +
+          (r.established ? (r.session === 'ibgp' ? 'iBGP' : 'eBGP') : (r.reason || r.code || '')));
+      }
+    }
+    const up = rows.filter(function (r) { return r.established; }).length;
+    out.push('');
+    out.push(up + ' of ' + rows.length + ' neighbour(s) established');
+    const learned = (dev.bgpRoutes || []).length;
+    out.push(learned + ' prefix(es) installed from BGP');
+    return out;
+  }
+
   _show(tokens) {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
@@ -901,6 +935,8 @@ class CliSession {
       for (const r of dev.routesTable()) {
         out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
       }
+    } else if (what === 'ip' && tokens[1] === 'bgp') {
+      out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ipv6' && tokens[1] === 'nd') {
       out.push.apply(out, this._showIpv6Nd());
     } else if (what === 'lldp') {

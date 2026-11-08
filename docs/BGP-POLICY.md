@@ -1,6 +1,32 @@
 # BGP Path-Attribute Policy
 
 **Status:** design specification — not yet implemented.
+
+> **The session model this sits on is now a walk, not an assumption.** Until recently
+> `computeBgp()` declared a session established when two routers each had a `neighbor` line
+> for the other, and silently `continue`d past every mismatch. `engine/bgp.js` had carried the
+> RFC 4271 state machine the whole time with nothing driving it. `establishSession()` now
+> walks it — idle → connect → opensent → openconfirm → established — and stops where the
+> network stops, reporting the state it died in (`connect` means TCP never opened, which is a
+> different fault from an OPEN that was rejected) plus a code:
+>
+> | Code | Means |
+> |---|---|
+> | `E_PEER_NOT_ON_SUBNET` | the neighbour address has no next hop: BGP rides TCP, TCP needs one |
+> | `E_PEER_NOT_FOUND` | no speaker in the topology holds that address |
+> | `E_PEER_NOT_CONFIGURED` | the peer has no `neighbor` line pointing back at us |
+> | `E_REMOTE_AS_MISMATCH` | the two ends disagree about who the peer is |
+> | `E_IFACE_DOWN` | the address is configured and the port is down — the distinction that matters, because a shut interface keeps its address |
+> | `E_NO_ROUTE_TO_PEER` / `E_NO_SOURCE_IP` | the peer is unreachable, or there is nothing to source from |
+> | `E_POE` | the box that would open the session was never powered |
+>
+> A refused session installs no routes, which is the point: "the config looks right" and
+> "the prefixes moved" are now different statements. `show ip bgp summary` reads the real
+> per-neighbour state.
+>
+> **Not yet:** reachability is a route plus an up egress on each side. ACLs on *intermediate*
+> hops are not consulted, so a session this calls reachable can still be dropped in the data
+> path. That is the next increment, and until it lands the verdict is a floor, not a promise.
 **Scope:** the policy layer that sits on top of the existing BGP-4 session model
 (`engine/bgp.js`, `engine/simulator.js: computeBgp()`, `engine/cli.js: _bgp()`).
 **Audience:** whoever implements it. Every rule below names the RFC section it
