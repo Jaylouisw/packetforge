@@ -1,0 +1,109 @@
+name: Auto-rebase
+
+# Forgejo-first queue drain: rebase stale open pull requests onto main and arm
+# squash auto-merge, so a PR lands the moment its checks pass. A conflict is a
+# decision about behaviour, so it is left for a human rather than guessed at.
+#
+# Runs on a schedule (only the copy on the default branch is used) and on demand
+# from the Actions tab.
+#
+# BATCHING: this host has one runner. Rebasing every open PR in a single pass
+# enqueues a full CI matrix per PR and starves the queue for hours, which is how
+# a drain turns into a stampede. Each run therefore only touches the oldest
+# `batch` PRs (default 5); the rest get their turn on the next tick.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: Number of pull requests to rebase in this run
+        default: '5'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-rebase
+  cancel-in-progress: false
+
+jobs:
+  rebase:
+    name: Rebase open PRs and arm auto-merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebase and arm
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REQUESTED_BATCH: ${{ github.event.inputs.batch }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="$GITHUB_REPOSITORY"
+
+          # The token has to reach curl as a real value. An earlier draft of this
+          # workflow left a literal placeholder in the header, so every call was
+          # unauthenticated and the job failed silently. Fail loudly instead.
+          if [ -z "${TOKEN:-}" ]; then
+            echo "no token in the environment - cannot talk to $api" >&2
+            exit 1
+          fi
+
+          batch="${REQUESTED_BATCH:-5}"
+          case "$batch" in
+            ''|*[!0-9]*) batch=5 ;;
+          esac
+          export BATCH="$batch"
+
+          # Only mergeable PRs: a conflicted one cannot be rebased, and naming it
+          # once is more useful than retrying it every ten minutes.
+          # Node is in the runner's job image (node:20-bookworm); jq is not.
+          pulls=$(curl -sS -H "Authorization: token $TOKEN" \
+            "$api/repos/$repo/pulls?state=open&limit=500" \
+            | node -e '
+              let d = "";
+              process.stdin.on("data", c => d += c).on("end", () => {
+                let prs = [];
+                try { prs = JSON.parse(d); } catch (e) { process.exit(0); }
+                prs
+                  .filter(p => p.state === "open" && p.mergeable === true)
+                  .sort((a, b) => a.number - b.number)
+                  .slice(0, Number(process.env.BATCH || 5))
+                  .forEach(p => console.log(p.number));
+              });
+            ' 2>/dev/null || true)
+
+          if [ -z "${pulls:-}" ]; then
+            echo "no mergeable open pull requests"
+            exit 0
+          fi
+
+          rebased=0
+          skipped=0
+          armed=0
+
+          for n in $pulls; do
+            # Rebase onto main. A branch already on main, or one that conflicts,
+            # answers non-2xx; both are reported, neither is guessed at.
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+              -d '{"style":"rebase"}' "$api/repos/$repo/pulls/$n/update")
+            case "$code" in
+              200|201) rebased=$((rebased+1)); echo "PR #$n: rebased onto main" ;;
+              *)       skipped=$((skipped+1)); echo "PR #$n: rebase skipped (http $code)" ;;
+            esac
+
+            # Arm squash auto-merge; Forgejo merges once the checks pass.
+            mcode=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+              -d '{"Do":"squash","merge_when_checks_succeed":true}' \
+              "$api/repos/$repo/pulls/$n/merge")
+            case "$mcode" in
+              200|201) armed=$((armed+1)); echo "PR #$n: armed for squash merge on green checks" ;;
+              *)       echo "PR #$n: merge not armed yet (http $mcode)" ;;
+            esac
+          done
+
+          echo "batch=$batch rebased=$rebased skipped=$skipped armed=$armed"
