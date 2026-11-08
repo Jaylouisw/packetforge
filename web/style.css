@@ -136,6 +136,12 @@ body {
 .dc-badge-host, .dc-badge-server { color: #e7ecf5; border-color: #e7ecf555; }
 .dc-badge-cloud { color: #22d3ee; border-color: #22d3ee55; }
 .palette-empty { color: var(--muted); font-size: 12px; padding: 14px 8px; text-align: center; }
+/* The count of what is on screen. The palette holds the whole catalogue, so saying how
+   much of it the current query shows is cheaper than making people count vendor groups. */
+.palette-summary {
+  color: var(--muted); font-size: 11px; padding: 4px 8px 8px; letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--line, rgba(255,255,255,0.06)); margin-bottom: 4px;
+}
 
 /* ---------- canvas ---------- */
 #canvas-wrap { grid-area: canvas; position: relative; overflow: hidden; background: var(--bg); }
@@ -174,6 +180,9 @@ body {
    the event target (see hitTest in canvas.js), and this rule keeps the ghost out of the
    browser's own hit testing too. */
 .link-ghost { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
+/* A cable that is down: dashed, red, and dimmed, so a broken lab reads as broken at a glance. */
+.link.link-down { stroke: var(--red); stroke-dasharray: 5 5; opacity: .55; }
+.link.link-down:hover { stroke: var(--red); opacity: 1; }
 .packet { fill: var(--amber); filter: url(#glow); }
 /* Grid lines are scenery: 400 of them used to be hover/click candidates. */
 .grid-line { stroke: #151a24; stroke-width: 1; pointer-events: none; }

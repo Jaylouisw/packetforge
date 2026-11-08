@@ -15,38 +15,45 @@
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "interfaces": [
     {
       "name": "40GE0/0/25",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     },
     {
       "name": "40GE0/0/26",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     },
     {
       "name": "40GE0/0/27",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     },
     {
       "name": "40GE0/0/28",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     },
     {
       "name": "40GE0/0/29",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     },
     {
       "name": "40GE0/0/30",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp28"
     }
   ],
   "icon": "switch",

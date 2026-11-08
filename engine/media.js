@@ -60,6 +60,34 @@ const MEDIA = {
   '5gbase-t': { name: '5GBASE-T', family: 'copper', connector: 'rj45', speedMbps: 5000, maxRangeM: 100, cable: 'cat6', poe: true },
   '10gbase-t': { name: '10GBASE-T', family: 'copper', connector: 'rj45', speedMbps: 10000, maxRangeM: 100, cable: 'cat6a', poe: false },
 
+  // 50G in SFP form: 50GBASE-SR/LR ride an SFP56 module, which is an SFP28 socket width with
+  // two 25G lanes. Modelling them as 25G (the nearest SFP28 rate) understates the port, and
+  // modelling them as QSFP would give the wrong connector.
+  '50gbase-sr': { name: '50GBASE-SR', family: 'fiber', connector: 'lc', speedMbps: 50000, maxRangeM: 100,  fiber: 'mmf', wavelengthNm: 850 },
+  '50gbase-lr': { name: '50GBASE-LR', family: 'fiber', connector: 'lc', speedMbps: 50000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
+
+  // ---- Fibre Channel ----
+  // The "G" in an FC part name is not the line rate. 2GFC runs at 2.125 Gbit/s, 4G at 4.25,
+  // 8G at 8.5, 16G at 14.025, 32G at 28.05 and 64G at 57.8, because FC wraps its payload in
+  // 8b/10b (up to 8G) or 64b/66b framing. Modelling a "64G" port as 64000 Mbps would let it
+  // negotiate with a 100G Ethernet port it has nothing in common with.
+  '10gfc-sw': { name: '10GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 10519, maxRangeM: 300, fiber: 'mmf', wavelengthNm: 850, fcRate: 10 },
+  '10gfc-lw': { name: '10GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 10519, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 10 },
+  '2gfc-sw':  { name: '2GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 2125,  maxRangeM: 300,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 2 },
+  '2gfc-lw':  { name: '2GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 2125,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 2 },
+  '4gfc-sw':  { name: '4GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 4250,  maxRangeM: 150,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 4 },
+  '4gfc-lw':  { name: '4GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 4250,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 4 },
+  '8gfc-sw':  { name: '8GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 8500,  maxRangeM: 150,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 8 },
+  '8gfc-lw':  { name: '8GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 8500,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 8 },
+  '16gfc-sw': { name: '16GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 14025, maxRangeM: 100,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 16 },
+  '16gfc-lw': { name: '16GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 14025, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 16 },
+  '32gfc-sw': { name: '32GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 28050, maxRangeM: 70,   fiber: 'mmf',  wavelengthNm: 850,  fcRate: 32 },
+  '32gfc-lw': { name: '32GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 28050, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 32 },
+  '64gfc-sw': { name: '64GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 57800, maxRangeM: 30,   fiber: 'mmf',  wavelengthNm: 850,  fcRate: 64 },
+  '128gfc-sw': { name: '128GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 112200, maxRangeM: 30, fiber: 'mmf', wavelengthNm: 850, fcRate: 128 },
+  '128gfc-lw': { name: '128GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 112200, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 128 },
+  '64gfc-lw': { name: '64GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 57800, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 64 },
+
   // ---- fiber, 1G ----
   '1000base-sx': { name: '1000BASE-SX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 550, fiber: 'mmf', wavelengthNm: 850 },
   '1000base-lx': { name: '1000BASE-LX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 10000, fiber: 'both', wavelengthNm: 1310 },
@@ -149,6 +177,11 @@ const MEDIA = {
   'docsis-31': { name: 'DOCSIS 3.1 (coax)', family: 'coax', connector: 'f', speedMbps: 10000, upstreamMbps: 1000, maxRangeM: 300, shared: true },
   'docsis-30': { name: 'DOCSIS 3.0 (coax)', family: 'coax', connector: 'f', speedMbps: 1000, upstreamMbps: 200, maxRangeM: 300, shared: true },
   'moca-25': { name: 'MoCA 2.5 (coax)', family: 'coax', connector: 'f', speedMbps: 2500, maxRangeM: 100, shared: true },
+  // DOCSIS is asymmetric, and the two directions are different sized pipes on the same
+  // F-connector. Without an upstream entry a 200 Mbps return-path port matches no medium and the
+  // cable picker offers it nothing at all (issue #1039).
+  'docsis-30-us': { name: 'DOCSIS 3.0 upstream (coax)', family: 'coax', connector: 'f', speedMbps: 200, maxRangeM: 300, shared: true, direction: 'upstream' },
+  'docsis-31-us': { name: 'DOCSIS 3.1 upstream (coax)', family: 'coax', connector: 'f', speedMbps: 1000, maxRangeM: 300, shared: true, direction: 'upstream' },
   'moca-11': { name: 'MoCA 1.1 (coax)', family: 'coax', connector: 'f', speedMbps: 175, maxRangeM: 100, shared: true },
   'vdsl2-35b': { name: 'VDSL2 35b (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 300, maxRangeM: 400 },
   'vdsl2-17a': { name: 'VDSL2 17a (twisted pair)', family: 'dsl', connector: 'rj11', speedMbps: 100, maxRangeM: 900 },
@@ -165,6 +198,15 @@ const MEDIA = {
   // 9.953. Reach is the class budget: 20 km at a 1:32 split.
   'gpon-sc-apc': { name: 'GPON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'gpon-sc-upc': { name: 'GPON (SC/UPC)', family: 'fiber', connector: 'sc-upc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
+
+  // ---- fiber, 100M ----
+  // 100BASE-FX: 1300 nm over multimode for 2 km, SC connectors on the media converters that
+  // use it. This entry was missing while both SC cages already offered the id, so a PON
+  // port advertised a medium that resolved to null - and the one device that needs it, the
+  // Allied Telesis AT-MC102XL's sc-upc port at 100M, had no medium to be cabled with. The
+  // id is declared here as sc-upc rather than for both polished SC cages: 100BASE-FX
+  // terminates in a UPC ferrule, so an SC/APC PON port has no business offering it.
+  '100base-fx': { name: '100BASE-FX', family: 'fiber', connector: 'sc-upc', speedMbps: 100, maxRangeM: 2000, fiber: 'mmf', wavelengthNm: 1310 },
   'xgspon-sc-apc': { name: 'XGS-PON (SC/APC)', family: 'fiber', connector: 'sc-apc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
   'gpon-lc-upc': { name: 'GPON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 2488, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1490, upstreamMbps: 1244 },
   'xgspon-lc-upc': { name: 'XGS-PON (LC/UPC)', family: 'fiber', connector: 'lc', speedMbps: 9953, maxRangeM: 20000, fiber: 'smf', wavelengthNm: 1577, upstreamMbps: 9953 },
@@ -190,7 +232,15 @@ const MEDIA = {
   '1000base-t-sfp': { name: '1000BASE-T SFP', family: 'copper', connector: 'sfp', speedMbps: 1000, maxRangeM: 100, cable: 'cat5e', poe: false },
 
   // ---- console / serial ----
-  'console-rs232': { name: 'Console (RS-232)', family: 'console', connector: 'console', speedMbps: 0.1152, maxRangeM: 15 },
+  // A console port is not a data path and does not have a "line rate" - it has a baud rate,
+  // and the baud rate is the thing that actually goes wrong. 9600 is the default on most
+  // network hardware and 115200 is what everyone sets it to; a cable between a 9600 port and a
+  // 115200 port is a real, common, silent failure, so each baud is its own medium.
+  'console-rs232':      { name: 'Console (RS-232, 115200 baud)', family: 'console', connector: 'console', speedMbps: 0.1152, maxRangeM: 15, baud: 115200 },
+  'console-rs232-57600': { name: 'Console (RS-232, 57600 baud)',  family: 'console', connector: 'console', speedMbps: 0.0576, maxRangeM: 15, baud: 57600 },
+  'console-rs232-38400': { name: 'Console (RS-232, 38400 baud)',  family: 'console', connector: 'console', speedMbps: 0.0384, maxRangeM: 15, baud: 38400 },
+  'console-rs232-19200': { name: 'Console (RS-232, 19200 baud)',  family: 'console', connector: 'console', speedMbps: 0.0192, maxRangeM: 15, baud: 19200 },
+  'console-rs232-9600':  { name: 'Console (RS-232, 9600 baud)',   family: 'console', connector: 'console', speedMbps: 0.0096, maxRangeM: 15, baud: 9600 },
   'usb-console': { name: 'USB Console', family: 'console', connector: 'usb', speedMbps: 12, maxRangeM: 5 },
 
   // ---- wireless ----
@@ -273,6 +323,26 @@ const CAGES = {
   'qsfp+': { name: 'QSFP+', family: 'optical', label: 'QSFP+ cage (40G)' },
   qsfpdd: { name: 'QSFP-DD', family: 'optical', label: 'QSFP-DD cage (200/400G)' },
   qsfp28: { name: 'QSFP28', family: 'optical', label: 'QSFP28 cage (100G)' },
+  // QSFP56 is the 200G member of the QSFP family: same physical connector as QSFP28 and
+  // QSFP+, four lanes at 50G instead of 25G. It is not a QSFP-DD (which is double-density
+  // and twice as wide), so a 200G port modelled as QSFP-DD would refuse the 100G optic that
+  // physically fits it, and a 200G module in a QSFP28 cage would claim a rate the cage
+  // cannot carry.
+  qsfp56: { name: 'QSFP56', family: 'optical', label: 'QSFP56 cage (200G)' },
+  // Fibre Channel gets its own cages rather than borrowing the Ethernet ones. The connector is
+  // the same (LC on SFP/SFP28, SFP-DD for 64G) but the rate ladder is not: if FC rates lived in
+  // the Ethernet cages, an SFP+ port that declares no speedCaps would inherit 8G/16G as its
+  // defaults and an Ethernet-to-Ethernet link could negotiate a Fibre Channel rate.
+  sfp56: { name: 'SFP56', family: 'optical', label: 'SFP56 cage (50G)' },
+  // XFP came before SFP+ and is larger: 10 Gbit/s only, and an SFP+ module does not fit it.
+  // OLT uplink cards are where it survives - FiberHome's HU2A is 2x10GE in XFP cages and
+  // Huawei's H801X2CA is 2x10GE XFP - so modelling it as SFP+ would let a lab cable a module
+  // that physically will not seat.
+  xfp: { name: 'XFP', family: 'optical', label: 'XFP cage (10G)' },
+  'fc-sfp': { name: 'SFP+ (FC)', family: 'fibre-channel', label: 'SFP+ cage, Fibre Channel 2/4/8/16G' },
+  'fc-sfp28': { name: 'SFP28 (FC)', family: 'fibre-channel', label: 'SFP28 cage, Fibre Channel 32G' },
+  'fc-sfpdd': { name: 'SFP-DD (FC)', family: 'fibre-channel', label: 'SFP-DD cage, Fibre Channel 64G' },
+  'fc-qsfp28': { name: 'QSFP28 (FC)', family: 'fibre-channel', label: 'QSFP28 cage, Fibre Channel 128G (4 lanes)' },
   // SC is the PON connector. APC and UPC are separate cages deliberately: an
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
   // about 3 dB of loss and can chip the endface.
@@ -311,7 +381,13 @@ const CAGE_ALIAS = {
   rj11: 'dsl',
   sc: 'sc-upc',
   // MCX is a small coax connector used on CMTS line cards and small-cell gear. A
-  // different shape from an F-connector, but the engine has one coax cage and it is
+  // MCX is a small coax connector used on CMTS line cards and small-cell gear: a different
+  // shape from an F-connector, resolved to the coax cage because the engine has one and because
+  // every MCX port in a real plant reaches the F-connector through a jumper anyway. Modelling
+  // them as separate cages would make 24 CMTS return-path ports uncablable to nothing at all,
+  // which is a worse lie than assuming the adapter.
+  //
+  // Original note: a different shape from an F-connector, but the engine has one coax cage and it is
   // still coax: leaving it unmapped made 40 CMTS line-card ports uncabliable.
   mcx: 'coax',
   // Radio connectors (issue #77). A spec describes a radio the way its datasheet does:
@@ -337,15 +413,26 @@ const CAGE_ALIAS = {
 const CAGE_MATE = {
   rj45: ['rj45', 'combo'],
   combo: ['combo', 'rj45', 'sfp', 'sfp+', 'sfp28'],
-  sfp: ['sfp', 'sfp+', 'sfp28', 'combo'],
-  'sfp+': ['sfp', 'sfp+', 'sfp28', 'combo'],
-  sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
-  'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd'],
-  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd'],
+  sfp: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28'],
+  'sfp+': ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
+  xfp: ['xfp'],
+  sfp28: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
+  sfp56: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo'],
+  'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
+  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56', 'fc-qsfp28'],
   // A QSFP-DD cage takes a QSFP28 or QSFP+ module and negotiates down to that
   // module's rate. Refusing the pair would make a 400G port unable to accept the
   // 100G optic most labs actually have.
-  qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+'],
+  qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+', 'qsfp56'],
+  qsfp56: ['qsfp56', 'qsfp28', 'qsfp+'],
+  // The FC cages mate with the Ethernet cages because the hardware does: an SFP+ socket takes
+  // an 8G FC optic exactly as it takes a 10GBASE-SR one. What cannot join is the *link* - the
+  // media lists have no common member, and canMate() names that as a protocol mismatch rather
+  // than shrugging at "no shared medium".
+  'fc-sfp': ['fc-sfp', 'sfp+', 'sfp28', 'fc-sfp28', 'fc-sfpdd'],
+  'fc-sfp28': ['fc-sfp28', 'fc-sfp', 'sfp28', 'sfp+', 'fc-sfpdd'],
+  'fc-sfpdd': ['fc-sfpdd', 'fc-sfp28', 'fc-sfp', 'sfp28', 'sfp+'],
+  'fc-qsfp28': ['fc-qsfp28', 'qsfp28'],
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
@@ -457,6 +544,26 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  sfp56: function () { return ['50gbase-sr', '50gbase-lr', '25gbase-sr', '25gbase-lr', 'dac-25g']; },
+  xfp: function () { return ['10gbase-sr', '10gbase-lr', '10gbase-er']; },
+  'fc-sfp': function () {
+    return ['2gfc-sw', '2gfc-lw', '4gfc-sw', '4gfc-lw', '8gfc-sw', '8gfc-lw', '10gfc-sw', '10gfc-lw', '16gfc-sw', '16gfc-lw'];
+  },
+  'fc-sfp28': function () {
+    // A 32G port runs 16G and 8G optics at their own rate; FC negotiates down the ladder.
+    return ['32gfc-sw', '32gfc-lw', '16gfc-sw', '16gfc-lw', '8gfc-sw', '8gfc-lw'];
+  },
+  'fc-sfpdd': function () {
+    return ['64gfc-sw', '64gfc-lw', '32gfc-sw', '32gfc-lw', '16gfc-sw', '16gfc-lw'];
+  },
+  'fc-qsfp28': function () {
+    return ['128gfc-sw', '128gfc-lw', '32gfc-sw', '32gfc-lw'];
+  },
+  qsfp56: function () {
+    return ['200gbase-dr4', '200gbase-fr4',
+            // QSFP28/QSFP+ modules seat in a QSFP56 cage and run at their own rate
+            '100gbase-sr4', '100gbase-lr4', '40gbase-sr4', '40gbase-lr4', 'dac-100g'];
+  },
   qsfpdd: function () {
     return ['200gbase-dr4', '200gbase-fr4', '400gbase-dr4', '400gbase-fr4',
             // backward-compatible modules, which run at their own rate
@@ -465,9 +572,10 @@ const CAGE_MEDIA = {
   // SC is a connector, not a protocol: it is standard on PON and it is also what older
   // 100BASE-FX and 1000BASE-LX optics use. Offering only PON media left a 100 Mbps SC
   // media converter with no medium and no rate, so it could not be cabled to itself.
+  // The APC variant deliberately does not offer 100BASE-FX or 1000BASE-LX: both terminate
+  // in a UPC ferrule, and an APC ferrule cannot mate with one without a hybrid cord.
   'sc-apc': function (maxMbps) {
-    const out = ['gpon-sc-apc', '100base-fx'];
-    if (maxMbps >= 1000) out.push('1000base-lx');
+    const out = ['gpon-sc-apc'];
     if (maxMbps >= 9000) out.push('xgspon-sc-apc');
     return out;
   },
@@ -499,8 +607,11 @@ const CAGE_MEDIA = {
     return out;
   },
   coax: function (maxMbps) {
-    const out = ['moca-11', 'moca-25', 'docsis-30'];
-    if (maxMbps >= 1000) out.push('docsis-31');
+    // Both directions are offered, because both exist on the same connector: a CMTS return-path
+    // port runs at 200 Mbps (3.0) or 1 Gbps (3.1), and without its own entry here it shared no
+    // rate with any medium and ended up with none at all (issue #1039).
+    const out = ['moca-11', 'moca-25', 'docsis-30', 'docsis-30-us'];
+    if (maxMbps >= 1000) out.push('docsis-31', 'docsis-31-us');
     return out;
   },
   dsl: function (maxMbps) {
@@ -515,7 +626,9 @@ const CAGE_MEDIA = {
     if (maxMbps >= 2500) out.push('ghn-25');
     return out;
   },
-  console: function () { return ['console-rs232']; },
+  console: function () {
+    return ['console-rs232', 'console-rs232-57600', 'console-rs232-38400', 'console-rs232-19200', 'console-rs232-9600'];
+  },
   usb: function () { return ['usb-console']; },
   // A radio carries bands, not a cable (issue #77). There is no copper here and no
   // optic: the medium is the band set its generation covers, and the generation follows
@@ -544,7 +657,8 @@ const CAGE_SPEEDS = {
     if (maxMbps >= 10000) out.push(10000);
     return out.filter(function (v) { return v <= maxMbps; });
   },
-  sfp: function () { return [1000]; },
+  // 2500BASE-X ships in SFP form (MikroTik hEX S 2025), like a 1G module in an SFP+ cage.
+  sfp: function () { return [1000, 2500]; },
   'sfp+': function () { return [1000, 10000]; },
   // An SFP28 cage takes 1G SFP and 10G SFP+ modules as well as 25G SFP28 ones, and
   // the link runs at the module's own rate (issue #17).
@@ -585,6 +699,13 @@ const CAGE_SPEEDS = {
   },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
+  qsfp56: function () { return [40000, 100000, 200000]; },
+  'fc-sfp': function () { return [2125, 4250, 8500, 10519, 14025]; },
+  sfp56: function () { return [25000, 50000]; },
+  xfp: function () { return [10000]; },
+  'fc-sfp28': function () { return [8500, 14025, 28050]; },
+  'fc-sfpdd': function () { return [14025, 28050, 57800]; },
+  'fc-qsfp28': function () { return [28050, 112200]; },
   qsfpdd: function (maxMbps) {
     const out = [40000, 100000, 200000, 400000];
     return out.filter(function (v) { return v <= maxMbps; });
@@ -604,7 +725,7 @@ const CAGE_SPEEDS = {
     return out.filter(function (v) { return v <= maxMbps; });
   },
   coax: function (maxMbps) {
-    const out = [175, 1000];
+    const out = [175, 200, 1000];
     if (maxMbps >= 2500) out.push(2500);
     if (maxMbps >= 5000) out.push(5000);
     if (maxMbps >= 10000) out.push(10000);
@@ -620,7 +741,7 @@ const CAGE_SPEEDS = {
     // negotiating 2500M because this list ignored maxMbps.
     return [200, 1000, 1700, 2500].filter(function (v) { return v <= maxMbps; });
   },
-  console: function () { return [0.1152]; },
+  console: function () { return [0.0096, 0.0192, 0.0384, 0.0576, 0.1152]; },
   usb: function () { return [12]; },
   // A radio has no autonegotiation ladder: it runs at the rate the interface declares
   // and at nothing else. The 10/100/1000 rungs belong to an RJ45 cage, and offering
@@ -695,6 +816,9 @@ function inferCage(ifaceSpec, maxMbps) {
   // A port named for its cage wins over its rate: qsfpdd1/1 carrying 200G is a
   // QSFP-DD cage, not a QSFP28 that happens to be fast.
   if (/qsfp-?dd|qsfpdd/.test(name)) return 'qsfpdd';
+  // QSFP56 is named, not inferred from a rate: 200G over QSFP-DD is far more common, so a
+  // bare 200G rate alone must keep resolving to QSFP-DD.
+  if (/qsfp-?56|qsfp56/.test(name)) return 'qsfp56';
 
   if (maxMbps >= 200000) return 'qsfpdd';
   if (maxMbps >= 100000) return 'qsfp28';
@@ -751,7 +875,39 @@ function wirelessBands(spec, maxMbps, dev) {
 function derivePortHardware(ifaceSpec, deviceSpec) {
   const spec = ifaceSpec || {};
   const dev = deviceSpec || {};
-  const maxMbps = parseSpeedMbps(spec.speed) || 1000;
+  // A port's declared speedCaps are what it can actually train at; `speed` is the label on the
+  // box. Fibre Channel makes the difference visible: a "32G" FC port runs at 28.05 Gbit/s, so
+  // taking the label as the rate would claim 32000 Mbps on a 28050 Mbps cage.
+  let capMbps = (Array.isArray(spec.speedCaps) ? spec.speedCaps : [])
+    .map(function (c) { return typeof c === 'number' ? c : parseSpeedMbps(c); })
+    .filter(function (n) { return typeof n === 'number' && isFinite(n) && n > 0; });
+  // A console port has a baud rate, and a spec author writes `baud: 115200`, not 0.1152 Mbps -
+  // nobody thinks of RS-232 in megabits. Accepting the number in its own unit is the difference
+  // between a spec that reads like a datasheet and one that quietly offers no medium at all when
+  // the author writes 9600 and the engine hears 9600 Mbps. An explicit speedCaps in Mbps still
+  // wins, because that field is unambiguous.
+  if (!capMbps.length && spec.baud !== undefined && spec.baud !== null) {
+    const baudList = Array.isArray(spec.baud) ? spec.baud : [spec.baud];
+    capMbps = baudList.map(function (b) { return Number(b) / 1000000; })
+      .filter(function (n) { return isFinite(n) && n > 0; });
+  }
+  // With no caps and no label, the rate is whatever the cage can carry. The old fallback was a
+  // flat 1000 Mbps, which gave every console port in the catalogue a gigabit it could never run
+  // and 84 coax ports a rate their medium does not have: a console cage carries 9600 baud to
+  // 115200, and asking for a gigabit on one is a modelling error, not a fast port.
+  //
+  // The cage is resolved from the spec here rather than from `cage` below, because `cage` is what
+  // inferCage() computes FROM this rate - asking the cage for its rates before that would be
+  // circular. A spec that names its connector ('console', 'coax', 'sc-apc') has enough to answer.
+  const cageRatesForDefault = (function () {
+    const named = CAGE_ALIAS[String(spec.cage || spec.connector || '')] || String(spec.cage || spec.connector || '');
+    const fn = CAGE_SPEEDS[named];
+    if (!fn) return [];
+    try { return fn(parseSpeedMbps(spec.speed) || 1000) || []; } catch (e) { return []; }
+  })();
+  let maxMbps = capMbps.length ? Math.max.apply(null, capMbps)
+    : (parseSpeedMbps(spec.speed)
+      || (cageRatesForDefault.length ? Math.max.apply(null, cageRatesForDefault) : 1000));
   let cage = String(spec.cage || spec.connector || inferCage(spec, maxMbps));
 
   // A handful of spec authors write the bare fibre token ('lc') because that is what
@@ -772,6 +928,13 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   const cageDef = known ? CAGES[cage]
     : { name: cage, family: 'unknown', label: cage + ' (not a modelled connector)' };
   let media = known ? (CAGE_MEDIA[cage] || CAGE_MEDIA.rj45)(maxMbps) : [];
+  // A spec that names neither caps nor a rate is now given the cage's own top speed, computed
+  // here because only here is the cage known: a port listing just its type ("console", "serial")
+  // used to take the flat 1000 Mbps fallback and advertise a gigabit on a 115200 baud cage.
+  if (!capMbps.length && !parseSpeedMbps(spec.speed) && known) {
+    const ladder = (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) || [];
+    if (ladder.length) maxMbps = Math.max.apply(null, ladder);
+  }
   let speeds = known ? (CAGE_SPEEDS[cage] || CAGE_SPEEDS.rj45)(maxMbps) : [];
 
   // Belt and braces. A cage table that forgets to filter by maxMbps is exactly how a
@@ -830,11 +993,19 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     cageName: cageDef.name,
     family: cageDef.family,
     media: media,
-    speedCaps: (hw.speedCaps || spec.speedCaps || speeds).slice(),
+    // A port that stated its rate - in speedCaps or in baud - keeps it. Falling back to the cage
+    // ladder here is what silently widened a 9600-baud console into a 115200 one.
+    speedCaps: (hw.speedCaps || (capMbps.length ? capMbps : speeds)).slice(),
     maxSpeedMbps: maxMbps,
     // PoE
     poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null),
     poeIn: hw.poeIn !== undefined ? hw.poeIn : (spec.poeIn !== undefined ? spec.poeIn : null),
+    // Whether this port sourced power because the spec said so, or because the engine guessed
+    // from the device class. The two are not the same claim: a spec that says a port sources
+    // power is a statement about hardware, while a guess is the engine filling a silence. Only
+    // the guess is a defect when it lands on a device that does not switch (see the PoE
+    // invariant in test/poe-inference.test.js).
+    poeOutDeclared: (hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null)) !== null,
     // distance / cabling hints
     maxRangeM: hw.maxRangeM !== undefined ? hw.maxRangeM : null
   };
@@ -852,12 +1023,25 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     else if (isPoePd(dev)) port.poeIn = 12.95;
   }
 
+  // A port the datasheet names "PoE 1" has declared its job in the only place it can: the
+  // port name comes from the spec file, and an NVR that documents eight PoE ports is not a
+  // device the engine invented watts for. Without this, "did the engine guess?" would answer
+  // yes for every documented PoE port on a non-switch, which is the opposite of the truth.
+  if (!port.poeOutDeclared && port.poeOut &&
+      /poe/i.test(String(port.name)) && !/poe[\s_-]?in\b|pdin/i.test(String(port.name))) {
+    port.poeOutDeclared = true;
+  }
+
   return port;
 }
 
 function isPoePse(dev, portName) {
   const name = String(portName || '');
-  // A port that calls itself PoE is one, whatever the device is.
+  // A port that calls itself PoE is one, whatever the device is - unless it calls itself an
+  // *input*. "poe_in" contains "poe", so the old rule made the inline splitters (planet
+  // POE-E201, poe-texas GAF-12V12W) power sources on the strength of their own input jack's
+  // name. A port that accepts power is not a port that supplies it.
+  if (/poe[\s_-]?in\b|pdin|poe[\s_-]?pd\b/i.test(name)) return false;
   if (/poe/i.test(name)) return true;
   const model = String(dev.model || '') + ' ' + String(dev.label || '');
   const caps = dev.capabilities || [];
@@ -1052,6 +1236,31 @@ function canMate(pa, pb) {
       return { ok: false, code: 'E_WIRELESS_TO_WIRED', message: 'A wireless radio cannot be cabled to a wired port.' };
     }
   }
+  // Out-of-band before in-band: a console port is not a data port, and "these connectors do not
+  // fit" is a worse explanation than "this is a management console". A USB console talking to a
+  // USB console still mates, so this only fires when exactly one side is console-only.
+  function consoleOnly(hw) {
+    const list = (hw && hw.media) || [];
+    if (!list.length) {
+      // A console port with no medium at all is still a console port: the cage says so, and
+      // that is what lets the refusal below explain the baud rate instead of the connector.
+      return !!hw && (hw.cage === 'console' || hw.cage === 'usb');
+    }
+    return list.every(function (id) {
+      const d = MEDIA[id];
+      return d && (d.family === 'console' || d.family === 'management');
+    });
+  }
+  if (consoleOnly(pa) !== consoleOnly(pb) && !(consoleOnly(pa) && consoleOnly(pb))) {
+    const c = consoleOnly(pa) ? pa : pb;
+    const o = consoleOnly(pa) ? pb : pa;
+    return {
+      ok: false, code: 'E_PROTOCOL_MISMATCH',
+      message: c.cageName + ' is an out-of-band management console and ' + o.cageName +
+        ' is a data port. A console link carries an operator typing at a baud rate, not frames ' +
+        'from a network stack, so nothing routable ever crosses it. Cable the data port instead.'
+    };
+  }
   if (!cagesMate(pa.cage, pb.cage)) {
     if (polishMismatch(pa.cage, pb.cage)) {
       const fa = ferrule(pa.cage), fb = ferrule(pb.cage);
@@ -1069,11 +1278,53 @@ function canMate(pa, pb) {
       message: 'Cannot mate ' + pa.cageName + ' to ' + pb.cageName + ' (incompatible connectors).'
     };
   }
+  // Two console ports that share no baud rate: the cable fits, both ends are consoles, and every
+  // character arrives as noise. Asked of the ports' declared rates rather than of commonMedia(),
+  // because that intersects what the *cage* offers - both ends would appear to speak 9600 and the
+  // link would come up "successfully" only to fail negotiation with a message about speed.
+  if (consoleOnly(pa) && consoleOnly(pb)) {
+    const baudSet = function (hw) {
+      const fromCaps = ((hw && hw.speedCaps) || [])
+        .map(function (n) { return Math.round(Number(n) * 1000000); })
+        .filter(function (n) { return isFinite(n) && n > 0; });
+      if (fromCaps.length) return fromCaps;
+      return ((hw && hw.media) || []).map(function (id) { return MEDIA[id] && MEDIA[id].baud; })
+        .filter(Boolean);
+    };
+    const ba = baudSet(pa), bb = baudSet(pb);
+    if (ba.length && bb.length && !ba.some(function (n) { return bb.indexOf(n) !== -1; })) {
+      return {
+        ok: false, code: 'E_BAUD_MISMATCH',
+        message: pa.cageName + ' runs at ' + ba.join('/') + ' baud and ' + pb.cageName +
+          ' runs at ' + bb.join('/') + ' baud. No shared baud rate means the link comes up and ' +
+          'every character arrives as noise - the classic console failure. Set both ends to ' +
+          'the same speed.'
+      };
+    }
+  }
   const media = commonMedia(pa, pb);
   if (!media.length) {
     // A pair that shares a single-strand id but no complementary half is refused for a
     // physical reason, and "no shared medium" would hide it: both ports agree perfectly
     // on what they carry. Say what is actually wrong first (issue #97).
+    // An FC optic seats in the same socket as an Ethernet one, so the connector check passes and
+    // the failure looks mysterious. It is not a cabling problem: the two ends carry different
+    // protocols and no module in either port speaks the other's language.
+    const famsA = new Set((pa.media || []).map(function (id) { return MEDIA[id] && MEDIA[id].family; }));
+    const famsB = new Set((pb.media || []).map(function (id) { return MEDIA[id] && MEDIA[id].family; }));
+    const aFc = famsA.has('fibre-channel'), bFc = famsB.has('fibre-channel');
+    if (aFc !== bFc) {
+      const fcPort = aFc ? pa : pb;
+      const ethPort = aFc ? pb : pa;
+      return {
+        ok: false, code: 'E_PROTOCOL_MISMATCH',
+        message: fcPort.cageName + ' is a Fibre Channel port and ' + ethPort.cageName +
+          ' is Ethernet. The connector is the same LC/SFP family and the optic will even seat, ' +
+          'but Fibre Channel carries FC frames at its own rate ladder (8/16/32/64G run at ' +
+          '8.5/14.025/28.05/57.8 Gbit/s) and an Ethernet port has no FC login, so no frame ' +
+          'ever crosses. Put an FC HBA or switch on the other end.'
+      };
+    }
     const bidi = biDiRefusal(pa, pb);
     if (bidi) return bidi;
     return {
@@ -1110,8 +1361,22 @@ function canMate(pa, pb) {
 
 // Preferred medium when several are possible (prefer fiber/DAC over copper SFP,
 // prefer the highest speed).
-function preferredMedia(mediaIds) {
+function preferredMedia(mediaIds, maxMbps) {
   if (!mediaIds || !mediaIds.length) return null;
+  // A port that negotiated 100 Mbps must not be described by a 2.5G PON medium. The
+  // fastest-medium rule below is right when the candidates are all candidates, but a media
+  // list is a connector's whole repertoire - the SC/UPC cage offers GPON *and* 100BASE-FX -
+  // so two 100M media converters facing each other were being labelled 'GPON (SC/UPC)'
+  // while running at 100 Mbps. Restrict to media the link can actually run at when any
+  // candidate fits, and otherwise keep the full list rather than refusing to name it.
+  let candidates = mediaIds;
+  if (typeof maxMbps === 'number' && maxMbps > 0) {
+    const fits = mediaIds.filter(function (id) {
+      const m = MEDIA[id];
+      return !m || typeof m.speedMbps !== 'number' || m.speedMbps <= maxMbps;
+    });
+    if (fits.length) candidates = fits;
+  }
   const rank = { fiber: 3, dac: 2, copper: 1, console: 1, wireless: 1 };
   // A `linkOnly` medium describes a SPAN, not a module you choose: '1000base-bx' exists
   // only because a U met a D, and no cage offers it. Two ordinary SFP ports therefore
@@ -1119,14 +1384,14 @@ function preferredMedia(mediaIds) {
   // already named by - instead of being renamed for a pair of modules neither port is
   // known to hold. It still wins when it is the only thing the two ports can share,
   // which is precisely the U-at-one-end/D-at-the-other case.
-  const onlyLinks = mediaIds.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); });
+  const onlyLinks = candidates.every(function (id) { return !!(MEDIA[id] && MEDIA[id].linkOnly); });
   const rankOf = function (id) {
     const m = MEDIA[id];
     if (m && m.linkOnly && !onlyLinks) return -1;
     return (m && rank[m.family]) || 0;
   };
-  let best = mediaIds[0];
-  for (const id of mediaIds) {
+  let best = candidates[0];
+  for (const id of candidates) {
     const a = MEDIA[best]; const b = MEDIA[id];
     if (!b) continue;
     if (!a) { best = id; continue; }

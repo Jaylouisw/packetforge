@@ -21,10 +21,11 @@
     {
       "name": "1/1/25",
       "type": "ethernet",
-      "speed": "1G",
+      "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
-        1000
+        1000,
+        10000
       ]
     },
     {

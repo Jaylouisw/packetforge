@@ -19,10 +19,11 @@ and they all run the same simulation engine and the same command set.
 - **Real simulation, not canned animation.** The engine does MAC learning,
   flooding, ARP resolution, longest-prefix routing, default gateways, TTL
   decrement and ICMP echo/reply — with a replayable event stream.
-- **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable,
+- **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable, right-click-a-cable-to-pull-it,
   per-device console, live packet animation, WebSocket multi-client sync.
-- **Physically accurate.** 64 media types across eight families and 19 connector
-  cages; per-port speed capabilities and PoE budgets. Impossible cables are
+- **Physically accurate.** 89 media types across nine families (Ethernet, Fibre Channel,
+  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages; per-port speed
+  capabilities and PoE budgets. Impossible cables are
   *refused*, not drawn — an SC/APC patch lead will not go into an SC/UPC socket.
   See [docs/PHYSICAL_LAYER.md](docs/PHYSICAL_LAYER.md) and
   [docs/CONNECTORS.md](docs/CONNECTORS.md).
@@ -82,16 +83,36 @@ echo/reply travel across the link with a live animation and event log.
 | Area | What's implemented |
 |------|--------------------|
 | Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | Cisco, Juniper, Arista, MikroTik, Huawei, Ubiquiti, TP-Link, Netgear, Zyxel, GL.iNet, Protectli, QNAP, Qotom, TRENDnet, Adtran, Raspberry Pi + generic models (**91 models / 17 vendors**) |
+| Vendors | **1,544 models across 245 vendors**, in 25 categories (router, switch, L3 switch, firewall, AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, TV/set-top, IoT, tap, splitter, cloud, host) + generic models. Adding one is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
-| Protocols | ARP (request/reply, cache), ICMP echo request/reply, TTL handling |
-| Physical layer | 64 media types, 19 connector cages, per-port speed caps + PoE, live feasibility validation |
+| Protocols | ARP, IPv4, ICMP echo + errors, traceroute, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static + PAT), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
+| Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
 | L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
-| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping` |
+| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip dhcp pool`, `ip route`, `ping [count] [at <ms>]`, `traceroute`, `converge` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
+| Convergence | Control planes take time: STP Listening/Learning, OSPF hello + SPF hold, DHCP exchange, VRRP master-down. Ask any question at an instant with `setRunTime(ms)` / `ping ... at 5000`; an unfinished process reports `converging`, not "timed out" ([docs](docs/CONVERGENCE.md)) |
+| Link failure | Pull a cable without deleting it: frames die at the link, STP heals around it, MAC tables flush, and every timer re-runs from the instant of the change. `link down l5 at 10000` then ask at 11000 — nothing gets through, and the reply says so ([docs](docs/LINK-STATE.md)) |
+| Latency | Per-link propagation from the medium's velocity, serialisation from frame size and line rate, store-and-forward per hop — so a 40 km span is not the same as a 1 m patch lead |
 | Persistence | save/load topologies as JSON (import/export buttons) |
 | Sync | WebSocket broadcasts topology edits to every connected client in real time |
+
+### What this does not model yet
+
+Stated plainly, because a simulator that overstates itself teaches wrong things:
+
+- **DHCP relay.** A DISCOVER does not cross a router, so a central server cannot serve a remote
+  subnet. Snooping, Option 82 and DHCPv6 are absent too; leases are computed at run start and do not
+  age.
+- **HSRP and GLBP.** VRRP is wired (election, virtual MAC, failover); the Cisco and Avaya
+  equivalents are not modelled, and neither is BFD or graceful restart.
+- **Timed interleaving.** Control planes now have a duration ([CONVERGENCE.md](docs/CONVERGENCE.md)),
+  but a question is answered *as of* an instant — no hello loss, no dead-interval expiry, no
+  re-convergence after a topology change.
+- **TCP and application protocols.** Flows are tracked; TCP state, HTTP, TLS and friends are not
+  simulated.
+
+Each of these is a tracked issue rather than a surprise.
 
 ---
 
@@ -116,7 +137,7 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # syntax checker + merge tools
 ├── .github/         # CI/CD workflows, issue/PR templates
-└── docs/            # architecture, registry, CLI, roadmap
+└── docs/            # architecture, registry, CLI, roadmap, link state
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
