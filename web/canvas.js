@@ -15,6 +15,7 @@
     place: null,      // (x, y, spec)
     select: null,     // (deviceId | null)
     selectLink: null, // (linkId)
+    contextLink: null, // (linkId, x, y) - right-click on a cable
     move: null,       // (deviceId, x, y)
     portClick: null,  // (deviceId, iface) - also the "complete the cable" call
     connectCancel: null, // () - an in-flight cable was abandoned (empty canvas click)
@@ -679,6 +680,18 @@
   }
 
   svg.addEventListener('contextmenu', function (e) {
+    // `r` belongs to other handlers' closures; this one needs its own rect, because a
+    // contextmenu fires without a pointerdown having measured first.
+    const r = svg.getBoundingClientRect();
+    const hit = hitTest(e.clientX - r.left, e.clientY - r.top);
+    if (hit.kind === 'link') {
+      // A cable is right-clickable in its own right (issue #86). Previously only a device
+      // could raise the menu, so the one object a person wants to remove after a bad drag
+      // had no menu at all.
+      e.preventDefault();
+      if (on.contextLink) on.contextLink(hit.linkId, e.clientX, e.clientY);
+      return;
+    }
     const id = deviceUnder(e);
     if (id) {
       e.preventDefault();
