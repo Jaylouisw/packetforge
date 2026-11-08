@@ -1,0 +1,37 @@
+{
+  "vendor": "zyxel",
+  "model": "PM5100-T0",
+  "label": "Zyxel PM5100-T0 GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (MediaTek/EcoNet EN7523OT) with a single 2.5GBase-T LAN port and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC, managed over its web UI, SSH, telnet or serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-zyxel-pmg5100-t0/"
+}
