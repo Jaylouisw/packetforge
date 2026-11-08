@@ -10,6 +10,7 @@ const lagLib = require('./lag');
 const stpLib = require('./stp');
 const aclLib = require('./acl');
 const ospfLib = require('./ospf');
+const vrrpLib = require('./vrrp');
 const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
 const lldp = require('./lldp');
@@ -263,6 +264,8 @@ class Simulator {
     this.computePoe();
     // Announce ourselves on every cabled port, the way real gear does on link-up.
     this.announceLldp();
+    // Elect the virtual gateway before any host tries to use it.
+    this.computeVrrp();
     // Then let the routers hand out IPv6 prefixes, so a host configured for
     // autoconfiguration has an address before anyone asks it to send a packet.
     this.announceRa();
@@ -351,6 +354,163 @@ class Simulator {
   }
 
   // Build the STP graph and mark blocking ports on each device.
+  // ---------------------------------------------------------------------
+  // VRRP: one virtual gateway, elected once per run
+  // ---------------------------------------------------------------------
+  // engine/vrrp.js has modelled the election, the skew timer and the virtual MAC since it
+  // was written, and nothing called it: a lab could configure a virtual gateway and no
+  // device answered for the address, so every host pointed at it black-holed. This runs the
+  // election and hands the winner the group's addresses through Device.claimVrrp(), which
+  // ownsIpOn() consults - the one function both the ARP and IPv4 paths ask.
+  //
+  // Like OSPF, BGP and STP in this engine the election is computed at the start of a run
+  // rather than carried as adverts: no master-down timer, no preemption after a recovered
+  // link inside one run, no skew counted in real time. A master whose interfaces are down
+  // before the run loses the group, which is the case a lab actually builds.
+  computeVrrp() {
+    for (const dev of this.topo.devices.values()) dev.clearVrrp();
+
+    // Candidates are grouped by broadcast domain, so two routers that cannot hear each
+    // other never elect each other.
+    const domains = new Map();
+    for (const dev of this.topo.devices.values()) {
+      const groups = (dev.config && dev.config.vrrp) || [];
+      for (const raw of groups) {
+        const ifaceName = raw.iface || raw.interface;
+        const iface = dev.interfaces.get(ifaceName);
+        if (!iface) continue;
+        const key = this._vrrpDomainKey(dev, ifaceName);
+        if (!domains.has(key)) domains.set(key, []);
+        domains.get(key).push({ dev: dev, iface: iface, raw: raw });
+      }
+    }
+
+    for (const entry of domains.values()) {
+      const byGroup = new Map();
+      for (const c of entry) {
+        // The library names the group id 'vrid'; topology JSON and the CLI call it
+        // 'groupId'. Accept either rather than silently electing group 1.
+        const spec = Object.assign({}, c.raw, {
+          vrid: c.raw.vrid === undefined || c.raw.vrid === null ? c.raw.groupId : c.raw.vrid
+        });
+        const group = vrrpLib.normalizeGroup(spec);
+        // normalizeGroup() names the id 'vrid' (the term the RFC uses); groupId is the
+        // name the topology config and the CLI use. Read whichever is present.
+        const gid = String(group.vrid === undefined ? c.raw.groupId : group.vrid);
+        if (!byGroup.has(gid)) byGroup.set(gid, { group: group, members: [] });
+        byGroup.get(gid).members.push({ dev: c.dev, iface: c.iface, group: group });
+      }
+
+      for (const gid of byGroup.keys()) {
+        const bucket = byGroup.get(gid);
+        // The group as configured on the first member, with the union of virtual addresses.
+        // Priorities are per member: taking one router's priority for the whole group made
+        // every candidate equal, and the election then fell through to the IP tiebreak.
+        const group = bucket.group;
+        const allIps = [];
+        for (const m of bucket.members) {
+          for (const ip of m.group.ips) if (allIps.indexOf(ip) === -1) allIps.push(ip);
+        }
+        group.ips = allIps.length ? allIps : group.ips;
+        // Only an interface that is up and addressed can carry the group. The owner of the
+        // virtual address is promoted to priority 255 inside engine/vrrp.js.
+        const candidates = bucket.members.filter(function (m) {
+          return m.iface.enabled !== false && m.iface.ip;
+        }).map(function (m) {
+          return { id: m.dev.id, priority: m.group.priority, ip: m.iface.ip, up: true };
+        });
+
+        const verdict = vrrpLib.electMaster(candidates, group);
+        if (!verdict.masterId) {
+          this._emit({
+            type: 'vrrp-no-master', groupId: group.vrid,
+            reason: verdict.reason || 'no candidates', ips: group.ips.slice()
+          });
+          continue;
+        }
+
+        const winner = bucket.members.filter(function (m) {
+          return m.dev.id === verdict.masterId;
+        })[0];
+        if (!winner) continue;
+
+        // The owner of the address runs at 255 whatever it is configured to say; the
+        // election has already applied that, so report the same number the winner acts on.
+        const winnerIsOwner = group.ips.indexOf(winner.iface.ip) !== -1;
+        const winnerPriority = winnerIsOwner ? vrrpLib.VRRP_OWNER_PRIORITY : winner.group.priority;
+
+        for (const vip of group.ips) {
+          winner.dev.claimVrrp(vip, {
+            ifaceName: winner.iface.name,
+            groupId: group.vrid,
+            mac: vrrpLib.virtualMac(group.vrid),
+            priority: winnerPriority
+          });
+        }
+
+        // A master announces itself with a gratuitous ARP. The virtual MAC has to move in
+        // every switch's MAC table from the port of the router that just lost the group to
+        // the port of the one that won, and every host has to refresh its IP-to-MAC binding.
+        // Without this a failover leaves the virtual MAC learned on the dead router's port
+        // and the gateway stays unreachable even though the election moved.
+        const carrier = winner.dev.interfaces.get(winner.iface.name);
+        if (carrier) {
+          for (const vip of group.ips) {
+            const garp = ethFrame(
+              net.BROADCAST_MAC, vrrpLib.virtualMac(group.vrid), net.ETH_ARP, null, null,
+              { op: 'reply', senderMac: vrrpLib.virtualMac(group.vrid), senderIp: vip,
+                targetMac: net.BROADCAST_MAC, targetIp: vip }
+            );
+            this._emitFrame(winner.dev, carrier, garp, 1);
+          }
+          this._emit({
+            type: 'vrrp-gratuitous-arp', dev: winner.dev.id, iface: carrier.name,
+            groupId: group.vrid, ips: group.ips.slice(), mac: vrrpLib.virtualMac(group.vrid)
+          });
+        }
+
+        this._emit({
+          type: 'vrrp-master', dev: winner.dev.id, iface: winner.iface.name,
+          groupId: group.vrid, ips: group.ips.slice(),
+          priority: winnerPriority,
+          reason: verdict.reason, mac: vrrpLib.virtualMac(group.vrid),
+          backups: bucket.members.length - 1
+        });
+      }
+    }
+  }
+
+  // Everything reachable from an interface without crossing a router: the domain a VRRP
+  // advert would be heard in. Bridges are walked through port by port; a router ends the
+  // branch, because a VRRP advert is not routed.
+  _vrrpDomainKey(dev, ifaceName) {
+    const seen = new Set([dev.id + '/' + ifaceName]);
+    const queue = [dev.id + '/' + ifaceName];
+    const ids = [dev.id];
+    while (queue.length) {
+      const key = queue.shift();
+      const slash = key.indexOf('/');
+      const d = this.topo.getDevice(key.slice(0, slash));
+      const iface = d && d.interfaces.get(key.slice(slash + 1));
+      if (!iface || !iface.peer) continue;
+      const peerDev = this.topo.getDevice(iface.peer.deviceId);
+      const peerIface = peerDev && peerDev.interfaces.get(iface.peer.iface);
+      if (!peerDev || !peerIface) continue;
+      const pk = peerDev.id + '/' + peerIface.name;
+      if (seen.has(pk)) continue;
+      seen.add(pk);
+      ids.push(peerDev.id);
+      if (peerDev.isL2 && peerDev.isL2()) {
+        for (const other of peerDev.interfaces.values()) {
+          if (other.name === peerIface.name || !other.peer) continue;
+          const ok = peerDev.id + '/' + other.name;
+          if (!seen.has(ok)) { seen.add(ok); queue.push(ok); }
+        }
+      }
+    }
+    return ids.sort().join('+');
+  }
+
   computeStp() {
     const bridges = [];
     for (const dev of this.topo.devices.values()) {
@@ -1305,6 +1465,7 @@ class Simulator {
     this.reset();
     this.computeStp();
     this.computePoe();
+    this.computeVrrp();
     // SLAAC first: a host with 'ipv6 address autoconfig' and no router answer
     // would otherwise be asked to send from an address it has never had.
     this.announceRa();
@@ -1418,6 +1579,7 @@ class Simulator {
     // The same argument applies to IPv6: a host that was just plugged into a
     // router advertising a prefix should have an address before anyone asks it
     // a question, not only after the next ping.
+    this.computeVrrp();
     this.announceRa();
     this._run();
     return this;
@@ -2249,9 +2411,13 @@ class Simulator {
         // reply out the raw trunk port would strip it.
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
         const replyIface = sameGroup ? inIf : owner;
+        // A VRRP virtual address answers with the group's virtual MAC, not the interface's:
+        // a host caches this per IP, and the physical MAC would send its next packet to a
+        // router that may no longer be master.
+        const replyMac = dev.vrrpMacFor(arp.targetIp) || replyIface.mac;
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
-        this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyIface.mac, vlan: vid });
-        this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyIface.mac, owner.ip), vid);
+        this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyMac, vlan: vid });
+        this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyMac, arp.targetIp), vid);
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
@@ -2281,7 +2447,8 @@ class Simulator {
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };
       this._emit({ type: 'icmp-reply', dev: dev.id, iface: replyIface.name, to: frame.ip.src, seq: icmp.seq, vlan: vid });
-      this._sendFromOwnIp(dev, replyIface, ethFrame(frame.srcMac, replyIface.mac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
+      const replySrcMac = dev.vrrpMacFor(frame.ip.dst) || replyIface.mac;
+      this._sendFromOwnIp(dev, replyIface, ethFrame(frame.srcMac, replySrcMac, net.ETH_IPV4, replyIp, replyIcmp, null), vid);
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });

@@ -316,6 +316,61 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
       iface.ip = null; iface.mask = null; iface.dhcp = false;
       out.push('IP address removed from ' + iface.name);
+    } else if (head === 'vrrp' || (head === 'no' && tokens[1] === 'vrrp')) {
+      const negate = head === 'no';
+      const rest = negate ? tokens.slice(2) : tokens.slice(1);
+      const gid = rest[0];
+      const verb = String(rest[1] || '').toLowerCase();
+      if (!/^\d+$/.test(String(gid || ''))) {
+        out.push('% Usage: vrrp <group> ip <address> | priority <n> | preempt | no preempt');
+      } else {
+        const groups = this.device.config.vrrp || (this.device.config.vrrp = []);
+        const key = String(gid);
+        let group = groups.filter(function (g) {
+          return String(g.groupId) === key && g.iface === iface.name;
+        })[0];
+
+        if (negate && !verb) {
+          // 'no vrrp <group>' removes the group from this interface.
+          this.device.config.vrrp = groups.filter(function (g) {
+            return !(String(g.groupId) === key && g.iface === iface.name);
+          });
+          out.push('VRRP group ' + key + ' removed from ' + iface.name);
+        } else {
+          if (!group) {
+            group = { iface: iface.name, groupId: Number(gid), ips: [], priority: 100, preempt: true };
+            groups.push(group);
+          }
+          if (verb === 'ip') {
+            const vip = rest[2];
+            if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(String(vip || ''))) {
+              out.push('% Usage: vrrp <group> ip <address>');
+            } else {
+              if (negate) {
+                group.ips = group.ips.filter(function (x) { return x !== vip; });
+                out.push('VRRP ' + key + ': virtual address ' + vip + ' removed');
+              } else {
+                if (group.ips.indexOf(vip) === -1) group.ips.push(vip);
+                out.push('VRRP ' + key + ': virtual address ' + vip);
+              }
+            }
+          } else if (verb === 'priority') {
+            const n = parseInt(rest[2], 10);
+            // 1-254: 255 is reserved for the address owner and 0 means "relinquish".
+            if (!(n >= 1 && n <= 254)) {
+              out.push('% priority must be 1-254 (255 is the address owner, 0 relinquishes)');
+            } else {
+              group.priority = n;
+              out.push('VRRP ' + key + ': priority ' + n);
+            }
+          } else if (verb === 'preempt') {
+            group.preempt = !negate;
+            out.push('VRRP ' + key + ': preempt ' + (group.preempt ? 'enabled' : 'disabled'));
+          } else {
+            out.push('% Usage: vrrp <group> ip <address> | priority <n> | preempt | no preempt');
+          }
+        }
+      }
     } else if (head === 'shutdown') {
       iface.enabled = false;
       out.push(iface.name + ' administratively down');

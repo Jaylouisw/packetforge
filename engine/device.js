@@ -157,6 +157,7 @@ class Device {
       ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
       dnsServers: [],            // upstream resolvers, by IP
       dnsZones: [],              // zones this device is authoritative for
+      vrrp: [],                  // [{ iface, groupId, ips, priority, preempt, advertSec }]
       bgp: null,                 // { as, routerId, neighbors: [{ address, remoteAs }] }
       ip6: {},                   // ifaceName -> { addr, prefix }   (global IPv6 addresses)
       routes6: [],               // [{ dest, prefix, nextHop, iface }]
@@ -232,6 +233,17 @@ class Device {
     for (const iface of this.interfaces.values()) {
       if (iface.mac && net.normalizeMac(iface.mac) === m) return iface;
     }
+    // A VRRP master also receives at the group's virtual MAC. Without this the switch
+    // delivers the frame to the right port and the router drops it as "not mine", which is
+    // exactly what a host pointed at a virtual gateway would see.
+    if (this.vrrpOwnership) {
+      for (const entry of this.vrrpOwnership.values()) {
+        if (entry && entry.mac && net.normalizeMac(entry.mac) === m) {
+          const carrier = this.interfaces.get(entry.ifaceName);
+          if (carrier) return carrier;
+        }
+      }
+    }
     return null;
   }
 
@@ -258,9 +270,48 @@ class Device {
     return null;
   }
 
+  // ---------------------------------------------------------------------
+  // VRRP ownership
+  // ---------------------------------------------------------------------
+  // A virtual address belongs to no interface, so interfaceWithIp() can never see it. The
+  // simulator elects a master per group at the start of a run and claims the group's
+  // addresses here, on the winner only. When the master goes away the claim is gone with
+  // it, which is what makes a default-gateway failover observable instead of silent.
+  claimVrrp(ip, entry) {
+    if (!this.vrrpOwnership) this.vrrpOwnership = new Map();
+    this.vrrpOwnership.set(ip, entry);
+  }
+
+  clearVrrp() {
+    this.vrrpOwnership = null;
+  }
+
+  // The MAC a virtual address answers with: 00:00:5E:00:01:<groupId>, never the interface's.
+  // A host caches this per IP, so answering with the physical MAC would leave the next
+  // packet going to a router that may no longer be master.
+  vrrpMacFor(ip) {
+    if (!this.vrrpOwnership) return null;
+    const entry = this.vrrpOwnership.get(ip);
+    return entry ? (entry.mac || null) : null;
+  }
+
+  _ownsVrrpOn(incomingIface, ip) {
+    if (!this.vrrpOwnership || !this.vrrpOwnership.has(ip)) return null;
+    const claim = this.vrrpOwnership.get(ip);
+    const carrier = this.interfaces.get(claim.ifaceName);
+    const inIface = this.resolveIface(incomingIface);
+    if (!carrier || !inIface) return null;
+    if (carrier.name === inIface.name) return carrier;
+    // Router-on-a-stick: the group lives on a tagged subinterface and the frames that
+    // reach it arrive on that subinterface's parent.
+    if (carrier.parent && carrier.parent === inIface.name) return carrier;
+    if (inIface.parent && inIface.parent === carrier.name) return carrier;
+    return null;
+  }
+
   ownsIpOn(incomingIface, ip) {
     const owner = this.interfaceWithIp(ip);
-    if (!owner) return null;
+    if (!owner) return this._ownsVrrpOn(incomingIface, ip);
     const inIface = this.resolveIface(incomingIface);
     if (!inIface || owner.name === inIface.name) return owner;
 
@@ -592,6 +643,7 @@ class Device {
         ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null,
         dnsServers: (this.config.dnsServers || []).slice(),
         dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || [])),
+        vrrp: JSON.parse(JSON.stringify(this.config.vrrp || [])),
         bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null,
         ip6: JSON.parse(JSON.stringify(this.config.ip6 || {})),
         routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
@@ -658,6 +710,7 @@ class Device {
         d.config.ospf = state.config.ospf ? JSON.parse(JSON.stringify(state.config.ospf)) : null;
         d.config.dnsServers = (state.config.dnsServers || []).slice();
         d.config.dnsZones = JSON.parse(JSON.stringify(state.config.dnsZones || []));
+        d.config.vrrp = JSON.parse(JSON.stringify(state.config.vrrp || []));
         d.config.bgp = state.config.bgp ? JSON.parse(JSON.stringify(state.config.bgp)) : null;
         d.config.ip6 = JSON.parse(JSON.stringify(state.config.ip6 || {}));
         d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));
