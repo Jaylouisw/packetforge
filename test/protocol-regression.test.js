@@ -1255,14 +1255,19 @@ function answerValues(res) {
     'the run log records the DNS lookup and its answer');
   ok(dnsEvent && dnsEvent.rcode === dns.RCODE.NOERROR, 'the logged rcode is NOERROR');
 
-  // DOCUMENTS BUG (engine/simulator.js:148-153): resolveName() only reports
-  // success when it found an A record, and hard-codes NXDOMAIN for everything
-  // else. A name that exists without an A record (NODATA) is therefore reported
-  // as a non-existent domain, contradicting dns.resolve() above.
+  // NODATA: A name that exists without an A record is reported as NOERROR
+  // with an empty answer, rather than NXDOMAIN.
   const nodata = sim.resolveName(pc, 'txt.lab');
-  eq(nodata.ok, false, 'DOCUMENTS BUG: a name with no A record cannot be used by a host');
-  eq(nodata.rcode, dns.RCODE.NXDOMAIN,
-    'DOCUMENTS BUG: NODATA is reported as NXDOMAIN instead of NOERROR with an empty answer');
+  eq(nodata.ok, false, 'a name with no A record cannot be used by a host');
+  eq(nodata.rcode, dns.RCODE.NOERROR,
+    'NODATA is reported as NOERROR with an empty answer');
+
+  // SERVFAIL: When no device in the lab hosts a DNS zone, resolveName returns SERVFAIL.
+  const emptySim = new Simulator(new Topology());
+  const servfail = emptySim.resolveName(null, 'anything.lab');
+  eq(servfail.ok, false, 'resolution fails when no DNS server exists');
+  eq(servfail.rcode, dns.RCODE.SERVFAIL, 'SERVFAIL is reported when no server hosts a zone');
+  eq(servfail.server, null, 'no server is reported for SERVFAIL');
 }
 
 // ---------------------------------------------------------------------------

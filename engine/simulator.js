@@ -149,19 +149,52 @@ class Simulator {
       candidates.push({ dev: dev, zones: zones, ips: ips });
     }
 
+    if (!candidates.length) {
+      return {
+        ok: false,
+        rcode: dnsLib.RCODE.SERVFAIL,
+        server: null,
+        answers: []
+      };
+    }
+
+    let nodataCandidate = null;
+
     for (const c of candidates) {
       for (const zone of c.zones) {
         const res = dnsLib.resolve(zone, qname, 'A');
         const answers = (res && res.answers) || [];
-        if (!answers.length) continue;
+        if (!answers.length) {
+          if (res && res.rcode === dnsLib.RCODE.NOERROR && !nodataCandidate) {
+            nodataCandidate = {
+              ok: false,
+              rcode: dnsLib.RCODE.NOERROR,
+              server: c.dev.name,
+              answers: []
+            };
+          }
+          continue;
+        }
         const a = answers.filter(function (x) {
           return String(x.type || '').toUpperCase() === 'A';
         })[0] || answers[0];
         const addr = a && (a.value || a.address || a.data);
-        if (addr) {
+        if (addr && String(a.type || '').toUpperCase() === 'A') {
           return { ok: true, address: addr, server: c.dev.name, rcode: res.rcode, answers: answers };
         }
+        if (res && res.rcode === dnsLib.RCODE.NOERROR && !nodataCandidate) {
+          nodataCandidate = {
+            ok: false,
+            rcode: dnsLib.RCODE.NOERROR,
+            server: c.dev.name,
+            answers: answers
+          };
+        }
       }
+    }
+
+    if (nodataCandidate) {
+      return nodataCandidate;
     }
 
     return {
