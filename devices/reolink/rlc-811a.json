@@ -1,0 +1,23 @@
+{
+  "vendor": "reolink",
+  "model": "RLC-811A",
+  "label": "Reolink RLC-811A",
+  "category": "camera",
+  "description": "Reolink RLC-811A is an 8 MP 4K PoE bullet camera with a 2.7-13.5 mm motorised 5x optical zoom lens, five 6500 K spotlights for colour night vision, person/vehicle/animal detection, a siren and two-way audio. It presents one 10/100 Mbps RJ45 port fed by 802.3af active PoE (48 V) or a 12 VDC 1 A input, and this PoE model has no Wi-Fi radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://support.reolink.com/c/rlc-811a/",
+  "notes": "From Reolink's own specification page: Ethernet 'One 10M/100Mbps; RJ45'; Power 'PoE IEEE 802.3af, 48V active' or 'DC 12.0V 1A'; microSD slot to 512 GB; two-way audio; spotlight 5pcs/4W/6500K/450 lumens; interface list is power DC port, reset button, Ethernet, waterproof lid - no antenna. Not confirmed: Reolink publishes no power-consumption figure and no 802.3af class, so the 12.95 W in poeIn is the 802.3af Type 1 PSE allocation rather than a measured draw; treat it as an upper bound for planning. Reolink's own FAQ warns the injector must be 802.3af-compliant 48 V active - a passive 24 V injector will not bring it up. The wireless sibling is a different SKU, so on this model the cable is the only path."
+}

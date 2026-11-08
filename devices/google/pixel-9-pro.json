@@ -1,0 +1,26 @@
+{
+  "vendor": "google",
+  "model": "Pixel 9 Pro",
+  "label": "Google Pixel 9 Pro smartphone",
+  "category": "phone",
+  "description": "Tensor G4 phone. Cellular is 5G sub-6 plus mmWave on the GR83Y SKU: sub-6 n1/n2/n3/n5/n7/n8/n12/n14/n20/n25/n26/n28/n29/n30/n38/n40/n41/n48/n66/n70/n71/n77/n78 and mmWave n258/n260/n261; the GGX8B SKU is sub-6 only. Wi-Fi is 7 (802.11be) on 2.4 + 5 + 6 GHz with 2x2 + 2x2 MIMO. Radios: one wlan (Wi-Fi 7) and one wwan (5G); charging and data are USB-C only, so there is no RJ45.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://fi.google.com/about/phones/pixel-9-pro-specs",
+  "notes": "Google's own spec sheet splits the two 5G SKUs by band table, which is why the mmWave claim is tied to GR83Y rather than to the model name. No Ethernet: Pixel phones have never carried an RJ45 and this one has no dock NIC either. Satellite SOS is not modelled as an interface."
+}

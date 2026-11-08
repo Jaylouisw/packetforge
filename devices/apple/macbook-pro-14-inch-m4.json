@@ -1,0 +1,22 @@
+{
+  "vendor": "apple",
+  "model": "MacBook Pro 14-inch M4",
+  "label": "Apple MacBook Pro 14-inch (M4) laptop",
+  "category": "laptop",
+  "description": "14-inch M4 MacBook Pro. Wireless is Wi-Fi 6E (802.11ax) - Apple does not claim Wi-Fi 7 on this machine - and there is no Ethernet port: the chassis carries three Thunderbolt 4 (USB-C) ports plus HDMI, an SDXC card slot and MagSafe 3. Radios: one wlan (Wi-Fi 6E); wired networking would have to come from a Thunderbolt or USB-C adapter, so no RJ45.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/121552",
+  "notes": "Apple's spec sheet contains no Ethernet, Gigabit or RJ-45 entry at all - the absence is the fact worth recording, and the notes say so plainly. The M4 Pro/M4 Max versions of this chassis move to Thunderbolt 5, but the base M4 is Thunderbolt 4, so do not assume 5 here. Wi-Fi stays 6E: writing Wi-Fi 7 would be a guess Apple does not support."
+}

@@ -1,0 +1,23 @@
+{
+  "vendor": "dahua",
+  "model": "IPC-HDBW5442E-ZE",
+  "label": "Dahua IPC-HDBW5442E-ZE",
+  "category": "camera",
+  "description": "Dahua IPC-HDBW5442E-ZE is a 4 MP WizMind dome with a motorised vari-focal lens, starlight low-light imaging, face-attribute capture and perimeter protection in an IP67/IK10 metal housing. It has one RJ45 10/100Base-T port taking PoE 802.3af (Class 0) or 12 VDC / 24 VAC, plus RS-485 and 1/1 alarm and audio terminals, and there is no Wi-Fi radio on this SKU.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://www.dahuasecurity.com/asset/upload/uploads/soft/20191107/DH-IPC-HDBW5442E-ZE_Datasheet_20191015.pdf",
+  "notes": "From the Dahua datasheet: Ethernet 'RJ-45 (10/100 Base-T)'; Power Supply 'DC 12V (+-30%), AC 24V (+-30%), PoE (802.3af) (Class 0)'; Power Consumption '<12.4W' (max stream + IR + focus); RS-485 N/A on this model, alarm 1/1 channel in/out, audio 1/1; IP67, IK10; ONVIF Profile S/G/T plus CGI; microSD/NAS/FTP edge storage. Class 0 is the 802.3af default class (0.44-12.95 W), which matches the sub-13 W ceiling, so poeIn is set to the 12.95 W Type 1 allocation and not to a 25.5 W Type 2 figure. Not confirmed: Dahua gives no separate idle draw, and this is the pre-S3 datasheet revision - the S3 build is listed as discontinued on Dahua's site, so treat current-stock part numbers as a variant of the same chassis. The sibling already in the catalogue is the 4 MP eyeball IPC-HDW5442TM-AS; this is the dome with motorised zoom, a genuinely different enclosure and lens."
+}

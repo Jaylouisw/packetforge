@@ -1,0 +1,23 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-2CD2386G2-IU",
+  "label": "Hikvision DS-2CD2386G2-IU",
+  "category": "camera",
+  "description": "Hikvision DS-2CD2386G2-IU is an 8 MP (3840 x 2160) AcuSense fixed turret camera on the G2 platform, with powered-by-DarkFighter low-light imaging, human/vehicle target classification running on the camera, a built-in microphone (-U suffix) and microSD edge recording. It carries one RJ45 10/100 Mbps self-adaptive Ethernet port fed by 802.3af PoE Class 3 (max 6.8 W) or 12 VDC, and this SKU has no wireless radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/sm000059270/DS-2CD2386G2-IU-C_Datasheet_V5.5.112_20230217.pdf",
+  "notes": "From the Hikvision datasheet: Ethernet Interface '1 RJ45 10 M/100 M self-adaptive Ethernet port'; PoE 802.3af Class 3, 36-57 V, max 6.8 W; 12 VDC, 0.48 A, max 5.8 W; microSD/microSDHC/microSDXC slot up to 512 GB; ONVIF Profile S/G/T, ISAPI, SDK; -U denotes the built-in microphone. Not confirmed: Hikvision publishes no idle/typical draw and no figure with the IR illuminator at full power, so 6.8 W is the only number usable for switch-budget planning. The port is 100 Mbps - do not plan an 8 MP main stream plus substreams against a gigabit assumption it does not have. Wired only: the G2 datasheet lists no Wi-Fi variant of this SKU."
+}

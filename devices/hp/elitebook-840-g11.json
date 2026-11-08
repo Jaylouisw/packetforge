@@ -1,0 +1,22 @@
+{
+  "vendor": "hp",
+  "model": "EliteBook 840 G11",
+  "label": "HP EliteBook 840 G11 14-inch business laptop",
+  "category": "laptop",
+  "description": "14-inch Core Ultra business ultrabook. Wireless is Intel Wi-Fi 6E AX211 2x2 with Bluetooth 5.3 (vPro variant also AX211) - HP lists no Wi-Fi 7 option on this sheet - and WWAN is an optional factory-fit HP 5G sub-6 Cat 19 or 4G LTE-A Pro Cat 16 module on eSIM. There is no RJ-45: HP's port list is 2x Thunderbolt 4 USB4 Type-C 40 Gbps, 2x USB 3.2 Gen 1 Type-A, 1x HDMI 2.1 and a headphone/mic combo jack. Ports: no Ethernet jack at all.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://support.hp.com/us-en/document/ish_10275604-10277112-16",
+  "notes": "HP moved the 840 line off the RJ45 at G9 and this G11 keeps that decision - wired needs a USB-C dock. The optional 5G WWAN is listed in the notes rather than as a wwan interface, matching how the catalogue already models the 840 G10, so the laptop does not silently appear cellular-equipped."
+}

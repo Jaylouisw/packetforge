@@ -1,0 +1,22 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-7608NI-K2",
+  "label": "Hikvision DS-7608NI-K2",
+  "category": "nvr",
+  "description": "Hikvision DS-7608NI-K2 is the plain 8-channel 4K NVR of the K2 Pro series: two SATA bays for up to 10 TB each, 80 Mbps incoming bandwidth and H.265+ decoding, with no built-in PoE switch, so every camera needs its own injector or PoE switch port. Its single network interface is one RJ45 10/100/1000 Mbps self-adaptive Ethernet port, and there is no wireless radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000002/S000000007/S000000026/OFR000040/M000000567/Data_Sheet/Datasheet-of-DS-7608NI-K2-NVR-D-or-E_4.71.410_20221026.pdf",
+  "notes": "From the Hikvision datasheet: Network '1, RJ-45 10/100/1000 Mbps self-adaptive Ethernet interface'; 2 SATA interfaces, up to 10 TB per HDD; up to 80 Mbps incoming bandwidth; alarm in/out 4/1; 12 VDC 3.33 A, 15 W without HDD; 1 HDMI + 1 VGA. This is deliberately the non-PoE sibling of the catalogue's DS-7608NI-K2/8P - same recorder, one NIC, no 8-port switch - so the two models answer different lab questions: the /8P creates the hidden 192.168.254.0/24 camera subnet, this one puts the cameras straight on the office LAN. Not confirmed: Hikvision does not publish a maximum draw with both bays populated, so 15 W is the diskless figure. No dhcp-server or l2-forward is claimed, because with a single NIC there is nothing to bridge or serve."
+}

@@ -1,0 +1,26 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy S25 Ultra",
+  "label": "Samsung Galaxy S25 Ultra smartphone",
+  "category": "phone",
+  "description": "Snapdragon 8 Elite flagship. Cellular is 5G NR sub-6 plus mmWave on the US unlocked SKU: n1/n2/n5/n7/n25/n28/n41/n66/n71/n77/n78 for sub-6 and n257/n258/n260/n261 for mmWave, SA and NSA. Wi-Fi is 7 (802.11be) tri-band on 2.4, 5 and 6 GHz. Radios: one wlan (Wi-Fi 7) and one wwan (5G sub-6 + mmWave); the wired connector is USB-C 3.2 only, so no RJ45.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s25_ultra-13322.php",
+  "notes": "Samsung's own specs page refused automated fetch (403), so the band and 802.11 figures here were read from GSM Arena's mirror of Samsung's sheet: 'Wi-Fi 802.11 a/b/g/n/ac/6e/7, tri-band' and 5G 'SA/NSA/Sub6/mmWave - USA unlocked'. Treat the exact band list as SKU-specific and re-check against samsung.com if a test depends on n257/n261. S Pen is not a network interface."
+}

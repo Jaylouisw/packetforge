@@ -1,0 +1,26 @@
+{
+  "vendor": "oneplus",
+  "model": "OnePlus 13",
+  "label": "OnePlus 13 smartphone",
+  "category": "phone",
+  "description": "Snapdragon 8 Elite phone. Cellular is 5G SA/NSA sub-6 only - n1/n2/n3/n5/n7/n8/n12/n20/n25/n28/n30/n38/n40/n41/n48/n66/n71/n75/n77/n78 - with no mmWave bands in OnePlus's own list. Wi-Fi is 7 with 2x2 MIMO, 320 MHz channels on 6 GHz and 160 MHz on 5 GHz. Radios: one wlan (Wi-Fi 7) and one wwan (5G sub-6); the port is USB-C 3.2, so no RJ45.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.oneplus.com/us/13/specs",
+  "notes": "OnePlus states Wi-Fi 7 with 320 MHz on 6 GHz explicitly, which is why wlan0 is modelled at 5G peak PHY here while the iPhone - capped at 160 MHz - sits at 2.5G. Absence of n257/n258/n260/n261 in OnePlus's band list is the honest basis for calling this sub-6 only; do not add mmWave. USB-C supports Ethernet adapters, but that is an accessory, not a port on the machine."
+}

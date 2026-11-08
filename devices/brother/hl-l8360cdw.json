@@ -1,0 +1,27 @@
+{
+  "vendor": "brother",
+  "model": "HL-L8360CDW",
+  "label": "Brother HL-L8360CDW",
+  "category": "printer",
+  "description": "Brother HL-L8360CDW is a single-function colour laser printer at 33 ppm (Letter) / 31 ppm (A4) with automatic duplex, a 2.7-inch colour touchscreen and 512 MB of memory, the wired-or-wireless half of Brother's L8300 colour series. It has one RJ45 10Base-T/100Base-TX/1000Base-T port plus a single 802.11b/g/n 2.4 GHz radio supporting infrastructure and Wi-Fi Direct, and no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://support.brother.com/g/b/spec.aspx?c=gb&lang=en&prod=hll8360cdw_us_eu_as",
+  "notes": "From Brother's own specification page: LAN '10Base-T/100Base-TX/1000Base-T'; Wireless LAN 'IEEE 802.11b/g/n (Infrastructure Mode), IEEE 802.11g/n (Wi-Fi Direct)'; 512 MB memory (HL-L8360CDW); print speed 33 ppm Letter / 31 ppm A4; power source 220-240 VAC 50/60 Hz on the UK/EU sheet. The radio is 2.4 GHz only - no 5 GHz band - which is the usual reason a printer ends up on the guest SSID instead of the office one. Wireless speed is modelled as 300M, the 802.11n 2.4 GHz ceiling, because Brother publishes no PHY rate: this is a modelled figure, not a datasheet one. USB 2.0 host/device ports exist and are deliberately not modelled. No PoE."
+}
