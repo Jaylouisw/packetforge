@@ -16,18 +16,35 @@
     "start": 1,
     "count": 16,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "rj45",
+    "speedCaps": [
+      1000,
+      2500,
+      5000,
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "mgmt1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "mgmt2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "sfp1",
@@ -141,5 +158,7 @@
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3000f-series.pdf",
+  "notes": "FortiGate 3000F data sheet, Interfaces and Modules: 6 x 100 GE QSFP28 / 40 GE QSFP+ slots, 16 x 25 GE SFP28 / 10 GE SFP+ / GE SFP slots (including 2 x HA), 16 x 10 GE / 5 GE / 2.5 GE / GE RJ45 ports, 2 x 10GE / GE RJ45 management ports. Ordering line: \"6x 100GE QSFP28 slots, 16x 10GE SFP+/25GE SFP28 slots (including 14x ports, 2x HA ports), 18x 10G Base-T (including 2x MGMT ports)\". Counts and cages match; the copper rate lists are pinned to 1G/2.5G/5G/10G because the engine's rj45 default also offers 10BASE-T and 100BASE-TX, which the data sheet does not list for these ports."
 }
