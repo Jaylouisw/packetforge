@@ -52,7 +52,8 @@
     "test:lldp": "node test/lldp.test.js",
     "test:flow": "node test/flow.test.js",
     "test:pon-connectors": "node test/pon-connectors.test.js",
-    "test:ui-dom": "node test/ui-dom-contract.test.js"
+    "test:ui-dom": "node test/ui-dom-contract.test.js",
+    "smoke": "node scripts/smoke-http.js"
   },
   "keywords": [
     "network",

@@ -51,28 +51,12 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 20
-      - name: Start server and probe API
-        run: |
-          # PF_DATA keeps the smoke test from writing boards into the checkout.
-          PORT=8123 PF_DATA="$RUNNER_TEMP/pf-data" node server/index.js > server.log 2>&1 &
-          ready=0
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8123/api/catalog >/dev/null 2>&1; then
-              echo "server ready after $i attempt(s)"
-              ready=1
-              break
-            fi
-            sleep 0.5
-          done
-          if [ "$ready" -ne 1 ]; then
-            echo "server never became ready; log follows"
-            cat server.log
-            exit 1
-          fi
-          curl -fsS http://127.0.0.1:8123/api/catalog | grep -q '"specs"'
-          curl -fsS http://127.0.0.1:8123/api/media | grep -q '"media"'
-          curl -fsS http://127.0.0.1:8123/ | grep -qi 'PacketForge'
-          echo "smoke test passed"
+      # The old step proved that three endpoints return JSON. What the UI actually needs is a
+      # topology it can create, a device it can place, a legal cable accepted, an illegal one
+      # refused with reasons, and a dry run that agrees. scripts/smoke-http.js checks all of
+      # that; it spawns its own server on a free port and cleans up after itself.
+      - name: Drive the API end to end
+        run: node scripts/smoke-http.js
 
   docker:
     name: Docker build
