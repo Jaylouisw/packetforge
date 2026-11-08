@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLHG-5nD",
+  "label": "LHG 5",
+  "category": "ptp",
+  "description": "MikroTik LHG 5 (RBLHG-5nD) — 1x 100M RJ45, Wi-Fi 5 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBLHG-5nD"
+}
