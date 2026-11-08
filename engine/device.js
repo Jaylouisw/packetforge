@@ -157,6 +157,7 @@ class Device {
       ospf: null,                // { routerId, areaId, interfaces: [{ name, cost, area, passive }] }
       dnsServers: [],            // upstream resolvers, by IP
       dnsZones: [],              // zones this device is authoritative for
+      dhcpPools: [],             // [{ name, network, mask, rangeStart, rangeEnd, gateway, dns, excluded, leaseSec }]
       bgp: null,                 // { as, routerId, neighbors: [{ address, remoteAs }] }
       ip6: {},                   // ifaceName -> { addr, prefix }   (global IPv6 addresses)
       routes6: [],               // [{ dest, prefix, nextHop, iface }]
@@ -592,6 +593,7 @@ class Device {
         ospf: this.config.ospf ? JSON.parse(JSON.stringify(this.config.ospf)) : null,
         dnsServers: (this.config.dnsServers || []).slice(),
         dnsZones: JSON.parse(JSON.stringify(this.config.dnsZones || [])),
+        dhcpPools: JSON.parse(JSON.stringify(this.config.dhcpPools || [])),
         bgp: this.config.bgp ? JSON.parse(JSON.stringify(this.config.bgp)) : null,
         ip6: JSON.parse(JSON.stringify(this.config.ip6 || {})),
         routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
@@ -658,6 +660,7 @@ class Device {
         d.config.ospf = state.config.ospf ? JSON.parse(JSON.stringify(state.config.ospf)) : null;
         d.config.dnsServers = (state.config.dnsServers || []).slice();
         d.config.dnsZones = JSON.parse(JSON.stringify(state.config.dnsZones || []));
+        d.config.dhcpPools = JSON.parse(JSON.stringify(state.config.dhcpPools || []));
         d.config.bgp = state.config.bgp ? JSON.parse(JSON.stringify(state.config.bgp)) : null;
         d.config.ip6 = JSON.parse(JSON.stringify(state.config.ip6 || {}));
         d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));

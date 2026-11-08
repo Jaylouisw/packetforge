@@ -38,7 +38,9 @@ A `Device` has a list of **capabilities**:
 | `l2-forward` | bridge/switch: MAC learning + flooding |
 | `l3-forward` | router: forwards IP between subnets |
 | `cli`      | exposes the management console |
-| `dhcp-server`, `dhcp-client`, `nat`, `firewall`, `wireless`, `http-server` | reserved for future protocol support |
+| `nat`, `http-server` | live |
+| `dhcp-server`, `dhcp-client` | live as of the DHCP data path: a pool answers on segments the device has an address in, and a client interface acquires a lease at the start of a run |
+| `firewall`, `wireless` | reserved for future protocol support |
 
 The forwarding logic branches on capabilities, never on `vendor` or `model`.
 That's the entire trick that makes **any manufacturer work**: a Huawei router

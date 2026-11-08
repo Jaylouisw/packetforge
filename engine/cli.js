@@ -284,7 +284,104 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'default-gateway') {
       this.device.config.defaultGateway = null;
       out.push('Default gateway cleared');
+    } else if (head === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'pool') {
+      const name = tokens[3];
+      if (!name) {
+        out.push('% Usage: ip dhcp pool <name>');
+      } else {
+        if (!this.device.config.dhcpPools) this.device.config.dhcpPools = [];
+        let pool = this.device.config.dhcpPools.filter(function (x) {
+          return String(x.name || '').toLowerCase() === name.toLowerCase();
+        })[0];
+        if (!pool) {
+          pool = { name: name, network: null, mask: null, gateway: null, dns: [], excluded: [] };
+          this.device.config.dhcpPools.push(pool);
+          out.push('DHCP pool ' + name + ' created');
+        } else {
+          out.push('DHCP pool ' + pool.name);
+        }
+        // The pool pointer plays the part of the pool sub-mode: the commands below
+        // edit whichever pool was named last, until 'exit' forgets it.
+        this._dhcpPool = pool;
+      }
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'dhcp' && tokens[3] === 'pool') {
+      const name = tokens[4];
+      const pools = this.device.config.dhcpPools || [];
+      const keep = pools.filter(function (x) {
+        return String(x.name || '').toLowerCase() !== String(name || '').toLowerCase();
+      });
+      this.device.config.dhcpPools = keep;
+      if (this._dhcpPool && String(this._dhcpPool.name || '').toLowerCase() === String(name || '').toLowerCase()) {
+        this._dhcpPool = null;
+      }
+      out.push(keep.length === pools.length ? '% No such pool ' + (name || '') : 'DHCP pool ' + name + ' removed');
+    } else if (head === 'network' && this._dhcpPool) {
+      const ip = tokens[1], mask = tokens[2];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip || '') || net.maskToInt(mask) === null) {
+        out.push('% Usage: network <network> <mask>');
+      } else {
+        this._dhcpPool.network = ip;
+        this._dhcpPool.mask = mask;
+        // IOS allocates across the whole subnet, minus the network/broadcast addresses and
+        // anything excluded. The pool library wants the range spelled out, so derive it here
+        // and leave an explicit 'range' alone if the operator set one.
+        if (!this._dhcpPool.rangeStart || !this._dhcpPool.rangeEnd) {
+          const netInt = net.maskToInt(mask);
+          const base = net.networkOf(ip, mask);
+          const bcast = net.broadcastOf(ip, mask);
+          const first = netInt >= 30 ? base + 1 : base + 1;
+          const last = netInt >= 30 ? bcast - 1 : bcast - 1;
+          this._dhcpPool.rangeStart = net.intToIp(first);
+          this._dhcpPool.rangeEnd = net.intToIp(last);
+        }
+        out.push('Pool ' + this._dhcpPool.name + ': network ' + ip + '/' + net.prefixOf(mask) +
+          ' range ' + this._dhcpPool.rangeStart + ' - ' + this._dhcpPool.rangeEnd);
+      }
+    } else if (head === 'default-router' && this._dhcpPool) {
+      const gw = tokens[1];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(gw || '')) out.push('% Usage: default-router <ip>');
+      else { this._dhcpPool.gateway = gw; out.push('Pool ' + this._dhcpPool.name + ': default router ' + gw); }
+    } else if (head === 'range' && this._dhcpPool) {
+      const from = tokens[1], to = tokens[2];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(from || '') || !/^\d{1,3}(\.\d{1,3}){3}$/.test(to || '')) {
+        out.push('% Usage: range <start> <end>');
+      } else if (net.ipToInt(from) > net.ipToInt(to)) {
+        out.push('% range start must not be above the end');
+      } else {
+        this._dhcpPool.rangeStart = from;
+        this._dhcpPool.rangeEnd = to;
+        out.push('Pool ' + this._dhcpPool.name + ': range ' + from + ' - ' + to);
+      }
+    } else if (head === 'dns-server' && this._dhcpPool) {
+      const ip = tokens[1];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip || '')) out.push('% Usage: dns-server <ip>');
+      else {
+        if (!Array.isArray(this._dhcpPool.dns)) this._dhcpPool.dns = [];
+        if (this._dhcpPool.dns.indexOf(ip) === -1) this._dhcpPool.dns.push(ip);
+        out.push('Pool ' + this._dhcpPool.name + ': dns ' + this._dhcpPool.dns.join(', '));
+      }
+    } else if (head === 'lease' && this._dhcpPool) {
+      // Cisco spells it 'lease <days> [hours] [minutes]'.
+      const d = parseInt(tokens[1], 10), h = parseInt(tokens[2], 10), m = parseInt(tokens[3], 10);
+      if (!(d >= 0)) {
+        out.push('% Usage: lease <days> [hours] [minutes]');
+      } else {
+        const secs = (d * 86400) + ((h > 0 ? h : 0) * 3600) + ((m > 0 ? m : 0) * 60);
+        if (secs > 0) this._dhcpPool.leaseSec = secs;
+        else delete this._dhcpPool.leaseSec;
+        out.push('Pool ' + this._dhcpPool.name + ': lease ' + (secs > 0 ? secs + 's' : 'default'));
+      }
+    } else if (head === 'excluded-address' && this._dhcpPool) {
+      const from = tokens[1], to = tokens[2] || tokens[1];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(from || '') || !/^\d{1,3}(\.\d{1,3}){3}$/.test(to || '')) {
+        out.push('% Usage: excluded-address <start> [end]');
+      } else {
+        if (!Array.isArray(this._dhcpPool.excluded)) this._dhcpPool.excluded = [];
+        this._dhcpPool.excluded.push(from === to ? from : from + '-' + to);
+        out.push('Pool ' + this._dhcpPool.name + ': excluded ' + (from === to ? from : from + '-' + to));
+      }
     } else if (head === 'exit' || head === 'end') {
+      this._dhcpPool = null;
       this.mode = MODE_EXEC;
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));

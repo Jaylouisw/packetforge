@@ -70,9 +70,9 @@ first.
   in run 1 000 with the same entries (`engine/device.js:331`).
 - The capability list at `engine/device.js:85-98` advertises more than the
   engine consumes: `vlan`, `lacp`, `stp`, `poe-pse`, `poe-pd`, `firewall`,
-  `wireless`, `dhcp-server`, `dhcp-client` are never read by the forwarding
+  `wireless` is never read by the forwarding
   path. VLANs and STP apply to any `l2-forward` device whether or not it claims
-  them; see [§2](#2-ethernet-and-l2) and [§5.1](#51-dhcp--absent-from-the-data-path).
+  them; see [§2](#2-ethernet-and-l2) and [§5.1](#51-dhcp--in-the-data-path-computed-rather-than-timed).
 
 **Absent**
 
@@ -246,24 +246,27 @@ a `/25` connected route regardless of list order.
 
 ## 5. Control plane
 
-### 5.1 DHCP — **absent from the data path**
-
-This is the largest gap between what the repo looks like and what it does.
+### 5.1 DHCP — **in the data path, computed rather than timed**
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled (as a library)** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js:599`, `engine/dhcp.js:633` |
-| **Exported** | Re-exported from the engine's public API. | `engine/index.js:15` |
-| **Tested** | Covered by its own suite. | `test/dhcp.test.js` |
-| **Absent in the simulator** | `engine/simulator.js` never requires `dhcp.js` and never calls it. No DISCOVER is ever sent, no OFFER ever crosses a link, no lease is ever installed on an interface. | grep `dhcp` in `engine/simulator.js` returns nothing |
-| **Absent in the CLI** | `ip address dhcp` sets `iface.dhcp = true` and prints a confirmation. Nothing reads the flag; `show ip interface brief` prints "DHCP" as a label. `docs/CLI.md:50` calls it "(reserved)" and is correct. | `engine/cli.js:306-308`, `engine/cli.js:897` |
+| **Modelled** | A complete DHCPv4 server model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — pure and deterministic. | `engine/dhcp.js:599`, `engine/dhcp.js:633` |
+| **Configured** | `ip dhcp pool <name>`, `network <net> <mask>`, `range <start> <end>`, `default-router`, `dns-server`, `excluded-address`, `lease <d> <h> <m>`. `network` derives the allocatable range across the subnet the way IOS does; `range` overrides it. | `engine/cli.js` (config mode) |
+| **Runs** | `computeDhcp()` runs in both pre-run phases, after PoE and before routing. For every interface flagged `dhcp` and still unaddressed, it walks the broadcast domain (through bridges, stopping at routers), finds a pool whose network covers the subnet of the server interface that received the broadcast, and applies the issued lease: address, mask, gateway, DNS, lease time. | `engine/simulator.js` `computeDhcp`, `_broadcastDomain` |
+| **Refuses** | A server never allocates an address it already holds on that segment, so the derived range cannot hand out the router's own gateway. An exhausted pool emits `dhcp-no-offer`; a segment with no server emits `dhcp-failed` naming the reason. | `engine/simulator.js` |
+| **Tested** | `test/dhcp.test.js` (library) and `test/dhcp-in-path.test.js` (33 assertions: leases, two clients, exhaustion, no server, exclusions, DNS, save/load, static clients, router-as-client). | `test/` |
 
-A lab that expects hosts to pull addresses from a DHCP server will not work.
-Give every host a static address, or drive the model directly from a script.
+**The honest limit:** the exchange is *computed* at the start of a run, not carried as
+timed frames — the same approximation this engine already makes for OSPF, BGP and STP.
+There is no DISCOVER timeout, no retry backoff, no T1/T2 renewal, and no packet in the
+timeline showing a 4-way handshake; instead the events `dhcp-discover`, `dhcp-offer`,
+`dhcp-request`, `dhcp-ack`, `dhcp-nak`, `dhcp-no-offer` and `dhcp-failed` record what
+happened and why. A lab can show that DHCP works and demonstrate its failure modes; it
+cannot show how long a lease takes to arrive.
 
-Also absent: DHCP relay, Option 82, vendor classes, DHCP snooping, and any
-DHCPv6 (which SLAAC's M-flag tells the host to go and use —
-`engine/simulator.js:1018` — and which does not exist).
+Also absent: DHCP relay (`ip helper-address`), Option 82, vendor classes, DHCP snooping,
+and any DHCPv6 — which SLAAC's M-flag tells a host to go and use
+(`engine/simulator.js:1018`), and which still does not exist.
 
 ### 5.2 NAT / PAT
 
@@ -563,10 +566,10 @@ so the next reader does not have to rediscover them.
 | `README.md:80` | "91 models / 17 vendors" | The catalogue loads **905** specs across **199** vendors at this tree. |
 | `README.md:19-21` | "Real simulation … MAC learning, flooding, ARP, longest-prefix routing, default gateways, TTL decrement and ICMP echo/reply" | Accurate — and that is the whole list. It is a statement of scope, not an understatement. |
 | `README.md:24-28` | "Physically accurate … impossible cables are refused, not drawn" | Accurate and well tested; just remember [§6.6](#66-cable-length) — length is otherwise cosmetic. |
-| `docs/ARCHITECTURE.md:41` | `dhcp-server`, `nat`, `firewall`, `wireless`, `http-server` "reserved for future protocol support" | `nat` and the `http-server` listener table are live; `firewall`, `wireless`, `dhcp-*` are still inert. |
+| `docs/ARCHITECTURE.md:41` | `dhcp-server`, `nat`, `firewall`, `wireless`, `http-server` "reserved for future protocol support" | `nat`, `http-server` and now `dhcp-server`/`dhcp-client` are live; `firewall` and `wireless` are still inert. |
 | `docs/ARCHITECTURE.md:61-69` | Routing order: connected, static, default gateway | Right, and incomplete: BGP (20/200) and OSPF (110) sit between static and the default gateway (`engine/device.js:364-443`). |
 | `docs/ARCHITECTURE.md:94-111` | Flow API and counters | Accurate. |
-| `docs/CLI.md:50` | `ip address dhcp` — "(reserved)" | Correct, and worth believing: the flag is set and nothing reads it. |
+| `docs/CLI.md:50` | `ip address dhcp` — "(reserved)" | Was correct and is now fixed: the flag is read by `computeDhcp`, which installs a real lease. |
 | `docs/CLI.md` (whole) | Documents `show`, `interface`, `ip address`, `ip route`, `ping`, IPv6 ND | It does not document the commands that exist for `access-list`, `ip access-group`, `switchport`, `channel-group`, `router bgp`/`neighbor`, `ospf`, `dns`, `scion`. The CLI reference is behind the CLI. |
 | `docs/ROADMAP.md:7-19` | Lists VLANs, STP, OSPF/RIP, NAT, ACLs, wireless, DNS as unchecked TODOs | All of those except RIP, DHCP-in-the-data-path and wireless association are implemented. A stale roadmap reads as a promise; here it reads as a warning that happens to be wrong in both directions. |
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |

@@ -10,6 +10,7 @@ const lagLib = require('./lag');
 const stpLib = require('./stp');
 const aclLib = require('./acl');
 const ospfLib = require('./ospf');
+const dhcpLib = require('./dhcp');
 const dnsLib = require('./dns');
 const bgpLib = require('./bgp');
 const lldp = require('./lldp');
@@ -263,6 +264,8 @@ class Simulator {
     this.computePoe();
     // Announce ourselves on every cabled port, the way real gear does on link-up.
     this.announceLldp();
+    // Hand out addresses before anyone asks a DHCP client to send a packet.
+    this.computeDhcp();
     // Then let the routers hand out IPv6 prefixes, so a host configured for
     // autoconfiguration has an address before anyone asks it to send a packet.
     this.announceRa();
@@ -351,6 +354,183 @@ class Simulator {
   }
 
   // Build the STP graph and mark blocking ports on each device.
+  // ---------------------------------------------------------------------
+  // DHCP: give a client an address before the first packet
+  // ---------------------------------------------------------------------
+
+  // Everything reachable from an interface without crossing a router: the same broadcast
+  // domain. Bridges are walked through port by port; anything else is a member of the
+  // domain and a place to stop, because a router does not forward a DHCP DISCOVER.
+  _broadcastDomain(dev, ifaceName) {
+    const seen = new Set([dev.id + '/' + ifaceName]);
+    const members = [];
+    const queue = [dev.id + '/' + ifaceName];
+    while (queue.length) {
+      const key = queue.shift();
+      const slash = key.indexOf('/');
+      const d = this.topo.getDevice(key.slice(0, slash));
+      const iface = d && d.interfaces.get(key.slice(slash + 1));
+      if (!iface || !iface.peer) continue;
+      const peerDev = this.topo.getDevice(iface.peer.deviceId);
+      const peerIface = peerDev && peerDev.interfaces.get(iface.peer.iface);
+      if (!peerDev || !peerIface) continue;
+      const pk = peerDev.id + '/' + peerIface.name;
+      if (seen.has(pk)) continue;
+      seen.add(pk);
+      members.push({ dev: peerDev, iface: peerIface });
+      // A bridge continues the domain; a host or router ends this branch of it.
+      if (peerDev.isL2 && peerDev.isL2()) {
+        for (const other of peerDev.interfaces.values()) {
+          if (other.name === peerIface.name || !other.peer) continue;
+          const ok = peerDev.id + '/' + other.name;
+          if (!seen.has(ok)) { seen.add(ok); queue.push(ok); }
+        }
+      }
+    }
+    return members;
+  }
+
+  // 'ip address dhcp' used to be a label: the interface took a flag and nothing else, so a
+  // client with no address silently failed every ping it was asked to send. The server side
+  // (offers, NAKs, reservations, lease expiry) has lived in engine/dhcp.js all along - what
+  // was missing was a way to configure a pool and anything that ran the exchange.
+  //
+  // Like OSPF, BGP and STP in this engine, the exchange is *computed* at the start of a run
+  // rather than carried as timed frames: there is no DISCOVER timeout, no retry backoff and
+  // no renewal at T1. The events below are emitted so the timeline can show which server
+  // answered and with what, and this comment is the honest statement of the approximation -
+  // a lab can demonstrate that DHCP works and why it fails, not how long it takes.
+  computeDhcp() {
+    if (!this.dhcpLeases) this.dhcpLeases = Object.create(null);
+
+    const clients = [];
+    for (const dev of this.topo.devices.values()) {
+      for (const iface of dev.interfaces.values()) {
+        if (iface.dhcp && !iface.ip) clients.push({ dev: dev, iface: iface });
+      }
+    }
+    // Deterministic order, so two clients on one segment are served in a stable sequence
+    // and a lab's addresses do not shuffle between runs.
+    clients.sort(function (a, b) {
+      const ka = String(a.dev.name) + '|' + a.iface.name;
+      const kb = String(b.dev.name) + '|' + b.iface.name;
+      return ka < kb ? -1 : (ka > kb ? 1 : 0);
+    });
+
+    for (const client of clients) {
+      const dev = client.dev, iface = client.iface;
+      const mac = iface.mac || '00:00:00:00:00:00';
+      const domain = this._broadcastDomain(dev, iface.name);
+      let served = false;
+
+      for (const member of domain) {
+        const pools = (member.dev.config && member.dev.config.dhcpPools) || [];
+        if (!pools.length) continue;
+        if (!member.iface.ip || !member.iface.mask) continue;
+
+        for (const raw of pools) {
+          const pool = dhcpLib.normalizePool(raw);
+          const maskInt = net.maskToInt(pool.mask);
+          if (maskInt === null) continue;
+          // A server only answers on a segment it holds an address in: the pool has to
+          // cover the subnet of the interface that received the broadcast.
+          const segNet = net.intToIp(net.networkOf(member.iface.ip, member.iface.mask));
+          if (String(pool.network) !== segNet) continue;
+
+          // A DHCP server never hands out an address it already holds itself: the range
+          // derived from the subnet starts at the first usable address, which on a typical
+          // router-on-a-stick is the router's own gateway address. Excluding every address
+          // the server owns on this segment is what IOS does implicitly.
+          const owned = [];
+          for (const m2 of domain) {
+            if (m2.dev.id !== member.dev.id) continue;
+            if (m2.iface.ip) owned.push({ start: m2.iface.ip, end: m2.iface.ip });
+          }
+          if (pool.gateway) owned.push({ start: pool.gateway, end: pool.gateway });
+          const effPool = Object.assign({}, pool, {
+            excluded: (Array.isArray(pool.excluded) ? pool.excluded : []).concat(owned)
+          });
+
+          const state = this.dhcpLeases[member.dev.id] ||
+            (this.dhcpLeases[member.dev.id] = dhcpLib.createLeaseState());
+
+          this._emit({
+            type: 'dhcp-discover', dev: dev.id, iface: iface.name, mac: mac,
+            broadcast: true, pool: pool.name, server: member.dev.name
+          });
+
+          const offer = dhcpLib.handleDiscover(effPool, state, { mac: mac, step: this.step });
+          if (!offer) {
+            this._emit({
+              type: 'dhcp-no-offer', dev: member.dev.id, iface: member.iface.name,
+              client: dev.id, pool: pool.name,
+              reason: 'pool exhausted or not usable for ' + mac
+            });
+            continue;
+          }
+          this._emit({
+            type: 'dhcp-offer', dev: member.dev.id, iface: member.iface.name,
+            client: dev.id, pool: pool.name, offered: offer.ip, mac: mac
+          });
+
+          const ack = dhcpLib.handleRequest(effPool, state, {
+            mac: mac, requestedIp: offer.ip, step: this.step
+          });
+
+          this._emit({
+            type: 'dhcp-request', dev: dev.id, iface: iface.name, mac: mac,
+            requested: offer.ip, server: member.dev.name
+          });
+
+          if (!ack || ack.type !== dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
+            this._emit({
+              type: 'dhcp-nak', dev: member.dev.id, iface: member.iface.name,
+              client: dev.id, pool: pool.name,
+              reason: (ack && ack.reason) || 'NAK',
+              message: (ack && ack.message) || null
+            });
+            continue;
+          }
+
+          // The lease becomes the interface's identity, exactly as a real client applies it.
+          iface.ip = ack.ip;
+          iface.mask = ack.mask;
+          iface.dhcpLeased = true;
+          if (ack.leaseSec) iface.dhcpLeaseSec = ack.leaseSec;
+          if (ack.gateway) iface.gateway = ack.gateway;
+          if (Array.isArray(ack.dns) && ack.dns.length && dev.config) {
+            dev.config.dnsServers = ack.dns.slice();
+          }
+
+          this._emit({
+            type: 'dhcp-ack', dev: member.dev.id, iface: member.iface.name,
+            client: dev.id, pool: pool.name, mac: mac, address: ack.ip,
+            mask: ack.mask, gateway: ack.gateway, leaseSec: ack.leaseSec,
+            server: ack.server
+          });
+          served = true;
+          break;
+        }
+        if (served) break;
+      }
+
+      if (!served) {
+        // Say why. A client left unaddressed with no explanation is the failure mode this
+        // engine is trying to avoid everywhere else.
+        const anyPool = domain.some(function (m) {
+          return m.dev.config && (m.dev.config.dhcpPools || []).length;
+        });
+        this._emit({
+          type: 'dhcp-failed', dev: dev.id, iface: iface.name, mac: mac,
+          reason: anyPool
+            ? 'no pool on this segment covers the subnet'
+            : 'no DHCP server on this broadcast domain'
+        });
+      }
+    }
+    return this.dhcpLeases;
+  }
+
   computeStp() {
     const bridges = [];
     for (const dev of this.topo.devices.values()) {
@@ -1307,6 +1487,7 @@ class Simulator {
     this.computePoe();
     // SLAAC first: a host with 'ipv6 address autoconfig' and no router answer
     // would otherwise be asked to send from an address it has never had.
+    this.computeDhcp();
     this.announceRa();
     this.computeOspf();
     this.computeBgp();

@@ -47,10 +47,44 @@ Modes and their prompts:
 |---------|--------|
 | `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`) |
 | `no ip address` | remove the IP |
-| `ip address dhcp` | mark as DHCP client (reserved) |
+| `ip address dhcp` | make this interface a DHCP client; a lease is acquired at the start of the next run (see [SIMULATION §5.1](SIMULATION.md#51-dhcp--in-the-data-path-computed-rather-than-timed)) |
 | `shutdown` / `no shutdown` | administratively disable / enable |
 | `description <text>` | set a description |
 | `exit` | back to config mode |
+
+## DHCP server commands
+
+A router or L3 switch with a pool answers DHCP on any segment it holds an address in.
+The pool sub-commands apply to the pool named last; `exit` forgets it.
+
+| Command | Effect |
+|---------|--------|
+| `ip dhcp pool <name>` | create or select a pool |
+| `no ip dhcp pool <name>` | delete a pool |
+| `network <net> <mask>` | the subnet this pool serves; derives the allocatable range across it (network and broadcast excluded) |
+| `range <start> <end>` | override the derived range |
+| `default-router <ip>` | gateway handed to clients |
+| `dns-server <ip>` | DNS server handed to clients (repeatable) |
+| `excluded-address <start> [end]` | addresses never allocated; repeatable |
+| `lease <days> [hours] [minutes]` | lease time; unset means the library default |
+
+The server never allocates an address it already holds on the segment, so a pool on
+`192.168.1.0/24` with a gateway of `192.168.1.1` hands out `.2` onwards. Lease allocation
+is deterministic: clients are served in a stable order, so addresses do not shuffle
+between runs of the same lab.
+
+```
+configure terminal
+interface Gi0/0
+ ip address 192.168.1.1 255.255.255.0
+exit
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 192.168.1.53
+ lease 0 12 0
+exit
+```
 
 ## IPv6 commands
 
