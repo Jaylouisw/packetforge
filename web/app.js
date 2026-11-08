@@ -272,9 +272,81 @@
     renderPalette();
   }
 
+  // ---------- palette keyboard ----------
+  // The palette is the only way into a 1,700-model catalogue, and it was pointer-only:
+  // type a query, get a ranked list, then reach for the mouse. Arrow keys and Enter are
+  // what a search box is expected to do — and for anyone who cannot use a pointer they
+  // are the difference between this catalogue being usable and being unavailable.
+  let paletteActiveIndex = -1;
+
+  // Pure, so the wrap behaviour is testable without a DOM. -1 means "nothing selected
+  // yet", and the first ArrowDown from there selects the first card, not the second.
+  function nextPaletteIndex(current, count, delta) {
+    if (count <= 0) return -1;
+    if (current < 0) return delta > 0 ? 0 : count - 1;
+    const next = current + delta;
+    if (next < 0) return count - 1;
+    if (next >= count) return 0;
+    return next;
+  }
+
+  function paletteCards() {
+    return document.querySelectorAll('#palette-list .device-card');
+  }
+
+  function setPaletteActive(i) {
+    const cards = paletteCards();
+    for (let k = 0; k < cards.length; k++) cards[k].classList.remove('kbd-active');
+    paletteActiveIndex = (i >= 0 && i < cards.length) ? i : -1;
+    if (paletteActiveIndex < 0) return -1;
+    const card = cards[paletteActiveIndex];
+    card.classList.add('kbd-active');
+    // The list scrolls; a highlight you cannot see is not a highlight.
+    if (typeof card.scrollIntoView === 'function') card.scrollIntoView({ block: 'nearest' });
+    const search = $('#pf-search');
+    if (search && typeof search.setAttribute === 'function' && card.id) {
+      search.setAttribute('aria-activedescendant', card.id);
+    }
+    return paletteActiveIndex;
+  }
+
+  function bindPaletteKeyboard() {
+    const search = $('#pf-search');
+    if (!search || typeof search.addEventListener !== 'function') return false;
+    search.addEventListener('keydown', function (e) {
+      const cards = paletteCards();
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!cards.length) return;
+        e.preventDefault();
+        setPaletteActive(nextPaletteIndex(paletteActiveIndex, cards.length, e.key === 'ArrowDown' ? 1 : -1));
+        return;
+      }
+      if (e.key === 'Enter') {
+        // Enter with nothing highlighted commits the only result. That is the common
+        // case: people type until the list is one item long, then expect Enter to do
+        // what clicking it would. With several results and no highlight, doing nothing
+        // is right — picking one for them would be a guess.
+        const target = paletteActiveIndex >= 0
+          ? cards[paletteActiveIndex]
+          : (cards.length === 1 ? cards[0] : null);
+        if (!target) return;
+        e.preventDefault();
+        target.click();
+        return;
+      }
+      if (e.key === 'Escape' && paletteActiveIndex >= 0) {
+        e.preventDefault();
+        setPaletteActive(-1);
+      }
+    });
+    return true;
+  }
+
   function renderPalette() {
     const list = $('#palette-list');
     list.innerHTML = '';
+    // Every re-render is a new list, so any highlight from the previous one is stale.
+    paletteActiveIndex = -1;
     const specs = catalog.specs || [];
     buildFilterControls();
 
@@ -330,6 +402,10 @@
         card.className = 'device-card';
         card.setAttribute('data-vendor', s.vendor);
         card.setAttribute('data-model', s.model);
+        // A stable id so the search box can point at the highlighted card with
+        // aria-activedescendant instead of moving focus into the list.
+        card.id = 'pf-card-' + String(s.vendor).replace(/[^a-z0-9]+/gi, '-').toLowerCase() +
+          '-' + String(s.model).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
         card.title = s.description || (s.vendor + ' ' + s.model);
         card.innerHTML =
           '<span class="dc-icon">' + (iconFor(s) || '📦') + '</span>' +
@@ -2178,6 +2254,7 @@
       const cat = await api('GET', '/catalog');
       catalog = cat;
       renderPalette();
+      bindPaletteKeyboard();
       await syncTopology('boot');
       PFCanvas.fitView();
       $('#status-right').textContent = catalog.specs.length + ' models · ' +
@@ -2233,6 +2310,12 @@
     renderCableLegend: renderCableLegend,
     describeEmptyState: describeEmptyState,
     clearPaletteFilter: clearPaletteFilter,
+    // Keyboard navigation of the palette: the wrap arithmetic is pure, and the rest is
+    // reachable so a test can drive the handler the way a keyboard would.
+    nextPaletteIndex: nextPaletteIndex,
+    bindPaletteKeyboard: bindPaletteKeyboard,
+    setPaletteActive: setPaletteActive,
+    paletteActiveIndex: function () { return paletteActiveIndex; },
     bindLegend: bindLegend,
     setLegendCollapsed: setLegendCollapsed,
     legendCollapsed: legendCollapsed,

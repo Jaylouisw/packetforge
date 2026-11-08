@@ -592,3 +592,13 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .lo-refusals { margin-top: 10px; font-size: 12px; color: var(--text-dim); line-height: 1.7; }
 .lo-refusals code { color: var(--text); }
 button.mini.active { background: var(--accent, #4f8ef7); color: #0b1020; border-color: transparent; }
+
+/* Keyboard navigation of the device palette. The highlight has to be visible against
+   the card's own hover/active styling and must not shift layout, so it is an outline
+   rather than a border. */
+.device-card.kbd-active {
+  outline: 2px solid var(--accent, #4da3ff);
+  outline-offset: -2px;
+  background: rgba(77, 163, 255, 0.12);
+}
+.device-card.kbd-active .dc-label { text-decoration: underline; }
