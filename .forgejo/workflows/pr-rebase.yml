@@ -1,0 +1,139 @@
+name: PR rebase
+
+# Rebase a pull request onto `main` when it falls behind, then arm squash
+# auto-merge so it lands the moment its checks pass.
+#
+# Why this triggers on pull_request and not on push to main:
+#
+# Auto-rebase.yml triggers on `push: [main]`, which is the right *moment* — when main
+# moves, every open pull request is stale by definition. On this instance it is not a
+# trigger that runs. Measured, not guessed: twenty-seven push runs did start in one
+# day, and every one of them started when the pull-request queue was empty. During a
+# merge burst the push runs for ci.yml, auto-rebase and two probe workflows that
+# differed only in their `permissions:` block all sat at `waiting` with
+# `started = 0`, forever. It is not permissions, and it is not one workflow.
+#
+# `pull_request` events do dispatch, reliably, under any load. So the rebase happens
+# here, once per pull request, at the moments a pull request can become stale: when it
+# is opened, when it is pushed to, and when it is reopened. A backlog therefore drains
+# itself even while the queue is saturated, which is the only time it matters.
+#
+# The loop this could cause is closed by the first check: if the branch is not behind
+# `main`, the job does nothing. Our own force-push produces a `synchronize` event, the
+# job runs again, finds zero commits behind, and stops.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Per pull request, not global: one rebase per branch, and a newer push supersedes an
+# older rebase of the same branch. Different pull requests never block each other.
+concurrency:
+  group: pr-rebase-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  rebase:
+    name: Rebase onto main and arm auto-merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # A branch in another repository cannot be pushed to with this token, and a
+    # rebase we cannot push is not worth running.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Rebase if behind, then arm
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -u
+
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="$GITHUB_REPOSITORY"
+          number="${{ github.event.pull_request.number }}"
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          server="${GITHUB_SERVER_URL:-http://10.0.10.20:3000}"
+
+          if [ -z "${TOKEN:-}" ]; then
+            echo "no token in the environment - cannot talk to $api" >&2
+            exit 1
+          fi
+
+          auth() { printf 'Authorization: token %s' "$TOKEN"; }
+
+          git config user.name  'packetforge-bot'
+          git config user.email 'packetforge-bot@users.noreply.git.jayw.uk'
+
+          # checkout ran with persist-credentials: false, so origin is a bare URL.
+          # The token goes on the remote for this job only; the workspace is discarded
+          # with the container.
+          host="${server#http://}"; host="${host#https://}"
+          git remote set-url origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
+          git remote set-url --push origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
+
+          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+
+          behind=$(git rev-list --count "HEAD..refs/remotes/origin/main" || echo 0)
+          echo "#${number}: ${behind} commit(s) behind main"
+
+          if [ "$behind" -gt 0 ]; then
+            if git rebase refs/remotes/origin/main; then
+              # force-with-lease against the exact head we checked out, so a push that
+              # landed while this job was running is never overwritten.
+              host="${server#http://}"; host="${host#https://}"
+              git remote set-url origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
+              if git push \
+                   --force-with-lease="refs/heads/${head_ref}:${head_sha}" \
+                   origin "HEAD:refs/heads/${head_ref}"; then
+                echo "rebased and pushed #${number}"
+              else
+                echo "push failed for #${number} - leaving the branch alone" >&2
+                exit 1
+              fi
+            else
+              # A conflict is a decision about behaviour, so it is reported rather
+              # than guessed at. Leave the branch exactly as the author wrote it.
+              git rebase --abort || true
+              # The files this branch touches - the likely conflict site - rather than
+              # a diff against main, which after an aborted rebase would list main's
+              # own changes.
+              base=$(git merge-base HEAD refs/remotes/origin/main || echo '')
+              files=$(git diff --name-only "$base" HEAD | head -20 | tr '\n' ' ')
+              curl -sS -X POST -H "$(auth)" -H 'Content-Type: application/json' \
+                "$api/repos/$repo/issues/$number/comments" \
+                -d "$(printf '{"body":"This branch conflicts with `main`, so it was not rebased:\\n\\n```\\n%s\\n```\\n\\nA conflict is a decision about behaviour rather than a mechanical fix, so this is left for a human. Rebasing by hand and force-pushing will let the automation pick it up again."}' "$files")" >/dev/null
+              echo "conflict on #${number} - reported, not touched"
+              exit 0
+            fi
+          fi
+
+          # Arming: Forgejo computes `mergeable` asynchronously, so arming in the same
+          # breath as the push answers 405 "Please try again later" - which reads like
+          # a refusal and is only "not computed yet". Poll until it settles.
+          i=0
+          while [ "$i" -lt 12 ]; do
+            state=$(curl -sS -H "$(auth)" "$api/repos/$repo/pulls/$number" \
+              | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ')
+            if [ "$state" = "true" ]; then
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" \
+                -H 'Content-Type: application/json' \
+                "$api/repos/$repo/pulls/$number/merge" \
+                -d '{"Do":"squash","merge_when_checks_succeed":true}')
+              echo "#${number}: armed (HTTP ${code})"
+              exit 0
+            fi
+            i=$((i + 1))
+            sleep 10
+          done
+
+          echo "#${number}: mergeable did not settle in 120s - not armed this time"
