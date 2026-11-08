@@ -1,0 +1,74 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UXG-Enterprise",
+  "label": "UniFi Gateway Enterprise",
+  "category": "router",
+  "description": "The top of the gateway line: two 2.5GbE RJ45, two 10G SFP+ and two 25G SFP28, with 12.5 Gbps of IDS/IPS throughput and 10 million concurrent sessions.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "SFP+-1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP+-2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP28-1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP28-2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        "25G",
+        "10G",
+        "1G"
+      ]
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise",
+  "notes": "Vendor figures: 2.5GbE RJ45 x2 (2.5G/1G/100M/10M), 10G SFP+ x2 (10G/1G), 25G SFP28 x2 (25G/10G/1G); IDS/IPS throughput 12.5 Gbps; 10,000 SSL/TLS inspection sessions, 10 million concurrent sessions, 71,000 new sessions per second."
+}

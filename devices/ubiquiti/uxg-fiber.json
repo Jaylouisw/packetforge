@@ -1,0 +1,75 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UXG-Fiber",
+  "label": "UniFi Gateway Fiber",
+  "category": "router",
+  "description": "A fibre-first gateway: four 2.5GbE RJ45, one 10GbE RJ45 and two 10G SFP+ cages, with 5 Gbps of IDS/IPS throughput. Built for a fibre WAN and a 10G core.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP+-1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "SFP+-2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
+  "notes": "Vendor figures: 2.5GbE RJ45 x4 (2.5G/1G/100M/10M), 10GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); IDS/IPS throughput 5 Gbps. The 10G cage is the WAN port on the vendor's default profile, but all ports are assignable."
+}

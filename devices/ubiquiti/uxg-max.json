@@ -1,0 +1,50 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UXG-Max",
+  "label": "UniFi Gateway Max",
+  "category": "router",
+  "description": "Five 2.5GbE ports and 2.3 Gbps of IDS/IPS throughput, with a 2.5G WAN and four LAN ports. The gateway for a 2.5G access network that needs real inspection.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-max",
+  "notes": "Vendor figures: 2.5GbE RJ45 x5 (2.5G/1G/100M/10M); IDS/IPS throughput 2.3 Gbps. One port is the WAN and the remaining four are LAN; the ports are assignable, so they are modelled as five symmetric 2.5G interfaces."
+}
