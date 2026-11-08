@@ -1,9 +1,9 @@
 'use strict';
-// Publish docs/wiki/*.md to the GitHub wiki.
+// Publish docs/wiki/*.md to the Forgejo wiki.
 //
-// A GitHub wiki is a separate git repository (<repo>.wiki.git) that GitHub creates the first
+// A Forgejo wiki is a separate git repository (<repo>.wiki.git) that the instance creates the first
 // time somebody saves a page through the web UI. Until that page exists the clone URL
-// answers "Repository not found", even with has_wiki=true - so this script can only do its
+// answers "Repository not found", even with wiki enabled - so this script can only do its
 // job once the wiki has been created once. It says that plainly instead of failing with a
 // git error that looks like a credentials problem.
 //

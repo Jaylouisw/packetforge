@@ -1,5 +1,5 @@
 'use strict';
-// Wiki page sources live in the repo (docs/wiki) and are pushed to the GitHub wiki by
+// Wiki page sources live in the repo (docs/wiki) and are pushed to the Forgejo wiki by
 // scripts/publish-wiki.js. The wiki is a separate git repository, so the pages are kept
 // here where they can be reviewed in a PR like any other documentation change, and
 // published with one command.

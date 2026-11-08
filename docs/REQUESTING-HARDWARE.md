@@ -142,6 +142,6 @@ automated agent: **write JSON, do not import.** A human or CI applies it.
 ### Known gaps are tracked, not hidden
 
 Some devices carry hardware facts that need a datasheet read to settle. Those live
-in `test/known-issues.json` against a GitHub issue. The invariant fails on any new
+in `test/known-issues.json` against a Forgejo issue. The invariant fails on any new
 offender *and* fails if a listed device is fixed but not removed, so the list can
 only shrink.
