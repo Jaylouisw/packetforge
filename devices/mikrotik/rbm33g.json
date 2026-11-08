@@ -1,0 +1,37 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBM33G",
+  "label": "RBM33G",
+  "category": "router",
+  "description": "MikroTik RBM33G (RBM33G) — 3x 1G RJ45. MMIPS 2-core MT7621A.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/rbm33g"
+}
