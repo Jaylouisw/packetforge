@@ -3,6 +3,9 @@
 // Run: node scripts/merge-research.js
 const fs = require('fs');
 const path = require('path');
+// The same normalisation the catalogue invariant and the importer use, so a
+// punctuation variant cannot slip a second spelling past this script.
+const { loadCatalog, modelKey } = require('../devices/registry');
 
 const DEVICES_DIR = path.join(__dirname, '..', 'devices');
 
@@ -397,11 +400,10 @@ const devices = [
     ], icon: 'firewall', color: '#7c3aed' },
 
   // ===================== Raspberry Pi =====================
-  { vendor: 'raspberrypi', model: 'RaspberryPi5', label: 'Raspberry Pi 5', category: 'host',
-    description: 'Single-board computer with one gigabit Ethernet port, used as a lightweight homelab host.',
-    capabilities: ['host','cli','dhcp-client'],
-    interfaces: [ { name: 'eth0', type: 'ethernet', speed: '1G' } ],
-    icon: 'host', color: '#c51a4a' },
+  // Raspberry Pi 5 is already in the catalogue as raspberrypi/"Raspberry Pi 5" (normalised
+  // key raspberrypi|raspberrypi5). Its entry was removed from this list rather than left to
+  // be skipped: leaving a second spelling in a one-shot script is how the duplicate came
+  // back the first time. Correct devices/raspberrypi/raspberry-pi-5.json instead.
 
   // ===================== QNAP =====================
   { vendor: 'qnap', model: 'QSW-2104-2T', label: 'QNAP QSW-2104-2T', category: 'switch',
@@ -448,12 +450,31 @@ const devices = [
 ];
 
 let added = 0, skipped = 0;
+const catalogue = loadCatalog(DEVICES_DIR);
+const owner = new Map();
+for (const spec of catalogue) {
+  if (spec && spec.vendor === 'error') continue;
+  owner.set(modelKey(spec), spec.vendor + '/' + spec.model);
+}
+
 for (const d of devices) {
+  const key = modelKey(d);
+  // Filename existence was the old test and it is the wrong one: a device already in the
+  // catalogue under a different spelling lives in a different file, so the check said
+  // "new" and wrote the duplicate. Refuse on the normalised key instead.
+  const already = owner.get(key) ||
+    (fs.existsSync(path.join(DEVICES_DIR, d.vendor, d.model + '.json')) ? d.vendor + '/' + d.model : null);
+  if (already) {
+    skipped++;
+    console.log('SKIP (already in catalogue as ' + already + '): ' + d.vendor + '/' + d.model +
+      ' [key ' + key + ']');
+    continue;
+  }
   const dir = path.join(DEVICES_DIR, d.vendor);
   fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, d.model + '.json');
-  if (fs.existsSync(file)) { skipped++; console.log('SKIP (exists): ' + d.vendor + '/' + d.model); continue; }
-  fs.writeFileSync(file, JSON.stringify(d, null, 2) + '\n');
+  fs.writeFileSync(path.join(dir, d.model + '.json'), JSON.stringify(d, null, 2) + '\n');
+  owner.set(key, d.vendor + '/' + d.model);
   added++;
 }
-console.log('\nadded ' + added + ' devices, skipped ' + skipped + ' (already present).');
+console.log('');
+console.log('added ' + added + ' devices, skipped ' + skipped + ' (already present, by normalised key).');
