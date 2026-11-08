@@ -697,29 +697,49 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   };
 
   // Best-effort PoE inference for common device classes when the spec is silent.
-  if (port.poeOut === null && port.poeIn === null) {
-    if (isPoePse(spec, dev)) port.poeOut = 15.4;     // 802.3af default
+  //
+  // Power only travels on copper. A fibre cage, a WDM strand or an antenna cannot source
+  // or sink watts, whatever the box happens to be called - and inferring it there used to
+  // put 89 PSE ports on non-RJ45 cages, including both SFP slots of an EdgeSwitch and the
+  // 10G cages of an Aruba 6000 (see #105). The port is the authority on whether power can
+  // flow, so the cage gates the inference before the device gets a say.
+  const carriesPower = port.cage === 'rj45' || port.cage === 'combo';
+  if (port.poeOut === null && port.poeIn === null && carriesPower) {
+    if (isPoePse(dev, port.name)) port.poeOut = 15.4;     // 802.3af default
     else if (isPoePd(dev)) port.poeIn = 12.95;
   }
 
   return port;
 }
 
-function isPoePse(ifaceSpec, dev) {
+function isPoePse(dev, portName) {
+  const name = String(portName || '');
+  // A port that calls itself PoE is one, whatever the device is.
+  if (/poe/i.test(name)) return true;
   const model = String(dev.model || '') + ' ' + String(dev.label || '');
-  if (/poe/i.test(model)) return true;
   const caps = dev.capabilities || [];
-  if (caps.indexOf('poe-pse') !== -1) return true;
-  return false;
+  const claimsPse = /poe/i.test(model) || caps.indexOf('poe-pse') !== -1;
+  if (!claimsPse) return false;
+  // On a PoE switch every access port sources power, and the ports are usually just
+  // 'port1..24' or '1/1/1..' - there is no per-port marker to look for.
+  //
+  // Everywhere else the claim is about a *subset* of ports. An NVR's label says "16 PoE
+  // ports" and it also has a LAN uplink; treating the label as a whole-device property made
+  // the uplink a power source too. So off a switch, only the named PoE ports source power.
+  //
+  // 'l3-switch' counts: a 2930F with 370 W of PoE budget is a switch whether or not it
+  // routes, and the first cut of this rule silently left three of them sourcing nothing.
+  const cat = String(dev.category || '');
+  return cat === 'switch' || cat === 'l3-switch';
 }
 
 function isPoePd(dev) {
   const model = String(dev.model || '') + ' ' + String(dev.label || '');
   const caps = dev.capabilities || [];
   if (caps.indexOf('poe-pd') !== -1) return true;
-  // APs and PTP radios are typically PoE-powered.
+  // APs, PTP radios and IP cameras are typically PoE-powered.
   const cat = String(dev.category || '');
-  if (cat === 'wireless' || cat === 'ptp') return true;
+  if (cat === 'wireless' || cat === 'ptp' || cat === 'camera') return true;
   if (/litebeam|nanobeam|powerbeam|unifi|u6|u7|eap|wap|cube|lhg|sxt|mantbox/i.test(model)) return true;
   return false;
 }
