@@ -1,0 +1,42 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB931-2nD",
+  "label": "hAP mini",
+  "category": "wireless",
+  "description": "MikroTik hAP mini (RB931-2nD) \u2014 3x 100M RJ45, Wi-Fi 2.4 GHz. SMIPS 1-core QCA9533.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB931-2nD"
+}
