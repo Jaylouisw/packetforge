@@ -1,0 +1,58 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1830 8G (JL810A)",
+  "label": "Aruba Instant On 1830 8G Switch (JL810A)",
+  "category": "switch",
+  "description": "Aruba Instant On 1830 8G (JL810A) - 8x 1G RJ45, fanless smart-managed Layer 2 switch with no dedicated uplink cages. Port 1 is an 802.3af Class 3 PD port so the switch can be powered by an upstream PoE switch.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf"
+}
