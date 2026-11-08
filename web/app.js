@@ -99,22 +99,67 @@
     }
   }
 
+  // ---------- palette search ----------
+  // Hardware names carry their punctuation inconsistently: the box says MC220L, the
+  // datasheet says "MC 220L", an issue report says mc-220l, and the MikroTik SKU is
+  // CRS326-24S+2Q+RM. Comparing raw substrings missed hardware that was sitting right
+  // there in the catalogue, so both sides are folded to lowercase alphanumerics before
+  // matching. That folding is the only fuzziness allowed on purpose: no edit distance
+  // and no subsequence matching, because a typo should return nothing rather than a
+  // page of unrelated devices.
+  const SEARCH_NOISE = /[^a-z0-9]+/g;
+  function searchKey(s) {
+    return String(s == null ? '' : s).toLowerCase().replace(SEARCH_NOISE, '');
+  }
+
+  // Lower is better: 0 exact model, 1 model prefix, 2 model substring, 3 vendor(+model)
+  // hit, 4 some other field, 5 every whitespace token present somewhere. -1 = no match.
+  function searchRank(s, q, tokens) {
+    if (!q) return 5;                       // punctuation-only query: keep everything
+    const model = searchKey(s.model);
+    const vendor = searchKey(s.vendor);
+    const vm = vendor + model;              // lets "tp-link mc220l" / "tplink mc220l" land
+    if (model === q) return 0;
+    if (model.indexOf(q) === 0) return 1;
+    if (model.indexOf(q) !== -1) return 2;
+    if (vm.indexOf(q) !== -1) return 3;
+    const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
+    if (fields.indexOf(q) !== -1) return 4;
+    const hay = model + '\u0000' + vm + '\u0000' + fields;
+    for (const t of tokens) { if (hay.indexOf(t) === -1) return -1; }
+    return tokens.length ? 5 : -1;
+  }
+
+  // Palette filter: vendor/type facets first, then search, best matches first. Ties
+  // keep catalogue order (the sort is stable and the index breaks ties explicitly).
+  function filterDevices(query, specs, filters) {
+    const f = filters || {};
+    const q = searchKey(query);
+    const tokens = String(query == null ? '' : query).trim().toLowerCase()
+      .split(/\s+/).map(searchKey).filter(function (t) { return !!t; });
+    const ranked = [];
+    const list = specs || [];
+    for (let i = 0; i < list.length; i++) {
+      const s = list[i];
+      if (!s) continue;
+      if (f.vendor && s.vendor !== f.vendor) continue;
+      if (f.type && s.category !== f.type) continue;
+      const rank = searchRank(s, q, tokens);
+      if (rank < 0) continue;
+      ranked.push({ spec: s, rank: rank, at: i });
+    }
+    ranked.sort(function (a, b) { return a.rank - b.rank || a.at - b.at; });
+    return ranked.map(function (r) { return r.spec; });
+  }
+
   function renderPalette() {
     const list = $('#palette-list');
     list.innerHTML = '';
     const specs = catalog.specs || [];
     buildFilterControls();
 
-    const q = paletteFilter.q.trim().toLowerCase();
-    const filtered = specs.filter(function (s) {
-      if (paletteFilter.vendor && s.vendor !== paletteFilter.vendor) return false;
-      if (paletteFilter.type && s.category !== paletteFilter.type) return false;
-      if (q) {
-        const hay = (s.vendor + ' ' + s.model + ' ' + s.label + ' ' + (s.description || '') + ' ' + (s.category || '')).toLowerCase();
-        if (hay.indexOf(q) === -1) return false;
-      }
-      return true;
-    });
+    const q = searchKey(paletteFilter.q);
+    const filtered = filterDevices(paletteFilter.q, specs, paletteFilter);
 
     if (!filtered.length) {
       const empty = document.createElement('div');
@@ -124,10 +169,16 @@
       return;
     }
 
-    // group by manufacturer (vendor), collapsible
+    // group by manufacturer (vendor), collapsible. With no query the groups are
+    // alphabetical; with a query they keep rank order, so the vendor that owns the
+    // exact hit is the section at the top instead of being buried under A–M.
     const groups = {};
-    for (const s of filtered) { (groups[s.vendor] = groups[s.vendor] || []).push(s); }
-    const vendorNames = Object.keys(groups).sort(function (a, b) { return vendorLabel(a).localeCompare(vendorLabel(b)); });
+    const vendorNames = [];
+    for (const s of filtered) {
+      if (!groups[s.vendor]) { groups[s.vendor] = []; vendorNames.push(s.vendor); }
+      groups[s.vendor].push(s);
+    }
+    if (!q) vendorNames.sort(function (a, b) { return vendorLabel(a).localeCompare(vendorLabel(b)); });
 
     for (const v of vendorNames) {
       const items = groups[v];
@@ -1396,6 +1447,8 @@
     poeSummary: poeSummary,
     fmtSpeed: fmtSpeed,
     cageLabel: cageLabel,
-    vlanSummary: vlanSummary
+    vlanSummary: vlanSummary,
+    filterDevices: filterDevices,
+    searchKey: searchKey
   };
 })();
