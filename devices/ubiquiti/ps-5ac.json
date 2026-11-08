@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "PS-5AC",
+  "label": "PrismStation 5AC",
+  "category": "ptp",
+  "description": "5 GHz airMAX ac PrismStation shielded radio base (antenna not included - takes Horn-5 or PrismStation sector antennas), 10 W, 24 V 1 A passive PoE in. Ports: 1x GbE RJ45 (PoE in); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/ps-5ac"
+}
