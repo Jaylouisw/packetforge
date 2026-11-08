@@ -3,7 +3,7 @@
   "model": "UA-Hub-Gate",
   "label": "UniFi Gate Hub",
   "category": "iot",
-  "description": "UniFi Gate Hub (UA-Hub-Gate) - 5x 1G RJ45. 802.3bt PoE-in; 22 W max.",
+  "description": "UniFi Gate Hub (UA-Hub-Gate) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 22 W max.",
   "capabilities": [
     "l2-forward",
     "http-server",

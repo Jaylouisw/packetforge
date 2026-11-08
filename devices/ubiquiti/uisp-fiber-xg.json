@@ -3,7 +3,7 @@
   "model": "UISP-FIBER-XG",
   "label": "Fiber XG",
   "category": "ont",
-  "description": "Fiber XG (UISP-FIBER-XG) - 1x PON (10G) + 1x 2.5G RJ45. Passive PoE-in; 6 W max.",
+  "description": "Fiber XG (UISP-FIBER-XG) - 1x PON (10G) + 1x 2.5G RJ45 (1x PoE passthrough). Passive PoE-in; 6 W max.",
   "capabilities": [
     "l3-forward",
     "nat",
