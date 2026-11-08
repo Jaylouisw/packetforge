@@ -1,0 +1,31 @@
+{
+  "vendor": "fs",
+  "model": "ONU1710-1G",
+  "label": "FS.com ONU1710-1G XPON ONT",
+  "category": "ont",
+  "description": "XPON (GPON + EPON) dual-mode desktop ONT (2.5 Gbit/s down / 1.25 Gbit/s up in GPON mode) with a single 1000BASE-T LAN port, SC/UPC optical connector and no Wi-Fi or POTS; Realtek RTL9601D running Linux 2.6.30.9 (Luna SDK), managed over its web UI or telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-fs-com-onu1710-1g/"
+}
