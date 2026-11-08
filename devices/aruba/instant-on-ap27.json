@@ -1,0 +1,39 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On AP27 (S1T37A)",
+  "label": "HPE Aruba Networking Instant On AP27 Outdoor Access Point (S1T37A)",
+  "category": "wireless",
+  "description": "HPE Aruba Networking Instant On AP27 (S1T37A) - dual-radio Wi-Fi 6 outdoor AP (IP67), 2x2 MIMO (574 Mbps 2.4 GHz + 1.2 Gbps 5 GHz). Single 1G BASE-T RJ45 uplink with 802.3af Class 4 / 802.3at PoE-in (14.6 W max).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server",
+    "poe-pd",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 14.6
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.netxl.com/aruba/docs/ap27-datasheet.pdf"
+}
