@@ -1,0 +1,75 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ER-8-XG",
+  "label": "EdgeRouter Infinity",
+  "category": "router",
+  "description": "EdgeRouter Infinity (ER-8-XG) - 1x 1G RJ45 + 8x 10G SFP+. 100 W max.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-8-xg"
+}
