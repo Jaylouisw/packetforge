@@ -3,7 +3,7 @@
   "model": "FortiGate 80F",
   "label": "FortiGate 80F",
   "category": "firewall",
-  "description": "Fortinet FortiGate 80F - 10x GE RJ45 (2x WAN, 6x internal, 2x FortiLink) plus 2x GE SFP shared with WAN1/WAN2.",
+  "description": "Fortinet FortiGate 80F - 10/100/1000 GE desktop firewall: 6x GE RJ45 internal ports, 2x GE RJ45 FortiLink ports and two shared-media WAN positions that accept either GE RJ45 or a GE SFP cage (WAN1/SFP1 and WAN2/SFP2, one cable per position).",
   "capabilities": [
     "l3-forward",
     "firewall",
@@ -22,12 +22,16 @@
     {
       "name": "wan1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "sfp1",
+      "comboRole": "rj45"
     },
     {
       "name": "wan2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "comboWith": "sfp2",
+      "comboRole": "rj45"
     },
     {
       "name": "fortilink1",
@@ -42,14 +46,28 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "wan1",
+      "comboRole": "sfp"
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "wan2",
+      "comboRole": "sfp"
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://files.forti.blog/hardware/fortigate/fortigatefortiwifi-80f-datasheet.pdf",
+  "notes": "FortiGate 80F data sheet, Interfaces and Modules: 2 x GE RJ45/SFP shared media pairs, 6 x GE RJ45 internal ports, 2 x GE RJ45 FortiLink ports (default); front panel callouts: \"1. 2 x GE RJ45/SFP Shared Media Ports 2. 6 x GE RJ45 Ports 3. 2 x GE RJ45 FortiLink Ports\"; ordering line \"8 x GE RJ45 ports, 2 x RJ45/SFP shared media WAN ports\". SFP1/WAN1 and SFP2/WAN2 are each one physical connector, so they are modelled as combo pairs like the FortiGate 100F and 90G. sfp1/sfp2 previously had no connector, which made them 1G copper ports that a fibre link could never reach."
 }

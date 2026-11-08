@@ -3,7 +3,7 @@
   "model": "FortiGate 90G",
   "label": "FortiGate 90G firewall",
   "category": "firewall",
-  "description": "Fortinet FortiGate 90G - branch NGFW (2.5 Gbps NGFW / 2.2 Gbps threat protection): 8x GE RJ45 internal ports plus 2 shared 'WAN1/WAN2' combo positions that accept either 2.5G RJ45 or 10G SFP+. WAN = wan1/wan2 on copper or sfp1/sfp2 on fiber (same positions, shared media).",
+  "description": "Fortinet FortiGate 90G - branch NGFW (2.5 Gbps NGFW / 2.2 Gbps threat protection): eight 10/100/1000BASE-T RJ45 ports (port1-port6 plus a and b, which are the FortiLink pair) and two shared-media WAN positions that accept either a 10G/5G/2.5G/1G copper RJ45 port or a 10G/1G SFP+ cage. WAN1 and SFP+1 are the same physical connector, as are WAN2 and SFP+2, so only one half of each pair can carry a cable.",
   "capabilities": [
     "cli",
     "dhcp-client",
@@ -13,27 +13,124 @@
     "l3-forward",
     "nat"
   ],
-  "portTemplate": {
-    "prefix": "port",
-    "start": 1,
-    "count": 8,
-    "type": "ethernet",
-    "speed": "1G"
-  },
   "interfaces": [
     {
       "name": "wan1",
       "type": "ethernet",
-      "speed": "2.5G",
+      "speed": "10G",
       "comboWith": "sfp1",
-      "comboRole": "rj45"
+      "comboRole": "rj45",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "wan2",
       "type": "ethernet",
-      "speed": "2.5G",
+      "speed": "10G",
       "comboWith": "sfp2",
-      "comboRole": "rj45"
+      "comboRole": "rj45",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
+    },
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "a",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "b",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "sfp1",
@@ -62,5 +159,6 @@
   ],
   "icon": "firewall",
   "color": "#ef4444",
-  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-90g-series.pdf"
+  "sourceUrl": "https://docs.fortinet.com/document/fortigate/8.0.0/hardware-acceleration/403368/fortigate-90g-and-91g-fast-path-architecture",
+  "notes": "Fortinet FortiGate 90G and 91G fast path architecture: \"Two 10 GigE SFP+ interfaces (SFP+1 and SFP+2) connect to the SOC5 integrated switch fabric through a shared media connector. Two 10GigE/5GigE/2.5GigE/1GigE/100M BASE-T RJ45 interfaces (WAN1 and WAN2) ... Eight 10/100/1000BASE-T RJ45 (1-6, A, and B) ... A and B are FortiLink interfaces.\" The `diagnose npu np7lite port-list` output names them wan1, wan2, port1-port6, a, b - which is why the eight internal ports are port1-port6 plus a and b and not port1-port8. The 90G series data sheet's hardware table confirms 2 x 10/5/2.5/GE RJ45 or 10GE/GE SFP+/SFP shared media pairs and 8 x GE RJ45 internal ports. wan1/wan2 used to be declared 2.5G, which understated a port that the interface list rates at 10 Gbps copper."
 }

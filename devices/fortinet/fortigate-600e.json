@@ -32,54 +32,96 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "x1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     },
     {
       "name": "x2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_600E.pdf",
+  "notes": "FortiGate 600E data sheet front panel: \"1. 2 x USB Ports 2. 1 x Console Port 3. 2 x GE RJ45 MGMT/HA Ports 4. 8 x GE RJ45 Ports 5. 8 x GE SFP Slots 6. 2 x 10 GE SFP+ Slots\", and the ordering line: \"2x 10 GE SFP+ slots, 10x GE RJ45 ports (including 1x MGMT port, 1x HA port, 8x switch ports), 8x GE SFP slots\". The eight GE SFP and two 10 GE SFP+ cages previously carried no connector; sfp/x name inference rescued the SFP slots but the two 10 GE SFP+ cages fell through to RJ45 copper, so the 600E could not be cabled with a 10G fibre link at all."
 }

@@ -3,7 +3,7 @@
   "model": "FortiGate 1800F",
   "label": "FortiGate 1800F",
   "category": "firewall",
-  "description": "Fortinet FortiGate 1800F - 16x GE RJ45 + 2x GE MGMT RJ45, 8x GE SFP, 12x 25G SFP28, 4x 40G QSFP+, 2x 10G SFP+ HA.",
+  "description": "Fortinet FortiGate 1800F - 1 RU data-center NGFW: 16x GE RJ45 ports and 2x GE RJ45 management ports, 8x GE SFP slots, 12x 25GE SFP28 / 10GE SFP+ / GE SFP slots, 4x 100GE QSFP28 / 40GE QSFP+ slots, and 2x 10GE SFP+ / GE SFP HA slots.",
   "capabilities": [
     "l3-forward",
     "firewall",
@@ -32,134 +32,270 @@
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "x1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x3",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x4",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x5",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x6",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x7",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x8",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x9",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x10",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x11",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "x12",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "q1",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "q2",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "q3",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "q4",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "ha1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "ha2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "firewall",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-1800f-series.pdf",
+  "notes": "FortiGate 1800F data sheet, Interfaces and Modules: 16 x GE RJ45 ports, 8 x GE SFP slots, 12 x 25 GE SFP28 / 10 GE SFP+ / GE SFP slots, 4 x 100 GE QSFP28 / 40 GE QSFP+ slots, 2 x GE RJ45 management ports, 2 x 10 GE SFP+ / GE SFP HA slots, 1 x USB 3.0, 1 x console RJ45. The 16 copper ports stay on the internal1-16 portTemplate, whose count matches. Every fibre port previously carried no connector: the 25G and 40G slots were only kept optical by name/rate inference, and ha1/ha2 - which the data sheet lists as 10 GE SFP+ / GE SFP HA slots - fell through to RJ45 copper, so HA could not be cabled over fibre at all. The QSFP slots are declared at their maximum (100GE) with 40G in the rate list, because the cage takes either module."
 }
