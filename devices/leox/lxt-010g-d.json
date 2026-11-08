@@ -1,0 +1,31 @@
+{
+  "vendor": "leox",
+  "model": "LXT-010G-D",
+  "label": "LEOX LXT-010G-D GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9601D, Linux 3.18 Luna SDK 3.3) with a single Gigabit Ethernet LAN port and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up via an on-board BOSA (SC/APC pigtail), managed over its web UI, telnet or serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-leox-lxt-010g-d/"
+}
