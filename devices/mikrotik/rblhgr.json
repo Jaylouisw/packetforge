@@ -1,0 +1,29 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBLHGR",
+  "label": "LHG R",
+  "category": "ptp",
+  "description": "MikroTik LHG R (RBLHGR) — 1x 100M RJ45. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/rblhgr"
+}
