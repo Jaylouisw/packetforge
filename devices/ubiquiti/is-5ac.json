@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "IS-5AC",
+  "label": "airMAX IsoStation 5AC",
+  "category": "ptp",
+  "description": "5 GHz airMAX ac IsoStation with integrated isolation horn (14 dBi), 8.5 W, 24 V 0.5 A passive PoE in. Ports: 1x GbE RJ45 (PoE in); the horn is modular and can be swapped for other Horn-5 units.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/is-5ac"
+}
