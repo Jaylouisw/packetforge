@@ -11,6 +11,12 @@ const { loadCatalog, groupByCategory } = require('../devices/registry');
 const media = require('../engine/media');
 const { WebSocketServer } = require('./ws');
 const { formatStartupError } = require('./startup-error');
+const { createRequestCache } = require('./requests');
+
+// Open hardware requests, cached. Built once so a burst of palette searches does not
+// become a burst of forge API calls, and refreshed lazily so a forge that is down for a
+// while costs one failed request per TTL rather than one per search.
+const requestCache = createRequestCache({});
 
 const PORT = parseInt(process.env.PORT || '8000', 10);
 const WEB_DIR = path.join(__dirname, '..', 'web');
@@ -261,6 +267,16 @@ async function handleApi(req, res, urlPath) {
         platform: process.platform + '/' + process.arch,
         devices: catalog.length
       });
+    }
+
+    // GET /api/requests -- open hardware requests from the issue tracker.
+    //
+    // The catalogue and the request backlog used to be separate worlds: what is modelled
+    // was here, what has been asked for was in the tracker where nobody using the app
+    // could see it. That is how sixty-plus people filed requests for hardware that was
+    // already in the catalogue. This is read-only and never blocks the catalogue.
+    if (parts[1] === 'requests' && method === 'GET') {
+      return sendJSON(res, 200, await requestCache.get());
     }
 
     // GET /api/media -- physical media + cage catalogue (link-type picker)

@@ -219,3 +219,24 @@ ASA 5506), **Juniper** (MX204, EX2300), **Arista** (7050SX3, 7280SR),
 **MikroTik** (CRS326, CCR1036), **Huawei** (S5735, AR6140), **Ubiquiti**
 (EdgeSwitch 16, EdgeRouter 4), plus 9 generic models (router, L2/L3 switch, PC,
 server, firewall, AP, cloud).
+
+## Asking for hardware that is not here
+
+If a device is missing, open an issue titled `[Device]: <vendor> <model>` on the forge.
+The title matters: the sweeper reads these titles to decide whether a request is already
+satisfied, and it matches on the model, including a code in brackets.
+
+```
+[Device]: MikroTik hEX Refresh Router (E50UG) — the S version is in the catalogue
+```
+
+- **Keep the model code in brackets.** `HUAWEI 4G Mobile WiFi 3 (E5785)` and
+  `(E5783)` are two different products; a title without the code cannot be matched to
+  either and both will sit open.
+- **The app tells you the status now.** While searching the palette, requests that
+  match what you typed appear under the results as *Requested, not yet modelled*, with a
+  link to the issue. So "is this supported?" has an answer even when the answer is "not
+  yet, but somebody has asked", and you can check before filing a duplicate.
+- The list comes from **`GET /api/requests`**: open device requests, cached for ten
+  minutes, `available: false` when the forge cannot be reached. It is deliberately not
+  an error in that case — the palette works from the catalogue either way.

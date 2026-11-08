@@ -602,3 +602,38 @@ button.mini.active { background: var(--accent, #4f8ef7); color: #0b1020; border-
   background: rgba(77, 163, 255, 0.12);
 }
 .device-card.kbd-active .dc-label { text-decoration: underline; }
+
+/* Hardware people have asked for that the catalogue does not have yet. Rendered under
+   the search results so "is this supported?" has an answer even when it is "not yet".
+   Deliberately quieter than a device card: a request is information, not something you
+   can place on the canvas. */
+.requested-group {
+  margin-top: 10px;
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  padding-top: 8px;
+}
+.requested-head {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+.requested-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+}
+.requested-item:hover,
+.requested-item:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+.requested-item .rq-name { opacity: 0.85; }
+.requested-item .rq-num { opacity: 0.45; font-variant-numeric: tabular-nums; }

@@ -3,6 +3,10 @@
 (function () {
   const TOPO = 'default';
   let catalog = { specs: [], categories: {} };
+  // Open hardware requests from the forge, as [ {number, subject, url} ]. Empty until
+  // /api/requests answers, and empty forever if the forge is unreachable — the palette
+  // works from the catalogue either way.
+  let openRequests = [];
   let topo = null;
   let selectedId = null;
   let selectedLink = null;
@@ -453,6 +457,97 @@
       sec.appendChild(body);
       list.appendChild(sec);
     }
+
+    // Hardware people have asked for that the catalogue does not have. Same list, same
+    // search, so "is this supported?" gets an answer even when the answer is "not yet,
+    // but it is on the list". Only while narrowing: at rest the palette is a catalogue,
+    // not a changelog.
+    if (q) {
+      const asked = renderRequestedSection(q, specs);
+      if (asked) list.appendChild(asked);
+    }
+  }
+
+  // Requests whose subject matches the query and which the catalogue does not already
+  // have. Pure, so the matching rules can be tested without a DOM or a network.
+  //
+  // Words are split here rather than with searchKey: searchKey strips separators
+  // entirely (it exists to compare whole haystacks), so "hEX Refresh (E50UG)" comes back
+  // as one run of letters and there is nothing to compare word by word.
+  function searchWords(s) {
+    return String(s == null ? '' : s)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  // "Already have" is judged generously, and deliberately so: a request titled
+  // "Mikrotik hEX Refresh Router (E50UG)" is the device modelled as "hEX Refresh (E50UG)"
+  // plus the word "Router". Requiring the strings to be equal would leave the card and
+  // the request for the same box on screen together, which reads as "we have it and we
+  // don't". So a request counts as modelled when every word of some catalogue key
+  // appears in it.
+  let modelledWordsCache = null;
+  let modelledWordsFor = null;
+
+  function modelledWords(specs) {
+    if (modelledWordsFor === specs && modelledWordsCache) return modelledWordsCache;
+    const out = [];
+    for (const s2 of specs || []) {
+      const w = searchWords(s2.vendor + ' ' + s2.model);
+      if (w.length) out.push(w);
+    }
+    modelledWordsFor = specs;
+    modelledWordsCache = out;
+    return out;
+  }
+
+  function matchingRequests(q, requests, specs) {
+    const qWords = searchWords(q);
+    if (!qWords.length) return [];
+    const models = modelledWords(specs);
+    const out = [];
+    for (const r of requests || []) {
+      const hay = searchWords(r.subject);
+      if (!hay.length) continue;
+      // Prefix matching, so "e50" finds "e50ug" — people type the start of a model code.
+      const found = qWords.every(function (qt) {
+        return hay.some(function (ht) { return ht.indexOf(qt) === 0; });
+      });
+      if (!found) continue;
+      const asked = new Set(hay);
+      let isModelled = false;
+      for (const modelWords of models) {
+        if (modelWords.every(function (w) { return asked.has(w); })) { isModelled = true; break; }
+      }
+      if (isModelled) continue;
+      out.push(r);
+    }
+    return out;
+  }
+
+  function renderRequestedSection(q, specs) {
+    const asked = matchingRequests(q, openRequests, specs).slice(0, 5);
+    if (!asked.length) return null;
+    const sec = document.createElement('div');
+    sec.className = 'requested-group';
+    const head = document.createElement('div');
+    head.className = 'requested-head';
+    head.textContent = 'Requested, not yet modelled';
+    sec.appendChild(head);
+    for (const r of asked) {
+      const a = document.createElement('a');
+      a.className = 'requested-item';
+      a.href = r.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = '<span class="rq-name">' + esc(String(r.subject || '')) + '</span>' +
+        '<span class="rq-num">#' + esc(String(r.number)) + '</span>';
+      sec.appendChild(a);
+    }
+    return sec;
   }
 
   function iconFor(s) {
@@ -2254,6 +2349,11 @@
       const cat = await api('GET', '/catalog');
       catalog = cat;
       renderPalette();
+      // Enrichment, not a dependency: if this never arrives the palette is unchanged.
+      api('GET', '/requests').then(function (r) {
+        openRequests = (r && r.requests) || [];
+        if (openRequests.length) renderPalette();
+      }).catch(function () { openRequests = []; });
       bindPaletteKeyboard();
       await syncTopology('boot');
       PFCanvas.fitView();
@@ -2312,6 +2412,10 @@
     clearPaletteFilter: clearPaletteFilter,
     // Keyboard navigation of the palette: the wrap arithmetic is pure, and the rest is
     // reachable so a test can drive the handler the way a keyboard would.
+    matchingRequests: matchingRequests,
+    renderRequestedSection: renderRequestedSection,
+    setOpenRequests: function (list) { openRequests = list || []; },
+    openRequests: function () { return openRequests; },
     nextPaletteIndex: nextPaletteIndex,
     bindPaletteKeyboard: bindPaletteKeyboard,
     setPaletteActive: setPaletteActive,
