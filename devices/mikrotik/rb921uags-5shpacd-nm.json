@@ -1,0 +1,42 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB921UAGS-5SHPacD-NM",
+  "label": "NetMetal 5SHP",
+  "category": "ptp",
+  "description": "MikroTik NetMetal 5SHP (RB921UAGS-5SHPacD-NM) \u2014 1x 1G RJ45, 1x SFP, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB921UAGS-5SHPacD-NM"
+}
