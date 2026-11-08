@@ -1,0 +1,27 @@
+{
+  "vendor": "teltonika",
+  "model": "TRM142",
+  "label": "Teltonika TRM142",
+  "category": "modem",
+  "description": "An industrial 2G/3G/4G Cat 4 modem with a single DB9 RS232 port, in a rugged DIN-rail case. It has no Ethernet and no radio of its own - it exists to put a serial device on a cellular network.",
+  "capabilities": [
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/modems/trm142",
+  "notes": "Vendor figures from the TRM142 datasheet: one DB9 RS232 connector with RTS/CTS flow control; 2G/3G/4G LTE Cat 4, modelled at the 100 Mbps Cat 4 class shared with the RUT2xx routers. No Ethernet port exists on this device, so none is claimed - the RS232 connector is the only physical data interface and is modelled as a console interface."
+}

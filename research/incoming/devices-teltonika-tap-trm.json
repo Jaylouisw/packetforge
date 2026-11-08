@@ -1,0 +1,115 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "TAP100",
+    "label": "Teltonika TAP100",
+    "category": "wireless",
+    "description": "Teltonika's first access point: 2.4 GHz Wi-Fi 4 only, one 10/100 RJ45 with PoE-in, ceiling or wall mount. The cheap coverage-extender AP - one radio, one port, no 5 GHz.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/access-points/tap100",
+    "notes": "Vendor figures from the TAP100 datasheet: 1 x RJ45 port 10/100 Mbps Ethernet with PoE-in; 802.11b/g/n (Wi-Fi 4) at 2.4 GHz, modelled at the 300 Mbps 2x2 rate that 802.11n gives. No 5 GHz radio, so only one radio interface is modelled - a lab cannot put this AP on a 5 GHz channel."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TAP200",
+    "label": "Teltonika TAP200",
+    "category": "wireless",
+    "description": "A dual-band Wi-Fi 5 access point: one gigabit RJ45 with PoE-in, fast roaming and a hotspot portal. The step up from the TAP100 is the 5 GHz radio and the gigabit port.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "802.3at",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "radio1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/access-points/tap200",
+    "notes": "Vendor figures from the TAP200 datasheet: 1 x RJ45 10/100/1000 Mbps with PoE-in; dual-band Wi-Fi 5 (802.11ac). The radios are modelled at the standard 2x2 rates for that standard - 300M on 2.4 GHz and 867M on 5 GHz - because the datasheet names the standard rather than a per-band client rate."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRM142",
+    "label": "Teltonika TRM142",
+    "category": "modem",
+    "description": "An industrial 2G/3G/4G Cat 4 modem with a single DB9 RS232 port, in a rugged DIN-rail case. It has no Ethernet and no radio of its own - it exists to put a serial device on a cellular network.",
+    "capabilities": [
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/modems/trm142",
+    "notes": "Vendor figures from the TRM142 datasheet: one DB9 RS232 connector with RTS/CTS flow control; 2G/3G/4G LTE Cat 4, modelled at the 100 Mbps Cat 4 class shared with the RUT2xx routers. No Ethernet port exists on this device, so none is claimed - the RS232 connector is the only physical data interface and is modelled as a console interface."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRM250",
+    "label": "Teltonika TRM250",
+    "category": "modem",
+    "description": "An industrial USB modem for LTE Cat M1, NB-IoT and EGPRS: a USB stick in a rugged case with an external antenna connector. No Ethernet, no serial, no radio - the host provides all of that.",
+    "capabilities": [
+      "nat",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "1M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/modems/trm250",
+    "notes": "Vendor figures from the TRM250 datasheet: a USB interface plus an external antenna connector; LTE Cat M1 / NB-IoT / EGPRS. The cellular interface is modelled at 1M because Cat M1 tops out around 1 Mbps. There is no Ethernet or serial port on this device, and the catalogue has no interface type for USB, so the modem's only modelled interface is its cellular one - the missing USB is a modelling boundary, not a claim that the device has no connector."
+  }
+]

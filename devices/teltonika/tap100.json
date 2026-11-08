@@ -1,0 +1,29 @@
+{
+  "vendor": "teltonika",
+  "model": "TAP100",
+  "label": "Teltonika TAP100",
+  "category": "wireless",
+  "description": "Teltonika's first access point: 2.4 GHz Wi-Fi 4 only, one 10/100 RJ45 with PoE-in, ceiling or wall mount. The cheap coverage-extender AP - one radio, one port, no 5 GHz.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/access-points/tap100",
+  "notes": "Vendor figures from the TAP100 datasheet: 1 x RJ45 port 10/100 Mbps Ethernet with PoE-in; 802.11b/g/n (Wi-Fi 4) at 2.4 GHz, modelled at the 300 Mbps 2x2 rate that 802.11n gives. No 5 GHz radio, so only one radio interface is modelled - a lab cannot put this AP on a 5 GHz channel."
+}

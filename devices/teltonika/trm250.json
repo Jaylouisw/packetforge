@@ -1,0 +1,20 @@
+{
+  "vendor": "teltonika",
+  "model": "TRM250",
+  "label": "Teltonika TRM250",
+  "category": "modem",
+  "description": "An industrial USB modem for LTE Cat M1, NB-IoT and EGPRS: a USB stick in a rugged case with an external antenna connector. No Ethernet, no serial, no radio - the host provides all of that.",
+  "capabilities": [
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/modems/trm250",
+  "notes": "Vendor figures from the TRM250 datasheet: a USB interface plus an external antenna connector; LTE Cat M1 / NB-IoT / EGPRS. The cellular interface is modelled at 1M because Cat M1 tops out around 1 Mbps. There is no Ethernet or serial port on this device, and the catalogue has no interface type for USB, so the modem's only modelled interface is its cellular one - the missing USB is a modelling boundary, not a claim that the device has no connector."
+}

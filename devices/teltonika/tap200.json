@@ -1,0 +1,35 @@
+{
+  "vendor": "teltonika",
+  "model": "TAP200",
+  "label": "Teltonika TAP200",
+  "category": "wireless",
+  "description": "A dual-band Wi-Fi 5 access point: one gigabit RJ45 with PoE-in, fast roaming and a hotspot portal. The step up from the TAP100 is the 5 GHz radio and the gigabit port.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "802.3at",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/access-points/tap200",
+  "notes": "Vendor figures from the TAP200 datasheet: 1 x RJ45 10/100/1000 Mbps with PoE-in; dual-band Wi-Fi 5 (802.11ac). The radios are modelled at the standard 2x2 rates for that standard - 300M on 2.4 GHz and 867M on 5 GHz - because the datasheet names the standard rather than a per-band client rate."
+}
