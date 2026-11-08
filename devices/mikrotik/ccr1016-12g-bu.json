@@ -1,0 +1,82 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR1016-12G-BU",
+  "label": "CCR1016-12G-BU",
+  "category": "router",
+  "description": "MikroTik CCR1016-12G-BU (CCR1016-12G-BU) — 12x 1G RJ45. TILE 16-core TLR4-01680CG-10C.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/CCR1016-12G-BU"
+}
