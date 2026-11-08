@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-AI-MS-2",
+  "label": "UniFi AI Multi Sensor 2",
+  "category": "camera",
+  "description": "UniFi AI Multi Sensor 2 (UVC-AI-MS-2) - 1x 1G RJ45. 802.3at PoE-in; 16 MP; 25 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-ai-ms-2"
+}
