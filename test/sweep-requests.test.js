@@ -85,3 +85,14 @@ const two = requestCandidates('Vendor Thing (AAA-1, BBB-2)');
 ok(two.indexOf('AAA-1') !== -1 && two.indexOf('BBB-2') !== -1, 'two codes in one bracket are both tried', JSON.stringify(two));
 const dup = requestCandidates('X (X)');
 ok(dup.filter(function (c) { return c === 'X'; }).length === 1, 'a code repeated as the whole title is not tried twice');
+
+// The model code is not always in brackets and not always at the end. "Teltonika RUT241
+// Industrial 4G LTE Wi-Fi Router" puts it in the middle, where the suffix search cannot
+// reach it - and RUT241 is in the catalogue. 27 open requests were in that shape.
+const mid = requestCandidates(requestSubject('[Device]: Teltonika RUT241 Industrial 4G LTE Wi-Fi Router'));
+ok(mid.indexOf('RUT241') !== -1, 'a model code in the middle of the title is tried on its own', JSON.stringify(mid));
+ok(requestCandidates('Vendor 5-Pack Thing').indexOf('5-Pack') !== -1, 'a token containing a digit is tried');
+ok(requestCandidates('Vendor 48 Port Switch').indexOf('48') === -1, 'but a two-character number is not a model code');
+ok(requestCandidates('Vendor plain words here').length === 1, 'titles with no digits add no token candidates');
+const nodup = requestCandidates('RUT241 RUT241');
+ok(nodup.filter(function (c) { return c === 'RUT241'; }).length === 1, 'a repeated code is only tried once');

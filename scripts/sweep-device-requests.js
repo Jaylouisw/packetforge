@@ -132,6 +132,16 @@ function requestCandidates(rawSubject) {
       if (p && subjects.indexOf(p) === -1) subjects.push(p);
     }
   }
+  // And the model code as a bare word, because it is not always in brackets and not
+  // always at the end: "Teltonika RUT241 Industrial 4G LTE Wi-Fi Router" has RUT241 in
+  // the middle, and the suffix search below never reaches it. Only tokens with a digit
+  // and at least three characters are worth trying - "5-Pack" and "48-Port" are not
+  // model codes, and the catalogue lookup still has to find an exact match.
+  for (const token of String(rawSubject || '').split(/[\s,()\[\]]+/)) {
+    const t = token.trim();
+    if (t.length < 3 || !/[0-9]/.test(t)) continue;
+    if (subjects.indexOf(t) === -1) subjects.push(t);
+  }
   return subjects;
 }
 
