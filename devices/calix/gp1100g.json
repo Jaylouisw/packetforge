@@ -1,31 +1,29 @@
 {
   "vendor": "calix",
   "model": "GP1100G",
-  "label": "GigaPoint GP1100G 2.5G GPON ONU",
+  "label": "Calix GP1100G GPON ONT",
   "category": "ont",
-  "description": "Calix GigaPoint GP1100G indoor 2.5 Gbit/s GPON SFU: one SC/APC GPON drop and one 2.5 Gigabit RJ-45 Ethernet UNI in a half-depth wall/desk housing, with a single POTS line for voice and no Wi-Fi.",
+  "description": "GPON ONT with 1× 1G LAN and with Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc, managed over no published management.",
   "capabilities": [
     "l2-forward",
     "host"
   ],
-  "portTemplate": {
-    "prefix": "pon",
-    "start": 1,
-    "count": 1,
-    "type": "pon",
-    "speed": "2.5G",
-    "connector": "sc-apc",
-    "speedCaps": [
-      1244,
-      2488
-    ]
-  },
   "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
     {
       "name": "lan1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "1G"
     }
   ],
-  "sourceUrl": "https://www.calix.com/products/platform/unlimited-subscriber/gigapoint-ont-onu.html"
+  "sourceUrl": "https://hack-gpon.org/ont-calix-gp1100g/"
 }
