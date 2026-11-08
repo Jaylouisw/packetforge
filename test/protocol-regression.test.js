@@ -13,8 +13,14 @@
 //
 // Assertions preceded by "DOCUMENTS BUG" pin a defect found while writing this
 // file. They are written to pass against the current engine so the suite stays
-// green; each one is described in the report accompanying this change and must
-// be flipped when the defect is fixed.
+// green, and they fail the moment somebody fixes the defect -- so a fix cannot
+// land without flipping the assertion to the behaviour it should have had.
+//
+// No pin remains. The two this file originally carried were #240 (an OSPF
+// adjacency forming between interfaces in different subnets) and #241 (NODATA
+// reported as NXDOMAIN); both are fixed and now asserted as correct above, along
+// with the cases that must keep working. If a new pin appears here, it names a
+// live defect worth fixing rather than documenting.
 
 const path = require('path');
 const bgp = require('../engine/bgp');
@@ -722,13 +728,49 @@ function ospfTriangle() {
     ['Gi0/1', '10.0.2.2', '255.255.255.0']]);
   const res = sim.computeOspf();
   const bogus = ospfRouteOf(res[a.id], '10.0.2.0');
-  // DOCUMENTS BUG (engine/simulator.js:361-375): an adjacency is built from the
-  // cable alone. Real OSPF requires both ends of a broadcast link to share a
-  // subnet; here a route is installed whose next hop is off-subnet.
-  ok(bogus !== null,
-    'DOCUMENTS BUG: an adjacency forms between interfaces in different subnets');
-  eq(bogus ? bogus.nextHop : null, '10.0.99.2',
-    'DOCUMENTS BUG: the resulting route points at an unreachable next hop');
+  // Real OSPF requires both ends of a broadcast link to share a subnet. Without
+  // that check the adjacency forms from the cable alone and the route behind it
+  // points at a next hop that is on no connected subnet (#240).
+  eq(bogus, null,
+    'no adjacency forms between interfaces addressed in different subnets (#240)');
+  ok(!(res[a.id] || []).some(function (r) {
+    return String(r.nextHop).indexOf('10.0.99.') === 0;
+  }), 'no route is installed via an off-subnet next hop (#240)');
+
+  // Same subnet, same mask: the adjacency is still built, so the check rejects
+  // the mismatch rather than OSPF itself.
+  const t2 = new Topology();
+  const a2 = newRouter(t2, 'A2');
+  const b2 = newRouter(t2, 'B2');
+  t2.connect(a2.id, 'Gi0/0', b2.id, 'Gi0/0');
+  const sim2 = new Simulator(t2);
+  ospfOn(a2, t2, sim2, '3.3.3.3');
+  ospfOn(b2, t2, sim2, '4.4.4.4');
+  setInterfaces(a2, t2, sim2, [['Gi0/0', '10.0.12.1', '255.255.255.0'],
+    ['Gi0/1', '10.0.1.1', '255.255.255.0']]);
+  setInterfaces(b2, t2, sim2, [['Gi0/0', '10.0.12.2', '255.255.255.0'],
+    ['Gi0/1', '10.0.2.2', '255.255.255.0']]);
+  const res2 = sim2.computeOspf();
+  const good = ospfRouteOf(res2[a2.id], '10.0.2.0');
+  ok(good !== null, 'a matching subnet still forms an adjacency');
+  eq(good ? good.nextHop : null, '10.0.12.2', 'and the next hop is the on-link neighbour');
+
+  // A /24 cabled to a /25 that happens to hold the same addresses is a mismatch
+  // too: the masks disagree, so neither end can agree on what "on-link" means.
+  const t3 = new Topology();
+  const a3 = newRouter(t3, 'A3');
+  const b3 = newRouter(t3, 'B3');
+  t3.connect(a3.id, 'Gi0/0', b3.id, 'Gi0/0');
+  const sim3 = new Simulator(t3);
+  ospfOn(a3, t3, sim3, '5.5.5.5');
+  ospfOn(b3, t3, sim3, '6.6.6.6');
+  setInterfaces(a3, t3, sim3, [['Gi0/0', '10.0.12.1', '255.255.255.0'],
+    ['Gi0/1', '10.0.1.1', '255.255.255.0']]);
+  setInterfaces(b3, t3, sim3, [['Gi0/0', '10.0.12.2', '255.255.255.128'],
+    ['Gi0/1', '10.0.2.2', '255.255.255.0']]);
+  const res3 = sim3.computeOspf();
+  eq(ospfRouteOf(res3[a3.id], '10.0.2.0'), null,
+    'no adjacency forms when the two ends disagree on the mask (#240)');
 }
 
 // ===========================================================================
@@ -1255,14 +1297,37 @@ function answerValues(res) {
     'the run log records the DNS lookup and its answer');
   ok(dnsEvent && dnsEvent.rcode === dns.RCODE.NOERROR, 'the logged rcode is NOERROR');
 
-  // DOCUMENTS BUG (engine/simulator.js:148-153): resolveName() only reports
-  // success when it found an A record, and hard-codes NXDOMAIN for everything
-  // else. A name that exists without an A record (NODATA) is therefore reported
-  // as a non-existent domain, contradicting dns.resolve() above.
+  // Three failures, three answers. A name that exists without an A record is
+  // NODATA (NOERROR, zero answers), not a missing domain (#241).
   const nodata = sim.resolveName(pc, 'txt.lab');
-  eq(nodata.ok, false, 'DOCUMENTS BUG: a name with no A record cannot be used by a host');
-  eq(nodata.rcode, dns.RCODE.NXDOMAIN,
-    'DOCUMENTS BUG: NODATA is reported as NXDOMAIN instead of NOERROR with an empty answer');
+  eq(nodata.ok, false, 'a name with no A record cannot be used by a host');
+  eq(nodata.rcode, dns.RCODE.NOERROR,
+    'NODATA is NOERROR with an empty answer, not NXDOMAIN (#241)');
+  eq(nodata.status, 'NODATA', 'and the result says which failure it was (#241)');
+  eq(nodata.answers.length, 0, 'with no answers');
+
+  const missing = sim.resolveName(pc, 'nosuch.lab');
+  eq(missing.rcode, dns.RCODE.NXDOMAIN, 'a name the zone does not hold is NXDOMAIN');
+  eq(missing.status, 'NXDOMAIN', 'and is reported as such (#241)');
+
+  // A lab with no DNS server at all cannot answer for any name: that is a server
+  // failure, not a statement about the name.
+  const bare = new Topology();
+  const lonely = newPc(bare, 'LONELY');
+  const simBare = new Simulator(bare);
+  setInterfaces(lonely, bare, simBare, [['eth0', '10.9.9.9', '255.255.255.0']]);
+  const noServer = simBare.resolveName(lonely, 'www.lab');
+  eq(noServer.rcode, dns.RCODE.SERVFAIL,
+    'no server hosting a zone is SERVFAIL, not NXDOMAIN (#241)');
+  eq(noServer.status, 'SERVFAIL', 'and says so');
+
+  // The ping path reports the same distinction instead of always saying nxdomain.
+  const pingNodata = sim.ping(pc.id, 'txt.lab', { count: 1 });
+  eq(pingNodata.replies[0].reason, 'dns-nodata',
+    'a ping to a NODATA name fails as dns-nodata, not dns-nxdomain (#241)');
+  const pingMissing = sim.ping(pc.id, 'nosuch.lab', { count: 1 });
+  eq(pingMissing.replies[0].reason, 'dns-nxdomain',
+    'and a genuinely missing name still fails as dns-nxdomain');
 }
 
 // ---------------------------------------------------------------------------

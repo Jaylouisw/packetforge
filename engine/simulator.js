@@ -159,15 +159,43 @@ class Simulator {
         })[0] || answers[0];
         const addr = a && (a.value || a.address || a.data);
         if (addr) {
-          return { ok: true, address: addr, server: c.dev.name, rcode: res.rcode, answers: answers };
+          return { ok: true, address: addr, status: 'OK', server: c.dev.name, rcode: res.rcode, answers: answers };
         }
       }
     }
 
+    // Three different failures used to leave here as NXDOMAIN, which taught the
+    // wrong lesson: "the A record is missing" and "the name does not exist" have
+    // different causes and different fixes, and a resolver that answers
+    // NOERROR-with-nothing is the whole reason NODATA is a distinct outcome (#241).
+    let sawName = false;
+    let sawZone = false;
+    let server = candidates.length ? candidates[0].dev.name : null;
+
+    for (const c of candidates) {
+      for (const zone of c.zones) {
+        const res = dnsLib.resolve(zone, qname, 'A');
+        if (!res) continue;
+        sawZone = true;
+        // The name exists in this zone (whatever the type), there is just no A.
+        if (res.rcode !== dnsLib.RCODE.NXDOMAIN) sawName = true;
+      }
+    }
+
+    if (!candidates.length) {
+      // No device in the lab hosts any zone: that is a server failure, not a
+      // statement about the name.
+      return { ok: false, rcode: dnsLib.RCODE.SERVFAIL, status: 'SERVFAIL', server: null, answers: [] };
+    }
+    if (sawName) {
+      // NOERROR, zero answers: the name resolves, the type does not exist.
+      return { ok: false, rcode: dnsLib.RCODE.NOERROR, status: 'NODATA', server: server, answers: [] };
+    }
     return {
       ok: false,
       rcode: dnsLib.RCODE.NXDOMAIN,
-      server: candidates.length ? candidates[0].dev.name : null,
+      status: sawZone ? 'NXDOMAIN' : 'SERVFAIL',
+      server: server,
       answers: []
     };
   }
@@ -254,12 +282,15 @@ class Simulator {
       this._emit({
         type: 'dns', qname: String(dstIp), ok: !!dnsResult.ok,
         address: dnsResult.address || null, server: dnsResult.server || null,
-        rcode: dnsResult.rcode
+        rcode: dnsResult.rcode, status: dnsResult.status || null
       });
       if (!dnsResult.ok) {
         return {
           events: this.events,
-          replies: [{ seq: 0, success: false, reason: 'dns-nxdomain' }],
+          // Name the failure the resolver actually reported, so a NODATA does not
+          // present itself in the timeline as a missing domain (#241).
+          replies: [{ seq: 0, success: false,
+            reason: 'dns-' + String(dnsResult.status || 'nxdomain').toLowerCase() }],
           step: this.step, success: false, resolved: null, dns: dnsResult
         };
       }
@@ -455,6 +486,13 @@ class Simulator {
       const bi = b.entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
       if (!ai || !bi) continue;
       if (ai.passive || bi.passive) continue;   // passive: no hello, no adjacency (#43)
+      // Both ends of a broadcast link must address the same subnet with the same
+      // mask. Without this the adjacency forms on the strength of a cable alone,
+      // and the route installed behind it points at a next hop that is on no
+      // connected subnet -- so it never resolves and the traffic is black-holed.
+      // A misconfigured router is exactly what the subnet check exists to catch (#240).
+      if (String(ai.mask) !== String(bi.mask)) continue;
+      if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
       links.push({
         a: { router: l.a.deviceId, iface: l.a.iface },
         b: { router: l.b.deviceId, iface: l.b.iface },

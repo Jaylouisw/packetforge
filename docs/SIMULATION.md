@@ -339,7 +339,7 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Authoritative zones with A, AAAA, CNAME, MX, NS, PTR, SOA, TXT, SRV; relative/absolute name rules; CNAME chains to depth 8; NXDOMAIN distinguished from empty-NOERROR. | `engine/dns.js:47-50`, `engine/dns.js:342` |
-| **Modelled** | `ping <hostname>` and `openFlow()` resolve through the lab's DNS servers before a packet is sent; an NXDOMAIN aborts the run with `dns-nxdomain`. | `engine/simulator.js:137`, `engine/simulator.js:228-260` |
+| **Modelled** | `ping <hostname>` and `openFlow()` resolve through the lab's DNS servers before a packet is sent. The failure is named for what actually happened: `dns-nxdomain` (the name is not in the zone), `dns-nodata` (the name exists, the type does not — NOERROR with an empty answer), `dns-servfail` (no device in the lab hosts a zone). | `engine/simulator.js:137`, `engine/simulator.js:228-260` |
 | **Approximate** | Server selection is a shortcut: the client's configured `dnsServers`, or — when it lists none — **any** device in the lab that hosts a matching zone. There is no recursive walk from root to TLD, no delegation, no forwarder. | `engine/simulator.js:137-156` |
 | **Absent** | Recursion to a real resolver, DNSSEC, zone transfers, EDNS(0), negative caching, DNS over TCP. A resolver is only a listener on port 53 for flow purposes (`engine/flow.js:316`). | — |
 
@@ -523,24 +523,33 @@ i.e. configuring them is decoration:
 
 ---
 
-## 10. Known open defects
+## 10. Fixed defects, kept visible
 
-These are filed, reproducible, and **not fixed**. They are listed so this page
-does not overstate correctness, and so a lab that trips them can tell the
-difference between a bug and a lesson.
+Five control-plane defects were found by reading the code rather than by tripping
+over them, and they are **fixed**. They stay listed because each one changed how a
+lab behaves, and a topology saved before the fix may not route the way its author
+expected:
 
-| Issue | What happens | Where it lives |
+| Issue | What used to happen | Now |
 |---|---|---|
-| **#41** | BGP re-advertises an iBGP-learned route to another iBGP peer, and rewrites the next hop to the relayer. Real iBGP does not relay without a route reflector. | `engine/simulator.js:609-620` |
-| **#42** | OSPF installs a route for a router's **own** connected network, at transit cost, instead of leaving the connected route alone. Look for a code `O` entry where you expect `C`. | `engine/simulator.js:465-485` |
-| **#43** | OSPF does not advertise a passive interface's network **at all** — the simulator drops passive interfaces from the graph before SPF runs, instead of advertising them without forming adjacencies. | `engine/simulator.js:411` |
-| **#44** | For a network reachable from more than one router, OSPF keeps the **more expensive** advertisement, chosen by id order rather than by cost. | `engine/ospf.js:528-540` |
-| **#54** | NAT's `flowKeyOf()` omits the inside source, so two hosts behind the same PAT pool collide in the translation table. | `engine/nat.js:557` |
+| **#41** | BGP re-advertised an iBGP-learned route to another iBGP peer, rewriting the next hop to the relayer — traffic that a real iBGP mesh without a route reflector would never carry. | A route is not sent back to the peer it came from, and learned routes are not relayed to other iBGP peers. |
+| **#42** | OSPF installed a route for a router's **own** connected network at transit cost, so a code `O` entry could shadow the `C` entry. | Connected networks are excluded from OSPF installation; the connected route is the route. |
+| **#43** | A passive OSPF interface was dropped from the graph entirely, so its prefix disappeared instead of being advertised as a stub. | The prefix is advertised; only the adjacency is suppressed. |
+| **#44** | When a network was reachable from several routers, the **more expensive** advertisement won, by device-id order. | Cheapest cost wins; a genuine tie breaks on the lower advertising router id, so the result is deterministic. |
+| **#54** | NAT's flow key omitted the inside source port, so two sockets from one host behind PAT collided on a single translation. | The key includes the inside port; each socket gets its own global port. |
 
-The control-plane suites pin five of these as `DOCUMENTS BUG` assertions, so
-fixing one will fail a test until the test is flipped — which is the intended
-mechanism (`CHANGELOG.md:34-40`).
+Two more were found the same way and fixed in the same pass:
 
+| Issue | What used to happen | Now |
+|---|---|---|
+| **#240** | An OSPF adjacency formed from the cable alone, so two routers addressed in different subnets installed routes via a next hop on no connected subnet — traffic black-holed. | Both ends must share subnet **and** mask; a mismatch forms no adjacency. |
+| **#241** | Every DNS failure returned NXDOMAIN — a missing A record, a missing name, and a lab with no DNS server all looked identical. | `dns-nodata` (NOERROR, empty), `dns-nxdomain`, `dns-servfail` are reported separately. |
+
+The mechanism this page relies on: a defect found while writing a suite is pinned
+as a `DOCUMENTS BUG` assertion, so the suite stays green while the bug is live and
+**fails the moment somebody fixes it** — the fix cannot land without flipping the
+assertion to the correct behaviour. As of this revision no such assertion remains;
+if one reappears, it names a live defect.
 ---
 
 ## 11. Where the other docs overstate the code
