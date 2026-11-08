@@ -1,0 +1,52 @@
+{
+  "vendor": "mikrotik",
+  "model": "cAPGi-5HaxD2HaxD&EG12-EA",
+  "label": "cAP LTE12 ax",
+  "category": "wireless",
+  "description": "MikroTik cAP LTE12 ax (cAPGi-5HaxD2HaxD&EG12-EA) — 2x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz, LTE radio. ARM 64bit 4-core IPQ-6010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "600M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/cap_lte12_ax"
+}
