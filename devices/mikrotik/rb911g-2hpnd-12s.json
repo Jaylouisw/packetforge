@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB911G-2HPnD-12S",
+  "label": "mANTBox 2 12s",
+  "category": "ptp",
+  "description": "MikroTik mANTBox 2 12s (RB911G-2HPnD-12S) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9342.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/mantbox_2_12s"
+}
