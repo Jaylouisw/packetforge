@@ -1,0 +1,116 @@
+{
+  "vendor": "aruba",
+  "model": "2930F 12G PoE+ 2G/2SFP+ (JL693A)",
+  "label": "Aruba 2930F 12G PoE+ 2G/2SFP+ Switch (JL693A)",
+  "category": "l3-switch",
+  "description": "Aruba 2930F 12G PoE+ 2G/2SFP+ (JL693A) - 12x 1G RJ45 PoE+ (139 W budget), 2x 1G RJ45 and 2x 1G/10G SFP+ uplinks. Fanless ArubaOS-Switch L3 access switch, VSF stackable.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.4gon.co.uk/documents/DS_2930FSwitchSeries.pdf",
+  "poe": {
+    "budgetW": 139,
+    "sourceUrl": "https://www.4gon.co.uk/documents/DS_2930FSwitchSeries.pdf",
+    "note": "JL693A: 139 W PoE+ budget across the 12 PoE ports."
+  }
+}
