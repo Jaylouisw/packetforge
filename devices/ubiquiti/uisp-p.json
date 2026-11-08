@@ -1,0 +1,27 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UISP-P",
+  "label": "UISP Power",
+  "category": "router",
+  "description": "UISP Power (UISP-P) - 1x 100M RJ45. 3 W max.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-p-pro"
+}
