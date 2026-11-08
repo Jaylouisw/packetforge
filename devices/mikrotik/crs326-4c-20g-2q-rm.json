@@ -1,0 +1,182 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS326-4C+20G+2Q+RM",
+  "label": "CRS326-4C+20G+2Q+RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS326-4C+20G+2Q+RM (CRS326-4C+20G+2Q+RM) — 1x 100M RJ45, 20x 2.5G RJ45, 4x 10G combo RJ45/fibre, 2x 40G QSFP+. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "COMBO1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "COMBO2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "COMBO3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "COMBO4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth19",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth20",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth21",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "QSFP+1",
+      "type": "ethernet",
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
+    },
+    {
+      "name": "QSFP+2",
+      "type": "ethernet",
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs326_4c_20g_2q_rm",
+  "comboPorts": 4
+}
