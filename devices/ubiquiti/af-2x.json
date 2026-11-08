@@ -1,0 +1,38 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF-2X",
+  "label": "airFiber 2X",
+  "category": "ptp",
+  "description": "2.4 GHz airFiber X carrier backhaul radio (antenna sold separately, AF-2G24-S45). Up to 687 Mbps real throughput and 200+ km range with INVICTUS silicon and HDD TDD; 17 W max, 24 V passive PoE in. Ports: 1x GbE data RJ45 + 1x 10/100 MbE management RJ45, plus RP-SMA RF and GPS antenna connectors.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/af-2x"
+}
