@@ -1,0 +1,41 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF60-HD",
+  "label": "airFiber 60 HD",
+  "category": "ptp",
+  "description": "airFiber 60 HD (AF60-HD) - 1x 1G RJ45 + 1x 10G SFP+ (10G/1G). Passive PoE-in; up to 3.8 Gbps PHY rate; 29.31 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "3.8G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/airfiber-60-hd"
+}
