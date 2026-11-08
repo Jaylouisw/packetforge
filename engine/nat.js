@@ -554,8 +554,15 @@ function recordStatic(table, rule, now) {
   return entry;
 }
 
-function flowKeyOf(insideLocal, dstIp, dstPort, proto, insideGlobal) {
-  return [str(insideLocal), str(dstIp), portOf(dstPort), proto, str(insideGlobal)].join('|');
+// The flow a PAT entry is keyed on: the full inside-to-outside 5-tuple
+// (protocol, inside address, inside port, destination address, destination
+// port) plus the global address the pool picked. Leaving the inside port out
+// collapsed every connection from one host to the same destination onto a
+// single global port, so replies for the second socket were delivered to the
+// first (#54).
+function flowKeyOf(insideLocal, srcPort, dstIp, dstPort, proto, insideGlobal) {
+  return [proto, str(insideLocal), portOf(srcPort), str(dstIp), portOf(dstPort),
+    str(insideGlobal)].join('|');
 }
 
 function findPatFlow(table, key) {
@@ -567,7 +574,7 @@ function findPatFlow(table, key) {
 }
 
 function translatePat(table, rule, p, proto, now) {
-  const key = flowKeyOf(p.srcIp, p.dstIp, p.dstPort, proto, rule.insideGlobal);
+  const key = flowKeyOf(p.srcIp, p.srcPort, p.dstIp, p.dstPort, proto, rule.insideGlobal);
   const existing = findPatFlow(table, key);
 
   if (existing) {

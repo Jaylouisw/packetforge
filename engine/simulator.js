@@ -21,6 +21,23 @@ const flowLib = require('./flow');
 const latencyLib = require('./latency');
 const mediaModel = require('./media');
 
+// Two routers advertise the same OSPF network; when the SPF cost ties, the
+// lower advertising router id wins, so the installed table never depends on
+// the order the topology happened to be walked in (#44).
+function compareAdvId(a, b) {
+  const x = (a === undefined || a === null) ? '' : String(a);
+  const y = (b === undefined || b === null) ? '' : String(b);
+  if (x === y) return 0;
+  if (net.isIp(x) && net.isIp(y)) {
+    try {
+      const xi = net.ipToInt(x);
+      const yi = net.ipToInt(y);
+      if (xi !== yi) return xi < yi ? -1 : 1;
+    } catch (err) { /* not a plain IPv4 router id: fall through */ }
+  }
+  return x < y ? -1 : 1;
+}
+
 // --- frame builders ---
 // `opts` carries the two fields that are not part of an L2/L3 header but are part
 // of this frame on this wire: the transport header (l4) and the simulator-only tag
@@ -408,13 +425,15 @@ class Simulator {
         if (!i.enabled || !i.ip || !i.mask) continue;
         let ov = null;
         for (const x of (cfg.interfaces || [])) { if (x.name === i.name) { ov = x; break; } }
-        if (ov && ov.passive) continue;      // advertised but no adjacency
         ifaces.push({
           name: i.name,
           ip: i.ip,
           mask: i.mask,
           cost: (ov && ov.cost) || this._ospfCost(i),
-          area: (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0)
+          area: (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0),
+          // A passive interface suppresses hellos, not its prefix: it forms no
+          // adjacency but still appears in the router LSA as a stub (#43).
+          passive: !!(ov && ov.passive)
         });
       }
       if (!ifaces.length) continue;
@@ -435,6 +454,7 @@ class Simulator {
       const ai = a.entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
       const bi = b.entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
       if (!ai || !bi) continue;
+      if (ai.passive || bi.passive) continue;   // passive: no hello, no adjacency (#43)
       links.push({
         a: { router: l.a.deviceId, iface: l.a.iface },
         b: { router: l.b.deviceId, iface: l.b.iface },
@@ -460,7 +480,16 @@ class Simulator {
 
       const spt = ospfLib.spf(graph, r.id);
       const routes = [];
-      const seen = Object.create(null);
+      const seen = Object.create(null);      // network key -> index into routes
+      const advOf = Object.create(null);     // network key -> advertising router id
+
+      // Networks this router is directly connected to are code C already, so no
+      // OSPF route is installed for them -- the connected route is the route.
+      // This is the rule routesFromSpt() already applies in engine/ospf.js (#42).
+      const ownNets = Object.create(null);
+      for (const ri of r.interfaces) {
+        ownNets[net.intToIp(net.networkOf(ri.ip, ri.mask)) + '/' + ri.mask] = 1;
+      }
 
       for (const [destId, info] of spt.entries()) {
         if (destId === r.id) continue;
@@ -471,16 +500,33 @@ class Simulator {
         for (const di of dest.entry.interfaces) {
           const netAddr = net.intToIp(net.networkOf(di.ip, di.mask));
           const key = netAddr + '/' + di.mask;
-          if (seen[key]) continue;
-          seen[key] = 1;
-          routes.push({
+          if (ownNets[key]) continue;        // the connected route is the route (#42)
+          const cand = {
             dest: netAddr,
             mask: di.mask,
             nextHop: hop.ip,
             iface: hop.iface,
             cost: info.cost,
             learnedFrom: hopId
-          });
+          };
+          // One entry per destination, and the cheapest advertisement wins. The
+          // first one used to be kept, so the cost of a network advertised by
+          // two routers depended on the order the SPT produced -- effectively on
+          // device id order. A genuine tie goes to the lower advertising router
+          // id, so the table is deterministic (#44).
+          const idx = seen[key];
+          if (idx === undefined) {
+            seen[key] = routes.length;
+            advOf[key] = dest.routerId;
+            routes.push(cand);
+            continue;
+          }
+          const prev = routes[idx];
+          if (cand.cost < prev.cost ||
+            (cand.cost === prev.cost && compareAdvId(dest.routerId, advOf[key]) < 0)) {
+            routes[idx] = cand;
+            advOf[key] = dest.routerId;
+          }
         }
       }
 
@@ -607,14 +653,23 @@ class Simulator {
           for (const key of Object.keys(a.best)) {
             const e = a.best[key];
             if (e.from === adj.peer.dev.id) continue;     // never advertise a route back
+            // iBGP split horizon: a route learned from an iBGP peer is not
+            // re-advertised to another iBGP peer. Inside one AS the next hop is
+            // left alone, so a relayed route would also be unreachable; real
+            // BGP solves both with a route reflector or a full mesh (#41).
+            if (adj.type === 'ibgp' && e.session === 'ibgp') continue;
             const asPath = adj.type === 'ebgp' ? [a.as].concat(e.asPath) : e.asPath.slice();
             if (!bgpLib.pathIsLoopFree(asPath, adj.peer.as)) continue;
+            // eBGP rewrites the next hop to this router's address on the session.
+            // iBGP carries the original next hop through unchanged; only a
+            // locally originated prefix points at this router itself (#41).
+            const nextHop = adj.type === 'ebgp' ? adj.localIp : (e.nextHop || adj.localIp);
             updates.push({
               to: adj.peer,
               cand: {
                 dest: e.dest, mask: e.mask, asPath: asPath,
                 origin: e.origin, localPreference: e.localPreference, med: e.med,
-                weight: 0, nextHop: adj.localIp,
+                weight: 0, nextHop: nextHop,
                 ad: adj.type === 'ebgp' ? 20 : 200,
                 from: a.dev.id, session: adj.type
               }

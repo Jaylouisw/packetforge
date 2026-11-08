@@ -315,15 +315,43 @@ function ibgpLab() {
   deq(relayed.asPath, [], 'iBGP does not prepend an AS, so the path stays empty');
   eq(relayed.session, 'ibgp', 'the learned route is marked iBGP');
 
-  // DOCUMENTS BUG (engine/simulator.js:541): the advertisement loop only
-  // avoids sending a route back to the peer it came from. A route learned from
-  // one iBGP peer is therefore relayed to every other iBGP peer, which real BGP
-  // forbids (it requires a route reflector or a full mesh).
+  // Fixed in #41 (engine/simulator.js, advertisement loop): a route learned
+  // from an iBGP peer used to be relayed to every other iBGP peer, and the
+  // relayed copy pointed at the relayer. Real BGP refuses both: inside one AS
+  // a route needs a route reflector or a full mesh, and the next hop is not
+  // rewritten, so R3 must not see R1 prefix through R2.
   const leaked = bgpRouteOf(res[lab.r3.id], '10.1.1.0');
-  ok(leaked !== null,
-    'DOCUMENTS BUG: an iBGP-learned route is re-advertised to another iBGP peer (split horizon missing)');
-  eq(leaked ? leaked.nextHop : null, '10.0.23.2',
-    'DOCUMENTS BUG: the relayed iBGP route points at the relayer, not the original next hop');
+  ok(leaked === null,
+    'an iBGP-learned route is not re-advertised to another iBGP peer (#41)');
+  eq(relayed.nextHop, '10.0.12.1',
+    'the iBGP route names the originator, not the relayer, as its next hop (#41)');
+}
+
+{
+  // #41, the other half: an eBGP route relayed into the AS keeps the original
+  // next hop. R1 (65001) -eBGP- R2 (65002) -iBGP- R3 (65002).
+  const t = new Topology();
+  const r1 = newRouter(t, 'R1');
+  const r2 = newRouter(t, 'R2');
+  const r3 = newRouter(t, 'R3');
+  t.connect(r1.id, 'Gi0/0', r2.id, 'Gi0/0');
+  t.connect(r2.id, 'Gi0/1', r3.id, 'Gi0/0');
+  const sim = new Simulator(t);
+  setInterfaces(r1, t, sim, [['Gi0/0', '10.0.12.1', '255.255.255.0'],
+    ['Gi0/1', '10.1.1.1', '255.255.255.0']]);
+  setInterfaces(r2, t, sim, [['Gi0/0', '10.0.12.2', '255.255.255.0'],
+    ['Gi0/1', '10.0.23.2', '255.255.255.0']]);
+  setInterfaces(r3, t, sim, [['Gi0/0', '10.0.23.3', '255.255.255.0']]);
+  bgpOn(r1, t, sim, 65001, '1.1.1.1', [['10.0.12.2', 65002]]);
+  bgpOn(r2, t, sim, 65002, '2.2.2.2', [['10.0.12.1', 65001], ['10.0.23.3', 65002]]);
+  bgpOn(r3, t, sim, 65002, '3.3.3.3', [['10.0.23.2', 65002]]);
+  const res = sim.computeBgp();
+
+  const atR3 = bgpRouteOf(res[r3.id], '10.1.1.0');
+  ok(atR3 !== null, 'an eBGP route is re-advertised over iBGP (that part is allowed)');
+  eq(atR3 ? atR3.nextHop : null, '10.0.12.1',
+    'and keeps the original eBGP next hop instead of being rewritten to the relayer (#41)');
+  deq(atR3 ? atR3.asPath : null, [65001], 'the AS path still names the origin AS only once');
 }
 
 {
@@ -577,18 +605,25 @@ function ospfTriangle() {
   eq(stub ? stub.cost : null, 20, 'the lower-cost transit path (20) beats the direct link (100)');
   eq(stub ? stub.nextHop : null, '10.0.12.2', 'the next hop is the cheap neighbour');
 
+  // 10, not 20: 10.0.12.0 is advertised by both R1 (reached at 20 over the cheap
+  // transit) and R2 (reached at 10); keeping the cheaper advertisement is what
+  // #44 fixed, so R3 takes R2's.
   const back = ospfRouteOf(res[lab.r3.id], '10.0.12.0');
-  eq(back ? back.cost : null, 20, 'the reverse route also avoids the expensive link');
+  eq(back ? back.cost : null, 10, 'the reverse route also avoids the expensive link');
 
-  // DOCUMENTS BUG (engine/simulator.js:403): computeOspf() installs a route for
-  // every interface of every reachable router without excluding the root own
-  // connected networks. 10.0.13.0/24 is directly connected on R1 Gi0/1, yet an
-  // OSPF route for it appears in R1 table (routesFromSpt in engine/ospf.js does
-  // exclude own networks, so the two implementations disagree).
+  // Fixed in #42 (engine/simulator.js, route installation): computeOspf() used
+  // to install an OSPF route for every interface of every reachable router,
+  // including the root's own connected networks. 10.0.13.0/24 is directly
+  // connected on R1 Gi0/1, so the connected route is the route and no code O
+  // entry may appear for it -- the same rule routesFromSpt() already applies in
+  // engine/ospf.js.
   const own = ospfRouteOf(res[lab.r1.id], '10.0.13.0');
-  ok(own !== null,
-    'DOCUMENTS BUG: a router installs an OSPF route for its own directly connected network');
-  eq(own ? own.cost : null, 20, 'DOCUMENTS BUG: that self-route is the cheaper transit cost');
+  ok(own === null,
+    'a router installs no OSPF route for a network it is directly connected to (#42)');
+  eq(routeDestinations(res[lab.r1.id])
+    .filter(function (d) { return ['10.0.12.0', '10.0.13.0', '10.0.1.0'].indexOf(d) !== -1; })
+    .length, 0,
+    'none of R1 own connected networks appears in its OSPF table (#42)');
 }
 
 {
@@ -606,11 +641,18 @@ function ospfTriangle() {
 
   cfg(a, t, sim, ['interface Gi0/1', 'ip ospf passive']);
   let res = sim.computeOspf();
-  // DOCUMENTS BUG (engine/simulator.js:343): computeOspf() skips a passive
-  // interface entirely, so its network is never advertised as a stub. Real OSPF
-  // suppresses hellos but still puts the network in the router LSA.
-  ok(ospfRouteOf(res[b.id], '10.0.1.0') === null,
-    'DOCUMENTS BUG: a passive interface network is not advertised at all (simulator drops the interface)');
+  // Fixed in #43 (engine/simulator.js, interface collection): computeOspf()
+  // used to drop a passive interface entirely, so its network was never
+  // advertised. Real OSPF suppresses hellos but still puts the network in the
+  // router LSA, so B learns it as a stub one hop away and no adjacency to A
+  // hangs off Gi0/1.
+  const stub = ospfRouteOf(res[b.id], '10.0.1.0');
+  ok(stub !== null,
+    'a passive interface network is still advertised as a stub (#43)');
+  eq(stub ? stub.cost : null, 20,
+    'and costs a single hop to the router that owns it (#43)');
+  eq(stub ? stub.nextHop : null, '10.0.12.1',
+    'with the active interface as the next hop, not the passive one (#43)');
 
   cfg(a, t, sim, ['interface Gi0/1', 'no ip ospf passive']);
   res = sim.computeOspf();
@@ -642,21 +684,27 @@ function ospfTriangle() {
   ]);
   setInterfaces(cheap, t, sim, [
     ['Gi0/0', '10.0.2.2', '255.255.255.0', 5],
-    ['Gi0/1', '10.0.23.3', '255.255.255.0', 200]
+    ['Gi0/1', '10.0.23.3', '255.255.255.0', 200],
+    // A stub reachable only through the cheap neighbour, so the SPF cost to that
+    // neighbour stays observable now that a router no longer installs OSPF
+    // routes for its own connected networks (#42).
+    ['Gi0/2', '10.0.99.2', '255.255.255.0']
   ]);
   const res = sim.computeOspf();
-  const near = ospfRouteOf(res[r1.id], '10.0.2.0');
+  const near = ospfRouteOf(res[r1.id], '10.0.99.0');
   eq(near ? near.cost : null, 10, 'SPF reaches the cheap neighbour at cost 10');
+  eq(near ? near.nextHop : null, '10.0.2.2', 'and installs that route out of the cheap interface');
 
   const shared = ospfRouteOf(res[r1.id], '10.0.23.0');
   ok(shared !== null, 'a network advertised by two routers is installed once');
-  // DOCUMENTS BUG (engine/simulator.js:406): computeOspf() records the first
-  // advertisement in router-id order and skips later ones, so the cost of a
-  // shared network depends on which router id sorts first, not on the SPF cost.
-  eq(shared ? shared.cost : null, 205,
-    'DOCUMENTS BUG: a network shared by two routers keeps the more expensive advertisement (205, not 10)');
-  eq(shared ? shared.nextHop : null, '10.0.1.2',
-    'DOCUMENTS BUG: and points at the expensive neighbour because its device id sorts first');
+  // Fixed in #44 (engine/simulator.js, route installation): computeOspf() kept
+  // the first advertisement it met, so the cost of a shared network depended on
+  // which router id the SPT happened to reach first. It keeps the lowest cost
+  // now -- X reaches 10.0.23.0 at 205, Y at 10.
+  eq(shared ? shared.cost : null, 10,
+    'a network shared by two routers keeps the cheaper advertisement (10, not 205) (#44)');
+  eq(shared ? shared.nextHop : null, '10.0.2.2',
+    'and points at the cheap neighbour, whatever the device id order (#44)');
 }
 
 {
@@ -946,20 +994,23 @@ section('7. NAT: PAT, static and dynamic translation');
   eq(lines.length, 2, 'show ip nat translations prints one line per translation');
   ok(lines.every(function (l) { return /pat$/.test(l); }), 'each line ends with the translation type');
 
-  // DOCUMENTS BUG (engine/nat.js:557): flowKeyOf() omits the inside source
-  // port, so two connections from the same host to the same destination reuse
-  // one global port. The second connection is then unreachable: its replies are
-  // delivered to the first connection's local port.
+  // Fixed in #54 (engine/nat.js, flowKeyOf): a PAT translation was keyed on the
+  // inside address, the destination and the protocol but not on the inside
+  // source port, so every connection from one host to the same destination
+  // reused one global port and the replies for all of them were delivered to
+  // the first socket. The key is the full 5-tuple now.
   const secondSocket = nat.translateOutbound(table, {
     srcIp: '192.168.1.10', srcPort: 5001, dstIp: '198.51.100.9', dstPort: 80, protocol: 'tcp'
   }, 4);
-  eq(secondSocket.pkt.srcPort, 1024,
-    'DOCUMENTS BUG: a second socket from the same host collapses onto the first translation');
-  const misdelivered = nat.translateInbound(table, {
-    srcIp: '198.51.100.9', srcPort: 80, dstIp: '203.0.113.5', dstPort: 1024, protocol: 'tcp'
+  ok(secondSocket.pkt.srcPort !== 1024,
+    'a second socket from the same host gets a global port of its own (#54)');
+  const ownReply = nat.translateInbound(table, {
+    srcIp: '198.51.100.9', srcPort: 80, dstIp: '203.0.113.5',
+    dstPort: secondSocket.pkt.srcPort, protocol: 'tcp'
   }, 5);
-  eq(misdelivered.pkt.dstPort, 5000,
-    'DOCUMENTS BUG: replies for the second socket land on the first socket local port');
+  ok(ownReply.pkt.dstIp === '192.168.1.10' && ownReply.pkt.dstPort === 5001,
+    'replies for the second socket reach that socket, not the first (#54)');
+  eq(table.translations.length, 3, 'the second socket added a translation of its own (#54)');
 }
 
 {
