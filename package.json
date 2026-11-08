@@ -30,6 +30,7 @@
     "test:ipv6-slaac": "node test/ipv6-slaac.test.js",
     "test:dns-wire": "node test/dns-wire.test.js",
     "test:bgp-wire": "node test/bgp-wire.test.js",
+    "test:bgp-session": "node test/bgp-session.test.js",
     "test:ipv6-wire": "node test/ipv6-wire.test.js && node test/ui-render.test.js && node test/scion-wire.test.js && node test/poe.test.js",
     "examples": "node examples/build-examples.js",
     "syntax": "node scripts/syntax-check.js",

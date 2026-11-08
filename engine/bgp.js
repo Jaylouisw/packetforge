@@ -539,8 +539,69 @@ function advertise(routes, opts) {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// session establishment
+// ---------------------------------------------------------------------------
+//
+// `nextState` has always been able to walk the RFC's state machine, and nothing ever walked
+// it: the simulator declared a session established because two configs agreed, which is the
+// exact mistake that makes a lab lie. Two routers that both say `neighbor 10.0.0.2 remote-as
+// 65002` establish nothing in reality unless TCP/179 actually connects - and TCP/179 does
+// not connect over a link that is down, a route that is missing in one direction, or an ACL
+// that drops it.
+//
+// So establishment is now a walk with a reason at every step. `probe` is the caller's
+// business (this module stays free of the simulator's device model); it returns
+// {ok, code, reason} and the walk stops where the network stops.
+
+// The events that take a session from idle to established, in order. A refusal at any step
+// is what the caller must be able to report, so each step carries both the event that
+// advances it and the code it reports if the probe fails here.
+const ESTABLISHMENT = [
+  { event: 'manual-start', from: 'idle', state: 'connect', failCode: 'E_SESSION_REFUSED' },
+  { event: 'tcp-connected', from: 'connect', state: 'opensent', failCode: 'E_TCP_REFUSED' },
+  { event: 'open-received', from: 'opensent', state: 'openconfirm', failCode: 'E_OPEN_REFUSED' },
+  { event: 'keepalive-received', from: 'openconfirm', state: 'established', failCode: 'E_KEEPALIVE_REFUSED' }
+];
+
+// establishSession({localAs, remoteAs, probe}) ->
+//   { state, established, events:[{state, event}], code, reason }
+//
+// `probe` is called once per step with the step, so a caller can refuse at the point the
+// network refuses: a bogus AS number fails at OPEN, a blocked TCP port fails at connect.
+function establishSession(opts) {
+  const o = opts || {};
+  const probe = (typeof o.probe === 'function') ? o.probe : function () { return { ok: true }; };
+  const events = [];
+  let state = 'idle';
+
+  for (let i = 0; i < ESTABLISHMENT.length; i++) {
+    const step = ESTABLISHMENT[i];
+    const verdict = probe(step, state) || { ok: true };
+
+    if (!verdict.ok) {
+      // An error takes the session back to idle from wherever it had reached; the caller
+      // gets the state it died in, which is what a technician would see in `show ip bgp
+      // summary` - Active versus Connect tells you whether TCP ever opened.
+      const died = state;
+      state = nextState(state, 'error');
+      events.push({ state: state, event: 'error', from: died, code: verdict.code || step.failCode, reason: verdict.reason || null });
+      return { state: state, diedIn: died, established: false, events: events,
+        code: verdict.code || step.failCode, reason: verdict.reason || null };
+    }
+
+    const next = nextState(state, step.event);
+    events.push({ state: next, event: step.event });
+    state = next;
+  }
+
+  return { state: state, diedIn: null, established: state === 'established', events: events, code: null, reason: null };
+}
+
 module.exports = {
   BGP_PORT,
+  ESTABLISHMENT,
+  establishSession,
   BGP_STATES,
   BGP_EVENTS,
   BGP_ORIGIN,

@@ -548,6 +548,27 @@ class Simulator {
   // A session only forms when BOTH sides are configured: each must list the
   // other's address as a neighbour with a matching remote-as. That is real BGP
   // behaviour, and it is what makes "half a peering is not a peering" testable.
+  // Can `dev` open a TCP connection to `peerIp`? Only the parts of the question that can be
+  // answered without walking the path: a route, an egress that is up, and a source address.
+  // ACLs on intermediate hops are not consulted yet, so a session this calls reachable may
+  // still be dropped in the data path - it is a floor, not a promise.
+  _bgpReachable(dev, peerIp) {
+    if (!dev) return { ok: false, code: 'E_PEER_NOT_FOUND', reason: 'no device' };
+    if (dev.poeUnpowered) {
+      return { ok: false, code: 'E_POE', reason: 'no PoE power available - ' + dev.name + ' was not powered' };
+    }
+    const route = dev.routeTo(peerIp);
+    if (!route) return { ok: false, code: 'E_NO_ROUTE_TO_PEER', reason: 'no route to ' + peerIp + ' on ' + dev.name };
+    const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
+    if (!egress || !egress.enabled) {
+      return { ok: false, code: 'E_IFACE_DOWN', reason: 'egress interface for ' + peerIp + ' is down on ' + dev.name };
+    }
+    if (!egress.ip) {
+      return { ok: false, code: 'E_NO_SOURCE_IP', reason: 'no source address on ' + egress.name + ' of ' + dev.name };
+    }
+    return { ok: true, code: null, reason: null, egress: egress.name, srcIp: egress.ip };
+  }
+
   computeBgp() {
     const speakers = [];
 
@@ -556,18 +577,28 @@ class Simulator {
       const cfg = dev.config && dev.config.bgp;
       if (!cfg || !cfg.as) continue;
 
+      // Usable addresses - these originate prefixes and can be a session's source. A shut
+      // port must not advertise its subnet, so it is excluded here.
       const addrs = [];
+      // Configured addresses - these are what a `neighbor` line can sit on, whether or not the
+      // port is up. Keeping only the usable list made a shut interface look like an
+      // unconfigured one: the neighbour then "was not on a connected subnet" and the session
+      // was reported as a configuration error instead of a link that is down.
+      const configured = [];
       for (const i of dev.interfaces.values()) {
-        if (!i.enabled || !i.ip || !i.mask) continue;
+        if (!i.ip || !i.mask) continue;
+        configured.push({ ip: i.ip, mask: i.mask, iface: i.name, up: !!i.enabled });
+        if (!i.enabled) continue;
         addrs.push({ ip: i.ip, mask: i.mask, iface: i.name });
       }
-      if (!addrs.length) continue;
+      if (!configured.length) continue;
 
       speakers.push({
         dev: dev,
         as: Number(cfg.as),
-        routerId: cfg.routerId || addrs[0].ip,
+        routerId: cfg.routerId || (addrs[0] && addrs[0].ip) || configured[0].ip,
         addrs: addrs,
+        configured: configured,
         neighbors: (cfg.neighbors || []).slice(),
         adj: [],
         cands: Object.create(null),   // prefix -> [candidates]
@@ -577,36 +608,145 @@ class Simulator {
 
     if (speakers.length < 2) { this.bgpResult = null; this.bgpSessions = 0; return null; }
 
-    // --- sessions: both ends must agree ---
+    // --- sessions: both ends must agree, AND the peer must be reachable ---
+    //
+    // Config agreement is necessary and nowhere near sufficient. Until now this loop simply
+    // `continue`d past every mismatch, so a session existed because two configs said so: a
+    // peering over a down link, or with a route in one direction only, came up in the lab and
+    // would never come up on a bench. Each refusal is now named, and the RFC state machine is
+    // actually walked instead of being declared.
+    const self = this;
+    this.bgpSessionList = [];
+    function refuse(a, nb, code, reason, extra) {
+      const rec = {
+        local: a.dev.name, localAs: a.as, peerIp: nb.address,
+        remoteAs: Number(nb.remoteAs) || null,
+        state: 'idle', established: false, session: null,
+        code: code, reason: reason
+      };
+      if (extra) Object.assign(rec, extra);
+      self.bgpSessionList.push(rec);
+      self._emit({
+        type: 'bgp-session', dev: a.dev.name, peerIp: nb.address, state: 'idle',
+        established: false, code: code, reason: reason,
+        summary: 'BGP ' + a.dev.name + ' -> ' + nb.address + ': ' + reason
+      });
+      return rec;
+    }
+
     for (const a of speakers) {
       for (const nb of a.neighbors) {
         let local = null;
-        for (const x of a.addrs) {
+        for (const x of a.configured) {
           if (net.sameSubnet(nb.address, x.ip, x.mask)) { local = x; break; }
         }
-        if (!local) continue;                       // neighbour not on a connected subnet
+        if (!local) {
+          // A neighbour address that is not on any configured subnet cannot be opened: BGP
+          // rides on TCP, TCP needs a next hop, and there is none.
+          refuse(a, nb, 'E_PEER_NOT_ON_SUBNET',
+            'neighbour ' + nb.address + ' is not on a connected subnet of ' + a.dev.name);
+          continue;
+        }
+        // The address is configured, the port is down. Say that, rather than blaming the
+        // configuration for a cable or an admin shutdown.
+        if (local.up === false) {
+          refuse(a, nb, 'E_IFACE_DOWN',
+            local.iface + ' is administratively down on ' + a.dev.name,
+            { localIp: local.ip, diedIn: 'connect' });
+          continue;
+        }
 
         let b = null;
         for (const s of speakers) {
           if (s === a) continue;
-          for (const y of s.addrs) { if (y.ip === nb.address) { b = s; break; } }
+          for (const y of s.configured) { if (y.ip === nb.address) { b = s; break; } }
           if (b) break;
         }
-        if (!b) continue;
-        if (Number(nb.remoteAs) !== b.as) continue;  // remote-as does not match the peer
+        if (!b) {
+          refuse(a, nb, 'E_PEER_NOT_FOUND',
+            'no BGP speaker holds ' + nb.address, { localIp: local.ip });
+          continue;
+        }
+        if (Number(nb.remoteAs) !== b.as) {
+          refuse(a, nb, 'E_REMOTE_AS_MISMATCH',
+            'remote-as ' + nb.remoteAs + ' but ' + b.dev.name + ' is AS' + b.as,
+            { localIp: local.ip, peer: b.dev.name });
+          continue;
+        }
 
         let back = null;
         for (const n of b.neighbors) { if (n.address === local.ip) { back = n; break; } }
-        if (!back || Number(back.remoteAs) !== a.as) continue;   // peer has not configured us
+        if (!back) {
+          refuse(a, nb, 'E_PEER_NOT_CONFIGURED',
+            b.dev.name + ' has no neighbour ' + local.ip,
+            { localIp: local.ip, peer: b.dev.name });
+          continue;
+        }
+        if (Number(back.remoteAs) !== a.as) {
+          refuse(a, nb, 'E_REMOTE_AS_MISMATCH',
+            b.dev.name + ' expects AS' + back.remoteAs + ' for ' + local.ip + ', we are AS' + a.as,
+            { localIp: local.ip, peer: b.dev.name });
+          continue;
+        }
 
-        a.adj.push({
+        // The two-way reachability a TCP session needs. A route out and none back is the
+        // half-configured lab that looks fine in a config diff and never comes up.
+        const peerEnd = (b.configured || []).filter(function (y) { return y.ip === nb.address; })[0];
+        const out = this._bgpReachable(a.dev, nb.address);
+        const rev = (peerEnd && peerEnd.up === false)
+          ? { ok: false, code: 'E_IFACE_DOWN', reason: peerEnd.iface + ' is down on ' + b.dev.name }
+          : this._bgpReachable(b.dev, local.ip);
+        const walk = bgpLib.establishSession({
+          localAs: a.as, remoteAs: b.as,
+          probe: function (step) {
+            // TCP is where reachability decides it; OPEN and KEEPALIVE cannot succeed if the
+            // socket never opened, so they inherit the verdict rather than inventing one.
+            if (step.event === 'manual-start' && out.code === 'E_POE') return out;
+            if (step.event === 'tcp-connected') return out.ok ? rev : out;
+            return { ok: true };
+          }
+        });
+
+        if (!walk.established) {
+          refuse(a, nb, walk.code, walk.reason || 'session did not establish',
+            { localIp: local.ip, peer: b.dev.name, diedIn: walk.diedIn, events: walk.events });
+          continue;
+        }
+
+        const adj = {
           peer: b,
           peerIp: nb.address,
           localIp: local.ip,
           iface: local.iface,
-          type: bgpLib.sessionType(a.as, b.as)
+          type: bgpLib.sessionType(a.as, b.as),
+          state: walk.state
+        };
+        a.adj.push(adj);
+        this.bgpSessionList.push({
+          local: a.dev.name, localAs: a.as, peer: b.dev.name, peerIp: nb.address,
+          remoteAs: b.as, state: 'established', established: true,
+          session: adj.type, localIp: local.ip, iface: local.iface,
+          code: null, reason: null, events: walk.events
         });
       }
+    }
+
+    // The per-neighbour state a technician would read off the box. Installed on the device
+    // rather than kept only on the simulator, because `show ip bgp summary` is a question
+    // about one router and the CLI should not have to reach into the simulator to answer it.
+    for (const s of speakers) {
+      // The identifier the box actually elected, not the one a config left blank. Showing
+      // 0.0.0.0 in `show ip bgp summary` would be a small lie in a command whose whole job
+      // is telling a technician the truth about a session.
+      s.dev.bgpRouterId = s.routerId || null;
+      s.dev.bgpNeighbors = (this.bgpSessionList || [])
+        .filter(function (r) { return r.local === s.dev.name; })
+        .map(function (r) {
+          return {
+            address: r.peerIp, remoteAs: r.remoteAs, session: r.session,
+            state: r.state, established: r.established, code: r.code, reason: r.reason
+          };
+        });
     }
 
     // One event per established session, so the log shows the peering.
