@@ -2,6 +2,12 @@
 
 ### Added
 
+- **README corrections.** The protocol table claimed DHCP client/server and VRRP, and the CLI row
+  claimed `ip dhcp pool` and `vrrp`. `engine/simulator.js` requires neither library, and the CLI has
+  no `vrrp` command at all — `docs/SIMULATION.md` §5.1 has documented DHCP as absent from the data
+  path the whole time. Both are now listed under "What this does not model yet" with their issues
+  (#1051, #1052) rather than advertised as features.
+
 - **Control planes take time now** (#1049). Every timer in the engine was parsed, range-checked and
   then discarded: `computeStp()` blocked its ports and `computeOspf()` installed its routes at t=0,
   so a lab could only ever show the converged answer. `Simulator.setRunTime(ms)` asks a question at
