@@ -1,0 +1,23 @@
+{
+  "vendor": "axis",
+  "model": "P3275-LVE",
+  "label": "AXIS P3275-LVE",
+  "category": "camera",
+  "description": "AXIS P3275-LVE is a 2 MP outdoor dome built on the ARTPEC-9 SoC with a deep-learning processing unit, AXIS Object Analytics, Forensic WDR, OptimizedIR and AXIS Live Privacy Shield in an IK10/IP66/NEMA 4X housing. Its only network connector is RJ45 10BASE-T/100BASE-TX with PoE IEEE 802.3af/802.3at Type 1 Class 3 (max 10 W, 3.4 W typical), and no wireless radio is fitted.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://www.axis.com/dam/public/3b/17/c3/datasheet-axis-p3275-lve-dome-camera-en-US-521399.pdf",
+  "notes": "From the Axis datasheet: Connectors - 'Network: RJ45 10BASE-T/100BASE-TX PoE', 'I/O: 4-pin 2.5 mm terminal block for 1 alarm input and 1 output', 'Audio: 3.5 mm mic/line in'; Power - PoE 802.3af/802.3at Type 1 Class 3, max 10 W, typical 3.4 W (heater off, IR off); microSD and NAS recording; 802.1X, MACsec, signed video; 2 GB RAM / 8 GB flash. The 3.4 W typical versus 10 W max spread is the useful lab fact: an 802.3af 15.4 W port is enough, but a 4-port 802.3af budget sized on typical draw will brown out in cold weather when the heater runs. Not confirmed: Axis does not publish a peak figure with heater and IR both active, so 10 W is the ceiling to budget with. 100 Mbps only."
+}

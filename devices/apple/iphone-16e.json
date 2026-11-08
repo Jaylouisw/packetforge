@@ -1,0 +1,26 @@
+{
+  "vendor": "apple",
+  "model": "iPhone 16e",
+  "label": "Apple iPhone 16e smartphone",
+  "category": "phone",
+  "description": "A18 phone with Apple's own C1 cellular modem: 5G NR sub-6 GHz only with 4x4 MIMO - n1/n2/n3/n5/n7/n8/n12/n14/n20/n25/n26/n28/n29/n30/n38/n40/n41/n48/n53/n66/n70/n71/n75/n76/n77/n78/n79, and no mmWave bands at all. Wi-Fi is 6 (802.11ax) with 2x2 MIMO - not 6E and not 7. Radios: one wlan (Wi-Fi 6) and one wwan (5G sub-6); the only port is USB-C, so no RJ45.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/122208",
+  "notes": "Deliberate contrast node: Apple's first in-house modem, sub-6 only, and the Wi-Fi radio tops out at 802.11ax 2x2 - do not 'upgrade' this to Wi-Fi 6E/7 to match the rest of the Apple line. No Thread radio. wlan0 is modelled at 1G because 802.11ax 2x2 on 80 MHz channels peaks near 1.2 Gbps; quoting 2.5G here would be a Wi-Fi 6E/7 number this radio cannot reach. No Ethernet, USB-C only."
+}

@@ -1,0 +1,27 @@
+{
+  "vendor": "hp",
+  "model": "LaserJet Pro MFP M428fdw",
+  "label": "HP LaserJet Pro MFP M428fdw",
+  "category": "printer",
+  "description": "HP LaserJet Pro MFP M428fdw is a 40 ppm A4 mono laser multifunction (print, copy, scan, fax) with a 50-sheet ADF, duplex printing and 802.1X-capable networking. Standard connectivity is one RJ45 Gigabit 10/100/1000BASE-T port with 802.3az EEE plus a single dual-band 802.11b/g/n 2.4/5 GHz radio with Wi-Fi Direct, and there is no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.hp.com/us-en/shop/pdp/hp-laserjet-pro-mfp-m428fdw",
+  "notes": "From HP's published specification: Connectivity, standard - '1 Hi-Speed USB 2.0', '1 rear host USB', '1 Front USB port', 'Gigabit Ethernet 10/100/1000BASE-T network', '802.3az(EEE)', '802.11b/g/n/2.4/5 GHZ Wi-Fi radio'; Network capabilities '10/100/1000Base-TX Ethernet, Gigabit; Auto-crossover Ethernet; Authentication via 802.1X'; print speed 40 ppm (42 ppm HP High Speed); 50-sheet ADF. One radio covering two bands, so it is modelled as a single wireless interface - do not expect simultaneous 2.4 and 5 GHz association. USB ports deliberately not modelled. Not confirmed: HP labels the radio 802.11b/g/n rather than ac/ax, and publishes no PHY rate, so 300M is the 802.11n ceiling used as a model figure. This printer is listed discontinued by HP (replaced up the M480/MF400 line); it is included because it is what is still sitting in offices."
+}

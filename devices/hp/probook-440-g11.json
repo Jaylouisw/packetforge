@@ -1,0 +1,27 @@
+{
+  "vendor": "hp",
+  "model": "ProBook 440 G11",
+  "label": "HP ProBook 440 G11 14-inch laptop",
+  "category": "laptop",
+  "description": "14-inch Core Ultra mainstream business laptop. Networking is an onboard RJ-45 Ethernet port on the right side plus Intel AX211 Wi-Fi 6E with Bluetooth 5.3 (alternate build: Realtek 8852CE Wi-Fi 6E, also Bluetooth 5.3) - HP does not list Wi-Fi 7 on this model. Optional WWAN is HP 4000 4G LTE-Advanced Pro with a nano-SIM slot that is not user accessible without the module. Ports: 1x RJ-45, 1x HDMI 2.1, 2x USB-C 20 Gbps with PD and DisplayPort 1.4, 2x USB-A 5 Gbps.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://h20195.www2.hp.com/v2/getpdf.aspx/c08915500.pdf",
+  "notes": "Caveat worth keeping visible: HP's QuickSpecs names the 'RJ45 Ethernet port' but prints no line rate for it, so the 1G here is the gigabit PHY this platform ships with rather than a quoted figure - if a test hinges on the exact rate, re-check the model's product sheet. Wi-Fi is 6E only (AX211 or Realtek 8852CE); there is no Wi-Fi 7 option listed, unlike the ThinkPad T14/L14 Gen 5."
+}

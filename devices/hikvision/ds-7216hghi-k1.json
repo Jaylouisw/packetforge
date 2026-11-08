@@ -1,0 +1,22 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-7216HGHI-K1",
+  "label": "Hikvision DS-7216HGHI-K1",
+  "category": "nvr",
+  "description": "Hikvision DS-7216HGHI-K1 is a 16-channel Turbo HD DVR: 16 BNC inputs taking HDTVI/AHD/HDCVI/CVBS, two extra IP channels, H.265 Pro+ recording to a single SATA disk up to 10 TB and 96 Mbps total bandwidth. Its only network interface is one RJ45 10/100 Mbps self-adaptive Ethernet port, with no PoE and no wireless radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000004903/Datasheet-of_DS-7216HGHI-K1_V4.70.160_20230822.pdf",
+  "notes": "From the Hikvision datasheet: 'Network Interface 1, RJ45 10/100 Mbps self-adaptive Ethernet interface'; 16-ch analog video input across HDTVI/AHD/HDCVI/CVBS; IP video input 2-ch (up to 18-ch total); Total Bandwidth 96 Mbps; 1 SATA interface up to 10 TB; 12 VDC 1.6 A, 10 W without HDD; HDMI and VGA out; network protocols TCP/IP, PPPoE, DHCP, Hik-Connect, DNS, DDNS, NTP, SADP, SMTP, UPnP, HTTPS. The 16 BNC inputs are analog video-in with no IP stack, so they are not modelled as ports - only the one Ethernet interface is a network port. Not confirmed: the datasheet gives 96 Mbps as a single aggregate total rather than splitting in/out, so no per-direction figure is claimed. No PoE: the cameras this box is designed for are powered over the coax or locally, not by the recorder."
+}

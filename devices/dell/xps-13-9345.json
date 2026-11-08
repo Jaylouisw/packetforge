@@ -1,0 +1,22 @@
+{
+  "vendor": "dell",
+  "model": "XPS 13 9345",
+  "label": "Dell XPS 13 9345 13.4-inch laptop",
+  "category": "laptop",
+  "description": "13.4-inch Snapdragon X Elite / X Plus Copilot+ laptop. Wireless is Qualcomm FastConnect 7800 DBS onboard: Wi-Fi 7 (802.11be) on 2.4, 5 and 6 GHz, up to 5760 Mbps, with Bluetooth 5.4. There is no Ethernet: Dell's port table lists only two USB4 40 Gbps USB Type-C ports with DisplayPort and Power Delivery, audio and video through those same USB-C ports, and no media-card reader or security slot. Ports: 2x USB4 Type-C only - no RJ45, no HDMI, no card reader.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "5G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.dell.com/support/manuals/en-uk/xps-13-9345-laptop/xps-13-9345-owners-manual/wireless-module?guid=guid-9268df17-896f-4186-ad5c-ce736e3aab6d&lang=en-us",
+  "notes": "Zero wired NIC: wired means a USB-C dock or dongle, exactly like the 9340 already in the catalogue, but this chassis is the Snapdragon one, so its radio is Wi-Fi 7 rather than the 9340's Wi-Fi 6E. Dell's external ports table is the authority for the missing RJ45; the wireless module table is the authority for Wi-Fi 7."
+}

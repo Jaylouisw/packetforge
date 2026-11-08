@@ -1,0 +1,27 @@
+{
+  "vendor": "canon",
+  "model": "imageRUNNER 1643i",
+  "label": "Canon imageRUNNER 1643i",
+  "category": "printer",
+  "description": "Canon imageRUNNER 1643i is a 43 ppm A4 monochrome laser multifunction - print, copy, scan and send - with a 12.7 cm colour touch panel, duplex printing, 1.0 GB RAM and UFR II/PCL/PostScript page languages. Standard network is one RJ45 1000Base-T/100Base-TX/10Base-T port plus a 2.4 GHz 802.11b/g/n radio with Wi-Fi Direct; the i variant has no fax board and no NFC, and there is no PoE.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.canon-europe.com/business/products/office-printers/multifunction/black-and-white/imagerunner-1600-series/specifications/",
+  "notes": "From Canon Europe's specification page: Interface Connection - NETWORK Standard '1000Base-T/100Base-TX/10-Base-T, Wireless LAN (IEEE 802.11 b/g/n), NFC (iR 1643iF only), Wi-Fi Direct Connection'; OTHERS Standard 'USB 2.0 (Host) x2, USB 2.0 (Device) x1' (not modelled); print speed 43 ppm A4; 1.0 GB RAM; UFR II, PCL6, PCL5, Adobe PostScript 3. Core functions differ by suffix: the 1643i is print/copy/scan/send, the 1643iF adds fax and NFC - use the iF if a lab needs the POTS line. Not confirmed: Canon publishes no radio PHY rate, so 300M is the 802.11n 2.4 GHz ceiling used as the model figure. No PoE."
+}

@@ -1,0 +1,22 @@
+{
+  "vendor": "dahua",
+  "model": "XVR5108HS-I3",
+  "label": "Dahua XVR5108HS-I3",
+  "category": "nvr",
+  "description": "Dahua XVR5108HS-I3 is an 8-channel Penta-brid recorder: 8 BNC inputs for HDCVI/AHD/TVI/CVBS, 4 IP channels by default expandable to 12 by converting analog channels, H.265+/AI coding, one SATA port up to 16 TB and 64 Mbps each way. It has one RJ45 10/100 Mbps Ethernet port, a 12 VDC 2 A input, no PoE and no wireless radio.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.dahua.pro/wp-content/uploads/2026/01/XVR5108HS-I3_datasheet_20230525.pdf",
+  "notes": "From the Dahua datasheet: 'Network Port 1 (10/100 Mbps Ethernet port, RJ-45)'; 8-channel analog camera input (CVI/AHD/TVI/CVBS); up to 12 channels of IPC access, 4 IP channels by default plus 8 converted analog channels; incoming/recording/outgoing bandwidth 64 Mbps each; 1 SATA port up to 16 TB; 12 VDC 2 A, <7 W; 2x USB 2.0; HDMI + VGA; 1 RS-485 for PTZ; ONVIF 21.06, CGI. Sold as the XVR5108HS family - these figures are from the -I3 revision datasheet, and the older non-I3 builds differ in codec support. The 8 BNC inputs are analog video, not network ports, so they are not modelled. Not confirmed: Dahua publishes no draw figure with a 16 TB disk fitted, and no PoE capability."
+}

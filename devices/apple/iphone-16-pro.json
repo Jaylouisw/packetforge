@@ -1,0 +1,26 @@
+{
+  "vendor": "apple",
+  "model": "iPhone 16 Pro",
+  "label": "Apple iPhone 16 Pro smartphone",
+  "category": "phone",
+  "description": "A18 Pro flagship phone. Cellular is 5G NR sub-6 GHz and mmWave with 4x4 MIMO - FDD n1/n2/n3/n5/n7/n8/n12/n14/n20/n25/n26/n28/n29/n30/n66/n70/n71/n75/n76, TDD n38/n40/n41/n48/n53/n77/n78/n79 and mmWave n258/n260/n261. Wi-Fi is 7 (802.11be) with 2x2 MIMO, plus Thread. Radios: one wlan (Wi-Fi 7) and one wwan (5G sub-6 + mmWave); the only physical connector is USB-C, so there is no RJ45 and no wired NIC of any kind.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.5G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/121031",
+  "notes": "Apple's tech specs list no Ethernet and no dock NIC - a phone docks over USB-C only. wwan0 speed is bearer throughput, not a LAN rate; do not read it as 1GbE. Apple caps EHT to 160 MHz channels, so Wi-Fi 7 peak PHY is ~2.4 Gbps (2.5G), not the 5.8 Gbps a 320 MHz AP would allow. eSIM only - no physical SIM tray on this generation."
+}
