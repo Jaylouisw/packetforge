@@ -1,0 +1,70 @@
+{
+  "vendor": "peplink",
+  "model": "B One",
+  "label": "Peplink B One",
+  "category": "router",
+  "description": "Small-business SD-WAN router: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput, Wi-Fi 6 for the wireless variant.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/b-one.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: **2 GE WAN and 4 GE LAN**, router throughput 1 Gbps. The two WAN ports are modelled separately as wan1 and wan2 because a second WAN is the reason this line exists - failover between two uplinks is the feature a branch buys it for. The per-band Wi-Fi rows were not extracted, so the two radios carry the AX1800 class figures (574M / 1.2G) and should be read as class rather than a quoted row.",
+  "role": [
+    "sd-wan"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "vendor": "peplink",
+  "model": "B One 5G",
+  "label": "Peplink B One 5G",
+  "category": "router",
+  "description": "Small-business SD-WAN router with an embedded 5G modem: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/b-one-5g.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, router throughput 1 Gbps, plus an embedded 5G modem. The modem is modelled at the conservative 100M class the catalogue uses wherever a cellular category is not stated in the extracted rows - the sheet confirms 5G but the sub-6/mmWave split was not captured, so this figure is a floor rather than a peak.",
+  "role": [
+    "sd-wan"
+  ]
+}

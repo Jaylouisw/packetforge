@@ -1,0 +1,64 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 30 LTE",
+  "label": "Peplink Balance 30 LTE",
+  "category": "router",
+  "description": "Small-branch router with LTE backup: 2x GE WAN, 4x GE LAN, 200 Mbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-30-lte.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, router throughput 200 Mbps, embedded LTE. **200 Mbps is the ceiling for the whole box**, so this model is for a branch whose uplinks are well under gigabit; pairing it with a gigabit circuit wastes the circuit rather than the router.",
+  "role": [
+    "sd-wan"
+  ]
+}
