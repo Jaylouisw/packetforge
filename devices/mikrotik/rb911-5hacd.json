@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB911-5HacD",
+  "label": "911 Lite5 ac",
+  "category": "ptp",
+  "description": "MikroTik 911 Lite5 ac (RB911-5HacD) — 1x 100M RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB911-5HacD"
+}
