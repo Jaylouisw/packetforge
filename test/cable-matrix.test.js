@@ -220,7 +220,11 @@ const EXPECTED_ROWS = [
   ['powerline', '*', 'refuse'],   // mains pins meet nothing on a network box
   ['console', '*', 'refuse'],     // a console port is not a data port
   ['usb', '*', 'refuse'],
-  ['antenna', '*', 'refuse']
+  ['antenna', '*', 'refuse'],
+  // A cellular modem connects to a base station, not to a patch lead (issue #129). It
+  // refuses copper, fibre and another modem alike - two 5G CPEs in a lab are not cabled
+  // together, they are both subscribed to a network neither of them contains.
+  ['wwan', '*', 'refuse']
 ];
 
 function pairKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }

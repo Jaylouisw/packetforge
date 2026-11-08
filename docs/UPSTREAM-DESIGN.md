@@ -561,16 +561,19 @@ silent-and-valid.
 ## 7. Code anchors
 
 Every edit this design needs, by function (not just line — see the header).
-Nothing here is implemented; the table is the work order.
+Rows marked ✅ are implemented; the rest are still the work order.
+
+The six cellular-cage rows were built for issue #129 as a prerequisite, with one deliberate
+deviation from this design: the cage is `wwan` and it mates with nothing. See row 3.
 
 | # | Anchor (at `d399dff`) | Today | Change |
 |---|---|---|---|
-| 1 | `media.js:54 MEDIA` | 57 media, 8 families | add 4 `cellular` entries |
-| 2 | `media.js:157 CAGES` | 18 cages | add `cellular` |
-| 3 | `media.js:208 CAGE_MATE` | `antenna:['antenna']` | add `cellular:['cellular']` |
-| 4 | `media.js:270 CAGE_MEDIA`, `:353,358,372` | coax/dsl/powerline/antenna fns | add `cellular` fn |
-| 5 | `media.js:375 CAGE_SPEEDS`, `:448,455,467` | per-cage speed fns | add `cellular` fn |
-| 6 | `media.js:479 inferCage()` | no cellular branch | type + name heuristics (§3.1) |
+| 1 | `media.js:54 MEDIA` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
+| 2 | `media.js:157 CAGES` | 19 cages | ✅ done (#129): added as **`wwan`**, not `cellular` — the name says what the port is, not what technology happens to use it |
+| 3 | `media.js:208 CAGE_MATE` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
+| 4 | `media.js:270 CAGE_MEDIA`, `:353,358,372` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
+| 5 | `media.js:375 CAGE_SPEEDS`, `:448,455,467` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
+| 6 | `media.js:479 inferCage()` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
 | 7 | `media.js:562 derivePortHardware()` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
 | 8 | `media.js:744 canMate()` | 3-test ladder | **no change** — service checks live in validation |
 | 9 | `validation.js:59 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |

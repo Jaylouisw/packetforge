@@ -198,7 +198,22 @@ const MEDIA = {
   'wireless-5': { name: '5 GHz radio', family: 'wireless', connector: 'antenna', speedMbps: 1000, maxRangeM: null, band: '5' },
   'wireless-6': { name: '6 GHz radio (Wi-Fi 6E)', family: 'wireless', connector: 'antenna', speedMbps: 2400, maxRangeM: null, band: '6' },
   'wireless-7': { name: '6 GHz radio (Wi-Fi 7)', family: 'wireless', connector: 'antenna', speedMbps: 5760, maxRangeM: null, band: '6' },
-  'wireless-60': { name: '60 GHz radio (802.11ad)', family: 'wireless', connector: 'antenna', speedMbps: 5000, maxRangeM: null, band: '60' }
+  'wireless-60': { name: '60 GHz radio (802.11ad)', family: 'wireless', connector: 'antenna', speedMbps: 5000, maxRangeM: null, band: '60' },
+
+  // ---- cellular (3GPP) ----
+  //
+  // A modem's air interface is neither copper nor Wi-Fi, and until now it had to pretend to
+  // be one of them (issue #129): modelled as ethernet it invented an RJ45 socket that
+  // validateLink would cable; modelled as wireless it joined the Wi-Fi population and could
+  // be offered as an access point. Both are wrong for the same reason - a 3GPP link is a
+  // link to a base station, not to a patch lead.
+  //
+  // Rates are the category peak the vendor publishes, not a per-device round number, so a
+  // Cat 4 modem is 150 Mbps whatever its marketing department says.
+  'lte': { name: 'LTE Cat 4', family: 'wireless', connector: 'wwan', speedMbps: 150, maxRangeM: null },
+  'lte-a': { name: 'LTE-A Cat 6+', family: 'wireless', connector: 'wwan', speedMbps: 300, maxRangeM: null },
+  '5g-sub6': { name: '5G NR sub-6', family: 'wireless', connector: 'wwan', speedMbps: 2500, maxRangeM: null },
+  '5g-mmwave': { name: '5G NR mmWave', family: 'wireless', connector: 'wwan', speedMbps: 4000, maxRangeM: null }
 };
 
 function mediaById(id) { return MEDIA[id] || null; }
@@ -273,7 +288,11 @@ const CAGES = {
   powerline: { name: 'Mains', family: 'powerline', label: 'Mains plug' },
   console: { name: 'Console', family: 'management', label: 'Console (RS-232)' },
   usb: { name: 'USB', family: 'management', label: 'USB' },
-  antenna: { name: 'Antenna', family: 'wireless', label: 'Wireless radio' }
+  antenna: { name: 'Antenna', family: 'wireless', label: 'Wireless radio' },
+  // A cellular modem. Same family as an antenna - it carries no power and takes no cable -
+  // but a distinct cage, because "this box has a 5G radio" and "this box has a Wi-Fi radio"
+  // are different facts about it and the link inspector should not have to guess which.
+  wwan: { name: 'Cellular', family: 'wireless', label: 'Cellular (3GPP) modem' }
 };
 
 // Which cages can physically mate with which.
@@ -378,6 +397,13 @@ function polishMismatch(a, b) {
 // per-cage media + speed capabilities
 // ---------------------------------------------------------------------------
 const CAGE_MEDIA = {
+  // A cellular cage offers the 3GPP generations it is fast enough for, slowest first, and
+  // always at least LTE - a modem that names a rate below the LTE floor is still a modem.
+  wwan: function (maxMbps) {
+    const order = ['lte', 'lte-a', '5g-sub6', '5g-mmwave'];
+    const out = order.filter(function (id) { return MEDIA[id].speedMbps <= maxMbps; });
+    return out.length ? out : ['lte'];
+  },
   rj45: function (maxMbps) {
     const out = ['10base-t', '100base-tx', '1000base-t'];
     if (maxMbps >= 2500) out.push('2.5gbase-t');
@@ -501,6 +527,10 @@ const CAGE_MEDIA = {
 };
 
 const CAGE_SPEEDS = {
+  // A cellular cage has no rate ladder of its own: the modem's category IS the rate. Falling
+  // back to the copper ladder here made every modem "claim a line rate its cage cannot
+  // carry" (150 Mbps on a 100 Mbps cage) - the invariant misreading a radio as copper.
+  wwan: function (maxMbps) { return [maxMbps]; },
   rj45: function (maxMbps) {
     const out = [10, 100, 1000];
     if (maxMbps >= 2500) out.push(2500);
@@ -625,6 +655,10 @@ function inferCage(ifaceSpec, maxMbps) {
   // can plug into" goes by cage - offered as somewhere to plug a patch lead in, even
   // though validateLink refused the cable. The refusal was never the problem; the
   // description was (issue #77).
+  // A cellular modem is neither copper nor Wi-Fi (issue #129). The name is checked before
+  // the type because specs write these ports as `type: wireless` (borrowing the radio
+  // family), and the type rule below would otherwise claim them for Wi-Fi.
+  if (/^(?:wwan\d*|wan5g|modem\d*|lte\d*|nr5g|nr\d*|5g\d*)(?:$|[.\-_ /])/.test(name)) return 'wwan';
   if (WIRELESS_TYPE.test(type)) return 'antenna';
   if (type === 'console') return 'console';
   if (type === 'usb') return 'usb';
@@ -749,6 +783,11 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     const m = MEDIA[id];
     if (!m || !m.speedMbps) return true;
     if (m.fiber) return true; // optical reach is budgeted, not rate-capped per medium
+    // A 3GPP air interface is not rate-limited by its cage: the port's declared rate is the
+    // modem's category, and the medium names the generation it speaks. Filtering here left
+    // two modems declared at 100 Mbps with no media at all, which is worse than a slow
+    // link - it is a port that cannot form any link (issue #129).
+    if (m.family === 'wireless' && m.connector === 'wwan') return true;
     return m.speedMbps <= maxMbps;
   });
 

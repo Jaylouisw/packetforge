@@ -370,7 +370,7 @@ layer exists in `engine/bgp.js` today.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | 18 cages and 57 media across eight families (copper, fiber, dac, coax, dsl, powerline, console, wireless). Count them with `node -e "console.log(Object.keys(require('./engine/media').MEDIA).length)"`. | `engine/media.js:54`, `engine/media.js:157` |
+| **Modelled** | 19 cages and 64 media across eight families (copper, fiber, dac, coax, dsl, powerline, console, wireless). Count them with `node -e "console.log(Object.keys(require('./engine/media').MEDIA).length)"`. | `engine/media.js:54`, `engine/media.js:157` |
 | **Modelled** | Port hardware is derived from a terse spec (`{name, type, speed}` → cage, media, speed caps, PoE in/out). | `engine/media.js:562-641` |
 | **Modelled** | An unrecognised cage is reported as unknown — no silent fallback to RJ45 and no fake media set. | `engine/media.js:574-586` |
 | **Modelled** | The three-test mating rule: cages mate → shared medium → common speed. | `engine/media.js:744-786` |
@@ -550,7 +550,7 @@ so the next reader does not have to rediscover them.
 
 | Document | Says | Reality |
 |---|---|---|
-| `README.md:84` | "53 media types across eight families and 18 connector cages" | 18 cages is right; the catalogue holds **57** media (`engine/media.js:54`). |
+| `README.md:84` | "53 media types across eight families and 18 connector cages" | 18 cages became 19 with the cellular cage (#129); the catalogue holds **64** media (`engine/media.js:54`). |
 | `README.md:80` | "91 models / 17 vendors" | The catalogue loads **905** specs across **199** vendors at this tree. |
 | `README.md:19-21` | "Real simulation … MAC learning, flooding, ARP, longest-prefix routing, default gateways, TTL decrement and ICMP echo/reply" | Accurate — and that is the whole list. It is a statement of scope, not an understatement. |
 | `README.md:24-28` | "Physically accurate … impossible cables are refused, not drawn" | Accurate and well tested; just remember [§6.6](#66-cable-length) — length is otherwise cosmetic. |
