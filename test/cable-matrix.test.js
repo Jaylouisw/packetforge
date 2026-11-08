@@ -162,6 +162,11 @@ const EXPECTED_ROWS = [
   ['sfp+', 'sfp+', 'accept'],
   ['sfp+', 'sfp28', 'accept'],
   ['sfp28', 'sfp28', 'accept'],
+  // SFP56 is the 50G member of the SFP family: an SFP28 module seats in it and runs at 25G,
+  // and a QSFP of any flavour does not fit at all.
+  ['sfp28', 'sfp56', 'accept'],   // the module decides the rate, and the catalogue has 1G SFP28 ports too
+  ['sfp56', 'sfp56', 'accept'],
+  ['sfp56', '*', 'refuse'],
 
   // ---- QSFP family: QSFP-DD takes the older modules and runs at their rate ----
   ['qsfp+', 'qsfp+', 'accept'],
@@ -202,6 +207,22 @@ const EXPECTED_ROWS = [
   // ---- radio: an antenna mates with an antenna, nothing else ----
   ['antenna', 'antenna', 'accept'],
 
+  // ---- Fibre Channel: the same socket, a different protocol ----
+  // The physical mating follows the SFP family exactly; what the link carries does not. An
+  // FC optic in an Ethernet SFP+ socket is a cable you can plug in and never pass a frame on,
+  // which is why these pairs refuse with E_PROTOCOL_MISMATCH rather than mating happily.
+  ['fc-sfp', 'fc-sfp', 'accept'],
+  ['fc-sfp', 'fc-sfp28', 'accept'],
+  ['fc-sfp', 'fc-sfpdd', 'accept'],
+  ['fc-sfp28', 'fc-sfp28', 'accept'],
+  ['fc-sfp28', 'fc-sfpdd', 'accept'],
+  ['fc-sfpdd', 'fc-sfpdd', 'accept'],
+  ['fc-qsfp28', 'fc-qsfp28', 'accept'],
+  ['fc-sfp', '*', 'refuse'],
+  ['fc-sfp28', '*', 'refuse'],
+  ['fc-sfpdd', '*', 'refuse'],
+  ['fc-qsfp28', '*', 'refuse'],
+
   // ---- everything else is impossible ----
   // Note the shape of these: a cage named on the left, '*' on the right. Every
   // cage gets exactly one such row, so a new cage in the catalogue fails the
@@ -209,9 +230,16 @@ const EXPECTED_ROWS = [
   ['rj45', '*', 'refuse'],        // no optical cage takes an RJ45 plug
   ['combo', '*', 'refuse'],       // and a combo position takes nothing wider
   ['sfp', '*', 'refuse'],         // SFP cages never meet QSFP or a PON ferrule
+  ['sfp+', 'fc-sfp', 'refuse:protocol'],
+  ['sfp+', 'fc-sfp28', 'refuse:protocol'],
+  ['sfp+', 'fc-sfpdd', 'refuse:protocol'],
   ['sfp+', '*', 'refuse'],
+  ['sfp28', 'fc-sfp', 'refuse:protocol'],
+  ['sfp28', 'fc-sfp28', 'refuse:protocol'],
+  ['sfp28', 'fc-sfpdd', 'refuse:protocol'],
   ['sfp28', '*', 'refuse'],
   ['qsfp+', '*', 'refuse'],       // nor does a QSFP cage take an SFP module
+  ['qsfp28', 'fc-qsfp28', 'refuse:protocol'],
   ['qsfp28', '*', 'refuse'],
   ['qsfpdd', '*', 'refuse'],
   ['sc-apc', '*', 'refuse'],      // SC and LC are different shapes entirely
@@ -284,6 +312,17 @@ function problemsFor(A, B, want, v) {
   } else if (!wantAccept && want === 'refuse:polish' && v.ok === false &&
              codesOf(v).indexOf('E_POLISH_MISMATCH') === -1) {
     p.push('refused for the wrong reason: expected E_POLISH_MISMATCH, got ' + codesOf(v));
+  } else if (!wantAccept && want.indexOf('refuse:') === 0 && want !== 'refuse:polish' &&
+             v.ok === false) {
+    // 'refuse:<reason>' pins the refusal to a named reason, because "refused" and "refused for
+    // the right reason" are different claims. A Fibre Channel optic in an Ethernet socket is
+    // physically possible and protocol-impossible, and a test that only asserts "refused" would
+    // still pass if the engine refused it for a connector mismatch it does not have.
+    const WHY = { protocol: 'E_PROTOCOL_MISMATCH', speed: 'E_NO_COMMON_SPEED' };
+    const expected = WHY[want.slice(7)];
+    if (expected && codesOf(v).indexOf(expected) === -1) {
+      p.push('refused for the wrong reason: expected ' + expected + ', got ' + codesOf(v));
+    }
   } else if (!wantAccept && v.ok) {
     p.push('ACCEPTED a link the table says is impossible' +
       (v.mediaId ? ' (as ' + v.mediaId + ' @' + v.speedMbps + ' Mbps)' : ''));

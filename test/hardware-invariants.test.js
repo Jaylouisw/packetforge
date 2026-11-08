@@ -54,8 +54,12 @@ function claimsOptics(desc) {
   );
 }
 
-const OPTICAL = ['sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd',
-                 'sc-apc', 'sc-upc', 'lc-upc', 'lc-apc'];
+const OPTICAL = ['sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56',
+                 'sc-apc', 'sc-upc', 'lc-upc', 'lc-apc',
+                 // Fibre Channel cages are optical too: an FC switch whose description says
+                 // "48 x 64G SFP+" is not lying about having optics just because the cage
+                 // belongs to the FC family rather than the Ethernet one.
+                 'fc-sfp', 'fc-sfp28', 'fc-sfpdd', 'fc-qsfp28'];
 
 console.log('Every device exposes ports it can actually cable:');
 {
@@ -213,10 +217,10 @@ console.log('\nCages and media agree with each other:');
         ? cageSpeeds(Math.max(top, declared || 0))
         : (cageSpeeds || []);
       const cageTop = cageRates.length ? Math.max.apply(null, cageRates) : 0;
-      // Fibre Channel has no cage and no medium in this model, so a 64G FC port is carried in
-      // an SFP+ cage and reads as a 40G claim on a 10G cage. That is a missing technology, not
-      // a port lying about its own connector - issue #980 tracks adding FC.
-      const fcish = /fibre channel|fc san|gen\s*\d+\s*fc/i.test(String(x.spec.description || ''));
+      // Fibre Channel used to be exempt here because it had no cage and no medium of its own,
+      // so a 64G FC port riding in an SFP+ cage read as a 40G claim on a 10G cage (#980). It
+      // has fc-sfp / fc-sfp28 / fc-sfpdd / fc-qsfp28 now, so FC is judged by the same rule as
+      // Ethernet: the ladder a port declares must fit the cage it is in.
       // A DSL line port is SUPPOSED to be slow: ADSL2+ tops out at 24 Mbit/s and
       // ADSL at 8. Flagging that as a defect would push contributors to inflate the
       // one number a DSLAM must state honestly. PON is exempt for the same reason
@@ -235,7 +239,7 @@ console.log('\nCages and media agree with each other:');
       // port 9.953, so allow a couple of percent before calling it a claim the cage
       // cannot carry. Compare against cageTop (what the cage can carry), not against
       // the port's own caps.
-      if (declared && cageTop && declared > cageTop * 1.02 && !fcish) {
+      if (declared && cageTop && declared > cageTop * 1.02) {
         overreach.push(x.spec.model + '/' + i.name + ' claims ' + declared +
           ' Mbps on a ' + cageTop + ' Mbps ' + i.hardware.cage + ' cage');
       }

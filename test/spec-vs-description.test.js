@@ -41,7 +41,9 @@ function t(name, fn) {
 function ok(cond, msg) { if (!cond) throw new Error(msg); }
 
 // "8x 10G SFP+", "24x 1G RJ45", "2x 25G SFP28" - a count, a rate, a connector.
-const CLAIM = /(\d+)\s*[x\u00d7]\s*(\d+(?:\.\d+)?)\s*([GM])\s*(?:b?E)?\s*(RJ-?45|SFP28|SFP\+|SFP|QSFP28|QSFP56|QSFP-DD|QSFP\+|QSFP|XFP)/gi;
+// SFP56 and QSFP56 must be tried before SFP and QSFP, or "8x 50G SFP56" parses as "8x 50G SFP"
+// and the trailing 56 is left in the description as if it were prose.
+const CLAIM = /(\d+)\s*[x\u00d7]\s*(\d+(?:\.\d+)?)\s*([GM])\s*(?:b?E)?\s*(RJ-?45|SFP56|SFP28|SFP\+|SFP|QSFP56|QSFP28|QSFP-DD|QSFP\+|QSFP|XFP)/gi;
 
 const ORDER = ['sfp', 'sfp+', 'sfp28'];
 const QORDER = ['qsfp+', 'qsfp28', 'qsfp56', 'qsfpdd'];
@@ -50,6 +52,11 @@ function cageMatches(cage, want) {
   if (cage === want) return true;
   // A combo position is an RJ45 or an SFP-family module, never both at once.
   if (cage === 'combo' && ['rj45', 'sfp', 'sfp+', 'sfp28'].indexOf(want) !== -1) return true;
+  // Fibre Channel has its own ladder, and it is the same shape: an SFP-DD socket takes a 32G or
+  // an 8G module, an SFP28 socket takes an 8G module, and a QSFP28 FC port is four lanes and
+  // takes nothing smaller than a 32G quad.
+  const FCORDER = ['fc-sfp', 'fc-sfp28', 'fc-sfpdd'];
+  if (FCORDER.indexOf(want) !== -1 && FCORDER.indexOf(cage) > FCORDER.indexOf(want)) return true;
   // A faster cage takes the slower module, exactly as a 1G SFP seats in an SFP+ port.
   if (ORDER.indexOf(want) !== -1 && ORDER.indexOf(cage) > ORDER.indexOf(want)) return true;
   if (QORDER.indexOf(want) !== -1 && QORDER.indexOf(cage) > QORDER.indexOf(want)) return true;
@@ -68,7 +75,6 @@ const KNOWN = {
   'adtran/SDX 6320': '#987 (uplinks not modelled)',
   'fiberhome/AN5516-01': '#987 (uplinks not modelled)',
   'huawei/MA5600T': '#987 (uplinks not modelled)',
-  'mikrotik/CRS812-8DS-2DQ-2DDQ-RM': '#980 (200G/50G cages are new; description being corrected)',
 };
 
 console.log('Descriptions and ports agree:');
@@ -78,20 +84,31 @@ t('no device promises more ports of a kind than it has', () => {
   for (const { spec, ifaces } of all) {
     const desc = String(spec.description || '');
     if (!desc) continue;
-    // Fibre Channel has no cage or medium in this model, so an FC port rides in an SFP+ cage
-    // and no Ethernet cage can satisfy the claim (issue #980).
-    if (/fibre channel|fc san/i.test(desc)) continue;
+    // An FC claim names the FC rate, which is not a bit rate: "64G" means 57.8 Gbit/s because
+    // Fibre Channel frames its payload (8b/10b up to 8G, 64b/66b above). Mapping the name to
+    // the line rate is what lets "48 x 64G SFP+" be checked against a 57800 Mbps port.
+    const fcDevice = /fibre channel|fc san|connectrix|san switch|gen\s*\d+\s*fc/i.test(desc);
     // Everything after "optional" describes a module the buyer may add, not ports in the box.
     const installed = desc.split(/optional/i)[0].split(/up to/i)[0];
     let m;
     CLAIM.lastIndex = 0;
     while ((m = CLAIM.exec(installed)) !== null) {
       const count = Number(m[1]);
-      const rate = Number(m[2]) * (m[3].toUpperCase() === 'G' ? 1000 : 1);
+      // "64G" on an FC device means 57.8 Gbit/s, not 64000 Mbps: Fibre Channel wraps its
+      // payload in 8b/10b framing up to 8G and 64b/66b above it, so the marketing name is
+      // always higher than the line rate. Reading it as a bit rate makes an honest 64G port
+      // look like it under-delivers by 10%.
+      const FC_LINE = { 2: 2125, 4: 4250, 8: 8500, 16: 14025, 32: 28050, 64: 57800, 128: 112200 };
+      const fcRate = m[3].toUpperCase() === 'G' && fcDevice && FC_LINE[Number(m[2])];
+      const rate = fcRate || Number(m[2]) * (m[3].toUpperCase() === 'G' ? 1000 : 1);
       const kind = m[4].toUpperCase().replace(/-/g, '');
-      const want = kind === 'RJ45' ? 'rj45' : kind === 'SFP+' ? 'sfp+' : kind === 'SFP28' ? 'sfp28'
-        : kind === 'SFP' ? 'sfp' : kind === 'QSFP28' ? 'qsfp28' : kind === 'QSFP56' ? 'qsfp56'
-          : kind === 'QSFP+' ? 'qsfp+' : kind === 'QSFP' ? 'qsfp+' : kind === 'XFP' ? 'sfp+' : 'qsfpdd';
+      // On an FC switch, "SFP+" in the description means an FC SFP+ cage, not an Ethernet one.
+      const want = fcDevice
+        ? (kind === 'SFP28' || kind === 'SFP56' ? 'fc-sfp28' : kind === 'SFP' || kind === 'SFP+' ? 'fc-sfp'
+          : kind === 'QSFP28' || kind === 'QSFP' || kind === 'QSFP+' ? 'fc-qsfp28' : 'fc-sfpdd')
+        : kind === 'RJ45' ? 'rj45' : kind === 'SFP+' ? 'sfp+' : kind === 'SFP28' ? 'sfp28'
+          : kind === 'SFP' ? 'sfp' : kind === 'SFP56' ? 'sfp56' : kind === 'QSFP28' ? 'qsfp28' : kind === 'QSFP56' ? 'qsfp56'
+            : kind === 'QSFP+' ? 'qsfp+' : kind === 'QSFP' ? 'qsfp+' : kind === 'XFP' ? 'sfp+' : 'qsfpdd';
       const usable = ifaces.filter(function (p) {
         const cage = (p.hardware && p.hardware.cage) || '';
         if (!cageMatches(cage, want)) return false;

@@ -60,6 +60,34 @@ const MEDIA = {
   '5gbase-t': { name: '5GBASE-T', family: 'copper', connector: 'rj45', speedMbps: 5000, maxRangeM: 100, cable: 'cat6', poe: true },
   '10gbase-t': { name: '10GBASE-T', family: 'copper', connector: 'rj45', speedMbps: 10000, maxRangeM: 100, cable: 'cat6a', poe: false },
 
+  // 50G in SFP form: 50GBASE-SR/LR ride an SFP56 module, which is an SFP28 socket width with
+  // two 25G lanes. Modelling them as 25G (the nearest SFP28 rate) understates the port, and
+  // modelling them as QSFP would give the wrong connector.
+  '50gbase-sr': { name: '50GBASE-SR', family: 'fiber', connector: 'lc', speedMbps: 50000, maxRangeM: 100,  fiber: 'mmf', wavelengthNm: 850 },
+  '50gbase-lr': { name: '50GBASE-LR', family: 'fiber', connector: 'lc', speedMbps: 50000, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310 },
+
+  // ---- Fibre Channel ----
+  // The "G" in an FC part name is not the line rate. 2GFC runs at 2.125 Gbit/s, 4G at 4.25,
+  // 8G at 8.5, 16G at 14.025, 32G at 28.05 and 64G at 57.8, because FC wraps its payload in
+  // 8b/10b (up to 8G) or 64b/66b framing. Modelling a "64G" port as 64000 Mbps would let it
+  // negotiate with a 100G Ethernet port it has nothing in common with.
+  '10gfc-sw': { name: '10GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 10519, maxRangeM: 300, fiber: 'mmf', wavelengthNm: 850, fcRate: 10 },
+  '10gfc-lw': { name: '10GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 10519, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 10 },
+  '2gfc-sw':  { name: '2GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 2125,  maxRangeM: 300,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 2 },
+  '2gfc-lw':  { name: '2GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 2125,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 2 },
+  '4gfc-sw':  { name: '4GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 4250,  maxRangeM: 150,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 4 },
+  '4gfc-lw':  { name: '4GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 4250,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 4 },
+  '8gfc-sw':  { name: '8GFC-SW',  family: 'fibre-channel', connector: 'lc', speedMbps: 8500,  maxRangeM: 150,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 8 },
+  '8gfc-lw':  { name: '8GFC-LW',  family: 'fibre-channel', connector: 'lc', speedMbps: 8500,  maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 8 },
+  '16gfc-sw': { name: '16GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 14025, maxRangeM: 100,  fiber: 'mmf',  wavelengthNm: 850,  fcRate: 16 },
+  '16gfc-lw': { name: '16GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 14025, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 16 },
+  '32gfc-sw': { name: '32GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 28050, maxRangeM: 70,   fiber: 'mmf',  wavelengthNm: 850,  fcRate: 32 },
+  '32gfc-lw': { name: '32GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 28050, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 32 },
+  '64gfc-sw': { name: '64GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 57800, maxRangeM: 30,   fiber: 'mmf',  wavelengthNm: 850,  fcRate: 64 },
+  '128gfc-sw': { name: '128GFC-SW', family: 'fibre-channel', connector: 'lc', speedMbps: 112200, maxRangeM: 30, fiber: 'mmf', wavelengthNm: 850, fcRate: 128 },
+  '128gfc-lw': { name: '128GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 112200, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 128 },
+  '64gfc-lw': { name: '64GFC-LW', family: 'fibre-channel', connector: 'lc', speedMbps: 57800, maxRangeM: 10000, fiber: 'smf', wavelengthNm: 1310, fcRate: 64 },
+
   // ---- fiber, 1G ----
   '1000base-sx': { name: '1000BASE-SX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 550, fiber: 'mmf', wavelengthNm: 850 },
   '1000base-lx': { name: '1000BASE-LX', family: 'fiber', connector: 'lc', speedMbps: 1000, maxRangeM: 10000, fiber: 'both', wavelengthNm: 1310 },
@@ -288,6 +316,15 @@ const CAGES = {
   // physically fits it, and a 200G module in a QSFP28 cage would claim a rate the cage
   // cannot carry.
   qsfp56: { name: 'QSFP56', family: 'optical', label: 'QSFP56 cage (200G)' },
+  // Fibre Channel gets its own cages rather than borrowing the Ethernet ones. The connector is
+  // the same (LC on SFP/SFP28, SFP-DD for 64G) but the rate ladder is not: if FC rates lived in
+  // the Ethernet cages, an SFP+ port that declares no speedCaps would inherit 8G/16G as its
+  // defaults and an Ethernet-to-Ethernet link could negotiate a Fibre Channel rate.
+  sfp56: { name: 'SFP56', family: 'optical', label: 'SFP56 cage (50G)' },
+  'fc-sfp': { name: 'SFP+ (FC)', family: 'fibre-channel', label: 'SFP+ cage, Fibre Channel 2/4/8/16G' },
+  'fc-sfp28': { name: 'SFP28 (FC)', family: 'fibre-channel', label: 'SFP28 cage, Fibre Channel 32G' },
+  'fc-sfpdd': { name: 'SFP-DD (FC)', family: 'fibre-channel', label: 'SFP-DD cage, Fibre Channel 64G' },
+  'fc-qsfp28': { name: 'QSFP28 (FC)', family: 'fibre-channel', label: 'QSFP28 cage, Fibre Channel 128G (4 lanes)' },
   // SC is the PON connector. APC and UPC are separate cages deliberately: an
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
   // about 3 dB of loss and can chip the endface.
@@ -352,16 +389,25 @@ const CAGE_ALIAS = {
 const CAGE_MATE = {
   rj45: ['rj45', 'combo'],
   combo: ['combo', 'rj45', 'sfp', 'sfp+', 'sfp28'],
-  sfp: ['sfp', 'sfp+', 'sfp28', 'combo'],
-  'sfp+': ['sfp', 'sfp+', 'sfp28', 'combo'],
-  sfp28: ['sfp', 'sfp+', 'sfp28', 'combo'],
+  sfp: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28'],
+  'sfp+': ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
+  sfp28: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo', 'fc-sfp', 'fc-sfp28', 'fc-sfpdd'],
+  sfp56: ['sfp', 'sfp+', 'sfp28', 'sfp56', 'combo'],
   'qsfp+': ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
-  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56'],
+  qsfp28: ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56', 'fc-qsfp28'],
   // A QSFP-DD cage takes a QSFP28 or QSFP+ module and negotiates down to that
   // module's rate. Refusing the pair would make a 400G port unable to accept the
   // 100G optic most labs actually have.
   qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+', 'qsfp56'],
   qsfp56: ['qsfp56', 'qsfp28', 'qsfp+'],
+  // The FC cages mate with the Ethernet cages because the hardware does: an SFP+ socket takes
+  // an 8G FC optic exactly as it takes a 10GBASE-SR one. What cannot join is the *link* - the
+  // media lists have no common member, and canMate() names that as a protocol mismatch rather
+  // than shrugging at "no shared medium".
+  'fc-sfp': ['fc-sfp', 'sfp+', 'sfp28', 'fc-sfp28', 'fc-sfpdd'],
+  'fc-sfp28': ['fc-sfp28', 'fc-sfp', 'sfp28', 'sfp+', 'fc-sfpdd'],
+  'fc-sfpdd': ['fc-sfpdd', 'fc-sfp28', 'fc-sfp', 'sfp28', 'sfp+'],
+  'fc-qsfp28': ['fc-qsfp28', 'qsfp28'],
   // SC never mates across polish: APC to APC, UPC to UPC, nothing else.
   'sc-apc': ['sc-apc'],
   'sc-upc': ['sc-upc'],
@@ -473,6 +519,20 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  sfp56: function () { return ['50gbase-sr', '50gbase-lr', '25gbase-sr', '25gbase-lr', 'dac-25g']; },
+  'fc-sfp': function () {
+    return ['2gfc-sw', '2gfc-lw', '4gfc-sw', '4gfc-lw', '8gfc-sw', '8gfc-lw', '10gfc-sw', '10gfc-lw', '16gfc-sw', '16gfc-lw'];
+  },
+  'fc-sfp28': function () {
+    // A 32G port runs 16G and 8G optics at their own rate; FC negotiates down the ladder.
+    return ['32gfc-sw', '32gfc-lw', '16gfc-sw', '16gfc-lw', '8gfc-sw', '8gfc-lw'];
+  },
+  'fc-sfpdd': function () {
+    return ['64gfc-sw', '64gfc-lw', '32gfc-sw', '32gfc-lw', '16gfc-sw', '16gfc-lw'];
+  },
+  'fc-qsfp28': function () {
+    return ['128gfc-sw', '128gfc-lw', '32gfc-sw', '32gfc-lw'];
+  },
   qsfp56: function () {
     return ['200gbase-dr4', '200gbase-fr4',
             // QSFP28/QSFP+ modules seat in a QSFP56 cage and run at their own rate
@@ -609,6 +669,11 @@ const CAGE_SPEEDS = {
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
   qsfp56: function () { return [40000, 100000, 200000]; },
+  'fc-sfp': function () { return [2125, 4250, 8500, 10519, 14025]; },
+  sfp56: function () { return [25000, 50000]; },
+  'fc-sfp28': function () { return [8500, 14025, 28050]; },
+  'fc-sfpdd': function () { return [14025, 28050, 57800]; },
+  'fc-qsfp28': function () { return [28050, 112200]; },
   qsfpdd: function (maxMbps) {
     const out = [40000, 100000, 200000, 400000];
     return out.filter(function (v) { return v <= maxMbps; });
@@ -778,7 +843,14 @@ function wirelessBands(spec, maxMbps, dev) {
 function derivePortHardware(ifaceSpec, deviceSpec) {
   const spec = ifaceSpec || {};
   const dev = deviceSpec || {};
-  const maxMbps = parseSpeedMbps(spec.speed) || 1000;
+  // A port's declared speedCaps are what it can actually train at; `speed` is the label on the
+  // box. Fibre Channel makes the difference visible: a "32G" FC port runs at 28.05 Gbit/s, so
+  // taking the label as the rate would claim 32000 Mbps on a 28050 Mbps cage.
+  const capMbps = (Array.isArray(spec.speedCaps) ? spec.speedCaps : [])
+    .map(function (c) { return typeof c === 'number' ? c : parseSpeedMbps(c); })
+    .filter(function (n) { return typeof n === 'number' && isFinite(n) && n > 0; });
+  const maxMbps = capMbps.length ? Math.max.apply(null, capMbps)
+    : (parseSpeedMbps(spec.speed) || 1000);
   let cage = String(spec.cage || spec.connector || inferCage(spec, maxMbps));
 
   // A handful of spec authors write the bare fibre token ('lc') because that is what
@@ -1120,6 +1192,24 @@ function canMate(pa, pb) {
     // A pair that shares a single-strand id but no complementary half is refused for a
     // physical reason, and "no shared medium" would hide it: both ports agree perfectly
     // on what they carry. Say what is actually wrong first (issue #97).
+    // An FC optic seats in the same socket as an Ethernet one, so the connector check passes and
+    // the failure looks mysterious. It is not a cabling problem: the two ends carry different
+    // protocols and no module in either port speaks the other's language.
+    const famsA = new Set((pa.media || []).map(function (id) { return MEDIA[id] && MEDIA[id].family; }));
+    const famsB = new Set((pb.media || []).map(function (id) { return MEDIA[id] && MEDIA[id].family; }));
+    const aFc = famsA.has('fibre-channel'), bFc = famsB.has('fibre-channel');
+    if (aFc !== bFc) {
+      const fcPort = aFc ? pa : pb;
+      const ethPort = aFc ? pb : pa;
+      return {
+        ok: false, code: 'E_PROTOCOL_MISMATCH',
+        message: fcPort.cageName + ' is a Fibre Channel port and ' + ethPort.cageName +
+          ' is Ethernet. The connector is the same LC/SFP family and the optic will even seat, ' +
+          'but Fibre Channel carries FC frames at its own rate ladder (8/16/32/64G run at ' +
+          '8.5/14.025/28.05/57.8 Gbit/s) and an Ethernet port has no FC login, so no frame ' +
+          'ever crosses. Put an FC HBA or switch on the other end.'
+      };
+    }
     const bidi = biDiRefusal(pa, pb);
     if (bidi) return bidi;
     return {

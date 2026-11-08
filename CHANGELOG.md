@@ -1,3 +1,28 @@
+## Unreleased
+
+### Added
+
+- **Fibre Channel is a first-class link type** (#980). Four FC cages (`fc-sfp`, `fc-sfp28`,
+  `fc-sfpdd`, `fc-qsfp28`), sixteen FC media across 2/4/8/10/16/32/64/128G, and the real rate
+  ladder: a 32G port runs at 28.05 Gbit/s and a 64G port at 57.8, because FC frames its payload.
+  Two FC ports link and negotiate down the ladder; an FC port cabled to an Ethernet port is refused
+  with `E_PROTOCOL_MISMATCH` naming both protocols, since the optic seats and the frames never
+  cross. Seven SAN switches moved from Ethernet cages to FC ones, including Dell DS-6630B, which
+  was hiding 96 × 32G and 8 × 128GFC behind an SFP28 model. See [docs/FIBRE-CHANNEL.md](docs/FIBRE-CHANNEL.md).
+- **SFP56 cage and 50GBASE-SR/LR**, so a 50G SFP-form port is neither understated as 25G nor given
+  a QSFP connector.
+
+### Fixed
+
+- `derivePortHardware` took a port's line rate from its `speed` label instead of its `speedCaps`.
+  Where the two disagree the caps are the truth, and on `qlogic/5800V` the disagreement was a real
+  one: 32G of FC claimed as 32000 Mbps on a 28050 Mbps port.
+- The `qlogic/5800V` notes said its ports were "modelled at the nearest step (10G) with the real
+  2/4/8G rates in speedCaps" — true when written, false once FC had cages. Its 4 ISL ports are now
+  10GFC and the note describes what the model actually does.
+- `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
+  check learned that `SFP56` is not `SFP`.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

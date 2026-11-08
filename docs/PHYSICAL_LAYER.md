@@ -221,3 +221,10 @@ switch# show vlan brief
 3. Add a test to `test/validation.test.js` covering the new compatibility case.
 
 No other code changes are required — the UI and API read the catalogue dynamically.
+
+## Protocol families
+
+A cage decides what physically mates; the medium decides what protocol the link carries. Ethernet
+and Fibre Channel share the SFP socket family and share nothing else, so FC has its own cages and
+its own rate ladder, and an FC-to-Ethernet cable is refused by name. See
+[FIBRE-CHANNEL.md](FIBRE-CHANNEL.md).
