@@ -695,4 +695,10 @@ if (failed) {
 } else {
   console.log('OK: every pair matches the specification.');
 }
+// The runner reads a "<n> passed, <m> failed" line. This suite used to print only a verdict,
+// so its pairs never reached the assertion totals - the only suite in the repo that the
+// runner had to flag as "no summary line". Its own verdict stays, because it says more.
+const checks = results.length;
+const failures = findings + unprobed.length;
+console.log((checks - findings) + ' passed, ' + failures + ' failed');
 process.exit(failed ? 1 : 0);
