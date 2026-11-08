@@ -1,0 +1,24 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UP-AI-Port",
+  "label": "UniFi AI Port",
+  "category": "iot",
+  "description": "UniFi AI Port (UP-AI-Port) - an inline appliance that adds AI detection to an existing camera: one GbE RJ45 in with PoE passthrough to the camera it sits in front of.",
+  "capabilities": [
+    "poe-pd",
+    "poe-pse",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/up-ai-port",
+  "notes": "Vendor figures from Ubiquiti techspecs: (1) GbE RJ45 port; PoE passthrough is conditional on what the port is fed - PoE+ input is required for 12.95 W of PoE output, and PoE++ input for PoE+ output. Modelled with a single eth0, poeIn 12.95 W, and both poe-pd and poe-pse capabilities because it is simultaneously powered and powering."
+}

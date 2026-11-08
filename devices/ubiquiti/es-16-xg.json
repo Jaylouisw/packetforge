@@ -1,0 +1,181 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ES-16-XG",
+  "label": "EdgeSwitch 16 XG",
+  "category": "switch",
+  "description": "EdgeSwitch 16 XG (ES-16-XG) - 12x 1/10G SFP+ and 4x 1/10G RJ45, plus an RJ45 serial console port. A 16-port 10G aggregation switch with a deliberately mixed cage/copper half-row.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16-xg",
+  "notes": "Vendor figures from Ubiquiti techspecs: 12x 1/10 Gbps SFP+ Ethernet ports, 4x 1/10 Gbps RJ45 Ethernet ports and 1x RJ45 serial port; maximum power consumption 36 W excluding SFP/SFP+ modules. The four copper ports sit in the same 10G budget as the cages, so they are modelled at 10G with 1G in speedCaps rather than at 1G."
+}

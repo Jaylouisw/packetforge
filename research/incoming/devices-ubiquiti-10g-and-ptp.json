@@ -1,0 +1,245 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "ES-16-XG",
+    "label": "EdgeSwitch 16 XG",
+    "category": "switch",
+    "description": "EdgeSwitch 16 XG (ES-16-XG) - 12x 1/10G SFP+ and 4x 1/10G RJ45, plus an RJ45 serial console port. A 16-port 10G aggregation switch with a deliberately mixed cage/copper half-row.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp9",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp10",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp11",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "sfp12",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          "10G",
+          "1G"
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16-xg",
+    "notes": "Vendor figures from Ubiquiti techspecs: 12x 1/10 Gbps SFP+ Ethernet ports, 4x 1/10 Gbps RJ45 Ethernet ports and 1x RJ45 serial port; maximum power consumption 36 W excluding SFP/SFP+ modules. The four copper ports sit in the same 10G budget as the cages, so they are modelled at 10G with 1G in speedCaps rather than at 1G."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "AF-24HD",
+    "label": "airFiber 24 HD",
+    "category": "ptp",
+    "description": "airFiber 24 HD (AF-24HD) - a 24 GHz point-to-point radio with 2 Gbps throughput: one GbE data port, one 10/100 management port and a 50 W passive-PoE draw.",
+    "capabilities": [
+      "l3-forward",
+      "wireless",
+      "cli",
+      "http-server",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client"
+    ],
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "data",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wireless/af-24hd",
+    "notes": "Vendor figures from Ubiquiti techspecs: networking interface is (1) GbE RJ45 port plus (1) 10/100 MbE RJ45 port, so the management port is modelled at 100M and the data port at 1G; throughput 2 Gbps; 24.05-24.25 GHz; max power consumption 50 W over passive PoE 4-pair. The radio is modelled at the vendor's 2 Gbps throughput figure."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UP-AI-Port",
+    "label": "UniFi AI Port",
+    "category": "iot",
+    "description": "UniFi AI Port (UP-AI-Port) - an inline appliance that adds AI detection to an existing camera: one GbE RJ45 in with PoE passthrough to the camera it sits in front of.",
+    "capabilities": [
+      "poe-pd",
+      "poe-pse",
+      "http-server",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/up-ai-port",
+    "notes": "Vendor figures from Ubiquiti techspecs: (1) GbE RJ45 port; PoE passthrough is conditional on what the port is fed - PoE+ input is required for 12.95 W of PoE output, and PoE++ input for PoE+ output. Modelled with a single eth0, poeIn 12.95 W, and both poe-pd and poe-pse capabilities because it is simultaneously powered and powering."
+  }
+]
