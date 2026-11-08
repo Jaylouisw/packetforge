@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G6-PTZ",
+  "label": "UniFi G6 PTZ",
+  "category": "camera",
+  "description": "UniFi G6 PTZ (UVC-G6-PTZ) - 1x 100M RJ45. 802.3at PoE-in; 4K; 24.5 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g6-ptz"
+}
