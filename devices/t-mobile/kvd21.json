@@ -1,0 +1,49 @@
+{
+  "vendor": "t-mobile",
+  "model": "KVD21",
+  "label": "T-Mobile KVD21",
+  "category": "router",
+  "description": "T-Mobile 5G Gateway built by Arcadyan (KVD21), the small-business and home fixed-wireless CPE with a front LCD for signal bars, connected-device count and messages, fed by four internal wideband OMNI antennas covering the full LTE/5G band set. Wired connectivity is two RJ45 LAN ports labelled LAN1 and LAN2, and the radios are simultaneous dual-band Wi-Fi 6 with 4x4 MIMO plus the 5G NR uplink itself.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.1G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "4.8G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.t-mobile.com/support/home-internet/arcadyan-gateway",
+  "notes": "T-Mobile tech specs: 'Dual Band Wi-Fi 6 (802.11ax) with 4x4MIMO', 'WPA2/WPA3 Wi-Fi Security', 'Ethernet plugs 2xRJ-45', 'Maximum recommended devices: 64', AC adapter 12 V/1.2 A. User guide: 'The gateway has two (2) Ethernet LAN ports', referred to as LAN1 and LAN2, and 'the gateway offers 4G/LTE or 5G/NR WAN mobile network connectivity by way of four wide band OMNI antennas'. Caveat recorded honestly: T-Mobile publishes the port count but not the line rate, so each jack is modelled at 1 GbE - consistent with the 1 Gbps service cap - and wwan0 at 1G is the same cap. No WAN Ethernet port exists (cellular is the only uplink); there is no bridge mode, so a lab sees double NAT when chaining a router behind it."
+}

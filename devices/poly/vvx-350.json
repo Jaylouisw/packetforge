@@ -1,0 +1,27 @@
+{
+  "vendor": "poly",
+  "model": "VVX 350",
+  "label": "Poly VVX 350",
+  "category": "phone",
+  "description": "Poly VVX 350 six-line colour business desk phone (3.5-inch 320x240 LCD, 34 line-key appearances with pagination, Poly Acoustic Fence) that sits below the VVX 450 in the same family. Networking is a two-port Gigabit switch split into LAN and PC ports with 802.3af class-0 power draw on the LAN port, and no Wi-Fi radio unless the optional Poly Wi-Fi USB accessory is fitted.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://popp.com/wp-content/uploads/2025/07/Poly-VVX-350-Datasheet.pdf",
+  "notes": "Datasheet: 'Two-port gigabit Ethernet switch 10/100/1000Base-TX across LAN and PC ports', 'Built-in auto sensing IEEE 802.3af Power over Ethernet (Class 0) 13 W (Max)', optional 5 V DC 3 A adapter. Class 0 asks for the full 13.0 W reservation; 12.95 W is carried as the 802.3af PD ceiling (the catalogue's VVX 450 entry keeps the datasheet's 13 W figure instead). Wi-Fi only through 'optional Poly Wi-Fi USB accessory' and the two USB 2.0 ports are not modelled, so this phone is a wired-only edge host - the interesting contrast against the VVX 450 for PoE-class and LLDP-MED behaviour. VLAN via CDP/DHCP/LLDP-MED, 802.1X/EAPOL, SRTP, TLS, WebKit browser stack."
+}

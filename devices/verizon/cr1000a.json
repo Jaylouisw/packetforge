@@ -1,0 +1,65 @@
+{
+  "vendor": "verizon",
+  "model": "CR1000A",
+  "label": "Verizon CR1000A",
+  "category": "router",
+  "description": "Verizon Router CR1000A, the Wi-Fi 6E Fios gateway with a 10 Gigabit Ethernet WAN port, one 10 Gigabit and two 2.5 Gigabit LAN ports, and a coax port running MoCA 2.5 LAN for set-top and extender backhaul. Radios are three 4x4 802.11ax bands (2.4, 5 and 6 GHz) with SON band steering, and the box handles NAT/NAPT, ACL firewalling, IGMP, IPv4/IPv6 dual stack and TR-069/TR-181 management.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "coax",
+      "type": "coax",
+      "speed": "2.5G",
+      "connector": "f"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.1G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "4.8G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "4.8G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.verizon.com/content/dam/verizon/support/consumer/documents/internet/verizon-router_datasheet.pdf",
+  "notes": "Datasheet hardware configuration: 'One 10 Gigabit LAN port', 'Two 2.5 Gigabit LAN ports', 'One 10 Gigabit WAN port', 'Coax port supporting MoCA 2.5 LAN'; Wi-Fi 'One 2.4 GHz 11ax 4x4', 'One 5 GHz 11ax 4x4', 'One 6 GHz 11ax 4x4', internal antenna, 20/40/80/160 MHz, DFS, WPA2/WPA3; 'IP sharing for LAN with up to 253 users'; 'NAT and NAPT', 'Virtual Server and DMZ', 'Firewall function with Access Control List (ACL)', IGMP, 802.1P/Q, TR-069/TR-181, HTTP embedded web server. Scope correction worth flagging: the CR1000A is the Fios gateway, not a 5G FWA unit - it is included because a 10G WAN port plus 2.5G LAN plus MoCA 2.5 is exactly the multi-rate edge a lab cannot otherwise build. USB Type-C port not modelled; no CLI, management is web/TR-069 only, so cli is not claimed."
+}

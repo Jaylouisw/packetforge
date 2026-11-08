@@ -1,0 +1,22 @@
+{
+  "vendor": "amazon",
+  "model": "Kindle Paperwhite (12th Gen)",
+  "label": "Amazon Kindle Paperwhite (12th Gen)",
+  "category": "iot",
+  "description": "7-inch 300 ppi 2024 Kindle Paperwhite (model SA568B, IPX8, 16 GB). Its only network interface is a dual-band Wi-Fi radio on 2.4 and 5 GHz that supports WPA/WPA2/WPA3 and OWE, plus Bluetooth/BLE for Audible; the single physical port is USB-C for charging and sideloading. There is no Ethernet port and no USB network adapter path at all - if the SSID goes away the device is offline.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "433M"
+    }
+  ],
+  "sourceUrl": "https://digprjsurvey.amazon.com/csad/help/node/TTWjMJ2xjovvl2P5jX",
+  "notes": "Amazon's own compliance sheet for model SA568B: 'Dual-Band Wi-Fi (2.4 GHz and 5 GHz), Bluetooth and Bluetooth Low Energy', with per-band EIRP (2.4 GHz 19.5 dBm; 5 GHz B1-B3 19.0 dBm, B4 14.0 dBm) and the indoor-only 5150-5350 MHz restriction. Amazon publishes neither the 802.11 flavour nor the PHY rate; 433M is the 1x1 80 MHz 802.11ac figure for a dual-band 5 GHz client. It does not support ad-hoc/peer-to-peer Wi-Fi, and there is no 802.1X/EAP, so an enterprise SSID will not associate - worth knowing when building a lab WLAN. No Ethernet, no USB NIC, no PoE."
+}

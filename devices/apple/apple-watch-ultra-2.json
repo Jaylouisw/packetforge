@@ -1,0 +1,28 @@
+{
+  "vendor": "apple",
+  "model": "Apple Watch Ultra 2",
+  "label": "Apple Watch Ultra 2",
+  "category": "iot",
+  "description": "49 mm titanium Apple Watch Ultra 2: the radio set is Wi-Fi 4 (802.11n) on 2.4 and 5 GHz, Bluetooth 5.3, second-generation Ultra Wideband, L1+L5 dual-frequency GPS, and an LTE/UMTS modem on the GPS + Cellular SKU. It has no wired interface of any kind - charging is magnetic and there is no USB or Ethernet connector - so Wi-Fi or LTE is the only way onto the network.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "150M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://support.apple.com/en-us/111832",
+  "notes": "Apple's Connectivity block reads 'LTE and UMTS, L1+L5 Precision dual-frequency GPS, Wi-Fi 4 (802.11n), Bluetooth 5.3, Second-generation Ultra Wideband chip'. Apple's Wi-Fi note (https://support.apple.com/en-us/HT204562) adds that the watch joins 802.11b/g/n networks on 2.4 GHz or 5 GHz and will not join public networks that require a login, subscription or profile - it also only auto-joins SSIDs the paired iPhone already knows, which is a genuinely different association model from a laptop. 150M is 1x1 802.11n at 40 MHz; Apple does not publish the LTE UE category, so 100M is a deliberately conservative endpoint figure. No Ethernet, no PoE, no USB."
+}

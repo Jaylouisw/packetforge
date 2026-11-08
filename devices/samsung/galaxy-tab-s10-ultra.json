@@ -1,0 +1,28 @@
+{
+  "vendor": "samsung",
+  "model": "Galaxy Tab S10 Ultra",
+  "label": "Samsung Galaxy Tab S10 Ultra",
+  "category": "phone",
+  "description": "14.6-inch Android 14 flagship tablet (SM-X920 Wi-Fi / SM-X926B 5G) with a single Wi-Fi 7 radio covering 802.11a/b/g/n/ac/ax/be on 2.4, 5 and 6 GHz at EHT320 with MIMO and 4096-QAM, plus a 5G sub-6 GHz modem with LTE fallback on the cellular SKU. It has no Ethernet port: the only wired connector is USB-C 3.2 Gen 1, and DeX runs over that or wirelessly, so the lab reaches the tablet over Wi-Fi or cellular only.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "5.8G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "connector": "antenna",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.samsung.com/au/tablets/galaxy-tab-s/galaxy-tab-s10-ultra-gray-256gb-wifi-sm-x920nzaaxsa/",
+  "notes": "Samsung's spec sheet reads 'Wi-Fi 802.11a/b/g/n/ac/ax/be 2.4GHz+5GHz+6GHz, EHT320, MIMO, 4096-QAM', 'Wi-Fi Direct Yes', 'USB Version USB 3.2 Gen 1', 'Earjack USB Type-C'. 5.8G is the 2x2 320 MHz Wi-Fi 7 figure. The Wi-Fi-only SKU has no wwan0; the 5G SKU (SM-X926B) is 5G sub-6 GHz only (bands n1/2/3/5/7/8/12/20/25/26/28/38/40/41/66/77/78 SA/NSA), no mmWave. No Ethernet and no USB NIC is declared: USB-C is data/charge/DisplayPort."
+}

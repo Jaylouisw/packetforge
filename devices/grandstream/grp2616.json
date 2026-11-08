@@ -1,0 +1,34 @@
+{
+  "vendor": "grandstream",
+  "model": "GRP2616",
+  "label": "Grandstream GRP2616",
+  "category": "phone",
+  "description": "Grandstream GRP2616 carrier-grade six-line desk phone with two colour LCDs (4.3-inch main plus 2.4-inch extension), 16 SIP accounts and 48 virtual MPKs, aimed at hot-desking and BLF-heavy reception positions. Wired side is a pair of dual-switched 10/100/1000 ports with 802.3af PoE on the LAN port, and from hardware version 5.0 the phone also carries its own dual-band Wi-Fi 6 (2.4/5 GHz) and Bluetooth radios.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "pc",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/Datasheet_GRP2616_English.pdf",
+  "notes": "Datasheet: 'Dual switched auto-sensing 10/100/1000 Mbps Gigabit Ethernet ports with integrated PoE' (two jacks, LAN plus PC), 'Integrated Power-over-Ethernet (802.3af)', 'Max power consumption 6.1 W (power adapter) or 7.8 W (PoE)'. Wi-Fi: 'Integrated dual-band (2.4GHz and 5GHz) Wi-Fi 6 (802.11a/b/g/n/ac/ax) - hardware version 5.0 and above' - stream count is not published, so 1.2G models a 2x2 80 MHz ax link; Bluetooth is integrated but is not a network interface. USB port and RJ9 headset jack not modelled. Note the GRP2616 is the model that makes an otherwise all-wired phone estate look like it has a wireless client on the access point."
+}

@@ -1,0 +1,54 @@
+{
+  "vendor": "starlink",
+  "model": "Standard Kit",
+  "label": "Starlink Standard Kit",
+  "category": "router",
+  "description": "Starlink Standard Kit, the consumer Ka/Ku-band LEO terminal: a flat electronically-steered dish on a single cable plus a Gen 3 Wi-Fi 6 router that acts as both power supply and access point for the whole installation. The router's wired side is just two latching Gigabit LAN ports under a removable cover - the dish cable is a proprietary power-and-data link, not an Ethernet WAN - and it broadcasts tri-band 4x4 MU-MIMO 802.11ax for up to 235 devices.",
+  "capabilities": [
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.1G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "4.8G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "4.8G",
+      "connector": "antenna"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "200M",
+      "connector": "antenna"
+    }
+  ],
+  "sourceUrl": "https://starlink.com/public-files/Gen3RouterSpecificationsStandard.pdf",
+  "notes": "Gen 3 router specification sheet: 'Two (2) Latching Ethernet LAN ports with removable cover', '802.11 a/b/g/n/ac/ax', 'WiFi 6', 'Tri Band 4 x 4 MU-MIMO', 'WPA2', 'IP56 Rated (Water Resistant), configured for indoor use', 'Connect up to 235 devices', -30 C to 50 C. The sheet says 'Tri Band' without naming the third band, so wlan1/wlan2 are two 4x4 ax radios at 4.8G and wlan0 is the 1.1G 2.4 GHz radio. There is no Ethernet WAN jack: the dish hangs off a proprietary combined power/data cable, so the satellite segment is modelled as wwan0 (200M, the Standard kit's ~25-220 Mbps service envelope) rather than an invented RJ45. No local browser UI - everything is configured from the Starlink app against the router's local API - so http-server is deliberately not claimed."
+}

@@ -196,7 +196,13 @@ console.log('\nCages and media agree with each other:');
       // one number a DSLAM must state honestly. PON is exempt for the same reason
       // in reverse - its rates are asymmetric and fine-grained.
       const slowIsCorrect = i.hardware.cage === 'dsl' || i.hardware.cage === 'pon';
-      if (top < 100 && !slowIsCorrect) {
+      // A radio is not a cage. A HughesNet terminal's 25 Mbit/s downlink is the
+      // honest number and a Wi-Fi 4 radio's 300 Mbit/s is not a 1G claim - this
+      // check exists to stop a WIRED cage being understated, so it does not
+      // apply to a wireless interface. Issue #76 tracks the related bug that
+      // derivePortHardware still derives an rj45 cage for a radio.
+      const isRadio = i.type === 'wireless' || i.hardware.cage === 'antenna';
+      if (top < 100 && !slowIsCorrect && !isRadio) {
         slow.push(x.spec.model + '/' + i.name + ' top ' + top + ' Mbps');
       }
       // NOTE: read hardware.maxSpeedMbps, not i.speedMbps. The latter does not
@@ -214,6 +220,18 @@ console.log('\nCages and media agree with each other:');
   }
   ok(slow.length === 0, 'no data port advertises a sub-100 Mbps-only cage' +
     (slow.length ? ' (' + slow.slice(0, 3).join(', ') + ')' : ''));
+  // Exempting radios must not become a way to say nothing: a wireless interface
+  // is now outside the cage rule, so it has to declare the rate it does run at.
+  const radioNoRate = [];
+  for (const x of all) {
+    for (const i of x.ifaces) {
+      if (i.type !== 'wireless') continue;
+      const caps = i.hardware.speedCaps;
+      if (!caps || !caps.length) radioNoRate.push(x.spec.model + '/' + i.name);
+    }
+  }
+  ok(radioNoRate.length === 0, 'every radio declares the rate it runs at' +
+    (radioNoRate.length ? ' (' + radioNoRate.slice(0, 3).join(', ') + ')' : ''));
   ok(overreach.length === 0, 'no port claims a line rate its cage cannot carry' +
     (overreach.length ? ' (' + overreach.slice(0, 3).join(', ') + ')' : ''));
 }
