@@ -1,0 +1,30 @@
+{
+  "vendor": "dlink",
+  "model": "DPN-100 Rev C1",
+  "label": "D-Link DPN-100 Rev C1 GPON SFP ONT",
+  "category": "ont",
+  "description": "mini-GPON ONT built into an SFP module (CIG G-97S ODM, Realtek RTL9601CI, Linux Luna SDK 1.9.0) that presents itself to the host router as an HSGMII Ethernet interface at 2.5 Gbit/s; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on SC/APC with no LAN ports and no Wi-Fi, managed over telnet.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "sgmii1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-d-link-dpn-100-rev-c1/"
+}
