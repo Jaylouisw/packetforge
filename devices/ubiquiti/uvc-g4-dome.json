@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G4-DOME",
+  "label": "UniFi G4 Dome",
+  "category": "camera",
+  "description": "UniFi G4 Dome (UVC-G4-DOME) - 1x 1G RJ45. 802.3af PoE-in; 2K; 5 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g4-dome"
+}
