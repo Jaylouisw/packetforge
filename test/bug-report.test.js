@@ -129,5 +129,52 @@ const topbar = (html.match(/<div class="topbar-actions">([\s\S]*?)<\/div>/) || [
 ok(topbar.indexOf('btn-bug') !== -1, 'the button lives in the top bar, not behind a menu');
 ok(appjs.indexOf("$('#btn-bug')") !== -1, 'app.js binds a click handler to it');
 
-if (failed) { console.error('\n' + failed + ' bug-report check(s) failed'); process.exit(1); }
-console.log('\n' + passed + ' bug-report checks passed.');
+// --- a blocked popup must still leave the reporter somewhere to go ---------
+// The first version of this button toasted "the link is in the console" and wrote
+// nothing there, so a popup blocker turned reporting into a dead end. Drive the
+// real handler with window.open returning null and assert the URL was emitted.
+function makeCtx(openResult, warnSink) {
+  const c = {
+    console: { log: function () {}, error: console.error, warn: function (m) { warnSink.push(m); } },
+    setTimeout: setTimeout, clearTimeout: clearTimeout, setInterval: setInterval,
+    encodeURIComponent: encodeURIComponent,
+    fetch: function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({ version: '0.1.0', node: 'v20.0.0', platform: 'linux/x64' }); } }); },
+    document: { addEventListener: function () {}, querySelector: function () { return fakeNode(); }, querySelectorAll: function () { return []; } },
+    window: {},
+    navigator: { userAgent: 'TestAgent/1.0' },
+    location: { href: 'http://localhost:8000/' },
+    PFCanvas: { on: {}, setTopology: function () {}, fitView: function () {}, render: function () {}, setSelected: function () {}, setSelectedLink: function () {}, animateEvents: function () {}, zoomBy: function () {} }
+  };
+  c.window.PFCanvas = c.PFCanvas;
+  c.window.navigator = c.navigator;
+  c.window.location = c.location;
+  c.window.encodeURIComponent = encodeURIComponent;
+  c.window.open = function () { return openResult; };
+  vm.createContext(c);
+  vm.runInContext(appjs, c, { filename: 'app.js' });
+  return c;
+}
+
+function finish() {
+  if (failed) { console.error('\n' + failed + ' bug-report check(s) failed'); process.exit(1); }
+  console.log('\n' + passed + ' bug-report checks passed.');
+}
+
+(async function () {
+  console.log('\nA blocked popup still leaves a usable report:');
+  const warned = [];
+  const blocked = makeCtx(null, warned);
+  const ret = await blocked.window.__pf.openBugReport();
+  ok(typeof ret === 'string' && ret.indexOf('/issues/new?title=') !== -1,
+    'the handler returns the prefilled issue URL even when the window is blocked');
+  ok(warned.length > 0, 'the URL is actually written somewhere the user can copy it');
+  ok(warned.join(' ').indexOf('/issues/new') !== -1, 'what is logged is the report link, not a promise of one');
+  ok(warned.join(' ').indexOf('undefined') === -1, 'the logged link contains no undefined fields');
+
+  const opened = [];
+  const allowed = makeCtx({}, opened);
+  const ret2 = await allowed.window.__pf.openBugReport();
+  ok(ret2.indexOf('/issues/new') !== -1, 'the same handler returns the URL when the window does open');
+  finish();
+})();
+

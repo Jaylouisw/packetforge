@@ -71,9 +71,19 @@
       // dropping the field, and still open the form.
       env.version = 'unknown (GET /api/version failed: ' + e.message + ')';
     }
-    const w = window.open(bugReportUrl(env), '_blank', 'noopener');
-    if (!w) toast('Popup blocked - the bug report link is in the console');
-    return bugReportUrl(env);
+    // Built once: the window that is opened and the link that is reported when the
+    // window is blocked must be the same report, not two calls that could differ.
+    const url = bugReportUrl(env);
+    let opened = null;
+    try { opened = window.open(url, '_blank', 'noopener'); } catch (e) { opened = null; }
+    if (!opened) {
+      // A popup blocker turned "report a bug" into nothing at all. Say where the
+      // report went, and actually put it there - the toast used to promise a
+      // console entry that nothing wrote.
+      try { console.warn('PacketForge bug report (popup blocked): ' + url); } catch (e) {}
+      toast('Popup blocked — the finished report is in the browser console as a link');
+    }
+    return url;
   }
 
   // ---------- API ----------
@@ -2170,6 +2180,7 @@
     // without opening a window.
     bugReportBody: bugReportBody,
     bugReportUrl: bugReportUrl,
+    openBugReport: openBugReport,
     issueUrl: ISSUE_NEW,
     renderCableLegend: renderCableLegend,
     bindLegend: bindLegend,
