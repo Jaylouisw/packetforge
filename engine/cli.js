@@ -118,6 +118,8 @@ class CliSession {
           out.push.apply(out, this._show(tokens.slice(1)));
         } else if (head === 'ping') {
           out.push.apply(out, this._ping(tokens.slice(1)));
+        } else if (head === 'converge') {
+          out.push.apply(out, this._converge(tokens.slice(1)));
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // stays in exec
         } else if (head === 'help' || head === '?') {
@@ -856,23 +858,73 @@ class CliSession {
   }
 
   // ---------- ping ----------
+  //
+  // `ping 10.0.0.2` and `ping 10.0.0.2 5 at 5000` - the last form asks the question 5 seconds after
+  // power-on, which is the only way to watch a lab come up. Real hardware prints a time in
+  // milliseconds; this prints the delay the engine computed from the path (propagation +
+  // serialisation + store-and-forward), and falls back to the hop count if a link has no length.
   _ping(tokens) {
     const out = [];
     const ip = tokens[0];
-    const count = tokens[1] ? parseInt(tokens[1], 10) : 4;
+    let count = 4;
+    let atMs = null;
+    for (let i = 1; i < tokens.length; i++) {
+      if (tokens[i] === 'at' && tokens[i + 1]) { atMs = Number(tokens[i + 1]); i++; continue; }
+      const n = parseInt(tokens[i], 10);
+      if (Number.isFinite(n) && n > 0) count = n;
+    }
     if (!ip || !net.isIp(ip)) return ['% Invalid ping target: ' + (ip || '(none)')];
     if (!this.sim) return ['% Simulator not attached'];
+    if (atMs !== null) {
+      if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid instant: ' + tokens[tokens.indexOf('at') + 1]];
+      this.sim.setRunTime(atMs);
+    }
     out.push('Type escape sequence to abort.');
-    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + ip + ', timeout is 2 seconds:');
+    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + ip + ', timeout is 2 seconds:' +
+      (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
     const res = this.sim.ping(this.device.id, ip, { count: count });
     const marks = res.replies.map(function (r) { return r.success ? '!' : '.'; }).join('');
     out.push(marks);
     const ok = res.replies.filter(function (r) { return r.success; }).length;
     out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
     for (const r of res.replies) {
-      if (r.success) out.push('Reply from ' + ip + ': bytes=100 time=' + r.hops + ' hops');
-      else out.push('Request timed out (seq ' + r.seq + ')');
+      if (r.success) {
+        const t = (r.rtt === null || r.rtt === undefined)
+          ? (r.hops + ' hops')
+          : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
+        out.push('Reply from ' + ip + ': bytes=100 time=' + t);
+      } else if (r.reason === 'converging') {
+        // Not "request timed out": nothing was lost, the network is not up yet.
+        const who = (r.pending || []).map(function (p) { return p.process + ' on ' + p.device; }).join(', ');
+        out.push('% Still converging at t=' + atMs + ' ms: ' + who +
+          (r.convergingUntilMs !== null ? ' (ready at ' + r.convergingUntilMs + ' ms)' : ''));
+      } else {
+        out.push('Request timed out (seq ' + r.seq + ')');
+      }
     }
+    return out;
+  }
+
+  // ---------- converge ----------
+  //
+  // The answer to "when is it up?" - every process, every device, in the order they finish.
+  _converge(tokens) {
+    if (!this.sim) return ['% Simulator not attached'];
+    const sched = this.sim.getConvergence();
+    const out = [];
+    if (!sched.entries.length) {
+      out.push('% Nothing in this lab runs a control plane that converges over time');
+      return out;
+    }
+    const atMs = tokens[0] !== undefined ? Number(tokens[0]) : null;
+    out.push('Process   Device                 Ready   Basis');
+    for (const e of sched.entries) {
+      const mark = (atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs) ? '  (pending)' : '';
+      out.push(pad(e.process, 10) + pad(String(e.device.name || e.deviceId), 23) +
+        pad(e.readyAtMs + ' ms', 10) + (e.basis || '') + mark);
+    }
+    out.push('');
+    out.push('Fully converged at ' + sched.convergedAtMs + ' ms.');
     return out;
   }
 

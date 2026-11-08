@@ -2,6 +2,15 @@
 
 ### Added
 
+- **Control planes take time now** (#1049). Every timer in the engine was parsed, range-checked and
+  then discarded: `computeStp()` blocked its ports and `computeOspf()` installed its routes at t=0,
+  so a lab could only ever show the converged answer. `Simulator.setRunTime(ms)` asks a question at
+  an instant - STP ports Listening/Learning and dropping traffic, OSPF without learned routes, no
+  DHCP lease - and a failed ping reports `converging` with the process and its ready time instead of
+  pretending a packet was lost. New `converge` command, `ping ... at <ms>`, and ping replies that
+  print a real millisecond time from propagation + serialisation + store-and-forward. See
+  [docs/CONVERGENCE.md](docs/CONVERGENCE.md).
+
 - **`scripts/sweep-device-requests.js`** answers "is this hardware request already modelled?" against
   the ~800-issue backlog, with no fuzzy matching: a vendor-agreement guard and a model-key guard,
   because the first version closed three Ubiquiti requests pointing at `roku/Ultra`. See

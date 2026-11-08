@@ -135,3 +135,31 @@ This is intentionally a **unified** command set. A future release can add
 per-vendor "translators" (e.g. accept Juniper `set interfaces …` or Huawei
 `interface GigabitEthernet0/0/0`) while keeping the single underlying
 configuration model. See `docs/ROADMAP.md`.
+
+### ping — ask at an instant
+
+```
+ping <ip> [count] [at <ms>]
+```
+
+`at` asks the question that many milliseconds after power-on. Before the control plane has
+finished, the reply is not a timeout - the engine names the process that is not done:
+
+```
+SW1#ping 10.0.0.2 1 at 5000
+Success rate is 0 percent (0/1)
+% Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+```
+
+Replies now carry a real millisecond time, computed from the path (propagation in each medium,
+serialisation at each port, store-and-forward at each device) rather than a hop count. See
+[CONVERGENCE.md](CONVERGENCE.md).
+
+### converge — when is it up?
+
+```
+converge [at <ms>]
+```
+
+Lists every process on every device with the instant it finishes, and the lab's fully-converged
+time. With an instant, anything still pending is marked.

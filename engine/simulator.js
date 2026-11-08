@@ -19,6 +19,7 @@ const scionLib = require('./scion');
 const natLib = require('./nat');
 const flowLib = require('./flow');
 const latencyLib = require('./latency');
+const convergenceLib = require('./convergence');
 const mediaModel = require('./media');
 
 // Two routers advertise the same OSPF network; when the SPF cost ties, the
@@ -95,6 +96,9 @@ class Simulator {
     // request but hands it the same table, so a flow opened in one request is
     // still there to be listed, closed or counted in the next.
     const o = opts || {};
+    // Which instant questions are asked at. Infinity = fully converged, the behaviour every
+    // existing lab and test relies on. See setRunTime().
+    this.runAtMs = Infinity;
     this.flowState = o.flowState || flowLib.createFlowState();
     this.reset();
   }
@@ -108,6 +112,9 @@ class Simulator {
     this.queue = [];          // pending transmissions: {devId, iface, frame}
     this.step = 0;
     this.maxSteps = 8000;
+    // NB: runAtMs is deliberately NOT reset here. reset() rewinds a run, and the instant the
+    // question is asked at is a property of the question, not of the run - ping() calls reset()
+    // first, so resetting it here would silently make every run "converged" again.
     this.icmpReplies = [];    // {dst, id, seq, step}
     this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
     this.scion = null;        // last computed SCION beaconing state
@@ -252,10 +259,57 @@ class Simulator {
     return latencyLib.roundTripDetail(forward, reverse);
   }
 
+  // ---------------------------------------------------------------------
+  // Run instant (engine/convergence.js)
+  // ---------------------------------------------------------------------
+  //
+  // Every control plane used to finish at t=0, because finish is the only thing it could do:
+  // computeStp() blocked its ports and computeOspf() installed its routes before the first packet
+  // was sent. That is the converged answer, always. A lab cannot show "power it on and watch it
+  // come up" if coming up is instantaneous.
+  //
+  // `runAtMs` says which instant the question is being asked at. Infinity (the default) means
+  // "once everything has converged", which is the behaviour every existing lab and test relies on.
+  // A finite value leaves the processes that have not finished yet in the state they would really
+  // be in: STP ports Listening or Learning (so they drop traffic), OSPF without its learned routes,
+  // VRRP not yet owning the VIP.
+
+  setRunTime(atMs) {
+    const n = Number(atMs);
+    this.runAtMs = Number.isFinite(n) && n >= 0 ? n : Infinity;
+    return this.runAtMs;
+  }
+
+  // The schedule of when each process finishes, as data.
+  getConvergence() {
+    // Rebuilt on every call. It is a pure walk over the device list, and a cache here would be one
+    // more thing that can disagree with the topology it describes.
+    return convergenceLib.buildSchedule(this.topo);
+  }
+
+  // Has this process on this device finished by the run instant?
+  _converged(process, dev) {
+    if (this.runAtMs === Infinity) return true;
+    const sched = this.getConvergence();
+    const t = convergenceLib.readyAt(sched, process, dev.id);
+    return t === null ? true : t <= this.runAtMs;
+  }
+
+  // Processes still running at the run instant, earliest first - the honest reason a packet
+  // went nowhere.
+  _stillConverging() {
+    if (this.runAtMs === Infinity) return [];
+    const sched = this.getConvergence();
+    return convergenceLib.at(sched, this.runAtMs).pending;
+  }
+
   // --- public: run a ping from srcDeviceId to dstIp ---
   ping(srcId, dstIp, opts) {
     opts = opts || {};
     const count = opts.count || 4;
+    // Ask the question at an instant, if the caller named one. setRunTime() is the assignment;
+    // this is the convenience form, so `ping(a, b, { atMs: 5000 })` cannot quietly be ignored.
+    if (opts.atMs !== undefined) this.setRunTime(opts.atMs);
     this.reset();
     // Recompute spanning tree before the run so blocked ports are honoured.
     this.computeStp();
@@ -318,9 +372,17 @@ class Simulator {
       const delay = got
         ? this._roundTripFor(this.events.slice(evStart), net.ICMP_ECHO_REQUEST, net.ICMP_ECHO_REPLY, id, seq, bits)
         : null;
+      // A run asked at an instant before everything has converged deserves the reason, not just
+      // silence: "no reply" and "the spanning tree is still learning" look identical otherwise.
+      const pending = got ? [] : this._stillConverging();
       replies.push({
         seq: seq,
         success: !!got,
+        reason: got ? null : (pending.length ? 'converging' : null),
+        pending: pending.map(function (e) {
+          return { process: e.process, device: e.device.name, readyAtMs: e.readyAtMs };
+        }),
+        convergingUntilMs: pending.length ? pending[0].readyAtMs : null,
         hops: got ? (got.step - startStep) : null,
         rtt: delay ? delay.totalMs : null,
         rttUs: delay ? delay.totalUs : null,
@@ -416,6 +478,29 @@ class Simulator {
           for (const iface of dev.interfaces.values()) {
             if (this._logicalPortName(dev, iface.name) === logicalName) {
               dev.stp.blocked.add(iface.name);
+            }
+          }
+        }
+      }
+    }
+
+    // A port that is *destined* to forward is not forwarding yet: it is somewhere between
+    // Listening and Learning, and it drops traffic in both. This is the whole point of asking a
+    // question at an instant - the cable is green, the switch is up, and nothing passes.
+    if (this.runAtMs !== Infinity) {
+      for (const dev of this.topo.devices.values()) {
+        if (!dev.isL2() || !dev.stp) continue;
+        if (this._converged('stp', dev)) continue;
+        for (const logicalName of Object.keys(dev.stp.states || {})) {
+          const steady = dev.stp.states[logicalName];
+          if (steady === 'blocking') continue;
+          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs);
+          dev.stp.states[logicalName] = now;
+          if (!convergenceLib.stpForwardsIn(now)) {
+            for (const iface of dev.interfaces.values()) {
+              if (this._logicalPortName(dev, iface.name) === logicalName) {
+                dev.stp.blocked.add(iface.name);
+              }
             }
           }
         }
@@ -568,7 +653,13 @@ class Simulator {
         }
       }
 
-      byId[r.id].dev.ospfRoutes = routes;
+      // Routes land when the adjacency has finished and SPF has run, not with the cable.
+      const ospfDev = byId[r.id].dev;
+      if (this._converged('ospf', ospfDev)) {
+        ospfDev.ospfRoutes = routes;
+      } else {
+        ospfDev.ospfRoutes = [];
+      }
       result[r.id] = routes;
     }
 

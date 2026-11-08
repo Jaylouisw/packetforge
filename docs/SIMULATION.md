@@ -605,3 +605,16 @@ grep -rn "vrrp" engine/simulator.js     # returns nothing: VRRP is not in the da
 grep -rn "setTimeout\|setInterval\|Date.now" engine/*.js   # comments only: there are no timers
 npm test                                 # the suites that pin the behaviour above
 ```
+
+## Convergence is timed, interleaving is not
+
+Control-plane processes used to finish at t=0, which made "power it on and watch it come up"
+impossible to demonstrate. `Simulator.setRunTime(ms)` now asks a question at an instant: processes
+that have not finished leave their device in the state the standard puts it in — STP ports
+Listening or Learning (and dropping traffic), OSPF without learned routes, no DHCP lease — and a
+failed ping reports `converging` with the process and its ready time instead of pretending a packet
+was lost.
+
+What is not modelled: real-time interleaving (a question is answered *as of* an instant, computed
+from the timers — nothing runs a clock during a run), hello loss and dead-interval expiry, and
+re-convergence after a topology change. See [CONVERGENCE.md](CONVERGENCE.md).

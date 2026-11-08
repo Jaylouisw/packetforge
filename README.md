@@ -83,14 +83,16 @@ echo/reply travel across the link with a live animation and event log.
 | Area | What's implemented |
 |------|--------------------|
 | Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | Cisco, Juniper, Arista, MikroTik, Huawei, Ubiquiti, TP-Link, Netgear, Zyxel, GL.iNet, Protectli, QNAP, Qotom, TRENDnet, Adtran, Raspberry Pi + generic models (**91 models / 17 vendors**) |
+| Vendors | **1,544 models across 245 vendors**, in 25 categories (router, switch, L3 switch, firewall, AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, TV/set-top, IoT, tap, splitter, cloud, host) + generic models. Adding one is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP (request/reply, cache), ICMP echo request/reply, TTL handling |
 | Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
 | L2 features | 802.1Q VLANs (access/trunk/native), LACP aggregation, 802.1D spanning tree |
-| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping` |
+| CLI | Cisco-like vendor-agnostic console: `show`, `interface`, `ip address`, `ip route`, `ping [...] at <ms>`, `converge` |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
+| Convergence | Control planes take time: STP Listening/Learning, OSPF hello + SPF hold, DHCP exchange, VRRP master-down. Ask any question at an instant with `setRunTime(ms)` / `ping ... at 5000`; an unfinished process reports `converging`, not "timed out" ([docs](docs/CONVERGENCE.md)) |
+| Latency | Per-link propagation from the medium's velocity, serialisation from frame size and line rate, store-and-forward per hop — so a 40 km span is not the same as a 1 m patch lead |
 | Persistence | save/load topologies as JSON (import/export buttons) |
 | Sync | WebSocket broadcasts topology edits to every connected client in real time |
 
