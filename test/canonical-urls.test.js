@@ -112,11 +112,26 @@ console.log('\nEvery exception says why');
       rel + ' has a reason a reader can judge');
     ok(fs.existsSync(path.join(ROOT, rel)), rel + ' exists');
   }
-  // The two files that must never be allowed to advertise GitHub as the place to work.
+  // README is the file everyone follows, and it must never send them to the mirror
+  // as the place to work.
   ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'README.md'),
     'README is not exempt - it is the file everyone follows');
-  ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md'),
-    'CONTRIBUTING is not exempt - it is where contributors are told what to do');
+  // CONTRIBUTING moved the other way on purpose: contributors now arrive through
+  // GitHub and scripts/gh-bridge.js carries their work onto the forge, so the file
+  // has to name the mirror or it cannot be followed. What it must not do is present
+  // GitHub as the only home - so the exemption is only acceptable while the forge is
+  // named in the same file. Two pull requests landed separately (#1074 added the
+  // exemption, this file still forbade it) and left main red; the rule needed to
+  // become conditional rather than be deleted.
+  if (Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md')) {
+    const contributing = fs.readFileSync(path.join(ROOT, 'CONTRIBUTING.md'), 'utf8');
+    ok(contributing.indexOf('git.jayw.uk') !== -1,
+      'CONTRIBUTING may name the mirror, but it still names the forge');
+    ok(contributing.indexOf('github.com/Jaylouisw/packetforge') !== -1,
+      'and the mirror it names is the real one, not a placeholder');
+  } else {
+    ok(true, 'CONTRIBUTING is not exempt, so the question does not arise');
+  }
 }
 
 console.log('\nThe changelog keeps its history');
