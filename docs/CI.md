@@ -116,10 +116,18 @@ services, and a job that has to swap makes the whole queue slower.
   trails.
 - **Throughput is one runner.** Capacity 2 is a ceiling of roughly 26 merged pull
   requests an hour; the backlog is larger than that.
-- **`auto-rebase` competes with everything else.** It is a scheduled run and takes
-  its turn in the same queue. If it appears not to fire, check whether its runs are
-  being created and then cancelled — the run list shows both, and they mean
-  different things.
+- **`auto-rebase` runs on merge, not on a clock.** On this instance, scheduled and
+  manually dispatched runs are created with their job rows and then never handed to
+  a runner — `started` stays at epoch 0 forever, while pull-request and push runs
+  dispatch normally. So the workflow triggers on `push` to `main`, which is the
+  moment every open pull request becomes stale anyway. The schedule remains in the
+  file as a safety net and does nothing; that is a dispatcher bug on the host, not a
+  workflow bug, and it is worth knowing before you spend an evening reading YAML.
+- **A stale pull request costs more than a fresh one.** Heads that predate #1059
+  still carry `.github/workflows/`, so their runs include a CodeQL job and a Docker
+  job that cannot pass here — three wasted jobs out of eight, on a queue that is the
+  bottleneck. Rebasing removes them. That is the cheapest single thing you can do
+  for the queue's health.
 
 ## Reporting a problem with CI itself
 
