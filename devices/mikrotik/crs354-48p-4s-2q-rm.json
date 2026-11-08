@@ -1,0 +1,324 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS354-48P-4S+2Q+RM",
+  "label": "CRS354-48P-4S+2Q+RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS354-48P-4S+2Q+RM (CRS354-48P-4S+2Q+RM) — 1x 100M RJ45, 48x 1G RJ45, 4x 10G SFP+, 2x 40G QSFP+. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth29",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth30",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth31",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth32",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth33",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth34",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth35",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth36",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth37",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth38",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth39",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth40",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth41",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth42",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth43",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth44",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth45",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth46",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth47",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth48",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth49",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "QSFP+1",
+      "type": "ethernet",
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
+    },
+    {
+      "name": "QSFP+2",
+      "type": "ethernet",
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs354_48p_4s_2q_rm"
+}
