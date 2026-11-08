@@ -3,9 +3,8 @@
 **An open-source, vendor-agnostic network simulator — a modern alternative to
 Cisco Packet Tracer.**
 
-[![CI](https://github.com/Jaylouisw/packetforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Jaylouisw/packetforge/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Jaylouisw/packetforge/actions/workflows/codeql.yml/badge.svg)](https://github.com/Jaylouisw/packetforge/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[CI runs on Forgejo Actions](https://git.jayw.uk/jaylouisw/packetforge/actions)
 
 PacketForge lets you drag-and-drop routers, switches, hosts, firewalls, access
 points and point-to-point radios onto a canvas, cable them together, configure
@@ -37,7 +36,7 @@ and they all run the same simulation engine and the same command set.
 ### From source
 
 ```bash
-git clone https://github.com/Jaylouisw/packetforge.git
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js
 ```
@@ -174,7 +173,7 @@ Contributions are welcome — especially new hardware models. See
 
 ### Want a device added?
 
-[**Open a hardware request →**](https://github.com/Jaylouisw/packetforge/issues/new?template=device_request.yml)
+[**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
 Every device is one JSON file, so a good request is mostly a good datasheet link.
 Anything internet-connected is in scope: routers, switches, firewalls, APs and

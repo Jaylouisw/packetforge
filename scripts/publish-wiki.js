@@ -20,7 +20,7 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'docs', 'wiki');
-const REPO = process.env.PF_WIKI_REPO || 'https://github.com/Jaylouisw/packetforge.wiki.git';
+const REPO = process.env.PF_WIKI_REPO || 'https://git.jayw.uk/jaylouisw/packetforge.wiki.git';
 const DRY = process.argv.includes('--dry-run');
 
 function git(args, cwd) {
@@ -56,7 +56,7 @@ try {
   const msg = String((e.stderr || e.message || '')).trim();
   console.error('Cannot reach the wiki repository:\n  ' + msg.split('\n').slice(-2).join('\n  '));
   console.error('\nGitHub creates <repo>.wiki.git only after the first page is saved in the web UI.');
-  console.error('To unblock: open https://github.com/Jaylouisw/packetforge/wiki, choose');
+  console.error('To unblock: open https://git.jayw.uk/jaylouisw/packetforge/wiki, choose');
   console.error('"Create the first page", save anything (it will be overwritten), then re-run this.');
   console.error('\nThe page sources are already in docs/wiki/ and are valid as-is.');
   process.exit(1);
