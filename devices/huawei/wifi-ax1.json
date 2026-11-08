@@ -1,0 +1,47 @@
+{
+  "vendor": "huawei",
+  "model": "WiFi AX1",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "description": "Huawei WiFi AX1: 4×1G. Wi-Fi 5, 2.4 GHz 300M, 5 GHz 867M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #161; figures from https://consumer.huawei.com/en/routers/ax1/specs/",
+  "source": "https://consumer.huawei.com/en/routers/ax1/specs/"
+}
