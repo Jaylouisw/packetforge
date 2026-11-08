@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBSXTLTE3-7",
+  "label": "SXT LTE",
+  "category": "ptp",
+  "description": "MikroTik SXT LTE (RBSXTLTE3-7) \u2014 1x 100M RJ45, LTE radio. MIPSBE 1-core AR7241.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBSXTLTE3-7"
+}
