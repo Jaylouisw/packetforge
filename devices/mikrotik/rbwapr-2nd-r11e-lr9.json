@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBwAPR-2nD&R11e-LR9",
+  "label": "wAP LR9 kit",
+  "category": "iot",
+  "description": "MikroTik wAP LR9 kit (RBwAPR-2nD&R11e-LR9) — 1x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/wap_lr9_kit"
+}
