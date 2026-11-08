@@ -1,0 +1,61 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTX11",
+  "label": "Teltonika RUTX11",
+  "category": "router",
+  "description": "A 4G LTE Cat 6 router with four Gigabit ports (one WAN, three LAN) and dual-band 802.11ac Wave 2 Wi-Fi at up to 867 Mbps. The gigabit step up from the RUT950, with the same four-port faceplate.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rutx11",
+  "notes": "Vendor figures from the RUTX11 datasheet v1.4: 1 x WAN port 10/100/1000 Mbps and 3 x LAN ports 10/100/1000 Mbps, IEEE 802.3/802.3u/802.3az with auto MDI/MDIX; Wi-Fi 802.11b/g/n/ac Wave 2 (Wi-Fi 5) dual band at up to 867 Mbps; 4G LTE Cat 6 (300 Mbps downlink class), which is why wwan0 is modelled at 300M rather than the 100M of the Cat 4 units."
+}

@@ -1,0 +1,56 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT950",
+  "label": "Teltonika RUT950",
+  "category": "router",
+  "description": "A 4G LTE Cat 4 router with four 10/100 ports (one WAN, three LAN) and 2.4 GHz 802.11b/g/n Wi-Fi. The four-port cellular router that predates the RUT956 in the same rack slot.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "l2-forward",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut950",
+  "notes": "Vendor figures from the RUT950 datasheet v1.1: 1 x WAN port (can be configured to LAN) 10/100 Mbps and 3 x LAN ports 10/100 Mbps, IEEE 802.3/802.3u; Wi-Fi 802.11b/g/n in AP and STA modes; 4G LTE Cat 4 with dual SIM. Same port shape as the RUT956 but without the serial ports and I/O block."
+}

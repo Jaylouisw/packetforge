@@ -1,0 +1,163 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUT240",
+    "label": "Teltonika RUT240",
+    "category": "router",
+    "description": "A palm-sized 4G LTE Cat 4 router: one WAN port that can be reconfigured as LAN, one LAN port, both 10/100, and 2.4 GHz 802.11b/g/n Wi-Fi. The box that gets put in a cabinet when a site needs a cellular uplink and nothing else.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut240",
+    "notes": "Vendor figures from the RUT240 datasheet v1.2: 1 x WAN port 10/100 Mbps (can be configured to LAN), 1 x LAN port 10/100 Mbps, both IEEE 802.3/802.3u; Wi-Fi 802.11b/g/n in AP and STA modes; 4G LTE Cat 4. The WAN port is modelled separately because Teltonika ships it as WAN and lets you reassign it - a lab that needs two LAN ports on this box is a supported configuration, not a mistake."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT950",
+    "label": "Teltonika RUT950",
+    "category": "router",
+    "description": "A 4G LTE Cat 4 router with four 10/100 ports (one WAN, three LAN) and 2.4 GHz 802.11b/g/n Wi-Fi. The four-port cellular router that predates the RUT956 in the same rack slot.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rut950",
+    "notes": "Vendor figures from the RUT950 datasheet v1.1: 1 x WAN port (can be configured to LAN) 10/100 Mbps and 3 x LAN ports 10/100 Mbps, IEEE 802.3/802.3u; Wi-Fi 802.11b/g/n in AP and STA modes; 4G LTE Cat 4 with dual SIM. Same port shape as the RUT956 but without the serial ports and I/O block."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTX11",
+    "label": "Teltonika RUTX11",
+    "category": "router",
+    "description": "A 4G LTE Cat 6 router with four Gigabit ports (one WAN, three LAN) and dual-band 802.11ac Wave 2 Wi-Fi at up to 867 Mbps. The gigabit step up from the RUT950, with the same four-port faceplate.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "l2-forward",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/routers/rutx11",
+    "notes": "Vendor figures from the RUTX11 datasheet v1.4: 1 x WAN port 10/100/1000 Mbps and 3 x LAN ports 10/100/1000 Mbps, IEEE 802.3/802.3u/802.3az with auto MDI/MDIX; Wi-Fi 802.11b/g/n/ac Wave 2 (Wi-Fi 5) dual band at up to 867 Mbps; 4G LTE Cat 6 (300 Mbps downlink class), which is why wwan0 is modelled at 300M rather than the 100M of the Cat 4 units."
+  }
+]
