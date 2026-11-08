@@ -37,6 +37,13 @@ const MAX_ISSUES = Number(arg('limit', 200));
 const CLOSE_BUDGET = Number(arg('close', 0));
 
 function token() {
+  // An environment token first, so this can run in CI where there is no remote URL
+  // with credentials embedded in it. The workflow provides GITHUB_TOKEN; FORGEJO_TOKEN
+  // is accepted so a local run does not have to pretend to be GitHub.
+  for (const name of ['FORGEJO_TOKEN', 'GITHUB_TOKEN', 'GH_TOKEN']) {
+    const value = process.env[name];
+    if (value && value.trim()) return value.trim();
+  }
   for (const remote of ['github', 'origin']) {
     let url = '';
     try { url = execFileSync('git', ['remote', 'get-url', remote], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch (e) { continue; }
@@ -47,7 +54,7 @@ function token() {
       if (idx !== -1) return cred.slice(idx + 1);
     }
   }
-  throw new Error('no token in a git remote');
+  throw new Error('no token: set FORGEJO_TOKEN (or put one in a git remote URL)');
 }
 
 async function api(tok, p, opts) {
