@@ -1,0 +1,47 @@
+{
+  "vendor": "huawei",
+  "model": "WiFi Mesh X1 Pro",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2882M"
+    }
+  ],
+  "description": "Huawei WiFi Mesh X1 Pro: 4×2.5G. Wi-Fi 7, 2.4 GHz 688M, 5 GHz 2882M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #155; figures from https://consumer.huawei.com/en/routers/x1-pro/specs/",
+  "source": "https://consumer.huawei.com/en/routers/x1-pro/specs/"
+}

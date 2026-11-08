@@ -1,0 +1,26 @@
+{
+  "vendor": "huawei",
+  "model": "4G Mobile WiFi 5",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "195M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "description": "Huawei 4G Mobile WiFi 5: no wired Ethernet. Wi-Fi 5, 2.4 GHz 300M. The 195 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. Single-band 2.4 GHz radio: the spec page lists no 5 GHz rate. Requested in #152; figures from https://consumer.huawei.com/en/routers/4g-mobile-wifi-5/specs/",
+  "source": "https://consumer.huawei.com/en/routers/4g-mobile-wifi-5/specs/"
+}

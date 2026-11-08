@@ -1,0 +1,52 @@
+{
+  "vendor": "huawei",
+  "model": "WiFi Mesh 7",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1201M"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless",
+      "speed": "4804M"
+    }
+  ],
+  "description": "Huawei WiFi Mesh 7: 4×1G. Wi-Fi 7, 2.4 GHz 574M, 5 GHz low 1201M, 5 GHz high 4804M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #143; figures from https://consumer.huawei.com/en/routers/wifi-mesh7/specs/",
+  "source": "https://consumer.huawei.com/en/routers/wifi-mesh7/specs/"
+}

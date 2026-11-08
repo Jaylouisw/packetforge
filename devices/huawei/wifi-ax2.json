@@ -1,0 +1,42 @@
+{
+  "vendor": "huawei",
+  "model": "WiFi AX2",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1201M"
+    }
+  ],
+  "description": "Huawei WiFi AX2: 3×1G. Wi-Fi 6, 2.4 GHz 300M, 5 GHz 1201M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #160; figures from https://consumer.huawei.com/en/routers/ax2/specs/",
+  "source": "https://consumer.huawei.com/en/routers/ax2/specs/"
+}

@@ -1,0 +1,52 @@
+{
+  "vendor": "huawei",
+  "model": "4G CPE 5",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2400M"
+    }
+  ],
+  "description": "Huawei 4G CPE 5: 4×1G. Wi-Fi 6, 2.4 GHz 574M, 5 GHz 2.4G. The 150 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #149; figures from https://consumer.huawei.com/en/routers/4g-cpe-5/specs/",
+  "source": "https://consumer.huawei.com/en/routers/4g-cpe-5/specs/"
+}

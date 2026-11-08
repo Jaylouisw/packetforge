@@ -1,0 +1,31 @@
+{
+  "vendor": "huawei",
+  "model": "Mobile WiFi 3s",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "description": "Huawei Mobile WiFi 3s: no wired Ethernet. Wi-Fi 5, 2.4 GHz 300M, 5 GHz 867M. The 150 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. Band rates could not be read from the vendor's spec page (it is rendered client-side), so the class figures are used and this flag is deliberate. Requested in #163; figures from https://consumer.huawei.com/en/routers/mobile-wifi-3s/specs/",
+  "source": "https://consumer.huawei.com/en/routers/mobile-wifi-3s/specs/"
+}

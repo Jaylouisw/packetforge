@@ -1,0 +1,31 @@
+{
+  "vendor": "huawei",
+  "model": "4G Mobile WiFi 3 (E5783)",
+  "category": "router",
+  "capabilities": [
+    "dhcp-server",
+    "firewall",
+    "l3-forward",
+    "nat",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "description": "Huawei 4G Mobile WiFi 3 (E5783): no wired Ethernet. Wi-Fi 5, 2.4 GHz 300M, 5 GHz 867M. The 150 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. Requested in #154; figures from https://consumer.huawei.com/en/routers/4g-mobile-wifi-3-e5783/specs/",
+  "source": "https://consumer.huawei.com/en/routers/4g-mobile-wifi-3-e5783/specs/"
+}
