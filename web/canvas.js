@@ -371,8 +371,56 @@
     packetsLayer.setAttribute('transform', 'translate(' + view.panX + ',' + view.panY + ') scale(' + view.zoom + ')');
   }
 
+  // Frame the whole board.
+  //
+  // This used to be `view.zoom = 1; view.panX = 60; view.panY = 40` - a hard-coded reset
+  // wearing the label "Fit to view". On any board bigger than the initial window it threw
+  // most of the network off-screen, which is the opposite of what the button is for
+  // (issue #56). It now measures the devices, scales them to the viewport, and centres
+  // the result.
   function fitView() {
-    view.zoom = 1; view.panX = 60; view.panY = 40;
+    const devices = (state.topology && Array.isArray(state.topology.devices))
+      ? state.topology.devices : [];
+    const r = rect();
+    const vw = (r && r.width) || 800;
+    const vh = (r && r.height) || 600;
+    const pad = 40;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, any = false;
+    for (const d of devices) {
+      if (!d || !d.id) continue;
+      const g = geo[d.id];
+      const pos = g ? g.pos : ((state.topology.layout && state.topology.layout[d.id]) || null);
+      if (!pos) continue;
+      const size = g ? g.size
+        : deviceSize(Array.isArray(d.interfaces) ? d.interfaces.length : 0);
+      any = true;
+      if (pos.x < minX) minX = pos.x;
+      if (pos.y < minY) minY = pos.y;
+      if (pos.x + size.w > maxX) maxX = pos.x + size.w;
+      if (pos.y + size.h > maxY) maxY = pos.y + size.h;
+    }
+
+    // An empty board has nothing to frame, so the default view is the honest answer.
+    if (!any) {
+      view.zoom = 1; view.panX = 60; view.panY = 40;
+      applyView();
+      return;
+    }
+
+    const bw = Math.max(1, maxX - minX);
+    const bh = Math.max(1, maxY - minY);
+    const availW = Math.max(50, vw - pad * 2);
+    const availH = Math.max(50, vh - pad * 2);
+
+    // Never zoom past the manual limits, and never past 1: showing a two-device board at
+    // 3x is technically "fitted" and useless.
+    let zoom = Math.min(availW / bw, availH / bh, 1);
+    zoom = Math.min(3, Math.max(0.25, zoom));
+
+    view.zoom = zoom;
+    view.panX = pad + (availW - bw * zoom) / 2 - minX * zoom;
+    view.panY = pad + (availH - bh * zoom) / 2 - minY * zoom;
     applyView();
   }
   function zoomBy(f) {
