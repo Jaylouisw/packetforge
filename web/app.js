@@ -11,6 +11,71 @@
 
   const $ = function (s) { return document.querySelector(s); };
 
+  // ---------- bug reports ----------
+  // The one link a user needs when something is wrong must not depend on them
+  // first working out where the repository lives, then which of six templates to
+  // pick, then what to write in it. The report is pre-filled with the half only
+  // the running app knows - build, Node, browser, page, catalogue size - so the
+  // person filing it only has to say what they did and what they saw.
+  const ISSUE_NEW = 'https://git.jayw.uk/jaylouisw/packetforge/issues/new';
+
+  function bugReportBody(env) {
+    const e = env || {};
+    function or(v) { return (v === undefined || v === null || v === '') ? 'unknown' : String(v); }
+    return [
+      '### What happened',
+      '',
+      '<!-- What you saw, and what you expected to happen instead. -->',
+      '',
+      '### Steps to reproduce',
+      '',
+      '1. ',
+      '2. ',
+      '3. ',
+      '',
+      '### Where it happened',
+      '',
+      '- PacketForge: ' + or(e.version),
+      '- Node: ' + or(e.node),
+      '- Browser: ' + or(e.browser),
+      '- Page: ' + or(e.page),
+      '- Catalogue: ' + (e.devices === undefined || e.devices === null ? 'unknown' : e.devices + ' models'),
+      '',
+      '<!-- Everything above was filled in by the app. Correct anything that is wrong. -->',
+      ''
+    ].join('\n');
+  }
+
+  function bugReportUrl(env) {
+    const title = (env && env.title) ? env.title : '[Bug]: ';
+    return ISSUE_NEW
+      + '?title=' + encodeURIComponent(title)
+      + '&body=' + encodeURIComponent(bugReportBody(env));
+  }
+
+  async function openBugReport() {
+    const env = {
+      title: '[Bug]: ',
+      version: 'unknown',
+      node: 'unknown',
+      browser: (typeof navigator !== 'undefined' && navigator && navigator.userAgent) || 'unknown',
+      page: (typeof location !== 'undefined' && location && location.href) || '',
+      devices: (catalog && catalog.specs && catalog.specs.length) || null
+    };
+    try {
+      const v = await api('GET', '/version');
+      if (v && v.version) env.version = v.version + (v.commit ? ' (' + v.commit + ')' : '');
+      if (v && v.node) env.node = v.node + ' on ' + (v.platform || 'unknown');
+    } catch (e) {
+      // The server not answering is itself worth reporting; say so rather than
+      // dropping the field, and still open the form.
+      env.version = 'unknown (GET /api/version failed: ' + e.message + ')';
+    }
+    const w = window.open(bugReportUrl(env), '_blank', 'noopener');
+    if (!w) toast('Popup blocked - the bug report link is in the console');
+    return bugReportUrl(env);
+  }
+
   // ---------- API ----------
   async function api(method, path, body) {
     const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
@@ -1886,6 +1951,11 @@
       try { await api('POST', '/topologies/' + TOPO + '/reset'); toast('ARP/MAC tables cleared'); } catch (e) { toast(e.message); }
     });
 
+    // One click to a pre-filled report. Deliberately in the top bar rather than
+    // behind a menu: a bug that is hard to report is a bug that goes unreported.
+    const bugBtn = $('#btn-bug');
+    if (bugBtn) bugBtn.addEventListener('click', function () { openBugReport(); });
+
     $('#btn-zoom-in').addEventListener('click', function () { PFCanvas.zoomBy(1.2); });
     $('#btn-zoom-out').addEventListener('click', function () { PFCanvas.zoomBy(0.8); });
     $('#btn-zoom-fit').addEventListener('click', function () { PFCanvas.fitView(); });
@@ -2096,6 +2166,11 @@
     // through filterDevices.
     renderPalette: renderPalette,
     setCatalog: function (cat) { catalog = cat; },
+    // The report builder is pure, so a test can assert what a report contains
+    // without opening a window.
+    bugReportBody: bugReportBody,
+    bugReportUrl: bugReportUrl,
+    issueUrl: ISSUE_NEW,
     renderCableLegend: renderCableLegend,
     bindLegend: bindLegend,
     setLegendCollapsed: setLegendCollapsed,
