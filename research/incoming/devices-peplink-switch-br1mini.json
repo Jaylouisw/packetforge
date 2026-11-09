@@ -1,0 +1,315 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "PSW-8-240W-RUG",
+    "label": "Peplink PSW-8-240W-RUG",
+    "category": "switch",
+    "description": "Rugged industrial 8-port PoE+ SD switch with two 1G SFP cages, 240 W PoE budget.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "SFP1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "SFP2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink switch datasheet: **8x GE Ports (PoE+), 2x 1G SFP Ports**, 240 W PoE budget. The SFP cages are 1G here, not 10G - this is the rugged access switch, and the SFP+ figures elsewhere in the same datasheet belong to the higher PSW models, which is exactly the confusion that makes row-level verification worth the trouble."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance Two",
+    "label": "Peplink Balance Two",
+    "category": "router",
+    "description": "Dual-WAN branch router: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput and 150 Mbps PepVPN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_balance_two_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink datasheet: WAN Interface **2x 10/100/1000M Ethernet**, LAN Interface **4x 10/100/1000M Ethernet**, Router Throughput 1 Gbps, PepVPN/SpeedFusion Throughput 150 Mbps. **The VPN figure is the one that matters for a SpeedFusion plan**: 150 Mbps against 1 Gbps of routing throughput means a tunnel is a seventh of the line rate, and a lab built on the routing number will expect six times the encrypted throughput the box can do."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-MINI-LTE-E",
+    "label": "Peplink MAX BR1 Mini HW3 (LTE-E)",
+    "category": "router",
+    "description": "Compact mobile router, HW3, EMEA LTE: 3x GE LAN (one convertible to WAN with PrimeCare), 300 Mbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-LTE-E** suffix is the EMEA LTE band set; the ports are identical to the LTEA SKUs, so only the band coverage differs."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-MINI-LTEA-E",
+    "label": "Peplink MAX BR1 Mini HW3 (LTE-A E)",
+    "category": "router",
+    "description": "Compact mobile router, HW3, EMEA LTE-A: 3x GE LAN (one convertible to WAN with PrimeCare), 300 Mbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-LTEA-E** suffix is the EMEA LTE-Advanced band set - same ports, same 300 Mbps ceiling, a different modem from the plain LTE-E SKU in this catalogue."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-MINI-LTEA-W",
+    "label": "Peplink MAX BR1 Mini HW3 (LTE-A W)",
+    "category": "router",
+    "description": "Compact mobile router, HW3, worldwide LTE-A: 3x GE LAN (one convertible to WAN with PrimeCare), 300 Mbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-W** suffix is the worldwide LTE-A band set. Two requests (#490 and #497) describe this same SKU (MAX-BR1-MINI-LTEA-W-T / -T-PRM), so both point at this one entry."
+  }
+]

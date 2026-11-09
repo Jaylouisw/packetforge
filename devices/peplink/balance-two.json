@@ -1,0 +1,59 @@
+{
+  "vendor": "peplink",
+  "model": "Balance Two",
+  "label": "Peplink Balance Two",
+  "category": "router",
+  "description": "Dual-WAN branch router: 2x GE WAN, 4x GE LAN, 1 Gbps routing throughput and 150 Mbps PepVPN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/peplink_balance_two_datasheet.pdf",
+  "notes": "Vendor figures from the Peplink datasheet: WAN Interface **2x 10/100/1000M Ethernet**, LAN Interface **4x 10/100/1000M Ethernet**, Router Throughput 1 Gbps, PepVPN/SpeedFusion Throughput 150 Mbps. **The VPN figure is the one that matters for a SpeedFusion plan**: 150 Mbps against 1 Gbps of routing throughput means a tunnel is a seventh of the line rate, and a lab built on the routing number will expect six times the encrypted throughput the box can do.",
+  "role": [
+    "sd-wan"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-MINI-LTE-E",
+  "label": "Peplink MAX BR1 Mini HW3 (LTE-E)",
+  "category": "router",
+  "description": "Compact mobile router, HW3, EMEA LTE: 3x GE LAN (one convertible to WAN with PrimeCare), 300 Mbps throughput, Wi-Fi, PoE in.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-mini.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-LTE-E** suffix is the EMEA LTE band set; the ports are identical to the LTEA SKUs, so only the band coverage differs.",
+  "role": [
+    "sd-wan"
+  ]
+}

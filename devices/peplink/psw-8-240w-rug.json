@@ -1,0 +1,100 @@
+{
+  "vendor": "peplink",
+  "model": "PSW-8-240W-RUG",
+  "label": "Peplink PSW-8-240W-RUG",
+  "category": "switch",
+  "description": "Rugged industrial 8-port PoE+ SD switch with two 1G SFP cages, 240 W PoE budget.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
+  "notes": "Vendor figures from the Peplink switch datasheet: **8x GE Ports (PoE+), 2x 1G SFP Ports**, 240 W PoE budget. The SFP cages are 1G here, not 10G - this is the rugged access switch, and the SFP+ figures elsewhere in the same datasheet belong to the higher PSW models, which is exactly the confusion that makes row-level verification worth the trouble."
+}
