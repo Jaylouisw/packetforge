@@ -63,5 +63,10 @@
   "icon": "router",
   "color": "#dc2626",
   "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/56584a8272b44e61be416b1afc0eb241/M3T1A590N1117254686652182733/NetEngine%20A816%20E%20Datasheet%20V800R024C10.pdf",
-  "notes": "Datasheet V800R024C10, \"Interface Type: 4*GE/FE (optical) + 4*GE/FE (electrical)\" - eight service ports in total, which is what the hardware guide quotes as the maximum number of physical ports. 1U, 320 x 220 x 43.6 mm, 24 W typical, natural convection (no fan), -5 to 50 C, single AC / dual AC / AC+DC. NAT is rated 600 Mbps and IPsec 300 Mbps at 512-byte packets - forwarding numbers, not port features, so they are recorded here rather than as capabilities. No PoE on any port. FE is a software rate on each GE port rather than a separate interface. MPLS and SRv6 are switchable modes: one box cannot run LDP and SRv6 in the same instance."
+  "notes": "Datasheet V800R024C10, \"Interface Type: 4*GE/FE (optical) + 4*GE/FE (electrical)\" - eight service ports in total, which is what the hardware guide quotes as the maximum number of physical ports. 1U, 320 x 220 x 43.6 mm, 24 W typical, natural convection (no fan), -5 to 50 C, single AC / dual AC / AC+DC. NAT is rated 600 Mbps and IPsec 300 Mbps at 512-byte packets - forwarding numbers, not port features, so they are recorded here rather than as capabilities. No PoE on any port. FE is a software rate on each GE port rather than a separate interface. MPLS and SRv6 are switchable modes: one box cannot run LDP and SRv6 in the same instance.",
+  "fabric": {
+    "capacityMbps": 120000,
+    "kind": "switching capacity",
+    "note": "120 Gbit/s switching capacity."
+  }
 }

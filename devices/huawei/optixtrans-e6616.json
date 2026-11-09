@@ -516,5 +516,13 @@
   "icon": "switch",
   "color": "#dc2626",
   "sourceUrl": "https://e.huawei.com/en/documents/others/621bfc22e8564cf69ae86581569a7594",
-  "notes": "Port list is a stated card complement, not a fixed chassis figure: the E6616 is a 5U shelf with 14 service slots, so 56 client + 28 line is what \"14x B1LDCD\" means. Fewer boards, or the OTN/SDH switch boards (K5XCH 2.4T OTN, K5SXCH OTN+SDH) in place of a muxponder, give a different box - the same convention as devices/arista/7504r.json.\n\nPer board, B1LDCD is 4x 100GE client (QSFP28, LR4/SR4/CLR4 or OTU4) into 2x programmable 100G/200G line (CFP2). The line side is a CFP2 cage and takes CFP2 optics only: a 200G QSFP56 module carries the same rate and will not seat, which the link validator refuses by name (E_CONNECTOR_MISMATCH) rather than accepting and quietly running at the wrong rate. Switching a board to its 100G line mode halves the line rate and lets 4x OTU4 map to 2x OTU4.\n\nNot a packet switch: client ports carry OTU4/100GE into OTN containers, and there is no L2/L3 forwarding, which is why capabilities is cli only - same reading as the Cisco NCS 1004. FEC, PRBS, ALS, 1588v2, G.8275.1 and AES-256 client encryption are board features and are not modelled as port capabilities."
+  "notes": "Port list is a stated card complement, not a fixed chassis figure: the E6616 is a 5U shelf with 14 service slots, so 56 client + 28 line is what \"14x B1LDCD\" means. Fewer boards, or the OTN/SDH switch boards (K5XCH 2.4T OTN, K5SXCH OTN+SDH) in place of a muxponder, give a different box - the same convention as devices/arista/7504r.json.\n\nPer board, B1LDCD is 4x 100GE client (QSFP28, LR4/SR4/CLR4 or OTU4) into 2x programmable 100G/200G line (CFP2). The line side is a CFP2 cage and takes CFP2 optics only: a 200G QSFP56 module carries the same rate and will not seat, which the link validator refuses by name (E_CONNECTOR_MISMATCH) rather than accepting and quietly running at the wrong rate. Switching a board to its 100G line mode halves the line rate and lets 4x OTU4 map to 2x OTU4.\n\nNot a packet switch: client ports carry OTU4/100GE into OTN containers, and there is no L2/L3 forwarding, which is why capabilities is cli only - same reading as the Cisco NCS 1004. FEC, PRBS, ALS, 1588v2, G.8275.1 and AES-256 client encryption are board features and are not modelled as port capabilities.",
+  "fabric": {
+    "capacityMbps": 2800000,
+    "kind": "OTN cross-connect",
+    "note": "2.8 Tbit/s OTN cross-connect for the 14-slot shelf with K5XCH switch boards (2.4 Tbit/s with the OTN+SDH variant). Line ports are excluded from the offered figure: each one is the far end of a client connection the fabric already carries once.",
+    "excludes": [
+      "line*"
+    ]
+  }
 }

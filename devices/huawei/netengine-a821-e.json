@@ -123,5 +123,10 @@
   "icon": "router",
   "color": "#dc2626",
   "sourceUrl": "https://entec.cz/wp-content/uploads/2025/10/Huawei_NetEngine-A800-E.pdf",
-  "notes": "Fixed interfaces per the A800 E portfolio and the Huawei product note: \"two 10GE/GE ports, eight optical GE ports, and eight electrical GE ports\". The hardware guide gives the same total (18) and notes that the two 10GE cages are SFP+ and auto-sense FE/GE/10GE. Switching capacity 72 Gbit/s. FlexE slicing and SRv6 are the reasons to pick this over the A822 E; MPLS and SRv6 are exclusive modes. No PoE. Two fewer 10GE-capable cages than the 6 in the A821 E hardware guide table, which counts the 10GE-capable GE cages that can be software-upgraded - the box ships with 2x 10GE."
+  "notes": "Fixed interfaces per the A800 E portfolio and the Huawei product note: \"two 10GE/GE ports, eight optical GE ports, and eight electrical GE ports\". The hardware guide gives the same total (18) and notes that the two 10GE cages are SFP+ and auto-sense FE/GE/10GE. Switching capacity 72 Gbit/s. FlexE slicing and SRv6 are the reasons to pick this over the A822 E; MPLS and SRv6 are exclusive modes. No PoE. Two fewer 10GE-capable cages than the 6 in the A821 E hardware guide table, which counts the 10GE-capable GE cages that can be software-upgraded - the box ships with 2x 10GE.",
+  "fabric": {
+    "capacityMbps": 72000,
+    "kind": "switching capacity",
+    "note": "72 Gbit/s switching capacity, with FlexE slicing on top."
+  }
 }

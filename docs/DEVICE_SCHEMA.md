@@ -32,6 +32,7 @@ is right and this page has drifted.
 | `capabilities` | yes | non-empty array from the vocabulary below. |
 | `interfaces` **or** `portTemplate` | yes | at least one port has to exist. |
 | `notes` | optional | the vendor's numbers, and anything surprising. This is where a spec disagrees with its own model name. |
+| `fabric` | optional | `{ "capacityMbps": number, "kind": string, "excludes": ["line*"] }` — the switching or cross-connect capacity the vendor states. Declare it only when the capacity genuinely caps what the ports can do together; the palette shows the ratio, and the invariant refuses a fabric slower than one of its own ports. |
 
 ### Categories
 

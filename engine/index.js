@@ -24,6 +24,7 @@ const convergence = require('./convergence');
 const ipv6 = require('./ipv6');
 const ra = require('./ra');
 const flow = require('./flow');
+const fabric = require('./fabric');
 
 module.exports = {
   convergence,
@@ -45,6 +46,7 @@ module.exports = {
   ipv6,
   ra,
   flow,
+  fabric,
   Device,
   Interface,
   Link,

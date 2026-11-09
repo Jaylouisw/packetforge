@@ -298,6 +298,57 @@
     return tokens.length ? 6 : -1;
   }
 
+  // Fabric capacity, when a device declares one: the cages a box has against the bits it can
+  // actually move. The E6608 is the case that made this worth showing - 24x 100GE client cages
+  // behind an 800G cross-connect is 3x the fabric, and the port list alone says only "100G"
+  // twenty-four times. Pure, so the wording is testable without a DOM.
+  function fabricGlob(name, glob) {
+    const n = String(name || ''), g = String(glob || '');
+    if (!g) return false;
+    return g.charAt(g.length - 1) === '*' ? n.indexOf(g.slice(0, -1)) === 0 : n === g;
+  }
+  function fabricRate(speed) {
+    const m = String(speed == null ? '' : speed).trim().match(/^([0-9]+(?:\.[0-9]+)?)\s*([KMGT]?)B?$/i);
+    if (!m) return 0;
+    const n = parseFloat(m[1]);
+    switch ((m[2] || '').toUpperCase()) {
+      case 'K': return n / 1000;
+      case 'M': return n;
+      case 'G': return n * 1000;
+      case 'T': return n * 1000000;
+      default: return n;
+    }
+  }
+  function humanRate(mbps) {
+    if (mbps >= 1000000) return (mbps / 1000000).toFixed(mbps % 1000000 ? 1 : 0) + ' Tbit/s';
+    if (mbps >= 1000) return (mbps / 1000).toFixed(mbps % 1000 ? 1 : 0) + ' Gbit/s';
+    return mbps + ' Mbit/s';
+  }
+  function fabricSummary(spec) {
+    if (!spec || !spec.fabric || typeof spec.fabric !== 'object') return null;
+    const capacity = Number(spec.fabric.capacityMbps);
+    if (!isFinite(capacity) || capacity <= 0) return null;
+    const excludes = Array.isArray(spec.fabric.excludes) ? spec.fabric.excludes : [];
+    let offered = 0;
+    for (const i of spec.interfaces || []) {
+      if (!i) continue;
+      const type = i.type || 'ethernet';
+      if (['ethernet', 'pon'].indexOf(type) === -1) continue;
+      if (excludes.some(function (g) { return fabricGlob(i.name, g); })) continue;
+      offered += fabricRate(i.speed);
+    }
+    const ratio = offered / capacity;
+    return {
+      capacityMbps: capacity,
+      offeredMbps: offered,
+      ratio: ratio,
+      exceeds: offered > capacity,
+      kind: spec.fabric.kind || 'fabric',
+      text: humanRate(capacity) + ' ' + (spec.fabric.kind || 'fabric') +
+        (ratio > 1 ? ' · ' + humanRate(offered) + ' of cages (' + ratio.toFixed(1) + '× oversubscribed)' : '')
+    };
+  }
+
   // Palette filter: vendor/type facets first, then search, best matches first. Ties
   // keep catalogue order (the sort is stable and the index breaks ties explicitly).
   function filterDevices(query, specs, filters) {
@@ -1289,6 +1340,15 @@
     html += '<div class="field-label">Capabilities</div><div>';
     for (const c of (d.capabilities || [])) html += '<span class="chip">' + c + '</span>';
     html += '</div>';
+
+    // A device can have far more cage capacity than its fabric can move. Saying so in the
+    // inspector is the difference between a reader discovering it in a lab and reading it here.
+    const fab = fabricSummary(d.spec || {});
+    if (fab) {
+      html += '<div class="kv"><span class="k">' + (fab.kind.charAt(0).toUpperCase() + fab.kind.slice(1)) +
+        '</span><span' + (fab.exceeds ? ' title="the ports offer more than the fabric can switch at once"' : '') +
+        '>' + fab.text + '</span></div>';
+    }
 
     // PoE: report the real budget and what is actually being drawn. Denials are
     // the point - a budget nobody can exceed is decoration.
@@ -2507,6 +2567,7 @@
     vlanSummary: vlanSummary,
     filterDevices: filterDevices,
     searchKey: searchKey,
+    fabricSummary: fabricSummary,
     // The palette render is exposed so a test can assert what it builds: the whole point
     // of the collapse change is how many cards exist in the DOM, and that is not visible
     // through filterDevices.

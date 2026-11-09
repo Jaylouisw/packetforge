@@ -214,6 +214,35 @@ switch# show vlan brief
 
 ---
 
+## 7a. Fabric capacity — when the box has fewer bits than cages
+
+A port list is a promise about cages, not about throughput. The OptiXtrans E6608 is the case that
+made this explicit: six service slots of B1LDCD boards present **24x 100GE client** cages, and the
+OTN cross-connect behind them is **800 Gbit/s**. Three times the fabric, from a spec that lists
+`100G` twenty-four times.
+
+A device can declare it:
+
+```json
+"fabric": { "capacityMbps": 800000, "kind": "OTN cross-connect", "excludes": ["line*"] }
+```
+
+- **`capacityMbps`** — the vendor's switching or cross-connect figure, in megabits per second.
+- **`kind`** — how the vendor words it (`switching capacity`, `OTN cross-connect`), because "fabric"
+  alone hides which of the two numbers on the datasheet this is.
+- **`excludes`** — port-name globs (one trailing `*`, nothing fancier) for cages whose traffic is
+  already counted at the other end of the same connection.
+
+That last field is the one that is easy to get wrong. On a **muxponder**, the client port and the
+line port are two ends of one service, and the fabric carries it **once**. Counting both sides reads
+the E6608 as 6x oversubscribed; excluding the line side gives the honest 3x. A plain switch excludes
+nothing, because every port on it is a service port.
+
+What this is **not**: an oversubscription error. A 48-port gigabit switch behind a 10G uplink is
+48x oversubscribed by design. `engine/fabric.js` reports the ratio and the palette shows it — it never
+refuses a cable. The one hard rule is that a fabric may not be slower than a single port on the same
+device, which is a typo rather than an architecture.
+
 ## 8. Adding a new medium
 
 1. Add an entry to `MEDIA` in `engine/media.js` (family, connector, speed, reach).
