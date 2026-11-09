@@ -1476,6 +1476,35 @@
     return verdict;
   }
 
+  // The interface header summarises the rows underneath it, and it used to count `enabled` - so a device
+  // with nothing plugged in read "28 ports · 28 up" while the front panel two lines above painted every socket
+  // `notconnect` and the console said `down (no cable)` for all 28 (#1299). A summary that disagrees with the
+  // rows it summarises is worse than no summary: it is the line people read.
+  //
+  // So the count comes from the same `portVerdict()` the rows and the front panel use, and every port that is
+  // not up is accounted for by reason rather than dropped.
+  function interfacesHeader(d) {
+    const total = (d.interfaces || []).length;
+    const groups = [];
+    let up = 0;
+    for (const i of d.interfaces) {
+      const v = portVerdict(d, i.name);
+      // No verdict means the shared rule is not loaded (or the row is not in the hardware list). Say that,
+      // rather than falling back to `enabled`, which is the guess that caused this defect in the first place:
+      // an administratively enabled port with no cable is not up.
+      const label = v ? (v.state === 'up' ? 'up' : v.text)
+        : (i.enabled === false ? 'administratively down' : 'unknown (no state rule loaded)');
+      if (label === 'up') { up++; continue; }
+      const g = groups.filter(function (x) { return x.label === label; })[0];
+      if (g) g.count++;
+      else groups.push({ label: label, count: 1 });
+    }
+    groups.sort(function (a, b) { return b.count - a.count; });
+    let text = total + ' port' + (total === 1 ? '' : 's') + ' · ' + up + ' up';
+    for (const g of groups) text += ' · ' + g.count + ' ' + g.label;
+    return { total: total, up: up, groups: groups, text: text };
+  }
+
   function renderDeviceTab() {
     const wrap = $('#tab-device');
     if (selectedLink) { renderLinkInspector(wrap); return; }
@@ -1555,9 +1584,8 @@
     html += '<input type="text" id="hostname-input" style="width:100%;background:var(--bg-2);border:1px solid var(--border-2);color:var(--text);border-radius:5px;padding:6px 8px" value="' + (d.name || '') + '">';
 
     // interfaces — hardware-aware, filterable, expandable
-    const upCount = d.interfaces.filter(function (i) { return i.enabled; }).length;
-    html += '<div class="field-label">Interfaces <span class="iface-count">' +
-      d.interfaces.length + ' ports · ' + upCount + ' up</span></div>';
+    const ifHdr = interfacesHeader(d);
+    html += '<div class="field-label">Interfaces <span class="iface-count">' + ifHdr.text + '</span></div>';
     html += '<input id="iface-filter" class="iface-filter" type="search" placeholder="filter ports by name, media or IP…" autocomplete="off" spellcheck="false">';
     html += '<div class="iface-list" id="iface-list">';
     for (const i of d.interfaces) html += ifaceRowHTML(d, i);
@@ -2802,6 +2830,7 @@
     deleteLink: deleteLink,
     cordOfferFor: cordOfferFor,
     renderDeviceTab: renderDeviceTab,
+    interfacesHeader: interfacesHeader,
     renderLinkInspector: renderLinkInspector,
     ifaceRowHTML: ifaceRowHTML,
     poeSummary: poeSummary,

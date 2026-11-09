@@ -142,5 +142,28 @@ one rule, and every caller shares it:
 | `show ip route` | marks a configured route whose egress cannot carry |
 | `show etherchannel summary` | `(P)` only for members that can carry, `(D)` with the reason otherwise |
 | canvas, faceplate, inspector | the same sentence in the tooltip and the status bar |
+| inspector interface header | counts the ports that can carry, and names every other one by reason |
 | `_forwardL2()` | a flood skips it — broadcasting into a dead port invents a discard that never happened |
 | BGP, OSPF | a session or adjacency needs a wire that can carry it |
+
+### The header is a summary of the rows under it
+
+`Interfaces  28 ports · 0 up · 28 down (no cable)` is one sentence, but it is the one people read, and it used
+to be computed from `enabled` — so a switch with nothing plugged in read `28 ports · 28 up` while the front panel
+two lines above painted every socket `notconnect` and the console said `down (no cable)` for all 28. Worse, a
+port whose peer had shut down and a port whose cable had been taken down counted as up, which are exactly the
+two situations an operator opens the inspector to diagnose.
+
+The header now counts through `portVerdict()`, the same rule the rows, the faceplate, the tooltip and the status
+bar use, and every port that is not up is accounted for by the reason the console prints — never dropped from
+the total:
+
+```
+28 ports · 1 up · 27 down (no cable)
+28 ports · 0 up · 27 down (no cable) · 1 down (link down)
+28 ports · 0 up · 27 down (no cable) · 1 administratively down
+```
+
+If the state rule itself is missing (a deployment where `web/faceplate.js` failed to load), the header says
+`unknown (no state rule loaded)` rather than falling back to `enabled` — the guess that produced the bug. A
+summary that guesses is worse than one that admits it cannot tell.
