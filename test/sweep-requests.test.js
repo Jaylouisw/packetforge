@@ -10,7 +10,7 @@
 // distinguishable at all. Measured against the live backlog: 0 of 250 requests matched
 // before, 30 of 250 after. These checks hold the parsing that difference depends on.
 const path = require('path');
-const { requestSubject, requestCandidates, norm } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+const { requestSubject, requestCandidates, norm, accessoryTargets, isAccessoryFor, familyCandidates } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -193,6 +193,50 @@ ok(deEntity('A&amp;B &quot;x&quot;') === 'A&B "x"', 'named entities are decoded'
 ok(deDash(deEntity('UF&#8209;OLT')) === 'UF-OLT', 'a decoded non-breaking hyphen becomes ASCII');
 ok(deDash('a–b—c') === 'a-b-c', 'en and em dashes fold too');
 ok(deDash('plain-ascii') === 'plain-ascii', 'ASCII input is untouched');
+
+console.log('');
+console.log('A request written the way a person says it is hinted, not closed:');
+const CAT = [
+  { vendor: 'microsoft', model: 'Xbox Series X', file: 'devices/microsoft/xbox-series-x.json', category: 'iot' },
+  { vendor: 'amazon', model: 'Fire TV Stick 4K Max (2nd gen)', file: 'devices/amazon/fire-tv-stick-4k-max-2nd-gen.json', category: 'iot' },
+  { vendor: 'amazon', model: 'Fire TV Cube (3rd gen)', file: 'devices/amazon/fire-tv-cube-3rd-gen.json', category: 'iot' },
+  { vendor: 'amazon', model: 'Fire HD 10 (13th Gen)', file: 'devices/amazon/fire-hd-10-13th-gen.json', category: 'tablet' },
+  { vendor: 'roku', model: 'Ultra', file: 'devices/roku/ultra.json', category: 'iot' },
+  { vendor: 'ubiquiti', model: 'UniFi Cloud Gateway Ultra', file: 'devices/ubiquiti/ucg-ultra.json', category: 'router' }
+];
+let fam = familyCandidates('Microsoft Xbox', 'microsoft', CAT);
+ok(fam.length === 1 && fam[0].model === 'Xbox Series X', 'Microsoft Xbox -> Xbox Series X', JSON.stringify(fam));
+fam = familyCandidates('Amazon Fire TV Stick', 'amazon', CAT);
+ok(fam.some(function (c) { return c.model === 'Fire TV Stick 4K Max (2nd gen)'; }), 'Fire TV Stick -> the stick');
+ok(!fam.some(function (c) { return c.category === 'tablet'; }), 'and not the Fire HD tablet');
+ok(fam[0].file && fam[0].file.indexOf('fire-tv-stick') !== -1, 'a hint names the file a human should read', fam[0] && fam[0].file);
+ok(familyCandidates('Xbox Series X', 'microsoft', CAT).length === 0, 'an exact model is not also a hint');
+ok(familyCandidates('Ultra', 'roku', CAT).every(function (c) { return c.vendor === 'roku'; }), 'the vendor guard holds - Ultra is a Roku and a Ubiquiti');
+ok(familyCandidates('Xbox', null, CAT).length === 1, 'works without a vendor, from the subject alone');
+ok(familyCandidates('X', 'microsoft', CAT).length === 0, 'a one-character subject matches nothing');
+
+console.log('');
+console.log('An accessory is not the device it fits:');
+ok(accessoryTargets('Ubiquiti Iso-Beam-19 RF Isolator Shield for NanoBeam NBE-M2-13, NBE-M5-19').indexOf('nanobeam') !== -1,
+  'the preposition target is read');
+ok(isAccessoryFor('[Device]: Ubiquiti Iso-Beam-19 RF Isolator Shield for NanoBeam NBE-M2-13, NBE-M5-19', 'NBE-M5-19'),
+  'the Iso-Beam shield is an accessory for NBE-M5-19, not NBE-M5-19 (#246)');
+ok(!isAccessoryFor('[Device]: Ubiquiti NanoBeam M5-19', 'NBE-M5-19'), 'a bare model with no preposition is the device');
+ok(!isAccessoryFor('[Device]: NBE-M5-19 shield kit for outdoor use', 'NBE-M5-19'), 'model named before the preposition is the device');
+ok(!isAccessoryFor('[Device]: Ubiquiti NanoBeam M5-19 - mount for pole', 'NBE-M5-19'), 'an unrelated "for" later in the title does not make it an accessory');
+
+console.log('');
+console.log('Against the real catalogue, the two requests that sat open for months:');
+try {
+  const { loadCatalog } = require(path.join(__dirname, '..', 'devices', 'registry'));
+  const specs = loadCatalog(path.join(__dirname, '..', 'devices'));
+  const xbox = familyCandidates('Microsoft Xbox', 'microsoft', specs);
+  ok(xbox.some(function (c) { return c.model === 'Xbox Series X'; }), 'Microsoft Xbox resolves to the Xbox Series X spec');
+  const fire = familyCandidates('Amazon Fire TV Stick', 'amazon', specs);
+  ok(fire.some(function (c) { return /Fire TV Stick/i.test(c.model); }), 'Amazon Fire TV Stick resolves to the stick spec');
+} catch (e) {
+  ok(false, 'the catalogue loads', e.message);
+}
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

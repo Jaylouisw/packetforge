@@ -134,6 +134,102 @@ function looksLikeModelCode(model) {
   return /^(?=.*\d)[A-Za-z0-9][A-Za-z0-9+/-]{2,}$/.test(raw) && raw.indexOf('-') !== -1;
 }
 
+// --- Hints: the tiers below exactness -------------------------------------------------------
+//
+// Exactness is right: closing somebody's request by pointing at a different product tells them
+// their hardware is modelled when it is not. But exactness alone is why #842 ("Amazon Fire TV
+// Stick") and #843 ("Microsoft Xbox") sat open for months after the devices were imported - a
+// person writes the name they say out loud, and the catalogue stores the model. A sweep that can
+// only see exact matches therefore reports "nothing to do" while the backlog fills with requests
+// that are already answered.
+//
+// So: report a hint, never act on one. Nothing here closes an issue.
+
+// Prepositions that make the device the *target* of the request rather than the request itself.
+// "Iso-Beam-19 RF Isolator Shield for NBE-M5-19" is an accessory, and matching it to the radio it
+// clips onto is how this script closed an accessory request as "already modelled" (#246).
+const ACCESSORY_FRAME = /\b(?:for|compatible\s+with|fits|to\s+fit|works\s+with|mounts?\s+on)\s+([A-Za-z0-9][A-Za-z0-9+\/.-]{2,})/gi;
+
+function accessoryTargets(title) {
+  const out = [];
+  const raw = deDash(title || '');
+  ACCESSORY_FRAME.lastIndex = 0;
+  let m;
+  while ((m = ACCESSORY_FRAME.exec(raw)) !== null) {
+    const key = norm(m[1]);
+    if (key && out.indexOf(key) === -1) out.push(key);
+  }
+  return out;
+}
+
+// True when the matched device is the thing this request attaches to, not the thing it asks for.
+//
+// Position decides, not vocabulary: if the matched model appears in the title *after* an accessory
+// preposition, the request is about something that fits it. #246 reads "Iso-Beam-19 RF Isolator
+// Shield for NanoBeam NBE-M2-13, NBE-M5-19" - the shield is the subject, the radios are the target,
+// and the one-token reader above only sees "NanoBeam".
+function isAccessoryFor(title, model) {
+  const raw = deDash(title || '');
+  const modelRaw = String(model || '');
+  if (!raw || !modelRaw) return false;
+  const lower = raw.toLowerCase();
+  let modelAt = lower.indexOf(modelRaw.toLowerCase());
+  if (modelAt === -1) {
+    // The catalogue model can carry a series prefix the reporter leaves out: the title says
+    // "NanoBeam M5-19" and the catalogue says "NBE-M5-19". Fall back to the last two code tokens,
+    // hyphenated or spaced, and only then give up.
+    const parts = modelRaw.split(/[\s\-_]+/).filter(Boolean);
+    const tail = parts.slice(-2).join('-').toLowerCase();
+    if (tail) {
+      modelAt = lower.indexOf(tail);
+      if (modelAt === -1) modelAt = lower.indexOf(tail.replace(/-/g, ' '));
+    }
+  }
+  // The device is not named in the title at all: nothing to compare positions with, so a match
+  // elsewhere is not suppressed. A guard that fires on uncertainty would silence real requests.
+  if (modelAt === -1) return false;
+  ACCESSORY_FRAME.lastIndex = 0;
+  let m;
+  while ((m = ACCESSORY_FRAME.exec(raw)) !== null) {
+    // The model is named after the preposition, so it is what the request attaches to. When the
+    // model is named first ("NBE-M5-19 shield kit for outdoor use") this stays false.
+    if (m.index < modelAt) return true;
+  }
+  return false;
+}
+
+// Catalogue entries a request is plausibly asking for without naming exactly, from the same
+// vendor: the request's words are a prefix of the model ("Fire TV Stick" -> "Fire TV Stick 4K
+// Max (2nd gen)") or of one of its words. Same-vendor is not negotiable - "Ultra" is a Ubiquiti
+// gateway and a Roku.
+//
+// Exact matches are excluded: those are the sweeper's own job, and a hint that duplicates a hit
+// teaches the reader to skim.
+function familyCandidates(rawSubject, vendor, entries) {
+  const subject = norm(rawSubject);
+  if (!subject || !Array.isArray(entries)) return [];
+  let words = subject.split(' ');
+  // Drop a leading vendor word: "Microsoft Xbox" -> "xbox", "Amazon Fire TV Stick" -> "fire tv stick".
+  if (vendor && words.length > 1 && words[0] === norm(vendor)) words = words.slice(1);
+  const key = words.join(' ');
+  if (key.length < 3) return [];
+  const seen = new Set();
+  const out = [];
+  for (const e of entries) {
+    if (!e || !e.model) continue;
+    if (vendor && norm(e.vendor) !== norm(vendor)) continue;
+    const model = norm(e.model);
+    if (!model || model === key) continue;
+    if (model.indexOf(key + ' ') !== 0 && model !== key + 's') continue;
+    const id = (e.vendor || '') + '/' + (e.model || '');
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push({ vendor: e.vendor, model: e.model, file: e.file || null, category: e.category });
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
 function loadCatalogue() {
   const { loadCatalog } = require(path.join(ROOT, 'devices', 'registry'));
   const specs = loadCatalog(path.join(ROOT, 'devices'));
@@ -297,6 +393,7 @@ function main() {
     }
 
     const matched = [];
+    const hints = [];
     const deviceRequests = [];
     for (const it of issues) {
       const title = String(it.title || '');
@@ -388,7 +485,22 @@ function main() {
         }
         if (hit) break;
       }
-      if (hit && hit.length) matched.push({ issue: it, subject: subject, device: hit[0] });
+      if (hit && hit.length) {
+        // An accessory request names the device it fits, and that name is in the catalogue. It is
+        // not a request for that device, so anything shaped "... for <model>" is reported and
+        // never closed.
+        if (isAccessoryFor(title, hit[0].model)) {
+          hints.push({ issue: it, subject: rawSubject, candidates: [], note: 'reads as an accessory for ' + hit[0].vendor + ' ' + hit[0].model });
+        } else {
+          matched.push({ issue: it, subject: subject, device: hit[0] });
+        }
+      } else {
+        // No exact match. If the request is written the way a person says it - "Microsoft Xbox",
+        // "Amazon Fire TV Stick" - name the catalogue entries that plausibly answer it. Reported
+        // only: a hint is a question for a human, not a close.
+        const fam = familyCandidates(rawSubject, titleVendor, cat.specs);
+        if (fam.length) hints.push({ issue: it, subject: rawSubject, candidates: fam });
+      }
     }
 
     console.log('open issues scanned      : ' + issues.length);
@@ -400,6 +512,22 @@ function main() {
         '-> ' + m.device.vendor + '/' + m.device.model + (m.device.file ? ' (' + path.basename(m.device.file) + ')' : ''));
     }
     if (matched.length > 40) console.log('  ... and ' + (matched.length - 40) + ' more');
+
+    // The hint tier. It exists because "nothing to do" was wrong: 139 requests were open while
+    // some of them were already answered under a different name. Nothing here is ever closed, and
+    // `--close` does not read this list - a hint is a question for a human, not an answer.
+    if (hints.length) {
+      console.log('');
+      console.log('possibly covered, needs a human : ' + hints.length);
+      for (const h of hints.slice(0, 40)) {
+        const where = h.candidates.length
+          ? h.candidates.map(function (c) { return c.vendor + '/' + c.model; }).join(', ')
+          : h.note;
+        console.log('  #' + String(h.issue.number).padEnd(5) + ' ' + String(h.subject).slice(0, 40).padEnd(41) + '-> ' + where);
+      }
+      if (hints.length > 40) console.log('  ... and ' + (hints.length - 40) + ' more');
+      console.log('  (reported only - --close never touches these)');
+    }
 
     if (!CLOSE_BUDGET) {
       console.log('\nreport only. Re-run with --close N to comment and close N of these.');
@@ -444,6 +572,9 @@ if (require.main === module) {
     requestCandidates: requestCandidates,
     variantOfSameCode: variantOfSameCode,
     explicitCodes: explicitCodes,
+    accessoryTargets: accessoryTargets,
+    isAccessoryFor: isAccessoryFor,
+    familyCandidates: familyCandidates,
     norm: norm
   };
 }
