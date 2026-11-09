@@ -89,6 +89,13 @@ config, and no configured value is missing from the text.
 
 ## Interface-mode commands
 
+A port answers to any spelling it is silkscreened or configured under, so `interface ether1` opens the
+socket the panel calls `eth1` and `interface SFP+1` opens `sfp+1`. The naming table lives in
+`engine/iface-name.js` and is used by both the console and the engine — there is no second copy, because two
+copies of one naming rule drift. Ambiguity is refused rather than guessed: if two ports fold onto the same
+spelling, that spelling resolves to nothing and the command says the port does not exist. Whatever you
+type, everything printed afterwards uses the panel spelling.
+
 | Command | Effect |
 |---------|--------|
 | `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`) |
