@@ -75,7 +75,13 @@ df -h; df -i
 
 # Forgejo's own checks.
 forgejo doctor check --all
+
+# Which files is it holding, and is a lock held rather than just an open handle?
+# `u` is an ordinary read/write open; `r`, `w` and `ur` mean a lock is being held.
+lsof /path/to/forgejo.db
 ```
+
+That `lsof` line is worth running **before** the restart, because the restart destroys it.
 
 Then restart the service (`systemctl restart forgejo`, or the container's
 `docker restart`), and confirm with rung 1 **and** rung 2 — rung 1 alone will say
@@ -83,6 +89,77 @@ Then restart the service (`systemctl restart forgejo`, or the container's
 
 If the instance is up but slow rather than hung, read [`CI.md`](CI.md) instead:
 that is usually the runner queue, not the forge.
+
+## When a restart fixes it for ten minutes and then it happens again
+
+A restart that buys minutes is not a fix, and the second outage is the one that repeats. On this
+instance it happened fifteen times over three days.
+
+The database was SQLite, living at `/mnt/user/appdata/forgejo/data/gitea/forgejo.db` on an Unraid
+host - and `/mnt/user` is **shfs, a FUSE filesystem**. Same bytes as the array, different locking:
+POSIX locks taken through FUSE can stay held after the holder has finished with them.
+
+The measurement that identifies it, taken before and after moving the file to the pool's real path:
+
+```
+before  gitea  12ur  /mnt/user/appdata/forgejo/data/gitea/forgejo.db    <- read+write lock HELD
+after   gitea  12u   /mnt/cache/appdata/forgejo/data/gitea/forgejo.db    <- open, no lock
+```
+
+With the lock held, every query stacked up behind it:
+
+- a single-row `SELECT ... FROM user WHERE lower_name=?` took **2 minutes 5 seconds**;
+- the container's CPU sat at **0.25%** - it was blocked, not busy, which is why load average and a
+  CPU graph both looked innocent while the forge was unusable;
+- a goroutine dump (`kill -QUIT <gitea pid>`) showed goroutines queued in
+  `database/sql.(*Rows).close` waiting on an `RWMutex`: the connection pool had starved, so requests
+  never reached the logging that would have shown them;
+- after the move, the same request answered in **30-60 ms**, ten concurrent requests all answered in
+  **130 ms**, and the issues list in **64 ms**.
+
+### Diagnosing which path the database is actually on
+
+```bash
+docker inspect forgejo --format '{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}}{{println}}{{end}}'
+# bind /mnt/user/appdata/forgejo/data -> /data      <- the FUSE view
+
+df -h /mnt/user/appdata            # shfs: says nothing about the real disk
+ls -l /mnt/cache/appdata/forgejo/  # the pool path the FUSE view stands in front of
+```
+
+A bind that reads `/mnt/user/...` on Unraid is a FUSE path. The same directory seen through
+`/mnt/cache/...` (or `/mnt/disk<N>/...`) is a normal filesystem.
+
+### The fix
+
+Point the container at the pool's own path. The files do not move, so there is nothing to copy:
+
+```bash
+docker stop forgejo
+docker rename forgejo forgejo-fuse-bak          # rollback, free of charge
+docker run -d --name forgejo --restart unless-stopped \
+  -p 3000:3000 -p 2222:22 \
+  -e USER_UID=1000 -e USER_GID=1000 -e USER=git -e GITEA_CUSTOM=/data/gitea \
+  -v /mnt/cache/appdata/forgejo/data:/data \
+  codeberg.org/forgejo/forgejo:latest
+```
+
+Keep the old container until rung 2 answers again: `docker rename forgejo-fuse-bak forgejo` followed
+by `docker start forgejo` is the entire rollback.
+
+Two things quietly undo this, so check both afterwards:
+
+- **a container template or compose file that still says `/mnt/user/...`** - re-creating from it puts
+  the FUSE path back: `grep -rl 'mnt/user/appdata/forgejo' /boot/config /root /opt /srv`;
+- **somebody else's `docker compose up`** on the host, for exactly the same reason.
+
+### The general rule
+
+**SQLite must live on a real local filesystem.** Not a FUSE path, not a network share, not a sync
+folder - the locking those filesystems provide does not survive the assumptions SQLite makes, and
+the failure mode is a hang rather than an error, which is why it reads as "the forge keeps
+crashing". If the database has to be shared or hosted off-box, that is the moment to move to
+PostgreSQL, not to move the file.
 
 ## While it is down
 
