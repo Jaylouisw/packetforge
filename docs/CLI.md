@@ -21,7 +21,7 @@ Modes and their prompts:
 | `configure terminal` | enter config mode |
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table |
-| `show ip route` | connected + static routes |
+| `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache |
 | `show mac address-table` | MAC table (switches) |
 | `show interfaces` | per-interface detail incl. MAC + peer |
@@ -165,15 +165,36 @@ R1(config-if)# ip address 10.0.2.1 255.255.255.0
 R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
-Codes: C - connected, S - static
-C  10.0.1.0/24  via -  Gi0/0
-C  10.0.2.0/24  via -  Gi0/1
+Codes: C - connected, S - static, O - OSPF, B - BGP
+Gateway of last resort is 10.0.0.1 to network 0.0.0.0
+C   10.0.1.0       /24  is directly connected, Gi0/0
+C   10.0.2.0       /24  is directly connected, Gi0/1
+S*  0.0.0.0        /0  [254/0] via 10.0.0.1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 !!!!
 Success rate is 100 percent (4/4)
 ```
+
+### Reading `show ip route`
+
+The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP — and
+each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
+the installed route (longest prefix first, then lowest distance), and without it two rows for the same
+prefix cannot be told apart.
+
+The default gets two forms because there are two ways to configure one:
+
+| Row | Source | Distance |
+|---|---|---|
+| `S*  0.0.0.0/0 [254/0] via …` | `ip default-gateway` | 254 |
+| `S   0.0.0.0/0 [1/0] via …` | `ip route 0.0.0.0 0.0.0.0 …` | 1 |
+
+`S*` marks a **candidate** default, not the installed one. The `Gateway of last resort is …` line names
+the default packets actually leave by, so a device with both configured shows the static route there and
+the configured gateway as `S*` below it — which is exactly the tie the old output hid by printing both as
+`S`.
 
 ## Note on vendor syntax
 

@@ -1303,9 +1303,47 @@ class CliSession {
         out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(i.dhcp ? 'DHCP' : 'manual', 8) + pad(status, 22) + (i.enabled ? 'up' : 'down'));
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
-      out.push('Codes: C - connected, S - static');
-      for (const r of dev.routesTable()) {
-        out.push(r.code + '  ' + pad(r.dest, 15) + '/' + net.prefixOf(r.mask) + '  via ' + r.gw + '  ' + r.iface);
+      // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
+      // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
+      // guess at (#1234).
+      out.push('Codes: C - connected, S - static, O - OSPF, B - BGP');
+      const rows = dev.routesTable();
+
+      // The administrative distance of a route source, in one place: the table prints it and the
+      // gateway line sorts by it, so the two can never disagree (#1234).
+      const distanceOf = function (r) {
+        if (r.type === 'connected') return 0;
+        if (r.type === 'static') return 1;
+        if (r.type === 'ospf') return 110;
+        if (r.type === 'bgp') return (r.ad === undefined || r.ad === null) ? 200 : r.ad;
+        if (r.type === 'default') return 254;
+        return 1;
+      };
+
+      // "Gateway of last resort" names the default that is actually installed — the one routeTo()
+      // would pick among the candidates: longest prefix first, then lowest distance. A configured
+      // gateway (254) loses to a static default (1), and printing the losing one would send the reader
+      // after a next hop no packet ever uses.
+      const fallback = rows
+        .filter(function (r) { return r.mask === '0.0.0.0' && r.gw && r.gw !== '-'; })
+        .sort(function (a, b) { return distanceOf(a) - distanceOf(b); })[0];
+      if (fallback) out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
+
+      for (const r of rows) {
+        const prefix = net.prefixOf(r.mask);
+        const dest = pad(r.dest, 15) + '/' + prefix;
+        if (r.type === 'connected') {
+          out.push('C   ' + dest + '  is directly connected, ' + r.iface);
+          continue;
+        }
+        // [administrative distance/metric] - the distance is half of the rule that picks the installed
+        // route (longest prefix first, then lowest distance), so a table without it cannot be checked
+        // by reading.
+        const code = r.type === 'default' ? 'S*' : r.code;
+        const distance = distanceOf(r);
+        // Three columns whatever the code length, so `S*` does not shift the whole row.
+        out.push((code.length === 1 ? code + '  ' : code + ' ') + dest + '  [' + distance + '/0] via ' + r.gw +
+          (r.iface && r.iface !== '-' ? '  ' + r.iface : ''));
       }
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
