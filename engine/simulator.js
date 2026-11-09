@@ -758,6 +758,13 @@ class Simulator {
     return events;
   }
 
+  // What has crossed one port of one device, or null when counters are not available at all. The
+  // difference matters: "not measured" and "measured zero" are different answers (#1251).
+  portCounters(devId, port) {
+    if (!this.flowState) return null;
+    return flowLib.portCounters(this.flowState, devId, port);
+  }
+
   // The VRRP verdicts that involve this device: one entry per configured group on a port that took part
   // in an election. Empty means either no group is configured or no election has run.
   vrrpFor(devId) {
@@ -2391,7 +2398,8 @@ class Simulator {
     // Interface counters. Counted here and not when the packet was built,
     // because a frame that never left the box -- denied by an ACL above, or
     // dropped for want of a VLAN -- is not throughput.
-    if (out.l4) flowLib.countPacket(this.flowState, dev.id, 'out', out.l4.bytes || 0);
+    flowLib.countPacket(this.flowState, dev.id, 'out', flowLib.frameBytes(out), port.name,
+      out.l4 ? 'l4' : 'control');
     this._enqueue(dev.id, port.name, out);
   }
 
@@ -2470,7 +2478,8 @@ class Simulator {
     // 2b. Interface counters, ingress side. Counted on arrival, before any of the
     // drop tests below, because that is what a real `show interfaces` counter
     // does: a frame the ACL throws away was still received.
-    if (f.l4) flowLib.countPacket(this.flowState, dev.id, 'in', f.l4.bytes || 0);
+    flowLib.countPacket(this.flowState, dev.id, 'in', flowLib.frameBytes(f), inIface,
+      f.l4 ? 'l4' : 'control');
 
     // 3. MAC learning, scoped to the VLAN.
     // A passive coupler has no table to learn into: it forwards everything both

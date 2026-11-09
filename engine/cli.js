@@ -1483,6 +1483,20 @@ class CliSession {
           (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
         out.push('  peer: ' + (i.peer ? i.peer.deviceId + '/' + i.peer.iface : 'disconnected'));
+        // What has actually crossed this socket. The simulator counted it all along, per device, so the
+        // command could not answer the one question it is opened for: is traffic flowing on THIS port?
+        // Counted wherever a frame is enqueued and received, including frames later dropped - a frame the
+        // ACL threw away was still received (#1251).
+        const counters = (this.sim && typeof this.sim.portCounters === 'function')
+          ? this.sim.portCounters(dev.id, i.name) : null;
+        if (counters) {
+          out.push('  ' + counters.packetsIn + ' packets input, ' + counters.bytesIn + ' bytes');
+          out.push('  ' + counters.packetsOut + ' packets output, ' + counters.bytesOut + ' bytes');
+        } else {
+          // "Not measured" and "measured zero" are different answers; printing zeros without a run would
+          // claim the port is idle when nothing has looked.
+          out.push('  counters: not measured (no simulation run)');
+        }
       }
     } else if (what === 'running-config' || what === 'run') {
       out.push('! PacketForge running-config');
