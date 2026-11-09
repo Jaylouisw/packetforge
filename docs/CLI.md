@@ -545,6 +545,53 @@ Vlan    Mac Address         Type        Ports
 Trunk ports carry their allowed VLANs, so their entries are not marked; a moved host re-learns on the next
 frame it sends.
 
+### Static routes: a next hop, or an interface, never a port name in the address field
+
+`ip route` takes three shapes, and each of them replays from `show running-config`:
+
+```
+ip route 10.9.0.0 255.255.0.0 10.0.0.1        via a next hop
+ip route 10.9.0.0 255.255.0.0 10.0.0.1 Gi0    via a next hop, out a named port
+ip route 10.9.0.0 255.255.0.0 Gi0             out a port, with no next hop
+```
+
+The third used to be stored as `gw: "Gi0"` — a port name in the next-hop field — so the route was listed,
+installed, printed, and then ARPed for an address called `Gi0`. Nothing said why it never worked. It is now
+stored where `routeTo()` looks for an egress, and because the form carries a packet only when the far side
+proxies ARP for the *destination*, both surfaces say so: the console when the line is typed, and the route
+table afterwards.
+
+```
+r1(config)#ip route 192.168.9.0 255.255.255.0 Gi0
+Route added: 192.168.9.0/24 out Gi0
+  no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side
+
+r1#show ip route
+S  192.168.9.0    /24  [1/0] via -  Gi0  (no next hop: ARP for the destination on that segment)
+```
+
+Anything that is neither an address nor a port is refused, naming it and the route:
+
+```
+r1(config)#ip route 10.9.0.0 255.255.0.0 nonsense
+% 10.9.0.0/16: "nonsense" is neither a next-hop address nor an interface on r1
+r1(config)#ip route 10.9.0.0 255.255.0.0 Gi0 Gi0
+% 10.9.0.0/16: Gi0 is an interface, so it cannot also be followed by Gi0
+```
+
+`ip address 10.0.0.1/24` is an address *with a prefix length*, which is not the same thing as an address and a
+mask here, and the refusal says so rather than "Incomplete command":
+
+```
+r1(config-if)#ip address 10.0.0.77/24
+% "10.0.0.77/24" is an address with a prefix length, not an address and a mask: use
+  "ip address 10.0.0.77 255.255.255.0" or "ip address 10.0.0.77 24"
+```
+
+Inside a DHCP pool the `/prefix` spelling advertised by `network`'s own usage line is now split into a network
+and a mask, so the two spellings produce the same state — instead of storing the string `10.5.0.0/24` and
+producing a pool the validator rejects.
+
 ### Reading `show ip route`
 
 The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP — and
