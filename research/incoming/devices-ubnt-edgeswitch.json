@@ -1,0 +1,1142 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "us-16-150w",
+    "label": "Ubiquiti UniFi Switch 16 (US-16-150W)",
+    "category": "switch",
+    "description": "UniFi Switch 16 PoE+: 16x 1G PoE+ RJ45 (150 W budget), 2x 1G SFP, serial console.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "speed": "115.2k"
+      }
+    ],
+    "notes": "Vendor figures: **(16) Gigabit RJ45 ports, (2) SFP ports, (1) serial console port**, internal **150 W** supply, 802.3af/at on every copper port. **150 W across sixteen ports is 9.4 W average** - enough for sixteen cameras, not for sixteen 802.3at APs. The two SFP cages are **1G, not SFP+**; the 24- and 48-port models in this family are the ones that carry SFP+ on the larger SKUs."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "es-24-lite",
+    "label": "Ubiquiti EdgeSwitch Lite 24 (ES-24-LITE)",
+    "category": "switch",
+    "description": "EdgeSwitch Lite 24: 24x 1G RJ45, 2x 1G SFP, serial console, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "speed": "115.2k"
+      }
+    ],
+    "notes": "Vendor figures: **(24) Gigabit RJ45 ports, (2) SFP ports, (1) serial console port**. **No PoE anywhere** - the Lite line is the non-PoE EdgeSwitch, and the datasheet's power section lists a plain AC supply with no budget row, which is how you can tell without reading the model table. The \"Lite\" is about the power supply, not the feature set."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "es-48-lite",
+    "label": "Ubiquiti EdgeSwitch Lite 48 (ES-48-LITE)",
+    "category": "switch",
+    "description": "EdgeSwitch Lite 48: 48x 1G RJ45, 2x 10G SFP+ plus 2x 1G SFP, serial console, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "speed": "115.2k"
+      }
+    ],
+    "notes": "Vendor figures: **(48) Gigabit RJ45 ports, (2) SFP+ ports, (2) SFP ports, (1) serial console port**. **The 48 is not just twice the 24**: it adds **two 10G SFP+ cages** on top of the two 1G SFP cages, so the uplink capacity is 20 Gbps on the 48 against 2 Gbps on the 24. Same \"Lite\" name, same no-PoE rule, a different class of uplink."
+  }
+]

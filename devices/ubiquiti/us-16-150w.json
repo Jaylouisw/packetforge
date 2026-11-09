@@ -1,0 +1,250 @@
+{
+  "vendor": "ubiquiti",
+  "model": "us-16-150w",
+  "label": "Ubiquiti UniFi Switch 16 (US-16-150W)",
+  "category": "switch",
+  "description": "UniFi Switch 16 PoE+: 16x 1G PoE+ RJ45 (150 W budget), 2x 1G SFP, serial console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console",
+      "speed": "115.2k"
+    }
+  ],
+  "notes": "Vendor figures: **(16) Gigabit RJ45 ports, (2) SFP ports, (1) serial console port**, internal **150 W** supply, 802.3af/at on every copper port. **150 W across sixteen ports is 9.4 W average** - enough for sixteen cameras, not for sixteen 802.3at APs. The two SFP cages are **1G, not SFP+**; the 24- and 48-port models in this family are the ones that carry SFP+ on the larger SKUs."
+}
