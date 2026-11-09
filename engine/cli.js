@@ -100,6 +100,7 @@ class CliSession {
       // "core switch 1" to "core", which is what the UI's hostname field appeared to do
       // (issue #19) - the box was fine, the parser was eating the rest of the line.
       const name = tokens.slice(1).join(' ').trim();
+      if (!this.device.config.hostname) this.device.nameBeforeHostname = this.device.name;
       this.device.config.hostname = name || null;
       // device.name is what the UI renders: the canvas label, the inspector header, the
       // status bar. Setting only config.hostname left a device that reported
@@ -114,9 +115,41 @@ class CliSession {
       const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
+    } else if (head === 'no' && tokens[1] === 'hostname') {
+      // `hostname` was a one-way door: the console accepted it, `show running-config` printed it, and there
+      // was no way to take it back short of rewriting the device. A backup you cannot edit back is half a
+      // backup.
+      const was = this.device.config.hostname;
+      if (!was) return ['% No hostname set (the device is named ' + this.device.name + ')'];
+      // Restore the name the box had before the hostname was typed, not a guess at a default: `hostname` sets
+      // both config.hostname and device.name so the canvas and the console cannot disagree (#21), so undoing
+      // it has to put both back or the line stays in the config and the label lies.
+      const prior = this.device.nameBeforeHostname || null;
+      this.device.config.hostname = null;
+      if (prior) this.device.name = prior;
+      this.device.nameBeforeHostname = null;
+      out.push('Hostname cleared (device is now ' + this.device.name + ')');
     } else if (head === 'no' && tokens[1] === 'vlan') {
       const id = parseInt(tokens[2], 10);
-      if (this.device.config.vlans) delete this.device.config.vlans[id];
+      const have = this.device.config.vlans && this.device.config.vlans[id];
+      // It used to print "VLAN 42 removed" whether or not there was one - the same sentence for work done and
+      // work not done - and it would remove a VLAN that ports still carried: `show running-config` then
+      // stopped printing `vlan 42` while `show vlan` still listed it from the ports, so the table and the
+      // config described different switches.
+      if (!have) return ['% VLAN ' + id + ' does not exist'];
+      const users = [];
+      for (const i of this.device.interfaces.values()) {
+        if (!i.vlan) continue;
+        if (Number(i.vlan.accessVlan) === id) users.push(i.name);
+        else if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) users.push(i.name);
+      }
+      if (users.length) {
+        const shown = users.slice(0, 5).join(', ') +
+          (users.length > 5 ? ' (+' + (users.length - 5) + ' more)' : '');
+        return ['% VLAN ' + id + ' is still carried by ' + users.length + ' port(s): ' + shown +
+          ' - move them off it first'];
+      }
+      delete this.device.config.vlans[id];
       out.push('VLAN ' + id + ' removed');
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
       const typed = tokens.slice(2).join(' ');
@@ -185,6 +218,28 @@ class CliSession {
       }
       this.pool = name;
       this.mode = MODE_DHCP_POOL;
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'dhcp' && tokens[3] === 'pool') {
+      const name = tokens[4];
+      if (!name) return ['% Incomplete command: no ip dhcp pool <name>'];
+      const pools = this.device.config.dhcpPools || [];
+      const idx = pools.findIndex(function (p) { return p.name === name; });
+      if (idx === -1) return ['% No DHCP pool named ' + name];
+      pools.splice(idx, 1);
+      if (this.pool === name) this.mode = MODE_CONFIG;
+      out.push('DHCP pool ' + name + ' removed');
+    } else if (head === 'no' && tokens[1] === 'dns' && tokens[2] === 'zone') {
+      const dnsLib = require('./dns');
+      const apex = tokens[3];
+      if (!apex) return ['% Usage: no dns zone <name>'];
+      const key = dnsLib.normalizeName(apex);
+      const zones = this.device.config.dnsZones || [];
+      const idx = zones.findIndex(function (x) { return dnsLib.normalizeName(x.name) === key; });
+      if (idx === -1) return ['% No DNS zone named ' + key];
+      const gone = zones[idx];
+      zones.splice(idx, 1);
+      if (this._dnsZone && dnsLib.normalizeName(this._dnsZone) === key) this._dnsZone = null;
+      out.push('DNS zone ' + gone.name + ' removed' +
+        (gone.records && gone.records.length ? ' with ' + gone.records.length + ' record(s)' : ''));
     } else if (head === 'scion') {
       const scionLib2 = require('./scion');
       const parsed = scionLib2.parseIsdAs(tokens[1]);
@@ -355,6 +410,8 @@ class CliSession {
       out.push.apply(out, this._ipOspf(tokens.slice(2), iface));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'ospf') {
       out.push.apply(out, this._ipOspf(['no'].concat(tokens.slice(3)), iface));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'access-group') {
+      out.push.apply(out, this._accessGroup(['no'].concat(tokens.slice(3)), iface));
     } else if (head === 'ip' && tokens[1] === 'access-group') {
       out.push.apply(out, this._accessGroup(tokens.slice(2), iface));
     } else if (head === 'encapsulation') {
@@ -949,6 +1006,37 @@ class CliSession {
 
   _accessGroup(tokens, iface) {
     const aclLib = require('./acl');
+    const dev0 = this.device;
+    if (String(tokens[0]).toLowerCase() === 'no') {
+      // `ip access-group` had no `no` form at all: an interface could be given an access list, the config
+      // printed the line, and there was no way to take it off again from the console.
+      const rest = tokens.slice(1);
+      const want = rest[0] != null ? parseInt(rest[0], 10) : null;
+      const dir = String(rest[1] || '').toLowerCase();
+      if (dir && dir !== 'in' && dir !== 'out') return ['% Usage: no ip access-group [<acl>] [in|out]'];
+      const binds = (dev0.aclBindings && dev0.aclBindings[iface.name]) || {};
+      const dirs = dir ? [dir] : ['in', 'out'];
+      const cleared = [];
+      for (const d of dirs) {
+        if (binds[d] == null) continue;
+        // Never unbind a different list than the one named: silently clearing whatever happened to be there
+        // would take away a policy the operator did not ask about.
+        if (want != null && Number(binds[d]) !== want) {
+          return ['% Access list ' + binds[d] + ' is applied ' + d + ' on ' + iface.name + ', not ' + want];
+        }
+        delete binds[d];
+        cleared.push(d);
+      }
+      if (!cleared.length) {
+        const what = want != null ? 'access list ' + want : 'an access list';
+        return ['% No ' + what + ' applied ' + (dir || 'in or out') + ' on ' + iface.name];
+      }
+      if (dev0.aclBindings && dev0.aclBindings[iface.name] &&
+          !Object.keys(dev0.aclBindings[iface.name]).length) {
+        delete dev0.aclBindings[iface.name];
+      }
+      return ['Interface ' + iface.name + ': access list unapplied ' + cleared.join(' and ')];
+    }
     const num = parseInt(tokens[0], 10);
     const dir = String(tokens[1] || '').toLowerCase();
     if (!aclLib.aclKind(num)) return ['% Invalid access list number: ' + (tokens[0] || '')];
@@ -2054,6 +2142,8 @@ class CliSession {
       '  channel-group <id> mode active|passive|on',
       '  access-list <1-2699> permit|deny ...        (config mode)',
       '  ip access-group <acl> in|out               (interface mode)',
+      '  no ip access-group [<acl>] [in|out]        (interface mode)',
+      '  no hostname | no vlan <id> | no ip dhcp pool <name> | no dns zone <name>',
       '  ping <ip> [count]',
       '  converge [at <ms>]                - when each control plane finishes',
       '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
