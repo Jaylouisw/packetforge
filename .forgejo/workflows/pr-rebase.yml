@@ -68,6 +68,14 @@ jobs:
           # is what wiki-sync.yml already uses for the same reason.
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
+          # The default shell here is `bash -e`, and this script inherited it. That is the
+          # whole reason pull request #1198 collected a red X nobody could act on: one
+          # command near the top returned non-zero, `-e` aborted the step, and the failure
+          # reporter below could only say "the rebase job itself failed before it could
+          # report a reason". A maintenance job that explains nothing is worse than one
+          # that prints a skippable warning, so `-e` is off and the commands whose result
+          # matters are checked by hand.
+          set +e
           set -u
 
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
@@ -92,6 +100,16 @@ jobs:
             return 0
           }
 
+          # The conditions the job was handed, written before any command can fail, so an
+          # early death still leaves an explanation behind. The token appears as a length,
+          # never as a value.
+          # Written to stdout and to the report file, not through warn(): this is not a
+          # problem, and a yellow annotation on every healthy pull request teaches people
+          # to ignore the annotations that matter.
+          diagnostics="started: repository=${GITHUB_REPOSITORY:-unset} api=${api} pull=${number} branch=${head_ref:-unset} token=${#TOKEN}chars runner=${RUNNER_NAME:-unset}"
+          echo "${diagnostics}"
+          echo "${diagnostics}" > "${GITHUB_WORKSPACE}/.rebase-report"
+
           if [ -z "${TOKEN:-}" ]; then
             warn "no token available to the workflow - set the FORGEJO_TOKEN repository secret (Settings -> Actions -> Secrets) to a token with repository write access. The rebase and the auto-merge arming both need it; without it this job does nothing."
             exit 0
@@ -109,7 +127,10 @@ jobs:
           git remote set-url origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
           git remote set-url --push origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
 
-          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          if ! git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'; then
+            warn "#${number}: could not fetch main, so nothing was rebased and the branch is untouched. A runner or network problem, not a problem with the change."
+            exit 0
+          fi
 
           behind=$(git rev-list --count "HEAD..refs/remotes/origin/main" || echo 0)
           echo "#${number}: ${behind} commit(s) behind main"
@@ -153,7 +174,7 @@ jobs:
           i=0
           while [ "$i" -lt 12 ]; do
             state=$(curl -sS -H "$(auth)" "$api/repos/$repo/pulls/$number" \
-              | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ')
+              | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ' || true)
             if [ "$state" = "true" ]; then
               code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" \
                 -H 'Content-Type: application/json' \
@@ -174,6 +195,7 @@ jobs:
       - name: Explain the failure on the pull request
         if: failure()
         env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -u
