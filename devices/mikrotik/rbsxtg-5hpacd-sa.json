@@ -3,7 +3,7 @@
   "model": "RBSXTG-5HPacD-SA",
   "label": "SXT SA5 ac",
   "category": "ptp",
-  "description": "MikroTik SXT SA5 ac (RBSXTG-5HPacD-SA) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "description": "MikroTik SXT SA5 ac (RBSXTG-5HPacD-SA) — 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -21,7 +21,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -31,5 +32,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBSXTG-5HPacD-SAr2"
+  "sourceUrl": "https://mikrotik.com/product/RBSXTG-5HPacD-SAr2",
+  "notes": "Power method from the mikrotik.com spec table (MikroTik &middot; SXT SA5 ac): **PoE in: 802.3af/at** (12-57 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port. Max power consumption 12 W."
 }

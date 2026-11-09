@@ -3,7 +3,7 @@
   "model": "RB921GS-5HPacD-19S",
   "label": "mANTBox 19s",
   "category": "ptp",
-  "description": "MikroTik mANTBox 19s (RB921GS-5HPacD-19S) \u2014 1x 1G RJ45, 1x SFP, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "description": "MikroTik mANTBox 19s (RB921GS-5HPacD-19S) — 1x 1G RJ45, 1x SFP, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "SFP1",
@@ -38,5 +39,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB921GS-5HPacD-19S"
+  "sourceUrl": "https://mikrotik.com/product/RB921GS-5HPacD-19S",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (12-28 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 13 W."
 }

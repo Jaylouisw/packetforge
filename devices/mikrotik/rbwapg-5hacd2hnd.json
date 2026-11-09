@@ -21,7 +21,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "eth2",
@@ -41,5 +42,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/wap_ac"
+  "sourceUrl": "https://mikrotik.com/product/wap_ac",
+  "notes": "Power method from the mikrotik.com spec table for this chassis (`wap_ac`): **PoE in: 802.3af/at** (18-57 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port."
 }

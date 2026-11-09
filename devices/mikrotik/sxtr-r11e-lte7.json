@@ -3,7 +3,7 @@
   "model": "SXTR&R11e-LTE7",
   "label": "SXT LTE7 kit",
   "category": "ptp",
-  "description": "MikroTik SXT LTE7 kit (SXTR&R11e-LTE7) \u2014 2x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
+  "description": "MikroTik SXT LTE7 kit (SXTR&R11e-LTE7) — 2x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -23,12 +23,15 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "lte1",
@@ -38,5 +41,9 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/sxt_lte7_kit"
+  "sourceUrl": "https://mikrotik.com/product/sxt_lte7_kit",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: 802.3af/at** (12-57 V) on `eth1`; **PoE out on `eth2`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
 }

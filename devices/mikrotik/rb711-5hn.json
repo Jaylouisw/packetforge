@@ -3,7 +3,7 @@
   "model": "RB711-5Hn",
   "label": "RB711-5Hn",
   "category": "wireless",
-  "description": "MikroTik RB711-5Hn (RB711-5Hn) \u2014 1x 100M RJ45, Wi-Fi 5 GHz. MIPSBE 1-core AR7241.",
+  "description": "MikroTik RB711-5Hn (RB711-5Hn) — 1x 100M RJ45, Wi-Fi 5 GHz. MIPSBE 1-core AR7241.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -29,5 +30,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB711-5Hn"
+  "sourceUrl": "https://mikrotik.com/product/RB711-5Hn",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (voltage not stated) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
 }

@@ -3,7 +3,7 @@
   "model": "RB911G-5HPacD-NB",
   "label": "NetBox 5",
   "category": "ptp",
-  "description": "MikroTik NetBox 5 (RB911G-5HPacD-NB) \u2014 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "description": "MikroTik NetBox 5 (RB911G-5HPacD-NB) — 1x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -29,5 +30,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB911G-5HPacD-NB"
+  "sourceUrl": "https://mikrotik.com/product/RB911G-5HPacD-NB",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-28 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 11.5 W."
 }

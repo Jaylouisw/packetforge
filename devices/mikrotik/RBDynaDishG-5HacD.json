@@ -4,11 +4,30 @@
   "label": "DynaDish 5",
   "category": "ptp",
   "description": "5 GHz point-to-point dish radio, 25 dBi, 867 Mbps; 1x GigE port, RouterOS.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
   "interfaces": [
-    { "name": "eth1", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": true
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
   ],
   "icon": "ptp",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "Power method from the mikrotik.com spec table (MikroTik &middot; DynaDish 5): **PoE in: 802.3af/at** (11-60 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port. Max power consumption 9 W."
 }

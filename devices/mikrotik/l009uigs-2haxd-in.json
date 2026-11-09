@@ -3,7 +3,7 @@
   "model": "L009UiGS-2HaxD-IN",
   "label": "L009UiGS-2HaxD-IN",
   "category": "wireless",
-  "description": "MikroTik L009UiGS-2HaxD-IN (L009UiGS-2HaxD-IN) \u2014 8x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. ARM 32bit 2-core IPQ-5018.",
+  "description": "MikroTik L009UiGS-2HaxD-IN (L009UiGS-2HaxD-IN) — 8x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. ARM 32bit 2-core IPQ-5018.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -23,7 +23,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "eth2",
@@ -58,7 +59,9 @@
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "SFP1",
@@ -78,5 +81,9 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/l009uigs_2haxd_in"
+  "sourceUrl": "https://mikrotik.com/product/l009uigs_2haxd_in",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: 802.3af/at** (24-56 V) on `eth1`; **PoE out on `eth8`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 47 W."
 }

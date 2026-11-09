@@ -3,7 +3,7 @@
   "model": "RBwAPG-5HacT2HnD",
   "label": "wAP ac",
   "category": "wireless",
-  "description": "MikroTik wAP ac (RBwAPG-5HacT2HnD) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz. MIPSBE 1-core QCA9556.",
+  "description": "MikroTik wAP ac (RBwAPG-5HacT2HnD) — 1x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz. MIPSBE 1-core QCA9556.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -21,7 +21,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -36,5 +37,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBwAPG-5HacT2HnD"
+  "sourceUrl": "https://mikrotik.com/product/RBwAPG-5HacT2HnD",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: 802.3af/at** (11-57 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 12 W."
 }

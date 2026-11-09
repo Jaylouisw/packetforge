@@ -3,7 +3,7 @@
   "model": "RBwAPR-2nD&R11e-LTE-US",
   "label": "wAP LTE kit US",
   "category": "wireless",
-  "description": "MikroTik wAP LTE kit US (RBwAPR-2nD&R11e-LTE-US) \u2014 1x 100M RJ45, Wi-Fi 2.4 GHz, LTE radio. MIPSBE 1-core QCA9531.",
+  "description": "MikroTik wAP LTE kit US (RBwAPR-2nD&R11e-LTE-US) — 1x 100M RJ45, Wi-Fi 2.4 GHz, LTE radio. MIPSBE 1-core QCA9531.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -34,5 +35,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/wap_lte_kit_us"
+  "sourceUrl": "https://mikrotik.com/product/wap_lte_kit_us",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (9-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 6 W."
 }

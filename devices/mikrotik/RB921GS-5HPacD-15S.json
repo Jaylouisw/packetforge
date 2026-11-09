@@ -4,12 +4,35 @@
   "label": "mANTBox 15s",
   "category": "ptp",
   "description": "5 GHz point-to-point/multipoint sector radio, 15 dBi, 867 Mbps; 1x GigE + 1x GigE SFP, RouterOS.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
   "interfaces": [
-    { "name": "eth1", "type": "ethernet", "speed": "1G" },
-    { "name": "SFP1", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": true
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
   ],
   "icon": "ptp",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (12-28 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 13 W."
 }

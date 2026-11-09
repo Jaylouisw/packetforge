@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -34,5 +35,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBSXT5HacD2nr2"
+  "sourceUrl": "https://mikrotik.com/product/RBSXT5HacD2nr2",
+  "notes": "Power method from the mikrotik.com spec table (MikroTik &middot; SXT Lite5 ac): **PoE in: Passive PoE** (8-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port. Max power consumption 8 W."
 }

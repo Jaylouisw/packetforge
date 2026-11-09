@@ -3,7 +3,7 @@
   "model": "RB951-2n",
   "label": "RB951-2n",
   "category": "wireless",
-  "description": "MikroTik RB951-2n (RB951-2n) \u2014 5x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9331.",
+  "description": "MikroTik RB951-2n (RB951-2n) — 5x 100M RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9331.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "eth2",
@@ -49,5 +50,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB951-2n"
+  "sourceUrl": "https://mikrotik.com/product/RB951-2n",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (voltage not stated) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
 }

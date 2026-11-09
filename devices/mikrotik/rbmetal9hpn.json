@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -29,5 +30,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBMetal9HPn"
+  "sourceUrl": "https://mikrotik.com/product/RBMetal9HPn",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-32 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 10 W."
 }

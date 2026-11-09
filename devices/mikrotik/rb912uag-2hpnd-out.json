@@ -3,7 +3,7 @@
   "model": "RB912UAG-2HPnD-OUT",
   "label": "BaseBox 2",
   "category": "ptp",
-  "description": "MikroTik BaseBox 2 (RB912UAG-2HPnD-OUT) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9342.",
+  "description": "MikroTik BaseBox 2 (RB912UAG-2HPnD-OUT) — 1x 1G RJ45, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9342.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "radio0",
@@ -29,5 +30,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB912UAG-2HPnD-OUT"
+  "sourceUrl": "https://mikrotik.com/product/RB912UAG-2HPnD-OUT",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 10 W."
 }

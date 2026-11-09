@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": true
     },
     {
       "name": "SFP1",
@@ -38,5 +39,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB922UAGS-5HPacD"
+  "sourceUrl": "https://mikrotik.com/product/RB922UAGS-5HPacD",
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 17 W."
 }

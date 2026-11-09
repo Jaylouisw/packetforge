@@ -19,7 +19,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "eth2",
@@ -49,5 +50,6 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBOmniTikU-5HnDr2"
+  "sourceUrl": "https://mikrotik.com/product/RBOmniTikU-5HnDr2",
+  "notes": "Power method from the mikrotik.com spec table (MikroTik &middot; OmniTIK 5): **PoE in: Passive PoE** (11-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port. Max power consumption 11 W."
 }

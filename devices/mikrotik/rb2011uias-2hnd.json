@@ -20,7 +20,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": true
     },
     {
       "name": "eth2",
@@ -65,7 +66,9 @@
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "SFP1",
@@ -84,5 +87,9 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB2011UiAS-2HnD"
+  "sourceUrl": "https://mikrotik.com/product/RB2011UiAS-2HnD",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`; **PoE out on `eth10`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 6 W."
 }
