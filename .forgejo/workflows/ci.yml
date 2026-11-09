@@ -81,9 +81,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: changes
-    # A data-only diff runs one Node version instead of three. The suite is the same suite,
-    # so the invariants that a device spec can break are still checked - just once.
-    if: needs.changes.outputs.data_only != 'true' || matrix.node == 20
+    # A data-only diff used to run one Node version instead of three. That saving was bought with
+    # an `if:` that read `matrix.node`, which cannot work: the job condition is evaluated before
+    # the matrix exists, so every leg died ~2 s after starting (runs 1398, 1401, 1402 - three red
+    # X's per pull request that looked like a broken runner). Building the matrix from an
+    # expression instead is no better: act resolves it to a single unnamed leg, so the suite runs
+    # once and silently reports coverage it never had.
+    #
+    # So: three versions, always. The data-only saving that survives is the one that is honest -
+    # `smoke` and `docker` skip a JSON-only diff entirely, which is where the runner slots were
+    # actually going (ten minutes each, versus ~60 s for the suite).
     strategy:
       fail-fast: false
       matrix:
