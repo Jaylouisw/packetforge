@@ -288,12 +288,22 @@
     const vm = vendor + model;              // lets "tp-link mc220l" / "tplink mc220l" land
     if (model === q) return 0;
     if (model.indexOf(q) === 0) return 1;
+    // A declared alias ranks with a model prefix, not with a substring. An alias is somebody
+    // typing the name they actually use: the board in the shelf ("B1LDCD"), the model without its
+    // card complement ("E6616"), the short form of a long family name ("M1D-B"). A deliberate name
+    // should not sit below an accident of spelling in a description. Aliases come from the spec,
+    // so a device that declares none behaves exactly as before.
+    for (const alias of (s.aliases || [])) {
+      const a = searchKey(alias);
+      if (!a) continue;
+      if (a === q || a.indexOf(q) === 0) return 1;
+    }
     if (hasWord(s.category, q)) return 2;
     if (model.indexOf(q) !== -1) return 3;
     if (vm.indexOf(q) !== -1) return 4;
     const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
     if (fields.indexOf(q) !== -1) return 5;
-    const hay = model + '\u0000' + vm + '\u0000' + fields;
+    const hay = model + '\u0000' + vm + '\u0000' + (s.aliases || []).map(searchKey).join('\u0000') + '\u0000' + fields;
     for (const t of tokens) { if (hay.indexOf(t) === -1) return -1; }
     return tokens.length ? 6 : -1;
   }
@@ -1341,6 +1351,12 @@
     for (const c of (d.capabilities || [])) html += '<span class="chip">' + c + '</span>';
     html += '</div>';
 
+    // The aliases are shown, not just searchable: if somebody found this device by typing
+    // "B1LDCD", the panel should say why it appeared rather than leaving the match unexplained.
+    const aliases = (d.spec && d.spec.aliases) || [];
+    if (aliases.length) {
+      html += '<div class="kv"><span class="k">Also known as</span><span>' + aliases.join(' · ') + '</span></div>';
+    }
     // A device can have far more cage capacity than its fabric can move. Saying so in the
     // inspector is the difference between a reader discovering it in a lab and reading it here.
     const fab = fabricSummary(d.spec || {});
