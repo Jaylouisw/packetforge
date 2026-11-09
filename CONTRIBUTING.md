@@ -43,6 +43,7 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 - All checks must pass before merge (CI runs them automatically — what each one
   does, and what a red one means, is in [docs/CI.md](docs/CI.md)
 - [docs/MAINTAINING.md](docs/MAINTAINING.md) - how a vendor gets from request to reviewed spec, and which source to trust).
+- [docs/DEVICE_SCHEMA.md](docs/DEVICE_SCHEMA.md) - every field a spec may use, and what the importer refuses
 - [docs/BUG_REPORTS.md](docs/BUG_REPORTS.md) - what the app fills in for you, and the two things only you can write
 
 ## Development setup

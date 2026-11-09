@@ -30,6 +30,7 @@ least likely.
 | **datasheet PDF, text layer** | high, and it usually states the port table explicitly | Peplink, Teltonika, DrayTek, NETGEAR |
 | **vendor wiki interface tables** | high for interface *counts*, silent on speeds | Teltonika wiki |
 | **reseller or distributor listing** | lowest — last resort, and say so in the note | third-party shops |
+| **a vendor page that flags its own data** | **none** — do not use it | Garland (2026-11) |
 
 ### Scripts that do the boring part
 
@@ -72,3 +73,13 @@ this repository, and a 25 MB cache committed by accident is a mistake that stays
 - **Family-wide datasheets** — the numbers are ranges across several SKUs. Do not average them.
 - **Duplicate model stems** — `USW-Pro-Max-16` and `-16-PoE` differ by a suffix and by whether
   they supply power at all. Check the suffix.
+- **A vendor site mid-migration.** Garland's fiber and copper TAP pages currently carry the banner
+  *"Internal review build. Anything shown in amber is data we could not confirm from the source
+  spreadsheets"*, and most cards show no model number at all while marked *"Needs Info"*. Those
+  thirteen TAP requests stay **open and unbuilt**: the vendor is telling us the numbers are not yet
+  trustworthy, and copying them into the catalogue would launder an unconfirmed spec into an
+  authoritative-looking one. Wait for the datasheets, or find the models on a page that is not
+  flagged.
+
+The spec vocabulary itself - every field, every accepted value, and the invariant a description has
+to survive - is in [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md).
