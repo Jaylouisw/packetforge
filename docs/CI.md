@@ -247,18 +247,30 @@ two-runner host dispatch normally and finish in about a minute.
 | pull-request `head` format | probe opened with `jaylouisw:branch` and without | **ruled out** — identical result |
 | the workflow files themselves | identical files run fine for other branches | **ruled out** |
 | only pull requests affected | checked the merge of #1175 to `main` | **no push run either** — so it is every event from this credential |
+| token-authenticated pushes being skipped | `ssh -T forgejo` reports `Hi there, jaylouisw! ... key named jay-laptop` | **ruled out** — the pushes are over **SSH with a named user key**, not an HTTP token, and the key maps to the same account whose other pushes dispatch |
 
 ### What that leaves
 
 The event is created for other writers and not for this one, on the same repository, with the
-same workflow files and the same runners. The remaining suspects are all server-side and need
-access this project does not have from the API:
+same workflow files and the same runners, over the same protocol as some of them.
 
-1. **Token-authenticated pushes being skipped.** Some runners deliberately skip workflow runs
-   for commits pushed with the CI token to avoid recursion. If the *push* credential is the same
-   token the workflows consume, every event from it can be dropped. Try pushing with a different
-   credential (SSH key or a second token) and see whether runs appear.
-2. **A repository or user Actions setting** that suppresses runs for this actor.
+**The obvious suspect was wrong.** The first version of this page blamed token-authenticated
+pushes being skipped for recursion - every CI system has a version of that rule, and it would
+explain a whole credential going silent. It was checked rather than assumed:
+
+```
+$ ssh -T forgejo
+Hi there, jaylouisw! You've successfully authenticated with the key named jay-laptop, ...
+```
+
+The pushes are over **SSH with a named user key**, not an HTTP token, and the key maps to the same
+account whose other pushes do dispatch. So the recursion rule does not apply here, and the
+remaining suspects are narrower:
+
+1. **A repository or user setting** that suppresses runs for this actor - testable only in the UI.
+2. **Something about the branch itself** - worth trying: push a commit onto a branch that
+   currently *does* produce runs, and see whether the new commit runs. That single test separates
+   "this credential" from "these branches", and it is the next thing to try.
 
 ### How to confirm in one look
 
