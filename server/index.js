@@ -4,6 +4,8 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
+const crypto = require('crypto');
 const { URL } = require('url');
 
 const { Topology, Simulator, CliSession, flow } = require('../engine');
@@ -176,13 +178,51 @@ function fullState(topo) {
   return s;
 }
 
+// Every JSON response goes through here, which makes it the one place worth optimising.
+//
+// `/api/catalog` is the whole catalogue: 2,015 specs, ~2.2 MB of JSON, fetched on every page load.
+// It used to be sent identity-encoded with `Cache-Control: no-store`, so a reload paid all 2.2 MB
+// again over the wire - and the catalogue is required to keep growing, so that cost only goes up.
+//
+// Two changes, both of which are how the web has worked for twenty years:
+//
+//   * gzip when the client says it can take it (every browser does), which takes the catalogue to
+//     ~308 KB - a 7x reduction on the single largest thing the app transfers;
+//   * a strong ETag so a reload revalidates and gets an empty `304` instead of the body, while `no-cache` keeps the response revalidated on every use rather than trusted blind.
+//
+// The request is read from `res.pfReq`, set once per request in the handler: threading a new
+// parameter through fifty call sites would have been a bigger change than the optimisation.
 function sendJSON(res, code, obj) {
-  const body = JSON.stringify(obj);
-  res.writeHead(code, {
+  const body = Buffer.from(JSON.stringify(obj), 'utf8');
+  const req = res.pfReq || null;
+  const headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'no-store'
-  });
+    'Cache-Control': 'no-cache',
+    'ETag': '"' + crypto.createHash('sha1').update(body).digest('base64').replace(/=+$/, '') + '"',
+    'Vary': 'Accept-Encoding'
+  };
+
+  // Revalidation: a client that already has this exact body gets no body at all.
+  const inm = req && req.headers ? String(req.headers['if-none-match'] || '') : '';
+  if (code === 200 && inm && inm.split(',').map(function (t) { return t.trim(); }).indexOf(headers.ETag) !== -1) {
+    res.writeHead(304, headers);
+    return res.end();
+  }
+
+  const accept = req && req.headers ? String(req.headers['accept-encoding'] || '') : '';
+  if (/\bgzip\b/i.test(accept) && body.length >= 1024) {
+    let gz = null;
+    try { gz = zlib.gzipSync(body); } catch (e) { gz = null; }
+    // Only claim the encoding when it actually helped: a 40-byte response can get bigger.
+    if (gz && gz.length < body.length) {
+      headers['Content-Encoding'] = 'gzip';
+      res.writeHead(code, headers);
+      return res.end(gz);
+    }
+  }
+
+  res.writeHead(code, headers);
   res.end(body);
 }
 
@@ -244,6 +284,9 @@ function serveStatic(res, urlPath) {
 
 // --- API ---
 async function handleApi(req, res, urlPath) {
+  // sendJSON needs the request to negotiate encoding and read If-None-Match. One assignment here
+  // beats threading a parameter through fifty call sites.
+  res.pfReq = req;
   const method = req.method.toUpperCase();
   const parts = urlPath.split('/').filter(Boolean); // e.g. ['api','topologies','default','devices']
 
