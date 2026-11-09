@@ -19,13 +19,28 @@ function expandInterfaces(spec) {
     const count = (t.count === undefined || t.count === null) ? 1 : t.count;
     const type = t.type || 'ethernet';
     const speed = t.speed || '1G';
+    // A feed-through panel declares the far side of every port: 'pairPrefix'
+    // generates the rear ports and wires each front port to its partner by
+    // index, which is what lets a frame cross the panel instead of stopping at
+    // it. Port names on the existing side are unchanged, so a saved lab that
+    // references port1 keeps resolving.
+    const pairPrefix = t.pairPrefix || null;
     // carry explicit hardware hints (cage / media / PoE) onto every port
     const extra = {};
     for (const k of ['cage', 'connector', 'media', 'supportedMedia', 'speedCaps', 'poeOut', 'poeIn', 'hardware']) {
       if (t[k] !== undefined) extra[k] = t[k];
     }
     for (let i = 0; i < count; i++) {
-      out.push(Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra));
+      const port = Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra);
+      if (pairPrefix) port.pair = pairPrefix + (start + i);
+      out.push(port);
+    }
+    if (pairPrefix) {
+      for (let i = 0; i < count; i++) {
+        const port = Object.assign({ name: pairPrefix + (start + i), type: type, speed: speed }, extra);
+        port.pair = prefix + (start + i);
+        out.push(port);
+      }
     }
   }
   if (Array.isArray(spec.interfaces)) {

@@ -40,6 +40,12 @@ class Interface {
     this.comboWith = spec.comboWith || null;   // sibling interface name
     this.comboRole = spec.comboRole || null;   // 'rj45' | 'sfp'
 
+    // Pass-through pairing: on a patch panel this port is joined internally to
+    // exactly one other port, so a frame that arrives here leaves there. Set by
+    // expandInterfaces() from `portTemplate.pairPrefix`, or declared per port on
+    // a spec that lists its interfaces explicitly.
+    this.pair = spec.pair || null;             // partner port name
+
     // Port role. Plenty of hardware ships a cage that is either a WAN or a LAN
     // port depending on how you configure it (a consumer router's 10G combo, a
     // firewall's "DMZ or LAN" pair). `dualRole` lists what the port may become and
@@ -450,6 +456,28 @@ class Device {
   // both directions. Modelling it as a switch would be wrong - a switch learns
   // and filters, a splitter cannot.
   isSplitter() { return String(this.spec.category || '') === 'splitter'; }
+
+  // A patch panel / feed-through panel is another passive part, but the opposite
+  // of a splitter: it does not fan a frame out, it hands it to exactly one other
+  // port. Ports come in declared pairs (`portTemplate.pairPrefix`, or a per-port
+  // `pair` name), so a two-cable run - host to a front port, the matching rear
+  // port to another host - is a real path rather than a dead end. Category is
+  // deliberately NOT the test: panels and optical splitters share the passive
+  // bucket, and what distinguishes them is whether their ports have partners.
+  isPassThrough() {
+    if (this.spec.passThrough === false) return false;
+    for (const i of this.interfaces.values()) {
+      if (i && i.pair) return true;
+    }
+    return false;
+  }
+
+  passThroughPeer(portName) {
+    const name = typeof portName === 'string' ? portName : String((portName && portName.name) || '');
+    const port = this.interfaces.get(name);
+    if (!port || !port.pair) return null;
+    return this.interfaces.get(port.pair) || null;
+  }
 
   // A tap is a one-way street with a copy: network ports pass the link's traffic
   // through untouched, monitor ports receive a duplicate and can never transmit back.

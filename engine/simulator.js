@@ -2008,6 +2008,10 @@ class Simulator {
   announceLldp() {
     for (const dev of this.topo.devices.values()) {
       if (!dev.lldp) continue;
+      // A passive part has no management stack, so it cannot announce itself.
+      // A patch panel used to appear as an LLDP neighbour on every channel it
+      // patched - the one frame that made a passive coupler look like a device.
+      if (dev.isPassThrough && dev.isPassThrough()) continue;
       for (const iface of dev.activeInterfaces()) {
         if (!iface.peer) continue;                 // nothing plugged in
         if (iface.parent) continue;                // subinterfaces are not ports
@@ -2615,7 +2619,7 @@ class Simulator {
     // ways regardless of what it has seen before.
     // A passive coupler and a passive tap have no table to learn into: neither can
     // remember what it has seen, so neither may be credited with learning.
-    if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.macTableFor(vid).set(f.srcMac, inIface);
+    if (inIface && !dev.isSplitter() && !dev.isPassiveTap() && !dev.isPassThrough()) dev.macTableFor(vid).set(f.srcMac, inIface);
 
     // 3b. Inbound access list.
     const aclIn = this._aclCheck(dev, inIface, 'in', f);
@@ -2709,6 +2713,31 @@ class Simulator {
         passed++;
       }
       this._emit({ type: 'tap', dev: dev.id, iface: arrivedOn, through: passed, monitors: copied, vlan: vid });
+      return;
+    }
+
+    // A feed-through panel: whatever arrives on one port leaves on its declared
+    // partner and nowhere else. This has to sit BEFORE the splitter branch and
+    // before the L2 branch - panels share the passive 'splitter' category, and a
+    // panel that fanned a frame out to 24 channels would be a copper hub.
+    if (dev.isPassThrough()) {
+      // inIface arrives here as a port NAME (that is what _deliver passes), so
+      // resolve the object before reading .pair or .peer.
+      const inPort = inI || (typeof inIface === 'string' ? dev.interfaces.get(inIface) : inIface);
+      const inName = inPort ? inPort.name : String(inIface || '');
+      const out = dev.passThroughPeer(inName);
+      if (!out) {
+        this._emit({ type: 'drop', reason: 'pass-through port has no paired port', dev: dev.id, iface: inName, vlan: vid });
+        return;
+      }
+      if (out.peer && inPort && inPort.peer && out.peer === inPort.peer) {
+        // Both sides of the same channel cabled to the same neighbour: nothing
+        // sensible to do with the frame, and looping it would be worse.
+        this._emit({ type: 'drop', reason: 'pass-through loopback', dev: dev.id, iface: inName, vlan: vid });
+        return;
+      }
+      this._emitFrame(dev, out, Object.assign({}, f), vid);
+      this._emit({ type: 'pass-through', dev: dev.id, from: inName, to: out.name, vlan: vid });
       return;
     }
 
