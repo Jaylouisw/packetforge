@@ -1,6 +1,7 @@
 'use strict';
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
+const { resolvePortName } = require('./iface-name');
 const media = require('./media');
 
 class Interface {
@@ -230,24 +231,6 @@ class Device {
     return Array.from(this.interfaces.values()).filter(function (i) { return i.enabled; });
   }
 
-  // Resolve whatever a caller happens to have - a port name, a name with a different case, an alias, or
-  // an Interface - to the Interface, or null (#1245). `resolveIface()` returns an Interface, not a name,
-  // so `interfaces.get(resolveIface(x))` silently found nothing and refused commands on ports that exist.
-  portOf(ref) {
-    if (!ref) return null;
-    if (typeof ref === 'string') {
-      const direct = this.interfaces.get(ref);
-      if (direct) return direct;
-      if (typeof this.resolveIface !== 'function') return null;
-      const resolved = this.resolveIface(ref);
-      if (!resolved) return null;
-      if (typeof resolved === 'string') return this.interfaces.get(resolved) || null;
-      return resolved;
-    }
-    if (typeof ref === 'object' && ref.name) return this.interfaces.get(ref.name) || null;
-    return null;
-  }
-
   // Can this port actually carry a frame, and if not, why not (#1237)?
   //
   // The CLI used to answer "is it shut down" and call that the status, so a port with no cable - the
@@ -307,11 +290,21 @@ class Device {
   // hears back from an address configured on lan1.
   // Callers pass either an Interface or a port name depending on the layer, so
   // resolve both rather than making every call site remember which it holds.
+  // Accepts an Interface, a panel spelling, or a console spelling ("ether1" for "eth1"), because the
+  // engine and the CLI must agree on what a port is called (#1247). Exact names are tried first, so this
+  // cannot rename anything; a name that matches nothing, or matches two ports, resolves to null rather
+  // than a guess.
   resolveIface(x) {
     if (!x) return null;
-    if (typeof x === 'string') return this.interfaces.get(x) || null;
-    if (x.name && this.interfaces.has(x.name)) return this.interfaces.get(x.name);
-    return null;
+    if (typeof x === 'object') {
+      if (x.name && this.interfaces.has(x.name)) return this.interfaces.get(x.name);
+      return null;
+    }
+    const typed = String(x);
+    const exact = this.interfaces.get(typed);
+    if (exact) return exact;
+    const name = resolvePortName(this, typed);
+    return name ? this.interfaces.get(name) || null : null;
   }
 
   ownsIpOn(incomingIface, ip) {

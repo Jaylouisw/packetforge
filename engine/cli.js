@@ -10,72 +10,10 @@ const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
 const MODE_DHCP_POOL = 'dhcp-pool';
-
-// ---------------------------------------------------------------------------
-// Port-name aliases (issue #27)
-//
-// A spec names a port the way the vendor prints it on the box, because the
-// canvas, the inspector and the faceplate must show what a person standing in
-// front of the hardware sees. The vendor's own console sometimes spells the
-// same socket differently: MikroTik silkscreens "eth1" and "SFP+1" while
-// RouterOS calls them "ether1" and "sfp-sfpplus1". An engineer types whichever
-// spelling they learned, so the CLI resolves both onto the one physical port.
-// The spec still decides what is DRAWN - aliases never rename anything.
-//
-// Each rule rewrites the console spelling onto the panel spelling, and the
-// panel spelling onto itself, so one lowercase key covers both directions and
-// the case difference (RouterOS is lowercase, the silkscreen is not).
-const PORT_NAME_RULES = [
-  [/^ether(\d+)$/, 'eth$1'],           // RouterOS ether1  <-> panel eth1
-  [/^sfp-sfpplus(\d+)$/, 'sfp+$1'],    // RouterOS sfp-sfpplus1 <-> panel SFP+1
-  [/^sfpplus(\d+)$/, 'sfp+$1'],        // tolerant of sfpplus1
-  [/^qsfp-qsfpplus(\d+)$/, 'qsfp+$1'], // RouterOS qsfp-qsfpplus1 <-> QSFP+1
-  [/^qsfpplus(\d+)$/, 'qsfp+$1'],      // RouterOS qsfpplus1 <-> panel QSFP+1
-  [/^sfp(\d+)$/, 'sfp$1'],             // RouterOS sfp1 <-> panel SFP1
-  [/^sfp28-(\d+)$/, 'sfp28-$1'],       // RouterOS sfp28-1 <-> panel SFP28-1
-  [/^qsfp28-(\d+)$/, 'qsfp28-$1'],     // RouterOS qsfp28-1 <-> panel QSFP28-1
-  [/^combo(\d+)$/, 'combo$1'],         // RouterOS combo1 <-> panel COMBO1
-  [/^mgmt(\d*)$/, 'mgmt$1']            // RouterOS mgmt <-> panel MGMT
-];
-
-// The comparison key for a port name: case-insensitive, with every known
-// console spelling folded onto the panel spelling.
-function portKey(name) {
-  let s = String(name === undefined || name === null ? '' : name).trim().toLowerCase();
-  for (const rule of PORT_NAME_RULES) {
-    if (rule[0].test(s)) { s = s.replace(rule[0], rule[1]); break; }
-  }
-  return s;
-}
-
-// Resolve a name the operator typed onto the device's own interface name.
-// Returns null when the device has no such port, so callers can say so.
-function resolvePortName(device, typed) {
-  const map = device && device.interfaces;
-  if (!map || !typed) return null;
-  const t = String(typed).trim();
-  if (map.has(t)) return t;                          // exact panel spelling
-  const lower = t.toLowerCase();
-  for (const name of map.keys()) {
-    if (String(name).toLowerCase() === lower) return name;      // case only
-  }
-  // A subinterface inherits its parent's spelling: 'ether1.10' -> 'eth1.10'.
-  const sub = /^(.+)\.(\d+)$/.exec(t);
-  if (sub) {
-    const parent = resolvePortName(device, sub[1]);
-    const wanted = parent ? parent + '.' + sub[2] : null;
-    if (wanted && map.has(wanted)) return wanted;
-  }
-  const key = portKey(t);
-  let alias = null;
-  for (const name of map.keys()) {
-    if (portKey(name) === key) {
-      if (alias === null) alias = name;
-      else if (alias !== name) return null;          // ambiguous: refuse to guess
-    }
-  }
-  return alias;
-}
+// One port, many spellings - and one table for it. This used to be a second copy of
+// engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
+// failure mode this repo has already been bitten by (#1247).
+const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
 
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
@@ -963,7 +901,7 @@ class CliSession {
       // ("% 10.0.0.254 is not in the subnet of Gi0/0"), and without this check the election happily
       // makes the router master of a group whose address belongs to a network it cannot reach - the
       // claim then answers ARP from the wrong segment (#1245).
-      const port = dev.portOf ? dev.portOf(this.iface) : dev.interfaces.get(this.iface);
+      const port = dev.resolveIface(this.iface);
       if (!port) return ['% No interface ' + this.iface];
       if (!port.ip || !port.mask) {
         return ['% Interface ' + this.iface + ' has no address: a VRRP group needs one in the same subnet'];
@@ -1030,7 +968,7 @@ class CliSession {
       const claim = claims.filter(function (c) {
         return c.vrid === g.vrid && c.iface === g.interface;
       })[0];
-      const port = dev.portOf ? dev.portOf(g.interface) : dev.interfaces.get(g.interface);
+      const port = dev.resolveIface(g.interface);
       // Eligible at all? An interface that is down or unaddressed cannot host the group, and neither can
       // one whose subnet does not contain the virtual address - the command refuses that now, but a
       // topology file written before it existed can still carry such a group (#1245).
