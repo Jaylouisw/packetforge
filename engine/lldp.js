@@ -21,6 +21,19 @@ function buildFrame(dev, iface, opts) {
   const systemName = o.systemName ||
     (dev.config && dev.config.hostname) ||
     dev.name || dev.label || dev.model || dev.id;
+  // How many bytes the LLDPDU actually puts on the wire, from the TLVs it is made of: two header bytes
+  // per TLV plus its value. Interface counters count LLDP, and a counted packet that reports zero bytes
+  // reads as a modelling gap (#1251).
+  const tlv = function (len) { return 2 + Number(len || 0); };
+  const portDescText = describePort(iface);
+  const payloadBytes = tlv(1 + 6)                                  // chassis id: subtype + MAC
+    + tlv(1 + String(iface.name).length)                           // port id: subtype + name
+    + tlv(2)                                                       // ttl
+    + tlv(portDescText ? String(portDescText).length : 0)
+    + tlv(String(systemName).length)
+    + tlv(dev.model ? String(dev.model).length : 0)
+    + (iface.ip ? tlv(1 + 1 + 4 + 1 + 2) : 0)                      // management address (IPv4)
+    + 2;                                                           // end of LLDPDU
   return {
     srcMac: iface.mac,
     dstMac: LLDP_MULTICAST,
@@ -36,7 +49,8 @@ function buildFrame(dev, iface, opts) {
       ttl: o.ttl || DEFAULT_TTL_S,
       // The cage/rate is what a real neighbour entry shows in the port description.
       cage: (iface.hardware && iface.hardware.cage) || null,
-      speedMbps: (iface.hardware && iface.hardware.maxSpeedMbps) || null
+      speedMbps: (iface.hardware && iface.hardware.maxSpeedMbps) || null,
+      bytes: payloadBytes
     }
   };
 }

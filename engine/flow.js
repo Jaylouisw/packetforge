@@ -354,7 +354,11 @@ function setState(flowRec, to) {
 function createFlowState() {
   return {
     flows: new Map(),      // id -> record
-    counters: {},          // devId -> { bytesIn, bytesOut, packetsIn, packetsOut, flowsOpened, flowsRefused }
+    // devId -> { bytesIn, bytesOut, packetsIn, packetsOut, flowsOpened, flowsRefused,
+    //            ports: { portName -> { packetsIn, bytesIn, packetsOut, bytesOut } } }
+    // The per-port tally is what `show interfaces` needs: a device total cannot answer "did anything
+    // cross THIS port", which is the question the command is used to answer (#1251).
+    counters: {},
     seq: 0                 // id allocator
   };
 }
@@ -379,7 +383,8 @@ function counterFor(state, devId) {
   if (!s.counters[devId]) {
     s.counters[devId] = {
       bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
-      flowsOpened: 0, flowsRefused: 0
+      flowsOpened: 0, flowsRefused: 0,
+      ports: {}
     };
   }
   return s.counters[devId];
@@ -388,13 +393,83 @@ function counterFor(state, devId) {
 // Count a packet on a device's interfaces. `dir` is 'in' or 'out'; `bytes` is the
 // payload it carried (0 for a pure ACK, which is a real packet and a real
 // interrupt, but not a byte of payload).
-function countPacket(state, devId, dir, bytes) {
+// Two tallies, because they answer two different questions.
+//
+//   * the device totals (`bytesIn`, `packetsOut`, …) are the *flow* accounting: transport payload a
+//     connection carried. A flow's byte count must not move because a switch sent an LLDP frame.
+//   * the port tallies (`ports[port]`) are the *interface* accounting: every frame that crossed that
+//     socket, ARP and LLDP and ICMP included, which is what `show interfaces` reports.
+//
+// `kind` is 'l4' for transport and anything else for a control frame. It defaults to transport so callers
+// that predate the distinction keep their meaning.
+function countPacket(state, devId, dir, bytes, port, kind) {
   const c = counterFor(state, devId);
   if (!c) return null;
   const n = byteCount(bytes);
-  if (dir === 'out') { c.packetsOut += 1; c.bytesOut += n; }
-  else { c.packetsIn += 1; c.bytesIn += n; }
+  const transport = (kind === undefined || kind === null || kind === 'l4');
+  if (transport) {
+    if (dir === 'out') { c.packetsOut += 1; c.bytesOut += n; }
+    else { c.packetsIn += 1; c.bytesIn += n; }
+  }
+  // The same packet, against the port it crossed. Named, because "the device sent 12 packets" does not
+  // tell you which socket to look at.
+  if (port) {
+    const key = String(port);
+    if (!c.ports) c.ports = {};
+    const p = c.ports[key] || (c.ports[key] = {
+      packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
+      transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
+    });
+    if (dir === 'out') {
+      p.packetsOut += 1; p.bytesOut += n;
+      if (transport) { p.transportPacketsOut += 1; p.transportBytesOut += n; }
+    } else {
+      p.packetsIn += 1; p.bytesIn += n;
+      if (transport) { p.transportPacketsIn += 1; p.transportBytesIn += n; }
+    }
+  }
   return c;
+}
+
+// The tally for one port, or null when nothing has ever been counted on it. A port with no traffic on a
+// device that has carried some reads zero for that port and non-zero for its neighbour - which is the
+// distinction a total cannot make.
+// How much a frame carried, whichever builder produced it.
+//
+// The counters used to be fed only when `frame.l4` existed, so ICMP echo and ARP - which carry `icmp` and
+// `arp` instead - were never counted at all. A ping could succeed twenty times on a port that `show
+// interfaces` then reported as having carried nothing, and the flow counters were the only place that
+// noticed, which is nowhere an operator looks (#1251). Units are the payload the frame carried: the
+// transport payload, the echo payload, or ARP's 28 bytes.
+const ARP_PAYLOAD_BYTES = 28;
+
+function frameBytes(frame) {
+  if (!frame) return 0;
+  if (frame.l4 && typeof frame.l4.bytes === 'number') return frame.l4.bytes;
+  if (frame.icmp) {
+    return typeof frame.icmp.bytes === 'number' ? frame.icmp.bytes : 56;   // the echo payload default
+  }
+  if (frame.arp) return ARP_PAYLOAD_BYTES;
+  if (frame.lldp) return typeof frame.lldp.bytes === 'number' ? frame.lldp.bytes : 0;
+  return 0;
+}
+
+function portCounters(state, devId, port) {
+  const s = state || null;
+  // null means "nothing is counting" and is the only case that does. A device that has simply not sent
+  // anything yet has a measured zero, which is a different answer and the one `show interfaces` prints.
+  if (!s || !s.counters) return null;
+  const c = s.counters[devId];
+  if (!c || !c.ports) {
+    return {
+      packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
+      transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
+    };
+  }
+  return c.ports[String(port)] || {
+    packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
+    transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
+  };
 }
 
 function listFlows(state) {
@@ -449,6 +524,8 @@ module.exports = {
   nextFlowId,
   counterFor,
   countPacket,
+  frameBytes,
+  portCounters,
   listFlows,
   describe
 };

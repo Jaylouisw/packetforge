@@ -24,7 +24,7 @@ Modes and their prompts:
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache |
 | `show mac address-table` | MAC table (switches) |
-| `show interfaces` | per-interface detail incl. MAC + peer |
+| `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
 | `exit` / `logout` | leave the session |
@@ -217,6 +217,35 @@ as a socket with nothing in it, and the two need different fixes. A wireless rad
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing
 `down` for every port of a bare device would be a different wrong answer.
+
+### Counters
+
+Each port block also carries what has crossed it:
+
+```
+Gi0 (ethernet, 1G), MAC 02:00:00:00:00:00
+  status: up, protocol: up
+  ip: 10.0.0.1/24
+  peer: sw/Fa0/1
+  4 packets input, 196 bytes
+  4 packets output, 196 bytes
+```
+
+Counted where the frame actually is: on arrival, before any drop test (a frame an ACL threw away was still
+received), and on the port it leaves by, only if it really left. Counters accumulate over every run
+against that topology, like real interface counters — a second `ping` adds to the first.
+
+These are **interface** counters: they count every frame the socket moved, including ARP, LLDP and ICMP.
+The flow figures reported elsewhere stay transport-only, so a switch sending an LLDP frame cannot make a
+connection's byte count move.
+
+Bytes are the payload carried: the transport payload, the ICMP echo payload, ARP's 28 bytes, or the TLVs
+an LLDP frame is made of. A port that only received broadcasts is therefore not at zero — ARP for the
+gateway and the switches' LLDP reach it — but it will have carried none of your echoes.
+
+With **no simulation run** behind the device, the block says `counters: not measured (no simulation run)`
+rather than printing zeros. "Nothing has looked" and "nothing crossed" are different answers, and a table
+that conflates them is a table you cannot trust when a link is quiet.
 
 ### Reading `show ip route`
 
