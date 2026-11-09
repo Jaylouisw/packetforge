@@ -212,6 +212,35 @@ To add a "Northbound NFX-9000" router, create
 Restart the server (or hit the catalog endpoint) and the model appears in the
 palette, fully simulated — no other changes required.
 
+## When a spec is wrong
+
+A spec that cannot describe a device does **not** disappear, and it does **not** get quietly
+repaired. It becomes an entry in the catalogue marked `vendor: "error"` whose `error` field names the
+file and says what is wrong:
+
+| the file | what the loader says |
+|---|---|
+| truncated JSON | `.../acme/box.json: Unexpected end of JSON input` |
+| `"interfaces": "nope"` | `"interfaces" must be an array of ports, not string` |
+| `"interfaces": []` with no template | `has an empty "interfaces" array and no "portTemplate"` |
+| `"interfaces": [null]` | `port #1 has no "name" string - a port with no name cannot be cabled` |
+| `"portTemplate": { "count": 0 }` | `"portTemplate.count" must be a positive whole number, got 0` |
+| no `model` | `has no "model" field, so it cannot be identified` |
+| no ports declared at all | `declares no ports: it needs "interfaces" or a "portTemplate"` |
+| a JSON array | `is not a JSON object` |
+
+Three of those used to load as ordinary devices. A string `interfaces` produced four invented ports
+from the default template, a `count` of `0` or `-5` produced exactly one invented port, and a file
+with no `model` was dropped in silence. Each one looked like a working device on the canvas and was
+discovered by whoever tried to cable to it.
+
+The loader also re-reads files rather than caching them, so a spec corrected on disk is picked up
+without restarting the server.
+
+`test/fuzz-importer.test.js` holds all of this in place: it mutates a real spec four hundred ways with
+a seeded PRNG and asserts the two invariants that must never bend — the loader never throws, and every
+entry it returns is either a device with at least one named port or an error that names the file.
+
 ## What is in the catalogue
 
 **2,015 models across 245 vendors**, and it grows every time somebody's hardware is

@@ -6,6 +6,27 @@ const path = require('path');
 
 const CATEGORY_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server', 'wireless', 'ptp', 'cloud'];
 
+// How a spec that cannot describe a device is reported.
+//
+// The loader used to swallow these: a file whose `interfaces` was a string got four invented ports
+// from the default template, a file with no `model` vanished without trace, and a `portTemplate`
+// with a negative count became a device with no ports at all. All three landed in the catalogue
+// looking normal, and the first person to notice was somebody dragging a portless box onto a canvas
+// and wondering why nothing could be cabled to it.
+//
+// So a spec that cannot describe a device becomes an entry carrying `error`, next to the JSON
+// syntax errors that were already reported this way. It still appears in the catalogue (silently
+// dropping it hides the mistake) but it cannot be mistaken for a working device, and the message
+// names the file.
+function brokenSpec(file, reason) {
+  return {
+    vendor: 'error',
+    model: path.basename(file),
+    label: 'Broken spec',
+    error: file + ': ' + reason
+  };
+}
+
 function loadCatalog(dir) {
   dir = dir || __dirname;
   const specs = [];
@@ -15,13 +36,61 @@ function loadCatalog(dir) {
       const st = fs.statSync(full);
       if (st.isDirectory()) walk(full);
       else if (entry.endsWith('.json')) {
+        let spec;
         try {
-          const spec = require(full);
-          if (spec && spec.model) specs.push(spec);
+          // Read rather than require: require caches by path, so a spec fixed on disk during a
+          // long-running process would keep reporting the old failure until restart.
+          spec = JSON.parse(fs.readFileSync(full, 'utf8'));
         } catch (e) {
-          // ignore malformed spec files but surface the error
-          specs.push({ vendor: 'error', model: entry, label: 'Broken spec', error: e.message });
+          specs.push(brokenSpec(full, e.message));
+          continue;
         }
+        if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
+          specs.push(brokenSpec(full, 'is not a JSON object'));
+          continue;
+        }
+        if (!spec.model) {
+          specs.push(brokenSpec(full, 'has no "model" field, so it cannot be identified'));
+          continue;
+        }
+        if (spec.interfaces != null && !Array.isArray(spec.interfaces)) {
+          specs.push(brokenSpec(full, '"interfaces" must be an array of ports, not ' + typeof spec.interfaces));
+          continue;
+        }
+        if (Array.isArray(spec.interfaces) && spec.interfaces.length === 0 && !spec.portTemplate) {
+          specs.push(brokenSpec(full, 'has an empty "interfaces" array and no "portTemplate"'));
+          continue;
+        }
+        if (Array.isArray(spec.interfaces)) {
+          // A port without a name cannot be cabled: the device keeps its ports in a map keyed by
+          // name, so a nameless one is invisible to the canvas and to every rule that looks it up.
+          // Found by fuzzing - a mutation that leaves `"interfaces": [null]` used to load happily.
+          const nameless = spec.interfaces.findIndex(function (i) {
+            return !i || typeof i !== 'object' || typeof i.name !== 'string' || !i.name.trim();
+          });
+          if (nameless !== -1) {
+            specs.push(brokenSpec(full, 'port #' + (nameless + 1) + ' has no "name" string - a port with no name cannot be cabled'));
+            continue;
+          }
+        }
+        if (spec.portTemplate) {
+          const count = spec.portTemplate.count;
+          // "count": 0, -5 or "8" used to produce exactly one invented port, because the expander
+          // treats any falsy or non-numeric count as 1. A typo should be loud, not a silent eth0.
+          if (count != null && !(typeof count === 'number' && Math.floor(count) === count && count > 0)) {
+            specs.push(brokenSpec(full, '"portTemplate.count" must be a positive whole number, got ' + JSON.stringify(count)));
+            continue;
+          }
+        }
+        if (!Array.isArray(spec.interfaces) && !spec.portTemplate) {
+          specs.push(brokenSpec(full, 'declares no ports: it needs "interfaces" or a "portTemplate"'));
+          continue;
+        }
+        if (effectiveInterfaces(spec).length === 0) {
+          specs.push(brokenSpec(full, 'resolves to zero ports - a device with nothing to cable to'));
+          continue;
+        }
+        specs.push(spec);
       }
     }
   }

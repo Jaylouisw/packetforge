@@ -45,6 +45,18 @@ canonical-URL check.
 
 ```bash
 npm test              # every suite, the same entry point CI uses
+
+Two suites are randomised on purpose, and both are seeded so a failure reproduces exactly:
+
+- `test/property-validator.test.js` — builds topologies from the real catalogue and asserts the
+  connection validator never throws, that `ok` means exactly "no errors", that A→B and B→A agree,
+  and that a refused `connect()` leaves nothing behind.
+- `test/fuzz-importer.test.js` — mutates a real device spec four hundred ways and asserts the
+  loader never throws and never invents ports.
+
+Both print the seed with every failure. To reproduce one, use that seed in the generator at the
+top of the file; nothing about the run depends on wall-clock time or on the order of the
+surrounding suites.
 npm run syntax        # syntax-check across every JS file
 npm run smoke         # starts the server, exercises every route, shuts down
 docker build -t pf .  # exactly what the Docker job does
