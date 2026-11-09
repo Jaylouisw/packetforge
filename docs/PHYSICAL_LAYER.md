@@ -73,6 +73,22 @@ Device-level PoE budget:
 If unset, a port is treated as a PSE when the model name contains `PoE` or the
 device declares the `poe-pse` capability.
 
+### Who gets powered, and who reports it
+
+`Simulator.computePoe()` walks a device's **active** interfaces in port-name order and serves each powered
+device that asks (`poeIn` on the far end) while the budget lasts. Two consequences worth knowing:
+
+* an **administratively down PSE port serves no power**. The port is still PSE hardware — the inspector counts
+  it — but nothing is drawn through it;
+* a port whose far end is not a powered device is skipped, and so is a port with no cable.
+
+The inspector panel (`web/app.js`) computes the same thing a second time, because the browser cannot `require`
+the engine. That copy walked **every** port rather than the active ones, so a shut-down PSE port was reported as
+powering a device the engine was not powering — 12.95 W invented, and with a tight budget the *wrong* port
+marked denied (the panel denied the port the engine had powered). `test/poe-agreement.test.js` now compares the
+two across every case a PSE meets, port by port, because one lab was not enough: the previous comparison used
+two powered devices and a tight budget, which is the one arrangement where both copies agree.
+
 ---
 
 ## 2. Medium catalogue
