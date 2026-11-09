@@ -1,0 +1,71 @@
+{
+  "vendor": "peplink",
+  "model": "MAX BR2 Pro 5G",
+  "label": "Peplink MAX BR2 Pro 5G",
+  "category": "router",
+  "description": "Mobile router with 5G: 1x 2.5G WAN, 1x GE WAN, 4x GE LAN, 1 Gbps throughput, Wi-Fi, PoE in.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/br2-pro.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 / 1 (2.5G)**, LAN port **4 / 5 (GE)**, Router Throughput 1 Gbps, Wi-Fi AP Yes, **PoE Input Yes**. The slash matters: WAN port 1 can act as a LAN port, so the same box is either 2 WAN / 4 LAN or 1 WAN / 5 LAN. Modelled as the 2 WAN configuration with the first WAN at 2.5G, because that is the port people buy it for.",
+  "role": [
+    "sd-wan"
+  ]
+}

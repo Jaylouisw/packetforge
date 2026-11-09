@@ -1,0 +1,556 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "Balance 380",
+    "label": "Peplink Balance 380",
+    "category": "router",
+    "description": "Load-balancing router: 3x GE WAN, 3x GE LAN, 1 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-380.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 3 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 1 Gbps, Wi-Fi AP No, SFP LAN/WAN No. The **380 and 380X are the same port count with very different throughput** - 1 Gbps here against 3 Gbps there - so the letter on the end is the whole difference that matters."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 380X",
+    "label": "Peplink Balance 380X",
+    "category": "router",
+    "description": "Wireless-broadband SD-WAN router: 3x GE WAN, 3x GE LAN, 3 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-380x.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 3 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput **3 Gbps**, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. Despite the 'Wireless Broadband' name the sheet says **Wi-Fi AP No** - the wireless in the name refers to what it aggregates, not to a radio inside the box."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 580",
+    "label": "Peplink Balance 580",
+    "category": "router",
+    "description": "Load-balancing router: 5x GE WAN, 3x GE LAN, 1.5 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-580.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 5 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 1.5 Gbps, Wi-Fi AP No, SFP LAN/WAN No. Five uplinks into three LAN ports - the same aggregating shape as the 1350, at a fifth of the throughput."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 580X",
+    "label": "Peplink Balance 580X",
+    "category": "router",
+    "description": "Wireless-broadband SD-WAN router: 5x GE WAN, 3x GE LAN, 4 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-580x.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 5 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 4 Gbps, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. Same ports as the plain 580, **2.7x the throughput** - and again the sheet says no Wi-Fi radio despite the product name."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance 710",
+    "label": "Peplink Balance 710",
+    "category": "router",
+    "description": "Load-balancing router: 7x GE WAN, 3x GE LAN, 2.5 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-710.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 7 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 2.5 Gbps, Wi-Fi AP No, SFP LAN/WAN No. Seven WAN into three LAN is the most lopsided split in this line - it is built to bond many cheap circuits, and a lab that fills the LAN side with hosts instead of the WAN side will see almost no use of the hardware."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Balance One",
+    "label": "Peplink Balance One",
+    "category": "router",
+    "description": "Small-business load-balancing router: 2x GE WAN and 8x GE LAN out of the box, 600 Mbps routing throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-one.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet, which states **two numbers per row because a licence changes the answer**: Ethernet WAN port **2 / 5 (GE)** and LAN port **8 / 5 (GE)**, with Router Throughput **600Mbps / 400Mbps**. The second figure applies once the WAN Activation License is fitted, which converts three LAN ports into WAN ports. The base configuration (2 WAN, 8 LAN, 600 Mbps) is what is modelled here; if you have the five-WAN licence the port split and the throughput ceiling both change, and the file's interface list will be wrong for your unit."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX BR2 LTE",
+    "label": "Peplink MAX BR2 LTE",
+    "category": "router",
+    "description": "Mobile router with LTE: 1x GE WAN, 4x GE LAN, 300 Mbps routing throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br2.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 4 (GE), Router Throughput 300 Mbps, Wi-Fi AP Yes. **300 Mbps is the ceiling for the whole router**, so a BR2 on a gigabit circuit forwards less than a third of it - the wired port count suggests far more headroom than the box has."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX BR2 Pro 5G",
+    "label": "Peplink MAX BR2 Pro 5G",
+    "category": "router",
+    "description": "Mobile router with 5G: 1x 2.5G WAN, 1x GE WAN, 4x GE LAN, 1 Gbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br2-pro.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 / 1 (2.5G)**, LAN port **4 / 5 (GE)**, Router Throughput 1 Gbps, Wi-Fi AP Yes, **PoE Input Yes**. The slash matters: WAN port 1 can act as a LAN port, so the same box is either 2 WAN / 4 LAN or 1 WAN / 5 LAN. Modelled as the 2 WAN configuration with the first WAN at 2.5G, because that is the port people buy it for."
+  }
+]

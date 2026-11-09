@@ -1,0 +1,71 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 580",
+  "label": "Peplink Balance 580",
+  "category": "router",
+  "description": "Load-balancing router: 5x GE WAN, 3x GE LAN, 1.5 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-580.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 5 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 1.5 Gbps, Wi-Fi AP No, SFP LAN/WAN No. Five uplinks into three LAN ports - the same aggregating shape as the 1350, at a fifth of the throughput.",
+  "role": [
+    "sd-wan"
+  ]
+}

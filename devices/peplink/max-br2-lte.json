@@ -1,0 +1,64 @@
+{
+  "vendor": "peplink",
+  "model": "MAX BR2 LTE",
+  "label": "Peplink MAX BR2 LTE",
+  "category": "router",
+  "description": "Mobile router with LTE: 1x GE WAN, 4x GE LAN, 300 Mbps routing throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/br2.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 4 (GE), Router Throughput 300 Mbps, Wi-Fi AP Yes. **300 Mbps is the ceiling for the whole router**, so a BR2 on a gigabit circuit forwards less than a third of it - the wired port count suggests far more headroom than the box has.",
+  "role": [
+    "sd-wan"
+  ]
+}

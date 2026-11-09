@@ -1,0 +1,71 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 580X",
+  "label": "Peplink Balance 580X",
+  "category": "router",
+  "description": "Wireless-broadband SD-WAN router: 5x GE WAN, 3x GE LAN, 4 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-580x.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 5 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 4 Gbps, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. Same ports as the plain 580, **2.7x the throughput** - and again the sheet says no Wi-Fi radio despite the product name.",
+  "role": [
+    "sd-wan"
+  ]
+}

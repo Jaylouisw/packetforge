@@ -1,0 +1,89 @@
+{
+  "vendor": "peplink",
+  "model": "Balance One",
+  "label": "Peplink Balance One",
+  "category": "router",
+  "description": "Small-business load-balancing router: 2x GE WAN and 8x GE LAN out of the box, 600 Mbps routing throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-one.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet, which states **two numbers per row because a licence changes the answer**: Ethernet WAN port **2 / 5 (GE)** and LAN port **8 / 5 (GE)**, with Router Throughput **600Mbps / 400Mbps**. The second figure applies once the WAN Activation License is fitted, which converts three LAN ports into WAN ports. The base configuration (2 WAN, 8 LAN, 600 Mbps) is what is modelled here; if you have the five-WAN licence the port split and the throughput ceiling both change, and the file's interface list will be wrong for your unit.",
+  "role": [
+    "sd-wan"
+  ]
+}

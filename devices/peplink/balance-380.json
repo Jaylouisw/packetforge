@@ -1,0 +1,59 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 380",
+  "label": "Peplink Balance 380",
+  "category": "router",
+  "description": "Load-balancing router: 3x GE WAN, 3x GE LAN, 1 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-380.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 3 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 1 Gbps, Wi-Fi AP No, SFP LAN/WAN No. The **380 and 380X are the same port count with very different throughput** - 1 Gbps here against 3 Gbps there - so the letter on the end is the whole difference that matters.",
+  "role": [
+    "sd-wan"
+  ]
+}
