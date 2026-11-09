@@ -117,6 +117,19 @@ addDevice(spec, id) {
     return out;
   }
 
+  // The `revalidate` pair for a cable that already exists, in the shape the port-in-use rule
+  // expects: each entry names the peer of that side. An id that is not a link here resolves to
+  // null, which grants nothing - a stale or invented id must never be able to wave a second cable
+  // into an occupied socket.
+  revalidateFor(linkId) {
+    const link = this.links.get(linkId);
+    if (!link || !link.a || !link.b) return null;
+    return {
+      a: { deviceId: link.b.deviceId, iface: link.b.iface },
+      b: { deviceId: link.a.deviceId, iface: link.a.iface }
+    };
+  }
+
   // Physical feasibility of cabling two ports. Returns a verdict:
   //   { ok, errors:[{code,message}], warnings:[{code,message}],
   //     media:[ids], mediaId, speedMbps }
@@ -160,6 +173,14 @@ addDevice(spec, id) {
       }
     }
 
+    // `opts.revalidate` says "this cable already exists, do not refuse it for being there".
+    // The rule compares each side against the PEER it is meant to be cabled to, so the pair that
+    // satisfies it is the far end seen from each side - an easy thing to get backwards, and getting
+    // it backwards fails silently: the verdict comes back E_PORT_IN_USE for a cable that plainly
+    // exists. Callers that already hold the link id can simply name it.
+    let revalidate = opts.revalidate || null;
+    if (typeof revalidate === 'string') revalidate = this.revalidateFor(revalidate);
+
     if (V && typeof V.validateConnection === 'function') {
       return V.validateConnection({
         portA: ai && ai.hardware,
@@ -168,7 +189,7 @@ addDevice(spec, id) {
         ifaceB: bi,
         // A caller that is re-checking an existing cable says which pair it is, so the
         // port-in-use rule does not refuse a cable that is plainly there.
-        revalidate: opts.revalidate || null,
+        revalidate: revalidate,
         devA: a,
         devB: b,
         mediaId: opts.mediaId,
@@ -434,13 +455,8 @@ addDevice(spec, id) {
       mediaId: link.mediaId,
       lengthM: length,
       // This pair is already cabled to each other. Say so, or the port-in-use check
-      // refuses to look at a cable that plainly exists. Each entry names the PEER of
-      // that side, because the rule is "is this port already connected to the port I am
-      // validating against".
-      revalidate: {
-        a: { deviceId: link.b.deviceId, iface: link.b.iface },
-        b: { deviceId: link.a.deviceId, iface: link.a.iface }
-      }
+      // refuses to look at a cable that plainly exists.
+      revalidate: this.revalidateFor(link.id)
     });
     if (!verdict.ok) return { ok: false, errors: verdict.errors, warnings: verdict.warnings || [] };
     link.lengthM = length;

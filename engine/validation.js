@@ -882,9 +882,56 @@ function collectIssues(list, out, inherited) {
   out.push(issue);
 }
 
+// A topology, duck-typed so this module never has to require engine/topology.js (which requires
+// this one): anything with a link map and a validateLink() is enough.
+function isTopology(x) {
+  return !!x && typeof x === 'object' && x.links instanceof Map && typeof x.validateLink === 'function';
+}
+
 function validateTopology(linkIssueList) {
   const issues = [];
-  collectIssues(linkIssueList, issues, null);
+
+  if (isTopology(linkIssueList)) {
+    // One verdict per cable, produced by the same validateLink() the canvas calls, so a whole-lab
+    // answer cannot disagree with the per-cable answer. This is what the function is named for; until
+    // now it only accepted a list somebody else had already built, which is why nothing but tests
+    // ever called it.
+    const topo = linkIssueList;
+    for (const [linkId, link] of topo.links) {
+      let verdict;
+      try {
+        verdict = topo.validateLink(link.a.deviceId, link.a.iface, link.b.deviceId, link.b.iface, {
+          mediaId: link.mediaId,
+          lengthM: link.lengthM,
+          patchCord: link.patchCord,
+          // Name the cable so its own ports are not refused for being in use.
+          revalidate: linkId
+        });
+      } catch (e) {
+        issues.push({
+          code: 'E_LINK_UNCHECKABLE',
+          severity: 'error',
+          message: 'Cable ' + linkId + ' could not be checked: ' + (e && e.message ? e.message : String(e)),
+          linkId: linkId
+        });
+        continue;
+      }
+      collectIssues(verdict, issues, { linkId: linkId });
+    }
+  } else if (linkIssueList && typeof linkIssueList === 'object' && !Array.isArray(linkIssueList) &&
+             typeof linkIssueList.code !== 'string' &&
+             !Array.isArray(linkIssueList.errors) && !Array.isArray(linkIssueList.warnings)) {
+    // Neither a topology nor anything shaped like an issue. Saying `ok: true` here would be the
+    // worst answer available: a caller that passed the wrong thing would be told its lab is clean.
+    issues.push({
+      code: 'E_NOT_A_TOPOLOGY',
+      severity: 'error',
+      message: 'validateTopology() needs a topology, or a list of issues from validateConnection(). ' +
+        'It was given an object with neither links nor issues, so there is nothing to check.'
+    });
+  } else {
+    collectIssues(linkIssueList, issues, null);
+  }
 
   let errorCount = 0;
   let warningCount = 0;
