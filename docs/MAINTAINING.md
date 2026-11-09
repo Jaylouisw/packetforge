@@ -65,6 +65,24 @@ this repository, and a 25 MB cache committed by accident is a mistake that stays
   stays out of the catalogue until one number can be attributed to it. An absent device is a gap;
   a guessed port count is a trap.
 
+## Vendors whose sources are currently unusable
+
+A wall is worth recording once, so nobody spends a second iteration on it. Each of these was
+attempted from this host with a plain fetch, a PDF download and a real browser before being
+written down.
+
+| vendor | what blocks it | what would unblock it |
+|---|---|---|
+| **FS.com** | CloudFront refuses the host outright: plain fetch returns 0 bytes, the browser gets `ERROR: The request could not be satisfied`, and per-model datasheets 404 at every pattern except `ap-n505` / `ap-t567`. | A copy of the datasheets, or a network that FS will serve. |
+| **Huawei Enterprise** (`support.huawei.com`) | Login wall. `web_extract` returns HTTP 422 "content could not be extracted"; a real browser returns an empty page. The public `e.huawei.com` product tables survive, which is how the NetEngine capacities were confirmed - but the *fixed port lists* live on the support site. | One logged-in session, or someone pasting the port table. |
+| **Garland Technology** | Their own pages carry a banner: *"Internal review build. Anything shown in amber is data we could not confirm from the source spreadsheets … Cards with unconfirmed specs also carry an amber 'Needs Info' pill."* Most cards name no model at all. | The published datasheets, once the site leaves review. |
+| **Hikvision** (partial) | One datasheet (`DS-3E1309P-EI`) returns 403 while its siblings download fine; one request ("Web managed 8P PoE Switch") names no model to look up. | A mirror of that one PDF; a part number for the other. |
+
+The rule that follows from all four: **an unbuildable request stays open with the reason attached**.
+Closing it hides a real gap; inventing a spec to close it poisons the catalogue. The comments on
+those issues name the exact URL and the exact failure, so the next attempt starts where this one
+stopped instead of at the beginning.
+
 ## When a vendor is hard
 
 - **Image-only PDFs** — the text layer is empty. Go to the vendor's wiki interface table or the
