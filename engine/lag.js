@@ -154,8 +154,16 @@ function memberEnabled(m) {
 // Only enabled members are eligible, they are sorted by name first (so the
 // result does not depend on the order the config happened to list them in),
 // and the index is floor(hash * n). Returns null when nothing is eligible.
-function selectMember(members, frame, policy) {
+//
+// `opts.canCarry` decides whether a member is *operationally* usable - its cable is in, its link is up, the
+// far port is up. It is a predicate rather than a flag so this module stays free of topology: the caller
+// already knows how to answer, and every caller must get the same answer. Without it a bundle whose member
+// had been unplugged still hashed a share of the traffic onto that dead member and dropped it, while a
+// perfectly good member sat idle (#1263).
+function selectMember(members, frame, policy, opts) {
   const list = Array.isArray(members) ? members : [];
+  const o = opts || {};
+  const canCarry = (typeof o.canCarry === 'function') ? o.canCarry : null;
 
   const eligible = [];
   const seen = new Set();
@@ -163,6 +171,7 @@ function selectMember(members, frame, policy) {
     if (!memberEnabled(m)) continue;
     const name = memberName(m);
     if (!name || seen.has(name)) continue;
+    if (canCarry && !canCarry(name)) continue;
     seen.add(name);
     eligible.push(name);
   }
@@ -175,6 +184,23 @@ function selectMember(members, frame, policy) {
   if (idx < 0) idx = 0;
   if (idx >= eligible.length) idx = eligible.length - 1;
   return eligible[idx];
+}
+
+// Which members of a bundle could carry a frame right now, in the order the selection rule uses.
+// Exported so the CLI's `show etherchannel` and the data plane cannot hold two opinions about a bundle.
+function eligibleMembers(members, canCarry) {
+  const list = Array.isArray(members) ? members : [];
+  const out = [];
+  const seen = new Set();
+  for (const m of list) {
+    if (!memberEnabled(m)) continue;
+    const name = memberName(m);
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    if (canCarry && !canCarry(name)) continue;
+    out.push(name);
+  }
+  return out.sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
 }
 
 // ---------------------------------------------------------------------------
@@ -299,5 +325,6 @@ module.exports = {
   normalizeLag,
   hashFrame,
   selectMember,
+  eligibleMembers,
   validateLag
 };

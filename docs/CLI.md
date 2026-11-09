@@ -26,6 +26,7 @@ Modes and their prompts:
 | `show mac address-table` | MAC table (switches), per VLAN, with stale entries marked |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
 | `show spanning-tree` | per-port STP role and state, or "not measured" when nothing has run |
+| `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -330,6 +331,24 @@ With **no simulation run** behind the device the command says
 `show interfaces` makes for its counters. "No ports are bridging" is a claim about the lab; "nothing has
 looked" is a claim about this session, and printing the first when the second is true is how a lab gets
 declared loop-free before anyone has looked at it.
+
+### Reading `show etherchannel summary`
+
+```
+Group  Protocol   Ports
+1      active     Fa0/2(P) Fa0/3(D)
+  Fa0/3     not bundled (down: link down)
+  bundle 1 is running on 1 of 2 members: Fa0/2
+```
+
+`(P)` means bundled **and able to carry a frame**; `(D)` means the member cannot, and the line below it says
+why in the same sentence `show interfaces` and `show arp` use — `administratively down`, `down: no cable`,
+`down: link down`, `down: peer shut down`, or `(STP blocking)`.
+
+The data plane uses the same rule: **the hash is taken over the members that can carry**, so unplugging one
+member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
+member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
+so the loss is countable rather than invisible.
 
 ### Reading `show arp`
 

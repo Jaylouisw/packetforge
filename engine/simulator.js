@@ -2777,10 +2777,28 @@ class Simulator {
     for (const id of Object.keys(byLag)) {
       const members = byLag[id].slice().sort();
       const cfg = (dev.config.lags && dev.config.lags[id]) || {};
-      const picked = lagLib.selectMember(members, frame, cfg.hashPolicy || 'l2') || members[0];
+      // A member whose cable is out, whose link is down, or whose far port is shut cannot carry a frame, so
+      // it is not a candidate: the hash is taken over the members that can. Before this the hash landed on
+      // the dead member for a share of the traffic and dropped it while a healthy member sat idle (#1263).
+      const canCarry = (function (self) {
+        return function (name) {
+          const iface = dev.interfaces.get(name);
+          if (!iface) return false;
+          return dev.ifaceStatus(iface, self.topo).status === 'up';
+        };
+      })(this);
+      const live = lagLib.eligibleMembers(members, canCarry);
+      const picked = lagLib.selectMember(members, frame, cfg.hashPolicy || 'l2', { canCarry }) ||
+        members[0];
       egresses.push(picked);
-      if (members.length > 1) {
-        this._emit({ type: 'lag', dev: dev.id, lag: id, members: members, picked: picked, vlan: vid });
+      if (members.length > 1 || live.length !== members.length) {
+        this._emit({
+          type: 'lag', dev: dev.id, lag: id, members: members, live: live, picked: picked, vlan: vid,
+          degraded: live.length < members.length,
+          // No member can carry: the frame is still attempted on one, so it is dropped with the reason
+          // rather than disappearing into a bundle that looks healthy.
+          noLiveMember: live.length === 0
+        });
       }
     }
 
