@@ -1,0 +1,55 @@
+{
+  "vendor": "netgear",
+  "model": "GS305EPP",
+  "label": "NETGEAR GS305EPP",
+  "category": "switch",
+  "description": "5-port gigabit smart switch with 4 PoE+ ports.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures from the GS305EP/GS308EP series datasheet: **5 gigabit ports of which 4 carry PoE+** at up to 30 W per port. **One port is unpowered** - the uplink - which is the right shape for a small camera cluster but leaves nothing spare if the uplink is also meant to power a device."
+}

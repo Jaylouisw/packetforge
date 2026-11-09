@@ -1,0 +1,57 @@
+{
+  "vendor": "netgear",
+  "model": "RS400",
+  "label": "NETGEAR Nighthawk RS400 (AC2300)",
+  "category": "router",
+  "description": "Nighthawk AC2300 router: 1x 1G WAN, 4x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "600M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.6G"
+    }
+  ],
+  "notes": "Vendor figures from the RS400 datasheet: **1 WAN & 4 LAN Gigabit Ethernet ports**, dual-band AC2300 Wi-Fi. Five copper ports and a consumer NAT/firewall feature set - no VLANs, no CLI, so it belongs in a home or small-office diagram rather than a lab with a management plane."
+}

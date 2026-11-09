@@ -1,0 +1,43 @@
+{
+  "vendor": "netgear",
+  "model": "GS305",
+  "label": "NETGEAR GS305",
+  "category": "switch",
+  "description": "5-port gigabit unmanaged switch: 5x 1G, no PoE.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures from the GS305 datasheet: five gigabit ports, **unmanaged and unpowered** - the datasheet's PoE table lists \"N/A\" for PoE ports on this model, which is the row to check before buying it to power a camera."
+}
