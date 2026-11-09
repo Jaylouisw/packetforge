@@ -1594,14 +1594,47 @@ class CliSession {
       if (!ids.length) {
         out.push('% No link aggregation groups configured');
       } else {
+        const lagLib = require('./lag');
         out.push('Group  Protocol   Ports');
         for (const id of ids) {
           const l = lags[id] || {};
-          const members = (l.members || []).map(function (m) {
-            const blocked = dev.stp && dev.stp.blocked && dev.stp.blocked.has(m);
-            return m + '(' + (blocked ? 'D' : 'P') + ')';
+          const raw = Array.isArray(l.members) ? l.members : [];
+          // Bundled (P) or down (D) is a statement about the link, not just about spanning tree: a member
+          // whose cable is out used to read (P), i.e. "this port is carrying traffic", while it was
+          // dropping everything hashed to it (#1263).
+          const why = {};
+          const canCarry = (function (self, reasons) {
+            return function (name) {
+              const iface = dev.interfaces.get(name);
+              if (!iface) { reasons[name] = '(no such port)'; return false; }
+              if (dev.stp && dev.stp.blocked && dev.stp.blocked.has(name)) {
+                reasons[name] = '(STP blocking)';
+                return false;
+              }
+              // The same sentence `show interfaces` and `show arp` use for the same fact.
+              const note = self._staleNote(iface);
+              if (note) { reasons[name] = note; return false; }
+              return true;
+            };
+          })(this, why);
+          const live = lagLib.eligibleMembers(raw, canCarry);
+          const shown = raw.map(function (m) {
+            return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
           });
-          out.push(pad(id, 7) + pad(l.mode || 'static', 11) + members.join(' '));
+          out.push(pad(id, 7) + pad(l.mode || 'static', 11) + shown.join(' '));
+          // Why a member is not carrying, in the same words `show interfaces` uses, and what that means for
+          // the bundle as a whole.
+          for (const m of raw) {
+            if (live.indexOf(m) === -1) {
+              out.push('  ' + pad(m, 10) + 'not bundled ' + (why[m] || '(cannot carry a frame)'));
+            }
+          }
+          if (!live.length && raw.length) {
+            out.push('  bundle ' + id + ' is down: no member can carry a frame (traffic is dropped)');
+          } else if (live.length < raw.length) {
+            out.push('  bundle ' + id + ' is running on ' + live.length + ' of ' + raw.length +
+              ' members: ' + live.join(', '));
+          }
         }
       }
     } else if (what === 'arp') {
