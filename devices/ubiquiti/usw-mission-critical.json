@@ -1,9 +1,9 @@
 {
   "vendor": "ubiquiti",
   "model": "USW-Mission-Critical",
-  "label": "UniFi North America",
+  "label": "Ubiquiti UniFi Switch Mission Critical (USW-Mission-Critical)",
   "category": "switch",
-  "description": "UniFi North America (USW-Mission-Critical) - 9x 1G RJ45 (4 PoE+ / 4 PoE++). 120 W PoE budget; Layer 3; 18 Gbps switching capacity.",
+  "description": "Ubiquiti UniFi Switch Mission Critical (USW-Mission-Critical) - 9x 1G RJ45 (4 PoE+ / 4 PoE++). 120 W PoE budget; Layer 3; 18 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "l3-forward",

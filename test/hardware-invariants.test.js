@@ -524,5 +524,32 @@ console.log('A product is described once, whatever its file is called:');
 }
 
 
+console.log('Every device can be named in a list:');
+{
+  // Twenty Huawei consumer devices carried no label at all, so the catalogue listed them by model
+  // string alone - the one field a reader scans was blank, and a label-less entry cannot be told
+  // apart from a parser artefact. Two more carried an import placeholder as their name
+  // ("Smart speaker, Wi-Fi only", "Smart display, Wi-Fi only"), which is a description, not a product.
+  const nameless = [];
+  for (const s of catalog) {
+    if (!String(s.label || '').trim()) nameless.push(s.vendor + '/' + s.model);
+  }
+  ok(nameless.length === 0, 'every spec carries a label' +
+    (nameless.length ? ' (' + nameless.slice(0, 3).join(', ') + ')' : ''));
+
+  const placeholders = [];
+  const PLACEHOLDER = /^(smart speaker|smart display|wireless access point|network switch|access point|router|\s*)$/i;
+  for (const s of catalog) {
+    const label = String(s.label || '').trim();
+    if (!label) continue;
+    // A generic device template is allowed to say what it is; a real product is not.
+    if (s.vendor === 'generic') continue;
+    if (PLACEHOLDER.test(label)) placeholders.push(s.vendor + '/' + s.model + ' <= "' + label + '"');
+  }
+  ok(placeholders.length === 0, 'no real device is labelled with its category instead of its name' +
+    (placeholders.length ? ' (' + placeholders.slice(0, 3).join(', ') + ')' : ''));
+}
+
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

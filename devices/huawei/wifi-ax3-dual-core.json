@@ -43,5 +43,6 @@
     }
   ],
   "description": "Huawei WiFi AX3 (Dual-core): 4×1G. Wi-Fi 6, 2.4 GHz 574M, 5 GHz 2402M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #159; figures from https://consumer.huawei.com/en/routers/ax3-dual-core/specs/",
-  "source": "https://consumer.huawei.com/en/routers/ax3-dual-core/specs/"
+  "source": "https://consumer.huawei.com/en/routers/ax3-dual-core/specs/",
+  "label": "HUAWEI WiFi AX3 (Dual-core)"
 }

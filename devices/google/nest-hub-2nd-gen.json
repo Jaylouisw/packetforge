@@ -1,7 +1,7 @@
 {
   "vendor": "google",
   "model": "Nest Hub (2nd gen)",
-  "label": "Smart display, Wi-Fi only",
+  "label": "Google Nest Hub (2nd generation)",
   "category": "iot",
   "description": "7-inch smart display with Google Assistant, Sleep Sensing and a 802.11ac dual-band radio. No Ethernet and no PoE - it lives entirely on Wi-Fi.",
   "capabilities": [

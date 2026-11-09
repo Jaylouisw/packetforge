@@ -2,7 +2,6 @@
   "_comment": "Hardware defects that are known, tracked in Forgejo, and not yet fixed. Each entry must cite its issue. tests fail on anything NOT listed here, and fail again if a listed device is fixed but not removed - so this file can only shrink.",
   "opticsWithoutCage": [],
   "duplicateLabels": [
-    "apple/homepod mini",
     "mikrotik/rb912r-2nd-ltm&r11e-lte",
     "mikrotik/rblhggr&r11e-lte6",
     "mikrotik/rbltap-2hnd&r11e-lte6",
@@ -14,7 +13,6 @@
     "radwin/radwin 5000 jet",
     "ubiquiti/er-4",
     "ubiquiti/uck-g2-ssd",
-    "ubiquiti/usw-mission-critical",
     "zte/zxhn f8648p"
   ]
 }

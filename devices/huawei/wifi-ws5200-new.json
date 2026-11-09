@@ -43,5 +43,6 @@
     }
   ],
   "description": "Huawei WiFi WS5200 (NEW): 4×1G. Wi-Fi 5, 2.4 GHz 300M, 5 GHz 867M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Band rates could not be read from the vendor's spec page (it is rendered client-side), so the class figures are used and this flag is deliberate. Requested in #164; figures from https://consumer.huawei.com/en/routers/ws5200-new/specs/",
-  "source": "https://consumer.huawei.com/en/routers/ws5200-new/specs/"
+  "source": "https://consumer.huawei.com/en/routers/ws5200-new/specs/",
+  "label": "HUAWEI WiFi WS5200 (NEW)"
 }

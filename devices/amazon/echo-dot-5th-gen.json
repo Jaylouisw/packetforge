@@ -1,7 +1,7 @@
 {
   "vendor": "amazon",
   "model": "Echo Dot (5th gen)",
-  "label": "Smart speaker, Wi-Fi only",
+  "label": "Amazon Echo Dot (5th generation)",
   "category": "iot",
   "description": "5th-generation Echo Dot (2022) smart speaker with a 1.73-inch front-firing driver and Alexa. Dual-band 802.11a/b/g/n/ac Wi-Fi and Bluetooth; there is no Ethernet port.",
   "capabilities": [

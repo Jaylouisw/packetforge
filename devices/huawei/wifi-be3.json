@@ -43,5 +43,6 @@
     }
   ],
   "description": "Huawei WiFi BE3: 1×2.5G, 3×1G. Wi-Fi 7, 2.4 GHz 688M, 5 GHz 2882M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #146; figures from https://consumer.huawei.com/en/routers/wifi-be3/specs/",
-  "source": "https://consumer.huawei.com/en/routers/wifi-be3/specs/"
+  "source": "https://consumer.huawei.com/en/routers/wifi-be3/specs/",
+  "label": "HUAWEI WiFi BE3"
 }
