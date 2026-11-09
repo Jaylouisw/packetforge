@@ -1,0 +1,119 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 1350",
+  "label": "Peplink Balance 1350",
+  "category": "router",
+  "description": "High-capacity load-balancing router: 13x GE WAN, 3x GE LAN, 5 Gbps routing throughput, no Wi-Fi and no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-1350.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **13 (GE)**, Number of Ethernet LAN port **3 (GE)**, Router Throughput 5 Gbps, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. The 13-to-3 WAN/LAN split is the whole point of this box - it aggregates thirteen uplinks into a small LAN, so a lab that treats the sixteen ports as interchangeable gets both the topology and the failover behaviour wrong. 5 Gbps is the router throughput, well under the 16 Gbps of raw port capacity.",
+  "role": [
+    "sd-wan"
+  ]
+}

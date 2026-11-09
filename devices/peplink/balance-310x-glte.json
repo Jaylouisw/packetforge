@@ -1,0 +1,94 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 310X GLTE",
+  "label": "Peplink Balance 310X (GLTE)",
+  "category": "router",
+  "description": "SD-WAN branch router with a global LTE modem: 2x GE WAN, 9x GE LAN, 2.5 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-310x.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 2 (GE), Number of Ethernet LAN port **9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. **GLTE is the global-band variant of the same 310X chassis** - the ports and the 2.5 Gbps throughput are identical to the LTEA SKU, so the difference lives in which LTE bands the modem covers, not in anything the interface list shows.",
+  "role": [
+    "sd-wan"
+  ]
+}

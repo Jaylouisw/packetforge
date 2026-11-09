@@ -1,0 +1,59 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 305",
+  "label": "Peplink Balance 305",
+  "category": "router",
+  "description": "Branch load-balancing router: 3x GE WAN, 3x GE LAN, 1 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-305.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 3 (GE), Number of Ethernet LAN port 3 (GE), Router Throughput 1 Gbps, Wi-Fi AP No, PoE Input No, SFP LAN/WAN No. Six gigabit ports split evenly three and three, so which side a cable lands on decides whether it is an uplink or a host.",
+  "role": [
+    "sd-wan"
+  ]
+}

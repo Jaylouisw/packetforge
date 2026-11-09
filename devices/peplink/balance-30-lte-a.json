@@ -1,0 +1,64 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 30 LTE-A",
+  "label": "Peplink Balance 30 LTE-A",
+  "category": "router",
+  "description": "Small-branch router with LTE-A backup: 2x GE WAN, 4x GE LAN, 200 Mbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-30-lte.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 2 (GE), Number of Ethernet LAN port 4 (GE), Router Throughput 200 Mbps. The sheet is shared with the plain Balance 30 LTE, so the port set is identical; what differs is the modem - **LTE-A here, LTE there** - and the modem is modelled at the catalogue's 50M LTE class. The 200 Mbps router ceiling applies to this model too, so it is the box, not the LTE link, that limits a branch.",
+  "role": [
+    "sd-wan"
+  ]
+}
