@@ -17,6 +17,9 @@ const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
 const mediaLib = require('./media');
+// VLAN membership is decided by one rule (engine/vlan.js), so a table that lists members uses it rather
+// than re-deriving what a port carries.
+const vlanLib = require('./vlan');
 
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
@@ -1531,48 +1534,52 @@ class CliSession {
     } else if (what === 'vrrp') {
       out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
-      out.push('VLAN Name                             Status    Ports');
-      const byVlan = new Map();
+      // One table, and one row per VLAN.
+      //
+      // It printed two: trunks listed under the VLANs they carry, and then an extra pseudo-row called
+      // `all` rendered as VLAN 1 - so VLAN 1 appeared twice with the same ports, and a trunk that carries
+      // every VLAN was reported as a member of VLAN 1 and of nothing else. Membership is now decided by
+      // `classifyEgress()`, the same rule the data plane forwards by, so the table cannot list a port the
+      // switch would drop for, or omit one it would forward to (#1261).
+      const vlanSet = new Set();
+      const named = dev.config.vlans || {};
+      Object.keys(named).forEach(function (k) { vlanSet.add(Number(k)); });
+      vlanSet.add(1);
       for (const i of dev.interfaces.values()) {
-        const v = i.vlan || { mode: 'access', accessVlan: 1 };
+        const v = i.vlan || {};
         if (v.mode === 'trunk') {
-          const ids = (v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans))
-            ? [Number(v.nativeVlan) || 1]
-            : v.allowedVlans;
-          for (const id of ids) {
-            if (!byVlan.has(id)) byVlan.set(id, []);
-            byVlan.get(id).push(i.name + (id === (Number(v.nativeVlan) || 1) ? '(n)' : '(t)'));
-          }
-          if (v.allowedVlans === 'all') {
-            const anyKey = 'all';
-            if (!byVlan.has(anyKey)) byVlan.set(anyKey, []);
-            byVlan.get(anyKey).push(i.name + '(trunk)');
-          }
+          vlanSet.add(Number(v.nativeVlan) || 1);
+          if (Array.isArray(v.allowedVlans)) v.allowedVlans.forEach(function (id) { vlanSet.add(Number(id)); });
         } else {
-          const id = Number(v.accessVlan) || 1;
-          if (!byVlan.has(id)) byVlan.set(id, []);
-          byVlan.get(id).push(i.name);
+          vlanSet.add(Number(v.accessVlan) || 1);
         }
       }
-      const keys = Array.from(byVlan.keys()).sort(function (a, b) {
-        if (a === 'all') return 1;
-        if (b === 'all') return -1;
-        return a - b;
-      });
-      for (const id of keys) {
-        if (id === 'all') {
-          out.push(pad(1, 8) + pad((dev.config.vlans && dev.config.vlans[1] && dev.config.vlans[1].name) || 'default', 33) + pad('active', 10) + byVlan.get(id).join(', '));
-          continue;
+      // A trunk with `allowedVlans: all` carries every VLAN in the table, so it is listed in each row.
+      const ids = Array.from(vlanSet).filter(function (id) { return Number.isFinite(id) && id >= 1; })
+        .sort(function (a, b) { return a - b; });
+      out.push(pad('VLAN', 8) + pad('Name', 33) + pad('Status', 10) + 'Ports');
+      for (const id of ids) {
+        const members = [];
+        for (const i of dev.interfaces.values()) {
+          const verdict = vlanLib.classifyEgress(i.vlan, id);
+          if (verdict.action === 'drop') continue;
+          members.push(i.name);
         }
-        const name = (dev.config.vlans && dev.config.vlans[id] && dev.config.vlans[id].name) || ('VLAN' + String(id).padStart(4, '0'));
-        out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + byVlan.get(id).join(', '));
+        const name = (named[id] && named[id].name)
+          || (id === 1 ? 'default' : 'VLAN' + String(id).padStart(4, '0'));
+        out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + members.join(', '));
       }
     } else if (what === 'spanning-tree') {
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
       const names = Object.keys(st.states || {}).sort();
       out.push('Spanning tree enabled protocol ieee');
       if (!names.length) {
-        out.push('  No bridged ports: this device is not part of any L2 loop.');
+        // With nothing having run, "no ports are bridging" is a claim the command cannot make - the same
+        // distinction `show interfaces` makes for its counters (#1252). Both answers used to be the same
+        // sentence, so a lab that had never been simulated reported itself as loop-free (#1261).
+        out.push(this.sim
+          ? '  No ports are bridging: this device is not part of an L2 loop.'
+          : '  Not measured (no simulation run): nothing has computed the spanning tree.');
       } else {
         out.push('Port          Role          State');
         for (const n of names) {
@@ -1630,7 +1637,6 @@ class CliSession {
         out.push(pad('Internet', 10) + pad(r[0], 17) + pad('-', 11) + pad(r[1], 18) + r[2]);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
-      const vlanLib = require('./vlan');
       out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + 'Ports');
       const rows = [];
       for (const [mac, iface] of dev.macTable.entries()) rows.push([1, mac, iface]);
