@@ -1,0 +1,21 @@
+[
+  {
+    "kind": "device-addition",
+    "vendor": "moxa",
+    "model": "NPort 6650-16",
+    "category": "host",
+    "label": "NPort 6650-16 16-port secure terminal server",
+    "description": "16x RS-232/422/485 8-pin RJ45 serial, 1x 10/100BaseT(X) RJ45 uplink, 1x RS-232 console port, secure modes (SSHv2, TLS 1.2, RADIUS/TACACS+).",
+    "sourceUrl": "https://www.moxa.com/getmedia/b095a7b4-9c06-4dca-8732-1411687e81d7/moxa-nport-6400-6600-series-datasheet-v1.7.pdf",
+    "notes": "Datasheet v1.7: Ethernet '10/100BaseT(X) Ports (RJ45 connector): 1, Auto MDI/MDI-X'; Serial 'Connector: NPort 6600 models: 8-pin RJ45', 'No. of Ports: NPort 6600-16 models: 16'; Console Port 'NPort 6600 models: RS-232 (TxD, RxD, GND), 8-pin RJ45 (19200, n, 8, 1)'. Extra Ethernet ports come from NM-TX01/NM-TX02 expansion modules (1 or 2 further 10/100 ports) - not modelled because they are optional, same rule as the firewalls' expansion slots. Security difference from the 5650-16: AES-256/HMAC, SSHv2, RADIUS/TACACS+, versus local database only."
+  },
+  {
+    "kind": "catalogue-density-lesson",
+    "notes": "Two attempted additions in a row turned out to already exist: tp-link/mc220l.json (previous iteration) and moxa/nport-5650-16.json (this one, which already had 1x 10/100 + 16 serial and a better description than the one I was about to write). Both writes were refused by the tooling rather than overwriting. The catalogue is denser than category counts suggest: 2,041 models means the obvious SKU in any given family is probably already there. Conclusion - check for an existing vendor/model before researching a datasheet, and prefer the sibling SKU or a different family. This is also why scripts/audit-devices.js now fails the build on same-vendor duplicates: the check catches the regression, not the discovery."
+  },
+  {
+    "kind": "tooling",
+    "target": "scripts/audit-devices.js",
+    "notes": "Added duplicate detection to the plausibility audit. Two files for one product were previously invisible: both load, both expand to plausible ports, and doc-catalog-counts only asserts totals. Same vendor + same normalised model is now a HARD defect (counts into the exit code); the same model under different vendor strings is a WARNING, because canonical naming is a human decision. Normalisation is conservative on purpose - '+' becomes 'plus' so DS923 and DS923+ stay distinct, and only vendor-neutral family words (rackstation/diskstation/flashstation/truenas/nas) are dropped. Result on the current catalogue: 0 hard duplicates, 3 cross-brand twins (athom/homey, ixsystems/truenas Mini X+, philips-hue/philips Hue Bridge). Note the ixsystems/truenas pair was NOT caught by the ad-hoc scan I ran two iterations ago, because that scan did not strip the brand word from inside the model string."
+  }
+]
