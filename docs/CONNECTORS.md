@@ -499,6 +499,49 @@ uses it for severity. Three codes above are emitted but **not** in `RULES`:
 `W_` is a warning, everything else an error — but if you add a code, add it to
 `RULES` so the UI can document it and the counts stay honest.
 
+### `validateTopology()` takes a topology
+
+```js
+const summary = require('./engine/validation').validateTopology(topo);
+// { ok, errorCount, warningCount, issues: [{ code, severity, message, linkId, ... }] }
+```
+
+Hand it a `Topology` and it runs `validateLink()` for every cable, so a whole-lab
+verdict cannot disagree with the per-cable verdict the canvas shows; every issue
+carries the `linkId` it came from. It still accepts the flat or nested issue list
+it always did — that is how a second source (upstream reachability, port audits)
+is folded into one answer:
+
+```js
+validation.validateTopology([linkIssues, validation.validateUpstreams(topo)])
+```
+
+Two things it will not do silently any more:
+
+* **A shape it does not recognise is an error, not a pass.** `E_NOT_A_TOPOLOGY`
+  is returned for an object that is neither a topology nor an issue list.
+  Before, anything unrecognised came back `{ ok: true }`, because the collector
+  looked for a `.code` field, found none on a `Topology`, and skipped it — a
+  whole-lab check that reported "clean" without reading a single cable.
+* **A cable that cannot be checked is reported, not dropped.** `E_LINK_UNCHECKABLE`
+  names the link when the verdict throws — a lab file whose link points at a
+  device that is not there, for instance.
+
+### Re-checking a cable that already exists
+
+The port-in-use rule needs to know which pair it is looking at, and each entry
+names the **peer** of that side — a convention that is easy to get backwards, and
+backwards fails as `E_PORT_IN_USE` on a cable that plainly exists. So name the
+cable instead:
+
+```js
+topo.validateLink('d1', 'ether1', 'd2', 'eth0', { mediaId: '1000base-t', revalidate: 'l3' });
+topo.revalidateFor('l3');   // { a: {...}, b: {...} } — the pair, in the right order
+```
+
+An id that is not a link resolves to `null` and grants nothing: a stale or
+invented id cannot wave a second cable into an occupied socket.
+
 One behaviour to expect while debugging: **warnings are computed even when a
 link is refused.** An SC/APC to SC/UPC pair returns `E_POLISH_MISMATCH` *and*
 `W_SPEED_DOWNGRADE`, because the speed intersection is calculated regardless of

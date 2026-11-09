@@ -240,16 +240,27 @@ console.log('Whole-topology validation survives a topology that is already broke
   let threw = null, res;
   try { res = validation.validateTopology(topo); } catch (e) { threw = e; }
   ok(!threw, 'validateTopology does not throw on a healthy topology', threw && threw.message);
-  ok(res === undefined || typeof res === 'object', 'and returns something shaped like a result');
+  // It used to return `{ ok: true }` for any object it did not recognise, which meant a Topology was
+  // "clean" because it had no `.code` field. Now it actually walks the cables, so the answer has to be
+  // internally consistent: ok exactly when nothing is an error.
+  ok(res && typeof res === 'object', 'and returns something shaped like a result');
+  ok(res && res.ok === (res.errorCount === 0), 'with ok agreeing with its own error count',
+    res && JSON.stringify({ ok: res.ok, errors: res.errorCount }));
+  ok(res && res.issues.length === res.errorCount + res.warningCount, 'and the issue list matching the counts',
+    res && JSON.stringify({ issues: res.issues.length, errors: res.errorCount, warnings: res.warningCount }));
 
-  // A topology whose serialized form references a device that is not there - what a hand-edited
-  // lab file or a truncated WebSocket message looks like.
+  // A topology whose link references a device that is not there - what a hand-edited lab file or a
+  // truncated WebSocket message looks like.
   const broken = new Topology({});
   broken.addDevice(specs[0], 'only');
   broken.links.set('l1', { id: 'l1', a: { deviceId: 'ghost', iface: 'eth0' }, b: { deviceId: 'only', iface: portsOf(broken, 'only')[0] } });
   threw = null;
-  try { validation.validateTopology(broken); } catch (e) { threw = e; }
+  let brokenRes;
+  try { brokenRes = validation.validateTopology(broken); } catch (e) { threw = e; }
   ok(!threw, 'and does not throw when a link names a device that is not there', threw && threw.message);
+  ok(brokenRes && brokenRes.ok === false, 'but does call that topology broken, not clean');
+  ok(brokenRes && brokenRes.issues.some(function (i) { return i.linkId === 'l1'; }),
+    'and points at the cable that is wrong');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
