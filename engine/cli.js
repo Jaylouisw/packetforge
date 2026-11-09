@@ -310,9 +310,18 @@ class CliSession {
       } else {
         const ip = tokens[2], mask = tokens[3];
         if (!ip || !mask) return ['% Incomplete command'];
-        net.ipToInt(ip); net.maskToInt(mask);
-        iface.ip = ip; iface.mask = mask; iface.dhcp = false;
-        out.push('IP address set on ' + iface.name + ': ' + ip + '/' + net.prefixOf(mask));
+        net.ipToInt(ip);                       // an address error is reported as an address error
+        // A netmask must be a run of ones then zeros, and a bad mask is reported as a *mask* - the old
+        // code let maskToInt() throw and the message came out as "Invalid IPv4 address: garbage",
+        // pointing at the wrong argument (#1249).
+        if (!net.isContiguousMask(mask)) {
+          return ['% Invalid mask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
+        }
+        // Store the dotted form whichever way it was typed: a port left holding "24" reads as /2 to
+        // anything that parses a dotted mask, the front panel included.
+        const dotted = net.maskFromPrefix(net.prefixOf(mask));
+        iface.ip = ip; iface.mask = dotted; iface.dhcp = false;
+        out.push('IP address set on ' + iface.name + ': ' + ip + '/' + net.prefixOf(dotted));
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
       iface.ip = null; iface.mask = null; iface.dhcp = false;

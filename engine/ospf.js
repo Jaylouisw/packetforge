@@ -86,15 +86,11 @@ function areaOf(v) {
 // not a run of ones followed by zeros.
 function maskPrefix(mask) {
   if (mask === null || mask === undefined || mask === '') return null;
-  let m;
-  try {
-    m = net.maskToInt(mask) >>> 0;
-    const prefix = net.prefixOf(mask);
-    const rebuilt = (prefix === 0) ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
-    return (rebuilt === m) ? prefix : null;
-  } catch (err) {
-    return null;
-  }
+  // One rule, in engine/net.js: contiguity decides, and the prefix length is that mask's own leading
+  // ones. Rebuilding the mask from a counted prefix length (the old way) disagreed with the router for
+  // masks that are not a run of ones (#1249).
+  if (!net.isContiguousMask(mask)) return null;
+  try { return net.prefixOf(mask); } catch (err) { return null; }
 }
 
 // OSPF interface cost: 1-65535. null means "not configured" (or invalid).
@@ -661,6 +657,7 @@ module.exports = {
   DEFAULT_HELLO_SEC,
   DEFAULT_DEAD_SEC,
   validateRouter,
+  maskPrefix,
   buildGraph,
   adjacencies,
   spf,

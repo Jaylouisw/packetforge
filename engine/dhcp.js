@@ -55,22 +55,10 @@ function parseIp(v) {
   }
 }
 
-// A mask must be contiguous (a run of ones then a run of zeros) to describe a
-// prefix, so 255.0.255.0 is rejected even though it is a valid IPv4 address.
-function maskContiguous(m) {
-  const inv = (~m) >>> 0;
-  return (((inv + 1) >>> 0) & inv) === 0;
-}
-
-// Prefix length of a dotted mask integer (net.prefixOf only accepts dotted
-// strings / short numbers, so an int like 4294967040 would be misread).
-function prefixOfMask(m) {
-  let ones = 0;
-  for (let i = 31; i >= 0; i--) {
-    if ((m >>> i) & 1) ones++; else break;
-  }
-  return ones;
-}
+// The mask rules live in engine/net.js: one predicate decides contiguity and one
+// function turns a mask int into a prefix length, so this module cannot disagree
+// with the router about what 255.255.255.0 means (#1249).
+const prefixOfMask = net.prefixOfInt;
 
 function parseMask(v) {
   const s = trimStr(v).replace(/^\/+/, '');
@@ -87,7 +75,7 @@ function parseMask(v) {
   } catch (err) {
     return null;
   }
-  return maskContiguous(m) ? m : null;
+  return net.isContiguousMask(m) ? m : null;
 }
 
 // Canonical 'aa:bb:cc:dd:ee:ff' for anything macToInt() understands, else null.
