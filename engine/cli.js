@@ -1458,9 +1458,39 @@ class CliSession {
         }
       }
     } else if (what === 'arp') {
-      out.push('Protocol  Address          Age (min)  Hardware Addr   Interface');
+      // The Interface column used to be a header over nothing - every row stopped at the MAC - so the one
+      // table that tells you which port a neighbour is on could not tell you (#1253). It also presented
+      // every entry as a live neighbour: an entry learned on a port that has since gone down is a stale
+      // cache entry, not evidence that the address is still reachable, and that is exactly the state you
+      // are in when you run this command.
+      out.push(pad('Protocol', 10) + pad('Address', 17) + pad('Age (min)', 11) +
+        pad('Hardware Addr', 18) + 'Interface');
+      const rows = [];
       for (const [ip, mac] of dev.arp.entries()) {
-        out.push('Internet  ' + pad(ip, 15) + '-          ' + mac);
+        const portName = (dev.arpPorts && dev.arpPorts.get(ip)) || null;
+        let note = '-';
+        if (portName) {
+          const port = dev.resolveIface(portName);
+          if (!port) {
+            note = portName + ' (gone)';
+          } else {
+            const link = dev.ifaceStatus(port, this.topo);
+            // The reason travels with the status here too: "down" alone sends you looking for a cable
+            // when the cable is fine and the far port is shut (#1253).
+            const why = (link.reason && link.reason !== link.status)
+              ? link.status + ': ' + link.reason
+              : link.status;
+            note = port.name + (link.status === 'up' ? '' : ' (' + why + ')');
+          }
+        }
+        // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a
+        // minutes column would be a number with the wrong unit. '-' is what a device prints for an entry
+        // it cannot age, and is honest here.
+        rows.push([ip, mac, note]);
+      }
+      rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
+      for (const r of rows) {
+        out.push(pad('Internet', 10) + pad(r[0], 17) + pad('-', 11) + pad(r[1], 18) + r[2]);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
       out.push('Vlan    Mac Address         Type        Ports');

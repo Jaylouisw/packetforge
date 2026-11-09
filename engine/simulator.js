@@ -2770,7 +2770,7 @@ class Simulator {
       // RFC 826: a station updates its table from any ARP it receives, not only from replies.
       // This is what makes a gratuitous ARP work - it is a request, and the whole point is that
       // the hosts who did not ask for it still believe it.
-      if (arp.senderIp && arp.senderMac) dev.arp.set(arp.senderIp, arp.senderMac);
+      if (arp.senderIp && arp.senderMac) dev.learnArp(arp.senderIp, arp.senderMac, inIface);
       const owner = dev.ownsIpOn(inIf, arp.targetIp);
       if (owner) {
         // Reply out of the port that asked: inside a bridge group every port reaches
@@ -2782,7 +2782,7 @@ class Simulator {
         // reply out the raw trunk port would strip it.
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
         const replyIface = sameGroup ? inIf : owner;
-        if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
+        if (arp.senderIp) dev.learnArp(arp.senderIp, arp.senderMac, inIface);
         // A virtual address is answered with the group's virtual MAC, not the box's own: that is
         // what lets a host keep its cache entry when mastership moves to the other router.
         // The address being defended is the one that was asked for. owner.ip is the interface's own
@@ -2797,7 +2797,7 @@ class Simulator {
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
-      dev.arp.set(arp.senderIp, arp.senderMac);
+      dev.learnArp(arp.senderIp, arp.senderMac, inIface);
       this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac, vlan: vid });
       this._flushPending(dev, arp.senderIp, arp.senderMac, vid);
     }
