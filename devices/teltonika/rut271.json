@@ -1,0 +1,44 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT271",
+  "label": "Teltonika RUT271",
+  "category": "router",
+  "description": "Compact industrial RedCap 5G router: two 10/100 RJ45 ports, Wi-Fi, dual-SIM with eSIM support.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "wireless",
+    "poe-pd",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/routers/rut271/",
+  "notes": "Vendor figures from the Teltonika product page: **two 10/100 RJ45 ports**, RedCap 5G with SA/NSA support, Wi-Fi, dual-SIM. Two things matter: **RedCap 5G is the reduced-capability profile**, not full 5G NR, so its ceiling sits well below a full-NR router; and the **ports are fast Ethernet, not gigabit**, which caps anything wired through it at 100 Mbps regardless of what the cellular side negotiates."
+}
