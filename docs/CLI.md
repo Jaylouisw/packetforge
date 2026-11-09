@@ -50,6 +50,31 @@ Configs copied out before this was fixed (block after block, no `exit`) still re
 a new `interface` line inside interface mode as a mode switch, and falls through to global config
 commands when a line is not an interface command.
 
+### What the config contains
+
+Being replayable is not enough — a config that omits the whole VLAN table is perfectly replayable. So
+the output is also *complete*: every object the CLI can configure appears in it, in the form the parser
+takes back.
+
+| Section | Printed as |
+|---|---|
+| hostname | `hostname <name>` |
+| interfaces | `interface <name>` block: description, `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
+| VLAN table | `vlan <id> <name>` |
+| DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
+| DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
+| ACLs | `access-list <id> <rule>` |
+| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>` |
+
+Two fields are deliberately **not** printed because no command can express them: a DNS zone's
+`defaultTtl` (records inherit it) and a per-record `ttl`. A default value that the device already
+assumes — VRRP `preempt` on, `advertise 1`, switchport `allowed vlan all` — is printed only when it
+differs, which is the same rule the rest of the config follows.
+
+`test/config-roundtrip.test.js` asserts both halves: the printed config replays into an identical
+config, and no configured value is missing from the text.
+
+
 ## Config-mode commands
 
 | Command | Effect |

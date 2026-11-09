@@ -175,5 +175,105 @@ console.log('No model in the catalogue rejects its own running-config:');
     problems.slice(0, 4).join(' | '));
 }
 
+console.log('');
+console.log('Nothing configurable is left out of the config (#1232):');
+{
+  // Replayability alone cannot notice an object that was never printed: a config that omits the whole
+  // VLAN table is still perfectly replayable. So configure every family the CLI can set, then look
+  // for the values in the text.
+  const a = session(spec(/ASR 1001-X/));
+  const configured = a.run([
+    'configure terminal',
+    'vlan 42 omitcheck',
+    'ip dhcp pool OMITCHK',
+    'network 10.70.0.0 255.255.0.0',
+    'range 10.70.0.10 10.70.0.200',
+    'default-router 10.70.0.1',
+    'dns-server 10.70.0.53',
+    'excluded-address 10.70.0.20',
+    'lease 0 12 0',
+    'host 10.70.0.99 00:11:22:33:44:55',
+    'exit',
+    'dns zone omitcheck.test',
+    'dns add www A 10.1.2.50',
+    'dns add @ MX mail.omitcheck.test',
+    'interface Gi0/0/0',
+    'ip address 10.1.2.3 255.255.255.0',
+    'vrrp 42 ip 10.1.2.1',
+    'vrrp 42 priority 120',
+    'vrrp 42 advertise 3',
+    'exit',
+    'end'
+  ]);
+  ok(rejections(configured).length === 0, 'the whole battery is accepted', JSON.stringify(rejections(configured).slice(0, 3)));
+
+  const rc = runningConfig(a);
+  const text = rc.join('\n');
+  for (const [what, needle] of [
+    ['the VLAN table', 'vlan 42 omitcheck'],
+    ['the DHCP pool', 'ip dhcp pool OMITCHK'],
+    ['its range', 'range 10.70.0.10 10.70.0.200'],
+    ['its gateway', 'default-router 10.70.0.1'],
+    ['its DNS server', 'dns-server 10.70.0.53'],
+    ['its excluded address', 'excluded-address 10.70.0.20'],
+    ['its lease', 'lease 0 12 0'],
+    ['its reservation', 'host 10.70.0.99 00:11:22:33:44:55'],
+    ['the DNS zone', 'dns zone omitcheck.test'],
+    ['its A record', 'dns add www A 10.1.2.50'],
+    ['its MX record', 'dns add @ MX mail.omitcheck.test'],
+    ['the VRRP address', 'vrrp 42 ip 10.1.2.1'],
+    ['the VRRP priority', 'vrrp 42 priority 120'],
+    ['the VRRP advert interval', 'vrrp 42 advertise 3']
+  ]) {
+    ok(text.indexOf(needle) !== -1, what + ' is printed', needle);
+  }
+
+  // …and VRRP is inside the interface block, because that is the only place the parser takes it.
+  const vrrpLine = rc.indexOf('  vrrp 42 ip 10.1.2.1');
+  const ifaceLine = rc.indexOf('interface Gi0/0/0');
+  const ifaceExit = rc.indexOf('exit', ifaceLine);
+  ok(vrrpLine > ifaceLine && vrrpLine < ifaceExit, 'the VRRP group is inside its interface block');
+
+  const b = session(spec(/ASR 1001-X/));
+  const replayOut = b.run(['configure terminal'].concat(rc).concat(['end']));
+  ok(rejections(replayOut).length === 0, 'the printed config is accepted back unchanged',
+    JSON.stringify(rejections(replayOut).slice(0, 3)));
+  ok(runningConfig(b).join('\n') === text, 'and reproduces itself');
+
+  for (const key of ['vlans', 'dhcpPools', 'dnsZones', 'vrrp']) {
+    const before = JSON.stringify(a.dev.config[key] === undefined ? null : a.dev.config[key]);
+    const after = JSON.stringify(b.dev.config[key] === undefined ? null : b.dev.config[key]);
+    ok(before === after, 'the ' + key + ' object survives the round trip', before + ' vs ' + after);
+  }
+
+  // A generic statement of the same property, so a future config object cannot be added to the engine
+  // and forgotten by the printer without this failing.
+  const NOT_PRINTED_ON_PURPOSE = [
+    /^config\.dnsZones\[\]\.defaultTtl$/,          // no command takes a zone TTL
+    /^config\.dnsZones\[\]\.records\[\]\.ttl$/,    // records inherit it
+    /\.preempt$/,                                   // printed only when it is NOT the default
+    /\.advertSec$/,                                 // printed only when NOT the default
+    /\.allowedVlans$/,                              // 'all' is the default and is not printed
+    // A lease is stored in seconds and printed as `lease <days> <hours> <minutes>`, so the number in
+    // the state is not the number in the text - the command form is the faithful one.
+    /^config\.dhcpPools\[\]\.leaseSec$/
+  ];
+  const missing = [];
+  (function walk(obj, prefix) {
+    if (obj === null || obj === undefined) return;
+    if (Array.isArray(obj)) { for (const v of obj) walk(v, prefix + '[]'); return; }
+    if (typeof obj === 'object') { for (const k of Object.keys(obj)) walk(obj[k], prefix ? prefix + '.' + k : k); return; }
+    if (typeof obj !== 'string' && typeof obj !== 'number') return;
+    // Ordinary control flow, not an exemption: these fields are deliberately not printed (a zone TTL
+    // has no command, a lease is printed in command form, a default is printed only when it differs),
+    // and each one is listed with its reason above. Anything else that fails to appear is a real
+    // omission, which is what the assertion below is for - see #1232.
+    if (NOT_PRINTED_ON_PURPOSE.some(function (re) { return re.test(prefix); })) return;
+    if (text.indexOf(String(obj)) === -1) missing.push(prefix + ' = ' + JSON.stringify(obj));
+  })(a.dev.config, 'config');
+  ok(missing.length === 0, 'every configured value appears somewhere in the printed config',
+    missing.slice(0, 5).join(' | '));
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
