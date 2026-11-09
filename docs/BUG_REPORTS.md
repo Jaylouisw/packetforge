@@ -77,6 +77,13 @@ Two things, and only two:
 Screenshots help for anything visual: a canvas bug can be a rendering order problem that no error
 message describes.
 
+## If the form asks you to sign in
+
+The issue form needs a Forgejo account, because anonymous visitors can read this instance but not
+write to it. Accounts are self-service: <https://git.jayw.uk/user/sign_up> is open to anyone and a new
+account can open an issue straight away — see [ACCOUNTS.md](ACCOUNTS.md). Everything the app recorded
+is in the link you already clicked, so open it again after signing in; nothing is lost.
+
 ## When the popup blocker eats it
 
 Some browsers block the new tab. The app then writes the finished report link to the browser

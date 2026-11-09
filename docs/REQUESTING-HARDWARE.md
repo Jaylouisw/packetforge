@@ -8,6 +8,10 @@ main way this project grows**, and they are welcome.
 
 [**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
+**No account?** [Create one first →](https://git.jayw.uk/user/sign_up) — it is open to anyone, takes a
+username, an email address and a password, and needs no invitation or approval. Then come back to the
+form above. (See [ACCOUNTS.md](ACCOUNTS.md) for what a new account can and cannot do.)
+
 The form asks for five things. Two of them actually matter:
 
 | Field | Why it matters |
