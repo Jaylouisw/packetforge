@@ -1,0 +1,443 @@
+{
+  "vendor": "aruba",
+  "model": "2540-48g-poe-4sfp-plus-jl357a",
+  "label": "Aruba 2540 48G PoE+ 4SFP+ Switch (JL357A)",
+  "category": "switch",
+  "description": "Aruba 2540 48G PoE+ 4SFP+ (JL357A) - 48x 1G RJ45 all PoE+, 4x 1G/10G SFP+ uplinks, 370 W budget.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge29",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge30",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge31",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge32",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge33",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge34",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge35",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge36",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge37",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge38",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge39",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge40",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "notes": "Vendor figures for **JL357A**: 48 x 1G **all PoE+** with a **370 W budget**, plus 4 x SFP+ (1G/10G), ArubaOS-Switch L3 access with static and RIP routing and ACLs. **370 W across 48 PoE+ ports is 7.7 W average** - the same budget the 24-port carries, so the 48-port is a phone-and-camera cluster at low draw, not 48 powered 802.3at devices (which would want 1440 W)."
+}
