@@ -96,9 +96,22 @@ copies of one naming rule drift. Ambiguity is refused rather than guessed: if tw
 spelling, that spelling resolves to nothing and the command says the port does not exist. Whatever you
 type, everything printed afterwards uses the panel spelling.
 
+A netmask has to be a run of ones followed by zeros — `255.0.255.0` is a valid IPv4 *address* and not a
+netmask, because it has no prefix length, and every rule stated as a prefix length would describe something
+other than what the device does. It is refused, and the refusal names the mask rather than the address:
+
+```
+R1(config-if)#ip address 10.9.9.9 255.0.255.0
+% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros (255.255.255.0, or 24)
+```
+
+The mask may be written as a prefix length (`24`) and is **stored in the dotted form** either way, so
+nothing downstream has to guess which spelling it is looking at. The front panel applies the same rule: a
+mask it cannot express as a prefix length is shown as `?`, never as a plausible number.
+
 | Command | Effect |
 |---------|--------|
-| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`) |
+| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros, and may be written as a prefix length (`24`) |
 | `no ip address` | remove the IP |
 | `ip address dhcp` | mark as DHCP client (reserved) |
 | `shutdown` / `no shutdown` | administratively disable / enable |

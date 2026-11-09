@@ -1675,9 +1675,28 @@
   }
 
   function maskBits(mask) {
+    // The same rule the engine uses (#1249): a bare number is a prefix length, a dotted mask is its run
+    // of leading ones, and anything that is not a run of ones then zeros has no prefix length at all -
+    // '?' is honest, where counting every set bit gave a confident wrong answer (255.0.255.0 counted as
+    // /16). The engine refuses to configure such a mask; a lab saved before it did still has to render.
     if (!mask) return '?';
-    const parts = mask.split('.').map(Number);
-    return parts.reduce(function (a, o) { return a + (o.toString(2).match(/1/g) || []).length; }, 0);
+    const text = String(mask).trim();
+    if (/^\d{1,2}$/.test(text)) {
+      const bits = Number(text);
+      return bits >= 0 && bits <= 32 ? String(bits) : '?';
+    }
+    const parts = text.split('.');
+    if (parts.length !== 4) return '?';
+    let ones = 0;
+    let zeros = 0;
+    for (const part of parts) {
+      const n = Number(part);
+      if (!Number.isInteger(n) || n < 0 || n > 255) return '?';
+      for (let i = 7; i >= 0; i--) {
+        if ((n >> i) & 1) { if (zeros) return '?'; ones++; } else zeros++;
+      }
+    }
+    return String(ones);
   }
 
   // ---------- IP / mask editing ----------
@@ -2723,6 +2742,7 @@
   // Small surface for the UI render tests (also handy in the devtools console).
   window.__pf = {
     setTopology: function (t) { topo = t; },
+    maskBits: maskBits,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,

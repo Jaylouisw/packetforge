@@ -40,6 +40,45 @@ function prefixOf(mask) {
   return ones;
 }
 
+// The same question for a mask that is already an integer. Callers that work with mask ints (the DHCP
+// pool validator, the OSPF interface cost) used to carry their own copy of this loop (#1249).
+function prefixOfInt(m) {
+  const v = (m >>> 0);
+  let ones = 0;
+  for (let i = 31; i >= 0; i--) {
+    if (v & (1 << i)) ones++; else break;
+  }
+  return ones;
+}
+
+// A netmask has to be a run of ones followed by zeros. 255.0.255.0 is a valid IPv4 *address* and not a
+// netmask: it has no prefix length, and every rule stated in terms of a prefix length (routing, DHCP
+// ranges, OSPF areas) would be describing something other than what the device does. One predicate for
+// that, because three modules used to answer it in three different ways (#1249).
+function isContiguousMask(mask) {
+  let m;
+  if (typeof mask === 'number' && Number.isInteger(mask)) {
+    // A bare integer is a prefix length when it can be one (0..32), and a mask int otherwise - callers
+    // hold both, and a mask int like 4294967040 cannot be read as a dotted string.
+    if (mask >= 0 && mask <= 32) return true;
+    if (mask < 0 || mask > 0xffffffff) return false;
+    m = mask >>> 0;
+  } else {
+    try { m = maskToInt(mask) >>> 0; } catch (e) { return false; }
+  }
+  const inv = (~m) >>> 0;
+  return (((inv + 1) >>> 0) & inv) === 0;
+}
+
+// A prefix length as a dotted mask, so state has one spelling. Without this a port configured with
+// `ip address 10.0.0.1 24` kept the string "24", and the front panel - which reads a dotted mask -
+// showed /2 for it.
+function maskFromPrefix(bits) {
+  const p = Number(bits);
+  if (!Number.isInteger(p) || p < 0 || p > 32) throw new Error('Invalid prefix length: ' + bits);
+  return intToIp(p === 0 ? 0 : (0xffffffff << (32 - p)) >>> 0);
+}
+
 function networkOf(ip, mask) { return (ipToInt(ip) & maskToInt(mask)) >>> 0; }
 function broadcastOf(ip, mask) { return (networkOf(ip, mask) | (~maskToInt(mask) >>> 0)) >>> 0; }
 function sameSubnet(a, b, mask) { return networkOf(a, mask) === networkOf(b, mask); }
@@ -83,7 +122,8 @@ const ICMP_ECHO_REPLY = 0;
 
 module.exports = {
   BROADCAST_MAC, ZERO_MAC,
-  ipToInt, intToIp, maskToInt, prefixOf, networkOf, broadcastOf,
+  ipToInt, intToIp, maskToInt, prefixOf, prefixOfInt, isContiguousMask, maskFromPrefix,
+  networkOf, broadcastOf,
   sameSubnet, ipInSubnet, isIp,
   macToInt, intToMac, isBroadcastMac, isMulticastMac, normalizeMac,
   ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY
