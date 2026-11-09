@@ -151,3 +151,47 @@ docker logs --tail 50 forgejo-runner
 
 The web UI is not enough on its own: a run that never started looks identical to a
 run that is waiting its turn, and only the difference tells you which bug you have.
+
+## The automation token
+
+Three workflows need to write: `auto-rebase.yml`, `pr-rebase.yml` and `wiki-sync.yml`. The
+automatic Actions token is enough to read the API and to arm a merge, but it is scoped tightly
+enough that pushing a branch with it is unreliable — and a rebase that cannot be pushed is the
+whole job.
+
+So the write token lives in a repository secret named **`FORGEJO_TOKEN`**
+(*Settings → Actions → Secrets*). Both rebase workflows read it with a fallback chain:
+
+```yaml
+TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+```
+
+If the secret is missing the workflow still runs, notices the empty token, warns, and exits
+**successfully** — see below.
+
+### Why a maintenance job never fails a pull request
+
+A red ✗ on a pull request means "this change is broken". The rebase job failing means "the
+automation could not do its housekeeping", which is not the contributor's problem and which they
+cannot act on. So every failure path in `pr-rebase.yml` prints a `::warning::` and exits 0:
+
+| situation | what happens |
+|---|---|
+| no token available | warns, exits green, names the secret to set |
+| branch moved under the rebase | warns, exits green, branch untouched |
+| rebase conflicted | comments the conflicting files, exits green, branch untouched |
+| `mergeable` never settles | warns, exits green, not armed this time |
+
+The one thing that does go red is the job itself failing before it can report a reason, which is
+a defect worth seeing.
+
+### Reading a failure when the logs are behind a login
+
+Run logs on this instance are served behind a session login, so a failed run is unreadable to
+anyone who is not signed in — including anyone debugging from an API token. That makes a red check
+useless as a bug report, so `pr-rebase.yml` carries a final step that runs only on failure and
+posts the collected note as a comment on the pull request. The comment says the automation failed,
+that it is not the contributor's change, and that nothing was pushed.
+
+If the job fails before that note exists, the comment says so explicitly rather than posting an
+empty block.

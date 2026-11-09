@@ -102,15 +102,18 @@ jobs:
         # The script already defaults batch and settle when the variables are absent,
         # so the expressions bought nothing the defaults did not.
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Same preference order as pr-rebase.yml: a real repository secret first,
+          # then the automatic token. This job force-pushes pull-request branches, so
+          # it needs write access, not just read.
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
           repo="$GITHUB_REPOSITORY"
 
           if [ -z "${TOKEN:-}" ]; then
-            echo "no token in the environment - cannot talk to $api" >&2
-            exit 1
+            echo "::warning title=Auto-rebase::no token available - set the FORGEJO_TOKEN repository secret to a token with write access. Nothing was rebased."
+            exit 0
           fi
 
           batch=5

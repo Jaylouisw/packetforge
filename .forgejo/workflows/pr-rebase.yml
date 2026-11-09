@@ -41,9 +41,15 @@ jobs:
     name: Rebase onto main and arm auto-merge
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # A branch in another repository cannot be pushed to with this token, and a
-    # rebase we cannot push is not worth running.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # A branch in another repository cannot be pushed to with this token, and a rebase
+    # we cannot push is not worth running. `head.repo` is null once the branch has been
+    # deleted, and comparing through a null used to end the whole job as a failure
+    # rather than a skip; the state guard stops a run against a pull request that has
+    # already been merged or closed.
+    if: >-
+      github.event.pull_request.state == 'open' &&
+      github.event.pull_request.head.repo != null &&
+      github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,7 +59,17 @@ jobs:
 
       - name: Rebase if behind, then arm
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Three candidates, in order of preference:
+          #
+          #   FORGEJO_TOKEN  a repository secret holding a real token with write access
+          #   GITHUB_TOKEN   the automatic Actions token (exists, but is scoped)
+          #   github.token   the same value under its other name
+          #
+          # The automatic token is enough for the API reads and for arming, but on this
+          # instance it has proven unable to push to a branch, and a rebase that cannot
+          # be pushed is the whole job. A repository secret is the reliable path, and it
+          # is what wiki-sync.yml already uses for the same reason.
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -u
 
@@ -64,9 +80,24 @@ jobs:
           head_sha="${{ github.event.pull_request.head.sha }}"
           server="${GITHUB_SERVER_URL:-http://10.0.10.20:3000}"
 
+          # A maintenance job must never be the reason a pull request looks broken.
+          # Every failure path below reports itself as a `::warning::` and exits 0, so
+          # the check goes green and the human reads an explanation instead of a red X
+          # they cannot act on. The only thing worth failing on is a defect in this
+          # workflow itself, and that is silent either way.
+          warn() {
+            echo "::warning title=Auto-rebase::${*}" >&2
+            echo "${*}" >&2
+            # Keep a copy for the reporting step below. Logs for a failed run on this
+            # instance are behind a login, so the pull request comment is the only
+            # place a failure can explain itself to whoever is looking.
+            [ -n "${GITHUB_WORKSPACE:-}" ] && printf '%s\n' "${*}" >> "${GITHUB_WORKSPACE}/.rebase-report"
+            return 0
+          }
+
           if [ -z "${TOKEN:-}" ]; then
-            echo "no token in the environment - cannot talk to $api" >&2
-            exit 1
+            warn "no token available to the workflow - set the FORGEJO_TOKEN repository secret (Settings -> Actions -> Secrets) to a token with repository write access. The rebase and the auto-merge arming both need it; without it this job does nothing."
+            exit 0
           fi
 
           auth() { printf 'Authorization: token %s' "$TOKEN"; }
@@ -97,8 +128,10 @@ jobs:
                    origin "HEAD:refs/heads/${head_ref}"; then
                 echo "rebased and pushed #${number}"
               else
-                echo "push failed for #${number} - leaving the branch alone" >&2
-                exit 1
+                # Not a failure of the pull request: the branch moved underneath us, or
+                # this token cannot write. Say so and stay green.
+                warn "#${number}: the rebase could not be pushed, so the branch was left exactly as the author wrote it. This is not a problem with the change."
+                exit 0
               fi
             else
               # A conflict is a decision about behaviour, so it is reported rather
@@ -137,3 +170,30 @@ jobs:
           done
 
           echo "#${number}: mergeable did not settle in 120s - not armed this time"
+
+      # Logs for a failed run on this instance sit behind a login, which makes a red
+      # check unreadable: the person who filed the pull request sees ✗ and nothing else.
+      # So on failure the note the step collected above is posted where it will be read.
+      - name: Explain the failure on the pull request
+        if: failure()
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="$GITHUB_REPOSITORY"
+          number="${{ github.event.pull_request.number }}"
+          note="$(cat "${GITHUB_WORKSPACE}/.rebase-report" 2>/dev/null || echo '')"
+          [ -z "$note" ] && note="the rebase job itself failed before it could report a reason - check the runner."
+          body=$(node -e '
+            const note = process.argv[1];
+            process.stdout.write(JSON.stringify({
+              body: "**The auto-rebase job failed.** This is a problem with the automation, not with this change.\n\n"
+                + "```\n" + note + "\n```\n\n"
+                + "The run is at " + (process.env.RUN_URL || "the Actions tab") + ". "
+                + "Nothing was pushed, so the branch is exactly as you wrote it."
+            }));
+          ' "$note")
+          curl -sS -o /dev/null -w 'comment: HTTP %{http_code}\n' -X POST \
+            -H "Authorization: token ${TOKEN:-}" -H 'Content-Type: application/json' \
+            "${api}/repos/${repo}/issues/${number}/comments" -d "$body"
