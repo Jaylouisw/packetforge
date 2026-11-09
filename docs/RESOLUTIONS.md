@@ -21,3 +21,19 @@ Three cases that used to end in a close, and what happens instead:
 
 When a request does close, it is because the catalogue answers it - and the comment names the file
 that does. That is the only close this project uses for a device request.
+
+## How a bad close gets caught
+
+Nothing checked a closure against the catalogue until six requests had been closed as impossible
+while their devices were already in `devices/`. The sweeper only looks at **open** issues, so a
+close - right or wrong - leaves every automated view at once.
+
+`scripts/check-closed-issues.js` reads the other side of the ledger: closed requests matched against
+the catalogue, with the closing comments checked for the file they name. It prints three counts —
+answered with evidence, possibly answered with none, and nothing in the catalogue — and lists the
+middle group, because that is the shape a wrong close has. It never reopens, closes or fails a
+build: it is a report, and the workflow that runs it on every push to `main` is
+`.forgejo/workflows/closed-audit.yml`.
+
+A close whose comment names no file is not automatically wrong. It is *uncheckable*, which for the
+next person is the same thing.

@@ -1,0 +1,53 @@
+name: Closed request audit
+
+# Six requests were closed as "impossible to model" while the catalogue already had every one of
+# them (#54, #167, #360, #362, #374, #387). The sweeper could not catch it: it only looks at OPEN
+# issues, so closing a request removes it from every automated view and the mistake becomes
+# permanent and invisible.
+#
+# This audits the other side of the ledger - closed requests matched against the catalogue - and
+# prints any close that has a match in `devices/` but no comment naming the file. It does not
+# reopen or close anything, and it does not fail the build: a report nobody can act on because
+# the pipeline is red is worse than no report.
+#
+# Triggered on push to main because `schedule:` never reaches a runner on this instance (see
+# docs/FORGE_TROUBLESHOOTING.md). Every merge re-checks the recent past, which is enough - the
+# backlog of bad closes only grows when somebody closes something.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'How many closed requests to check'
+        required: false
+        default: '120'
+
+concurrency:
+  group: closed-audit-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Audit closed requests against the catalogue
+        # A missing token is reported as a skip, not a failure: the audit needs API reads on the
+        # issue tracker, and a fork or a scoped run should not paint the branch red for it.
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          LIMIT: ${{ github.event.inputs.limit || '120' }}
+        run: |
+          if [ -z "${TOKEN}" ]; then
+            echo "no token available - skipping the closed-request audit"
+            exit 0
+          fi
+          FORGEJO_TOKEN="${TOKEN}" node scripts/check-closed-issues.js --limit "${LIMIT}" --max-age-days 400
