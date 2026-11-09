@@ -112,6 +112,10 @@ class Simulator {
 
   reset() {
     this.events = [];
+    // The result of the last VRRP election, per candidate port (#1241). The election decided which
+    // router answers for the virtual address; `show vrrp` used to print the reporting device's own name
+    // in the Master column whatever the election said, so a backup router claimed to be the master.
+    this.vrrpByDevice = new Map();
     this.queue = [];          // pending transmissions: {devId, iface, frame}
     this.step = 0;
     this.maxSteps = 8000;
@@ -628,6 +632,9 @@ class Simulator {
 
   computeVrrp() {
     const events = [];
+    // One pass = one answer. Re-running the election must not leave the previous verdicts behind, or a
+    // router that lost mastership would keep its old record and go on claiming it (#1241).
+    this.vrrpByDevice = new Map();
     for (const dev of this.topo.devices.values()) dev.clearVrrp();
 
     // Group the candidates by (segment, vrid): peers are whoever shares a broadcast domain.
@@ -700,6 +707,33 @@ class Simulator {
         }
       }
 
+      // Record the verdict once per candidate port, so any router in the group can answer "who is the
+      // master, and has it got the address yet?" without re-running the election.
+      const candidates = voters.map(function (c) {
+        return { id: c.id, name: c.dev.name || c.id, priority: c.priority, up: c.up };
+      });
+      for (const c of voters) {
+        const list = this.vrrpByDevice.get(c.id) || [];
+        list.push({
+          vrid: e.vrid,
+          iface: c.iface.name,
+          segment: e.peerIds.slice(),
+          ips: e.group.ips.slice(),
+          masterId: master.dev.id,
+          masterName: master.dev.name || master.dev.id,
+          masterIface: master.iface.name,
+          // The address, because that is what `show vrrp` is for: the master's own interface address is
+          // the thing a fault report quotes, and it fits a column.
+          masterIp: master.iface.ip || null,
+          masterPriority: master.priority,
+          owning: owning,
+          mac: vrrpLib.virtualMac(e.vrid),
+          candidates: candidates,
+          reason: res.reason
+        });
+        this.vrrpByDevice.set(c.id, list);
+      }
+
       events.push({
         type: 'vrrp', vrid: e.vrid, ips: e.group.ips.slice(),
         master: master.dev.id, masterName: master.dev.name, iface: master.iface.name,
@@ -713,6 +747,12 @@ class Simulator {
 
     for (const ev of events) this._emit(ev);
     return events;
+  }
+
+  // The VRRP verdicts that involve this device: one entry per configured group on a port that took part
+  // in an election. Empty means either no group is configured or no election has run.
+  vrrpFor(devId) {
+    return (this.vrrpByDevice && this.vrrpByDevice.get(devId)) || [];
   }
 
   // A gratuitous ARP: a broadcast *request* whose sender address is the address being announced,

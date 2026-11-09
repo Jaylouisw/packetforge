@@ -300,9 +300,19 @@ interface Gi0/0
 
 ```
 R1#show vrrp
-Interface     Group  Pri  State      Master      Virtual IP      Virtual MAC
-Gi0/0         10     150  Master     R1          10.0.0.254      00:00:5e:00:01:0a
+Interface     Group  Pri  State      Master            Virtual IP      Virtual MAC
+Gi0/0         10     150  Master     10.0.0.1          10.0.0.254      00:00:5e:00:01:0a
 ```
+
+* **State** is this router's own role: `Master`, `Backup`, or `Init` when it is not taking part at all
+  (its group interface is down or has no address — a backup that cannot receive advertisements is not
+  standing by, it is out).
+* **Master** is the router the election chose, by the address of the interface that won it. On a backup
+  this names *another* device — which is the whole point of the column — and after a failover it names
+  the box that took over. A master that has been elected but has not finished converging is marked
+  `(pending)`: the winner is decided, the virtual MAC is not answering ARP for it yet.
+* The verdict is not recomputed here. `Simulator.computeVrrp()` keeps the election result per candidate
+  port and the command prints it, so the table cannot disagree with the box that actually answers.
 
 The election runs before the first packet of a run. A master whose interface is down relinquishes,
 the backup takes over, and the virtual MAC does not change — which is the point. See

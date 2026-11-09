@@ -1003,21 +1003,54 @@ class CliSession {
     const dev = this.device;
     const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
     if (!groups.length) { out.push('% VRRP is not configured'); return out; }
+    // The election's own verdict, when there has been one. `show vrrp` used to print this device's name
+    // in the Master column for every group, so a backup router advertised itself as the master - the one
+    // column an operator reads to find out which box is answering for the gateway (#1241).
+    const verdicts = (this.sim && typeof this.sim.vrrpFor === 'function') ? this.sim.vrrpFor(dev.id) : [];
     const claims = (dev.vrrpClaims || []);
     out.push(pad('Interface', 14) + pad('Group', 7) + pad('Pri', 5) + pad('State', 11) +
-      pad('Master', 12) + pad('Virtual IP', 16) + 'Virtual MAC');
+      pad('Master', 18) + pad('Virtual IP', 16) + 'Virtual MAC');
     for (const g of groups) {
+      const verdict = verdicts.filter(function (v) {
+        return v.vrid === g.vrid && v.iface === (g.interface || v.iface);
+      })[0] || null;
       const claim = claims.filter(function (c) {
         return c.vrid === g.vrid && c.iface === g.interface;
       })[0];
+      const ifaceName = g.interface;
+      const port = dev.interfaces.get(dev.resolveIface ? (dev.resolveIface(ifaceName) || ifaceName) : ifaceName) ||
+        dev.interfaces.get(ifaceName);
+      const outOfIt = !port || port.enabled === false || !port.ip;
+      let state;
+      let master;
+      if (verdict) {
+        state = verdict.masterId === dev.id ? 'Master' : 'Backup';
+        // "elected but not yet answering" is a real, temporary state and worth showing: the winner is
+        // decided, the virtual MAC is not answering ARP for it until the group converges.
+        master = (verdict.masterIp || verdict.masterName) + (verdict.owning ? '' : ' (pending)');
+      } else if (outOfIt) {
+        // VRRP calls a router that is not participating Init. "Backup" would claim it is standing by for
+        // a group its own interface cannot reach.
+        state = 'Init';
+        master = '-';
+      } else {
+        state = claim ? 'Master' : 'Backup';
+        master = claim ? (dev.name || dev.id) : '-';
+      }
       out.push(pad(String(g.interface), 14) + pad(String(g.vrid), 7) +
         pad(String(g.priority === undefined ? 100 : g.priority), 5) +
-        pad(claim ? 'Master' : 'Backup', 11) +
-        pad(dev.name || '', 12) +
+        pad(state, 11) +
+        pad(master, 18) +
         pad((g.ips || []).join(','), 16) +
-        (claim ? claim.mac : '-'));
+        ((verdict && verdict.mac) || (claim && claim.mac) || '-'));
     }
-    if (!claims.length) out.push('(no group holds its address yet - run a simulation)');
+    // The old note fired whenever this device held no claim, and told you to run a simulation even when
+    // one had just run. Two different situations, two different sentences.
+    if (!verdicts.length && !claims.length) {
+      out.push(this.sim
+        ? '(this device took part in no VRRP election - check that its interface is up and addressed)'
+        : '(no election has run for this device - start a simulation)');
+    }
     return out;
   }
 
