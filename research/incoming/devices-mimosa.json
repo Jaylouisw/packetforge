@@ -1,0 +1,288 @@
+[
+  {
+    "vendor": "mimosa",
+    "model": "a5-360-14",
+    "label": "Mimosa A5-360 14 dBi Access Point (A5-360-14)",
+    "category": "ptp",
+    "description": "Mimosa A5 360-degree 5 GHz PTMP access point, 14 dBi omni: 2x2:2 up to 1.0 Gbps IP (1.7 Gbps PHY), 100 clients. 1x 1G RJ45 with 802.3at or passive PoE-in.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "notes": "Vendor figures from the A5 datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, powered by **802.3at or passive PoE (48-56 V)**, **max throughput 1.0 Gbps IP (1.7 Gbps PHY)**, **100 clients**, 14 dBi 360-degree omni. The A5c in the catalogue is the connectorized sibling - same radio, external antennas."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "a5x",
+    "label": "Mimosa A5x Connectorised 4.9-6.4 GHz Access Point",
+    "category": "ptp",
+    "description": "Mimosa A5x connectorised PTMP access point, 4.9-6.4 GHz with external antennas. 1x 1G RJ45 with passive PoE-in (24-56 V).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 51.0
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "1.7G"
+      }
+    ],
+    "notes": "Vendor figures from the A5x datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, **passive PoE 24-56 VDC** (injector not included), **4.9-6.4 GHz** coverage - the extended band is the reason to pick the x over the integrated A5-360, and it needs **external antennas**, so the radio link in a diagram depends on an antenna that is not in the box."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "a6",
+    "label": "Mimosa A6 8x8 6 GHz PTMP Access Point",
+    "category": "ptp",
+    "description": "Mimosa A6 carrier-grade 6 GHz PTMP access point, 8x8 beamforming, up to 4.53 Gbps IP aggregate. 1x 1G RJ45 with PoE-in plus 2x 10G SFP+.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd",
+      "l3-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 25.5
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "4.53G"
+      }
+    ],
+    "notes": "Vendor figures from the A6 datasheet: **1 x GbE copper PoE, 2 x 10GbE SFP+ (optical, MM or SM)**, passive PoE **48-56 VDC @ 1200 mA** or a separate DC inlet, **8x8 beamforming**, **up to 4.53 Gbps IP aggregate**. The **internal switch is the useful part: two 10G cages on an access point** mean a sector can be backhauled and daisy-chained without an external switch in the tower box."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "c5",
+    "label": "Mimosa C5 Integrated CPE",
+    "category": "ptp",
+    "description": "Mimosa C5 integrated subscriber CPE, 2x2:2 up to 256-QAM, 20 dBi. 1x 1G RJ45 with passive PoE-in (48-56 V).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 12.95
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "866M"
+      }
+    ],
+    "notes": "Vendor figures from the C5 datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, **passive PoE 48-56 V** (injector sold separately), 2x2:2 MIMO OFDM up to 256-QAM, **20 dBi** integrated. **48 V passive, not 802.3af**: a standard PoE switch will not power it, which is the single most common installation mistake with this radio."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "c5x",
+    "label": "Mimosa C5x Modular Radio (N5-X antennas)",
+    "category": "ptp",
+    "description": "Mimosa C5x modular PtP/PtMP radio, 700 Mbps IP (866 PHY), takes N5-X series antennas. 1x 1G RJ45 with passive PoE-in (24-56 V).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "866M"
+      }
+    ],
+    "notes": "Vendor figures from the C5x datasheet: **1 gigabit Ethernet port 10/100/1000**, **passive PoE 24-56 VDC**, **max throughput 700 Mbps IP (866 PHY)**. The radio is **modular**: the antenna is a separate N5-X part (8/12/16/20/25/30 dBi), so the same spec covers a 700 Mbps backhaul and a subscriber link - the antenna is what changes."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "c5x-ip67",
+    "label": "Mimosa C5x IP67 Radio (100-00101)",
+    "category": "ptp",
+    "description": "Mimosa C5x IP67 modular radio, 700 Mbps IP (866 PHY), takes N5-X antennas. 1x 1G RJ45 with passive PoE-in (24-56 V).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "866M"
+      }
+    ],
+    "notes": "The **IP67 variant of the C5x** (SKU 100-00101), same ports and radio as `mimosa/c5x`: **1 x gigabit Ethernet, passive PoE 24-56 V, 700 Mbps IP (866 PHY)**. Recorded separately because the enclosure rating is the purchasing decision outdoors, and a catalogue that only lists the base C5x cannot answer \"which one goes on a mast\"."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "c6x",
+    "label": "Mimosa C6x OFDMA PtP/PtMP Radio",
+    "category": "ptp",
+    "description": "Mimosa C6x OFDMA radio: 2.0 Gbps IP PtP / 1.75 Gbps IP PtMP aggregate (2402 Mbps PHY). 1x 1G RJ45 with passive PoE-in (24 V).",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": 25.5
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "notes": "Vendor figures from the C6x datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, **passive PoE 24 V** (injector not included), **PTP 2.0 Gbps IP aggregate / PTMP 1.75 Gbps IP aggregate (2402 Mbps PHY)**. **The radio outruns its own port**: 1.75 Gbps of airside throughput behind a single 1G copper link, so the wire is the ceiling in PtP use - a detail the datasheet states and the model keeps."
+  },
+  {
+    "vendor": "mimosa",
+    "model": "nid",
+    "label": "Mimosa Gigabit Network Interface Device (NID)",
+    "category": "tap",
+    "description": "Passive gigabit network interface device: in-line ESD and surge protection for outdoor radio installs, 2x 1G RJ-45, IP54, no power.",
+    "capabilities": [],
+    "interfaces": [
+      {
+        "name": "line1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "line2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the NID datasheet: **Connectors: two (2) RJ-45**, **data transfer rate: gigabit rated**, **GDT surge arrestor** (10 kA impulse discharge, <1.0 pF capacitance), **IP54**, 0.13 kg. It is **passive - it takes no power and forwards nothing logically**; it exists so an outdoor radio's cable has a grounded demarcation point. Filed under `tap` because the vocabulary has no category for a passive two-port inline part: it is not tapping traffic, and a future `demarc` category would fit it better."
+  }
+]

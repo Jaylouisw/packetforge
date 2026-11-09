@@ -1,0 +1,33 @@
+{
+  "vendor": "mimosa",
+  "model": "c6x",
+  "label": "Mimosa C6x OFDMA PtP/PtMP Radio",
+  "category": "ptp",
+  "description": "Mimosa C6x OFDMA radio: 2.0 Gbps IP PtP / 1.75 Gbps IP PtMP aggregate (2402 Mbps PHY). 1x 1G RJ45 with passive PoE-in (24 V).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 25.5
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "notes": "Vendor figures from the C6x datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, **passive PoE 24 V** (injector not included), **PTP 2.0 Gbps IP aggregate / PTMP 1.75 Gbps IP aggregate (2402 Mbps PHY)**. **The radio outruns its own port**: 1.75 Gbps of airside throughput behind a single 1G copper link, so the wire is the ceiling in PtP use - a detail the datasheet states and the model keeps."
+}

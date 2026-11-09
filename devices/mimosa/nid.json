@@ -1,0 +1,33 @@
+{
+  "vendor": "mimosa",
+  "model": "nid",
+  "label": "Mimosa Gigabit Network Interface Device (NID)",
+  "category": "tap",
+  "description": "Passive gigabit network interface device: in-line ESD and surge protection for outdoor radio installs, 2x 1G RJ-45, IP54, no power.",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the NID datasheet: **Connectors: two (2) RJ-45**, **data transfer rate: gigabit rated**, **GDT surge arrestor** (10 kA impulse discharge, <1.0 pF capacitance), **IP54**, 0.13 kg. It is **passive - it takes no power and forwards nothing logically**; it exists so an outdoor radio's cable has a grounded demarcation point. Filed under `tap` because the vocabulary has no category for a passive two-port inline part: it is not tapping traffic, and a future `demarc` category would fit it better."
+}

@@ -1,0 +1,54 @@
+{
+  "vendor": "mimosa",
+  "model": "a6",
+  "label": "Mimosa A6 8x8 6 GHz PTMP Access Point",
+  "category": "ptp",
+  "description": "Mimosa A6 carrier-grade 6 GHz PTMP access point, 8x8 beamforming, up to 4.53 Gbps IP aggregate. 1x 1G RJ45 with PoE-in plus 2x 10G SFP+.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 25.5
+    },
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "4.53G"
+    }
+  ],
+  "notes": "Vendor figures from the A6 datasheet: **1 x GbE copper PoE, 2 x 10GbE SFP+ (optical, MM or SM)**, passive PoE **48-56 VDC @ 1200 mA** or a separate DC inlet, **8x8 beamforming**, **up to 4.53 Gbps IP aggregate**. The **internal switch is the useful part: two 10G cages on an access point** mean a sector can be backhauled and daisy-chained without an external switch in the tower box."
+}

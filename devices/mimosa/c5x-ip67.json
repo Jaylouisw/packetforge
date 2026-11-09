@@ -1,0 +1,33 @@
+{
+  "vendor": "mimosa",
+  "model": "c5x-ip67",
+  "label": "Mimosa C5x IP67 Radio (100-00101)",
+  "category": "ptp",
+  "description": "Mimosa C5x IP67 modular radio, 700 Mbps IP (866 PHY), takes N5-X antennas. 1x 1G RJ45 with passive PoE-in (24-56 V).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 25.5
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "notes": "The **IP67 variant of the C5x** (SKU 100-00101), same ports and radio as `mimosa/c5x`: **1 x gigabit Ethernet, passive PoE 24-56 V, 700 Mbps IP (866 PHY)**. Recorded separately because the enclosure rating is the purchasing decision outdoors, and a catalogue that only lists the base C5x cannot answer \"which one goes on a mast\"."
+}

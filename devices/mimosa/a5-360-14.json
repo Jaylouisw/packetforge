@@ -1,0 +1,34 @@
+{
+  "vendor": "mimosa",
+  "model": "a5-360-14",
+  "label": "Mimosa A5-360 14 dBi Access Point (A5-360-14)",
+  "category": "ptp",
+  "description": "Mimosa A5 360-degree 5 GHz PTMP access point, 14 dBi omni: 2x2:2 up to 1.0 Gbps IP (1.7 Gbps PHY), 100 clients. 1x 1G RJ45 with 802.3at or passive PoE-in.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 25.5
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures from the A5 datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, powered by **802.3at or passive PoE (48-56 V)**, **max throughput 1.0 Gbps IP (1.7 Gbps PHY)**, **100 clients**, 14 dBi 360-degree omni. The A5c in the catalogue is the connectorized sibling - same radio, external antennas."
+}

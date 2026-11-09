@@ -214,7 +214,7 @@ palette, fully simulated — no other changes required.
 
 ## What is in the catalogue
 
-**1,974 models across 245 vendors**, and it grows every time somebody's hardware is
+**1,982 models across 245 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |

@@ -1,0 +1,33 @@
+{
+  "vendor": "mimosa",
+  "model": "c5",
+  "label": "Mimosa C5 Integrated CPE",
+  "category": "ptp",
+  "description": "Mimosa C5 integrated subscriber CPE, 2x2:2 up to 256-QAM, 20 dBi. 1x 1G RJ45 with passive PoE-in (48-56 V).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "notes": "Vendor figures from the C5 datasheet: **Gigabit Ethernet 10/100/1000-BASE-T**, **passive PoE 48-56 V** (injector sold separately), 2x2:2 MIMO OFDM up to 256-QAM, **20 dBi** integrated. **48 V passive, not 802.3af**: a standard PoE switch will not power it, which is the single most common installation mistake with this radio."
+}

@@ -1,0 +1,33 @@
+{
+  "vendor": "mimosa",
+  "model": "c5x",
+  "label": "Mimosa C5x Modular Radio (N5-X antennas)",
+  "category": "ptp",
+  "description": "Mimosa C5x modular PtP/PtMP radio, 700 Mbps IP (866 PHY), takes N5-X series antennas. 1x 1G RJ45 with passive PoE-in (24-56 V).",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 25.5
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "notes": "Vendor figures from the C5x datasheet: **1 gigabit Ethernet port 10/100/1000**, **passive PoE 24-56 VDC**, **max throughput 700 Mbps IP (866 PHY)**. The radio is **modular**: the antenna is a separate N5-X part (8/12/16/20/25/30 dBi), so the same spec covers a 700 Mbps backhaul and a subscriber link - the antenna is what changes."
+}
