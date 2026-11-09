@@ -1,0 +1,115 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD4-MBX-5G",
+  "label": "Peplink MAX HD4 MBX 5G",
+  "category": "router",
+  "description": "Mission-critical mobile router with four 5G modems: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan4",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **3 / 2 (GE)**, Number of Ethernet LAN port **8 / 9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The footnote explains the pairs: **WAN 3 can be configured as a LAN port**, so the same box is 3 WAN / 8 LAN or 2 WAN / 9 LAN by configuration. Base configuration is modelled. **HD4 carries four modems against the HD2's two, on the same port layout and the same 2.5 Gbps router ceiling** - so four bonded 5G links cannot push more through the box than two can, and that ceiling, not the modem count, is what a throughput plan has to respect.",
+  "role": [
+    "sd-wan"
+  ]
+}

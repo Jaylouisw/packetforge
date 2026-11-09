@@ -1,0 +1,51 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-TST-DUO-LTEA",
+  "label": "Peplink MAX Transit Duo (LTE-A, CAT-12)",
+  "category": "router",
+  "description": "Transportation router with two LTE-A CAT-12 modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/transit-duo.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **1 / 0 (GE)**, Number of Ethernet LAN port **1 / 2 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. The footnote says WAN port(s) can be reconfigured, i.e. 1 WAN + 1 LAN or 0 WAN + 2 LAN. **Two modems, two copper ports and a 400 Mbps ceiling** - this box is for a vehicle with two carriers, not for a branch with a rack.",
+  "role": [
+    "sd-wan"
+  ]
+}

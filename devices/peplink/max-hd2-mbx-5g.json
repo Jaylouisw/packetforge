@@ -1,0 +1,105 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD2-MBX-5G",
+  "label": "Peplink MAX HD2 MBX 5G",
+  "category": "router",
+  "description": "Mission-critical mobile router with two 5G modems: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-mbx.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **3 / 2 (GE)**, Number of Ethernet LAN port **8 / 9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The footnote explains the pairs: **WAN 3 can be configured as a LAN port**, so the same box is 3 WAN / 8 LAN or 2 WAN / 9 LAN by configuration. Base configuration is modelled. **HD2 means two cellular modems** - modelled as wwan0 and wwan1, because bandwidth bonding across two carriers is the entire reason this chassis exists and a single-modem model would make the bonding plan meaningless.",
+  "role": [
+    "sd-wan"
+  ]
+}

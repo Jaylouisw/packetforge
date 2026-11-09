@@ -1,0 +1,453 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD2-MBX-5G",
+    "label": "Peplink MAX HD2 MBX 5G",
+    "category": "router",
+    "description": "Mission-critical mobile router with two 5G modems: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-mbx.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **3 / 2 (GE)**, Number of Ethernet LAN port **8 / 9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The footnote explains the pairs: **WAN 3 can be configured as a LAN port**, so the same box is 3 WAN / 8 LAN or 2 WAN / 9 LAN by configuration. Base configuration is modelled. **HD2 means two cellular modems** - modelled as wwan0 and wwan1, because bandwidth bonding across two carriers is the entire reason this chassis exists and a single-modem model would make the bonding plan meaningless."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD4-MBX-5G",
+    "label": "Peplink MAX HD4 MBX 5G",
+    "category": "router",
+    "description": "Mission-critical mobile router with four 5G modems: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **3 / 2 (GE)**, Number of Ethernet LAN port **8 / 9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The footnote explains the pairs: **WAN 3 can be configured as a LAN port**, so the same box is 3 WAN / 8 LAN or 2 WAN / 9 LAN by configuration. Base configuration is modelled. **HD4 carries four modems against the HD2's two, on the same port layout and the same 2.5 Gbps router ceiling** - so four bonded 5G links cannot push more through the box than two can, and that ceiling, not the modem count, is what a throughput plan has to respect."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-DUO-LTEA",
+    "label": "Peplink MAX Transit Duo (LTE-A, CAT-12)",
+    "category": "router",
+    "description": "Transportation router with two LTE-A CAT-12 modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/transit-duo.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **1 / 0 (GE)**, Number of Ethernet LAN port **1 / 2 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. The footnote says WAN port(s) can be reconfigured, i.e. 1 WAN + 1 LAN or 0 WAN + 2 LAN. **Two modems, two copper ports and a 400 Mbps ceiling** - this box is for a vehicle with two carriers, not for a branch with a rack."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-LTEA",
+    "label": "Peplink MAX Transit (LTE-A, CAT-12)",
+    "category": "router",
+    "description": "Transportation router with one LTE-A CAT-12 modem: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/transit.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 / 0 (GE), LAN port 1 / 2 (GE), Router Throughput 400 Mbps, Wi-Fi AP Yes. Same ports and same 400 Mbps ceiling as the Transit Duo, **half the modems** - the Duo is the redundancy model, and nothing on the port side shows the difference."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-MBX-MINI-5GD",
+    "label": "Peplink MBX Mini 5G (5GD)",
+    "category": "router",
+    "description": "Compact rugged mobile router with 5G: 2x GE WAN, 4x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/mbx-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 2 (GE), Number of Ethernet LAN port 4 (GE), Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The **5GD and 5GN SKUs share this sheet, this port set and this throughput**; they are separate catalogue entries because the SKUs are separate products, and the interface list will not tell you which one is on the shelf."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-MBX-MINI-5GN",
+    "label": "Peplink MBX Mini 5G (5GN)",
+    "category": "router",
+    "description": "Compact rugged mobile router with 5G: 2x GE WAN, 4x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/mbx-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. Identical to the 5GD entry in every port and throughput row - the suffix distinguishes the cellular variant, which is exactly the kind of difference that gets lost when a catalogue records only the chassis."
+  }
+]

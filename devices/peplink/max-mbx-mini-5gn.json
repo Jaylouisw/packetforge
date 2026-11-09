@@ -1,0 +1,70 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-MBX-MINI-5GN",
+  "label": "Peplink MBX Mini 5G (5GN)",
+  "category": "router",
+  "description": "Compact rugged mobile router with 5G: 2x GE WAN, 4x GE LAN, 2.5 Gbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/mbx-mini.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: 2 GE WAN, 4 GE LAN, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. Identical to the 5GD entry in every port and throughput row - the suffix distinguishes the cellular variant, which is exactly the kind of difference that gets lost when a catalogue records only the chassis.",
+  "role": [
+    "sd-wan"
+  ]
+}
