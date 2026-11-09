@@ -137,6 +137,10 @@ class Device {
     this.macTable = new Map();   // mac -> iface name (VLAN 1)
     this.macTables = new Map();  // vid -> Map(mac -> iface)
     this.arp = new Map();        // ip -> mac
+    // Which port a neighbour was learned on (#1253). `show arp` prints an Interface column, and without
+    // this the column was a header over nothing: the one field that tells you where to look when a
+    // neighbour answers but traffic still dies.
+    this.arpPorts = new Map();   // ip -> port name (null when the entry came from somewhere else)
     // LLDP neighbour table: our port name -> what announced itself on it. This is how
     // real hardware answers "what is plugged in here", and it is filled from frames
     // that actually crossed the link rather than from the topology file.
@@ -225,6 +229,21 @@ class Device {
 
   subinterfacesOf(parentName) {
     return Array.from(this.interfaces.values()).filter(function (i) { return i.parent === parentName; });
+  }
+
+  // Learn a neighbour, remembering the port it was heard on. Kept as one entry point so the port cannot be
+  // forgotten at one call site and remembered at another.
+  learnArp(ip, mac, portName) {
+    if (!ip || !mac) return null;
+    this.arp.set(ip, mac);
+    let name = null;
+    if (portName) {
+      const port = this.resolveIface(portName);
+      name = port ? port.name : String(portName);
+    }
+    if (!this.arpPorts) this.arpPorts = new Map();
+    this.arpPorts.set(ip, name);
+    return name;
   }
 
   activeInterfaces() {

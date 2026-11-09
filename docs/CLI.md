@@ -22,7 +22,7 @@ Modes and their prompts:
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
-| `show arp` | ARP cache |
+| `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches) |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
@@ -246,6 +246,27 @@ gateway and the switches' LLDP reach it — but it will have carried none of you
 With **no simulation run** behind the device, the block says `counters: not measured (no simulation run)`
 rather than printing zeros. "Nothing has looked" and "nothing crossed" are different answers, and a table
 that conflates them is a table you cannot trust when a link is quiet.
+
+### Reading `show arp`
+
+```
+R1#show arp
+Protocol  Address          Age (min)  Hardware Addr     Interface
+Internet  10.0.0.9         -          02:00:00:00:02:00 Gi0
+Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0 (down: link down)
+```
+
+* **Interface** is the port the neighbour was heard on — where to look next.
+* **Age** is `-`, always: the simulator counts steps, not minutes, and printing a step count in a minutes
+  column would be a number with the wrong unit. ARP entries are not aged out here, so `-` is the honest
+  answer rather than a zero that suggests they expire.
+* A port that can no longer carry a frame is named **with its reason** — `(administratively down)`,
+  `(down: no cable)`, `(down: link down)`, `(down: peer shut down)`. The entry is *not* deleted: a real ARP
+  cache does not empty the moment a cable is pulled, and the state is what tells you the neighbour is stale.
+* An entry with no recorded port — a topology restored from an older file — prints `-` rather than a guess,
+  and one whose port no longer exists prints the name and `(gone)`.
+
+Beyond ~30 entries the table is not the place to look for a neighbour; use the inspector's search.
 
 ### Reading `show ip route`
 
