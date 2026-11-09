@@ -1861,6 +1861,121 @@ class CliSession {
     return '(' + why + ')';
   }
 
+  // `show power inline [<port>]` - what the PSE is supplying, and why a powered device got nothing.
+  //
+  // The engine has computed this since PoE was modelled (`computePoe()`), the inspector has displayed it, and the
+  // console could not answer it at all: the one mechanism whose state could only be seen in the browser. Every
+  // fact below comes from the engine's own result - no second copy of the allocation rule - and the port list
+  // comes from the hardware, so a port the engine leaves out of its table (shut down, unplugged, or plugged into
+  // something that is not a powered device) is still named and explained.
+  _showPowerInline(typed) {
+    const dev = this.device;
+    const out = [];
+    const wanted = typed && typed.length ? String(typed[0]) : null;
+
+    // The PSE hardware, in port order. A port can supply power whether or not it currently does.
+    let pse = [...dev.interfaces.values()].filter(function (i) { return i.poeOut; });
+    if (!pse.length) {
+      return ['% No PoE on ' + dev.name + ': no port on this device can supply power'];
+    }
+    if (wanted) {
+      const name = resolvePortName(dev, wanted);
+      const one = name ? dev.interfaces.get(name) : null;
+      if (!one) return ['% No interface ' + wanted + ' on ' + dev.name];
+      if (!one.poeOut) {
+        return ['% ' + one.name + ' on ' + dev.name + ' cannot supply power (it is not a PSE port)'];
+      }
+      pse = [one];
+    }
+
+    // "Not measured" and "measured zero" are different answers. `sim.poe` is undefined until something has run
+    // the allocation, so asking it is asking whether anything has looked.
+    const table = this.sim ? this.sim.poe : null;
+    if (!Array.isArray(table)) {
+      return ['Not measured (no simulation run): nothing has computed the power budget yet'];
+    }
+    const entry = table.filter(function (p) { return p.dev === dev.id; })[0] || null;
+    // A device with PSE ports and no budget is not served by the engine at all, and saying "0 W" would be a
+    // measurement it never made.
+    if (!entry) {
+      out.push(pad('Interface', 11) + pad('Admin', 7) + 'Supplied');
+      for (const i of pse) {
+        out.push(pad(i.name, 11) + pad(i.enabled ? 'up' : 'down', 7) + 'not measured');
+      }
+      out.push('budget not modelled on ' + dev.name +
+        ': the ports are reported, the power they could supply is not');
+      return out;
+    }
+
+    const byIface = new Map((entry.ports || []).map(function (p) { return [p.iface, p]; }));
+    const nameOf = function (id) {
+      const d = this.topo && typeof this.topo.getDevice === 'function' ? this.topo.getDevice(id) : null;
+      return d ? (d.name || d.id) : id;
+    }.bind(this);
+
+    const rows = [];
+    const idle = [];
+    let supplied = 0;
+    let denied = 0;
+    for (const i of pse) {
+      const p = byIface.get(i.name);
+      const admin = i.enabled ? 'up' : 'down';
+      if (p) {
+        const draw = (Math.round((p.draw || 0) * 100) / 100) + ' W';
+        rows.push(pad(i.name, 11) + pad(admin, 7) + pad(p.powered ? 'on' : 'off', 6) + pad(draw, 9) +
+          nameOf(p.pd) + (p.powered ? '' : '  (denied)'));
+        if (p.powered) supplied += p.draw || 0;
+        else denied++;
+        continue;
+      }
+      // Not in the engine's table: the port supplies nothing, and the reason is one of three, in the same words
+      // `show interfaces` uses for a port that cannot carry a frame.
+      let why;
+      if (!i.enabled) why = 'administratively down';
+      else {
+        // The cable is found the same way `show interfaces` finds it - by asking the topology for the link that
+        // touches this port - rather than by a second, private lookup.
+        const link = (this.topo && typeof this.topo.linksFor === 'function')
+          ? this.topo.linksFor(dev.id).filter(function (l) {
+            return (l.a.deviceId === dev.id && l.a.iface === i.name) ||
+                   (l.b.deviceId === dev.id && l.b.iface === i.name);
+          })[0] || null
+          : null;
+        why = link ? 'the far end is not a powered device' : 'nothing plugged in';
+      }
+      if (why === 'nothing plugged in' && !wanted) {
+        // A wall of "nothing plugged in" is how the one port that matters gets missed. They are still named,
+        // once, below the table.
+        idle.push(i.name);
+        continue;
+      }
+      rows.push(pad(i.name, 11) + pad(admin, 7) + pad('off', 6) + pad('-', 9) + why);
+    }
+
+    out.push(pad('Interface', 11) + pad('Admin', 7) + pad('Oper', 6) + pad('Draw', 9) + 'Powered device');
+    out.push.apply(out, rows);
+    if (idle.length) {
+      out.push(idle.length + ' port' + (idle.length === 1 ? '' : 's') + ' with nothing plugged in: ' +
+        idle.slice(0, 5).join(', ') + (idle.length > 5 ? ' (+' + (idle.length - 5) + ' more)' : ''));
+    }
+
+    // Totals are the device's, so a question about one port does not get them: the number would be about
+    // something else.
+    if (!wanted) {
+      const round = function (n) { return Math.round(n * 100) / 100; };
+      const left = round((entry.budget || 0) - supplied);
+      out.push('');
+      out.push('Total: ' + round(supplied) + ' W of ' + entry.budget + ' W in use, ' + left + ' W left' +
+        (denied ? ', ' + denied + ' port' + (denied === 1 ? '' : 's') + ' denied' : ', nothing denied'));
+    }
+    // The denial sentence is the one the timeline emitted, not a second rendering of the same arithmetic.
+    for (const i of pse) {
+      const p = byIface.get(i.name);
+      if (p && !p.powered && p.reason) out.push('  ' + i.name + ': ' + p.reason);
+    }
+    return out;
+  }
+
   _show(tokens) {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
@@ -1947,6 +2062,8 @@ class CliSession {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ipv6' && tokens[1] === 'nd') {
       out.push.apply(out, this._showIpv6Nd());
+    } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
+      out.push.apply(out, this._showPowerInline(tokens.slice(2)));
     } else if (what === 'lldp') {
       // The table that answers "what is plugged into this port" - and it is honest,
       // because it is filled from LLDPDUs that actually crossed the link rather than
@@ -2574,6 +2691,7 @@ class CliSession {
       '  hostname <name>          ip address <ip> <mask>',
       '  ip route <dest> <mask> <gw> [iface]',
       '  show lldp neighbors               neighbours learned over the wire',
+      '  show power inline [<port>]        PoE supplied, and why a port was denied',
       '  ip default-gateway <gw>  shutdown / no shutdown',
       '  ipv6 address <addr>/<len> | autoconfig        (interface mode)',
       '  ipv6 nd ra enable|disable|managed|other-config|lifetime <s>',

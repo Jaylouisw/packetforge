@@ -2054,12 +2054,16 @@ class Simulator {
           remaining -= draw;
           ports.push({ iface: name, pd: other.id, draw: draw, powered: true });
         } else {
-          ports.push({ iface: name, pd: other.id, draw: draw, powered: false });
+          // One sentence, kept on the port entry as well as in the event: `show power inline` and the timeline
+          // both report why a powered device got nothing, and two renderings of one reason drift (the panel
+          // already had its own count of denials with no reason at all).
+          const reason = 'PSE budget exhausted: ' + draw + ' W requested, ' + remaining + ' W left';
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: false,
+            remaining: remaining, reason: reason });
           peer.poeUnpowered = true;
           this._emit({
             type: 'poe-deny', dev: dev.id, iface: name, pd: other.id,
-            draw: draw, remaining: remaining,
-            reason: 'PSE budget exhausted: ' + draw + ' W requested, ' + remaining + ' W left'
+            draw: draw, remaining: remaining, reason: reason
           });
         }
       }
