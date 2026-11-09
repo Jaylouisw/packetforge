@@ -226,6 +226,63 @@ function sendJSON(res, code, obj) {
   res.end(body);
 }
 
+// Responses that cannot change while the server runs, serialised once.
+//
+// `/api/catalog` is 4.4 MB of JSON today. Building it costs ~75 ms of CPU per request: stringify the
+// whole catalogue, then gzip 4.4 MB. Worse, the ETag is a hash *of the body*, so even a request that
+// ends in `304 Not Modified` had to build the entire body first to discover it could have skipped it.
+// A reload therefore cost the server as much as a first load while transferring nothing.
+//
+// These two endpoints are immutable after `loadCatalog()` runs at startup, so their serialised forms,
+// their ETags and their gzipped bytes are all cacheable for the life of the process. If the catalogue
+// ever becomes reloadable at runtime, this cache must be cleared where the reload happens - that is
+// the only invalidation rule, and it is stated here because the failure would be silent (a stale
+// catalogue served with a matching ETag looks perfectly healthy).
+const immutableCache = new Map();
+
+function sendImmutableJSON(req, res, key, build) {
+  let entry = immutableCache.get(key);
+  if (!entry) {
+    const body = Buffer.from(JSON.stringify(build()), 'utf8');
+    entry = {
+      body: body,
+      etag: '"' + crypto.createHash('sha1').update(body).digest('base64').replace(/=+$/, '') + '"',
+      gzip: null
+    };
+    immutableCache.set(key, entry);
+  }
+  const headers = {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-cache',
+    'ETag': entry.etag,
+    'Vary': 'Accept-Encoding'
+  };
+  const inm = req && req.headers ? String(req.headers['if-none-match'] || '') : '';
+  if (inm && inm.split(',').map(function (t) { return t.trim(); }).indexOf(entry.etag) !== -1) {
+    res.writeHead(304, headers);
+    return res.end();
+  }
+  const accept = req && req.headers ? String(req.headers['accept-encoding'] || '') : '';
+  if (/\bgzip\b/i.test(accept)) {
+    if (entry.gzip === null) {
+      let gz = null;
+      try { gz = zlib.gzipSync(entry.body); } catch (e) { gz = null; }
+      entry.gzip = (gz && gz.length < entry.body.length) ? gz : false;
+    }
+    if (entry.gzip) {
+      headers['Content-Encoding'] = 'gzip';
+      headers['Content-Length'] = entry.gzip.length;
+      res.writeHead(200, headers);
+      return res.end(entry.gzip);
+    }
+  }
+  headers['Content-Length'] = entry.body.length;
+  res.writeHead(200, headers);
+  res.end(entry.body);
+}
+
+
 function readBody(req) {
   return new Promise(function (resolve, reject) {
     let data = '';
@@ -363,7 +420,9 @@ async function handleApi(req, res, urlPath) {
   try {
     // GET /api/catalog
     if (parts[1] === 'catalog' && method === 'GET') {
-      return sendJSON(res, 200, { specs: catalog, categories: groupByCategory(catalog) });
+      return sendImmutableJSON(req, res, 'catalog', function () {
+        return { specs: catalog, categories: groupByCategory(catalog) };
+      });
     }
 
     // GET /api/version -- which build is answering. A bug report that does not say
@@ -394,7 +453,9 @@ async function handleApi(req, res, urlPath) {
 
     // GET /api/media -- physical media + cage catalogue (link-type picker)
     if (parts[1] === 'media' && method === 'GET') {
-      return sendJSON(res, 200, { media: media.MEDIA, cages: media.CAGES });
+      return sendImmutableJSON(req, res, 'media', function () {
+        return { media: media.MEDIA, cages: media.CAGES };
+      });
     }
 
     // topologies collection
