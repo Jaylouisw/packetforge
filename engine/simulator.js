@@ -1150,6 +1150,27 @@ class Simulator {
     if (!egress || !egress.enabled) {
       return { ok: false, code: 'E_IFACE_DOWN', reason: 'egress interface for ' + peerIp + ' is down on ' + dev.name };
     }
+    // A TCP session to the peer needs a port that can carry a frame, not merely a port nobody shut. This
+    // asked `enabled` and nothing else, so a session across an unplugged cable went on calling itself
+    // Established and went on installing the prefixes it had learned over it - a route whose next hop could
+    // not be reached, printed by `show ip route` as a `B` row and by `show ip bgp` as a live session (#1269).
+    const linkState = dev.ifaceStatus(egress, this.topo);
+    if (linkState.status !== 'up') {
+      if (linkState.status === 'administratively down') {
+        return {
+          ok: false, code: 'E_IFACE_DOWN',
+          reason: 'egress interface for ' + peerIp + ' is down on ' + dev.name
+        };
+      }
+      // Not the same fault: nobody shut this port, the wire cannot pass a frame. Naming it "down on the
+      // router" sends the operator to the wrong config.
+      return {
+        ok: false,
+        code: 'E_LINK_DOWN',
+        reason: 'egress ' + egress.name + ' cannot carry a frame (' +
+          (linkState.reason || linkState.status) + ')'
+      };
+    }
     if (!egress.ip) {
       return { ok: false, code: 'E_NO_SOURCE_IP', reason: 'no source address on ' + egress.name + ' of ' + dev.name };
     }

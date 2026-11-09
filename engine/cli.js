@@ -1374,6 +1374,39 @@ class CliSession {
     out.push(up + ' of ' + rows.length + ' neighbour(s) established');
     const learned = (dev.bgpRoutes || []).length;
     out.push(learned + ' prefix(es) installed from BGP');
+    if (learned) {
+      // Which prefixes, from where, with what path. The count alone answered "did BGP do anything" and not
+      // "which route did I get and off which peer", which is the next question and the one `show ip route`
+      // sends you here with (#1269).
+      out.push('');
+      const netLib = require('./net');
+      const cells = dev.bgpRoutes.map(function (r) {
+        // The mask is stored dotted, and the prefix length is the same rule `show ip route` uses, so the two
+        // tables cannot print the same route two ways.
+        const len = netLib.prefixOf(r.mask);
+        return {
+          network: r.dest + (len === null ? ' ' + r.mask : '/' + len),
+          nextHop: r.nextHop || '-',
+          metric: '0',
+          locPrf: '100',
+          weight: '0',
+          path: (r.asPath && r.asPath.length ? r.asPath.join(' ') + ' ' : '') + 'i',
+          via: r.iface || '-',
+          session: r.session === 'ibgp' ? 'iBGP' : 'eBGP'
+        };
+      });
+      const w = function (key, floor) {
+        return Math.max(cells.reduce(function (m, c) { return Math.max(m, String(c[key]).length); }, 0) + 2,
+          floor || 0);
+      };
+      const wNet = w('network', 17), wHop = w('nextHop', 9), wPath = w('path', 7);
+      out.push(pad('Network', wNet) + pad('Next Hop', wHop) + pad('Metric', 8) + pad('LocPrf', 8) +
+        pad('Weight', 8) + pad('Path', wPath) + 'Session');
+      for (const c of cells) {
+        out.push(pad(c.network, wNet) + pad(c.nextHop, wHop) + pad(c.metric, 8) + pad(c.locPrf, 8) +
+          pad(c.weight, 8) + pad(c.path, wPath) + c.session);
+      }
+    }
     return out;
   }
 
