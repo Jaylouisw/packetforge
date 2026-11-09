@@ -84,6 +84,10 @@
   // cached geometry: portPos[deviceId][iface] = {x,y} (world); geo[deviceId] = {pos,size,ports}
   let portPos = {};
   let geo = {};
+  // Every cable drawn in the last frame, with the sockets it runs between, so a drag can move the
+  // cables attached to the box being dragged. Without this the chassis slides out from under its own
+  // cables and they stay behind until something else forces a redraw (#1228).
+  let cableNodes = [];
 
   function specFor(device) {
     // device already carries vendor/model/category/color info from serialize()
@@ -156,6 +160,7 @@
       overlay.innerHTML = '';
       portPos = {};
       geo = {};
+      cableNodes = [];
 
       drawGrid();
 
@@ -200,7 +205,7 @@
           // A wide invisible band so a 2 px line is actually clickable. It is a grab
           // convenience only: hitTest() consults it after every port and every device
           // body, so it can never cover a socket (issue #66).
-          el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, cableLayer);
+          const hitLine = el('line', { class: 'link-hit', x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'data-link-id': link.id }, cableLayer);
           // A radio association is not a cable. Drawing it as one made a wireless lab
           // look wired, and hid the fact that the link is a band rather than a run of
           // copper or glass. Every other medium now carries its own class for the same
@@ -210,7 +215,7 @@
           // the most important thing on the page, and drawing it identically is how a lab ends up
           // showing a cut cable carrying traffic.
           const dead = link.state && link.state !== 'up';
-          el('line', {
+          const drawLine = el('line', {
             class: 'link' + (family ? ' link-' + family : '') + (sel ? ' selected' : '') +
               (link.mediaId ? ' link-media' : '') + (dead ? ' link-down' : ''),
             x1: a.x, y1: a.y, x2: b.x, y2: b.y,
@@ -219,6 +224,14 @@
             'data-media-id': link.mediaId || '',
             'data-link-state': link.state || 'up'
           }, cableLayer);
+          cableNodes.push({
+            id: link.id,
+            a: { deviceId: link.a.deviceId, iface: link.a.iface },
+            b: { deviceId: link.b.deviceId, iface: link.b.iface },
+            from: { x: a.x, y: a.y },
+            to: { x: b.x, y: b.y },
+            nodes: [hitLine, drawLine]
+          });
         } catch (e) { skip('link', link && link.id, e); }
       }
 
@@ -619,6 +632,15 @@
         if (g) {
           const pos = (state.topology.layout && state.topology.layout[drag.id]) || { x: 0, y: 0 };
           g.setAttribute('transform', 'translate(' + (pos.x + dx / view.zoom) + ',' + (pos.y + dy / view.zoom) + ')');
+          // ...and the cables attached to it, or the box slides out from under them (#1228). Applied
+          // incrementally, so this is the movement since the previous pointermove.
+          const stepX = dx / view.zoom - (drag.previewX || 0);
+          const stepY = dy / view.zoom - (drag.previewY || 0);
+          if (stepX || stepY) {
+            dragPreview(drag.id, stepX, stepY);
+            drag.previewX = dx / view.zoom;
+            drag.previewY = dy / view.zoom;
+          }
         }
       }
     } else if (ghostLine && state.connecting) {
@@ -664,6 +686,10 @@
           const nx = Math.round(pos.x + dx / view.zoom);
           const ny = Math.round(pos.y + dy / view.zoom);
           if (on.move) on.move(drag.id, nx, ny);
+          // Redraw from the new layout: the live drag moved the box and its cables on screen, but the
+          // socket table and the frame both need the final position before the next ping, hit test or
+          // click (#1228).
+          try { render(state.topology); } catch (ignored) { /* render reports its own failures */ }
         }
       } else if (drag.mode === 'pan') {
         if (!drag.moved) {
@@ -743,6 +769,91 @@
   });
 
   // ---------- packet animation ----------
+  //
+  // A packet does not travel from the middle of one box to the middle of another: it leaves a socket
+  // and arrives at a socket, which is exactly the line the cable is drawn along. This used to tween
+  // device centre -> device centre, so the dot cut across empty canvas while the cable ran somewhere
+  // else, and after a device had been dragged it matched neither position (#1228).
+  function socketPoint(deviceId, iface) {
+    const p = portWorld(deviceId, iface);
+    if (p) return { x: p.x, y: p.y };
+    // No socket position: fall back to the box, but only where the box actually is. Inventing a
+    // position for a device with no layout entry is how a dot ends up flying to the top-left corner
+    // of the grid and looking like a physics bug.
+    const d = ((state.topology && state.topology.devices) || []).find(function (x) { return x.id === deviceId; });
+    if (!d) return null;
+    const pos = state.topology.layout && state.topology.layout[deviceId];
+    if (!pos) return null;
+    const size = deviceSize(Array.isArray(d.interfaces) ? d.interfaces.length : 0);
+    return { x: pos.x + size.w / 2, y: pos.y + size.h / 2 };
+  }
+
+  // Redraw every tracked cable from the current socket positions. Used after geometry is recomputed,
+  // so the picture and the animation cannot disagree about where a socket is.
+  function refreshCableGeometry() {
+    for (const c of cableNodes) {
+      const a = portWorld(c.a.deviceId, c.a.iface);
+      const b = portWorld(c.b.deviceId, c.b.iface);
+      if (!a || !b) continue;
+      c.from = { x: a.x, y: a.y };
+      c.to = { x: b.x, y: b.y };
+      for (const n of c.nodes) {
+        if (!n || !n.setAttribute) continue;
+        n.setAttribute('x1', a.x); n.setAttribute('y1', a.y);
+        n.setAttribute('x2', b.x); n.setAttribute('y2', b.y);
+      }
+    }
+  }
+
+  // Geometry is computed during render(). If the layout has moved since - a drag that was persisted
+  // but not yet redrawn, a remote client's move that arrived mid-animation - the socket table is stale
+  // and every consumer of it (animation, hit testing) is quietly wrong. Recompute for the devices
+  // whose position no longer matches, then redraw the cables that hang off them.
+  function ensureGeoCurrent() {
+    const devices = (state.topology && state.topology.devices) || [];
+    let changed = false;
+    for (const d of devices) {
+      if (!d || typeof d.id !== 'string') continue;
+      const pos = state.topology.layout && state.topology.layout[d.id];
+      const g = geo[d.id];
+      if (!g) {
+        try { computeGeo(d); changed = true; } catch (ignored) { /* reported by render */ }
+        continue;
+      }
+      if (pos && (g.pos.x !== pos.x || g.pos.y !== pos.y)) {
+        try { computeGeo(d); changed = true; } catch (ignored) { /* reported by render */ }
+      }
+    }
+    if (changed) refreshCableGeometry();
+    return changed;
+  }
+
+  // While a box is being dragged, its cables must move with it. Straight-line geometry makes this
+  // exact: shift the endpoints that belong to the dragged device by the same delta and leave the far
+  // ends alone.
+  function dragPreview(deviceId, dx, dy) {
+    const g = geo[deviceId];
+    if (g) g.pos = { x: g.pos.x + dx, y: g.pos.y + dy };
+    if (portPos[deviceId]) {
+      for (const name of Object.keys(portPos[deviceId])) {
+        const p = portPos[deviceId][name];
+        portPos[deviceId][name] = { x: p.x + dx, y: p.y + dy };
+      }
+    }
+    for (const c of cableNodes) {
+      const aMoves = c.a.deviceId === deviceId;
+      const bMoves = c.b.deviceId === deviceId;
+      if (!aMoves && !bMoves) continue;
+      if (aMoves) c.from = { x: c.from.x + dx, y: c.from.y + dy };
+      if (bMoves) c.to = { x: c.to.x + dx, y: c.to.y + dy };
+      for (const n of c.nodes) {
+        if (!n || !n.setAttribute) continue;
+        n.setAttribute('x1', c.from.x); n.setAttribute('y1', c.from.y);
+        n.setAttribute('x2', c.to.x); n.setAttribute('y2', c.to.y);
+      }
+    }
+  }
+
   function deviceCenter(deviceId) {
     const d = (state.topology.devices || []).find(function (x) { return x.id === deviceId; });
     if (!d) return null;
@@ -770,10 +881,14 @@
 
   async function animateEvents(events) {
     packetsLayer.innerHTML = '';
-    const frames = events.filter(function (e) { return e.type === 'frame'; });
+    const frames = (events || []).filter(function (e) { return e.type === 'frame'; });
+    if (!frames.length) return;
+    // The layout may have moved since the last frame was drawn (a drag that was persisted without a
+    // redraw, or a move from another client). Recompute before animating rather than after.
+    ensureGeoCurrent();
     for (const f of frames) {
-      const a = deviceCenter(f.from);
-      const b = deviceCenter(f.to);
+      const a = socketPoint(f.from, f.fromIface);
+      const b = socketPoint(f.to, f.toIface);
       if (!a || !b) continue;
       const dot = el('circle', { r: 6, class: 'packet' }, packetsLayer);
       await tween(dot, a.x, a.y, b.x, b.y, 240);
@@ -812,6 +927,12 @@
     setConnecting: setConnecting,
     getConnecting: function () { return state.connecting; },
     animateEvents: animateEvents,
+    socketPoint: socketPoint,
+    ensureGeoCurrent: ensureGeoCurrent,
+    dragPreview: dragPreview,
+    refreshCableGeometry: refreshCableGeometry,
+    // What the last frame drew, so a test can assert a cable is continuous from socket to socket.
+    cables: function () { return cableNodes.map(function (c) { return { id: c.id, from: c.from, to: c.to }; }); },
     fitView: fitView,
     zoomBy: zoomBy,
     deviceCenter: deviceCenter,

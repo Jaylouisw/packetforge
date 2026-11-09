@@ -120,6 +120,34 @@ too).
 - `app.js` — state, REST client, palette, inspector (device/config/console/
   simulate), context menus, keyboard shortcuts, WebSocket sync.
 
+### One source of position
+
+The canvas keeps one table of where each socket is in world coordinates
+(`portPos`, filled by `computeGeo()` during `render()`), and three things read it:
+the cables that are drawn, hit testing, and the packet animation. Anything that
+moves a box must keep that table true, or the picture and the behaviour drift
+apart:
+
+- **A packet travels socket to socket.** `animateEvents()` resolves each `frame`
+  event's `fromIface`/`toIface` through `socketPoint()` — the same coordinates the
+  cable is drawn along. Animating device centre to device centre (what it used to
+  do) drew a dot that crossed empty canvas while the cable ran somewhere else, and
+  after a drag it matched neither position (#1228).
+- **A drag moves the cables with the box.** `dragPreview()` shifts the stored
+  endpoints of the cables attached to the dragged device by the same delta, so a
+  chassis cannot slide out from under its own cables during a drag.
+- **A drag is redrawn on release.** `on.move()` persists the layout; the canvas
+  then calls `render()` so the socket table and the drawing agree before the next
+  ping, hit test or click.
+- **`ensureGeoCurrent()` is the safety net**, run before an animation: if the
+  layout has moved since the last render, geometry is recomputed and the cables
+  redrawn rather than animating to a stale socket.
+
+A device with no `layout` entry is drawn at a default position, and everything
+that needs its coordinates takes them from that same drawing — no component
+invents a position of its own.
+
+
 ## Adding a feature
 
 The seams are deliberate. To add a new **protocol** (e.g. DHCP or TCP), extend
