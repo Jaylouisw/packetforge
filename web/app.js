@@ -384,30 +384,56 @@
   // Aruba Mobility Controller and an ExtremeCloud IQ Controller, with the real ONTs
   // buried behind them. A whole word in a category is a deliberate name; ranking it
   // above accidental substrings is the difference between a search box and a lottery.
-  function searchRank(s, q, tokens) {
-    if (!q) return 6;                       // punctuation-only query: keep everything
+  // The keys a spec is searched by, computed once per spec object.
+  //
+  // Every keystroke used to rebuild them for all 2,015 specs: six lower-case-and-strip passes over
+  // vendor, model, label, description, category and each alias, plus the concatenations. Measured at
+  // ~10 ms per keystroke on this machine, which is 10% of a 100 Hz frame budget spent re-deriving
+  // strings that cannot have changed - the catalogue is immutable for the life of the page.
+  //
+  // A WeakMap keyed on the spec object is the right shape: entries disappear with the specs, so a
+  // reload that replaces the catalogue cannot leave stale keys behind, and nothing has to be
+  // invalidated by hand.
+  const keyCache = (typeof WeakMap === 'function') ? new WeakMap() : null;
+
+  function specKeys(s) {
+    if (keyCache) {
+      const hit = keyCache.get(s);
+      if (hit) return hit;
+    }
     const model = searchKey(s.model);
     const vendor = searchKey(s.vendor);
-    const vm = vendor + model;              // lets "tp-link mc220l" / "tplink mc220l" land
-    if (model === q) return 0;
-    if (model.indexOf(q) === 0) return 1;
+    const aliases = (s.aliases || []).map(searchKey).filter(function (a) { return !!a; });
+    const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
+    const keys = {
+      model: model,
+      vm: vendor + model,
+      aliases: aliases,
+      fields: fields,
+      hay: model + '\u0000' + vendor + model + '\u0000' + aliases.join('\u0000') + '\u0000' + fields
+    };
+    if (keyCache) keyCache.set(s, keys);
+    return keys;
+  }
+
+  function searchRank(s, q, tokens) {
+    if (!q) return 6;                       // punctuation-only query: keep everything
+    const k = specKeys(s);
+    if (k.model === q) return 0;
+    if (k.model.indexOf(q) === 0) return 1;
     // A declared alias ranks with a model prefix, not with a substring. An alias is somebody
     // typing the name they actually use: the board in the shelf ("B1LDCD"), the model without its
     // card complement ("E6616"), the short form of a long family name ("M1D-B"). A deliberate name
     // should not sit below an accident of spelling in a description. Aliases come from the spec,
     // so a device that declares none behaves exactly as before.
-    for (const alias of (s.aliases || [])) {
-      const a = searchKey(alias);
-      if (!a) continue;
+    for (const a of k.aliases) {
       if (a === q || a.indexOf(q) === 0) return 1;
     }
     if (hasWord(s.category, q)) return 2;
-    if (model.indexOf(q) !== -1) return 3;
-    if (vm.indexOf(q) !== -1) return 4;
-    const fields = [s.vendor, s.label, s.description, s.category].map(searchKey).join('\u0000');
-    if (fields.indexOf(q) !== -1) return 5;
-    const hay = model + '\u0000' + vm + '\u0000' + (s.aliases || []).map(searchKey).join('\u0000') + '\u0000' + fields;
-    for (const t of tokens) { if (hay.indexOf(t) === -1) return -1; }
+    if (k.model.indexOf(q) !== -1) return 3;
+    if (k.vm.indexOf(q) !== -1) return 4;
+    if (k.fields.indexOf(q) !== -1) return 5;
+    for (const t of tokens) { if (k.hay.indexOf(t) === -1) return -1; }
     return tokens.length ? 6 : -1;
   }
 
@@ -2696,6 +2722,7 @@
     // without opening a window.
     bugReportBody: bugReportBody,
     describeTopology: describeTopology,
+    specKeys: specKeys,
     bugReportUrl: bugReportUrl,
     recordError: recordError,
     describeErrors: describeErrors,
