@@ -127,9 +127,16 @@ Two of those refusals are there for more than tidiness:
 
 * `no ip access-group 103 in` while **102** is applied refuses and names 102. Silently clearing "whatever is
   bound" would remove a policy the operator did not ask about.
-* `no vlan 20` refuses while ports still carry it, naming up to five and counting the rest. Deleting it behind
-  the ports' backs left `show running-config` no longer printing `vlan 20` while `show vlan` still listed it
-  from the member ports — two descriptions of one switch that disagreed.
+* `no vlan 20` refuses while any port **depends on** it, and says how. Two kinds of dependence are counted,
+  and both are named:
+  * **carried** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing all VLANs
+    counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
+  * **referenced** — a trunk parameter stored on a port that is not in trunk mode yet
+    (`still referenced by 1 port(s): Fa0/3 (trunk native, trunk allowed, stored) - clear that first`).
+
+  Deleting a VLAN behind the ports' backs left `show running-config` no longer printing `vlan 20` while
+  `show vlan` still listed it from the member ports — two descriptions of one switch that disagreed. The
+  referenced case was worse: removing the VLAN cleared a port's staged native VLAN in silence.
 
 `no hostname` also puts the device's previous name back, because `hostname` sets both the config line and the
 canvas label so the two cannot disagree (#21); undoing only half of it would leave a clean config over a
@@ -346,6 +353,39 @@ same sentence instead of carrying a null reason.
 
 `show interfaces` never claims a drop that did not happen: a port with a clean record prints no drops line
 at all, because a wall of `0 drops` on every unused port is how a real one gets missed.
+
+#### Naming one port, and what it does with a frame
+
+`show interfaces <name>` answers about the port that was named, resolved by the same table `interface <name>`
+uses, so both commands agree about which sockets exist — a name that matches nothing is refused by name rather
+than answered with the whole box, which is what it used to do. With no name, every interface is listed,
+subinterfaces included and placed after their parent.
+
+Each block carries one switchport line, because the command an operator opens first is the one that has to
+say what the port does with a frame:
+
+```
+Gi0/0.10 (subinterface, 1G), MAC 02:00:00:00:00:00
+  ...
+  ip: 10.9.9.1/24
+  ...
+                    <- no switchport line: a routed port does not switch
+
+Fa0/1 (ethernet, 1G), MAC 02:00:00:00:00:00
+  ...
+  switchport: access, access VLAN 20
+
+Fa0/3 (ethernet, 1G), MAC 02:00:00:00:00:02
+  ...
+  switchport: access, access VLAN 1 (trunk staged: native 20, not in use)
+
+Fa0/2 (ethernet, 1G), MAC 02:00:00:00:00:01
+  ...
+  switchport: trunk, native 30, allowed 10,20
+```
+
+A parameter that is stored but not in force is labelled **staged, not in use** rather than reported as if the
+port were trunking — the same distinction `show vlan` makes by listing the port under the VLAN it carries.
 
 #### Line rate and duplex
 
