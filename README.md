@@ -83,7 +83,7 @@ echo/reply travel across the link with a live animation and event log.
 | Area | What's implemented |
 |------|--------------------|
 | Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | **2,041 models across 251 vendors**, in 25 categories (router, switch, L3 switch, firewall, AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, TV/set-top, IoT, tap, splitter, cloud, host) + generic models. Adding one is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
+| Vendors | **2,042 models across 251 vendors**, in 25 categories (router, switch, L3 switch, firewall, AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, TV/set-top, IoT, tap, splitter, cloud, host) + generic models. Adding one is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP, IPv4, ICMP echo + errors, traceroute, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static + PAT), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
