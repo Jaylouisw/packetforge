@@ -214,15 +214,15 @@ palette, fully simulated — no other changes required.
 
 ## What is in the catalogue
 
-**2,009 models across 245 vendors**, and it grows every time somebody's hardware is
+**2,015 models across 245 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |
 |---|---:|---|---|---:|
-| MikroTik | 366 | | router | 362 |
+| MikroTik | 366 | | router | 368 |
 | Ubiquiti | 367 | | switch | 292 |
 | Aruba | 73 | | point-to-point | 197 |
-| Huawei | 75 | | wireless | 219 |
+| Huawei | 81 | | wireless | 219 |
 | Cisco | 48 | | L3 switch | 137 |
 | TP-Link | 52 | | IoT | 125 |
 | Teltonika | 88 | | modem | 54 |

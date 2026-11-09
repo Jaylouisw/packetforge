@@ -1,0 +1,127 @@
+{
+  "vendor": "huawei",
+  "model": "NetEngine A821 E",
+  "label": "NetEngine A821 E 10GE FlexE access router",
+  "category": "router",
+  "description": "Huawei NetEngine A821 E - 1U IPv6+ access router with 10GE FlexE slicing, 72 Gbit/s. Fixed ports: 2x 10GE, 8x GE/FE optical and 8x GE/FE electrical - 18 service ports.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    }
+  ],
+  "icon": "router",
+  "color": "#dc2626",
+  "sourceUrl": "https://entec.cz/wp-content/uploads/2025/10/Huawei_NetEngine-A800-E.pdf",
+  "notes": "Fixed interfaces per the A800 E portfolio and the Huawei product note: \"two 10GE/GE ports, eight optical GE ports, and eight electrical GE ports\". The hardware guide gives the same total (18) and notes that the two 10GE cages are SFP+ and auto-sense FE/GE/10GE. Switching capacity 72 Gbit/s. FlexE slicing and SRv6 are the reasons to pick this over the A822 E; MPLS and SRv6 are exclusive modes. No PoE. Two fewer 10GE-capable cages than the 6 in the A821 E hardware guide table, which counts the 10GE-capable GE cages that can be software-upgraded - the box ships with 2x 10GE."
+}

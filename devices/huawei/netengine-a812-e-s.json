@@ -1,0 +1,103 @@
+{
+  "vendor": "huawei",
+  "model": "NetEngine A812 E-S",
+  "label": "NetEngine A812 E-S access router",
+  "category": "router",
+  "description": "Huawei NetEngine A812 E-S - 1U IPv6+ access router, 14 service ports: 10x GE/FE optical and 4x GE/FE electrical. The \"-S\" is the smaller-power variant of the A812 E.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    }
+  ],
+  "icon": "router",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/8e1dd04c121441d582471afdfa8c2440/M3T1A590N1068271732107194503/NetEngine%20Product%20Portfolio.pdf",
+  "notes": "NetEngine A800 E portfolio: \"Maximum Port: 10*GE/FE(o)+4*GE/FE(e)\" - 14 service ports, no 10GE cages and no subcard slots. The -S suffix denotes the reduced-power build; the port list is identical to the A812 E in the same table, so a deployment that needs to tell them apart has to use power and part number, not ports. No PoE."
+}

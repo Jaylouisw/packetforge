@@ -1,0 +1,103 @@
+{
+  "vendor": "huawei",
+  "model": "NetEngine A813 E",
+  "label": "NetEngine A813 E access router",
+  "category": "router",
+  "description": "Huawei NetEngine A813 E - 1U IPv6+ access router, 14 service ports: 6x GE optical and 8x GE electrical. No subcards, fixed configuration.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    }
+  ],
+  "icon": "router",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/8e1dd04c121441d582471afdfa8c2440/M3T1A590N1068271732107194503/NetEngine%20Product%20Portfolio.pdf",
+  "notes": "NetEngine A800 E portfolio: \"Maximum Port: 6*GE(o)+8*GE(e)\" - 14 physical ports, matching the hardware guide figure of 14 for the A813 E. The hardware guide lists 2 as the maximum number of 10GE ports for this family entry, but the A813 E ships as GE only; the 10GE cages belong to the A822 E. Ports are numbered slot/subcard/port, and the subcard number is fixed at 2 because no subcards are supported. No PoE."
+}

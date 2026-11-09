@@ -1,0 +1,103 @@
+{
+  "vendor": "huawei",
+  "model": "NetEngine A822 E",
+  "label": "NetEngine A822 E 10GE access router",
+  "category": "router",
+  "description": "Huawei NetEngine A822 E - 1U IPv6+ access router, 14 service ports: 2x 10GE, 4x GE/FE optical and 8x GE/FE electrical. SRv6 ready, no subcards.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    }
+  ],
+  "icon": "router",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/b61bc5869a67495888e7b2e4210ebb37/M3T1A590N1144953970340237579/NetEngine%20A822%20E%20Datasheet%20V800R025C00.pptx",
+  "notes": "Datasheet V800R025C00: \"Interface Type: 2*10GE + 4*GE/FE (optical) + 8*GE/FE (electrical)\". The hardware guide agrees on 14 maximum physical ports, 2 of them 10GE. No subcards are supported, so the port list is the box. Ports 8 and 9 are the GE/10GE auto-sensing cages, which is why the 10GE count is 2 and not 12. No PoE, natural convection, 1U 220 mm deep."
+}
