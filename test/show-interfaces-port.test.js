@@ -92,15 +92,15 @@ console.log('...and says what the port does with a frame:');
     'interface Fa0/3', 'switchport trunk native vlan 20', 'exit', 'end']);
 
   const access = env.run(['show interfaces Fa0/1']).filter(function (l) { return /switchport/.test(l); });
-  ok(access.length === 1 && /switchport: access, access VLAN 20$/.test(access[0]),
+  ok(access.length === 1 && /switchport: access VLAN 20$/.test(access[0]),
     'an access port names its access VLAN', JSON.stringify(access));
 
   const trunk = env.run(['show interfaces Fa0/2']).filter(function (l) { return /switchport/.test(l); });
-  ok(trunk.length === 1 && /switchport: trunk, native 30, allowed 10,20/.test(trunk[0]),
+  ok(trunk.length === 1 && /switchport: trunk · native 30 · allowed 10,20/.test(trunk[0]),
     'a trunk names its native VLAN and its allowed list', JSON.stringify(trunk));
 
   const staged = env.run(['show interfaces Fa0/3']).filter(function (l) { return /switchport/.test(l); });
-  ok(staged.length === 1 && /trunk staged: native 20, not in use/.test(staged[0]),
+  ok(staged.length === 1 && /trunk staged: native 20 \(not in use\)/.test(staged[0]),
     'a staged trunk parameter is marked as staged, not reported as in force', JSON.stringify(staged));
 
   // The line has to agree with the data plane's own answer, or it is a second opinion.

@@ -1796,14 +1796,50 @@
     return known[c] || String(c || '').toUpperCase();
   }
 
-  function vlanSummary(i) {
-    const v = i.vlan || {};
-    if (v.mode === 'trunk') {
-      const allowed = v.allowedVlans === 'all' ? 'all'
-        : (Array.isArray(v.allowedVlans) ? v.allowedVlans.join(',') : v.allowedVlans);
-      return 'trunk · native ' + (v.nativeVlan || 1) + ' · allowed ' + allowed;
+  // Mirror of engine/vlan.js `switchportSentence()`, which the console prints after "switchport: " in
+  // `show interfaces <port>`. The browser cannot require the engine, so the rule exists twice on purpose and
+  // test/switchport-agreement.test.js compares the two across a matrix of port states. They had already
+  // drifted: the panel said `access 1` for a port the console reported as staged for a trunk, because only the
+  // console knew about stored-but-not-in-use parameters.
+  function switchportSentence(v) {
+    const raw = (v && typeof v === 'object') ? v : {};
+    const mode = raw.mode === 'trunk' ? 'trunk' : 'access';
+    const int = function (x, dflt) {
+      const n = Number(x);
+      return Number.isFinite(n) && n > 0 ? n : dflt;
+    };
+    const accessVlan = int(raw.accessVlan, 1);
+    const nativeVlan = (raw.nativeVlan === undefined || raw.nativeVlan === null)
+      ? (mode === 'trunk' ? 1 : accessVlan) : int(raw.nativeVlan, 1);
+    // An empty list is a trunk that allows nothing, so it reads `none` - the same answer `classifyEgress`
+    // gives. Only an unset field means all.
+    let allowed = 'all';
+    if (Array.isArray(raw.allowedVlans)) {
+      allowed = raw.allowedVlans.length ? raw.allowedVlans.join(',') : 'none';
+    } else if (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() &&
+      raw.allowedVlans.trim().toLowerCase() !== 'all') {
+      allowed = raw.allowedVlans.trim();
     }
-    return 'access ' + (v.accessVlan || 1);
+    if (mode === 'trunk') {
+      return 'trunk · native ' + nativeVlan + ' · allowed ' + allowed;
+    }
+    let line = 'access VLAN ' + accessVlan;
+    const staged = [];
+    if (raw.nativeVlan !== undefined && raw.nativeVlan !== null && Number(raw.nativeVlan) !== 1) {
+      staged.push('native ' + Number(raw.nativeVlan));
+    }
+    if (Array.isArray(raw.allowedVlans) && raw.allowedVlans.length) {
+      staged.push('allowed ' + raw.allowedVlans.join(','));
+    } else if (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() &&
+      raw.allowedVlans.trim().toLowerCase() !== 'all') {
+      staged.push('allowed ' + raw.allowedVlans.trim());
+    }
+    if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
+    return line;
+  }
+
+  function vlanSummary(i) {
+    return switchportSentence(i && i.vlan);
   }
 
   // Display mirror of Simulator.computePoe(): a PSE serves powered devices in
@@ -2767,6 +2803,7 @@
     fmtSpeed: fmtSpeed,
     cageLabel: cageLabel,
     vlanSummary: vlanSummary,
+    switchportSentence: switchportSentence,
     filterDevices: filterDevices,
     searchKey: searchKey,
     fabricSummary: fabricSummary,

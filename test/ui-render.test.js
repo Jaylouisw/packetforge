@@ -118,7 +118,10 @@ ok(/RJ45/.test(devHtml), 'RJ45 cages are labelled, not raw ids');
 ok(/\b1G\b/.test(devHtml), 'link rates are humanised');
 ok(/hw-grid/.test(devHtml), 'per-port hardware grid is present');
 ok(/Speeds/.test(devHtml) && /Cage/.test(devHtml) && /Media/.test(devHtml), 'cage / speeds / media rows present');
-ok(/VLAN/.test(devHtml) && /access 20/.test(devHtml), 'the VLAN config from the CLI shows up (access 20)');
+// The panel shows the same sentence `show interfaces <port>` prints after "switchport: ", not a second
+// rendering of the same fact (test/switchport-agreement.test.js pins the two together).
+ok(/VLAN/.test(devHtml) && /access VLAN 20/.test(devHtml),
+  "the VLAN config from the CLI shows up in the console's own words (access VLAN 20)");
 ok(/class="dot up"/.test(devHtml), 'admin state is shown per port');
 ok(/port-link/.test(devHtml) || /port-peer/.test(devHtml), 'cabled ports are marked');
 // A dot alone said "cabled" without saying where to. The row must name the peer.

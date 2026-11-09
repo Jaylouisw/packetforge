@@ -282,6 +282,44 @@ function normalizePortConfig(cfg) {
 // ---------------------------------------------------------------------------
 
 // Egress: which 802.1Q treatment does a frame for vlanId get on this port?
+// One sentence for what a port does with a frame. Two surfaces show it - the console (`show interfaces
+// <port>`, after "switchport: ") and the inspector panel in the browser - so it is written once here and
+// mirrored in web/app.js, with test/switchport-agreement.test.js comparing the two. Two renderings of one
+// fact drift silently: the panel said `access 1` for a port the console reported as staged for a trunk,
+// because only one of them knew about stored-but-not-in-use parameters.
+function switchportSentence(portConfig) {
+  const raw = (portConfig && typeof portConfig === 'object') ? portConfig : {};
+  const cfg = normalizePortConfig(raw);
+  const mode = cfg.mode === 'trunk' ? 'trunk' : 'access';
+  // An empty list is a trunk that allows nothing - `classifyEgress` drops every VLAN on it - so it is printed
+  // as `none`, not as `all`. Only the unset field means all.
+  const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans))
+    ? 'all' : (cfg.allowedVlans.length ? cfg.allowedVlans.join(',') : 'none');
+  if (mode === 'trunk') {
+    return 'trunk · native ' + cfg.nativeVlan + ' · allowed ' + allowed;
+  }
+  let line = 'access VLAN ' + cfg.accessVlan;
+  // "Staged" is read from the stored fields, not from the normalised ones: the normaliser derives a native VLAN
+  // from the access VLAN when the field is absent, so asking it would report a staged parameter on every access
+  // port in a non-default VLAN.
+  const staged = [];
+  const rawNative = raw.nativeVlan;
+  if (rawNative !== undefined && rawNative !== null && Number(rawNative) !== 1) {
+    staged.push('native ' + Number(rawNative));
+  }
+  const rawAllowed = raw.allowedVlans;
+  if (Array.isArray(rawAllowed) && rawAllowed.length) {
+    staged.push('allowed ' + rawAllowed.join(','));
+  } else if (typeof rawAllowed === 'string' && rawAllowed.trim() &&
+      rawAllowed.trim().toLowerCase() !== 'all') {
+    staged.push('allowed ' + rawAllowed.trim());
+  }
+  // Stored, not in force. Saying "access VLAN 1" alone would leave the operator believing the trunk settings
+  // they typed a moment ago had gone somewhere.
+  if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
+  return line;
+}
+
 function classifyEgress(portConfig, vlanId) {
   const cfg = normalizePortConfig(portConfig);
   const vid = typeof vlanId === 'number' ? vlanId : parseInt(vlanId, 10);
@@ -462,6 +500,7 @@ module.exports = {
   vlanListIncludes,
   normalizePortConfig,
   classifyEgress,
+  switchportSentence,
   classifyIngress,
   validatePortConfig,
   framesCompatible

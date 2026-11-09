@@ -373,19 +373,31 @@ Gi0/0.10 (subinterface, 1G), MAC 02:00:00:00:00:00
 
 Fa0/1 (ethernet, 1G), MAC 02:00:00:00:00:00
   ...
-  switchport: access, access VLAN 20
+  switchport: access VLAN 20
 
 Fa0/3 (ethernet, 1G), MAC 02:00:00:00:00:02
   ...
-  switchport: access, access VLAN 1 (trunk staged: native 20, not in use)
+  switchport: access VLAN 1 · trunk staged: native 20 (not in use)
 
 Fa0/2 (ethernet, 1G), MAC 02:00:00:00:00:01
   ...
-  switchport: trunk, native 30, allowed 10,20
+  switchport: trunk · native 30 · allowed 10,20
+
+Fa0/4 (ethernet, 1G), MAC 02:00:00:00:00:03
+  ...
+  switchport: trunk · native 1 · allowed none
 ```
 
-A parameter that is stored but not in force is labelled **staged, not in use** rather than reported as if the
+A parameter that is stored but not in force is labelled **staged (not in use)** rather than reported as if the
 port were trunking — the same distinction `show vlan` makes by listing the port under the VLAN it carries.
+`allowed none` is a trunk that carries nothing: an empty allowed list drops every VLAN, so it is not reported as
+`all`.
+
+The sentence is written once, in `engine/vlan.js` (`switchportSentence`), and mirrored in `web/app.js` for the
+inspector panel — the browser cannot `require` the engine. The panel used to print its own rendering (`access
+1`), and it had already drifted: it knew nothing about staged parameters, and `|| 1` made an unset trunk native
+VLAN indistinguishable from a native VLAN of 1. `test/switchport-agreement.test.js` compares the two across 360
+port states and checks every claim the sentence makes against `classifyEgress`.
 
 #### Line rate and duplex
 

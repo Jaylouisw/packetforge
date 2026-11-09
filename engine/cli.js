@@ -1798,27 +1798,14 @@ class CliSession {
   // with no switchport configuration at all, because "switchport: none" would be a claim about a mode this
   // device does not have.
   _switchportLine(i) {
-    const v = i.vlan;
-    if (!v) return null;
+    if (!i.vlan) return null;
     // A routed port carries a `vlan` object too - the engine fills a default for every interface - but it does
-    // not switch, so printing "switchport: access, access VLAN 1" beside a router's `ip: 10.9.9.1/24` claims a
-    // mode the device does not have. The VLAN table is what makes a port a switchport.
+    // not switch, so printing "access VLAN 1" beside a router's `ip: 10.9.9.1/24` claims a mode the device has
+    // not got. The capability is what makes a port a switchport.
     const switches = Array.isArray(this.device.capabilities) &&
       this.device.capabilities.indexOf('l2-forward') !== -1;
     if (!switches) return null;
-    const cfg = vlanLib.normalizePortConfig(v);
-    const mode = cfg.mode === 'trunk' ? 'trunk' : 'access';
-    const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans) || !cfg.allowedVlans.length)
-      ? 'all' : cfg.allowedVlans.join(',');
-    if (mode === 'access') {
-      let line = 'switchport: access, access VLAN ' + cfg.accessVlan;
-      const staged = [];
-      if (Number(cfg.nativeVlan) !== 1) staged.push('native ' + cfg.nativeVlan);
-      if (allowed !== 'all') staged.push('allowed ' + allowed);
-      if (staged.length) line += ' (trunk staged: ' + staged.join(', ') + ', not in use)';
-      return line;
-    }
-    return 'switchport: trunk, native ' + cfg.nativeVlan + ', allowed ' + allowed;
+    return 'switchport: ' + require('./vlan').switchportSentence(i.vlan);
   }
 
   _linkRateLine(iface) {
