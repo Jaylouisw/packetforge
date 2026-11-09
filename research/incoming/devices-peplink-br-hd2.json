@@ -1,0 +1,424 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD2-LTE",
+    "label": "Peplink MAX HD2 LTE",
+    "category": "router",
+    "description": "Mobile router with two LTE modems: 2x GE WAN, 4x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 (GE)**, Number of Ethernet LAN port **4 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. **HD2 means two cellular modems** - modelled as wwan0 and wwan1, since bonding two carriers is the point of the chassis. This is the LTE SKU; the LTE-A SKU in this catalogue shares every port and the same 400 Mbps ceiling."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD2-LTEA",
+    "label": "Peplink MAX HD2 Dual 4G LTE-A",
+    "category": "router",
+    "description": "Mobile router with two LTE-A modems: 2x GE WAN, 4x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 (GE)**, Number of Ethernet LAN port **4 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. **HD2 means two cellular modems** - modelled as wwan0 and wwan1, since bonding two carriers is the point of the chassis. The **LTE-A** part is the modem generation, not the port count or the throughput - both are identical to the LTE SKU, so ordering by interface list alone cannot distinguish them."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-ENT",
+    "label": "Peplink MAX BR1 ENT",
+    "category": "router",
+    "description": "Enterprise-grade router with LTE failover: 1x GE WAN (convertible), 2x GE LAN, 300 Mbps throughput, no Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-ent.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **1 / 0 (GE)**, Number of Ethernet LAN port **2 / 3 (GE)**, Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input No. Two things here surprise people: the single WAN port can be reconfigured as a third LAN port, and **this 'enterprise' model has no Wi-Fi radio at all** - the LTE link is the wireless, and a plan that expects an AP out of it is wrong."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-M2M",
+    "label": "Peplink MAX BR1 Industrial M2M",
+    "category": "router",
+    "description": "Industrial M2M LTE router: 1x **fast Ethernet** WAN, 1x fast Ethernet LAN, 100 Mbps throughput, no Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-m2m.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **1 (FE)**, Number of Ethernet LAN port **1 (FE)**, Router Throughput **100 Mbps**, Wi-Fi AP No, PoE Input No. **FE means fast Ethernet** - 100M ports, not gigabit, and the router ceiling matches at 100 Mbps. In a catalogue where almost everything is GE, this is the model most likely to be dropped into a gigabit design by mistake."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-IP55",
+    "label": "Peplink MAX BR1 IP55 Outdoor",
+    "category": "router",
+    "description": "Outdoor IP55 LTE router: 1x GE WAN, 2x GE LAN, 100 Mbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-ip55.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput **100 Mbps**, Wi-Fi AP Yes, PoE Input Yes. **Gigabit ports, 100 Mbps router** - the copper speed suggests ten times the throughput the box can actually forward, which is the single most misleading pairing in this whole vendor's range."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD2-MINI",
+    "label": "Peplink MAX HD2 Mini",
+    "category": "router",
+    "description": "Mission-critical dual-modem router, compact: 1x GE WAN, 2x GE LAN, 300 Mbps throughput, no Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-mini.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input Yes. Two modems and three copper ports with no radio: the Mini trades the HD2's Wi-Fi and port count for size, and a vehicle install that assumes Wi-Fi needs a separate AP."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD4-MBX",
+    "label": "Peplink MAX HD4 MBX (International)",
+    "category": "router",
+    "description": "Four-modem mobile router: 2-5x GE WAN, 5-8x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2-5 (GE)**, Number of Ethernet LAN port **5-8 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes - the ranges are because **extra WAN ports require a WAN port licence**, which converts LAN ports into WAN ports. The base 2 WAN / 5 LAN configuration is modelled. Note this International HD4 MBX is **400 Mbps**, while the HD4 MBX 5G in this catalogue is 2.5 Gbps: same modem count and same chassis family, six times the throughput difference."
+  }
+]

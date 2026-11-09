@@ -1,0 +1,53 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-IP55",
+  "label": "Peplink MAX BR1 IP55 Outdoor",
+  "category": "router",
+  "description": "Outdoor IP55 LTE router: 1x GE WAN, 2x GE LAN, 100 Mbps throughput, Wi-Fi, PoE in.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-ip55.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput **100 Mbps**, Wi-Fi AP Yes, PoE Input Yes. **Gigabit ports, 100 Mbps router** - the copper speed suggests ten times the throughput the box can actually forward, which is the single most misleading pairing in this whole vendor's range.",
+  "role": [
+    "sd-wan"
+  ]
+}

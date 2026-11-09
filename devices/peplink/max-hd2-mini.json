@@ -1,0 +1,52 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD2-MINI",
+  "label": "Peplink MAX HD2 Mini",
+  "category": "router",
+  "description": "Mission-critical dual-modem router, compact: 1x GE WAN, 2x GE LAN, 300 Mbps throughput, no Wi-Fi, PoE in.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-mini.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input Yes. Two modems and three copper ports with no radio: the Mini trades the HD2's Wi-Fi and port count for size, and a vehicle install that assumes Wi-Fi needs a separate AP.",
+  "role": [
+    "sd-wan"
+  ]
+}

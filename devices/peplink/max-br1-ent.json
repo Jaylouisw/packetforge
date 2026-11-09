@@ -1,0 +1,46 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-ENT",
+  "label": "Peplink MAX BR1 ENT",
+  "category": "router",
+  "description": "Enterprise-grade router with LTE failover: 1x GE WAN (convertible), 2x GE LAN, 300 Mbps throughput, no Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-ent.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **1 / 0 (GE)**, Number of Ethernet LAN port **2 / 3 (GE)**, Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input No. Two things here surprise people: the single WAN port can be reconfigured as a third LAN port, and **this 'enterprise' model has no Wi-Fi radio at all** - the LTE link is the wireless, and a plan that expects an AP out of it is wrong.",
+  "role": [
+    "sd-wan"
+  ]
+}
