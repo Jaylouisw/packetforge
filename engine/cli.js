@@ -100,6 +100,11 @@ class CliSession {
 
   run(line) {
     const out = [];
+    // A pasted config begins with the comment line the printer itself writes
+    // ("! PacketForge running-config"), and every CLI in the world ignores it. This one answered
+    // "% Unrecognized config command" and carried on, which is how a paste starts with an error
+    // before it has read a single command (#1230).
+    if (/^\s*[!#]/.test(String(line == null ? '' : line))) return { output: out, actions: [] };
     const tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
     const head = tokens[0].toLowerCase();
@@ -170,7 +175,7 @@ class CliSession {
       if (this.device.config.vlans) delete this.device.config.vlans[id];
       out.push('VLAN ' + id + ' removed');
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
-      const typed = tokens[2];
+      const typed = tokens.slice(2).join(' ');
       const name = resolvePortName(this.device, typed);
       const vi = name ? this.device.interfaces.get(name) : null;
       if (!vi) return ['% Interface not found: ' + (typed || '')];
@@ -190,12 +195,17 @@ class CliSession {
       out.push('Access list ' + n + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
+      // An interface name is the whole rest of the line, because some of them contain spaces:
+      // Ubiquiti calls its ports "Port 1" and its cages "SFP+ 1", so `interface Port 1` was read as
+      // an interface called "Port" and refused - which made those devices' own running-config
+      // unreplayable (#1230).
+      const typed = tokens.slice(1).join(' ');
       // Both spellings of a port resolve here: the panel name from the spec and
       // the vendor-console name the operator may have typed (issue #27).
-      let name = resolvePortName(this.device, tokens[1]);
+      let name = resolvePortName(this.device, typed);
       if (!name) {
         // 'interface Gi0/0.10' creates a router subinterface on Gi0/0.
-        const m = /^(.+)\.(\d+)$/.exec(tokens[1]);
+        const m = /^(.+)\.(\d+)$/.exec(typed);
         const parent = m ? resolvePortName(this.device, m[1]) : null;
         if (m && parent) {
           const vid = parseInt(m[2], 10);
@@ -204,7 +214,7 @@ class CliSession {
           name = parent + '.' + vid;
           out.push('Created subinterface ' + name + ' (parent ' + parent + ')');
         } else {
-          return ['% Interface not found: ' + tokens[1]];
+          return ['% Interface not found: ' + typed];
         }
       }
       this.iface = name;
@@ -332,6 +342,15 @@ class CliSession {
     const iface = this.device.interfaces.get(this.iface);
     const head = tokens[0].toLowerCase();
 
+    // IOS treats a new `interface <name>` line inside interface mode as a mode switch, not as an
+    // error. Configs copied out before #1230 rely on exactly this, because they have no `exit`
+    // between blocks; the config-mode handler already knows how to open an interface (including a
+    // dot1q subinterface), so reuse it.
+    if (head === 'interface' || head === 'int') {
+      this.mode = MODE_CONFIG;
+      return this._configMode(tokens);
+    }
+
     if (head === 'vrrp') {
       const res = this._vrrpIfaceCommand(tokens);
       if (res) return res;
@@ -404,7 +423,14 @@ class CliSession {
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else {
-      out.push('% Unrecognized interface command: ' + tokens.join(' '));
+      // Still inside an interface block, but the line may be a global config command - the last
+      // block of an old running-config is followed by `ip route`, `access-list` and friends with no
+      // `exit` in front of them. Try config mode before complaining, and report the interface error
+      // if config mode does not recognise it either (#1230).
+      const asConfig = this._configMode(tokens);
+      const rejected = asConfig.length === 1 && /^% Unrecognized config command/.test(asConfig[0]);
+      if (rejected) out.push('% Unrecognized interface command: ' + tokens.join(' '));
+      else out.push.apply(out, asConfig);
     }
     return out;
   }
@@ -1438,6 +1464,10 @@ class CliSession {
         if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
         if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
         if (!i.enabled) out.push('  shutdown');
+        // Close the block. Without this the next `interface` line is read while still inside the
+        // previous block, every following line is parsed as an interface command, and a pasted config
+        // applies its addresses and shutdowns to whichever interface was current (#1230).
+        out.push('exit');
       }
       const allAcls = dev.config.acls || {};
       for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {

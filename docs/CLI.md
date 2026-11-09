@@ -29,6 +29,27 @@ Modes and their prompts:
 | `ping <ip> [count]` | ICMP echo from this device |
 | `exit` / `logout` | leave the session |
 
+## `show running-config` is a config you can paste back
+
+The output is a restorable backup, and that is a tested invariant rather than an aspiration
+(`test/config-roundtrip.test.js`): paste it into a fresh device of the same model at the config prompt
+and you get the same configuration, on the same ports.
+
+Three properties make that work, all of them load-bearing:
+
+* **Every interface block closes with `exit`.** Without it a reader never leaves interface mode, and
+  every following line — including global ones like `ip route` — is parsed as an interface command. The
+  failure was silent and destructive: an address meant for `Gi0/0/0` and a `shutdown` meant for
+  `Gi0/0/1` both landed on the first interface in the file.
+* **Comment lines (`!`, `#`) are ignored in every mode**, including the `! PacketForge running-config`
+  header the printer writes itself.
+* **An interface name is the rest of the line**, because some contain spaces — Ubiquiti's `Port 1`,
+  `SFP+ 1`. Splitting on whitespace and taking one token made those devices' configs unreplayable.
+
+Configs copied out before this was fixed (block after block, no `exit`) still replay: the parser treats
+a new `interface` line inside interface mode as a mode switch, and falls through to global config
+commands when a line is not an interface command.
+
 ## Config-mode commands
 
 | Command | Effect |
