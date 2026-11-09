@@ -1,0 +1,26 @@
+{
+  "vendor": "ubiquiti",
+  "model": "nsm3",
+  "label": "Ubiquiti NanoStation M3 (NSM3)",
+  "category": "wireless",
+  "description": "airMAX NanoStation M3 2.4 GHz CPE/bridge: 1x 10/100 Ethernet port, passive 24 V PoE in, 802.11n 2x2.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the NanoStation M datasheet: **(1) 10/100 Ethernet port**, passive PoE 24 V 0.5 A on pairs 4,5+/7,8-, 802.11n 2x2 MIMO. **One port, and it is fast ethernet** - the M3 is a 2.4 GHz CPE whose radio outruns nothing, but the single port matters more: there is no second port to daisy-chain a camera through, which the M5's \"Dual Ethernet\" models do have. PoE is **passive 24 V, not 802.3af** - plugging it into a standard PoE switch is the classic way to kill one."
+}

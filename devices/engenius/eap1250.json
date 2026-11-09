@@ -1,0 +1,54 @@
+{
+  "vendor": "engenius",
+  "model": "eap1250",
+  "label": "EnGenius EnTurbo EAP1250 (tri-band 11ac Wave 2 indoor AP)",
+  "category": "wireless",
+  "description": "EnGenius EnTurbo EAP1250 tri-band 802.11ac Wave 2 indoor AP: 2.4/5/5 GHz, dual Gigabit Ethernet, 802.3af PoE.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-server",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "400M"
+    },
+    {
+      "name": "radio-5g-low",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "radio-5g-high",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "notes": "Vendor figures from the EnTurbo indoor AP datasheet: **tri-band 802.11ac Wave 2, 2.4/5/5 GHz**, **dual Gigabit Ethernet ports**, **802.3af PoE** for single-cable placement, mesh support. **Two radios on 5 GHz is the point**: it is built to serve dense rooms where one 5 GHz radio is the bottleneck, and the second port lets the AP be daisy-chained rather than home-run. Neither Ethernet port provides PoE *out* - the 802.3af is power *in*."
+}

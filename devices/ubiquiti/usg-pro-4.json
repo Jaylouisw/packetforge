@@ -1,0 +1,95 @@
+{
+  "vendor": "ubiquiti",
+  "model": "usg-pro-4",
+  "label": "Ubiquiti UniFi Security Gateway Pro 4 (USG-PRO-4)",
+  "category": "router",
+  "description": "UniFi Security Gateway Pro: 2x 1G RJ45 LAN and 2x 1G RJ45/SFP combination WAN ports, serial console, 4 Gbps line rate.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "comboWith": "wan1-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "wan1-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "wan1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "comboWith": "wan2-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "wan2-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "wan2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console",
+      "speed": "115.2k"
+    }
+  ],
+  "notes": "Vendor figures: **(2) 10/100/1000 RJ45 LAN ports, (2) 1 Gbps RJ45/SFP combination WAN ports, (1) RJ45 serial console**, 4 Gbps line rate, 2.4 Mpps. Ubiquiti's own footnote on the WAN ports: *\"as a result of being a combination SFP/GigE port\"* - **each WAN cage is either copper or fibre, never both at once**, so **each WAN position is modelled as a combo pair** - `wan1` (RJ45) naming `wan1-sfp` (the optical cage) and back again, the same way the Aruba and Adtran combo ports in this catalogue are declared. Two positions, four port entries. Redundant WAN is the point of the Pro over the base USG.",
+  "role": [
+    "vpn"
+  ]
+}

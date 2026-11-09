@@ -1,0 +1,60 @@
+{
+  "vendor": "ubiquiti",
+  "model": "usg",
+  "label": "Ubiquiti UniFi Security Gateway (USG)",
+  "category": "router",
+  "description": "UniFi Security Gateway: 3x 1G RJ45 data ports (1 WAN + 2 LAN) and a serial console, no PoE, 1 Gbps line rate.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console",
+      "speed": "115.2k"
+    }
+  ],
+  "notes": "Vendor figures from Ubiquiti's own datasheet: **(3) 10/100/1000 RJ45 ports plus (1) RJ45 serial console**, 3 Gbps forwarding, 1.5 Mpps. **Nothing here is PoE and nothing is modular** - the base USG is a fixed 3-port box. The datasheet also states the port split: one WAN, two LAN, which is why a USG in a topology is always the narrowest link in the chain.",
+  "role": [
+    "vpn"
+  ]
+}
