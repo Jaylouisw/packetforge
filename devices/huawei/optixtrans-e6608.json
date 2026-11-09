@@ -1,0 +1,232 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E6608 (6x B1LDCD, DC chassis)",
+  "label": "OptiXtrans E6608 MS-OTN platform, DC chassis, 6x B1LDCD (24x 100GE client, 12x 200G line)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E6608 - 2U MS-OTN platform with OTN, packet and TDM switching in one subrack (800G OTN / 800G OSU / 400G packet cross-connect). Modelled as the DC chassis fully populated with 6x B1LDCD muxponder boards: 24x 100GE client ports and 12x 200G line ports.",
+  "capabilities": [
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "c100g1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line9",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line10",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line11",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line12",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/09b99122e93d41d6b062b43ee09f67f7/M3T1A590N1213159367844884537/OptiXtrans%20E6608%20V100R025C10%20Product%20Brochure%20%20_26H1_.docx",
+  "notes": "Stated configuration, not a fixed chassis figure: the E6608 has 6 service-board slots in the DC chassis and 4 in the AC chassis, so \"6x B1LDCD\" is what the port list means. An AC-powered E6608 holds two fewer boards and is a different box - model it separately rather than reusing this one.\n\nThe cages and the fabric are not the same limit. Six B1LDCD boards present 12 line cages, but the OTN cross-connect is 800 Gbit/s (400G packet, 800G OSU) per subrack, so at most 4x 200G of line capacity - or 8x 100GE of client - can actually be mapped at once. The ports are modelled because they physically exist; the 800G bound is the thing to check before planning a fill, and it is why a fully-loaded E6608 is not a 2.4T box.\n\nLine side is CFP2 in hardware; the simulator has no CFP cage, so 200G line ports use its QSFP56 cage. Order CFP2 optics. Line rates span 1.25G to 400G and the board set includes SFP/eSFP, XFP/TXFP, SFP+/TSFP+, QSFP+, QSFP28 and SFP28 client cages, so a different board mix is a different spec.\n\nNo L2/L3 forwarding: packet switching here is MPLS-TP/pseudowire inside the OTN fabric, so capabilities is cli only - same reading as the Cisco NCS 1004. Protection (client 1+1, ODUk SNCP, LAG/ERPS, SNCP/MSP) and sync (1588v2, G.8275.1) are platform features and are not modelled as port capabilities."
+}
