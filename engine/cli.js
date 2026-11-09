@@ -1230,7 +1230,11 @@ class CliSession {
       // Leaving the sub-mode is the first honest moment to judge the pool.
       const check = dhcpLib.validatePool(dhcpLib.normalizePool(pool));
       if (!check.ok) {
-        for (const e of check.errors) out.push('% ' + e.code + ': ' + e.message);
+        // Phrased as a statement about the pool, not about the command just typed: after `no range` this used
+        // to read like the deletion had been rejected, when it had been carried out and left the pool
+        // incomplete - which is exactly the state the operator asked for.
+        for (const e of check.errors) out.push('% Pool ' + pool.name + ' is incomplete - ' + e.message +
+          ' (' + e.code + ')');
       }
       this.mode = mode;
       this.pool = null;
@@ -1273,12 +1277,70 @@ class CliSession {
       pool.reservations[tokens[2]] = tokens[1];
     } else if (head === 'no') {
       const what = (tokens[1] || '').toLowerCase();
-      if (what === 'default-router') delete pool.gateway;
-      else if (what === 'dns-server') delete pool.dns;
-      else if (what === 'range') { delete pool.rangeStart; delete pool.rangeEnd; }
-      else if (what === 'lease') delete pool.leaseSec;
-      else if (what === 'excluded-address') pool.excluded = [];
-      else if (what === 'pool') {
+      // These used to answer nothing at all - not even "done" - so a `no` that silently did nothing was
+      // indistinguishable from one that worked, and `no network` was missing outright. Each now says what it
+      // removed, or refuses and names what is not there.
+      if (what === 'network') {
+        if (pool.network == null && pool.mask == null) return ['% No network configured in pool ' + pool.name];
+        delete pool.network;
+        delete pool.mask;
+        out.push('Network cleared from pool ' + pool.name);
+      } else if (what === 'default-router') {
+        if (pool.gateway == null) return ['% No default-router in pool ' + pool.name];
+        delete pool.gateway;
+        out.push('Default router cleared from pool ' + pool.name);
+      } else if (what === 'dns-server') {
+        if (pool.dns == null) return ['% No dns-server in pool ' + pool.name];
+        delete pool.dns;
+        out.push('DNS servers cleared from pool ' + pool.name);
+      } else if (what === 'range') {
+        if (pool.rangeStart == null) return ['% No range in pool ' + pool.name];
+        delete pool.rangeStart;
+        delete pool.rangeEnd;
+        out.push('Range cleared from pool ' + pool.name);
+      } else if (what === 'lease') {
+        if (pool.leaseSec == null) return ['% No lease in pool ' + pool.name + ' (the default applies)'];
+        delete pool.leaseSec;
+        out.push('Lease cleared from pool ' + pool.name + ' (the default applies)');
+      } else if (what === 'excluded-address' || (what === 'excluded' && tokens[2] === 'address')) {
+        // Naming one address removes that one; naming none clears the list. Clearing the whole list when one
+        // address was named is how a box quietly starts handing out an address that was reserved for a printer.
+        const from = what === 'excluded' ? 3 : 2;
+        const named = tokens.slice(from).filter(Boolean);
+        const have = Array.isArray(pool.excluded) ? pool.excluded : [];
+        if (!have.length) return ['% No excluded addresses in pool ' + pool.name];
+        if (!named.length) {
+          pool.excluded = [];
+          out.push('All excluded addresses cleared from pool ' + pool.name + ' (' + have.length + ')');
+        } else {
+          const missing = named.filter(function (x) { return have.indexOf(x) === -1; });
+          if (missing.length === named.length) {
+            return ['% Not excluded in pool ' + pool.name + ': ' + named.join(', ')];
+          }
+          pool.excluded = have.filter(function (x) { return named.indexOf(x) === -1; });
+          out.push('Excluded address removed from pool ' + pool.name + ': ' +
+            named.filter(function (x) { return have.indexOf(x) !== -1; }).join(', '));
+        }
+      } else if (what === 'host') {
+        // host <address> [<mac>] - the address may be named alone when only one reservation holds it.
+        // `no host <addr>` and `no host <mac>` are both legal: a MAC address and an IPv4 address are told
+        // apart by shape, so the one-token form is not mistaken for an address it can never match.
+        const looksMac = function (x) { return /:/.test(String(x || '')); };
+        const addr = looksMac(tokens[2]) ? null : tokens[2];
+        const mac = looksMac(tokens[2]) ? tokens[2] : tokens[3];
+        const res = pool.reservations || {};
+        const byMac = Object.keys(res).filter(function (m) {
+          if (mac) return m === mac;
+          return res[m] === addr;
+        });
+        if (!addr && !mac) return ['% Incomplete command: no host <address> [<mac>]'];
+        if (!byMac.length) {
+          return ['% No reservation' + (addr ? ' for ' + addr : '') + ' in pool ' + pool.name];
+        }
+        const gone = byMac.map(function (m) { return res[m] + ' (' + m + ')'; });
+        for (const m of byMac) delete res[m];
+        out.push('Reservation removed from pool ' + pool.name + ': ' + gone.join(', '));
+      } else if (what === 'pool') {
         this.device.config.dhcpPools = pools.filter(function (p) { return p.name !== this.pool; }, this);
         this.mode = MODE_CONFIG;
         this.pool = null;
@@ -1916,6 +1978,53 @@ class CliSession {
     } else if (what === 'running-config' || what === 'run') {
       out.push('! PacketForge running-config');
       out.push('hostname ' + (dev.config.hostname || dev.name));
+      // Five features were configurable, stored, and printed nowhere: a config saved from the device came back
+      // without its routing protocol, its name servers, its AS membership or its IPv6 router-advertisement
+      // policy, and restoring it produced a different device. The test that was supposed to catch this
+      // ("nothing configurable is left out") only ever configured the features it already knew about.
+      //
+      // Each line below is the exact spelling the parser takes back, printed only when it differs from the
+      // default the device already assumes, in an order that replays: the OSPF router exists before the
+      // interface overrides that require it.
+      for (const ns of (dev.config.dnsServers || [])) out.push('ip name-server ' + ns);
+      if (dev.config.scionAs) out.push('scion ' + dev.config.scionAs);
+      // IPv6 is the same hole in the other address family: `ipv6 address`, `ipv6 route` and `ipv6 gateway`
+      // were all accepted, stored in config.ip6/routes6/gateway6, and printed nowhere.
+      if (dev.config.gateway6) out.push('ipv6 gateway ' + dev.config.gateway6);
+      for (const r6 of (dev.config.routes6 || [])) {
+        if (r6 && r6.dest) out.push('ipv6 route ' + r6.dest + '/' + r6.prefix + ' ' + r6.nextHop);
+      }
+      if (dev.config.ospf) {
+        if (dev.config.ospf.routerId) out.push('ospf router-id ' + dev.config.ospf.routerId);
+        if (dev.config.ospf.areaId) out.push('ospf area ' + dev.config.ospf.areaId);
+      }
+      if (dev.config.bgp && dev.config.bgp.as != null) {
+        out.push('router bgp ' + dev.config.bgp.as);
+        if (dev.config.bgp.routerId) out.push('bgp router-id ' + dev.config.bgp.routerId);
+        for (const n of (dev.config.bgp.neighbors || [])) {
+          if (n && n.address && n.remoteAs != null) out.push('neighbor ' + n.address + ' remote-as ' + n.remoteAs);
+        }
+      }
+      {
+        // Router advertisements: only what differs from the defaults the device already assumes, so a
+        // device that never touched `ipv6 nd` prints nothing.
+        const ra = require('./ra');
+        const cfg = dev.config.ra ? ra.normalizeConfig(dev.config.ra) : null;
+        if (cfg && (cfg.enabled || cfg.suppress || cfg.m || cfg.o || cfg.prefixes.length ||
+            cfg.routerLifetime !== ra.DEFAULTS.routerLifetime)) {
+          if (cfg.enabled) out.push('ipv6 nd ra enable');
+          if (cfg.suppress) out.push('ipv6 nd suppress-ra');
+          if (cfg.m) out.push('ipv6 nd ra managed');
+          if (cfg.o) out.push('ipv6 nd ra other-config');
+          if (cfg.routerLifetime !== ra.DEFAULTS.routerLifetime) {
+            out.push('ipv6 nd ra lifetime ' + cfg.routerLifetime);
+          }
+          for (const pref of cfg.prefixes) {
+            out.push('ipv6 nd prefix ' + pref.prefix + '/' + pref.prefixLen +
+              ' valid ' + pref.validLifetime + ' preferred ' + pref.preferredLifetime);
+          }
+        }
+      }
       for (const i of dev.interfaces.values()) {
         out.push('interface ' + i.name);
         if (i.description) out.push('  description ' + i.description);
@@ -1939,6 +2048,21 @@ class CliSession {
               out.push('  switchport mode access');
               out.push('  switchport access vlan ' + av);
             }
+          }
+        }
+        // An IPv6 address lives in config.ip6, not on the interface object, so a printer that walked the
+        // interfaces could not have found it even in principle.
+        const v6a = dev.config.ip6 && dev.config.ip6[i.name];
+        if (v6a && v6a.addr) out.push('  ipv6 address ' + v6a.addr + '/' + v6a.prefix);
+        if (i.autoconfig) out.push('  ipv6 address autoconfig');
+        // Per-interface OSPF overrides - the same hole one level down: `ip ospf cost`, `ip ospf area` and
+        // `ip ospf passive` were stored on the interface and printed nowhere.
+        if (dev.config.ospf && Array.isArray(dev.config.ospf.interfaces)) {
+          const ov = dev.config.ospf.interfaces.filter(function (x) { return x && x.name === i.name; })[0];
+          if (ov) {
+            if (ov.cost != null) out.push('  ip ospf cost ' + ov.cost);
+            if (ov.area != null) out.push('  ip ospf area ' + ov.area);
+            if (ov.passive) out.push('  ip ospf passive');
           }
         }
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;

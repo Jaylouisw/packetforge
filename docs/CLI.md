@@ -71,6 +71,13 @@ takes back.
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
 | routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>` |
+| name servers | `ip name-server <addr>` (one line each) |
+| SCION | `scion <isd-as>` |
+| OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
+| BGP | `router bgp <as>`, `bgp router-id <ip>`, `neighbor <ip> remote-as <as>` |
+| IPv6 addresses | per interface `ipv6 address <prefix>/<len>`, `ipv6 address autoconfig` |
+| IPv6 routing | `ipv6 route <prefix>/<len> <next-hop>`, `ipv6 gateway <addr>` |
+| IPv6 router advertisements | `ipv6 nd ra enable`, `ipv6 nd suppress-ra`, `ipv6 nd ra managed`, `ipv6 nd ra other-config`, `ipv6 nd ra lifetime <s>`, `ipv6 nd prefix <prefix>/<len> valid <s> preferred <s>` |
 
 Two fields are deliberately **not** printed because no command can express them: a DNS zone's
 `defaultTtl` (records inherit it) and a per-record `ttl`. A default value that the device already
@@ -79,6 +86,14 @@ differs, which is the same rule the rest of the config follows.
 
 `test/config-roundtrip.test.js` asserts both halves: the printed config replays into an identical
 config, and no configured value is missing from the text.
+
+That sweep cannot catch a feature *nobody configured in it*: it prints what each device holds and reads it
+back, and a feature that is absent from the device is trivially consistent. Eight of them were absent from the
+printer altogether - BGP, OSPF (global and per interface), SCION, name servers, IPv6 addresses, IPv6 routes
+and gateway, and the IPv6 router-advertisement policy - so a backup of a configured router came back without
+its routing protocol. `test/config-completeness.test.js` closes that hole from the other side: it declares
+**every** key `device.config` can hold, with the pattern the printer must produce for it, so a new piece of
+state that nobody taught the printer to print fails the suite instead of shipping as a silent omission.
 
 ### Undoing a command: every printed line has a `no` form
 
