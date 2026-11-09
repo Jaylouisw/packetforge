@@ -8,7 +8,7 @@ name: Deploy demo
 # the container is recreated in place.
 #
 # The container is bound to 127.0.0.1:8001 and reached through the Cloudflare
-# Tunnel ingress for demo.packetforge.jayw.uk (see the tunnel config on ODIN).
+# Tunnel ingress for packetforge-demo.jayw.uk (see the tunnel config on ODIN).
 # Boards persist in /mnt/user/appdata/packetforge-demo so a redeploy does not
 # wipe the canvas.
 #
