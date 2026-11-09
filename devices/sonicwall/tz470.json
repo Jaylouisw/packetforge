@@ -1,0 +1,90 @@
+{
+  "vendor": "sonicwall",
+  "model": "TZ470",
+  "label": "SonicWall TZ470 firewall",
+  "category": "firewall",
+  "description": "Desktop branch NGFW (Gen 7) with ten interfaces: X0 LAN/management, X1 and X2 WAN, X3-X7 as 10/100/1000BASE-T RJ45, and X8/X9 as SFP/SFP+ cages for 2.5, 5 or 10 GbE optics. 2.5 Gbps threat prevention, 1.5 million connections, RJ45 console.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "X0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "X8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        2500,
+        5000,
+        10000
+      ]
+    },
+    {
+      "name": "X9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        2500,
+        5000,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.sonicwallonline.co.uk/media/downloads/sonicwall-tz-series-gen-7.pdf",
+  "notes": "SonicWall TZ Series (Gen 7) datasheet: '8x1GbE, 2x2.5/5/10GbE', and the TZ470 rear panel labels X0 (LAN/MGMT) and X1/X2 (WAN) as RJ45, X3-X7 as RJ45, X8/X9 as SFP/SFP+. Both SFP+ cages are modelled at 2.5/5/10G rather than as 1G copper because that is what the datasheet sells. 2.5 Gbps max threat prevention, 1.5M max connections, built-in plus expandable storage to 256 GB, optional second PSU; the TZ470W variant adds 802.11ac Wave 2 radios, which this (non-W) model does not have. 10 GbE on copper is not offered on this box - the multi-gig ports are the two SFP+ cages."
+}
