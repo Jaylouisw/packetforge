@@ -19,6 +19,35 @@ When the app is running it adds the parts you cannot reasonably be asked to find
 | Browser | `navigator.userAgent` | canvas and WebSocket bugs are browser-specific |
 | Page | `location.href` | the app has tabs; the tab is often the bug |
 | Catalogue size | the loaded catalogue | "no devices in the palette" means something different at 0 models than at 1,947 |
+| Devices and links on the canvas | the current topology | see below - "my link won't come up" is unanswerable without it |
+
+### What was on screen
+
+The canvas, summarised from the live topology and put in the report under **What was on screen**, in
+a fenced block:
+
+```
+Devices on the canvas (8):
+- cisco/ISR4321 (ISR 4321 Router)
+- generic/generic-pc x2 (PC, PC)
+Links (7):
+- Cloud / Internet:eth0 -- EDGE:Gi0/0/0 1000base-t 1000M
+- EDGE:Gi0/0/1 -- CRS326-24G-2S+IN:eth1 1000base-t 1000M
+- CRS326-24G-2S+IN:SFP+1 -- EdgeSwitch 16:SFP1 1000base-sx 1000M
+Selected: EDGE
+```
+
+Names, not internal ids, because `d4:GE0/0/2` tells a maintainer nothing. The medium and the speed
+are on every link line, because "copper in a fibre port" is the answer to a surprising share of
+link-down reports.
+
+Two caps, both of which **say what they left out**: 12 model lines and 15 links, then
+`... and 18 more model(s)`. A 200-device campus does not belong in an issue URL, and a digest that
+truncates silently is worse than no digest — it describes the wrong half of the lab.
+
+An empty canvas reports `Canvas: no devices.` If the app could not read the topology at all, the
+section says it was **not captured** rather than showing an empty fence, so you can tell the
+difference between "nothing on screen" and "the app was too broken to look".
 
 ### Errors the app caught
 

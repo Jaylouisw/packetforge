@@ -77,9 +77,102 @@
     return out;
   }
 
+  /**
+   * What was on the canvas, in the form a maintainer needs it.
+   *
+   * The second most expensive part of a bug report is the part only the running app knows and the
+   * reporter would have to type out: which devices were on screen and what was cabled to what. "My
+   * link won't come up" costs three round trips to establish that the link is 1000base-t between an
+   * eth0 and a Fa0/1 on a switch that does not have Fa0/1.
+   *
+   * Bounded like the error list: 12 model lines and 15 links, then a count of what was left out.
+   * A 200-device campus in an issue URL is how a report turns into a 414.
+   */
+  const TOPO_MAX_MODELS = 12;
+  const TOPO_MAX_LINKS = 15;
+
+  function describeTopology(topo, opts) {
+    const t = topo || {};
+    const devices = Array.isArray(t.devices) ? t.devices.filter(Boolean) : [];
+    const links = Array.isArray(t.links) ? t.links.filter(Boolean) : [];
+    const out = [];
+
+    if (!devices.length) {
+      // Honest rather than blank: an empty canvas is a fact, and it changes what the bug can be.
+      out.push('Canvas: no devices.');
+      return out;
+    }
+
+    out.push('Devices on the canvas (' + devices.length + '):');
+    const byModel = new Map();
+    for (const d of devices) {
+      const key = or2(d.vendor, '?') + '/' + or2(d.model, d.label || '?');
+      if (!byModel.has(key)) byModel.set(key, { n: 0, labels: [] });
+      const slot = byModel.get(key);
+      slot.n++;
+      const label = or2(d.label, d.name || '');
+      if (label && slot.labels.length < 3) slot.labels.push(label);
+    }
+    let shown = 0;
+    for (const [key, slot] of byModel) {
+      if (shown === TOPO_MAX_MODELS) {
+        out.push('- ... and ' + (byModel.size - shown) + ' more model(s)');
+        break;
+      }
+      out.push('- ' + key + (slot.n > 1 ? ' x' + slot.n : '')
+        + (slot.labels.length ? ' (' + slot.labels.join(', ') + ')' : ''));
+      shown++;
+    }
+
+    // Internal ids ("d4:GE0/0/2") are precise but unreadable; the canvas names are both. Fall back
+    // to the id when a device has no name, which is what a freshly placed device looks like.
+    const nameOf = new Map();
+    for (const d of devices) {
+      if (!d || !d.id) continue;
+      // Names are minted as "<label>-<id>" (PC1-d6). The id is already in the report's own
+      // vocabulary, so the suffix is noise on every line; strip it when it is exactly that.
+      let name = or2(d.name, d.label || '');
+      const suffix = '-' + d.id;
+      if (name.length > suffix.length && name.slice(-suffix.length) === suffix) {
+        name = name.slice(0, -suffix.length);
+      }
+      nameOf.set(d.id, name || d.id);
+    }
+    function side(ref) {
+      const r = ref || {};
+      const who = nameOf.get(r.deviceId) || or2(r.deviceId, '?');
+      return who + ':' + or2(r.iface, '?');
+    }
+
+    if (links.length) {
+      out.push('Links (' + links.length + '):');
+      const cap = Math.min(links.length, TOPO_MAX_LINKS);
+      for (let i = 0; i < cap; i++) {
+        const l = links[i];
+        const a = l.a || {}, b = l.b || {};
+        const speed = l.speedMbps ? ' ' + l.speedMbps + 'M' : '';
+        const media = l.mediaId ? ' ' + l.mediaId : '';
+        out.push('- ' + side(a) + ' -- ' + side(b) + media + speed);
+      }
+      if (links.length > cap) out.push('- ... and ' + (links.length - cap) + ' more link(s)');
+    } else {
+      out.push('Links: none.');
+    }
+
+    const sel = opts && opts.selected;
+    if (sel) {
+      const who = sel.deviceId || sel.id;
+      out.push('Selected: ' + (nameOf.get(who) || or2(who, '?')) + (sel.iface ? ':' + sel.iface : ''));
+    }
+    return out;
+  }
+
   function bugReportBody(env) {
     const e = env || {};
     function or(v) { return (v === undefined || v === null || v === '') ? 'unknown' : String(v); }
+    const topology = Array.isArray(e.topology) && e.topology.length
+      ? e.topology
+      : ['Not captured - the app was not able to read the canvas when the report was made.'];
     return [
       '### What happened',
       '',
@@ -96,6 +189,14 @@
       '<!-- Recorded automatically while the app was running. Paste nothing here. -->',
       ''
     ].concat(describeErrors(e.errors)).concat([
+      '',
+      '### What was on screen',
+      '',
+      '<!-- Recorded automatically from the canvas. Paste nothing here. -->',
+      '',
+      '```'
+    ]).concat(topology).concat([
+      '```',
       '',
       '### Where it happened',
       '',
@@ -126,7 +227,9 @@
       page: (typeof location !== 'undefined' && location && location.href) || '',
       devices: (catalog && catalog.specs && catalog.specs.length) || null,
       // What the app caught, not what the reporter has to remember.
-      errors: recentErrors.slice()
+      errors: recentErrors.slice(),
+      // And what was on the canvas - the half of the picture only this window has.
+      topology: describeTopology(topo, { selected: selectedId ? { deviceId: selectedId } : null })
     };
     try {
       const v = await api('GET', '/version');
@@ -2592,6 +2695,7 @@
     // The report builder is pure, so a test can assert what a report contains
     // without opening a window.
     bugReportBody: bugReportBody,
+    describeTopology: describeTopology,
     bugReportUrl: bugReportUrl,
     recordError: recordError,
     describeErrors: describeErrors,
