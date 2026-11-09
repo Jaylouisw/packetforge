@@ -1846,8 +1846,13 @@
   // port-name order until its budget runs out. ui-render.test.js asserts this
   // agrees with the engine, so the two cannot drift apart silently.
   function poeSummary(d) {
+    // Only a port that is administratively up can power anything: `Simulator.computePoe()` walks
+    // `activeInterfaces()`, so a shut-down PSE port serves no power and is not in its table at all. The panel
+    // walked every port, so a shut-down port was reported as powering a device the engine was not powering -
+    // the panel inventing 12.95 W that was not being drawn. `psePorts` above stays a hardware count (the ports
+    // exist whether or not they are enabled); the power accounting follows the engine.
     const psePorts = d.interfaces
-      .filter(function (i) { return i.poeOut; })
+      .filter(function (i) { return i.poeOut && i.enabled; })
       .map(function (i) { return i.name; })
       .sort();
     if (!d.poeBudget && !psePorts.length) return null;
