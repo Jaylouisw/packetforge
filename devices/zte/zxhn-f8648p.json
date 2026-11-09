@@ -68,5 +68,6 @@
       "speed": "4804M"
     }
   ],
-  "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f8648p0/zxhn-f8648p.html"
+  "sourceUrl": "https://www.zte.com.cn/global/product_index/smart_home_en/ont/zxhn-f8648p0/zxhn-f8648p.html",
+  "notes": "Vendor figures for the ZXHN F8648P: **one XGS-PON WAN (SC/APC), one 10GE LAN, four GE LAN**, two FXS voice ports, concurrent 2.4 GHz 1148 Mbps and 5 GHz 4804 Mbps radios (the AX6000 split). **The voice ports are not modelled** - they are POTS lines, not data interfaces. This entry absorbed a second file for the same box (`f8648p.json`, identical hardware, 5 GHz recorded as 4800 Mbps and the 10G port left without a connector): one product, one file."
 }

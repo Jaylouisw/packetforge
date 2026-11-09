@@ -38,5 +38,6 @@
     }
   ],
   "description": "Huawei WiFi AX2: 3×1G. Wi-Fi 6, 2.4 GHz 300M, 5 GHz 1201M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #160; figures from https://consumer.huawei.com/en/routers/ax2/specs/",
-  "source": "https://consumer.huawei.com/en/routers/ax2/specs/"
+  "source": "https://consumer.huawei.com/en/routers/ax2/specs/",
+  "label": "HUAWEI WiFi AX2"
 }

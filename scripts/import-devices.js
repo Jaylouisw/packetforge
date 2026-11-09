@@ -320,10 +320,24 @@ function main() {
   // and extended with every spec this run accepts, so one batch cannot introduce both
   // spellings either.
   const byNormalisedKey = Object.create(null);
+  // label -> the spec that already carries that product name. A shared label is a shared
+  // product (the NanoStation M3 landed as nbm3.json beside an nsm3.json that already existed,
+  // because a stale research record and the request disagreed about the model string while
+  // both named the same box). Nothing in the catalogue could tell a reader which one to cable,
+  // so a new spec that repeats an existing label is refused and the existing file is named.
+  const byLabel = Object.create(null);
   for (const s of existing) {
     const k = String(s.vendor) + '|' + String(s.model).toLowerCase();
     known[k] = true;
     existingByKey[k] = s;
+    const labelKey = String(s.label || '').trim().toLowerCase();
+    if (labelKey && !byLabel[labelKey]) {
+      byLabel[labelKey] = {
+        vendor: s.vendor,
+        model: s.model,
+        where: existingPathByKey[k] ? path.relative(ROOT, existingPathByKey[k]).replace(/\\/g, '/') : 'the catalogue'
+      };
+    }
     const nk = modelKey(s);
     if (!byNormalisedKey[nk]) {
       byNormalisedKey[nk] = {
@@ -421,6 +435,33 @@ function main() {
         continue;
       }
       byNormalisedKey[nk] = { vendor: spec.vendor, model: spec.model, where: g.file };
+
+      // A repeated product name is a repeated product, whatever the slug says. Refusing here
+      // keeps the catalogue from offering one box twice under two file names - the failure that
+      // put nbm3.json beside nsm3.json and made every later import re-create the twin.
+      const labelKey = String(spec.label || '').trim().toLowerCase();
+      const labelClash = labelKey ? byLabel[labelKey] : null;
+      if (labelClash) {
+        report.rejected.push({
+          file: g.file,
+          vendor: spec.vendor,
+          model: spec.model,
+          errors: ['duplicate product: ' + spec.vendor + '/' + spec.model + ' carries the label "' +
+            String(spec.label).trim() + '", which ' + labelClash.vendor + '/' + labelClash.model +
+            ' already uses in ' + labelClash.where +
+            ' - the label names the product, so correct that spec or rename this one to the model the vendor sells']
+        });
+        report.collisions.push({
+          file: g.file,
+          vendor: spec.vendor,
+          model: spec.model,
+          key: labelKey,
+          collidesWith: labelClash.vendor + '/' + labelClash.model,
+          where: labelClash.where
+        });
+        continue;
+      }
+      if (labelKey) byLabel[labelKey] = { vendor: spec.vendor, model: spec.model, where: g.file };
 
       known[key] = true;   // also guards duplicates inside the incoming batch
       if (v.warnings.length) report.warnings.push({ vendor: spec.vendor, model: spec.model, warnings: v.warnings });

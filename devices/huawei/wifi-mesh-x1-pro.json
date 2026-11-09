@@ -43,5 +43,6 @@
     }
   ],
   "description": "Huawei WiFi Mesh X1 Pro: 4×2.5G. Wi-Fi 7, 2.4 GHz 688M, 5 GHz 2882M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #155; figures from https://consumer.huawei.com/en/routers/x1-pro/specs/",
-  "source": "https://consumer.huawei.com/en/routers/x1-pro/specs/"
+  "source": "https://consumer.huawei.com/en/routers/x1-pro/specs/",
+  "label": "HUAWEI WiFi Mesh X1 Pro"
 }

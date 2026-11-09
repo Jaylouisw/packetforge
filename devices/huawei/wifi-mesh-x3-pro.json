@@ -38,5 +38,6 @@
     }
   ],
   "description": "Huawei WiFi Mesh X3 Pro: 2×2.5G, 1×1G. Wi-Fi 7, 2.4 GHz 688M, 5 GHz 2882M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #142; figures from https://consumer.huawei.com/en/routers/x3-pro/specs/",
-  "source": "https://consumer.huawei.com/en/routers/x3-pro/specs/"
+  "source": "https://consumer.huawei.com/en/routers/x3-pro/specs/",
+  "label": "HUAWEI WiFi Mesh X3 Pro"
 }

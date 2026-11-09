@@ -28,5 +28,6 @@
     }
   ],
   "description": "Huawei 4G CPE 5s: 1×100M. Wi-Fi 5, 2.4 GHz 300M. The 195 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. Single-band 2.4 GHz radio: the spec page lists no 5 GHz rate. Requested in #150; figures from https://consumer.huawei.com/en/routers/4g-cpe-5s/specs/",
-  "source": "https://consumer.huawei.com/en/routers/4g-cpe-5s/specs/"
+  "source": "https://consumer.huawei.com/en/routers/4g-cpe-5s/specs/",
+  "label": "HUAWEI 4G CPE 5s"
 }

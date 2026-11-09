@@ -1,9 +1,9 @@
 {
   "vendor": "ubiquiti",
   "model": "UDR-5G-Max",
-  "label": "UniFi North America",
+  "label": "Ubiquiti UniFi Dream Router 5G Max (UDR-5G-Max)",
   "category": "router",
-  "description": "UniFi North America (UDR-5G-Max) - 4x 2.5G RJ45 (1 PoE) + 1x 10G SFP+ (10G/1G). WiFi 6/7; 34.5 W max.",
+  "description": "Ubiquiti UniFi Dream Router 5G Max (UDR-5G-Max) - 4x 2.5G RJ45 (1 PoE) + 1x 10G SFP+ (10G/1G). WiFi 6/7; 34.5 W max.",
   "capabilities": [
     "l3-forward",
     "cli",

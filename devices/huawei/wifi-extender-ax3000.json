@@ -26,5 +26,6 @@
     }
   ],
   "description": "Huawei WiFi Extender AX3000: 1×1G. Wi-Fi 6, 2.4 GHz 574M, 5 GHz 2402M. Requested in #144; figures from https://consumer.huawei.com/en/routers/extender-ax3000/specs/",
-  "source": "https://consumer.huawei.com/en/routers/extender-ax3000/specs/"
+  "source": "https://consumer.huawei.com/en/routers/extender-ax3000/specs/",
+  "label": "HUAWEI WiFi Extender AX3000"
 }

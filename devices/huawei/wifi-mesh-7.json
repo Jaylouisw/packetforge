@@ -48,5 +48,6 @@
     }
   ],
   "description": "Huawei WiFi Mesh 7: 4×1G. Wi-Fi 7, 2.4 GHz 574M, 5 GHz low 1201M, 5 GHz high 4804M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #143; figures from https://consumer.huawei.com/en/routers/wifi-mesh7/specs/",
-  "source": "https://consumer.huawei.com/en/routers/wifi-mesh7/specs/"
+  "source": "https://consumer.huawei.com/en/routers/wifi-mesh7/specs/",
+  "label": "HUAWEI WiFi Mesh 7"
 }

@@ -27,5 +27,6 @@
     }
   ],
   "description": "Huawei 4G Mobile WiFi 3 (E5785): no wired Ethernet. Wi-Fi 5, 2.4 GHz 300M, 5 GHz 867M. The 150 Mbps cellular uplink is a radio, not a socket - it resolves to the cellular cage and cannot be cabled. Requested in #153; figures from https://consumer.huawei.com/en/routers/4g-mobile-wifi-3-e5785/specs/",
-  "source": "https://consumer.huawei.com/en/routers/4g-mobile-wifi-3-e5785/specs/"
+  "source": "https://consumer.huawei.com/en/routers/4g-mobile-wifi-3-e5785/specs/",
+  "label": "HUAWEI 4G Mobile WiFi 3 (E5785)"
 }

@@ -43,5 +43,6 @@
     }
   ],
   "description": "Huawei WiFi AX3: 4×1G. Wi-Fi 6, 2.4 GHz 574M, 5 GHz 2402M. RJ45 ports are auto-adaptive, so which one is WAN is a configuration choice rather than a hardware one. Requested in #148; figures from https://consumer.huawei.com/en/routers/ax3/specs/",
-  "source": "https://consumer.huawei.com/en/routers/ax3/specs/"
+  "source": "https://consumer.huawei.com/en/routers/ax3/specs/",
+  "label": "HUAWEI WiFi AX3"
 }
