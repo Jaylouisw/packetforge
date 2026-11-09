@@ -214,17 +214,17 @@ palette, fully simulated — no other changes required.
 
 ## What is in the catalogue
 
-**1,874 models across 245 vendors**, and it grows every time somebody's hardware is
+**1,881 models across 245 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |
 |---|---:|---|---|---:|
 | MikroTik | 366 | | router | 303 |
-| Ubiquiti | 348 | | switch | 240 |
+| Ubiquiti | 355 | | switch | 240 |
 | Aruba | 72 | | point-to-point | 197 |
-| Huawei | 64 | | wireless | 209 |
+| Huawei | 64 | | wireless | 211 |
 | Cisco | 48 | | L3 switch | 137 |
-| TP-Link | 52 | | IoT | 124 |
+| TP-Link | 52 | | IoT | 125 |
 
 The authoritative list is not this page — it is the directory. `GET /api/catalog` returns
 every spec the running server has loaded, with the category groupings the palette uses,

@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U5G-Max-Outdoor",
+  "label": "Ubiquiti UniFi 5G Max Outdoor",
+  "category": "modem",
+  "description": "Outdoor 5G NR/LTE modem: one 2.5GbE RJ45 port, PoE input, IPX6 (IP67 with cable-gland door kit).",
+  "capabilities": [
+    "poe-pd",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u5g-max-outdoor",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 2.5 GbE RJ45 port**, **5G NR and LTE** radio, nano-SIM or eSIM, PoE input, **IPX6 - and IP67 only with the cable-gland door kit**, 1.2 kg. The IP rating is conditional: an outdoor install without that door kit is IPX6, which is water jets from any direction but **not** dust-tight immersion protection. Price the kit in with the unit."
+}

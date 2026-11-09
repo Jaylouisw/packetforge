@@ -1,0 +1,30 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UDB-IoT",
+  "label": "Ubiquiti UniFi Device Bridge IoT",
+  "category": "ptp",
+  "description": "Compact IoT wireless bridge: one 10/100M RJ45 port, internal antenna plus RP-SMA for an external omni.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-iot",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 10/100M RJ45 port**, one internal antenna plus RP-SMA for an external omni, channel bandwidth 20/40 MHz, **45 g**. Two limits for an IoT install: the port is **fast Ethernet** so a 100 Mbps ceiling applies to everything bridged, and the radio is 20/40 MHz only - it cannot use an 80 MHz channel, which is the right trade for range but wrong if you expected the Device Bridge's rates."
+}

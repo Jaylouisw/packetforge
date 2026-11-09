@@ -1,0 +1,44 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAP-AC-Mesh-Pro",
+  "label": "Ubiquiti UniFi AC Mesh Pro",
+  "category": "wireless",
+  "description": "Outdoor 802.11ac mesh access point with two GbE RJ45 ports and pole mount.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3af",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "450M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.3G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/uap-ac-mesh-pro",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(2) GbE RJ45 ports**, pole mount 25-63.5 mm, 633 g, channel bandwidth HT 20/40 and VHT 20/40/80 MHz. **The second port is the difference from the AC Mesh**: it lets the AP sit inline on a run and pass traffic through, which is why the Pro exists outdoors where you often have one cable and no switch.",
+  "role": [
+    "mesh"
+  ]
+}

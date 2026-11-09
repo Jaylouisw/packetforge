@@ -5,91 +5,141 @@
   "category": "l3-switch",
   "description": "Layer 3 PoE switch with 12 GbE PoE+ and 4 2.5GbE PoE++ ports plus dual 10G SFP+ uplinks.",
   "capabilities": [
+    "802.3at",
+    "cli",
+    "http-server",
     "l2-forward",
     "l3-forward",
-    "cli",
-    "http-server"
+    "poe-pse"
   ],
   "interfaces": [
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port13",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "port14",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "port15",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "port16",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "sfp1",
@@ -117,5 +167,6 @@
   "poe": {
     "budgetW": 180,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-max-16-poe"
-  }
+  },
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **12x 1 GbE RJ45 (all PoE+), 4x 2.5 GbE RJ45 (all PoE++), 2x 10G SFP+**, **Total PoE availability 180 W**, Layer 3 supported. **All sixteen copper ports carry power** - twelve at PoE+ and four at PoE++ - and 180 W across sixteen powered ports is 11 W average, so two 60 W PoE++ devices already take two thirds of the budget. (This entry previously recorded the ports without PoE and without a connector, which made a PoE switch look like a plain one; corrected against the vendor page.)"
 }
