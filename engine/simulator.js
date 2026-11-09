@@ -1029,6 +1029,15 @@ class Simulator {
       const bi = b.entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
       if (!ai || !bi) continue;
       if (ai.passive || bi.passive) continue;   // passive: no hello, no adjacency (#43)
+      // Hellos cross a wire, so an adjacency needs a wire that can carry them: a pulled cable, a link that is
+      // down, or a shut far port forms no neighbour. This asked `enabled` (via `ifaces` above) and nothing
+      // else, so two routers went on being adjacent across an unplugged cable and `show ip route` went on
+      // offering an `O` route whose next hop answered nothing (#1271). BGP had the same defect (#1269).
+      const aIf = a.dev.interfaces.get(l.a.iface);
+      const bIf = b.dev.interfaces.get(l.b.iface);
+      if (!aIf || !bIf) continue;
+      if (a.dev.ifaceStatus(aIf, this.topo).status !== 'up') continue;
+      if (b.dev.ifaceStatus(bIf, this.topo).status !== 'up') continue;
       // Both ends of a broadcast link must address the same subnet with the same
       // mask. Without this the adjacency forms on the strength of a cable alone,
       // and the route installed behind it points at a next hop that is on no

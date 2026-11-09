@@ -353,6 +353,24 @@ member of a two-member bundle does not cost you half your flows while the other 
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
 
+### Reading `show ip route` when a path is not there
+
+An installed route can still lead nowhere. When its egress port cannot carry a frame, the row says so, in the
+same words the other tables use:
+
+```
+C   10.0.0.0       /24  is directly connected, Gi0  (down: link down)
+S  172.20.0.0     /16  [1/0] via 10.0.0.1  (down: link down)
+```
+
+A connected route or a static route stays listed when its port goes down — they are configuration, not
+learned facts — but a row that reads as a working path while every packet to it is dropped is the defect. The
+mark comes from the same helper `show arp` and `show mac address-table` use for the same port.
+
+Learned routes behave differently, on purpose: an OSPF or BGP route whose session or adjacency is gone is
+**withdrawn**, because the protocol would withdraw it. A router does not keep advertising a path it learned
+over a cable that has been pulled.
+
 ### Reading `show ip bgp`
 
 ```
