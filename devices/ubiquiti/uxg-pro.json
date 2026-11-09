@@ -1,0 +1,63 @@
+{
+  "vendor": "ubiquiti",
+  "model": "uxg-pro",
+  "label": "Ubiquiti UniFi Gateway Pro (UXG-Pro)",
+  "category": "router",
+  "description": "UniFi Gateway Pro: 2x 10G SFP+ and 2x 1G RJ45 (one WAN, one LAN of each), 3.5+ Gbps routing with IDS/IPS, 1U rack, DC backup.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "rj45-wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "rj45-lan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the store specification: **\"(1) 10G SFP+ and (1) GbE WAN port, (1) 10G SFP+ and (1) GbE LAN port\"**, **maximum WAN port count 3**, **3.5+ Gbps routing with IDS/IPS enabled**, 1U rack with DC power backup. **Four ports total on a 1U gateway** - two of them 10G cages - so the default layout is one 10G and one 1G per side, and reaching three WANs means reassigning the LAN cage. That is a reassignment, not a fifth port.",
+  "role": [
+    "vpn"
+  ]
+}

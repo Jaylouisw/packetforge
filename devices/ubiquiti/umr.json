@@ -1,0 +1,52 @@
+{
+  "vendor": "ubiquiti",
+  "model": "umr",
+  "label": "Ubiquiti UniFi Mobile Router (UMR)",
+  "category": "router",
+  "description": "UniFi Mobile Router: 2x 1G RJ45, LTE Cat 4 (150/50 Mbps), WiFi 4, PoE+ input with 10 W PoE passthrough, DIN/wall mount.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "rj45-1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": true
+    },
+    {
+      "name": "rj45-2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "notes": "Vendor figures: **(2) GbE RJ45 ports**, **LTE Cat 4** (150 Mbps down / 50 Mbps up), WiFi 4 1x1, 9 W, PoE+ (48-54 V) or USB-C or 4-pin ATX DC. The PoE row is the interesting one: **(1) PoE input and (1) PoE output, max 10 W, which requires a PoE+ switch** - so it can be powered by the switch it sits on *and* pass power through to one downstream device, but only when the upstream is PoE+ rather than plain 802.3af.",
+  "role": [
+    "vpn"
+  ]
+}

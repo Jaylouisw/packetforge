@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "uap-beaconhd",
+  "label": "Ubiquiti UniFi BeaconHD (UAP-BeaconHD)",
+  "category": "wireless",
+  "description": "UniFi BeaconHD mesh AP: 5 GHz 4x4 1.7 Gbps and 2.4 GHz 2x2 300 Mbps, AC wall-plug powered, Bluetooth management, no Ethernet ports.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "radio-5g",
+      "type": "wireless",
+      "speed": "1700M"
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "notes": "Vendor figures from the UniFi BeaconHD techspecs page: 5 GHz **4x4 1.7 Gbps**, 2.4 GHz **2x2 300 Mbps**, max 11.5 W, **universal AC input 100-240 V** - it plugs into a wall socket. **There is no Ethernet port at all**, and the management row lists **Bluetooth** only: it is a pure mesh node, so it cannot be wired, cannot be PoE-powered and cannot be provisioned over the network. In a topology it is reachable only through the wireless mesh and whatever the radio carries."
+}

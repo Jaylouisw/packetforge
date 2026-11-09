@@ -1,0 +1,183 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "uap-beaconhd",
+    "label": "Ubiquiti UniFi BeaconHD (UAP-BeaconHD)",
+    "category": "wireless",
+    "description": "UniFi BeaconHD mesh AP: 5 GHz 4x4 1.7 Gbps and 2.4 GHz 2x2 300 Mbps, AC wall-plug powered, Bluetooth management, no Ethernet ports.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "radio-5g",
+        "type": "wireless",
+        "speed": "1700M"
+      },
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "notes": "Vendor figures from the UniFi BeaconHD techspecs page: 5 GHz **4x4 1.7 Gbps**, 2.4 GHz **2x2 300 Mbps**, max 11.5 W, **universal AC input 100-240 V** - it plugs into a wall socket. **There is no Ethernet port at all**, and the management row lists **Bluetooth** only: it is a pure mesh node, so it cannot be wired, cannot be PoE-powered and cannot be provisioned over the network. In a topology it is reachable only through the wireless mesh and whatever the radio carries."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "umr",
+    "label": "Ubiquiti UniFi Mobile Router (UMR)",
+    "category": "router",
+    "description": "UniFi Mobile Router: 2x 1G RJ45, LTE Cat 4 (150/50 Mbps), WiFi 4, PoE+ input with 10 W PoE passthrough, DIN/wall mount.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "wireless",
+      "vpn",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "rj45-1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeIn": true
+      },
+      {
+        "name": "rj45-2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "notes": "Vendor figures: **(2) GbE RJ45 ports**, **LTE Cat 4** (150 Mbps down / 50 Mbps up), WiFi 4 1x1, 9 W, PoE+ (48-54 V) or USB-C or 4-pin ATX DC. The PoE row is the interesting one: **(1) PoE input and (1) PoE output, max 10 W, which requires a PoE+ switch** - so it can be powered by the switch it sits on *and* pass power through to one downstream device, but only when the upstream is PoE+ rather than plain 802.3af."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "umr-ultra",
+    "label": "Ubiquiti UniFi Mobile Router Ultra (UMR-Ultra)",
+    "category": "router",
+    "description": "UniFi Mobile Router Ultra: 2x 100M RJ45, LTE Cat 4, WiFi 4, USB-C or 9-30 V DC, DIN/wall mount, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "wireless",
+      "vpn",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "rj45-1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ]
+      },
+      {
+        "name": "rj45-2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ]
+      },
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "notes": "Vendor figures: **(2) FE RJ45 ports** - fast ethernet - **LTE Cat 4**, WiFi 4 1x1, **5.7 W**, USB-C 5 V/2 A or **9-30 V DC** on a 4-pin ATX header, **-30 to 70 C** operating. **The \"Ultra\" is the lesser unit**: against the UMR it drops both ports from gigabit to 100M, loses PoE entirely, and gives up LTE band coverage - in exchange for a wider DC input range, a wider temperature range and one third less power. The name does not rank the hardware."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "uxg-pro",
+    "label": "Ubiquiti UniFi Gateway Pro (UXG-Pro)",
+    "category": "router",
+    "description": "UniFi Gateway Pro: 2x 10G SFP+ and 2x 1G RJ45 (one WAN, one LAN of each), 3.5+ Gbps routing with IDS/IPS, 1U rack, DC backup.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "vpn",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "rj45-wan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "rj45-lan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the store specification: **\"(1) 10G SFP+ and (1) GbE WAN port, (1) 10G SFP+ and (1) GbE LAN port\"**, **maximum WAN port count 3**, **3.5+ Gbps routing with IDS/IPS enabled**, 1U rack with DC power backup. **Four ports total on a 1U gateway** - two of them 10G cages - so the default layout is one 10G and one 1G per side, and reaching three WANs means reassigning the LAN cage. That is a reassignment, not a fifth port."
+  }
+]

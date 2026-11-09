@@ -1,0 +1,47 @@
+{
+  "vendor": "ubiquiti",
+  "model": "umr-ultra",
+  "label": "Ubiquiti UniFi Mobile Router Ultra (UMR-Ultra)",
+  "category": "router",
+  "description": "UniFi Mobile Router Ultra: 2x 100M RJ45, LTE Cat 4, WiFi 4, USB-C or 9-30 V DC, DIN/wall mount, no PoE.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "rj45-1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ]
+    },
+    {
+      "name": "rj45-2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ]
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "notes": "Vendor figures: **(2) FE RJ45 ports** - fast ethernet - **LTE Cat 4**, WiFi 4 1x1, **5.7 W**, USB-C 5 V/2 A or **9-30 V DC** on a 4-pin ATX header, **-30 to 70 C** operating. **The \"Ultra\" is the lesser unit**: against the UMR it drops both ports from gigabit to 100M, loses PoE entirely, and gives up LTE band coverage - in exchange for a wider DC input range, a wider temperature range and one third less power. The name does not rank the hardware.",
+  "role": [
+    "vpn"
+  ]
+}
