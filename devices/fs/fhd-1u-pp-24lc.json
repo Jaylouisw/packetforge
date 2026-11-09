@@ -27,5 +27,6 @@
     ]
   },
   "interfaces": [],
-  "sourceUrl": "https://www.fs.com/products/35488.html"
+  "sourceUrl": "https://www.fs.com/products/35488.html",
+  "notes": "1U 19-inch FHD enclosure with a 12 x LC/UPC duplex adapter panel = 24 fibres. Passive: <=0.2 dB insertion loss per mated LC/UPC pair (0.1 dB typical), >=50 dB return loss, ceramic split sleeves, four panels fit one FHD enclosure for 96 fibres. Modelled with 'pairPrefix: rear', so each front fibre port is joined to its rear partner and a run can cross the ODF (host -> port N -> rear N -> host) instead of terminating on it; without the pairing this device was a dead end that looked cabled. Not an optical amplifier and not a splitter - a mated pair is one junction, so it adds loss and nothing else."
 }
