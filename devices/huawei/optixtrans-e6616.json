@@ -524,5 +524,10 @@
     "excludes": [
       "line*"
     ]
-  }
+  },
+  "aliases": [
+    "E6616",
+    "OptiXtrans E6616",
+    "B1LDCD"
+  ]
 }

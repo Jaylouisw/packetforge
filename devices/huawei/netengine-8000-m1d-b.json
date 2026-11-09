@@ -163,5 +163,9 @@
     "capacityMbps": 368000,
     "kind": "switching capacity",
     "note": "368 Gbit/s switching capacity - the figure that makes its 50GE uplinks useful rather than decorative."
-  }
+  },
+  "aliases": [
+    "M1D-B",
+    "NE8000 M1D-B"
+  ]
 }
