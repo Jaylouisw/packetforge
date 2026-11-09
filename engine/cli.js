@@ -131,6 +131,9 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'access-list') {
       const n = tokens[2];
       if (this.device.config.acls) delete this.device.config.acls[n];
+      // A removed list takes its counters with it: leaving them behind would report traffic against a rule
+      // that no longer exists, the moment a list of the same number is written again.
+      if (this.device.aclHits) delete this.device.aclHits[String(n)];
       const binds = this.device.aclBindings || {};
       for (const k of Object.keys(binds)) {
         if (String(binds[k].in) === String(n)) delete binds[k].in;
@@ -1543,12 +1546,33 @@ class CliSession {
       const ids = Object.keys(acls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
       if (!ids.length) out.push('% No access lists configured');
       const binds = dev.aclBindings || {};
+      const hits = dev.aclHits;
       for (const id of ids) {
         const kind = aclLib.aclKind(parseInt(id, 10));
         out.push((kind === 'standard' ? 'Standard' : 'Extended') + ' IP access list ' + id);
+        const tally = hits ? hits[String(id)] : null;
         let n = 1;
         for (const e of acls[id]) {
-          out.push('  ' + (n++) + ' ' + (e.line || (e.action + ' ' + (e.protocol || 'ip'))));
+          // Which line is doing the denying is the question this table is opened for. A rule that matched
+          // nothing says nothing - printing "(0 matches)" beside every line of a twenty-line ACL is noise,
+          // and the absence of a count is the same statement.
+          const ruleText = e.line || (e.action + ' ' + (e.protocol || 'ip'));
+          const count = tally && tally.entries[ruleText] ? tally.entries[ruleText] : 0;
+          out.push('  ' + (n++) + ' ' + ruleText +
+            (count ? ' (' + count + (count === 1 ? ' match' : ' matches') + ')' : ''));
+        }
+        if (tally && tally.implicit) {
+          // The implicit deny exists whether or not anyone wrote it, and it is what drops the traffic that
+          // matched nothing. Real gear prints it once it has fired.
+          out.push('  (implicit deny all: ' + tally.implicit +
+            (tally.implicit === 1 ? ' match' : ' matches') + ')');
+        }
+        if (!tally) {
+          // "Nothing matched" and "nothing has looked" are different answers (#1252) - and "no run" is
+          // different again from "a run, but no packet came through here".
+          out.push(this.sim
+            ? '  counters: no packet has been tested against this list'
+            : '  counters: not measured (no simulation run)');
         }
         for (const k of Object.keys(binds)) {
           if (String(binds[k].in) === String(id)) out.push('    applied IN on ' + k);

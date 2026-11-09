@@ -2268,7 +2268,40 @@ class Simulator {
     };
     const verdict = aclLib.evaluate(list, pkt);
     verdict.acl = bind[dir];
+    // Every evaluation is tallied here, in the one place the console's `show access-lists` asks. Both
+    // directions and every rule pass through this funnel, so a permit is counted as well as a deny and a
+    // call site added later is counted by construction - the same discipline `_emit()` uses for drops.
+    this._countAclHit(dev, bind[dir], verdict, list);
     return verdict;
+  }
+
+  // Per-rule match counters, so `show access-lists` can say which line is doing the denying.
+  //
+  // The information was already here and thrown away: `aclLib.evaluate()` returns `matchedIndex`, and the
+  // only consumer was a yes/no. So a table that listed rules reported nothing about them, while
+  // `show interfaces` said "2 drops (ACL 101 denied (in) x2)" - an operator could see that an ACL was
+  // denying and not which line, which is the whole question (#1267).
+  _countAclHit(dev, aclId, verdict, list) {
+    if (!dev || aclId === null || aclId === undefined) return;
+    if (!dev.aclHits) dev.aclHits = {};
+    const key = String(aclId);
+    if (!dev.aclHits[key]) dev.aclHits[key] = { entries: {}, implicit: 0, total: 0, permitted: 0, denied: 0 };
+    const tally = dev.aclHits[key];
+    tally.total++;
+    if (verdict.action === 'deny') tally.denied++; else tally.permitted++;
+    if (verdict.implicit || verdict.matchedIndex === null || verdict.matchedIndex === undefined) {
+      // The implicit deny is a real rule that really drops frames; counting it as "no match" would hide
+      // the traffic that was thrown away for not matching anything at all.
+      tally.implicit++;
+      return;
+    }
+    // Keyed by the rule's own text, not by its position. An index key meant that editing a list credited the
+    // old rule's traffic to whichever rule now sat at that index - a table confidently reporting that a rule
+    // which has never seen a packet denied forty of them (#1267).
+    const entry = list ? list[verdict.matchedIndex] : null;
+    const ruleKey = entry ? String(entry.line || (entry.action + ' ' + (entry.protocol || 'ip')))
+      : String(verdict.matchedIndex);
+    tally.entries[ruleKey] = (tally.entries[ruleKey] || 0) + 1;
   }
 
   // ---------------------------------------------------------------------

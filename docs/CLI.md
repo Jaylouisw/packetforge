@@ -28,6 +28,7 @@ Modes and their prompts:
 | `show spanning-tree` | per-port STP role and state, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
+| `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -350,6 +351,32 @@ The data plane uses the same rule: **the hash is taken over the members that can
 member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
+
+### Reading `show access-lists`
+
+```
+Extended IP access list 101
+  1 deny icmp any any (5 matches)
+  2 permit ip any any
+    applied IN on Gi0
+```
+
+Each rule carries how many packets it has matched, counted at the one place every frame is tested, so
+permits are counted as well as denies. A rule that has matched nothing prints **no count at all** — saying
+"0 matches" on every line of a twenty-line list is noise, and the absence of a number is the same statement.
+
+`(implicit deny all: N matches)` appears once the implicit deny has actually dropped something. It is a real
+rule even though nobody wrote it, and it is what throws away the traffic that matched nothing.
+
+Counters are keyed by the rule's own text, so rewriting a list does not re-attribute old traffic to a new
+rule that happens to sit at the same position. `no access-list <id>` deletes the counters with the list.
+
+The number here and the `drops (ACL 101 denied (in) x5)` figure on `show interfaces` describe the same
+packets; they are read together when working out why something is not getting through.
+
+With no simulation run the table prints `counters: not measured (no simulation run)`; with a run but no
+traffic through the list, `counters: no packet has been tested against this list`. Those are different
+answers and neither of them is "zero".
 
 ### Reading `show lldp`
 
