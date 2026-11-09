@@ -158,13 +158,26 @@ function effectiveInterfaces(spec) {
     const count = (t.count === undefined || t.count === null) ? 1 : t.count;
     const type = t.type || 'ethernet';
     const speed = t.speed || '1G';
+    // Kept in step with expandInterfaces() in engine/topology.js: a feed-through
+    // panel declares the far side of each port, and template-expansion.test.js
+    // fails if these two expanders ever disagree.
+    const pairPrefix = t.pairPrefix || null;
     // carry explicit hardware hints onto every generated port
     const extra = {};
     for (const k of ['cage', 'connector', 'media', 'supportedMedia', 'speedCaps', 'poeOut', 'poeIn', 'hardware']) {
       if (t[k] !== undefined) extra[k] = t[k];
     }
     for (let i = 0; i < count; i++) {
-      out.push(Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra));
+      const port = Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra);
+      if (pairPrefix) port.pair = pairPrefix + (start + i);
+      out.push(port);
+    }
+    if (pairPrefix) {
+      for (let i = 0; i < count; i++) {
+        const port = Object.assign({ name: pairPrefix + (start + i), type: type, speed: speed }, extra);
+        port.pair = prefix + (start + i);
+        out.push(port);
+      }
     }
   }
   if (Array.isArray(s.interfaces)) {
