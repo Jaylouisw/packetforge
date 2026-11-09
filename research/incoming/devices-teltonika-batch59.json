@@ -1,0 +1,289 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "OTD140",
+    "label": "Teltonika OTD140",
+    "category": "router",
+    "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, PoE in on one and PoE out on the other.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/otd140/",
+    "notes": "Vendor figures from the OTD140 datasheet: **2x ETH ports (can be configured as WAN), 10/100 Mbps**, and the power rows read **PoE ports 1 x PoE In**, **PoE standards 802.3af/at**, with a PoE out section on the second port. So the box can be powered by the cable it also passes power through - and **both copper ports are fast Ethernet**, which is the smallest number in an outdoor cellular deployment that otherwise looks modern."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "EBG140",
+    "label": "Teltonika OXA EBG140",
+    "category": "router",
+    "description": "Embedded IoT gateway: 1x 1 GbE port, LTE Cat 4.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/ebg140/",
+    "notes": "Vendor figures from the EBG140 (OXA) datasheet: **1 x ETH port, 10/100/1000 Mbps** and an LTE Cat 4 modem. **A single gigabit port** - this is an embedded gateway meant to be built into someone else's enclosure, so its Ethernet is a connection, not a switch."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT276",
+    "label": "Teltonika RUT276 (RedCap 5G)",
+    "category": "router",
+    "description": "Compact 5G RedCap router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, PoE in and out.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut276/",
+    "notes": "Vendor figures from the RUT276 datasheet: **1x WAN port 10/100 Mbps** and **1x LAN port, 10/100 Mbps**, with a 5G RedCap modem and PoE on the LAN side. Two ports, both fast Ethernet - the compact RedCap line trades copper speed for size, and the PoE output is what makes a second port unnecessary."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT360",
+    "label": "Teltonika RUT360",
+    "category": "router",
+    "description": "Industrial 4G Cat 6 router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut360/",
+    "notes": "Vendor figures from the RUT360 datasheet: **2 x 10/100 Mbps Ethernet ports** (one WAN, one LAN) with an LTE Cat 6 modem and Wi-Fi. **Cat 6 cellular behind fast Ethernet** - the radio can outrun the ports, so on a good cell the LAN side is the limit."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT951-POE+",
+    "label": "Teltonika RUT951 PoE+",
+    "category": "router",
+    "description": "Industrial PoE+ router: 1x 100 Mbps WAN (PSE out), 3x 100 Mbps LAN, one PD in and two PSE out, 90 W budget.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut951/",
+    "notes": "Vendor figures from the RUT951 PoE+ datasheet: **1x WAN port 10/100 Mbps** and **3x LAN ports, 10/100 Mbps**. Power: **LAN1 is an 802.3af/at PD input**, **LAN2, LAN3 and WAN are 802.3af/at PSE outputs**, **30 W max per port** and a **90 W budget**. Two things stand out - the **WAN port can source power**, which is unusual, and the whole power budget sits behind four fast-Ethernet ports."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TCR100",
+    "label": "Teltonika TCR100 (discontinued)",
+    "category": "router",
+    "description": "4G Cat 6 home router, discontinued: 1x 100 Mbps WAN, 1x 100 Mbps LAN, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/tcr100/",
+    "notes": "Vendor figures from the TCR100 datasheet: **1 x WAN port 10/100 Mbps** with a LAN port and Wi-Fi, LTE Cat 6. Recorded because units are still in service and still turn up in second-hand stock, **not because it is current** - Teltonika has discontinued it, so treat replacement parts as the real constraint."
+  }
+]

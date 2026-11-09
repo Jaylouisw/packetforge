@@ -123,7 +123,12 @@ t('no device promises more ports of a kind than it has', () => {
 
 t('a device described as PoE-powered does not source power', () => {
   const POE_IN = /poe[\s-]?in/i;
-  const POE_OUT = /poe[\s-]?out|passthrough|passes? it through|\d+\s*poe\+|poe\s*\/\s*poe+|\(\s*\d+\s*poe/i;
+  // "PoE out", "PoE+ output", "PoE passthrough" - and the looser "PoE in on the WAN port and
+  // PoE out on the LAN port", which describes the same two-direction box in a sentence
+  // rather than in two adjacent words. Without the last alternative a device that genuinely
+  // sinks power on one port and sources it on another trips the rule below, which is about
+  // descriptions that claim *only* to be powered.
+  const POE_OUT = /poe[\s-]?out|passthrough|passes? it through|\d+\s*poe\+|poe\s*\/\s*poe+|\(\s*\d+\s*poe|poe[^.\n]{0,30}\bout\b/i;
   const bad = [];
   for (const { spec, ifaces } of all) {
     const desc = String(spec.description || '');

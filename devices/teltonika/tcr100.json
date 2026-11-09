@@ -1,0 +1,43 @@
+{
+  "vendor": "teltonika",
+  "model": "TCR100",
+  "label": "Teltonika TCR100 (discontinued)",
+  "category": "router",
+  "description": "4G Cat 6 home router, discontinued: 1x 100 Mbps WAN, 1x 100 Mbps LAN, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/tcr100/",
+  "notes": "Vendor figures from the TCR100 datasheet: **1 x WAN port 10/100 Mbps** with a LAN port and Wi-Fi, LTE Cat 6. Recorded because units are still in service and still turn up in second-hand stock, **not because it is current** - Teltonika has discontinued it, so treat replacement parts as the real constraint."
+}

@@ -1,0 +1,66 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT951-POE+",
+  "label": "Teltonika RUT951 PoE+",
+  "category": "router",
+  "description": "Industrial PoE+ router: 1x 100 Mbps WAN (PSE out), 3x 100 Mbps LAN, one PD in and two PSE out, 90 W budget.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut951/",
+  "notes": "Vendor figures from the RUT951 PoE+ datasheet: **1x WAN port 10/100 Mbps** and **3x LAN ports, 10/100 Mbps**. Power: **LAN1 is an 802.3af/at PD input**, **LAN2, LAN3 and WAN are 802.3af/at PSE outputs**, **30 W max per port** and a **90 W budget**. Two things stand out - the **WAN port can source power**, which is unusual, and the whole power budget sits behind four fast-Ethernet ports."
+}

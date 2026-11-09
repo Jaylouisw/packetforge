@@ -1,0 +1,43 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT360",
+  "label": "Teltonika RUT360",
+  "category": "router",
+  "description": "Industrial 4G Cat 6 router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut360/",
+  "notes": "Vendor figures from the RUT360 datasheet: **2 x 10/100 Mbps Ethernet ports** (one WAN, one LAN) with an LTE Cat 6 modem and Wi-Fi. **Cat 6 cellular behind fast Ethernet** - the radio can outrun the ports, so on a good cell the LAN side is the limit."
+}

@@ -1,0 +1,32 @@
+{
+  "vendor": "teltonika",
+  "model": "EBG140",
+  "label": "Teltonika OXA EBG140",
+  "category": "router",
+  "description": "Embedded IoT gateway: 1x 1 GbE port, LTE Cat 4.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/ebg140/",
+  "notes": "Vendor figures from the EBG140 (OXA) datasheet: **1 x ETH port, 10/100/1000 Mbps** and an LTE Cat 4 modem. **A single gigabit port** - this is an embedded gateway meant to be built into someone else's enclosure, so its Ethernet is a connection, not a switch."
+}

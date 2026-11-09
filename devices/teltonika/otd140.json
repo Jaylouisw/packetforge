@@ -1,0 +1,50 @@
+{
+  "vendor": "teltonika",
+  "model": "OTD140",
+  "label": "Teltonika OTD140",
+  "category": "router",
+  "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, PoE in on one and PoE out on the other.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/otd140/",
+  "notes": "Vendor figures from the OTD140 datasheet: **2x ETH ports (can be configured as WAN), 10/100 Mbps**, and the power rows read **PoE ports 1 x PoE In**, **PoE standards 802.3af/at**, with a PoE out section on the second port. So the box can be powered by the cable it also passes power through - and **both copper ports are fast Ethernet**, which is the smallest number in an outdoor cellular deployment that otherwise looks modern."
+}
