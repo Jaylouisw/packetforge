@@ -193,7 +193,7 @@ console.log('\nScenario E: switchport CLI');
   ok(/outside 1-4094/.test(bad), 'CLI: out-of-range VLAN is rejected');
 
   const showVlan = runCommands(sw, t, sim, ['show vlan brief']).lines.join('\n');
-  ok(/VLAN Name/.test(showVlan) && /Fa0\/1/.test(showVlan), 'CLI: show vlan brief lists member ports');
+  ok(/VLAN\s+Name/.test(showVlan) && /Fa0\/1/.test(showVlan), 'CLI: show vlan brief lists member ports');
 
   const showStp = runCommands(sw, t, sim, ['show spanning-tree']).lines.join('\n');
   ok(/Spanning tree enabled/.test(showStp), 'CLI: show spanning-tree runs');

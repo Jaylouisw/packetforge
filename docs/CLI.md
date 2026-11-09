@@ -24,6 +24,8 @@ Modes and their prompts:
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with stale entries marked |
+| `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
+| `show spanning-tree` | per-port STP role and state, or "not measured" when nothing has run |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -290,6 +292,44 @@ half against a full-duplex peer and it fires, naming both ends.
 Two ends forced to rates with nothing in common do **not** silently work: the link has no line rate to run
 at, it comes down, `show interfaces` says `link: down (no common rate with the peer)`, and frames across it
 are counted as dropped with that reason.
+
+### Reading `show vlan`
+
+```
+VLAN    Name                             Status    Ports
+1       default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
+20      twenty                           active    Fa0/1, Fa0/2, Fa0/3
+30      thirty                           active    Fa0/2, Fa0/3
+```
+
+One row per VLAN, in VLAN order. **Membership is decided by the same rule the switch forwards by** — a port
+appears under a VLAN if and only if a frame in that VLAN could leave by it:
+
+* an access port appears in its access VLAN and in no other;
+* a trunk appears in every VLAN its allowed list names — **and not in VLAN 1 unless VLAN 1 is allowed**. A
+  trunk whose allowed list is `20,30` is not "in VLAN 1" because it is a trunk; that belief is how people
+  chase a native-VLAN mismatch that the table was previously hiding;
+* a trunk with `allowedVlan all` appears in every row.
+
+A VLAN exists in this table if it is configured with `vlan <id> [name]`, or if a port uses it. A configured
+VLAN nothing carries prints an empty Ports column rather than an invented port.
+
+`show vlan brief` prints the same table; there is no short form that disagrees with the long one.
+
+### Reading `show spanning-tree`
+
+```
+Spanning tree enabled protocol ieee
+Port          Role          State
+Fa0/1         designated    forwarding
+Fa0/2         root          blocking   (traffic dropped)
+```
+
+With **no simulation run** behind the device the command says
+`Not measured (no simulation run): nothing has computed the spanning tree` — the same distinction
+`show interfaces` makes for its counters. "No ports are bridging" is a claim about the lab; "nothing has
+looked" is a claim about this session, and printing the first when the second is true is how a lab gets
+declared loop-free before anyone has looked at it.
 
 ### Reading `show arp`
 
