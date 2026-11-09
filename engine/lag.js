@@ -13,6 +13,41 @@
 // same member, which is what makes flows stable across calls and across runs.
 
 const LAG_MODES = ['lacp-active', 'lacp-passive', 'static'];
+
+// Two vocabularies for one fact. The console says `channel-group 1 mode active|passive|on`, the way IOS does;
+// the model says `lacp-active|lacp-passive|static`, the way the rest of the engine reads it. They were never
+// translated, so every correct `channel-group` line stored the console's word and then validated it against
+// the model's list:
+//
+//   Interface Fa0/1 added to channel group 1 (mode active)
+//   % Warning: LAG lag1: unknown mode "active" (expected one of lacp-active, lacp-passive, static).
+//
+// - a warning on every correct command, and the mode left as a string nothing downstream recognised.
+// One table, both directions, so the two cannot drift apart again.
+const MODE_ALIASES = {
+  active: 'lacp-active',
+  'lacp-active': 'lacp-active',
+  passive: 'lacp-passive',
+  'lacp-passive': 'lacp-passive',
+  on: 'static',
+  static: 'static'
+};
+
+// What the operator typed (or a saved lab holds) -> what the model stores.
+function canonicalMode(mode) {
+  const raw = String(mode == null ? '' : mode).trim().toLowerCase();
+  if (!raw) return DEFAULT_MODE;
+  return MODE_ALIASES[raw] || raw;    // unknown words survive, so validation can name them
+}
+
+// What the model stores -> what the console prints.
+function cliMode(mode) {
+  const canonical = canonicalMode(mode);
+  if (canonical === 'lacp-active') return 'active';
+  if (canonical === 'lacp-passive') return 'passive';
+  if (canonical === 'static') return 'on';
+  return canonical;
+}
 const HASH_POLICIES = ['l2', 'l3', 'l3l4'];
 
 const DEFAULT_LAG_ID = 'lag1';
@@ -35,9 +70,9 @@ function normalizeLag(cfg) {
 
   const id = (typeof c.id === 'string' && c.id.trim()) ? c.id.trim() : DEFAULT_LAG_ID;
 
-  const mode = (typeof c.mode === 'string' && c.mode.trim())
-    ? c.mode.trim().toLowerCase()
-    : DEFAULT_MODE;
+  // Canonicalised on the way in, so a lab saved by an older build (holding "active") normalises to the same
+  // state as one configured today.
+  const mode = canonicalMode(c.mode);
 
   const hashPolicy = (typeof c.hashPolicy === 'string' && c.hashPolicy.trim())
     ? c.hashPolicy.trim().toLowerCase()
@@ -321,6 +356,9 @@ function validateLag(lag, memberPorts) {
 
 module.exports = {
   LAG_MODES,
+  MODE_ALIASES,
+  canonicalMode,
+  cliMode,
   HASH_POLICIES,
   normalizeLag,
   hashFrame,

@@ -1001,32 +1001,60 @@ class CliSession {
     if (!dev.config.lags) dev.config.lags = {};
 
     if (t[0] === 'remove') {
-      for (const id of Object.keys(dev.config.lags)) {
+      // It used to print "Removed Fa0/4 from any channel group" for a port that was in none - the same
+      // sentence for work done and work not done.
+      const was = Object.keys(dev.config.lags).filter(function (id) {
+        return (dev.config.lags[id].members || []).indexOf(iface.name) !== -1;
+      });
+      if (!was.length) return ['% ' + iface.name + ' is not in a channel group'];
+      const gone = [];
+      for (const id of was) {
         const l = dev.config.lags[id];
         l.members = (l.members || []).filter(function (m) { return m !== iface.name; });
+        gone.push(id);
         if (!l.members.length) delete dev.config.lags[id];
       }
-      return ['Removed ' + iface.name + ' from any channel group'];
+      return [iface.name + ' removed from channel group ' + gone.join(', ') +
+        (gone.some(function (id) { return !dev.config.lags[id]; }) ? ' (the group had no other members)' : '')];
     }
 
     const id = t[0];
     if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
-    let mode = 'active';
+    let typed = 'active';
     const mi = t.indexOf('mode');
-    if (mi !== -1 && t[mi + 1]) mode = t[mi + 1];
-    if (['active', 'passive', 'on', 'static'].indexOf(mode) === -1) {
-      return ['% Invalid mode: ' + mode + ' (use active|passive|on)'];
+    if (mi !== -1 && t[mi + 1]) typed = t[mi + 1];
+    if (['active', 'passive', 'on', 'static'].indexOf(typed) === -1) {
+      return ['% Invalid mode: ' + typed + ' (use active|passive|on)'];
     }
-    const g = dev.config.lags[id] || { mode: mode, hashPolicy: 'l2', members: [] };
+    // The console's word is translated to the model's once, here; nothing downstream should ever see "active".
+    const mode = lagLib.canonicalMode(typed);
+    const existing = dev.config.lags[id];
+    const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
+    const out = [];
+    if (existing && existing.mode && existing.mode !== mode) {
+      // A group is one object: its mode belongs to every member. Changing it from one port silently rewrote
+      // what the other ports were configured with, and `show running-config` quietly reprinted them all with
+      // the new mode. Say it.
+      const others = (existing.members || []).filter(function (m) { return m !== iface.name; });
+      out.push('Channel group ' + id + ' mode changed from ' + lagLib.cliMode(existing.mode) + ' to ' + typed +
+        (others.length ? ' for every member: ' + others.join(', ') : ''));
+    }
     g.mode = mode;
+    if (!g.members) g.members = [];
     if (g.members.indexOf(iface.name) === -1) g.members.push(iface.name);
     dev.config.lags[id] = g;
 
-    const out = ['Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + mode + ')'];
+    out.push('Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
     const chk = lagLib.validateLag ? lagLib.validateLag(g) : null;
-    if (chk && chk.ok === false && chk.errors && chk.errors.length) {
-      out.push('% Warning: ' + chk.errors[0].message);
-    }
+    // A group is built one port at a time, so "needs at least 2 members" is true of every bundle for as long
+    // as it takes to type the second line. Warning on it turns every correct configuration into a warning
+    // storm, which is how a warning stops being read. The shortfall is reported where it matters - in
+    // `show etherchannel summary`, which already says the bundle is not carrying traffic and why.
+    const NOT_HERE_YET = ['E_LAG_TOO_FEW'];
+    const real = (chk && chk.ok === false && Array.isArray(chk.errors))
+      ? chk.errors.filter(function (e) { return NOT_HERE_YET.indexOf(e.code) === -1; })
+      : [];
+    if (real.length) out.push('% Warning: ' + real[0].message);
     return out;
   }
 
@@ -1906,7 +1934,7 @@ class CliSession {
         out.push('% No link aggregation groups configured');
       } else {
         const lagLib = require('./lag');
-        out.push('Group  Protocol   Ports');
+        out.push(pad('Group', 7) + pad('Protocol', 18) + 'Ports');
         for (const id of ids) {
           const l = lags[id] || {};
           const raw = Array.isArray(l.members) ? l.members : [];
@@ -1932,13 +1960,23 @@ class CliSession {
           const shown = raw.map(function (m) {
             return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
           });
-          out.push(pad(id, 7) + pad(l.mode || 'static', 11) + shown.join(' '));
+          // The column is the protocol, so it names the protocol and the mode the operator chose, in the
+          // words the operator chose them in.
+          const modeWord = lagLib.cliMode(l.mode);
+          const proto = modeWord === 'on' ? 'Static' : 'LACP (' + modeWord + ')';
+          out.push(pad(id, 7) + pad(proto, 18) + shown.join(' '));
           // Why a member is not carrying, in the same words `show interfaces` uses, and what that means for
           // the bundle as a whole.
           for (const m of raw) {
             if (live.indexOf(m) === -1) {
               out.push('  ' + pad(m, 10) + 'not bundled ' + (why[m] || '(cannot carry a frame)'));
             }
+          }
+          // A bundle of one is not a bundle. The shortfall used to be a warning on every correct
+          // `channel-group` line, which was noise; the standing view of the group is the right place for it,
+          // and the only place that still reports it.
+          if (raw.length === 1) {
+            out.push('  group ' + id + ' has 1 member: a bundle needs at least 2 ports');
           }
           if (!live.length && raw.length) {
             out.push('  bundle ' + id + ' is down: no member can carry a frame (traffic is dropped)');
@@ -2134,7 +2172,8 @@ class CliSession {
           }
         }
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;
-        if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
+        // Printed in the console's vocabulary, which is the only spelling the parser takes back.
+        if (lag) out.push('  channel-group ' + lag.id + ' mode ' + require('./lag').cliMode(lag.mode));
         const binds = dev.aclBindings && dev.aclBindings[i.name];
         if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
         if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');

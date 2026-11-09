@@ -397,11 +397,37 @@ declared loop-free before anyone has looked at it.
 ### Reading `show etherchannel summary`
 
 ```
-Group  Protocol   Ports
-1      active     Fa0/2(P) Fa0/3(D)
+Group  Protocol          Ports
+1      LACP (active)     Fa0/2(P) Fa0/3(D)
   Fa0/3     not bundled (down: link down)
   bundle 1 is running on 1 of 2 members: Fa0/2
 ```
+
+The Protocol column names the protocol and the mode **in the words the mode is configured in** — `LACP
+(active)`, `LACP (passive)`, `Static` for `mode on`. It used to print the model's internal spelling
+(`lacp-active`), which no command accepts, while the console accepted `active` and then warned that it was an
+unknown mode:
+
+```
+sw1(config-if)#channel-group 1 mode active
+Interface Fa0/1 added to channel group 1 (mode active)
+% Warning: LAG lag1: unknown mode "active" (expected one of lacp-active, lacp-passive, static).
+```
+
+That was the console and the model speaking different languages with no translation between them. The console
+speaks IOS (`active|passive|on`); the model speaks `lacp-active|lacp-passive|static`; the table in
+`engine/lag.js` translates once in each direction, so a lab saved by an older build holding `active` normalises
+to the same state as one configured today.
+
+Two consequences of the missing translation are worth knowing:
+
+* **A group has one mode.** `channel-group 1 mode passive` from a second member changes the group for every
+  member, and the console now says so — `Channel group 1 mode changed from active to passive for every
+  member: Fa0/1` — instead of quietly reprinting the first port's configuration with the new mode.
+* **A bundle of one is not a bundle**, and the summary says so (`group 1 has 1 member: a bundle needs at least
+  2 ports`). It used to be a warning on every correct `channel-group` line, which is noise: the group is
+  legitimately short between typing the first member and the second. The standing view of the group is the
+  right place for a fact about the group.
 
 `(P)` means bundled **and able to carry a frame**; `(D)` means the member cannot, and the line below it says
 why in the same sentence `show interfaces` and `show arp` use — `administratively down`, `down: no cable`,
