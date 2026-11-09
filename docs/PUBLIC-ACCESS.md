@@ -6,10 +6,6 @@ instance is readable at <https://git.jayw.uk>. No account, no passkey, no invite
 Writes are unchanged: opening an issue, pushing a branch, or changing settings still requires a
 Forgejo account with the right permission on the repository. **Forgejo is the gate, not Cloudflare.**
 
-An account is free and self-service: <https://git.jayw.uk/user/sign_up> is open to anyone, protected
-by a built-in captcha, and a new account can open issues immediately. See [ACCOUNTS.md](ACCOUNTS.md)
-for the settings behind that and for what a new account may not do.
-
 ## How it is arranged
 
 The hostname `git.jayw.uk` sits behind Cloudflare Access, and there is a wildcard Access application
