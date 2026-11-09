@@ -123,5 +123,5 @@
   "icon": "router",
   "color": "#2563eb",
   "sourceUrl": "https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ax89x/techspec/",
-  "notes": "Both high-speed ports are 10G but physically different: 10g-rj45 is 10GBASE-T copper and 10g-sfp is an SFP+ cage, so a fibre link only works in the latter. 8x8 on 5 GHz is why this is a large AP as well as a router."
+  "notes": "Both high-speed ports are 10G but physically different: 10g-rj45 is 10GBASE-T copper and 10g-sfp is an SFP+ cage, so a fibre link only works in the latter. 8x8 on 5 GHz is why this is a large AP as well as a router. There is no RT-AX89U. The name comes from the rescue-mode U-Boot banner, which prints \"RT-AX89U bootloader version\" on this board - a forum thread chasing that string ends with the poster correcting himself to RT-AX89X. ASUS's own site lists the 12-stream AX6000 router with two 10G ports (10GBASE-T and SFP+) as RT-AX89X in every region, so a request for \"RT-AX89U\" is this device. Bootloader strings are not model numbers."
 }
