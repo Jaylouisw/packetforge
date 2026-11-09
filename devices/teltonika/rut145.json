@@ -1,0 +1,32 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT145",
+  "label": "Teltonika RUT145 (RS485)",
+  "category": "router",
+  "description": "Industrial router with RS485: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut145/",
+  "notes": "Vendor figures from the RUT145 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**, with an **RS485** bus interface. RS485 rather than RS232 - a two-wire multi-drop bus for meters and inverters, so one router can front a whole chain of devices. The **RS485 port is recorded here rather than as an interface: the catalogue models network interfaces, and a serial bus is neither an Ethernet port nor a radio."
+}

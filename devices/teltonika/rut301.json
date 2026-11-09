@@ -1,0 +1,50 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT301",
+  "label": "Teltonika RUT301",
+  "category": "router",
+  "description": "Industrial wired Ethernet router: 1x 100 Mbps WAN, 4x 100 Mbps LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut301/",
+  "notes": "Vendor figures from the RUT301 datasheet: **1x WAN port 10/100 Mbps** and **4x LAN ports, 10/100 Mbps**. Five ports and **fast Ethernet on every one** - this is a wired-only router for an industrial cabinet, and a 1 Gbps circuit on the far side of it runs at 100 Mbps."
+}

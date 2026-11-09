@@ -1,0 +1,58 @@
+{
+  "vendor": "teltonika",
+  "model": "ATRM50",
+  "label": "Teltonika ATRM50",
+  "category": "router",
+  "description": "5G transportation router: 1x 1 GbE WAN, 3x 1 GbE LAN, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/atrm50/",
+  "notes": "Vendor figures from the ATRM50 datasheet: **1x WAN port 10/100/1000 Mbps** and **3x LAN ports, 10/100/1000 Mbps**, 5G modem, Wi-Fi, VoIP passthrough. Built for rolling stock: gigabit copper, 5G uplink, and the VoIP passthrough row is a transport-specific feature most routers omit.",
+  "role": [
+    "[object object]"
+  ]
+}

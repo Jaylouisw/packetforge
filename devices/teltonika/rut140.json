@@ -1,0 +1,32 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT140",
+  "label": "Teltonika RUT140",
+  "category": "router",
+  "description": "Industrial wired router: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut140/",
+  "notes": "Vendor figures from the RUT140 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**. Two fast-Ethernet ports and no radio - a DIN-rail router for a single industrial feed, with no second LAN port to hang anything from."
+}

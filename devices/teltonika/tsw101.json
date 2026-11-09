@@ -1,0 +1,56 @@
+{
+  "vendor": "teltonika",
+  "model": "TSW101",
+  "label": "Teltonika TSW101",
+  "category": "switch",
+  "description": "Five-port gigabit automotive PoE+ switch: 5x 1 GbE, PoE+.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/t-sw-101/",
+  "notes": "Vendor figures from the TSW101 datasheet: **5x ETH ports, 10/100/1000 Mbps**, all five carrying PoE+. **Gigabit and PoE+ on all five ports** in an automotive-rated body - the same port count as the flat TSF010, ten times the speed per port and power on every one of them."
+}

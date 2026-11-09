@@ -1,0 +1,64 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTC54",
+  "label": "Teltonika RUTC54",
+  "category": "router",
+  "description": "Global 5G edge router (Cat 19): 1x 1 GbE WAN, 4x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutc54/",
+  "notes": "Vendor figures from the RUTC54 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, 5G Cat 19 modem, Wi-Fi. The 5G member of the RUTC edge family, sharing the RUTC16's five-port layout.",
+  "role": [
+    "[object object]"
+  ]
+}

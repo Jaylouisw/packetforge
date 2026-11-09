@@ -1,0 +1,52 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM09",
+  "label": "Teltonika RUTM09",
+  "category": "router",
+  "description": "4G LTE Cat 6 router: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutm09/",
+  "notes": "Vendor figures from the RUTM09 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, LTE Cat 6. **Gigabit on every port** - the same layout as the RUTM08 with a modem added, so a 4G failover does not cap the wired side.",
+  "role": [
+    "[object object]"
+  ]
+}

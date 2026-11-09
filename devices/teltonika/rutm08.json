@@ -1,0 +1,44 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM08",
+  "label": "Teltonika RUTM08",
+  "category": "router",
+  "description": "Industrial wired router, no modem: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutm08/",
+  "notes": "Vendor figures from the RUTM08 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, and **no cellular modem at all** - the M08 is the wired member of the RUTM family, which makes it a firewall/VPN endpoint rather than a failover router."
+}

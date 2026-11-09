@@ -1,0 +1,44 @@
+{
+  "vendor": "teltonika",
+  "model": "TSF010",
+  "label": "Teltonika TSF010",
+  "category": "switch",
+  "description": "Five-port flat fast-Ethernet switch: 5x 100 Mbps, unmanaged.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/t-sf-010/",
+  "notes": "Vendor figures from the TSF010 datasheet: **5x ETH ports, 10/100 Mbps**. Five ports of **fast Ethernet** - fine as a cabinet splitter for serial-converted telemetry, wrong for anything that expects a gigabit uplink."
+}

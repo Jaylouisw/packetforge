@@ -1,0 +1,32 @@
+{
+  "vendor": "teltonika",
+  "model": "RUT142",
+  "label": "Teltonika RUT142 (RS232)",
+  "category": "router",
+  "description": "Industrial router with RS232: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rut142/",
+  "notes": "Vendor figures from the RUT142 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**, with an **RS232** port for serial telemetry. The serial port is the reason to buy it; the two fast-Ethernet ports are the reason not to put it in front of a gigabit link. The **RS232 port is recorded here rather than as an interface: the catalogue models network interfaces, and a serial bus is neither an Ethernet port nor a radio."
+}

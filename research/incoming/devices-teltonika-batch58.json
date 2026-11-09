@@ -1,0 +1,953 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "RUT301",
+    "label": "Teltonika RUT301",
+    "category": "router",
+    "description": "Industrial wired Ethernet router: 1x 100 Mbps WAN, 4x 100 Mbps LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut301/",
+    "notes": "Vendor figures from the RUT301 datasheet: **1x WAN port 10/100 Mbps** and **4x LAN ports, 10/100 Mbps**. Five ports and **fast Ethernet on every one** - this is a wired-only router for an industrial cabinet, and a 1 Gbps circuit on the far side of it runs at 100 Mbps."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSW101",
+    "label": "Teltonika TSW101",
+    "category": "switch",
+    "description": "Five-port gigabit automotive PoE+ switch: 5x 1 GbE, PoE+.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/t-sw-101/",
+    "notes": "Vendor figures from the TSW101 datasheet: **5x ETH ports, 10/100/1000 Mbps**, all five carrying PoE+. **Gigabit and PoE+ on all five ports** in an automotive-rated body - the same port count as the flat TSF010, ten times the speed per port and power on every one of them."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TSF010",
+    "label": "Teltonika TSF010",
+    "category": "switch",
+    "description": "Five-port flat fast-Ethernet switch: 5x 100 Mbps, unmanaged.",
+    "capabilities": [
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/t-sf-010/",
+    "notes": "Vendor figures from the TSF010 datasheet: **5x ETH ports, 10/100 Mbps**. Five ports of **fast Ethernet** - fine as a cabinet splitter for serial-converted telemetry, wrong for anything that expects a gigabit uplink."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT976",
+    "label": "Teltonika RUT976 (RedCap 5G)",
+    "category": "router",
+    "description": "5G RedCap router: 1x 100 Mbps WAN, 3x 100 Mbps LAN, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut976/",
+    "notes": "Vendor figures from the RUT976 datasheet: **1x WAN port 10/100 Mbps** and **3x LAN ports, 10/100 Mbps**, plus Wi-Fi and a 5G RedCap modem. **A 5G router whose every copper port is fast Ethernet** - RedCap itself is a reduced-capability 5G profile, so the port ceiling here is not an oversight but it is still the number that decides whether an office can use it."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT140",
+    "label": "Teltonika RUT140",
+    "category": "router",
+    "description": "Industrial wired router: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut140/",
+    "notes": "Vendor figures from the RUT140 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**. Two fast-Ethernet ports and no radio - a DIN-rail router for a single industrial feed, with no second LAN port to hang anything from."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT142",
+    "label": "Teltonika RUT142 (RS232)",
+    "category": "router",
+    "description": "Industrial router with RS232: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut142/",
+    "notes": "Vendor figures from the RUT142 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**, with an **RS232** port for serial telemetry. The serial port is the reason to buy it; the two fast-Ethernet ports are the reason not to put it in front of a gigabit link. The **RS232 port is recorded here rather than as an interface: the catalogue models network interfaces, and a serial bus is neither an Ethernet port nor a radio."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUT145",
+    "label": "Teltonika RUT145 (RS485)",
+    "category": "router",
+    "description": "Industrial router with RS485: 1x 100 Mbps WAN, 1x 100 Mbps LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rut145/",
+    "notes": "Vendor figures from the RUT145 datasheet: **1x WAN and 1x LAN, 10/100 Mbps**, with an **RS485** bus interface. RS485 rather than RS232 - a two-wire multi-drop bus for meters and inverters, so one router can front a whole chain of devices. The **RS485 port is recorded here rather than as an interface: the catalogue models network interfaces, and a serial bus is neither an Ethernet port nor a radio."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM08",
+    "label": "Teltonika RUTM08",
+    "category": "router",
+    "description": "Industrial wired router, no modem: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm08/",
+    "notes": "Vendor figures from the RUTM08 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, and **no cellular modem at all** - the M08 is the wired member of the RUTM family, which makes it a firewall/VPN endpoint rather than a failover router."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM09",
+    "label": "Teltonika RUTM09",
+    "category": "router",
+    "description": "4G LTE Cat 6 router: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm09/",
+    "notes": "Vendor figures from the RUTM09 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, LTE Cat 6. **Gigabit on every port** - the same layout as the RUTM08 with a modem added, so a 4G failover does not cap the wired side."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM11",
+    "label": "Teltonika RUTM11",
+    "category": "router",
+    "description": "Industrial 4G LTE Cat 6 router with Wi-Fi: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm11/",
+    "notes": "Vendor figures from the RUTM11 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, LTE Cat 6, Wi-Fi. Gigabit copper across the board with a Cat 6 modem behind it - the LTE side is the bottleneck, at a fraction of the port speed."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM30",
+    "label": "Teltonika RUTM30",
+    "category": "router",
+    "description": "5G router: 1x 1 GbE WAN, 1x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm30/",
+    "notes": "Vendor figures from the RUTM30 datasheet: **1x WAN and 1x LAN, both 10/100/1000 Mbps**, 5G modem and Wi-Fi. **Only two copper ports** - a 5G router for a single host or a small switch, not a distribution point."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM54",
+    "label": "Teltonika RUTM54",
+    "category": "router",
+    "description": "5G router (Cat 19): 1x 1 GbE WAN, 4x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm54/",
+    "notes": "Vendor figures from the RUTM54 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, 5G Cat 19 modem with a Telit module, Wi-Fi. Four gigabit LAN ports behind a 5G uplink - enough for a small site, and the LAN side will not be what limits it."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTM55",
+    "label": "Teltonika RUTM55",
+    "category": "router",
+    "description": "Industrial 5G router: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutm55/",
+    "notes": "Vendor figures from the RUTM55 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, 5G modem, Wi-Fi. One LAN port fewer than the RUTM54 for an industrial enclosure - check the port count against the cabinet, because the model numbers do not tell you."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTC16",
+    "label": "Teltonika RUTC16",
+    "category": "router",
+    "description": "4G LTE Cat 6 edge router: 1x 1 GbE WAN, 4x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutc16/",
+    "notes": "Vendor figures from the RUTC16 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, LTE Cat 6, Wi-Fi. Four gigabit LAN ports on a Cat 6 modem - the modem is the ceiling, not the copper."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTC41",
+    "label": "Teltonika RUTC41",
+    "category": "router",
+    "description": "4G LTE Cat 4 edge router: 1x 1 GbE WAN, 4x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutc41/",
+    "notes": "Vendor figures from the RUTC41 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, LTE Cat 4, Wi-Fi. **Cat 4 rather than Cat 6** on the same port layout as the RUTC16 - the cellular ceiling halves while the copper stays gigabit."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "RUTC54",
+    "label": "Teltonika RUTC54",
+    "category": "router",
+    "description": "Global 5G edge router (Cat 19): 1x 1 GbE WAN, 4x 1 GbE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/rutc54/",
+    "notes": "Vendor figures from the RUTC54 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, 5G Cat 19 modem, Wi-Fi. The 5G member of the RUTC edge family, sharing the RUTC16's five-port layout."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "ATRM50",
+    "label": "Teltonika ATRM50",
+    "category": "router",
+    "description": "5G transportation router: 1x 1 GbE WAN, 3x 1 GbE LAN, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/atrm50/",
+    "notes": "Vendor figures from the ATRM50 datasheet: **1x WAN port 10/100/1000 Mbps** and **3x LAN ports, 10/100/1000 Mbps**, 5G modem, Wi-Fi, VoIP passthrough. Built for rolling stock: gigabit copper, 5G uplink, and the VoIP passthrough row is a transport-specific feature most routers omit."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "CAP700",
+    "label": "Teltonika ALTOS CAP700",
+    "category": "wireless",
+    "description": "Wi-Fi 7 5G fixed-wireless access point: 1x 2.5G WAN/LAN, 1x 1 GbE LAN.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "2.5G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "2.9G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "5.8G"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/product/cap700/",
+    "notes": "Vendor figures from the ALTOS CAP700 datasheet: **1x WAN/LAN port, 10/100/1000/2500 Mbps** and **1x LAN port, 10/100/1000 Mbps**, with a 5G modem and Wi-Fi 7 radios. **The two ports are not the same speed** - 2.5G on the WAN/LAN port, gigabit on the LAN port - so the 2.5G path is only end to end if the fast host is the one on the first port."
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "vendor": "teltonika",
+  "model": "CAP700",
+  "label": "Teltonika ALTOS CAP700",
+  "category": "wireless",
+  "description": "Wi-Fi 7 5G fixed-wireless access point: 1x 2.5G WAN/LAN, 1x 1 GbE LAN.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.9G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "5.8G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/cap700/",
+  "notes": "Vendor figures from the ALTOS CAP700 datasheet: **1x WAN/LAN port, 10/100/1000/2500 Mbps** and **1x LAN port, 10/100/1000 Mbps**, with a 5G modem and Wi-Fi 7 radios. **The two ports are not the same speed** - 2.5G on the WAN/LAN port, gigabit on the LAN port - so the 2.5G path is only end to end if the fast host is the one on the first port.",
+  "role": [
+    "mobile5g"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTC16",
+  "label": "Teltonika RUTC16",
+  "category": "router",
+  "description": "4G LTE Cat 6 edge router: 1x 1 GbE WAN, 4x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutc16/",
+  "notes": "Vendor figures from the RUTC16 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, LTE Cat 6, Wi-Fi. Four gigabit LAN ports on a Cat 6 modem - the modem is the ceiling, not the copper.",
+  "role": [
+    "[object object]"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM55",
+  "label": "Teltonika RUTM55",
+  "category": "router",
+  "description": "Industrial 5G router: 1x 1 GbE WAN, 3x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutm55/",
+  "notes": "Vendor figures from the RUTM55 datasheet: **1x WAN and 3x LAN, all 10/100/1000 Mbps**, 5G modem, Wi-Fi. One LAN port fewer than the RUTM54 for an industrial enclosure - check the port count against the cabinet, because the model numbers do not tell you.",
+  "role": [
+    "[object object]"
+  ]
+}

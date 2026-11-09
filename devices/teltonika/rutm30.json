@@ -1,0 +1,46 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTM30",
+  "label": "Teltonika RUTM30",
+  "category": "router",
+  "description": "5G router: 1x 1 GbE WAN, 1x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "2.5G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutm30/",
+  "notes": "Vendor figures from the RUTM30 datasheet: **1x WAN and 1x LAN, both 10/100/1000 Mbps**, 5G modem and Wi-Fi. **Only two copper ports** - a 5G router for a single host or a small switch, not a distribution point.",
+  "role": [
+    "[object object]"
+  ]
+}

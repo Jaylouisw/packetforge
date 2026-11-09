@@ -1,0 +1,64 @@
+{
+  "vendor": "teltonika",
+  "model": "RUTC41",
+  "label": "Teltonika RUTC41",
+  "category": "router",
+  "description": "4G LTE Cat 4 edge router: 1x 1 GbE WAN, 4x 1 GbE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/product/rutc41/",
+  "notes": "Vendor figures from the RUTC41 datasheet: **1x WAN and 4x LAN, all 10/100/1000 Mbps**, LTE Cat 4, Wi-Fi. **Cat 4 rather than Cat 6** on the same port layout as the RUTC16 - the cellular ceiling halves while the copper stays gigabit.",
+  "role": [
+    "[object object]"
+  ]
+}
