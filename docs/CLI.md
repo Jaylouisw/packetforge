@@ -20,7 +20,7 @@ Modes and their prompts:
 | `enable` | enter enable mode |
 | `configure terminal` | enter config mode |
 | `show version` | vendor, model, category, capabilities |
-| `show ip interface brief` | interface IP / status table |
+| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache |
 | `show mac address-table` | MAC table (switches) |
@@ -176,6 +176,25 @@ Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 !!!!
 Success rate is 100 percent (4/4)
 ```
+
+### Reading `show ip interface brief`
+
+The **Status** column answers "can this port carry a frame", not merely "did somebody shut it":
+
+| Condition | Status | Protocol |
+|---|---|---|
+| shut down here (`shutdown`) | `administratively down` | `down` |
+| no cable plugged in | `down` | `down` |
+| cabled, but the far port is shut down | `down` | `down` |
+| otherwise | `up` | `up` |
+
+The reason travels with it in `show interfaces` — `status: down (no cable)`, `status: down (peer shut
+down)` — because `status: up` printed directly above `peer: disconnected` was two halves of one output
+disagreeing. A wireless radio has no cable to miss, so it is up when its radio is.
+
+A device that is **not part of a topology** has no cables to report on, so its ports keep their old
+answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing
+`down` for every port of a bare device would be a different wrong answer.
 
 ### Reading `show ip route`
 

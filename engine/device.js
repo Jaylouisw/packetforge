@@ -230,6 +230,29 @@ class Device {
     return Array.from(this.interfaces.values()).filter(function (i) { return i.enabled; });
   }
 
+  // Can this port actually carry a frame, and if not, why not (#1237)?
+  //
+  // The CLI used to answer "is it shut down" and call that the status, so a port with no cable - the
+  // commonest reason a lab does not work - reported up/up in the table people paste into bug reports.
+  // `topo` is optional on purpose: a device that was never put in a topology has no cables to report
+  // on, and inventing "down" for every port of a bare device would be a different lie.
+  ifaceStatus(iface, topo) {
+    const port = typeof iface === 'string' ? this.interfaces.get(iface) : iface;
+    if (!port) return { status: 'down', protocol: 'down', reason: 'no such port' };
+    if (!port.enabled) return { status: 'administratively down', protocol: 'down', reason: 'shut down' };
+    if (!topo) return { status: 'up', protocol: 'up', reason: null };
+    // A wireless radio has no cable to miss; its link is the radio.
+    if (port.type === 'wireless' || (port.hardware && port.hardware.cage === 'antenna')) {
+      return { status: 'up', protocol: 'up', reason: null };
+    }
+    if (!port.peer) return { status: 'down', protocol: 'down', reason: 'no cable' };
+    const peerDev = topo.getDevice ? topo.getDevice(port.peer.deviceId) : null;
+    const peerPort = peerDev && peerDev.interfaces.get(port.peer.iface);
+    if (!peerDev || !peerPort) return { status: 'down', protocol: 'down', reason: 'peer missing' };
+    if (!peerPort.enabled) return { status: 'down', protocol: 'down', reason: 'peer shut down' };
+    return { status: 'up', protocol: 'up', reason: null };
+  }
+
   interfaceWithMac(mac) {
     const m = net.normalizeMac(mac);
     for (const iface of this.interfaces.values()) {
