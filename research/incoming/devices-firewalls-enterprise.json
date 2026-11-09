@@ -1,0 +1,56 @@
+[
+  {
+    "vendor": "checkpoint",
+    "model": "Quantum 6200",
+    "category": "firewall",
+    "label": "Check Point Quantum 6200 security gateway",
+    "description": "1RU gateway: 8x 1G RJ45 data + 1G mgmt + 1G sync, 1 empty expansion slot, 9 Gbps FW.",
+    "sourceUrl": "https://www.checkpoint.com/downloads/products/6200-security-gateway-datasheet.pdf",
+    "notes": "Datasheet August 2023. Base model 10 GbE copper total = 8x '10/100/1000 Base-T ports' + 'Management 10/100/1000 Base-T port' + 'Sync 10/100/1000 Base-T port'; 1 network expansion slot empty as shipped; RJ45 + USB-C console; 2x USB 3.0. Plus package adds 4x 1GbE fibre, redundant PSU, LOM, 16 GB RAM; max capacity 18 copper + 4 fibre + 4x 10GbE. Optional modules deliberately not modelled as present."
+  },
+  {
+    "vendor": "sonicwall",
+    "model": "TZ470",
+    "category": "firewall",
+    "label": "SonicWall TZ470 firewall",
+    "description": "Desktop Gen 7 NGFW: X0 LAN/MGMT, X1-X2 WAN, X3-X7 RJ45 (8x 1G), X8/X9 SFP/SFP+ at 2.5/5/10G, 2.5 Gbps threat prevention.",
+    "sourceUrl": "https://www.sonicwallonline.co.uk/media/downloads/sonicwall-tz-series-gen-7.pdf",
+    "notes": "TZ Series (Gen 7) datasheet header: '8x1GbE, 2x2.5/5/10GbE'. Rear-panel diagram confirms X3-X7 as RJ45 and X8/X9 as 'SFP/SFP+ Ports'. TZ470W adds 802.11ac Wave 2 radios (the W variant), not modelled here. Optional second PSU; 1.5M max connections; storage expandable to 256 GB."
+  },
+  {
+    "vendor": "watchguard",
+    "model": "Firebox M390",
+    "category": "firewall",
+    "label": "WatchGuard Firebox M390 firewall",
+    "description": "1RU UTM: 8x 1G RJ45, RJ45 RS232 console, single 150 W PSU, no SFP.",
+    "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html",
+    "notes": "Hardware guide interface table: M390 network interfaces '8 x 1000 Base-TX (10/100/1000Mbps) RJ45 connector'; I/O '2 x USB 3.0, 1 x RJ45 RS232 console'. Family split documented: M290 same ports but 4 GB RAM and 65 W PSU; M590 adds 2x 10G SFP+; M690 adds 2x 10G SFP+ plus 2x 10/2.5/10G RJ45."
+  },
+  {
+    "vendor": "watchguard",
+    "model": "Firebox M690",
+    "category": "firewall",
+    "label": "WatchGuard Firebox M690 firewall",
+    "description": "1RU UTM: 8x 1G RJ45 + 2x 10G SFP+ + 2x 10/2.5/1G RJ45, dual PSU.",
+    "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html",
+    "notes": "Hardware guide: M690 '8 x 1000 Base-TX (10/100/1000Mbps) RJ45 connector, 2 x 10G SFP+ interfaces, 2 x 10GbE (1000/2500/10000 Mbps) RJ45 Connector'. The multi-gig copper ladder 1000/2500/10000 is stated explicitly, so the two 10GbE RJ45 ports carry speedCaps [1000, 2500, 10000]. NXP LX2160A, 512 GB m.2, 16 GB ECC, dual 150 W PSUs."
+  },
+  {
+    "vendor": "barracuda",
+    "model": "CloudGen Firewall F80",
+    "category": "firewall",
+    "label": "Barracuda CloudGen Firewall F80 (NOT CATALOGUED)",
+    "description": "F-series branch firewall.",
+    "sourceUrl": "https://media.zones.com/images/pdf/barracuda-cloudgen-firewall-f-ds-us.pdf",
+    "notes": "OPEN: the F-series datasheet found is feature-oriented (security stack, SD-WAN, protocol support) and never states a per-model port count - the port matrix lives in the hardware documentation, not the datasheet. Not catalogued rather than guessed; needs the F80 hardware guide or the model-specific spec sheet."
+  },
+  {
+    "vendor": "sonicwall",
+    "model": "TZ570",
+    "category": "firewall",
+    "label": "SonicWall TZ570 (NOT CATALOGUED THIS ROUND)",
+    "description": "Same Gen 7 family, more throughput.",
+    "sourceUrl": "https://www.sonicwallonline.co.uk/media/downloads/sonicwall-tz-series-gen-7.pdf",
+    "notes": "Front/rear panel diagrams for the TZ570 are in the same PDF (X0-X7 RJ45, X8/X9 SFP/SFP+), but the port line for that model was not extracted cleanly enough to be certain about its 5G versus 10G cage rating. Left for a round that reads the TZ570-specific datasheet rather than inferring from the family page."
+  }
+]
