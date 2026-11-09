@@ -29,6 +29,7 @@ Modes and their prompts:
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
+| `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -351,6 +352,32 @@ The data plane uses the same rule: **the hash is taken over the members that can
 member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
+
+### Reading `show ip bgp`
+
+```
+Neighbor         V  AS      State           Reason
+10.0.0.1         4  65001   Idle            egress Gi0 cannot carry a frame (link down)
+
+0 of 1 neighbour(s) established
+0 prefix(es) installed from BGP
+```
+
+A session needs a port that can **carry a frame**, not merely a port nobody shut. `_bgpReachable()` used to
+ask `enabled` and nothing else, so a session across an unplugged cable went on calling itself `Established`
+and went on installing the prefixes it had learned over it — a `B` route whose next hop could not be reached.
+Now the reason names the real fault: `cannot carry a frame (link down)`, `(peer shut down)`,
+`(down: no cable)`, or `administratively down` for a port someone shut.
+
+When prefixes are installed, the table below says which ones:
+
+```
+Network          Next Hop  Metric  LocPrf  Weight  Path     Session
+10.0.0.0/24      10.0.0.1  0       100     0       65001 i  eBGP
+```
+
+The prefix list and `show ip route`'s `B` rows describe the same routes, with the same prefix lengths — they
+are read together when a route is not being used.
 
 ### Reading `show access-lists`
 
