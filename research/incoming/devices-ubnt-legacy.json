@@ -310,7 +310,7 @@
   },
   {
     "vendor": "ubiquiti",
-    "model": "nbm3",
+    "model": "nsm3",
     "label": "Ubiquiti NanoStation M3 (NSM3)",
     "category": "wireless",
     "description": "airMAX NanoStation M3 2.4 GHz CPE/bridge: 1x 10/100 Ethernet port, passive 24 V PoE in, 802.11n 2x2.",
