@@ -413,8 +413,17 @@ class CliSession {
     }
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
+        // A port has one method, and this used to leave both: `ip address dhcp` set the DHCP flag while the
+        // static address stayed on the interface. Three surfaces then disagreed - the port held an address it
+        // did not own, `show ip interface brief` reported Method DHCP beside that address, and
+        // `show running-config` printed only the static line, so a restore lost the DHCP intent entirely.
+        // Setting the method displaces the other one, and says which.
+        const had = iface.ip ? iface.ip + '/' + require('./net').prefixOf(iface.mask) : null;
         iface.dhcp = true;
-        out.push('Interface ' + iface.name + ' set to DHCP');
+        iface.ip = null;
+        iface.mask = null;
+        out.push('Interface ' + iface.name + ' set to DHCP' +
+          (had ? ' (static address ' + had + ' removed)' : ''));
       } else {
         const ip = tokens[2], mask = tokens[3];
         if (!ip || !mask) return ['% Incomplete command'];
@@ -428,12 +437,23 @@ class CliSession {
         // Store the dotted form whichever way it was typed: a port left holding "24" reads as /2 to
         // anything that parses a dotted mask, the front panel included.
         const dotted = net.maskFromPrefix(net.prefixOf(mask));
+        // The other half of the same rule: a static address displaces the DHCP client, and says so, rather
+        // than quietly changing the port's method.
+        const wasDhcp = iface.dhcp === true;
         iface.ip = ip; iface.mask = dotted; iface.dhcp = false;
-        out.push('IP address set on ' + iface.name + ': ' + ip + '/' + net.prefixOf(dotted));
+        out.push('IP address set on ' + iface.name + ': ' + ip + '/' + net.prefixOf(dotted) +
+          (wasDhcp ? ' (DHCP client removed)' : ''));
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
+      // "IP address removed" was the answer whether or not there was one to remove, and whether the port was
+      // asking DHCP for one or not.
+      const hadIp = iface.ip ? iface.ip + '/' + require('./net').prefixOf(iface.mask) : null;
+      const hadDhcp = iface.dhcp === true;
       iface.ip = null; iface.mask = null; iface.dhcp = false;
-      out.push('IP address removed from ' + iface.name);
+      if (!hadIp && !hadDhcp) out.push('% No IP address on ' + iface.name);
+      else if (hadIp && hadDhcp) out.push('IP address ' + hadIp + ' and the DHCP client removed from ' + iface.name);
+      else if (hadDhcp) out.push('DHCP client removed from ' + iface.name);
+      else out.push('IP address ' + hadIp + ' removed from ' + iface.name);
     } else if (head === 'shutdown') {
       iface.enabled = false;
       out.push(iface.name + ' administratively down');
@@ -958,37 +978,52 @@ class CliSession {
       this.device.flushMacsOnPort(iface.name);
       return ['Switchport mode ' + mode + ' on ' + iface.name];
     }
+    // A VLAN parameter is not a mode change. These three commands used to set the port's `mode` as a side
+    // effect, so `switchport trunk native vlan 20` on an access port silently turned it into a trunk: a
+    // different command, in a different column of the table, changed what the port forwards. Real gear stores
+    // the parameter and leaves the mode alone - which is also how a trunk is staged before the cable is
+    // patched - and now so does this one, saying what is stored and what it will take to use it.
+    function modeNote(self, iface, wanted) {
+      const current = (iface.vlan && iface.vlan.mode) || 'access';
+      if (current === wanted) return '';
+      return ' (stored; the port is in ' + current + ' mode - set "switchport mode ' + wanted + '" to use it)';
+    }
     if (t[0] === 'access' && t[1] === 'vlan') {
       const id = parseInt(t[2], 10);
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
       if (!chk.ok) return ['% ' + chk.errors[0].message];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: id }));
+      const note = modeNote(this, iface, 'access');
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: id }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Access VLAN ' + id + ' on ' + iface.name];
+      return ['Access VLAN ' + id + ' on ' + iface.name + note];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
       const id = parseInt(t[3], 10);
       const chk = vlanLib.validatePortConfig({ nativeVlan: id });
       if (!chk.ok) return ['% ' + chk.errors[0].message];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: id }));
+      const note = modeNote(this, iface, 'trunk');
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { nativeVlan: id }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Trunk native VLAN ' + id + ' on ' + iface.name];
+      return ['Trunk native VLAN ' + id + ' on ' + iface.name + note];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
       const spec = t.slice(3).join('');
       if (!spec) return ['% Incomplete command'];
+      const allowedNote = (iface.vlan && iface.vlan.mode) === 'trunk' ? ''
+        : ' (stored; the port is in ' + ((iface.vlan && iface.vlan.mode) || 'access') +
+          ' mode - set "switchport mode trunk" to use it)';
       if (spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
         this.device.flushMacsOnPort(iface.name);
-        return ['Trunk on ' + iface.name + ' allows all VLANs'];
+        return ['Trunk on ' + iface.name + ' allows all VLANs' + allowedNote];
       }
       const parsed = vlanLib.parseVlanList(spec);
       if (!parsed.ok) return ['% ' + (parsed.message || 'invalid VLAN list')];
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: parsed.vlans }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
+      return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',') + allowedNote];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }
@@ -2139,22 +2174,26 @@ class CliSession {
         if (i.speedMbps) out.push('  speed ' + i.speedMbps);
         if (i.duplex && i.duplex !== 'full') out.push('  duplex ' + i.duplex);
         if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
-        if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
-        else if (i.dhcp) out.push('  ip address dhcp');
+        // The method is printed, not the outcome. A host that has a lease holds both the `dhcp` flag and the
+        // address the lease gave it, and printing the address baked a leased value into the backup: restored
+        // on another network, the host claimed a stale address and never asked for a new one. A backup has to
+        // describe what was configured, or restoring it changes what the device does.
+        if (i.dhcp) out.push('  ip address dhcp');
+        else if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
         if (i.vlan) {
-          if (i.vlan.mode === 'trunk') {
-            out.push('  switchport mode trunk');
-            out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
-            const av = i.vlan.allowedVlans;
-            out.push('  switchport trunk allowed vlan ' +
-              (av === 'all' || !Array.isArray(av) ? 'all' : av.join(',')));
-          } else {
-            const av = Number(i.vlan.accessVlan) || 1;
-            if (av !== 1) {
-              out.push('  switchport mode access');
-              out.push('  switchport access vlan ' + av);
-            }
-          }
+          // The mode and the VLAN parameters are separate state, and they are printed separately. The
+          // parameters used to be printed only in the mode that uses them, so a trunk staged on an access
+          // port - `switchport trunk native vlan 20` before the cable is patched, which is exactly why the
+          // console lets you type it - vanished from the backup and never came back.
+          const spMode = i.vlan.mode === 'trunk' ? 'trunk' : 'access';
+          const spAccess = Number(i.vlan.accessVlan) || 1;
+          const spNative = Number(i.vlan.nativeVlan) || 1;
+          const spAllowed = i.vlan.allowedVlans;
+          const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed)) ? null : spAllowed.join(',');
+          if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
+          if (spAccess !== 1) out.push('  switchport access vlan ' + spAccess);
+          if (spNative !== 1) out.push('  switchport trunk native vlan ' + spNative);
+          if (spAllowedText !== null) out.push('  switchport trunk allowed vlan ' + spAllowedText);
         }
         // An IPv6 address lives in config.ip6, not on the interface object, so a printer that walked the
         // interfaces could not have found it even in principle.

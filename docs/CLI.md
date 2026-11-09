@@ -178,10 +178,21 @@ mask it cannot express as a prefix length is shown as `?`, never as a plausible 
 |---------|--------|
 | `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros, and may be written as a prefix length (`24`) |
 | `no ip address` | remove the IP |
-| `ip address dhcp` | mark as DHCP client (reserved) |
+| `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
 | `shutdown` / `no shutdown` | administratively disable / enable |
 | `description <text>` | set a description |
 | `exit` | back to config mode |
+
+**A port has one method.** `ip address dhcp` displaces a static address and says which one it removed;
+`ip address <ip> <mask>` displaces the DHCP client and says so. One port holding both was three lies at once —
+it held an address it did not own, `show ip interface brief` reported Method `DHCP` beside that address, and
+`show running-config` printed only the static line, so restoring the backup lost the DHCP intent. `no ip
+address` now names what it removed (`IP address 10.0.0.9/24 removed`, `DHCP client removed`), or refuses when
+there is nothing to remove.
+
+`show running-config` prints the **method**, not the outcome: a host that has leased `10.0.0.100` prints `ip
+address dhcp`, because a backup that bakes in a leased address claims that address on any network it is
+restored onto and never asks again.
 
 ## IPv6 commands
 
@@ -563,6 +574,21 @@ Vlan    Mac Address         Type        Ports
   you the row is stale.
 * `(vlan mismatch)` means the port does not carry that VLAN at all — an entry that cannot be a forwarding
   decision, however healthy the port looks.
+* **A VLAN parameter is not a mode change.** `switchport trunk native vlan`, `switchport trunk allowed vlan`
+  and `switchport access vlan` store their value and leave the port's mode alone, saying so when the value
+  cannot be used yet:
+
+  ```
+  sw1(config-if)#switchport trunk native vlan 20
+  Trunk native VLAN 20 on Fa0/1 (stored; the port is in access mode - set "switchport mode trunk" to use it)
+  ```
+
+  That is what staging a trunk is for — building it before the cable is patched — and it is what real gear
+  does. These commands used to set `mode` as a side effect, so staging a trunk on an access port turned it
+  into a trunk: a different command changed what the port forwards, and frames for VLAN 20 started leaving a
+  port that was supposed to carry VLAN 1. Nothing but `switchport mode` changes the mode. Because the
+  parameters are stored independently of the mode, `show running-config` prints them either way, so a staged
+  trunk survives a backup.
 * **A port's entries are flushed when its VLAN membership changes** (`switchport access vlan`,
   `switchport mode`, `switchport trunk native|allowed vlan`, `no switchport`). A switch that keeps a
   VLAN-1 entry on a port it has moved to VLAN 20 is a switch whose table describes a topology that no
