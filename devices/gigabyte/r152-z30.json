@@ -1,0 +1,34 @@
+{
+  "vendor": "gigabyte",
+  "model": "R152-Z30",
+  "label": "GIGABYTE R152-Z30 1U server",
+  "category": "server",
+  "description": "Single-socket AMD EPYC 7003 1U rack server with two gigabit RJ45 data ports on the Intel I350-AM2 and a dedicated gigabit management LAN port on the Aspeed AST2500, four hot-swap 3.5-inch SATA bays and one OCP 2.0 mezzanine slot.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "MLAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://download.gigabyte.com/FileList/DataSheet/R152-Z30_A00_datasheet_v1.1.pdf",
+  "notes": "GIGABYTE data sheet: 'LAN: 2 x 1GbE LAN ports (1 x Intel I350-AM2)' and '1 x 10/100/1000 management LAN ... Integrated in Aspeed AST2500'; Rear I/O is '3 x USB 3.0, 1 x VGA, 1 x COM_1, 2 x RJ45, 1 x MLAN', which corroborates exactly two data RJ45s and one management RJ45. Single EPYC 7003 (cTDP to 280 W, compatible with 7002), 16 DIMMs, 4x 3.5-inch SATA bays (SATA only - no SAS/NVMe backplane on this SKU), 1x PCIe Gen4 x16, OCP 2.0 Gen3 x8 mezzanine, 2x M.2, 1+1 650 W Platinum. First GIGABYTE server in the catalogue and a useful AMD-EPYC counterweight to the Xeon parts."
+}

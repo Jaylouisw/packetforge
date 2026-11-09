@@ -1,0 +1,38 @@
+[
+  {
+    "vendor": "fujitsu",
+    "model": "PRIMERGY RX1330 M5",
+    "category": "server",
+    "label": "PRIMERGY RX1330 M5 1U server",
+    "description": "2x 1GbE Intel i210 + dedicated iRMC S6 management port (1GbE).",
+    "sourceUrl": "https://sp.ts.fujitsu.com/dmsp/Publications/public/ds-py-rx1330-m5.pdf",
+    "notes": "Data sheet LAN section: 'Intel i210 onboard, 2 x 10/100/1000 Mbit/s Ethernet'; 'Management LAN: 1 x dedicated management LAN port for iRMC S6 (10/100/1000 Mbit/s)'. Chose this model over the TX1310 precisely because of the dedicated third port."
+  },
+  {
+    "vendor": "fujitsu",
+    "model": "PRIMERGY TX1310 M5",
+    "category": "server",
+    "label": "PRIMERGY TX1310 M5 tower server",
+    "description": "2x 1GbE onboard, no dedicated management port (iRMC shared).",
+    "sourceUrl": "https://sp.ts.fujitsu.com/dmsp/Publications/public/ds-py-tx1310-m5.pdf",
+    "notes": "Data sheet: 'LAN / Ethernet: 2', 'onboard dual Gigabit LAN as standard', and no dedicated management LAN row - so two RJ45 ports total. Recorded as the in-band/out-of-band contrast pair with the RX1330 M5."
+  },
+  {
+    "vendor": "gigabyte",
+    "model": "R152-Z30",
+    "category": "server",
+    "label": "GIGABYTE R152-Z30 1U server",
+    "description": "2x 1GbE Intel I350-AM2 + 1x mgmt LAN (AST2500), 1U AMD EPYC 7003 single socket.",
+    "sourceUrl": "https://download.gigabyte.com/FileList/DataSheet/R152-Z30_A00_datasheet_v1.1.pdf",
+    "notes": "Data sheet LAN: '2 x 1GbE LAN ports (1 x Intel I350-AM2)', '1 x 10/100/1000 management LAN'. Rear I/O list '2 x RJ45, 1 x MLAN' confirms the port count. New vendor for the catalogue (gigabyte was absent)."
+  },
+  {
+    "vendor": "supermicro",
+    "model": "AS-2015HS-TNR",
+    "category": "server",
+    "label": "ALREADY CATALOGUED - checked for duplicate onboard-NIC configs",
+    "description": "Existing Supermicro 2U EPYC entry.",
+    "sourceUrl": "devices/supermicro/AS-2015HS-TNR.json",
+    "notes": "Not added - already present. Listed here only to record that the server audit skipped the four Supermicro parts already in the catalogue rather than re-adding them under different model spellings."
+  }
+]
