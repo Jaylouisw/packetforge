@@ -31,6 +31,7 @@ Modes and their prompts:
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
+| `show power inline [<port>]` | PoE supplied per PSE port, the budget left, and why a powered device was denied |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
 | `exit` / `logout` | leave the session |
@@ -500,6 +501,38 @@ The data plane uses the same rule: **the hash is taken over the members that can
 member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
+
+### Reading `show power inline`
+
+```
+sw1#show power inline
+Interface  Admin  Oper  Draw     Powered device
+1/1/1      up     on    12.95 W  PD1
+1/1/2      up     off   12.95 W  PD2  (denied)
+1/1/3      up     off   -        the far end is not a powered device
+1/1/4      down   off   -        administratively down
+22 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+17 more)
+
+Total: 12.95 W of 25 W in use, 12.05 W left, 1 port denied
+  1/1/2: PSE budget exhausted: 12.95 W requested, 12.05 W left
+```
+
+Every figure comes from the engine's own allocation (`Simulator.computePoe()`), not from a second copy of the
+rule, and every PSE port is accounted for — including the ones the engine leaves out of its table, which are the
+ones an operator is usually asking about:
+
+* `denied` means the device asked and the budget could not supply it; the sentence under the table is the same
+  one the timeline emitted for the `poe-deny` event, not a re-rendering of the same arithmetic;
+* a port with a cable but no powered device behind it says so, rather than looking like a port that works;
+* an administratively down port supplies nothing, and says why — the engine does not allocate through it, since
+  it walks the active ports only;
+* idle ports are summarised rather than printed one per line: a wall of `nothing plugged in` is how the one row
+  that matters gets missed. `show power inline <port>` asks about any of them by name.
+
+Three things it refuses to fake: with no simulation run it prints `Not measured (no simulation run)` rather than
+zeros; a device with PSE ports but **no budget** reports the ports and says the budget is not modelled, rather
+than reporting 0 W it never measured; and a question about one port gets no device-wide total, because the number
+would be about something else.
 
 ### Reading `show ip route` when a path is not there
 
