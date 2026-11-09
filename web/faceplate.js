@@ -418,11 +418,28 @@
       }
       return {
         device: (dev && (dev.name || dev.id)) || other.deviceId,
+        deviceId: other.deviceId,
+        dev: dev || null,
         iface: other.iface,
         toString: function () { return this.device + ':' + this.iface; }
       };
     }
     return null;
+  }
+
+  // The cable itself can be down while both ends stay patched. `link down` is a first-class state in
+  // this simulator, so a port on a down link is down - and it is not "no cable", which is a different
+  // fault with a different fix (#1238).
+  function linkDownOf(device, name, ctx) {
+    var links = (ctxParts(ctx).links) || [];
+    for (var i = 0; i < links.length; i++) {
+      var l = links[i];
+      if (!l || !l.a || !l.b) continue;
+      var mine = (l.a.deviceId === device.id && l.a.iface === name) ||
+                 (l.b.deviceId === device.id && l.b.iface === name);
+      if (mine && l.state === 'down') return true;
+    }
+    return false;
   }
 
   function peerText(peer, iface) {
@@ -433,6 +450,53 @@
         (iface.lldp.portId ? ':' + iface.lldp.portId : '');
     }
     return null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Whether a port can carry a frame, and why not when it cannot (#1238)
+  // ---------------------------------------------------------------------------
+  //
+  // Three views describe a port - this faceplate cell, the canvas tooltip, the inspector footer - and
+  // each of them answered one question, "is it shut down", then printed the answer as the status. An
+  // unplugged port was therefore described as healthy in all three, which is the worst possible place
+  // to be wrong: the canvas is what you look at when a link will not come up.
+  //
+  // The rule lives here, once, and the other two call it. The sentence about a socket should not be
+  // written three times.
+  //
+  // Facts are passed in rather than looked up, so a caller that cannot see the topology says
+  // `undefined` instead of guessing: an unknown cable is not a missing cable.
+  function portState(facts) {
+    var f = facts || {};
+    if (f.enabled === false) {
+      return { state: 'down', status: 'administratively down', reason: 'shut down' };
+    }
+    // `notconnect` is the word the vendor CLIs use for "the socket is fine, nothing is in it", and it
+    // is deliberately not `down`: painting every unused port on a 48-port faceplate red would say
+    // "fault" 46 times. The status text is still `down (no cable)`, because that is what it is.
+    if (f.cabled === false) {
+      return { state: 'notconnect', status: 'down', reason: 'no cable' };
+    }
+    // A patched cable can be taken down without being unplugged (`link down`), and the simulator will
+    // not carry a frame across it. Reporting the port as up in that case is the same lie as calling an
+    // empty socket up (#1238).
+    if (f.linkDown === true) {
+      return { state: 'down', status: 'down', reason: 'link down' };
+    }
+    if (f.peerEnabled === false) {
+      return { state: 'down', status: 'down', reason: 'peer shut down' };
+    }
+    return { state: f.cabled === true ? 'cabled' : 'up', status: 'up', reason: null };
+  }
+
+  // The sentence a tooltip shows: "administratively down", "down (no cable)", "down (peer shut down)",
+  // "up". Here rather than at each call site, so the panel, the canvas and the inspector cannot drift
+  // into three slightly different descriptions of one socket.
+  function portStateText(facts) {
+    var s = portState(facts);
+    if (!s.reason) return s.status;
+    if (s.reason === 'shut down') return 'administratively down';
+    return s.status + ' (' + s.reason + ')';
   }
 
   // ---------------------------------------------------------------------------
@@ -449,8 +513,26 @@
     var poeOut = num(iface.poeOut);
     var poeIn = num(iface.poeIn);
     var down = iface.enabled === false;
-    var cabled = !down && (!!peer || !!iface.peer || !!lldp);
-    var state = down ? 'down' : (cabled ? 'cabled' : 'up');
+    var hasCable = !!peer || !!iface.peer || !!lldp;
+    // The far end's own state, when this view can see it: a cabled port whose partner is shut cannot
+    // carry a frame either, and saying "cabled" without that is half an answer (#1238).
+    var peerIf = null;
+    if (peer && peer.dev && peer.dev.interfaces) {
+      var plist = peer.dev.interfaces;
+      for (var pi = 0; pi < plist.length; pi++) {
+        if (plist[pi] && plist[pi].name === peer.iface) { peerIf = plist[pi]; break; }
+      }
+      if (!peerIf && plist[peer.iface]) peerIf = plist[peer.iface];
+    }
+    var linkFacts = {
+      enabled: iface.enabled,
+      cabled: hasCable,
+      peerEnabled: peerIf ? peerIf.enabled !== false : undefined,
+      linkDown: linkDownOf(device, name, ctx)
+    };
+    var linkState = portState(linkFacts);
+    var cabled = linkState.state === 'cabled';
+    var state = linkState.state;
     var rate = rateOf(iface);
 
     var cls = ['fp-port', 'fp-' + state];
@@ -467,14 +549,20 @@
     if (rate) title.push(rate);
     if (iface.role) title.push(String(iface.role).toUpperCase());
     if (iface.description) title.push(iface.description);
-    title.push(plugged ? 'cabled to ' + plugged : 'not cabled');
+    // "not cabled" was the whole story before #1238, and it left the operational half unsaid. When the
+    // port is known to have no cable, say what that means: down (no cable).
+    if (linkState.reason === 'no cable') title.push(portStateText(linkFacts));
+    else title.push(plugged ? 'cabled to ' + plugged : 'not cabled');
     if (lldp && lldp.systemName) {
       title.push('LLDP ' + lldp.systemName + (lldp.portId ? ':' + lldp.portId : ''));
     }
     if (poeOut) title.push('PoE out ' + poeOut + ' W' + (cabled ? '' : ' (capable)'));
     if (poeIn) title.push('PoE in ' + poeIn + ' W');
     if (iface.ip) title.push('IP ' + iface.ip + (iface.mask ? '/' + iface.mask : ''));
-    if (down) title.push('administratively down');
+    // One sentence, from one rule: "down (no cable)", "down (peer shut down)", "administratively
+    // down". The cell used to say only "administratively down", so every other reason a link is dead
+    // was invisible here (#1238).
+    if (linkState.state === 'down') title.push(portStateText(linkFacts));
 
     var aria = name + ' ' + info.label + (rate ? ' ' + rate : '') + ' — ' + state +
       (plugged ? ', ' + plugged : '');
@@ -627,7 +715,11 @@
     textWidth: textWidth,
     labelBudget: labelBudget,
     columnsThatFit: columnsThatFit,
-    clip: clip
+    clip: clip,
+    // The one rule about whether a port can carry a frame, and why not (#1238). Exported because the
+    // canvas tooltip and the inspector footer describe the same socket and must not disagree.
+    portState: portState,
+    portStateText: portStateText
   };
 
   root.PFFaceplate = api;

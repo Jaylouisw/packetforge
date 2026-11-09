@@ -164,7 +164,12 @@ ok(/data-state="cabled"/.test(port1), 'data-state="cabled"');
 ok(/fp-cabled/.test(port1), 'carries the fp-cabled class');
 ok(/cabled to PC-LAB-7:eth0/.test(port1), 'the tooltip names the far end (PC-LAB-7:eth0)');
 const port2 = cellFor(html, '1/1/2');
-ok(/data-state="up"/.test(port2) && /not cabled/.test(port2), 'an empty socket is up but not cabled');
+// This used to read `data-state="up"` with the tooltip "not cabled" - which was the bug (#1238): an
+// empty socket cannot carry a frame, and the panel that says "up" is the panel you trust when a link
+// will not come up. "notconnect" is the vendor word for exactly this state.
+ok(/data-state="notconnect"/.test(port2), 'an empty socket is notconnect');
+ok(/down \(no cable\)/.test(port2), 'and its tooltip says why (down (no cable))');
+ok(!/fp-down/.test(port2), 'it is not painted as a fault - 46 red ports on a 48-port switch is not a signal');
 ok(!/fp-cabled/.test(port2), 'and is not marked cabled');
 
 console.log('\nAn administratively down port is visibly down:');

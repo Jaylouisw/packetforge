@@ -249,6 +249,18 @@ class Device {
     const peerDev = topo.getDevice ? topo.getDevice(port.peer.deviceId) : null;
     const peerPort = peerDev && peerDev.interfaces.get(port.peer.iface);
     if (!peerDev || !peerPort) return { status: 'down', protocol: 'down', reason: 'peer missing' };
+    // A cable can be patched and still be down - `link down` pulls it without deleting it, and the
+    // simulator will not carry a frame across it. The ports stay plugged, so this is not "no cable"
+    // and reporting the port as up would send the operator hunting for a routing fault (#1238).
+    if (topo.linksFor) {
+      const devId = this.id;
+      const cut = topo.linksFor(devId).filter(function (l) {
+        if (!l || l.state !== 'down') return false;
+        return (l.a.deviceId === devId && l.a.iface === port.name) ||
+               (l.b.deviceId === devId && l.b.iface === port.name);
+      })[0];
+      if (cut) return { status: 'down', protocol: 'down', reason: 'link down' };
+    }
     if (!peerPort.enabled) return { status: 'down', protocol: 'down', reason: 'peer shut down' };
     return { status: 'up', protocol: 'up', reason: null };
   }

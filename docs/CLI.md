@@ -186,11 +186,13 @@ The **Status** column answers "can this port carry a frame", not merely "did som
 | shut down here (`shutdown`) | `administratively down` | `down` |
 | no cable plugged in | `down` | `down` |
 | cabled, but the far port is shut down | `down` | `down` |
+| cable patched but taken down (`link down`) | `down` | `down` |
 | otherwise | `up` | `up` |
 
 The reason travels with it in `show interfaces` — `status: down (no cable)`, `status: down (peer shut
-down)` — because `status: up` printed directly above `peer: disconnected` was two halves of one output
-disagreeing. A wireless radio has no cable to miss, so it is up when its radio is.
+down)`, `status: down (link down)` — because `status: up` printed directly above `peer: disconnected`
+was two halves of one output disagreeing. A cable that was pulled with `link down` is not the same fault
+as a socket with nothing in it, and the two need different fixes. A wireless radio has no cable to miss, so it is up when its radio is.
 
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing

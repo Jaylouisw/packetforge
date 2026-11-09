@@ -344,7 +344,7 @@
       antenna: '#60a5fa',
       usb: '#cbd5e1'
     };
-    function peerLabel(portName) {
+    function peerRef(portName) {
       const link = (state.topology.links || []).find(function (l) {
         return (l.a.deviceId === d.id && l.a.iface === portName) ||
                (l.b.deviceId === d.id && l.b.iface === portName);
@@ -352,7 +352,42 @@
       if (!link) return null;
       const other = link.a.deviceId === d.id ? link.b : link.a;
       const dev = (state.topology.devices || []).find(function (x) { return x.id === other.deviceId; });
-      return (dev ? dev.name : other.deviceId) + ':' + other.iface;
+      return { deviceId: other.deviceId, iface: other.iface, dev: dev || null };
+    }
+    function peerLabel(portName) {
+      const ref = peerRef(portName);
+      if (!ref) return null;
+      return (ref.dev ? ref.dev.name : ref.deviceId) + ':' + ref.iface;
+    }
+    // Whether this socket can carry a frame, and why not. The rule lives in faceplate.js so the panel,
+    // the canvas and the inspector say the same thing; the canvas only supplies the facts it can see
+    // (#1238). If faceplate.js is not loaded - the canvas tests load this file alone - the title simply
+    // omits the status rather than inventing a second answer.
+    function linkDownOf(portName) {
+      const links = (state.topology.links || []);
+      for (const l of links) {
+        if (!l || !l.a || !l.b) continue;
+        const mine = (l.a.deviceId === d.id && l.a.iface === portName) ||
+                     (l.b.deviceId === d.id && l.b.iface === portName);
+        if (mine && l.state === 'down') return true;
+      }
+      return false;
+    }
+    function linkStateOf(iface, ref, connected, portName) {
+      const lib = (typeof window !== 'undefined' && window.PFFaceplate) || null;
+      if (!lib || typeof lib.portState !== 'function') return null;
+      let peerEnabled;
+      if (ref && ref.dev && Array.isArray(ref.dev.interfaces)) {
+        const pif = ref.dev.interfaces.find(function (i) { return i && i.name === ref.iface; });
+        if (pif) peerEnabled = pif.enabled !== false;
+      }
+      const facts = { enabled: iface.enabled, cabled: !!connected, peerEnabled: peerEnabled,
+        linkDown: linkDownOf(portName) };
+      const verdict = lib.portState(facts);
+      // The sentence comes from the same place as the verdict, so the canvas cannot phrase it
+      // differently from the panel.
+      verdict.text = lib.portStateText(facts);
+      return verdict;
     }
     // A 12-port cut-off was too tight: a router with 13 sockets showed no labels at
     // all, which is precisely when you need them. Labels are cheap; only genuinely
@@ -362,7 +397,12 @@
     for (const p of g.ports) {
       const iface = d.interfaces.find(function (i) { return i.name === p.name; });
       const peer = peerLabel(p.name);
+      const ref = peerRef(p.name);
       const connected = !!peer || !!iface.peer;
+      // The socket's own verdict, from the shared rule: "administratively down", "down (no cable)",
+      // "down (peer shut down)" (#1238). Before this the title said "up" for anything not shut down,
+      // including a port with nothing plugged in.
+      const linkState = linkStateOf(iface, ref, connected, p.name);
       // Never guess copper. Defaulting an unresolved cage to rj45 painted fibre
       // ports grey and made the tooltip state "RJ45 copper" - a confident, specific,
       // wrong answer. Unknown is drawn as unknown.
@@ -375,12 +415,14 @@
       const title = p.name + ' · ' +
         (cage ? cageLabel(cage) + ' (' + cage + ')' : 'connector unknown') +
         (rate ? ' · ' + rate : '') + roleBit +
-        (peer ? ' · cabled to ' + peer : ' · not cabled') +
-        (iface.enabled === false ? ' · administratively down' : '');
+        (linkState && linkState.reason === 'no cable'
+          ? ' · ' + linkState.text
+          : (peer ? ' · cabled to ' + peer : ' · not cabled')) +
+        (linkState && linkState.state === 'down' ? ' · ' + linkState.text : '');
       const dot = el('circle', {
         cx: p.x, cy: p.y, r: 5,
         class: 'port' + (connected ? ' connected' : '') +
-          (iface.enabled === false ? ' down' : '') +
+          (linkState && linkState.state === 'down' ? ' down' : '') +
           (state.connecting && state.connecting.deviceId === d.id && state.connecting.iface === p.name ? ' active' : ''),
         stroke: tint,
         'data-device-id': d.id, 'data-iface': p.name

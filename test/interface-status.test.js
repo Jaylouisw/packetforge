@@ -118,6 +118,23 @@ console.log('The far end being shut down is reported as that:');
 }
 
 console.log('');
+console.log('A patched cable that was taken down says so:');
+{
+  const env = lab();
+  const cabling = env.t.linksFor('r1');
+  const linkId = cabling.length ? cabling[0].id : null;
+  ok(!!linkId, 'the lab has a link id to take down', JSON.stringify(cabling.map(function (l) { return l.id; })));
+  env.sim.setLinkState(linkId, 'down', { atMs: 1000 });
+  const row = briefRow(show(env, env.r1, 'show ip interface brief'), env.a.name);
+  ok(/down/.test(row), 'the port on the down cable reads down', row);
+  ok(env.a.peer !== null, 'while the cable is still patched - this is not "no cable"', JSON.stringify(env.a.peer));
+  const detail = show(env, env.r1, 'show interfaces').join('\n');
+  ok(/link down/.test(detail), 'show interfaces distinguishes it from an absent cable',
+    detail.split('\n').slice(0, 4).join(' | '));
+  ok(!pingOk(env), 'and no packet crosses it');
+}
+
+console.log('');
 console.log('A port shut down here is administratively down:');
 {
   const env = lab();
