@@ -7,6 +7,12 @@ This page explains what runs, what a red check means, and what to do when the
 queue looks stuck. It is written from the workflows in `.forgejo/workflows/`, so
 if the two disagree the workflow is right and this page is a bug.
 
+If the forge itself is not answering — no push, no issue comment, no dispatch —
+that is a different failure from a stuck queue. Start with
+[`FORGE_TROUBLESHOOTING.md`](FORGE_TROUBLESHOOTING.md): a four-rung probe ladder
+that separates "the backend is wedged" from "your token is wrong" in about a
+minute.
+
 ## The workflows
 
 | File | Trigger | What it does |
