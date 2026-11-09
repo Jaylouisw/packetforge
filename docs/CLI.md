@@ -27,6 +27,7 @@ Modes and their prompts:
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
 | `show spanning-tree` | per-port STP role and state, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
+| `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -349,6 +350,24 @@ The data plane uses the same rule: **the hash is taken over the members that can
 member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
+
+### Reading `show lldp`
+
+```
+LLDP neighbours on Switch (L2)-sw:
+  Neighbour                                  Local port  Port ID  Mgmt address
+  ASR 1001-X aggregation services router-r1  Fa0/1       Gi0      10.0.0.1
+  PC-pc                                      Fa0/2       eth0     -
+```
+
+The table is filled from LLDPDUs that actually crossed a link, not from the topology file, so an empty table
+means nothing has announced itself. Column widths come from the data — a fixed 20-character Neighbour column
+ran a 55-character router name into the Local port column, which made the row unreadable field by field.
+
+A neighbour is **not** deleted when its link goes down: real switches hold the entry until its TTL expires,
+and this model has no clock to age it with. Instead the Local port is marked with the reason, in the same
+sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(down: peer shut down)`,
+`(administratively down)` — and the mark clears when the link comes back.
 
 ### Reading `show arp`
 

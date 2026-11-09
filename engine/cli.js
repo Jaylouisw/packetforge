@@ -1503,14 +1503,38 @@ class CliSession {
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
       out.push('LLDP neighbours on ' + dev.name + ':');
-      out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
       const rows = Array.from(dev.lldp.entries());
       if (!rows.length) {
+        out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
         out.push('  (none - no LLDP has been heard on any port)');
       } else {
-        for (const [port, nb] of rows) {
-          out.push('  ' + pad(nb.systemName || '?', 20) + pad(port, 16) +
-            pad(nb.portId || '?', 16) + (nb.mgmtIp || '-'));
+        // Column widths come from the data. A fixed 20-character Neighbour column ran a 55-character router
+        // name into the Local port column, so the row could not be read field by field - and the one thing
+        // this table is for is answering "what is on that port" (#1265).
+        const cells = rows.map(function (r) {
+          const port = r[0];
+          const nb = r[1] || {};
+          const iface = dev.resolveIface(port);
+          // A neighbour is not "here" because we once heard it: an entry whose port can no longer carry a
+          // frame is stale, and the row has to say so. Reached for the same sentence `show arp` and
+          // `show mac address-table` use, because it is the same fact about the same port.
+          const note = iface ? this._staleNote(iface) : '(gone)';
+          return {
+            name: nb.systemName || '?',
+            port: port + (note ? ' ' + note : ''),
+            portId: nb.portId || '?',
+            mgmt: nb.mgmtIp || '-'
+          };
+        }, this);
+        const w = function (key) {
+          return cells.reduce(function (max, c) { return Math.max(max, String(c[key]).length); }, 0) + 2;
+        };
+        const wName = Math.max(w('name'), 11), wPort = Math.max(w('port'), 12);
+        const wId = Math.max(w('portId'), 9);
+        out.push('  ' + pad('Neighbour', wName) + pad('Local port', wPort) + pad('Port ID', wId) +
+          'Mgmt address');
+        for (const c of cells) {
+          out.push('  ' + pad(c.name, wName) + pad(c.port, wPort) + pad(c.portId, wId) + c.mgmt);
         }
       }
     } else if (what === 'access-lists' || what === 'access-list') {
