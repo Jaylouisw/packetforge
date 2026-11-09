@@ -23,7 +23,7 @@ Modes and their prompts:
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
-| `show mac address-table` | MAC table (switches) |
+| `show mac address-table` | MAC table (switches), per VLAN, with stale entries marked |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -267,6 +267,30 @@ Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0 (down: link down)
   and one whose port no longer exists prints the name and `(gone)`.
 
 Beyond ~30 entries the table is not the place to look for a neighbour; use the inspector's search.
+
+### Reading `show mac address-table`
+
+```
+SW1#show mac address-table
+Vlan    Mac Address         Type        Ports
+1       02:00:00:00:01:00   DYNAMIC     Fa0/1
+1       02:00:00:00:02:00   DYNAMIC     Fa0/2 (administratively down)
+20      02:00:00:00:09:00   DYNAMIC     Fa0/1 (vlan mismatch)
+```
+
+* **Ports** is the port the source MAC was heard on, per VLAN.
+* A port that can no longer carry a frame is named **with its reason**, the same sentence `show arp` uses.
+  The entry is not deleted: a real switch ages entries out, this one does not, so the mark is what tells
+  you the row is stale.
+* `(vlan mismatch)` means the port does not carry that VLAN at all — an entry that cannot be a forwarding
+  decision, however healthy the port looks.
+* **A port's entries are flushed when its VLAN membership changes** (`switchport access vlan`,
+  `switchport mode`, `switchport trunk native|allowed vlan`, `no switchport`). A switch that keeps a
+  VLAN-1 entry on a port it has moved to VLAN 20 is a switch whose table describes a topology that no
+  longer exists, and nothing here would ever remove it.
+
+Trunk ports carry their allowed VLANs, so their entries are not marked; a moved host re-learns on the next
+frame it sends.
 
 ### Reading `show ip route`
 
