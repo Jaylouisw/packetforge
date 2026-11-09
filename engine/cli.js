@@ -1518,7 +1518,12 @@ class CliSession {
         const prefix = net.prefixOf(r.mask);
         const dest = pad(r.dest, 15) + '/' + prefix;
         if (r.type === 'connected') {
-          out.push('C   ' + dest + '  is directly connected, ' + r.iface);
+          // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
+          // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
+          // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
+          const cIf = r.iface && r.iface !== '-' ? dev.interfaces.get(r.iface) : null;
+          const cNote = cIf ? this._staleNote(cIf) : '';
+          out.push('C   ' + dest + '  is directly connected, ' + r.iface + (cNote ? '  ' + cNote : ''));
           continue;
         }
         // [administrative distance/metric] - the distance is half of the rule that picks the installed
@@ -1526,9 +1531,16 @@ class CliSession {
         // by reading.
         const code = r.type === 'default' ? 'S*' : r.code;
         const distance = distanceOf(r);
+        // A route can be installed and still lead nowhere: its next hop sits behind a port that cannot carry
+        // a frame. Printing the row without saying so leaves the operator reading a table that looks healthy
+        // while every packet to that prefix is dropped - and the drop says "no ARP reply from X", which
+        // sends you looking for a host rather than at the wire (#1271).
+        const egress = r.iface && r.iface !== '-' ? dev.interfaces.get(r.iface) : dev.egressFor(r.gw);
+        const note = egress ? this._staleNote(egress) : '';
         // Three columns whatever the code length, so `S*` does not shift the whole row.
         out.push((code.length === 1 ? code + '  ' : code + ' ') + dest + '  [' + distance + '/0] via ' + r.gw +
-          (r.iface && r.iface !== '-' ? '  ' + r.iface : ''));
+          (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
+          (note ? '  ' + note : ''));
       }
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
