@@ -1464,11 +1464,73 @@ class CliSession {
         if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
         if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
         if (!i.enabled) out.push('  shutdown');
+        // A VRRP group belongs to an interface, so it is printed inside that interface's block - the
+        // only place the config parser will accept it. It used to be printed nowhere at all: the
+        // group existed, `show vrrp` reported it, and a config saved from the device had no trace of
+        // it (#1232).
+        for (const g of (dev.config.vrrp || [])) {
+          if (!g || g.interface !== i.name) continue;
+          for (const ip of (g.ips || [])) out.push('  vrrp ' + g.vrid + ' ip ' + ip);
+          if (g.priority !== undefined && g.priority !== null && g.priority !== 100) {
+            out.push('  vrrp ' + g.vrid + ' priority ' + g.priority);
+          }
+          if (g.preempt === false) out.push('  no vrrp ' + g.vrid + ' preempt');
+          if (g.advertSec !== undefined && g.advertSec !== null && Number(g.advertSec) !== 1) {
+            out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
+          }
+          if (g.authText) out.push('  vrrp ' + g.vrid + ' authentication ' + g.authText);
+        }
         // Close the block. Without this the next `interface` line is read while still inside the
         // previous block, every following line is parsed as an interface command, and a pasted config
         // applies its addresses and shutdowns to whichever interface was current (#1230).
         out.push('exit');
       }
+      // The VLAN table: the ids exist because someone typed `vlan <id> <name>`, and without these
+      // lines a restored config has ports in VLAN 42 with no VLAN 42 (#1232).
+      const vlans = dev.config.vlans || {};
+      for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
+        const v = vlans[id] || {};
+        out.push('vlan ' + id + (v.name ? ' ' + v.name : ''));
+      }
+
+      // DHCP pools. A pool is a sub-mode, so each one closes with `exit` before the next begins.
+      for (const pool of (dev.config.dhcpPools || [])) {
+        if (!pool || !pool.name) continue;
+        out.push('ip dhcp pool ' + pool.name);
+        if (pool.network) out.push('  network ' + pool.network + (pool.mask ? ' ' + pool.mask : ''));
+        if (pool.rangeStart) out.push('  range ' + pool.rangeStart + (pool.rangeEnd ? ' ' + pool.rangeEnd : ''));
+        if (pool.gateway) out.push('  default-router ' + pool.gateway);
+        if (pool.dns) out.push('  dns-server ' + pool.dns);
+        for (const ex of (Array.isArray(pool.excluded) ? pool.excluded : [])) out.push('  excluded-address ' + ex);
+        if (pool.leaseSec) {
+          // Seconds back to the days/hours/minutes the command takes. Only whole minutes survive the
+          // round trip, which is every value the command itself can express.
+          const sec = Number(pool.leaseSec);
+          if (Number.isFinite(sec) && sec > 0) {
+            const days = Math.floor(sec / 86400);
+            const hours = Math.floor((sec % 86400) / 3600);
+            const mins = Math.floor((sec % 3600) / 60);
+            out.push('  lease ' + days + ' ' + hours + ' ' + mins);
+          }
+        }
+        // `reservations` is keyed by hardware address and holds the address it is pinned to, while the
+        // command reads `host <address> <hardware-address>` - so the key is printed second.
+        const reservations = pool.reservations || {};
+        for (const mac of Object.keys(reservations)) out.push('  host ' + reservations[mac] + ' ' + mac);
+        out.push('exit');
+      }
+
+      // DNS zones and their records. `dns add` answers under the zone last named, so the zone line
+      // must come first and no `exit` may come between it and its records.
+      for (const z of (dev.config.dnsZones || [])) {
+        if (!z || !z.name) continue;
+        out.push('dns zone ' + z.name);
+        for (const r of (z.records || [])) {
+          if (!r || !r.name) continue;
+          out.push('  dns add ' + r.name + ' ' + (r.type || 'A') + ' ' + r.value);
+        }
+      }
+
       const allAcls = dev.config.acls || {};
       for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
         for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
