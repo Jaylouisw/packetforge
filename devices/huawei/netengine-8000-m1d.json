@@ -1,0 +1,247 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-m1d",
+  "label": "Huawei NetEngine 8000 M1D",
+  "category": "router",
+  "description": "NetEngine 8000 M1D fixed-configuration router: 4x 100GE/50GE QSFP28 plus 16x 25GE/10GE/GE. 1.76 Tbps switching.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "firewall",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "100ge1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "100ge2",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "100ge3",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "100ge4",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge5",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge6",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge7",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge8",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge9",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge10",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge11",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge12",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge13",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge14",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge15",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25ge16",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    }
+  ],
+  "notes": "Vendor figures: **Port Capacity 4*100GE/50GE + 16*25GE/10GE/GE**, **1.76 Tbps** switching, **398 Mpps**, typical **124.5 W**. The cage speeds are the story: each 100GE cage falls back to 50/40/25/10G, and each 25GE cage to 10G or 1G - the same box is a 400G access router or a 16-port 10G one depending on optics, with no licensing change."
+}

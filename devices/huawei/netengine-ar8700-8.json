@@ -1,0 +1,208 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-ar8700-8",
+  "label": "Huawei NetEngine AR8700-8",
+  "category": "router",
+  "description": "NetEngine AR8700-8 SD-WAN router: 1x 40GE QSFP+, 8x 10GE SFP+, 8x GE combo, 8 SIC slots. 30 Gbps NAT+ACL+QoS.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "40ge1",
+      "type": "ethernet",
+      "connector": "qsfp+",
+      "speed": "40G",
+      "speedCaps": [
+        40000,
+        10000
+      ]
+    },
+    {
+      "name": "10ge1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "ge-combo1",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo2",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo3",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo4",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo5",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo6",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo7",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo8",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the AR8000 datasheet: **1 x 40GE QSFP+, 8 x 10GE SFP+, 8 x GE Combo**, **8 x SIC** slots, forwarding **30 Gbps**, IPsec 20-25 Gbps, 2U, 8 GB MPU. **All WAN ports can be switched to LAN**, and the 40GE cage takes 10G optics - the widest fixed port set in the AR8000 range short of the SIC slots."
+}

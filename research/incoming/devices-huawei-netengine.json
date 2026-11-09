@@ -1,0 +1,1363 @@
+[
+  {
+    "vendor": "huawei",
+    "model": "netengine-8000-m1a",
+    "label": "Huawei NetEngine 8000 M1A",
+    "category": "router",
+    "description": "NetEngine 8000 M1A fixed-configuration router: 4x 10GE SFP+ plus 12x GE. 352 Gbps switching, 72 Mpps forwarding, SRv6/EVPN.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "10ge1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from Huawei's ordering codes: **Fixed Interface (4*10GE + 12*GE)**, switching capacity **352 Gbps**, forwarding **72 Mpps**, typical draw **74.8 W**, 1U. Fixed-configuration - **no line cards**; the ordering code lists the GE ports only as \"GE\", recorded here as RJ-45 electrical."
+  },
+  {
+    "vendor": "huawei",
+    "model": "netengine-8000-m1c",
+    "label": "Huawei NetEngine 8000 M1C",
+    "category": "router",
+    "description": "NetEngine 8000 M1C fixed-configuration router: 4x 10GE SFP+ plus 12x GE. 344 Gbps switching, 78 Mpps forwarding.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "10ge1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures: **Fixed Interface (4*10GE + 12*GE)**, **344 Gbps** switching, **78 Mpps**, typical **89 W**. **Identical port layout to the M1A** - the difference is capacity and power, not ports, which is worth knowing before swapping one for the other in a diagram."
+  },
+  {
+    "vendor": "huawei",
+    "model": "netengine-8000-m1d",
+    "label": "Huawei NetEngine 8000 M1D",
+    "category": "router",
+    "description": "NetEngine 8000 M1D fixed-configuration router: 4x 100GE/50GE QSFP28 plus 16x 25GE/10GE/GE. 1.76 Tbps switching.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "100ge1",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "100ge2",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "100ge3",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "100ge4",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000,
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge1",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge2",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge3",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge4",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge5",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge6",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge7",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge8",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge9",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge10",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge11",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge12",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge13",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge14",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge15",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge16",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      }
+    ],
+    "notes": "Vendor figures: **Port Capacity 4*100GE/50GE + 16*25GE/10GE/GE**, **1.76 Tbps** switching, **398 Mpps**, typical **124.5 W**. The cage speeds are the story: each 100GE cage falls back to 50/40/25/10G, and each 25GE cage to 10G or 1G - the same box is a 400G access router or a 16-port 10G one depending on optics, with no licensing change."
+  },
+  {
+    "vendor": "huawei",
+    "model": "netengine-ar8140-12g10xg",
+    "label": "Huawei NetEngine AR8140-12G10XG",
+    "category": "router",
+    "description": "NetEngine AR8140 SD-WAN router: 10x 10GE SFP+, 8x GE combo, 4x GE electrical, 4 SIC slots. 25 Gbps NAT+ACL+QoS.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "10ge1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge9",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge10",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge-combo1",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo2",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo3",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo4",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo5",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo6",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo7",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo8",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the AR8000 datasheet: **10 x 10GE SFP+, 8 x GE Combo, 4 x GE electrical**, **4 x SIC** slots, forwarding **25 Gbps** (NAT+ACL+QoS, IMIX), IPsec 20-25 Gbps, 1U, 16 GB MPU. **Every WAN port can be switched to LAN** - there is no fixed WAN/LAN split to model, so they are recorded as plain ports. TPU/TPM is **only** on the -T variant."
+  },
+  {
+    "vendor": "huawei",
+    "model": "netengine-ar8140-t-12g10xg",
+    "label": "Huawei NetEngine AR8140-T-12G10XG",
+    "category": "router",
+    "description": "NetEngine AR8140-T SD-WAN router: 10x 10GE SFP+, 8x GE combo, 4x GE electrical, 4 SIC slots, TPM. Same ports as the AR8140-12G10XG.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "10ge1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge9",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge10",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge-combo1",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo2",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo3",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo4",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo5",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo6",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo7",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo8",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      }
+    ],
+    "notes": "Huawei's AR8000 specification column covers **NetEngine AR8140-12G10XG and AR8140-T-12G10XG together**, so the port layout is identical: 10 x 10GE SFP+, 8 x GE Combo, 4 x GE electrical, 4 x SIC. The **-T is the TPM variant** - the only spec that differs in the datasheet's own table. A catalogue entry for each is right because the part numbers and BOMs are different, and the note says why the ports are not."
+  },
+  {
+    "vendor": "huawei",
+    "model": "netengine-ar8700-8",
+    "label": "Huawei NetEngine AR8700-8",
+    "category": "router",
+    "description": "NetEngine AR8700-8 SD-WAN router: 1x 40GE QSFP+, 8x 10GE SFP+, 8x GE combo, 8 SIC slots. 30 Gbps NAT+ACL+QoS.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "firewall",
+      "nat",
+      "dhcp-server",
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "40ge1",
+        "type": "ethernet",
+        "connector": "qsfp+",
+        "speed": "40G",
+        "speedCaps": [
+          40000,
+          10000
+        ]
+      },
+      {
+        "name": "10ge1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "10ge8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge-combo1",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo2",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo3",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo4",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo5",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo6",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo7",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "ge-combo8",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "mgmt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the AR8000 datasheet: **1 x 40GE QSFP+, 8 x 10GE SFP+, 8 x GE Combo**, **8 x SIC** slots, forwarding **30 Gbps**, IPsec 20-25 Gbps, 2U, 8 GB MPU. **All WAN ports can be switched to LAN**, and the 40GE cage takes 10G optics - the widest fixed port set in the AR8000 range short of the SIC slots."
+  }
+]

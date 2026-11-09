@@ -1,0 +1,191 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-m1a",
+  "label": "Huawei NetEngine 8000 M1A",
+  "category": "router",
+  "description": "NetEngine 8000 M1A fixed-configuration router: 4x 10GE SFP+ plus 12x GE. 352 Gbps switching, 72 Mpps forwarding, SRv6/EVPN.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "firewall",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "10ge1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from Huawei's ordering codes: **Fixed Interface (4*10GE + 12*GE)**, switching capacity **352 Gbps**, forwarding **72 Mpps**, typical draw **74.8 W**, 1U. Fixed-configuration - **no line cards**; the ordering code lists the GE ports only as \"GE\", recorded here as RJ-45 electrical."
+}

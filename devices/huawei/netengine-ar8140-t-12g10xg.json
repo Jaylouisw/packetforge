@@ -1,0 +1,262 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-ar8140-t-12g10xg",
+  "label": "Huawei NetEngine AR8140-T-12G10XG",
+  "category": "router",
+  "description": "NetEngine AR8140-T SD-WAN router: 10x 10GE SFP+, 8x GE combo, 4x GE electrical, 4 SIC slots, TPM. Same ports as the AR8140-12G10XG.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "10ge1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "ge-combo1",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo2",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo3",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo4",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo5",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo6",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo7",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge-combo8",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "notes": "Huawei's AR8000 specification column covers **NetEngine AR8140-12G10XG and AR8140-T-12G10XG together**, so the port layout is identical: 10 x 10GE SFP+, 8 x GE Combo, 4 x GE electrical, 4 x SIC. The **-T is the TPM variant** - the only spec that differs in the datasheet's own table. A catalogue entry for each is right because the part numbers and BOMs are different, and the note says why the ports are not."
+}
