@@ -758,6 +758,7 @@ class CliSession {
 
     if (t[0] === 'reset') {
       iface.vlan = vlanLib.normalizePortConfig({});
+      this.device.flushMacsOnPort(iface.name);
       return ['Switchport reset to defaults on ' + iface.name + ' (access VLAN 1)'];
     }
     if (t[0] === 'mode') {
@@ -768,6 +769,7 @@ class CliSession {
       // it would silently carry no VLANs at all.
       if (mode === 'trunk' && next.allowedVlans === undefined) next.allowedVlans = 'all';
       iface.vlan = vlanLib.normalizePortConfig(next);
+      this.device.flushMacsOnPort(iface.name);
       return ['Switchport mode ' + mode + ' on ' + iface.name];
     }
     if (t[0] === 'access' && t[1] === 'vlan') {
@@ -775,6 +777,7 @@ class CliSession {
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
       if (!chk.ok) return ['% ' + chk.errors[0].message];
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: id }));
+      this.device.flushMacsOnPort(iface.name);
       return ['Access VLAN ' + id + ' on ' + iface.name];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
@@ -782,6 +785,7 @@ class CliSession {
       const chk = vlanLib.validatePortConfig({ nativeVlan: id });
       if (!chk.ok) return ['% ' + chk.errors[0].message];
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: id }));
+      this.device.flushMacsOnPort(iface.name);
       return ['Trunk native VLAN ' + id + ' on ' + iface.name];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
@@ -789,6 +793,7 @@ class CliSession {
       if (!spec) return ['% Incomplete command'];
       if (spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
+        this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows all VLANs'];
       }
       const parsed = vlanLib.parseVlanList(spec);
@@ -796,6 +801,7 @@ class CliSession {
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
+      this.device.flushMacsOnPort(iface.name);
       return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
@@ -1286,6 +1292,19 @@ class CliSession {
     return out;
   }
 
+  // "Is this port still somewhere a frame can go, and if not why" - the sentence both tables append to a
+  // stale row. One helper so `show arp` and `show mac address-table` cannot describe the same port state
+  // two different ways.
+  _staleNote(port, extra) {
+    if (!port) return extra || '(gone)';
+    const link = this.device.ifaceStatus(port, this.topo);
+    if (link.status === 'up') return extra || '';
+    // `administratively down` already says who did it; "shut down" after it would be the same fact twice.
+    const why = (!link.reason || link.reason === 'shut down' || link.reason === link.status)
+      ? link.status : link.status + ': ' + link.reason;
+    return '(' + why + ')';
+  }
+
   _show(tokens) {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
@@ -1474,13 +1493,10 @@ class CliSession {
           if (!port) {
             note = portName + ' (gone)';
           } else {
-            const link = dev.ifaceStatus(port, this.topo);
             // The reason travels with the status here too: "down" alone sends you looking for a cable
             // when the cable is fine and the far port is shut (#1253).
-            const why = (link.reason && link.reason !== link.status)
-              ? link.status + ': ' + link.reason
-              : link.status;
-            note = port.name + (link.status === 'up' ? '' : ' (' + why + ')');
+            const stale = this._staleNote(port);
+            note = port.name + (stale ? ' ' + stale : '');
           }
         }
         // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a
@@ -1493,14 +1509,27 @@ class CliSession {
         out.push(pad('Internet', 10) + pad(r[0], 17) + pad('-', 11) + pad(r[1], 18) + r[2]);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
-      out.push('Vlan    Mac Address         Type        Ports');
+      const vlanLib = require('./vlan');
+      out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + 'Ports');
       const rows = [];
       for (const [mac, iface] of dev.macTable.entries()) rows.push([1, mac, iface]);
       for (const [vid, table] of (dev.macTables || new Map()).entries()) {
         for (const [mac, iface] of table.entries()) rows.push([vid, mac, iface]);
       }
       rows.sort(function (a, b) { return (a[0] - b[0]) || String(a[1]).localeCompare(String(b[1])); });
-      for (const r of rows) out.push(pad(r[0], 8) + pad(r[1], 20) + 'DYNAMIC     ' + r[2]);
+      for (const r of rows) {
+        // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A
+        // MAC learned before its port was shut or moved keeps its row - real switches age entries out,
+        // this one does not - so the row has to say that it is stale rather than read as current (#1255).
+        const where = (r[2] && typeof r[2] === 'object') ? r[2] : dev.resolveIface(r[2]);
+        const name = where ? where.name : String(r[2]);
+        // A port that no longer carries this VLAN cannot be the way to a MAC in it, even while the port
+        // itself is up: moving a port between VLANs is exactly how that happens.
+        const mismatch = (where && vlanLib.classifyEgress(where.vlan, r[0]).action === 'drop')
+          ? '(vlan mismatch)' : '';
+        const note = this._staleNote(where, mismatch);
+        out.push(pad(r[0], 8) + pad(r[1], 20) + pad('DYNAMIC', 12) + name + (note ? ' ' + note : ''));
+      }
     } else if (what === 'interfaces' || what === 'interface') {
       for (const i of dev.interfaces.values()) {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);

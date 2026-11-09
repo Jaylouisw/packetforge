@@ -467,6 +467,31 @@ class Device {
     return m;
   }
 
+  // Forget every MAC learned on one port, in every VLAN.
+  //
+  // A port that changes VLAN membership cannot still be the way to a MAC it learned in the old VLAN, and a
+  // table that keeps saying so is a table that lies - `show mac address-table` went on listing a VLAN-1
+  // entry on a port that had been moved to VLAN 20, indefinitely, because nothing ages entries out here
+  // (#1255). Real switches flush a port's dynamic entries when its membership changes; this is that rule.
+  flushMacsOnPort(portName) {
+    if (!portName) return 0;
+    const name = (function (self, x) {
+      const port = self.resolveIface(x);
+      return port ? port.name : String(x);
+    })(this, portName);
+    let dropped = 0;
+    const sweep = function (table) {
+      if (!table || typeof table.keys !== 'function') return;
+      for (const [mac, where] of [...table.entries()]) {
+        const at = (where && typeof where === 'object') ? where.name : where;
+        if (at === name) { table.delete(mac); dropped++; }
+      }
+    };
+    sweep(this.macTable);
+    for (const table of (this.macTables || new Map()).values()) sweep(table);
+    return dropped;
+  }
+
   // The LAG group a port belongs to, or null.
   lagFor(ifaceName) {
     const lags = this.config.lags || {};
