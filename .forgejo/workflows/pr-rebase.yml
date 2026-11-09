@@ -46,10 +46,7 @@ jobs:
     # deleted, and comparing through a null used to end the whole job as a failure
     # rather than a skip; the state guard stops a run against a pull request that has
     # already been merged or closed.
-    if: >-
-      github.event.pull_request.state == 'open' &&
-      github.event.pull_request.head.repo != null &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
         with:
