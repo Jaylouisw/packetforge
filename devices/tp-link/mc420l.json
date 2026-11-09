@@ -1,0 +1,37 @@
+{
+  "vendor": "tp-link",
+  "model": "MC420L",
+  "label": "MC420L 10G SFP+ media converter (multi-gig copper)",
+  "category": "switch",
+  "description": "Media converter bridging a 1G/2.5G/5G/10GBASE-T copper port to an SFP+ cage, with a DIP switch that selects whether the optical side runs at 1G/10G or 2.5G. Two ports, one collision domain each way - a bridge, not a switch.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "RJ45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202609/20260924/MC420L(UN)2.0_Datasheet.pdf",
+  "notes": "TP-Link datasheet: '1x 1G/2.5G/5G/10Gbps Auto-Negotiation RJ45 port supporting Auto-MDI/MDIX', optical port 'SFP+' with 'Easy switching between 1G/10G and 2.5G optical port modes' via DIP switch, IEEE 802.3ab/bz/an/z/ae/aq/cb. The optical cage is declared with speedCaps [1000, 2500, 10000] rather than 5G because the DIP switch only offers 1G/10G and 2.5G - 5GBASE-T exists on the copper side only, which is a real trap when someone puts a 5G link on the fibre side and wonders why it drops to 2.5G. Copper media: 1000BASE-T/2.5G/5G on Cat5e+ to 100 m, 10GBASE-T on Cat6 to 55 m or Cat6a to 100 m. 9V/0.6A external adapter, 5.26 W, 94.5 x 73 x 27 mm, standalone or in the Omada MC1400 chassis. Maximum reach depends entirely on the SFP+ module fitted, so no reach is claimed here."
+}

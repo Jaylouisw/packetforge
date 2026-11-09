@@ -1,0 +1,43 @@
+[
+  {
+    "vendor": "tp-link",
+    "model": "MC420L",
+    "category": "switch",
+    "label": "MC420L 10G SFP+ media converter (multi-gig copper)",
+    "description": "1x 1G/2.5G/5G/10GBASE-T RJ45 + 1x SFP+ (DIP switch selects 1G/10G or 2.5G optical).",
+    "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202609/20260924/MC420L(UN)2.0_Datasheet.pdf",
+    "notes": "Datasheet: RF45 auto-negotiation 1G/2.5G/5G/10G, SFP+ with 'easy switching between 1G/10G and 2.5G optical port modes', 802.3ab/bz/an/z/ae/aq/cb, Cat6 55 m / Cat6a 100 m at 10GBASE-T, 9V 0.6A, 5.26 W. Cage speedCaps exclude 5000 because 5GBASE-T is copper-only on this unit. Distinct from planet/XT-705A already catalogued (fixed 10G) because of the multi-gig copper and the 2.5G optical mode."
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TFC-1000MGA",
+    "category": "switch",
+    "label": "TFC-1000MGA 100/1000BASE-T to SFP media converter",
+    "description": "1x 10/100/1000 RJ45 + 1x mini-GBIC accepting 100BASE-FX and gigabit optics.",
+    "sourceUrl": "https://www.trendnet.com/products/gigabit-fiber-converter/TFC-1000MGA",
+    "notes": "Spec sheet: 'Ports: 1 x 10/100/1000Mbps Gigabit port, 1 x 100/1000Base-SX/LX Mini-GBIC slot', DIP switches 'Fiber (forced/auto-negotiation), LLCF (enable/disable)', 5V DC 1A. Adds the 100BASE-FX-in-cage case the TP-Link MC220L does not support. v1.0R discontinued, replaced by v2.0R with the same ports. First TRENDnet media converter in the catalogue (TEG-S350/TEG-S380/TPL-430AP already present)."
+  },
+  {
+    "vendor": "fs",
+    "model": "C6AP-S24FT1U",
+    "category": "splitter",
+    "label": "Cat6a 24-port shielded feed-through patch panel, 1U",
+    "description": "Passive 24-port Cat6a coupler panel, 10GBASE-T and PoE++ rated.",
+    "sourceUrl": "https://www.fs.com/products/118904.html",
+    "notes": "FS 118904 / C6AP-S24FT1U: 24-port 1RU shielded feed-through, 10GBase-T and PoE++ rated, cable management bar included. Categorised as splitter to match the existing passive-panel precedent (fs/FHD-1U-PP-24LC) - flagged in notes rather than inventing a category, because vendor/category counts are asserted by doc-catalog-counts. This is the catalogue's first copper patch panel; before it, every patch panel was fibre."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "MC220L",
+    "category": "switch",
+    "label": "ALREADY CATALOGUED - attempted duplicate, blocked",
+    "description": "Gigabit SFP media converter.",
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/accessory/mc220l/v1/",
+    "notes": "Attempted to add this and the write was refused because devices/tp-link/mc220l.json already exists with the same port layout (eth0 + sfp0 with speedCaps [1000]). Recorded so the duplicate is not retried next iteration: the existing entry is correct and slightly richer in description."
+  },
+  {
+    "kind": "gap-note",
+    "target": "patch panels / media converters",
+    "notes": "Functional census before this batch: media converters 6 (allied-telesys AT-MC102XL, planet GT-805A/XT-705A/VC-231/VC-231G, tp-link FC311A-20/MC220L), patch panels 1 (fibre LC only), console servers 6, KVM 5. After this batch: converters 9, panels 2. Remaining obvious gap in this area is a copper panel of a different density (48-port 2U) and a fibre ODF that is not FS-branded - both deliberately deferred so the batch stays datasheet-verified rather than padded."
+  }
+]
