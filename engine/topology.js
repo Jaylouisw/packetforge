@@ -121,12 +121,21 @@ addDevice(spec, id) {
   // expects: each entry names the peer of that side. An id that is not a link here resolves to
   // null, which grants nothing - a stale or invented id must never be able to wave a second cable
   // into an occupied socket.
-  revalidateFor(linkId) {
+  // The marker `validateLink` needs to re-check a cable that already exists: for each side, the peer it is
+  // expected to be cabled to. Orientation matters - `a` must be the far end *as seen from the caller's A
+  // side* - and it used to be assumed that the caller's A side was `link.a`. A caller holding the link from
+  // the other end then handed the validator its own port as "the peer", which came back as two
+  // E_PORT_IN_USE errors and made the cable look like a second cable (#1259). Naming the device you are
+  // asking from removes the assumption; the one-argument form keeps its old meaning.
+  revalidateFor(linkId, fromDeviceId) {
     const link = this.links.get(linkId);
     if (!link || !link.a || !link.b) return null;
+    const callerIsA = !fromDeviceId || String(link.a.deviceId) === String(fromDeviceId);
+    const near = callerIsA ? link.a : link.b;
+    const far = callerIsA ? link.b : link.a;
     return {
-      a: { deviceId: link.b.deviceId, iface: link.b.iface },
-      b: { deviceId: link.a.deviceId, iface: link.a.iface }
+      a: { deviceId: far.deviceId, iface: far.iface },
+      b: { deviceId: near.deviceId, iface: near.iface }
     };
   }
 
@@ -182,9 +191,19 @@ addDevice(spec, id) {
     if (typeof revalidate === 'string') revalidate = this.revalidateFor(revalidate);
 
     if (V && typeof V.validateConnection === 'function') {
+      // A port whose rate was forced offers exactly that rate, so auto-negotiation has one option left
+      // instead of a ladder. Written as a narrowed capability rather than a special case inside the
+      // negotiator: two ends forced to different rates then intersect emptily and the existing
+      // "no common line rate" rule refuses the link, which is what real gear does.
+      const forcedA = (ai && ai.speedMbps) ? [ai.speedMbps] : null;
+      const forcedB = (bi && bi.speedMbps) ? [bi.speedMbps] : null;
+      const portA = ai && ai.hardware
+        ? Object.assign({}, ai.hardware, forcedA ? { speedCaps: forcedA } : null) : null;
+      const portB = bi && bi.hardware
+        ? Object.assign({}, bi.hardware, forcedB ? { speedCaps: forcedB } : null) : null;
       return V.validateConnection({
-        portA: ai && ai.hardware,
-        portB: bi && bi.hardware,
+        portA: portA,
+        portB: portB,
         ifaceA: ai,
         ifaceB: bi,
         // A caller that is re-checking an existing cable says which pair it is, so the
@@ -210,6 +229,42 @@ addDevice(spec, id) {
       mediaId: verdict.ok ? media.preferredMedia(verdict.media, verdict.speedMbps) : null,
       speedMbps: verdict.speedMbps || null
     };
+  }
+
+  // Re-run the verdict for the cable on this port, after something changed that the verdict depends on -
+  // a forced rate, a duplex mode. The link keeps its identity and its length; what it runs at is recomputed
+  // by the same rule that created it, so `speed 100` cannot leave a link claiming 1G (#1259).
+  renegotiate(devId, ifaceName) {
+    const dev = this.devices.get(devId);
+    if (!dev) return null;
+    const iface = dev.interfaces.get(ifaceName);
+    if (!iface || !iface.peer) return null;
+    const peer = this.devices.get(iface.peer.deviceId);
+    if (!peer) return null;
+    const link = [...this.links.values()].filter(function (l) {
+      return (l.a.deviceId === devId && l.a.iface === ifaceName) ||
+        (l.b.deviceId === devId && l.b.iface === ifaceName);
+    })[0];
+    if (!link) return null;
+    const verdict = this.validateLink(devId, ifaceName, iface.peer.deviceId, iface.peer.iface, {
+      mediaId: link.mediaId, lengthM: link.lengthM,
+      revalidate: this.revalidateFor(link.id, devId)
+    });
+    link.lastVerdict = verdict;
+    link.speedMbps = verdict.ok ? (verdict.speedMbps || null) : null;
+    if (verdict.ok && verdict.mediaId) link.mediaId = verdict.mediaId;
+    // Two ends forced to different rates have no line rate in common, and a cable that cannot agree on
+    // one does not come up: the frames do not cross, they are dropped with a reason. Only a link this
+    // function took down is brought back up, so a cable somebody deliberately pulled stays pulled.
+    if (!verdict.ok) {
+      if (link.state === 'up') link.state = 'down';
+      link.negotiationFailed = true;
+    } else if (link.negotiationFailed) {
+      link.negotiationFailed = false;
+      link.state = 'up';
+    }
+    this.lastChangeAtMs = this.lastChangeAtMs || 0;
+    return { link: link, verdict: verdict };
   }
 
   // Media a user could pick between two ports (for the UI's link picker).

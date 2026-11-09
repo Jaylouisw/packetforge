@@ -59,7 +59,7 @@ takes back.
 | Section | Printed as |
 |---|---|
 | hostname | `hostname <name>` |
-| interfaces | `interface <name>` block: description, `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
+| interfaces | `interface <name>` block: description, `speed`, `duplex`, `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
 | VLAN table | `vlan <id> <name>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
@@ -270,6 +270,26 @@ same sentence instead of carrying a null reason.
 
 `show interfaces` never claims a drop that did not happen: a port with a clean record prints no drops line
 at all, because a wall of `0 drops` on every unused port is how a real one gets missed.
+
+#### Line rate and duplex
+
+```
+  peer: sw/Fa0/1
+  speed: 100Mb/s (forced), duplex: half
+```
+
+`(auto)` means the port offers its full ladder and the link negotiates; `(forced)` means `speed 100` pinned
+it. When the two ends cap the link lower than either port could run, the block adds `link runs at …`. A rate
+the port cannot do is refused, naming the port, the rate and what it *does* support — `Gi0 does not support
+10G - it supports 10M, 100M, 1G`.
+
+`duplex half` is why `W_DUPLEX_MISMATCH` exists: the validator has modelled the mismatch since the
+connector rules were written, but nothing could set duplex, so the warning was unreachable. Force one end to
+half against a full-duplex peer and it fires, naming both ends.
+
+Two ends forced to rates with nothing in common do **not** silently work: the link has no line rate to run
+at, it comes down, `show interfaces` says `link: down (no common rate with the peer)`, and frames across it
+are counted as dropped with that reason.
 
 ### Reading `show arp`
 

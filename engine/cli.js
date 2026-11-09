@@ -14,6 +14,9 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 // engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
 // failure mode this repo has already been bitten by (#1247).
 const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
+// Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
+// `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
+const mediaLib = require('./media');
 
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
@@ -358,6 +361,14 @@ class CliSession {
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
       out.push.apply(out, this._channelGroup(['remove'], iface));
+    } else if (head === 'speed') {
+      out.push.apply(out, this._speed(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'speed') {
+      out.push.apply(out, this._speed(['auto'], iface));
+    } else if (head === 'duplex') {
+      out.push.apply(out, this._duplex(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'duplex') {
+      out.push.apply(out, this._duplex(['auto'], iface));
     } else if (head === 'description') {
       iface.description = tokens.slice(1).join(' ');
       out.push('Description set');
@@ -749,6 +760,74 @@ class CliSession {
       return ['OSPF ' + (negate ? 'active' : 'passive') + ' on ' + iface.name];
     }
     return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf passive'];
+  }
+
+  // ---------- line rate and duplex ----------
+  //
+  // Both were modelled and neither was reachable: `Interface.duplex` was written as 'full' for every port
+  // in the catalogue and no command could change it, so `W_DUPLEX_MISMATCH` - a warning the connector docs
+  // promise - could never fire. The rule is worth having because it is the classic "the link is up but slow"
+  // answer, and a simulator that cannot produce it cannot be asked the question (#1259).
+  _speed(tokens, iface) {
+    const want = (tokens[0] || '').toLowerCase();
+    if (!want) return ['% Usage: speed auto | <mbps>'];
+    if (iface.type !== 'ethernet' && iface.type !== 'wireless') {
+      return ['% ' + iface.name + ' has no line rate to set (type ' + iface.type + ')'];
+    }
+    if (want === 'auto') {
+      iface.speedMbps = null;
+      this._renegotiate(iface);
+      return ['Speed auto-negotiation on ' + iface.name];
+    }
+    // `speed 1000`, `speed 1G` and `speed 1g` all mean the same port rate; the parser is the one the
+    // catalogue uses, so a spelling the specs accept is not refused here.
+    const mbps = mediaLib.parseSpeedMbps(want);
+    const caps = (iface.hardware && Array.isArray(iface.hardware.speedCaps))
+      ? iface.hardware.speedCaps.slice() : [];
+    if (mbps === null || !(mbps > 0)) {
+      return ['% Invalid rate "' + tokens[0] + '" - give a number of Mbps or auto'];
+    }
+    if (!caps.length) {
+      // Nothing in the catalogue states this port's ladder, so a rate cannot be refused honestly - but it
+      // can be stored, and the link verdict will say what it negotiated to.
+      iface.speedMbps = mbps;
+      this._renegotiate(iface);
+      return ['Speed ' + mediaLib.formatSpeedMbps(mbps) + ' on ' + iface.name];
+    }
+    if (caps.indexOf(mbps) === -1) {
+      return ['% ' + iface.name + ' does not support ' + mediaLib.formatSpeedMbps(mbps) +
+        ' - it supports ' + caps.map(function (c) { return mediaLib.formatSpeedMbps(c); }).join(', ')];
+    }
+    iface.speedMbps = mbps;
+    this._renegotiate(iface);
+    return ['Speed ' + mediaLib.formatSpeedMbps(mbps) + ' on ' + iface.name];
+  }
+
+  _duplex(tokens, iface) {
+    const want = (tokens[0] || '').toLowerCase();
+    if (!['auto', 'full', 'half'].includes(want)) {
+      return ['% Usage: duplex auto | full | half'];
+    }
+    if (iface.type !== 'ethernet') {
+      return ['% ' + iface.name + ' has no duplex setting (type ' + iface.type + ')'];
+    }
+    // `auto` means "let the link decide", and what a link decides in this engine is full duplex.
+    iface.duplex = (want === 'auto') ? 'full' : want;
+    this._renegotiate(iface);
+    return ['Duplex ' + (want === 'auto' ? 'auto (full)' : want) + ' on ' + iface.name];
+  }
+
+  // Any change to rate or duplex changes what the cable can do, so the verdict is re-run by the same rule
+  // that made it. Invisible when the port is not cabled: there is no link to renegotiate.
+  _renegotiate(iface) {
+    if (!this.topo || typeof this.topo.renegotiate !== 'function') return null;
+    const res = this.topo.renegotiate(this.device.id, iface.name);
+    if (!res) return null;
+    if (!res.verdict.ok) {
+      const why = (res.verdict.errors || []).map(function (e) { return e.message; }).join('; ');
+      return { error: why };
+    }
+    return res;
   }
 
   // ---------- switchport / VLAN membership ----------
@@ -1292,6 +1371,32 @@ class CliSession {
     return out;
   }
 
+  // "speed: 1Gb/s (auto), duplex: full" - or the forced rate, plainly marked, with what the link actually
+  // negotiated when the two differ.
+  _linkRateLine(iface) {
+    const rated = mediaLib.parseSpeedMbps(iface.speed);
+    const forced = iface.speedMbps || null;
+    const devId = this.device && this.device.id;
+    const link = (this.topo && this.topo.links && iface.peer && devId)
+      ? [...this.topo.links.values()].filter(function (l) {
+        return (l.a.deviceId === devId && l.a.iface === iface.name) ||
+          (l.b.deviceId === devId && l.b.iface === iface.name);
+      })[0]
+      : null;
+    const negotiated = (link && link.speedMbps) ? link.speedMbps : null;
+    const fmt = function (m) { return m ? mediaLib.formatSpeedMbps(m) + 'b/s' : 'unknown'; };
+    let text = 'speed: ' + (forced ? fmt(forced) + ' (forced)' : fmt(rated) + ' (auto)');
+    if (link && link.negotiationFailed) {
+      // The two ends were forced to rates with nothing in common. Saying "1Gb/s (forced)" and moving on
+      // would describe a link that is not carrying anything.
+      text += ', link: down (no common rate with the peer)';
+    } else if (negotiated && negotiated !== (forced || rated)) {
+      text += ', link runs at ' + fmt(negotiated);
+    }
+    text += ', duplex: ' + (iface.duplex || 'full');
+    return text;
+  }
+
   // "3 drops (no route to 10.0.0.99 x2, link down x1)" - reasons longest-first, then a count of whatever
   // did not fit, so a port with forty distinct reasons cannot turn one block into a wall.
   _dropSummary(drops, limit) {
@@ -1558,6 +1663,9 @@ class CliSession {
           (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
         out.push('  peer: ' + (i.peer ? i.peer.deviceId + '/' + i.peer.iface : 'disconnected'));
+        // The rate the link actually runs at, and whether anybody forced it. A forced 100 on a 1G port is
+        // the answer to "why is this link slow", so it belongs in the block you read to ask (#1259).
+        out.push('  ' + this._linkRateLine(i));
         // What has actually crossed this socket. The simulator counted it all along, per device, so the
         // command could not answer the one question it is opened for: is traffic flowing on THIS port?
         // Counted wherever a frame is enqueued and received, including frames later dropped - a frame the
@@ -1591,6 +1699,10 @@ class CliSession {
       for (const i of dev.interfaces.values()) {
         out.push('interface ' + i.name);
         if (i.description) out.push('  description ' + i.description);
+        // Only when forced: a config that emits `speed auto` on every port is noise, and the round trip
+        // already asserts that nothing configured is left out (#1259).
+        if (i.speedMbps) out.push('  speed ' + i.speedMbps);
+        if (i.duplex && i.duplex !== 'full') out.push('  duplex ' + i.duplex);
         if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
         if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
         else if (i.dhcp) out.push('  ip address dhcp');
