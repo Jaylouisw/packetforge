@@ -1,0 +1,61 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AFi-ALN",
+  "label": "Ubiquiti AmpliFi Alien (router + MeshPoint)",
+  "category": "router",
+  "description": "Wi-Fi 6 mesh kit: router with 1x GbE WAN and 4x GbE LAN, MeshPoint with 1x GbE LAN, 2.4/5 GHz radios with a touchscreen.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "4.8G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/other/amplifi-alien-router-and-meshpoint",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: **Router: (1) GbE RJ45 WAN and (4) GbE RJ45 LAN; MeshPoint: (1) GbE RJ45 LAN**, universal AC input, max power consumption 35 W (router) and 34 W (MeshPoint). The kit is modelled as one device carrying the router's port set: **the MeshPoint adds a second unit with a single LAN port**, so a two-node mesh in a plan needs two entries or a note, not one box with nine ports. The per-band radio rates were not in the extracted rows, so the two radios carry AX3000-class figures and should be read as class rather than a quoted row.",
+  "role": [
+    "mesh"
+  ]
+}

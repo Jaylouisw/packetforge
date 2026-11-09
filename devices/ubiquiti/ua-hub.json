@@ -1,0 +1,58 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UA-Hub",
+  "label": "Ubiquiti UniFi Access Hub",
+  "category": "iot",
+  "description": "Door-access hub: five GbE ports, one PoE++ input (50V 1A) and four PoE+ outputs at 30 W each (45 W aggregate).",
+  "capabilities": [
+    "poe-pd",
+    "poe-pse",
+    "802.3at",
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 50
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-hub-door",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: **(5) 10/100/1000 Base-T ports**, PoE interface **(1) PoE++ input at 50V DC 1A** and **(4) PoE+ outputs at 50V DC 30 W per port, max 45 W aggregated**, max power 30 W without PoE output and 50 W with. **Four ports rated 30 W each but only 45 W in total** is the number that matters: powering four 30 W devices at once is not possible, so a door build has to budget the aggregate, not the per-port figure."
+}

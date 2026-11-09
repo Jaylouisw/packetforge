@@ -1,0 +1,29 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U5G-Max",
+  "label": "Ubiquiti UniFi 5G Max Modem",
+  "category": "modem",
+  "description": "5G NR/LTE modem for UniFi: one 2.5GbE RJ45, PoE input, nano-SIM or eSIM.",
+  "capabilities": [
+    "poe-pd",
+    "wireless",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/accessories/u5g-max",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 2.5 GbE RJ45 port**, **5G NR and LTE** radio, nano-SIM or eSIM, PoE input, IK04 tamper resistance, 410 g. The 2.5G port is the point: it will not bottleneck a 5G NR link the way a gigabit port would, which is exactly the difference from the plain U5G."
+}

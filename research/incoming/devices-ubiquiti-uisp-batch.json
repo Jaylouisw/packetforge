@@ -1,0 +1,402 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "ES-16XP",
+    "label": "Ubiquiti EdgeSwitch 16 XP",
+    "category": "switch",
+    "description": "Rackmount 8-port gigabit switch with configurable passive PoE (off/24V/48V) on every data port, plus a 10/100 management port.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "passive-poe",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "mgmt0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16xp",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(8) 10/100/1000 Ethernet ports**, Management interface **(1) 10/100 Ethernet port**, max power consumption 150 W, PoE method **passive, configurable per port Off/24V/48V**, max PoE per data port **23 W at 48 V, 11.5 W at 24 V**. Two traps: the model name says **16 XP but the sheet lists eight data ports and one management port**, and the PoE is **passive with a per-port voltage choice, not 802.3af/at** - a standard PD that expects negotiation will not come up on it."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UMR-Industrial",
+    "label": "Ubiquiti Mobile Router Industrial",
+    "category": "router",
+    "description": "DIN-rail industrial LTE router: 2x GbE RJ45, LTE Cat 4, Wi-Fi 4, one PoE input and one PoE output (10 W).",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/umr-industrial-us",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(2) GbE RJ45 ports**, **LTE Cat 4** radio, **WiFi 4**, Nano SIM, PoE interface **(1) PoE input and (1) PoE output (max 10 W, requires a PoE+ switch)**, DIN-rail mounting. It is powered *and* powers something else over PoE: the 10 W output budget comes out of whatever the input supplies, and Cat 4 LTE is a floor of roughly 50 Mbit/s class here, well below what the gigabit ports suggest."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-WiFi",
+    "label": "Ubiquiti UFiber WiFi",
+    "category": "ont",
+    "description": "GPON ONT with Wi-Fi: one SC/APC GPON WAN port, four GbE LAN ports, 802.11n.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "dhcp-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "gpon0",
+        "type": "ethernet",
+        "connector": "sc-apc",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/ufiber-wifi",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) SC/APC, ITU-G.984 GPON WAN port** and **(4) GbE RJ45 LAN ports**, WiFi **802.11n**, power method DC jack 24V DC or **24V passive PoE (pins 4, 5+; 7, 8-)**. The WAN side is fibre, not copper - and the passive PoE is non-standard, so a 802.3af injector will not power it."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UF-WiFi6",
+    "label": "Ubiquiti UFiber WiFi6",
+    "category": "ont",
+    "description": "GPON ONT with Wi-Fi 6: one SC/APC GPON WAN port, four GbE LAN ports, 802.11ax on 5 and 2.4 GHz.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "dhcp-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "gpon0",
+        "type": "ethernet",
+        "connector": "sc-apc",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/ufiber-wifi6-gpon-cpe",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: **(1) SC/APC ITU-G.984 GPON WAN port**, **(4) GbE RJ45 LAN ports**, WiFi **802.11ax on 5 and 2.4 GHz**, power via **USB-C 5V 3A** or 24V passive PoE 0.5A. Same chassis shape as the 802.11n model with a different radio and a different power input - the USB-C supply is easy to miss when planning an install that only has PoE available."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U5G",
+    "label": "Ubiquiti UniFi 5G Backup",
+    "category": "modem",
+    "description": "5G RedCap/LTE backup modem for UniFi: one GbE RJ45, PoE input, nano-SIM plus eSIM.",
+    "capabilities": [
+      "poe-pd",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u5g-us",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) GbE RJ45 port**, **5G RedCap and LTE**, SIM **(1) Nano-SIM (4FF) plus (1) eSIM**, PoE interface (1) input, 122 g. **RedCap is a reduced-capability 5G profile** - it is not the same ceiling as full 5G NR, so a failover plan should not assume the same throughput as the U5G-Max in this catalogue, which is full 5G NR on a 2.5G port."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U5G-Max",
+    "label": "Ubiquiti UniFi 5G Max Modem",
+    "category": "modem",
+    "description": "5G NR/LTE modem for UniFi: one 2.5GbE RJ45, PoE input, nano-SIM or eSIM.",
+    "capabilities": [
+      "poe-pd",
+      "wireless",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/accessories/u5g-max",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 2.5 GbE RJ45 port**, **5G NR and LTE** radio, nano-SIM or eSIM, PoE input, IK04 tamper resistance, 410 g. The 2.5G port is the point: it will not bottleneck a 5G NR link the way a gigabit port would, which is exactly the difference from the plain U5G."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UA-Hub",
+    "label": "Ubiquiti UniFi Access Hub",
+    "category": "iot",
+    "description": "Door-access hub: five GbE ports, one PoE++ input (50V 1A) and four PoE+ outputs at 30 W each (45 W aggregate).",
+    "capabilities": [
+      "poe-pd",
+      "poe-pse",
+      "802.3at",
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 50.0
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-hub-door",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: **(5) 10/100/1000 Base-T ports**, PoE interface **(1) PoE++ input at 50V DC 1A** and **(4) PoE+ outputs at 50V DC 30 W per port, max 45 W aggregated**, max power 30 W without PoE output and 50 W with. **Four ports rated 30 W each but only 45 W in total** is the number that matters: powering four 30 W devices at once is not possible, so a door build has to budget the aggregate, not the per-port figure."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "F-POE-G2",
+    "label": "Ubiquiti FiberPoE Gen2",
+    "category": "powerline",
+    "description": "Outdoor optical-to-PoE transport: one 1 Gbps SFP cage, one GbE PoE output port and a DC terminal block, 16-57V DC in.",
+    "capabilities": [
+      "poe-pse",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "poe0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/optical-data-transport-for-outdoor-poe-d",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(1) 1 Gbps SFP port**, **(1) GbE PoE port (10/100 MbE not supported)**, DC terminal block and DC RJ45 injection, input **16-57V DC**, output 24V or 50V DC 2-wire. **The PoE port refuses 10/100 devices** - it is gigabit-only - which is the single detail that breaks an install built around an older airMAX CPE. The DC terminal block and DC RJ45 injection are recorded in these notes rather than as interfaces: the catalogue models data ports, and a 2-wire DC input is not one - it is the power feed, 16-57 V DC in with 24 V or 50 V DC out."
+  }
+]

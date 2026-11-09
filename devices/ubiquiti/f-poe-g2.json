@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "F-POE-G2",
+  "label": "Ubiquiti FiberPoE Gen2",
+  "category": "powerline",
+  "description": "Outdoor optical-to-PoE transport: one 1 Gbps SFP cage, one GbE PoE output port and a DC terminal block, 16-57V DC in.",
+  "capabilities": [
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "poe0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/optical-data-transport-for-outdoor-poe-d",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(1) 1 Gbps SFP port**, **(1) GbE PoE port (10/100 MbE not supported)**, DC terminal block and DC RJ45 injection, input **16-57V DC**, output 24V or 50V DC 2-wire. **The PoE port refuses 10/100 devices** - it is gigabit-only - which is the single detail that breaks an install built around an older airMAX CPE. The DC terminal block and DC RJ45 injection are recorded in these notes rather than as interfaces: the catalogue models data ports, and a 2-wire DC input is not one - it is the power feed, 16-57 V DC in with 24 V or 50 V DC out."
+}

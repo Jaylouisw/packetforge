@@ -1,0 +1,145 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "LBE-M5-23",
+    "label": "Ubiquiti airMAX LiteBeam M5 23dBi",
+    "category": "ptp",
+    "description": "airMAX 5 GHz CPE/base station with a 23 dBi integrated dish and one 10/100 Ethernet port with passive PoE in. Sold as a 2-pack in this SKU.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "poe-pd",
+      "passive-poe",
+      "web-ui"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 24.0
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wireless/lbe-m5-23",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 10/100 MbE RJ45 port**, Power Method **Passive PoE 2-pair (4, 5+; 7, 8 return)**, 24V 0.2A adapter included, max power consumption 7 W, operating range -40 to 70 C. Two things matter for a plan: the port is **fast Ethernet, so 100 Mbps is a hard ceiling on any airMAX link** built on this radio regardless of what the radio negotiates, and the PoE is **passive 24 V**, not 802.3af, so a standard PoE switch port will not power it. The SKU in the request is a 2-pack (LBE-M5-23-KIT): two units, one model entry."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "R2AC",
+    "label": "Ubiquiti airMAX Rocket 2AC Prism",
+    "category": "ptp",
+    "description": "airMAX ac base station: one gigabit RJ45 port with passive PoE, 2x2 5 GHz radio and RP-SMA connectors for external antennas.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "poe-pd",
+      "passive-poe",
+      "web-ui"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 24.0
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "450M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wireless/r2ac-prism",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) GbE RJ45 port**, Power Method passive PoE 2-pair, 24V 0.5A gigabit adapter included, max power consumption 9.5 W, RF connectors **(2) RP-SMA (waterproof) plus (1) GPS**. **No antenna is included** - an RP-SMA Rocket is only as good as the dish or sector you bolt to it, so the radio figure here is the interface's capability, not a link budget."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "AFi-ALN",
+    "label": "Ubiquiti AmpliFi Alien (router + MeshPoint)",
+    "category": "router",
+    "description": "Wi-Fi 6 mesh kit: router with 1x GbE WAN and 4x GbE LAN, MeshPoint with 1x GbE LAN, 2.4/5 GHz radios with a touchscreen.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "l3-forward",
+      "nat",
+      "dhcp-server",
+      "web-ui",
+      "mesh"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "4.8G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/other/amplifi-alien-router-and-meshpoint",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: **Router: (1) GbE RJ45 WAN and (4) GbE RJ45 LAN; MeshPoint: (1) GbE RJ45 LAN**, universal AC input, max power consumption 35 W (router) and 34 W (MeshPoint). The kit is modelled as one device carrying the router's port set: **the MeshPoint adds a second unit with a single LAN port**, so a two-node mesh in a plan needs two entries or a note, not one box with nine ports. The per-band radio rates were not in the extracted rows, so the two radios carry AX3000-class figures and should be read as class rather than a quoted row."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "CRM-P",
+    "label": "Ubiquiti airMAX CRM Point",
+    "category": "cloud",
+    "description": "airMAX network management appliance: one 10/100 management port plus two 27V DC Power TransPort outputs for powering airMAX radios.",
+    "capabilities": [
+      "cloud-controller",
+      "http-server",
+      "cli",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/accessory-tech/uisp-power",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(1) 10/100 MbE RJ45 LAN port**, management interface Ethernet in-band plus Bluetooth, Power TransPort output **27V DC at 100 W with one adapter, 200 W with two**, supplied by two 27V 4.4A adapters. This is a **management and power appliance, not a router or a switch**: it has one 100M port and controls radios over the air, so a lab that wires it into a data path will see a 100 Mbps bottleneck and no forwarding at all."
+  }
+]
