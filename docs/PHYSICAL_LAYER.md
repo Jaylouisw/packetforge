@@ -27,7 +27,7 @@ Every interface has a derived **hardware descriptor** (`engine/media.js`):
 
 | Field | Meaning |
 |-------|---------|
-| `cage` | The physical connector/cage — 18 of them, from `rj45` and `sfp+` to `qsfpdd`, `sc-apc` and `antenna`. The full table is in [CONNECTORS.md](CONNECTORS.md) |
+| `cage` | The physical connector/cage, from `rj45` and `sfp+` to `qsfpdd`, `cfp2`, `sc-apc` and `antenna`. The full table is in [CONNECTORS.md](CONNECTORS.md) |
 | `media[]` | Media (optics / copper / DAC) the port can carry |
 | `speedCaps[]` | Line rates the port can negotiate (Mbps) |
 | `poeOut` | Watts this port can *source* (PSE) |

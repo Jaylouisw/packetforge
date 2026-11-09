@@ -40,7 +40,7 @@ const TYPE_LABEL = {
 
 // Cages that are legitimately fibre-bearing. Used for the cross-family rule.
 const FIBRE_CAGES = [
-  'sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd',
+  'sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56', 'cfp2',
   'sc-apc', 'sc-upc', 'lc-upc', 'lc-apc'
 ];
 

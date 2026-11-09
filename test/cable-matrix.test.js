@@ -249,6 +249,10 @@ const EXPECTED_ROWS = [
   ['sfp28', 'fc-sfp28', 'refuse:protocol'],
   ['sfp28', 'fc-sfpdd', 'refuse:protocol'],
   ['sfp28', '*', 'refuse'],
+  // CFP2 is its own cage size: a 200G CFP2 module and a 200G QSFP56 module carry the same rate
+  // and cannot go in each other's cage, and neither mates with anything narrower.
+  ['cfp2', 'cfp2', 'accept'],
+  ['cfp2', '*', 'refuse'],
   ['qsfp+', '*', 'refuse'],       // nor does a QSFP cage take an SFP module
   ['qsfp28', 'fc-qsfp28', 'refuse:protocol'],
   ['qsfp28', '*', 'refuse'],

@@ -343,6 +343,16 @@ const CAGES = {
   'fc-sfp28': { name: 'SFP28 (FC)', family: 'fibre-channel', label: 'SFP28 cage, Fibre Channel 32G' },
   'fc-sfpdd': { name: 'SFP-DD (FC)', family: 'fibre-channel', label: 'SFP-DD cage, Fibre Channel 64G' },
   'fc-qsfp28': { name: 'QSFP28 (FC)', family: 'fibre-channel', label: 'QSFP28 cage, Fibre Channel 128G (4 lanes)' },
+  // CFP is a separate family of cages, not a bigger QSFP: the module is larger and latched
+  // differently, so a CFP2 optic will not seat in a QSFP-DD cage however similar the rate looks.
+  // Every optical transport platform uses it for its line side, and until now the catalogue had
+  // no way to say "this port is CFP2" - line ports were modelled as QSFP56 with an apology in
+  // the note (OptiXtrans E6616/E6608).
+  //
+  // Only CFP2 is declared. CFP, CFP4 and CFP8 exist as standards and would be one line each,
+  // but this project does not carry vocabulary no device uses: the cable matrix reports a cage
+  // that no spec references as unused, and speculative entries make that signal useless.
+  cfp2: { name: 'CFP2', family: 'optical', label: 'CFP2 cage (100/200G)' },
   // SC is the PON connector. APC and UPC are separate cages deliberately: an
   // 8-degree angled ferrule and a flat one cannot mate, and forcing them costs
   // about 3 dB of loss and can chip the endface.
@@ -425,6 +435,10 @@ const CAGE_MATE = {
   // 100G optic most labs actually have.
   qsfpdd: ['qsfpdd', 'qsfp28', 'qsfp+', 'qsfp56'],
   qsfp56: ['qsfp56', 'qsfp28', 'qsfp+'],
+  // CFP2 mates only with CFP2. This is the one place where "same rate, so it fits" is wrong in
+  // both directions: a 200G CFP2 module and a 200G QSFP56 module carry the same speed and cannot
+  // go in each other's cage.
+  cfp2: ['cfp2'],
   // The FC cages mate with the Ethernet cages because the hardware does: an SFP+ socket takes
   // an 8G FC optic exactly as it takes a 10GBASE-SR one. What cannot join is the *link* - the
   // media lists have no common member, and canMate() names that as a protocol mismatch rather
@@ -544,6 +558,10 @@ const CAGE_MEDIA = {
   },
   'qsfp+': function () { return ['40gbase-sr4', '40gbase-lr4', 'dac-40g']; },
   qsfp28: function () { return ['100gbase-sr4', '100gbase-lr4', 'dac-100g', '40gbase-sr4', '40gbase-lr4']; },
+  // A CFP2 cage runs 100G or 200G optics and has no DAC variant: it is a line-side module, not a
+  // patch-lead cage. The 100G entries matter because a muxponder board can be switched to its
+  // 100G line mode, and 40G because a CFP2 port takes the older 40GBASE-LR4 optics too.
+  cfp2: function () { return ['200gbase-fr4', '200gbase-dr4', '100gbase-lr4', '40gbase-lr4']; },
   sfp56: function () { return ['50gbase-sr', '50gbase-lr', '25gbase-sr', '25gbase-lr', 'dac-25g']; },
   xfp: function () { return ['10gbase-sr', '10gbase-lr', '10gbase-er']; },
   'fc-sfp': function () {
@@ -699,6 +717,7 @@ const CAGE_SPEEDS = {
   },
   'qsfp+': function () { return [40000]; },
   qsfp28: function () { return [40000, 100000]; },
+  cfp2: function () { return [40000, 100000, 200000]; },
   qsfp56: function () { return [40000, 100000, 200000]; },
   'fc-sfp': function () { return [2125, 4250, 8500, 10519, 14025]; },
   sfp56: function () { return [25000, 50000]; },

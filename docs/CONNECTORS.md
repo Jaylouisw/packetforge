@@ -53,6 +53,7 @@ console / other.
 | `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
 | `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
 | `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
+| `cfp2` | CFP2 | optical | `cfp2` | `200gbase-fr4`, `200gbase-dr4`, `100gbase-lr4`, `40gbase-lr4` | 40000, 100000, 200000 |
 | `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 1244, 2488, 9953 |
 | `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc` | 1244, 2488, 9953 (filtered by rating) |
 | `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
@@ -324,6 +325,28 @@ The other direction is not automatic: `qsfpdd` does **not** mate with `sfp28`,
 and `qsfp28` does **not** mate with `sfp+`. A 100G uplink cabled to a 25G uplink
 is refused with `E_CONNECTOR_MISMATCH`, not silently downshifted. Backward
 compatibility runs QSFP-DD → QSFP28 → QSFP+, never across the SFP shell.
+
+### 4.5 CFP2 is not a large QSFP
+
+`CAGE_MATE.cfp2` contains exactly one entry: `cfp2`. That is the whole table row, and it is the
+only place in the catalogue where two cages carry the same rate and still must refuse each other.
+
+- A **200G CFP2** line module and a **200G QSFP56** module are both 200G. The CFP2 module is
+  roughly four times the footprint and latches differently, so it will not seat in a QSFP-DD, a
+  QSFP56 or a QSFP28 cage. The reverse is equally true.
+- This matters because CFP2 is what optical transport equipment uses for its **line side**
+  (`OptiXtrans E6616`, `E6608`) while the same box's **client side** is QSFP28. One chassis, two
+  cage families, same rack, same speeds in the middle.
+- The validator refuses the pair as `E_CONNECTOR_MISMATCH` and names both cages, rather than
+  accepting and running at a rate the hardware cannot build:
+
+```
+E_CONNECTOR_MISMATCH: Cannot mate CFP2 to QSFP56 (incompatible connectors).
+```
+
+Only `cfp2` is declared. CFP, CFP4 and CFP8 are real standards and are each one line of table,
+but no device in this catalogue uses them yet, and the cable matrix reports a declared cage that
+no spec references as unused. Speculative vocabulary makes that signal useless.
 
 ### 4.5 Combo RJ45/SFP cages
 
