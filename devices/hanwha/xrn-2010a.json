@@ -1,0 +1,31 @@
+{
+  "vendor": "hanwha",
+  "model": "XRN-2010A",
+  "label": "XRN-2010A 32-channel NVR",
+  "category": "nvr",
+  "description": "32-channel 4K NVR with two gigabit RJ45 ports (LAN and WAN), eight internal SATA bays to 48 TB and one eSATA expansion port; no PoE, so cameras need their own switch or injectors.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "dhcp-server",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "nvr",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/XRN-2010A",
+  "notes": "Hanwha product specifications: 'Ethernet RJ-45 2ea (LAN/WAN, 1Gbps)', 8 SATA bays (0-6 TB each, 48 TB max), 1 eSATA, 256 Mbps recording and 512 Mbps transmission bandwidth. There is no PoE on this model - it is a recorder, not a recorder with a built-in camera switch - and no eSATA port is modelled because it is storage, not a network interface. Protocols include DHCP server and client, which is why both capabilities are declared."
+}

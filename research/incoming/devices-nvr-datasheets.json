@@ -1,0 +1,38 @@
+[
+  {
+    "vendor": "uniview",
+    "model": "NVR301-08X-P8",
+    "label": "NVR301-08X-P8 8-channel PoE NVR",
+    "category": "nvr",
+    "description": "8-channel 4K NVR, 1x 10/100 RJ45 LAN, 8x 10/100 RJ45 PoE (802.3af/at), 1 SATA to 8 TB.",
+    "sourceUrl": "https://global.uniview.com/us/res/202303/23/20230323_1877444_UNV%E3%80%90Datasheet%E3%80%91NVR301-08X-P8%20V1.10-EN_967969_241637_0.pdf",
+    "notes": "Figures taken from the vendor datasheet (V1.10, EN): 'Network Interface 1 RJ45 10M/100M self-adaptive', 'PoE Interface 8 RJ45 10M/100M self-adaptive', 'Max 30W for single port / Max 75W in total', IEEE 802.3at/af, 1 SATA up to 8 TB, 80 Mbps incoming. No gigabit anywhere on this model - do not upgrade the ports."
+  },
+  {
+    "vendor": "amcrest",
+    "model": "NV4108E-HS",
+    "label": "NV4108E-HS 8-channel PoE NVR",
+    "category": "nvr",
+    "description": "8-channel 4K NVR, 1x gigabit RJ45 LAN, 1x independent 100M RJ45, 8x PoE (802.3af/at), 1 SATA to 6 TB.",
+    "sourceUrl": "https://s3.amazonaws.com/amcrest-files/Documentation/NV4108E-HS+Technical+Specifications.pdf",
+    "notes": "Datasheet lists two copper data ports separately: 'Interface 1 RJ-45 port (10/100/1000Mbps)' and 'Ethernet Port 1 Independent 100Mbps Ethernet Port'. PoE: 25.5 W single port, 80 W total, DC 48 V 2 A. One SATA III, 6 TB per disk, 80 Mbps record rate."
+  },
+  {
+    "vendor": "vivotek",
+    "model": "ND9425P",
+    "label": "ND9425P 16-channel PoE NVR",
+    "category": "nvr",
+    "description": "16-channel 4K NVR, 1x gigabit RJ45, 16x embedded 802.3at/af PoE totalling 200 W, 2 HDD bays with RAID 0/1.",
+    "sourceUrl": "https://www.vivotek.com/products/network-video-recorder-and-appliance/core+-series-nvr/nd9425p?tab=spec",
+    "notes": "Specification tab: 'Ethernet 10/100/1000Mbps Ethernet (RJ-45) x1', 'PoE 802.3at/af compliant PoE ports x 16 (Total Max. 200 W)', 2 internal 3.5-inch bays, RAID 0/1, 64 Mbps recording, 88 Mbps total network throughput. Per-port watts are not published, so 30 W (802.3at Type 2 ceiling) is used per port while the aggregate stays at the published 200 W."
+  },
+  {
+    "vendor": "hanwha",
+    "model": "XRN-2010A",
+    "label": "XRN-2010A 32-channel NVR",
+    "category": "nvr",
+    "description": "32-channel 4K NVR, 2x gigabit RJ45 (LAN/WAN), 8 SATA bays to 48 TB, no PoE.",
+    "sourceUrl": "https://www.hanwhavision.com/us/products/product-details/XRN-2010A",
+    "notes": "Product specification sheet (02-2019): 'Ethernet RJ-45 2ea (LAN/WAN, 1Gbps)', 8 internal HDD (0-6 TB each, 48 TB max), 1 eSATA, 256 Mbps recording / 512 Mbps transmission, DHCP server and client in the protocol list. No PoE - cameras need a separate switch or injectors."
+  }
+]
