@@ -1,0 +1,47 @@
+[
+  {
+    "vendor": "prysmian",
+    "model": "XSPSG00009",
+    "category": "splitter",
+    "label": "1x16 PLC splitter, SC/APC, pre-connectorised",
+    "description": "1x16 PLC, SC/APC in and out, insertion loss <=14.1 dB.",
+    "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+    "notes": "Prysmian AC005 issue 06. Pre-connectorised table: 1x16 <=14.1 dB, uniformity <=1.2, PDL <=0.30, RL/directivity >=55, 1260-1600 nm, 500 mW max input, pigtails 1.5 m. XSPSG00009 = SC/APC in+out; unconnectorised equivalent XSPSG00004 <=13.5 dB."
+  },
+  {
+    "vendor": "prysmian",
+    "model": "XSPSG00010",
+    "category": "splitter",
+    "label": "1x32 PLC splitter, SC/APC, pre-connectorised",
+    "description": "1x32 PLC, SC/APC in and out, insertion loss <=17.2 dB.",
+    "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+    "notes": "Prysmian AC005 issue 06: 1x32 <=17.2 dB, uniformity <=1.5, PDL <=0.40, RL >=55, 7 x 4 x 60 mm. XSPSG00010 = SC/APC; unconnectorised XSPSG00005 <=16.7 dB. Engine charges 17.5 dB for this ratio."
+  },
+  {
+    "vendor": "prysmian",
+    "model": "XSPSG00054",
+    "category": "splitter",
+    "label": "1x64 PLC splitter, SC/APC, pre-connectorised",
+    "description": "1x64 PLC, SC/APC in and out, insertion loss <=21.0 dB.",
+    "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+    "notes": "Prysmian AC005 issue 06: 1x64 <=21.0 dB, uniformity <=1.8, PDL <=0.40, 12 x 4 x 58 mm. XSPSG00054 = SC/APC; unconnectorised XSPSG00044 <=20.4 dB. Matches the simulator's worst-case 1:64 figure exactly."
+  },
+  {
+    "vendor": "commscope",
+    "model": "SP-11600S2S2CAAA",
+    "category": "splitter",
+    "label": "1x16 PLC splitter, SC/APC, grade C bare splitter",
+    "description": "1x16 symmetrical PLC, SC/APC pigtails, grade C, insertion loss <=14.3 dB.",
+    "sourceUrl": "https://www.commscope.com/product-type/hubs-closures-terminals-boxes/fiber-closures/fiber-splitterwdm-components/itemsp-11600s2s2caaa/",
+    "notes": "CommScope spec: IL max 14.3 dB, uniformity max 1.6, PDL max 0.3, directivity min 55, RL min 50, 1260-1650 nm, G.657.A2, 1 m pigtails at 0.25 mm. FINDING: this grade C part is 0.1 dB worse than optical.js's worst-case 1:16 figure (14.2 dB), so the budget engine is marginally optimistic for it. Not fixed here (it is an engine table change, not device data) - raising SPLITTERS['1:16'].maxDb to 14.3 would keep the table honest; the optics-catalogue test only asserts table >= catalogue part, so it would still pass."
+  },
+  {
+    "vendor": "prysmian",
+    "model": "XSPSG00046",
+    "category": "splitter",
+    "label": "2x8 PLC splitter, SC/APC (NOT CATALOGUED)",
+    "description": "2xN splitters are for protected/redundant PON feeds.",
+    "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+    "notes": "OPEN, deliberately not catalogued: Prysmian sells the whole 2xN family (2x4 <=8.1 dB, 2x8 <=11.7, 2x16 <=15.0, 2x32 <=18.0, SC/APC part XSPSG00046 for 2x8), but the engine's splitter model is 1:N only - validateLink normalises splitRatio and rejects anything it cannot parse (E_UNKNOWN_SPLITTER), and ponBudget sums 1:N stages. A 2xN part needs a two-input coupler model before it can be added honestly."
+  }
+]
