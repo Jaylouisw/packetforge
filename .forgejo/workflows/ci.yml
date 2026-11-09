@@ -83,11 +83,17 @@ jobs:
     needs: changes
     # A data-only diff runs one Node version instead of three. The suite is the same suite,
     # so the invariants that a device spec can break are still checked - just once.
-    if: needs.changes.outputs.data_only != 'true' || matrix.node == 20
+    #
+    # The choice is made by building the matrix, not by an `if:` on `matrix.node`: a job-level
+    # condition that reads `matrix` is evaluated before the matrix exists, so every leg fails
+    # within two seconds of starting and the failure looks like a broken runner rather than a
+    # broken expression. Measured on 2026-11-09: runs 1398, 1401 and 1402 reported `failure`
+    # for all three Node versions in ~2s while `Classify the change`, `Server smoke test` and
+    # `Docker build` in the same run passed.
     strategy:
       fail-fast: false
       matrix:
-        node: [18, 20, 22]
+        node: ${{ needs.changes.outputs.data_only == 'true' && fromJSON('[20]') || fromJSON('[18, 20, 22]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
