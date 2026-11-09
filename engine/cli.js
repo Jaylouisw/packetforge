@@ -1292,6 +1292,22 @@ class CliSession {
     return out;
   }
 
+  // "3 drops (no route to 10.0.0.99 x2, link down x1)" - reasons longest-first, then a count of whatever
+  // did not fit, so a port with forty distinct reasons cannot turn one block into a wall.
+  _dropSummary(drops, limit) {
+    if (!drops || !drops.total) return '';
+    const max = limit || 3;
+    const pairs = Object.keys(drops.byReason || {})
+      .map(function (why) { return [why, drops.byReason[why]]; })
+      .sort(function (a, b) { return (b[1] - a[1]) || a[0].localeCompare(b[0]); });
+    const shown = pairs.slice(0, max).map(function (p) {
+      return p[0] + (p[1] > 1 ? ' x' + p[1] : '');
+    });
+    const rest = pairs.length - shown.length;
+    return drops.total + (drops.total === 1 ? ' drop' : ' drops') +
+      (shown.length ? ' (' + shown.join(', ') + (rest > 0 ? ', and ' + rest + ' more reason' + (rest === 1 ? '' : 's') : '') + ')' : '');
+  }
+
   // "Is this port still somewhere a frame can go, and if not why" - the sentence both tables append to a
   // stale row. One helper so `show arp` and `show mac address-table` cannot describe the same port state
   // two different ways.
@@ -1551,11 +1567,23 @@ class CliSession {
         if (counters) {
           out.push('  ' + counters.packetsIn + ' packets input, ' + counters.bytesIn + ' bytes');
           out.push('  ' + counters.packetsOut + ' packets output, ' + counters.bytesOut + ' bytes');
+          // What the port threw away, next to what it carried. Two datagrams dropped for want of a route
+          // used to read as a quiet port: "0 packets input" beside a ping that failed twice (#1257).
+          const dropped = this._dropSummary(counters.drops);
+          if (dropped) out.push('  ' + dropped);
         } else {
           // "Not measured" and "measured zero" are different answers; printing zeros without a run would
           // claim the port is idle when nothing has looked.
           out.push('  counters: not measured (no simulation run)');
         }
+      }
+      // Drops that never named a port ("no route to 10.0.0.99" happens before an egress is chosen) belong
+      // at the end of the whole table, not invented onto whichever port happens to be printed first.
+      const deviceDrops = (this.sim && typeof this.sim.dropsFor === 'function')
+        ? this.sim.dropsFor(dev.id) : null;
+      if (deviceDrops && deviceDrops.unported) {
+        const line = this._dropSummary({ total: deviceDrops.unported, byReason: deviceDrops.byReason });
+        out.push('device-wide ' + line);
       }
     } else if (what === 'running-config' || what === 'run') {
       out.push('! PacketForge running-config');

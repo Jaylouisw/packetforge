@@ -140,9 +140,36 @@ class Simulator {
   }
 
   _emit(ev) {
+    // Every packet that goes nowhere passes through here, which makes this the one place that can count
+    // them all: a discard site added later is tallied by construction rather than by whoever remembers
+    // (#1257). Before this, `show interfaces` reported what crossed a port and nothing about what was
+    // thrown away on it - and an ACL-deny, the commonest discard of all, emitted no `drop` event at all,
+    // so a denied ping left the port looking idle.
+    const discard = this._discardReason(ev);
+    if (discard) {
+      const devId = (ev.dev && typeof ev.dev === 'object') ? ev.dev.id : ev.dev;
+      if (devId) flowLib.countDrop(this.flowState, devId, ev.iface || null, discard);
+    }
     ev.step = this.step;
     this.events.push(ev);
     return ev;
+  }
+
+  // Which events mean "this frame was discarded", and why, in one table.
+  //
+  // By event type where the type can only mean that, and by an explicit `discard: true` where the same
+  // type is also emitted for something narrower - `stp-block` fires once per blocked candidate port while
+  // a frame is being flooded, and counting each of those would report one lost frame three times.
+  _discardReason(ev) {
+    if (!ev) return null;
+    if (ev.discard === true) return ev.reason ? String(ev.reason) : 'discarded';
+    switch (ev.type) {
+      case 'drop': return ev.reason ? String(ev.reason) : 'unspecified';
+      case 'acl-deny': return 'ACL ' + (ev.acl || '?') + ' denied (' + (ev.dir || 'in') + ')';
+      case 'vlan-drop': return ev.reason ? String(ev.reason) : 'VLAN not allowed on egress';
+      case 'nat-drop': return ev.reason ? String(ev.reason) : 'NAT could not translate the packet';
+      default: return null;
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -478,10 +505,14 @@ class Simulator {
       // A run asked at an instant before everything has converged deserves the reason, not just
       // silence: "no reply" and "the spanning tree is still learning" look identical otherwise.
       const pending = got ? [] : this._stillConverging();
+      // "No reply" and "nothing was listening" are different, and a run that failed on an unanswered ARP
+      // used to report neither: the reply carried `reason: null` while the real answer - nobody answered
+      // the ARP for that address - sat in the event log it had just thrown away.
+      const lost = got ? null : this._lastDiscard(this.events.slice(evStart));
       replies.push({
         seq: seq,
         success: !!got,
-        reason: got ? null : (pending.length ? 'converging' : null),
+        reason: got ? null : (pending.length ? 'converging' : (lost || null)),
         pending: pending.map(function (e) {
           return { process: e.process, device: e.device.name, readyAtMs: e.readyAtMs };
         }),
@@ -760,6 +791,11 @@ class Simulator {
 
   // What has crossed one port of one device, or null when counters are not available at all. The
   // difference matters: "not measured" and "measured zero" are different answers (#1251).
+  // What a device threw away, by reason - the other half of "what crossed this port".
+  dropsFor(devId) {
+    return flowLib.dropsFor(this.flowState, devId);
+  }
+
   portCounters(devId, port) {
     if (!this.flowState) return null;
     return flowLib.portCounters(this.flowState, devId, port);
@@ -2417,6 +2453,36 @@ class Simulator {
       this.step++;
       this._deliver(tx);
     }
+    // A packet waiting on an ARP reply that never came is a packet that went nowhere, and it used to
+    // leave no trace at all: the ping failed, `reason` was null, and no counter moved. Nothing else can
+    // resolve these now - the queue is empty - so they are reported as discards rather than left to sit.
+    this._sweepPending();
+  }
+
+  // The reason the last discard in a slice of the log gives, if any - what `ping` reports when nothing
+  // came back and nothing is still converging.
+  _lastDiscard(events) {
+    for (let i = (events || []).length - 1; i >= 0; i--) {
+      const why = this._discardReason(events[i]);
+      if (why) return why;
+    }
+    return null;
+  }
+
+  // Every pending packet whose next hop never answered, reported once with the address it asked for.
+  _sweepPending() {
+    for (const dev of this.topo.devices.values()) {
+      if (!dev.pending || !dev.pending.size) continue;
+      for (const [ip, list] of [...dev.pending.entries()]) {
+        const what = (list && list.length) ? list.length : 1;
+        const port = (list && list[0] && list[0].egress) ? list[0].egress : null;
+        this._emit({
+          type: 'drop', dev: dev.id, iface: port, discard: true,
+          reason: 'no ARP reply from ' + ip + (what > 1 ? ' (' + what + ' packets waiting)' : '')
+        });
+      }
+      dev.pending.clear();
+    }
   }
 
   _deliver(tx) {
@@ -2455,7 +2521,7 @@ class Simulator {
 
     // 1. Spanning tree: a blocking port does not forward (either direction).
     if (inIface && this._isBlocked(dev, inIface)) {
-      this._emit({ type: 'stp-block', dev: dev.id, iface: inIface, reason: 'port in STP blocking state' });
+      this._emit({ type: 'stp-block', dev: dev.id, iface: inIface, reason: 'port in STP blocking state', discard: true });
       return;
     }
 
