@@ -1,0 +1,44 @@
+{
+  "vendor": "prysmian",
+  "model": "XSPSG00010",
+  "label": "1x32 PLC splitter, SC/APC, pre-connectorised",
+  "category": "splitter",
+  "description": "1x32 balanced planar-lightwave-circuit splitter with SC/APC connectors on the input and all thirty-two output legs, 1260-1600 nm. Insertion loss <=17.2 dB (pre-connectorised), uniformity <=1.5 dB, PDL <=0.40 dB, return loss >=55 dB. Unpowered, and every frame leaves on all other legs.",
+  "capabilities": [],
+  "splitRatio": "1:32",
+  "insertionLossDb": 17.2,
+  "technology": "PLC",
+  "wavelengthRangeNm": "1260-1600",
+  "uniformityDb": 1.5,
+  "pdlDb": 0.4,
+  "returnLossDb": 55,
+  "maxInputPowerMw": 500,
+  "portTemplate": {
+    "prefix": "out",
+    "start": 1,
+    "count": 32,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+  "notes": "Prysmian AC005 issue 06, pre-connectorised table: 1x32 insertion loss <=17.2 dB, uniformity <=1.5, PDL <=0.40, RL >=55 dB, 1260-1600 nm, pigtails 1.5 m, 7 x 4 x 60 mm package. XSPSG00010 is the SC/APC variant; unconnectorised is XSPSG00005 at <=16.7 dB. The simulator charges 17.5 dB for a 1:32 (its worst-case figure), so it is 0.3 dB more pessimistic than this part - the safe direction for a reach plan."
+}
