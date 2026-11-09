@@ -56,13 +56,27 @@ class Topology {
     return this.lastChangeAtMs;
   }
 
-  addDevice(spec, id) {
+  // Keep the id counter ahead of every id actually present.
+//
+// Ids are allocated as `'d' + _seq++`, so the counter is normally already one past the highest id.
+// That stops being true the moment a caller supplies its own id: a topology built as `d0` and `d2`
+// still had `_seq = 1`, so `serialize()` wrote `seq: 1` next to a `d2`, and loading that document
+// pushed the counter to 3. Save, load and save again then produced a *different* file - one integer
+// of churn per open/save cycle in a lab file that is meant to be diffed in git.
+_advanceSeq(id) {
+    const m = /^[dl](\d+)$/.exec(String(id == null ? '' : id));
+    if (m) this._seq = Math.max(this._seq, Number(m[1]) + 1);
+    return this._seq;
+}
+
+addDevice(spec, id) {
     const fullSpec = Object.assign({}, spec, { interfaces: expandInterfaces(spec) });
     if (id) {
       // An explicit id that is already taken used to overwrite the existing device
       // without a word. Losing a device because two callers picked the same name is
       // not something a simulator should do quietly.
       if (this.devices.has(id)) throw new Error('device id already in use: ' + id);
+      this._advanceSeq(id);
     } else {
       // Skip any id already present. A restored topology can arrive with a sequence
       // that is behind its own contents (see fromJSON), and the honest outcome there
@@ -371,6 +385,7 @@ class Topology {
     if (opts.id) {
       if (this.links.has(opts.id)) throw new Error('link id already in use: ' + opts.id);
       linkId = opts.id;
+      this._advanceSeq(linkId);
     } else {
       do { linkId = 'l' + (this._seq++); } while (this.links.has(linkId));
     }

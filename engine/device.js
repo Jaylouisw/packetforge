@@ -777,6 +777,30 @@ class Device {
               allowedVlans: is.vlan.allowedVlans === undefined ? 'all' : is.vlan.allowedVlans
             };
           }
+          // Physical hardware is saved, so it must be restored - not re-derived.
+          //
+          // `new Device(id, spec)` works hardware out from the spec, and the spec that reaches this
+          // point carries little more than the port name and type. Re-deriving threw away three
+          // things the document had already decided:
+          //
+          //   * the order of `speedCaps` (a 2500/1000/100/10 port came back 10/100/1000/2500),
+          //   * `poeOut: true` - the spec's way of saying "this port sources power" - which
+          //     derivePortHardware reads as a wattage and turned into 15.4 W,
+          //   * the same for `poeIn` (12.95 W).
+          //
+          // The second one was not cosmetic: the PoE budget adds `iface.poeOut`, so a save and reload
+          // changed the number the budget check saw. A lab file has to mean the same thing twice.
+          if (is.cage !== undefined || Array.isArray(is.media) || Array.isArray(is.speedCaps) ||
+              ('poeOut' in is) || ('poeIn' in is)) {
+            const derived = iface.hardware || {};
+            iface.hardware = Object.assign({}, derived, {
+              cage: is.cage !== undefined ? is.cage : derived.cage,
+              media: Array.isArray(is.media) ? is.media.slice() : derived.media,
+              speedCaps: Array.isArray(is.speedCaps) ? is.speedCaps.slice() : derived.speedCaps,
+              poeOut: ('poeOut' in is) ? is.poeOut : derived.poeOut,
+              poeIn: ('poeIn' in is) ? is.poeIn : derived.poeIn
+            });
+          }
         }
       }
     }

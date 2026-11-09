@@ -9,8 +9,9 @@
 // Two separate defects, and both are tested here: the sequence was not restored, and
 // a colliding id was accepted silently instead of being refused.
 const path = require('path');
+const fs = require('fs');
 const { Topology } = require('../engine');
-const { loadCatalog } = require('../devices/registry');
+const { loadCatalog, effectiveInterfaces } = require('../devices/registry');
 
 let passed = 0, failed = 0;
 function ok(cond, msg) {
@@ -136,6 +137,163 @@ console.log('\nThe sequence continues from the highest id, not from wherever it 
     'cable ids survive a further round trip (' + [...again.links.keys()].join(',') + ')');
   ok([...again.devices.keys()].join(',') === [...t.devices.keys()].join(','),
     'and so do device ids');
+}
+
+console.log('\nSave, load, save is byte-identical - including when a caller supplies ids:');
+{
+  // The counter is normally one past the highest id, because ids come from `'d' + _seq++`. That
+  // stops being true the moment a caller passes its own id: a topology built as `d0` and `d2` kept
+  // `_seq = 1`, so serialize() wrote `seq: 1` beside a `d2`, and loading that document pushed the
+  // counter to 3. Save, load and save again then produced a *different* file - one integer of churn
+  // per open/save cycle in a lab file that exists to be diffed in git.
+  const sw = spec('mikrotik', 'CRS326-24G');
+  const pc = spec('generic', 'generic-pc');
+
+  const explicit = new Topology();
+  explicit.addDevice(sw, 'd0');
+  explicit.addDevice(pc, 'd2');
+  explicit.connect('d0', 'ether1', 'd2', 'eth0', { mediaId: '1000base-t' });
+  const doc = explicit.serialize();
+  ok(doc.seq > 2, 'an explicit id moves the counter past itself (' + doc.seq + ')');
+  const reloaded = JSON.stringify(Topology.fromJSON(JSON.parse(JSON.stringify(doc))).serialize());
+  ok(reloaded === JSON.stringify(doc), 'so save -> load -> save is byte-identical');
+
+  const explicitLink = new Topology();
+  explicitLink.addDevice(sw, 'd1');
+  explicitLink.addDevice(pc, 'd2');
+  explicitLink.connect('d1', 'ether1', 'd2', 'eth0', { id: 'l40', mediaId: '1000base-t' });
+  ok(explicitLink.serialize().seq > 40, 'an explicit cable id does the same (' + explicitLink.serialize().seq + ')');
+  ok(JSON.stringify(Topology.fromJSON(JSON.parse(JSON.stringify(explicitLink.serialize()))).serialize()) ===
+     JSON.stringify(explicitLink.serialize()), 'and that document round-trips too');
+
+  // The same property over the shipped labs and over seeded random topologies, half of which use
+  // explicit ids - because the bug only appeared in the explicit case, and a test that only builds
+  // topologies the easy way would have missed it.
+  const catalogAll = loadCatalog(path.join(__dirname, '..', 'devices')).filter(function (s) { return !s.error; });
+  function mulberry32(a) {
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const failures = [];
+  const exampleDir = path.join(__dirname, '..', 'examples');
+  for (const f of fs.readdirSync(exampleDir).filter(function (n) { return n.endsWith('.json'); })) {
+    const lab = JSON.parse(fs.readFileSync(path.join(exampleDir, f), 'utf8'));
+    const once = JSON.stringify(Topology.fromJSON(lab).serialize());
+    const twice = JSON.stringify(Topology.fromJSON(JSON.parse(once)).serialize());
+    if (once !== twice) failures.push(f);
+  }
+  const rand = mulberry32(20261109);
+  let built = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const t = new Topology();
+    const n = 1 + Math.floor(rand() * 4);
+    for (let i = 0; i < n; i++) {
+      const s = catalogAll[Math.floor(rand() * catalogAll.length)];
+      if (rand() < 0.5) {
+        const id = 'd' + Math.floor(rand() * 30);
+        if (t.devices.has(id)) continue;
+        t.addDevice(s, id);
+      } else {
+        t.addDevice(s);
+      }
+    }
+    if (!t.devices.size) continue;
+    built++;
+    const one = JSON.stringify(t.serialize());
+    const two = JSON.stringify(Topology.fromJSON(JSON.parse(one)).serialize());
+    if (one !== two) failures.push('seed ' + seed);
+  }
+  ok(built >= 20, 'the generator built topologies (' + built + ')');
+  ok(failures.length === 0, 'every one of them round-trips byte for byte', failures.slice(0, 4).join(', '));
+}
+
+console.log('\nA reload does not change what the PoE budget sees:');
+{
+  // The hardware restore above is not cosmetic bookkeeping. `poeDraw()` adds `iface.poeOut` for every
+  // cabled port, and 131 specs say `poeOut: true` - the spec's way of saying "this port sources
+  // power" - rather than naming watts. Re-deriving that on load turned `true` into 15.4 W, so the same
+  // lab reported a different power draw before and after being saved.
+  const pseCandidates = catalog.filter(function (s) {
+    return effectiveInterfaces(s).some(function (i) { return i.poeOut === true && i.type === 'ethernet'; });
+  });
+  const pdCandidates = catalog.filter(function (s) {
+    return effectiveInterfaces(s).some(function (i) {
+      return i.poeIn !== undefined && i.poeIn !== null && i.poeIn !== false && i.type === 'ethernet';
+    });
+  });
+  ok(pseCandidates.length > 0 && pdCandidates.length > 0,
+    'there are PoE sources (' + pseCandidates.length + ') and powered devices (' + pdCandidates.length + ')');
+
+  // Ask the engine which media the pair actually shares, and which ports it would use, rather than
+  // assuming gigabit copper: the first powered device in the catalogue is a fast-Ethernet box, and a
+  // hardcoded 1000BASE-T was refused. linkOptions() answers with `options[]`, each carrying the media
+  // and the port pairs that would work.
+  let pair = null;
+  for (const pse of pseCandidates.slice(0, 12)) {
+    for (const pd of pdCandidates.slice(0, 12)) {
+      const t0 = new Topology();
+      const a0 = t0.addDevice(pse);
+      const b0 = t0.addDevice(pd);
+      const opts = t0.linkOptions(a0.id, b0.id, {});
+      const copper = (opts.options || []).filter(function (o) { return o.family === 'copper' && o.pairs && o.pairs.length; })[0];
+      if (!copper) continue;
+      pair = {
+        pse: pse, pd: pd, topology: t0, a: a0.id, b: b0.id,
+        out: copper.pairs[0].a.iface, inp: copper.pairs[0].b.iface, media: copper.mediaId
+      };
+      break;
+    }
+    if (pair) break;
+  }
+  ok(!!pair, 'a mating pair is found by asking the engine for its shared media');
+  if (pair) {
+    const t = pair.topology;
+    let cabled = null;
+    try { cabled = t.connect(pair.a, pair.out, pair.b, pair.inp, { mediaId: pair.media }); } catch (e) { cabled = null; }
+    ok(!!cabled, 'the two are cabled together (' + pair.media + ' on ' + pair.out + ' -> ' + pair.inp + ')');
+    if (cabled) {
+      const reloaded = roundTrip(t);
+      const before = t.getDevice(pair.a).poeDraw();
+      const after = reloaded.getDevice(pair.a).poeDraw();
+      ok(before === after, 'the draw is the same before and after a save/load (' + before + ' W vs ' + after + ' W)');
+
+      // The draw alone can be zero on both sides and prove nothing, so compare the hardware the
+      // document carries for every port of both devices - that is where `true` became 15.4 W and
+      // where the speed caps came back reordered.
+      function hardwareOf(dev) {
+        const out = {};
+        for (const [name, i] of dev.interfaces) {
+          out[name] = {
+            cage: i.hardware.cage,
+            media: i.hardware.media,
+            speedCaps: i.hardware.speedCaps,
+            poeOut: i.hardware.poeOut,
+            poeIn: i.hardware.poeIn
+          };
+        }
+        return JSON.stringify(out);
+      }
+      const hardwareBefore = hardwareOf(t.getDevice(pair.a)) + hardwareOf(t.getDevice(pair.b));
+      const hardwareAfter = hardwareOf(reloaded.getDevice(pair.a)) + hardwareOf(reloaded.getDevice(pair.b));
+      ok(hardwareBefore === hardwareAfter,
+        'every port keeps the same cage, media, speed caps and PoE figures across a save/load');
+      if (hardwareBefore !== hardwareAfter) {
+        let i = 0;
+        while (i < Math.min(hardwareBefore.length, hardwareAfter.length) && hardwareBefore[i] === hardwareAfter[i]) i++;
+        console.log('         first difference: ...' + hardwareBefore.slice(Math.max(0, i - 60), i + 60) +
+                    '  vs  ...' + hardwareAfter.slice(Math.max(0, i - 60), i + 60));
+      }
+
+      const caps = [...t.getDevice(pair.a).interfaces.values()].map(function (i) { return (i.hardware.speedCaps || []).join('/'); }).join('|');
+      const capsAfter = [...reloaded.getDevice(pair.a).interfaces.values()].map(function (i) { return (i.hardware.speedCaps || []).join('/'); }).join('|');
+      ok(caps === capsAfter, 'and the advertised speed caps keep their order and values');
+    }
+  }
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
