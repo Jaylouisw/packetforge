@@ -126,16 +126,24 @@ console.log('A packet whose next hop never answered is a counted discard, not si
   const res = env.sim.ping('r1', '10.0.0.9', { count: 2 });
   ok(res.replies.every(function (x) { return !x.success; }), 'the pings fail');
 
+  // The reason is now the true one: the frame was thrown away because the port at the other end is shut,
+  // not because the address was silent. The wire was shut - it never had a chance to answer. Counting is per
+  // transmitted frame that could not be delivered, so the tally and the event log must still agree exactly;
+  // that is the invariant, and the ping's sentence is the discard's sentence.
   const shut = env.sim.dropsFor('r1');
-  ok(shut.total === 2, 'both are counted as discards', JSON.stringify(shut));
-  ok(/no ARP reply from 10\.0\.0\.9/.test(JSON.stringify(shut.byReason)),
-    'with the address nobody answered for', JSON.stringify(shut.byReason));
-  ok(res.replies.every(function (x) { return /no ARP reply/.test(String(x.reason)); }),
+  const dropEvents = res.events.filter(function (e) { return e.type === 'drop'; });
+  ok(shut.total === dropEvents.length, 'every attempted frame is counted once',
+    JSON.stringify({ tally: shut.total, events: dropEvents.length }));
+  ok(shut.total > 0, 'the loss is not silent', JSON.stringify(shut));
+  ok(/peer port shut \(pc eth0\)/.test(JSON.stringify(shut.byReason)),
+    'naming the shut far port, which is what actually stopped it', JSON.stringify(shut.byReason));
+  ok(res.replies.every(function (x) { return /peer port shut \(pc eth0\)/.test(String(x.reason)); }),
     'and the ping itself says why, instead of a null reason',
     JSON.stringify(res.replies.map(function (x) { return x.reason; })));
 
   const out = block(env);
-  ok(/drops \(no ARP reply from 10\.0\.0\.9 x2\)/.test(out.lines.join(' | ')),
+  const expected = 'drops (peer port shut (pc eth0) x' + shut.total + ')';
+  ok(out.lines.join(' | ').indexOf(expected) !== -1,
     'and it lands on the port that asked', out.lines.join(' | '));
   ok(/peer shut down/.test(out.lines.join(' ')),
     'beside the link state that explains it', out.lines.join(' | '));

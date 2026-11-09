@@ -556,10 +556,14 @@ class Simulator {
       const groups = {};
       for (const iface of dev.interfaces.values()) {
         if (!iface.peer) continue;
-        // A port whose cable is down is not a port as far as the spanning tree is concerned - that
-        // is precisely how a redundant topology heals itself when a link fails.
-        const ownLink = this._linkAt(dev.id, iface.name);
-        if (ownLink && !ownLink.isUp()) continue;
+        // A port that cannot carry a frame is not a port as far as the spanning tree is concerned - that is
+        // precisely how a redundant topology heals itself when a link fails.
+        //
+        // This asked only whether the *cable* was up, so a port someone shut, and a port whose far end
+        // someone shut, stayed in the tree as usable edges. The tree then went on blocking the port that
+        // would have healed the ring: a four-switch ring with one port shut left a whole switch with no path
+        // to the rest of the network, while pulling the same cable healed it (#1274).
+        if (dev.ifaceStatus(iface, this.topo).status !== 'up') continue;
         const key = this._logicalPortName(dev, iface.name);
         if (!groups[key]) groups[key] = [];
         groups[key].push(iface);
@@ -2568,6 +2572,30 @@ class Simulator {
     }
     const peerDev = this.topo.getDevice(peer.deviceId);
     if (!peerDev) return;
+    // A shut port does not *receive* either. This checked the sending port and never the receiving one, so a
+    // frame aimed at an administratively-down port was delivered, learned from, and forwarded: in a ring
+    // with one shut port the ring never actually broke, frames were replicated around it, a switch learned a
+    // host on the port it could not use, and the host's own address ended up in another host's ARP cache -
+    // with the far side reported only as `link administratively down` on the *sender*, which nobody reads
+    // (#1274).
+    const peerIf = peerDev.interfaces.get(peer.iface);
+    if (peerIf && !peerIf.enabled) {
+      // Counted where the frame was lost from the sender's point of view, and naming the far end: "your
+      // frame left Gi0 and the port it was going to is shut" is actionable, "link administratively down"
+      // on a port that is up is not.
+      this._emit({
+        type: 'drop', reason: 'peer port shut (' + peerDev.id + ' ' + peer.iface + ')',
+        dev: dev.id, iface: iface.name
+      });
+      // If this was the ARP request, the packets waiting on it are already accounted for by that discard:
+      // reporting them again at sweep time ("no ARP reply from X") would bill one lost ping twice, and the
+      // first reason is the true one - the wire was shut, not silent.
+      const arp = tx.frame && tx.frame.arp;
+      if (arp && arp.op === 'request' && arp.targetIp && dev.pending && dev.pending.has(arp.targetIp)) {
+        dev.pending.delete(arp.targetIp);
+      }
+      return;
+    }
     this._emit({
       type: 'frame', from: dev.id, fromIface: iface.name,
       to: peerDev.id, toIface: peer.iface, frame: tx.frame
