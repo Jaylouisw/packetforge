@@ -1299,8 +1299,11 @@ class CliSession {
       out.push('Interface              IP-Address      OK? Method Status                Protocol');
       for (const i of dev.interfaces.values()) {
         const ip = i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned';
-        const status = i.enabled ? 'up' : 'administratively down';
-        out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(i.dhcp ? 'DHCP' : 'manual', 8) + pad(status, 22) + (i.enabled ? 'up' : 'down'));
+        // Status is whether the port can carry a frame, not merely whether someone shut it (#1237).
+        // The topology has to be passed in: it is the only thing that knows a cable is missing.
+        const link = dev.ifaceStatus(i, this.topo);
+        out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(i.dhcp ? 'DHCP' : 'manual', 8) +
+          pad(link.status, 22) + link.protocol);
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
       // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
@@ -1468,7 +1471,13 @@ class CliSession {
     } else if (what === 'interfaces' || what === 'interface') {
       for (const i of dev.interfaces.values()) {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
-        out.push('  status: ' + (i.enabled ? 'up' : 'administratively down') + (i.description ? ', desc: ' + i.description : ''));
+        // The reason travels with the status: this block used to print `status: up` directly above
+        // `peer: disconnected`, which is two halves of the same output disagreeing (#1237).
+        const link = dev.ifaceStatus(i, this.topo);
+        out.push('  status: ' + link.status +
+          (link.reason ? ' (' + link.reason + ')' : '') +
+          ', protocol: ' + link.protocol +
+          (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
         out.push('  peer: ' + (i.peer ? i.peer.deviceId + '/' + i.peer.iface : 'disconnected'));
       }
