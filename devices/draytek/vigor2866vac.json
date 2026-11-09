@@ -1,0 +1,81 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2866VAC",
+  "label": "DrayTek Vigor 2866VAC (V2866VAC-K)",
+  "category": "router",
+  "description": "G.Fast router with AC1300 Wi-Fi and VoIP: 2x 1G WAN, 6x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-combo",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6-switchable",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "notes": "The VoIP member of the Vigor 2866 family - **V** in the model number, on the same **1x GbE RJ-45 + 1x GbE/SFP combo WAN, 5x Gigabit LAN + 1x switchable** layout as the other two. The telephony ports are analog FXS, not Ethernet, so they are not in the port list; if a deployment plan needs them, this entry will not tell you how many there are."
+}

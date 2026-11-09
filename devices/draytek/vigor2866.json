@@ -1,0 +1,75 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2866",
+  "label": "DrayTek Vigor 2866 (V2866-K)",
+  "category": "router",
+  "description": "G.Fast firewall router: 2x 1G WAN (one GbE/SFP combo), 6x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-combo",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6-switchable",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    }
+  ],
+  "notes": "Vendor figures from the Vigor 2866 series datasheet: **1x GbE RJ-45 + 1x GbE/SFP combo WAN**, **5x Gigabit LAN + 1x LAN switchable**. The 2866 is the G.Fast member of the family - the same copper port layout as the VDSL 2865, and the difference lives entirely on the DSL port, which is why a plan built from the port list alone cannot tell the two apart."
+}

@@ -1,0 +1,75 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2865",
+  "label": "DrayTek Vigor 2865 (V2865-K)",
+  "category": "router",
+  "description": "VDSL/ADSL firewall router: 2x 1G WAN (one GbE/SFP combo), 6x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-combo",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6-switchable",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    }
+  ],
+  "notes": "Vendor figures from the Vigor 2865 series datasheet: **WAN is 1x GbE RJ-45 plus a 1x GbE/SFP combo port**, and the LAN side is **5x Gigabit Ethernet ports plus 1x LAN switchable port** - printed in the sheet as \"6 Gigabit LAN ports\". The switchable port can become a third WAN, so the same chassis is 2 WAN / 6 LAN or 3 WAN / 5 LAN depending on configuration. The VDSL2 35b modem is on the DSL port, not on the Ethernet side."
+}

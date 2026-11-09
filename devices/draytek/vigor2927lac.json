@@ -1,0 +1,72 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2927Lac",
+  "label": "DrayTek Vigor 2927Lac",
+  "description": "Dual-WAN firewall router with AC1300 Wi-Fi and 4G/LTE: 2x 1G WAN, 5x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-lan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "notes": "Vendor figures from the Vigor 2927 series datasheet: **5x 1GbE RJ-45 LAN Ports** and **1x 1GbE RJ-45 LAN/WAN Port**, with a second gigabit WAN and the \"L\" LTE modem. The LAN/WAN port is **either** a second WAN **or** a sixth LAN port, never both - so the box is 2 WAN / 5 LAN or 1 WAN / 6 LAN, and a design that counts on both is one port short.",
+  "category": "router"
+}

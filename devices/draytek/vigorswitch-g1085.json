@@ -1,0 +1,63 @@
+{
+  "vendor": "draytek",
+  "model": "VigorSwitch G1085",
+  "label": "DrayTek VigorSwitch G1085",
+  "category": "switch",
+  "description": "8-port web-smart gigabit switch: 8x 1G, no PoE.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures from the VigorSwitch G1085 documentation: **8 GbE ports**, web-smart managed, **no PoE** - the G prefix is the unpowered model, where the P prefix in this catalogue's P2540x carries PoE. Eight gigabit ports and no power budget means it cannot be the switch at the bottom of a camera run."
+}

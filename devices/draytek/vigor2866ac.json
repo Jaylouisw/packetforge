@@ -1,0 +1,81 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2866AC",
+  "label": "DrayTek Vigor 2866AC (V2866AC-K)",
+  "category": "router",
+  "description": "G.Fast router with AC1300 Wi-Fi: 2x 1G WAN, 6x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-combo",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6-switchable",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "notes": "The AC1300 member of the Vigor 2866 family: **1x GbE RJ-45 + 1x GbE/SFP combo WAN, 5x Gigabit LAN + 1x switchable**, G.Fast modem. Same ports as the V2866-K, so the radio and the model suffix are the entire difference."
+}

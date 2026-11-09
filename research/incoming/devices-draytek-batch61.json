@@ -1,0 +1,621 @@
+[
+  {
+    "vendor": "draytek",
+    "model": "Vigor2865",
+    "label": "DrayTek Vigor 2865 (V2865-K)",
+    "category": "router",
+    "description": "VDSL/ADSL firewall router: 2x 1G WAN (one GbE/SFP combo), 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      }
+    ],
+    "notes": "Vendor figures from the Vigor 2865 series datasheet: **WAN is 1x GbE RJ-45 plus a 1x GbE/SFP combo port**, and the LAN side is **5x Gigabit Ethernet ports plus 1x LAN switchable port** - printed in the sheet as \"6 Gigabit LAN ports\". The switchable port can become a third WAN, so the same chassis is 2 WAN / 6 LAN or 3 WAN / 5 LAN depending on configuration. The VDSL2 35b modem is on the DSL port, not on the Ethernet side."
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2865ax",
+    "label": "DrayTek Vigor 2865ax",
+    "category": "router",
+    "description": "VDSL/ADSL firewall router with Wi-Fi 6: 2x 1G WAN, 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "notes": "The Wi-Fi 6 member of the Vigor 2865 family. Same port layout as the V2865-K - **1x GbE RJ-45 plus a GbE/SFP combo WAN, 5x Gigabit LAN plus 1x switchable** - so the radio is the whole difference between the two, and the copper is gigabit on both sides of it. A Wi-Fi 6 AP on gigabit ports is limited by the port, not the standard."
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2865Lac",
+    "label": "DrayTek Vigor 2865Lac",
+    "description": "VDSL/ADSL router with AC1300 Wi-Fi and 4G/LTE: 2x 1G WAN, 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "notes": "Vendor figures from the Vigor 2865 series datasheet: **1x GbE RJ-45 + 1x GbE/SFP combo WAN, 5x Gigabit LAN + 1x switchable**, with **AC1300 Wi-Fi** and an **LTE modem**. The \"L\" in the model number is the LTE modem and \"ac\" is the radio; the copper ports are identical to the plain V2865-K, so the failover path is an extra WAN rather than extra LAN.",
+    "category": "router"
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2866",
+    "label": "DrayTek Vigor 2866 (V2866-K)",
+    "category": "router",
+    "description": "G.Fast firewall router: 2x 1G WAN (one GbE/SFP combo), 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      }
+    ],
+    "notes": "Vendor figures from the Vigor 2866 series datasheet: **1x GbE RJ-45 + 1x GbE/SFP combo WAN**, **5x Gigabit LAN + 1x LAN switchable**. The 2866 is the G.Fast member of the family - the same copper port layout as the VDSL 2865, and the difference lives entirely on the DSL port, which is why a plan built from the port list alone cannot tell the two apart."
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2866AC",
+    "label": "DrayTek Vigor 2866AC (V2866AC-K)",
+    "category": "router",
+    "description": "G.Fast router with AC1300 Wi-Fi: 2x 1G WAN, 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "notes": "The AC1300 member of the Vigor 2866 family: **1x GbE RJ-45 + 1x GbE/SFP combo WAN, 5x Gigabit LAN + 1x switchable**, G.Fast modem. Same ports as the V2866-K, so the radio and the model suffix are the entire difference."
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2866VAC",
+    "label": "DrayTek Vigor 2866VAC (V2866VAC-K)",
+    "category": "router",
+    "description": "G.Fast router with AC1300 Wi-Fi and VoIP: 2x 1G WAN, 6x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-combo",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6-switchable",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "dsl0",
+        "type": "dsl",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "notes": "The VoIP member of the Vigor 2866 family - **V** in the model number, on the same **1x GbE RJ-45 + 1x GbE/SFP combo WAN, 5x Gigabit LAN + 1x switchable** layout as the other two. The telephony ports are analog FXS, not Ethernet, so they are not in the port list; if a deployment plan needs them, this entry will not tell you how many there are."
+  },
+  {
+    "vendor": "draytek",
+    "model": "Vigor2927Lac",
+    "label": "DrayTek Vigor 2927Lac",
+    "description": "Dual-WAN firewall router with AC1300 Wi-Fi and 4G/LTE: 2x 1G WAN, 5x 1G LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2-lan",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "notes": "Vendor figures from the Vigor 2927 series datasheet: **5x 1GbE RJ-45 LAN Ports** and **1x 1GbE RJ-45 LAN/WAN Port**, with a second gigabit WAN and the \"L\" LTE modem. The LAN/WAN port is **either** a second WAN **or** a sixth LAN port, never both - so the box is 2 WAN / 5 LAN or 1 WAN / 6 LAN, and a design that counts on both is one port short.",
+    "category": "router"
+  },
+  {
+    "vendor": "draytek",
+    "model": "VigorSwitch G1085",
+    "label": "DrayTek VigorSwitch G1085",
+    "category": "switch",
+    "description": "8-port web-smart gigabit switch: 8x 1G, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "notes": "Vendor figures from the VigorSwitch G1085 documentation: **8 GbE ports**, web-smart managed, **no PoE** - the G prefix is the unpowered model, where the P prefix in this catalogue's P2540x carries PoE. Eight gigabit ports and no power budget means it cannot be the switch at the bottom of a camera run."
+  }
+]

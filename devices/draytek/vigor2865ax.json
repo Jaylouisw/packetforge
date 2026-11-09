@@ -1,0 +1,81 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor2865ax",
+  "label": "DrayTek Vigor 2865ax",
+  "category": "router",
+  "description": "VDSL/ADSL firewall router with Wi-Fi 6: 2x 1G WAN, 6x 1G LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2-combo",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6-switchable",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "notes": "The Wi-Fi 6 member of the Vigor 2865 family. Same port layout as the V2865-K - **1x GbE RJ-45 plus a GbE/SFP combo WAN, 5x Gigabit LAN plus 1x switchable** - so the radio is the whole difference between the two, and the copper is gigabit on both sides of it. A Wi-Fi 6 AP on gigabit ports is limited by the port, not the standard."
+}
