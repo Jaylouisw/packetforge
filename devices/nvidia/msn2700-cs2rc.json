@@ -1,0 +1,442 @@
+{
+  "vendor": "nvidia",
+  "model": "msn2700-cs2rc",
+  "label": "NVIDIA MSN2700-CS2RC (Spectrum SN2700, 32x 100GbE)",
+  "category": "switch",
+  "description": "NVIDIA Spectrum SN2700 1U open Ethernet switch: 32x 100GbE QSFP28, 6.4 Tb/s, Cumulus Linux, plus 1x 1G management.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "qsfp1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp2",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp3",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp4",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp5",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp6",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp7",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp8",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp9",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp10",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp11",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp12",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp13",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp14",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp15",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp16",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp17",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp18",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp19",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp20",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp21",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp22",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp23",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp24",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp25",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp26",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp27",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp28",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp29",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp30",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp31",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "qsfp32",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "notes": "Vendor figures: **32 ports at 100GbE (QSFP28), 6.4 Tb/s throughput, 4.76 Bpps**, Spectrum-1 ASIC, 1U, **Cumulus Linux** in the -C2RC SKU (the suffix is the OS image and airflow, not the hardware). Each QSFP28 cage breaks out to 4 x 25G, 2 x 50G or 1 x 40G, which is why the entry carries the whole `speedCaps` list - a 32-port switch becomes a 128-port one on breakout cables."
+}

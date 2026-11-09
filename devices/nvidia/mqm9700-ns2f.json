@@ -1,0 +1,602 @@
+{
+  "vendor": "nvidia",
+  "model": "mqm9700-ns2f",
+  "label": "NVIDIA MQM9700-NS2F (Quantum-2 64-port NDR InfiniBand switch)",
+  "category": "switch",
+  "description": "NVIDIA Quantum-2 QM9700 1U InfiniBand switch: 64 NDR 400Gb/s ports on 32 OSFP cages, plus 1x 1G management.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ndr1",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr2",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr3",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr4",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr5",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr6",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr7",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr8",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr9",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr10",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr11",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr12",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr13",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr14",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr15",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr16",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr17",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr18",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr19",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr20",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr21",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr22",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr23",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr24",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr25",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr26",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr27",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr28",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr29",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr30",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr31",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr32",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr33",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr34",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr35",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr36",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr37",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr38",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr39",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr40",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr41",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr42",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr43",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr44",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr45",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr46",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr47",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr48",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr49",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr50",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr51",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr52",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr53",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr54",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr55",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr56",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr57",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr58",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr59",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr60",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr61",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr62",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr63",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "ndr64",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "notes": "NVIDIA documents **QM9700 and QM9790 together** (\"the QM9700 and QM9790 switch systems deliver ... 64 ports of NDR 400Gb/s InfiniBand per port in a 1U standard chassis\"), and both SKU descriptions read **64 NDR ports, 32 OSFP ports**. Each 400G port is declared `qsfpdd` (the engine's 400G optical cage; NVIDIA's OSFP800 is not modelled). **The port layout is therefore identical**; they are separate entries because the SKUs, firmware trees and power configurations differ, not the wiring."
+}
