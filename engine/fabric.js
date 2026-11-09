@@ -134,6 +134,15 @@ function validateFabric(spec) {
       ' Mbps port on the same device');
   }
 
+  // An exclusion that matches nothing is worse than no exclusion at all.
+  //
+  // `excludes: ["line*"]` on a shelf whose ports are called `L1..L12` excludes nothing, the audit
+  // then counts both ends of every connection, and the palette shows a figure that is wrong in the
+  // direction of sounding impressive. Nothing else in the pipeline would ever notice: the JSON is
+  // valid, the ports are valid, and the number renders.
+  const exclusionProblems = excludedGlobProblems(spec);
+  for (const p of exclusionProblems) problems.push(p);
+
   // Unparseable speeds inflate nothing but do make the audit meaningless, so they are named.
   for (const i of ifaces) {
     const t = i.type || 'ethernet';
@@ -144,11 +153,45 @@ function validateFabric(spec) {
   return problems;
 }
 
+
+// Which exclusion globs are wrong, and why. Exported because the audit and the inspector must agree
+// about what an exclusion means - they are two implementations of one rule, and the only reason they
+// have not drifted is that this one is tested against the other on the whole catalogue.
+function excludedGlobProblems(spec) {
+  const fabric = spec && spec.fabric;
+  const problems = [];
+  if (!fabric || !Array.isArray(fabric.excludes)) return problems;
+  const names = ((spec.interfaces) || []).filter(Boolean).map(function (i) { return String(i.name || ''); });
+  if (fabric.excludes.length && !names.length) {
+    problems.push('fabric.excludes is declared but the device has no explicit interfaces to match against');
+    return problems;
+  }
+  for (const glob of fabric.excludes) {
+    if (typeof glob !== 'string' || !glob) { problems.push('fabric.excludes contains a non-string entry'); continue; }
+    const hits = names.filter(function (n) { return matchesGlob(n, glob); });
+    if (!hits.length) {
+      problems.push('fabric.excludes glob ' + JSON.stringify(glob) + ' matches no port on this device, so it excludes nothing');
+      continue;
+    }
+    // Excluding every data port would make the offered figure zero, which is never a real device.
+    const dataPorts = names.filter(function (n, idx) {
+      const t = ((spec.interfaces || [])[idx] || {}).type || 'ethernet';
+      return COUNTS_TOWARD_FABRIC.indexOf(t) !== -1;
+    });
+    const dataHits = dataPorts.filter(function (n) { return matchesGlob(n, glob); });
+    if (dataPorts.length && dataHits.length === dataPorts.length) {
+      problems.push('fabric.excludes glob ' + JSON.stringify(glob) + ' excludes every data port on this device');
+    }
+  }
+  return problems;
+}
+
 module.exports = {
   parseFabric,
   offeredMbps,
   auditFabric,
   validateFabric,
+  excludedGlobProblems,
   speedToMbps,
   matchesGlob,
   COUNTS_TOWARD_FABRIC,

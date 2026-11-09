@@ -238,6 +238,25 @@ line port are two ends of one service, and the fabric carries it **once**. Count
 the E6608 as 6x oversubscribed; excluding the line side gives the honest 3x. A plain switch excludes
 nothing, because every port on it is a service port.
 
+### An exclusion that matches nothing is a bug, not a no-op
+
+`excludes` is matched by port name, and a name glob that hits no port changes nothing — which is
+worse than having no exclusion, because the audit then counts the far end of every connection and
+reports a number that is wrong in the direction of sounding impressive. `excludes: ["line*"]` on a
+shelf whose ports are `L1..L12` reads the E6608 as 6× oversubscribed instead of the honest 3×, while
+every part of the pipeline sees valid JSON, valid ports and a figure that renders.
+
+So `validateFabric()` reports:
+
+- a glob that **matches no port** on the device;
+- a glob that **excludes every data port**, which would make the offered figure zero;
+- `excludes` on a device described by a `portTemplate`, where there are no port names to match yet.
+
+Two implementations of this rule exist — `engine/fabric.js` for the catalogue and `web/app.js` for
+the inspector, because the browser cannot require the engine. `test/fabric-agreement.test.js`
+compares them on every device that declares a fabric, so a change to one that is not made to the
+other fails in CI rather than in somebody's panel.
+
 What this is **not**: an oversubscription error. A 48-port gigabit switch behind a 10G uplink is
 48x oversubscribed by design. `engine/fabric.js` reports the ratio and the palette shows it — it never
 refuses a cable. The one hard rule is that a fabric may not be slower than a single port on the same
