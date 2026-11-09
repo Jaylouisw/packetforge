@@ -1,14 +1,39 @@
 {
   "vendor": "ubiquiti",
   "model": "PBE-5AC-Gen2",
-  "label": "PowerBeam 5AC Gen2",
+  "label": "Ubiquiti PowerBeam 5AC Gen2 (PBE-5AC-Gen2)",
   "category": "ptp",
   "description": "High-gain 5 GHz airMAX AC point-to-point radio, 450+ Mbps; 1x GigE port, integrated dish.",
-  "capabilities": ["l3-forward", "wireless", "cli", "http-server", "nat", "firewall", "dhcp-server", "dhcp-client"],
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client"
+  ],
   "interfaces": [
-    { "name": "eth0", "type": "ethernet", "speed": "1G" },
-    { "name": "radio0", "type": "wireless", "speed": "867M" }
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": true
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
   ],
   "icon": "ptp",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "notes": "Vendor figures from the PowerBeam AC Gen2 datasheet: **(1) 10/100/1000 Ethernet port**, **passive PoE on pairs 4,5+/7,8-**, 24 V 0.5 A Gigabit PoE adapter included, 20-26 VDC input, 802.11ac 2x2 at 867 Mbps. **Corrected against the datasheet**: the entry carried no power method at all, so it read as a plain unpowered radio - this box has no DC jack, and **passive 24 V is not 802.3af/at**, so a standard PoE switch will not power it. The M-series PowerBeams beside it are fast ethernet; this one is gigabit."
 }

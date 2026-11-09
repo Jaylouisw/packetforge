@@ -1,0 +1,84 @@
+{
+  "vendor": "ubiquiti",
+  "model": "afi-r",
+  "label": "Ubiquiti AmpliFi HD Mesh Router (AFi-R)",
+  "category": "router",
+  "description": "AmpliFi HD Mesh Router: 1x 1G WAN + 4x 1G LAN, 802.11ac 3x3 (450 Mbps 2.4 GHz + 1300 Mbps 5 GHz), touchscreen, mesh controller.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "450M"
+    },
+    {
+      "name": "radio-5g",
+      "type": "wireless",
+      "speed": "1300M"
+    }
+  ],
+  "notes": "Vendor figures from Ubiquiti's AmpliFi datasheet: **Wi-Fi/Gigabit Ethernet, (1) WAN, (4) LAN**, 802.11ac **13 Mbps to 1300 Mbps** (MCS0-MCS9, VHT 20/40/80) on 5 GHz and 802.11n **6.5 to 450 Mbps** on 2.4 GHz, with a touchscreen on the front. **Five copper ports, no PoE anywhere** - the router is a mesh controller first and a switch second. The **AFi-HD kit is this router plus two AFi-P-HD MeshPoints**, and the NVIDIA Gamer's Edition is this hardware in another shell; the MeshPoint's own port count is not stated in this datasheet, which is why it has no entry of its own yet."
+}
