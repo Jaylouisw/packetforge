@@ -1,0 +1,61 @@
+{
+  "vendor": "hpe",
+  "model": "officeconnect-1405-8g-v3",
+  "label": "HPE OfficeConnect 1405 8G v3 (JH408A)",
+  "category": "switch",
+  "description": "8-port gigabit unmanaged switch: 8x 1G, no PoE.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures for **JH408A**: 8 autosensing 10/100/1000 ports, unmanaged, fanless, no PoE. **144 Gbps switching capacity** on a box with no management plane - the number is real and irrelevant, which is the honest way to read unmanaged switch datasheets."
+}

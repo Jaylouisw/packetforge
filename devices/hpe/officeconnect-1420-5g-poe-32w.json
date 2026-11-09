@@ -1,0 +1,54 @@
+{
+  "vendor": "hpe",
+  "model": "officeconnect-1420-5g-poe-32w",
+  "label": "HPE OfficeConnect 1420 5G PoE+ 32W (JH328A)",
+  "category": "switch",
+  "description": "5-port gigabit PoE+ unmanaged switch: 5x 1G, 4x PoE+, 32 W budget.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures for **JH328A**: 5 gigabit ports, **PoE+ (802.3at) on 4 of them**, total budget **32 W**. **32 W across four PoE+ ports is 8 W each** - it will run four phones or two 802.3at access points, and it will not run four 30 W devices no matter what the port count suggests."
+}

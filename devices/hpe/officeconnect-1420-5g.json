@@ -1,0 +1,43 @@
+{
+  "vendor": "hpe",
+  "model": "officeconnect-1420-5g",
+  "label": "HPE OfficeConnect 1420 5G (JH327A)",
+  "category": "switch",
+  "description": "5-port gigabit unmanaged switch: 5x 1G, no PoE.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures for **JH327A**: 5 x 10/100/1000 ports, unmanaged Layer 2, **no PoE** (the -PoE+ variant is JH328A). Green feature and EEE compliant, fanless."
+}

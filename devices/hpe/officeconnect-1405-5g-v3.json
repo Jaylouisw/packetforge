@@ -1,0 +1,43 @@
+{
+  "vendor": "hpe",
+  "model": "officeconnect-1405-5g-v3",
+  "label": "HPE OfficeConnect 1405 5G v3 (JH407A)",
+  "category": "switch",
+  "description": "5-port gigabit unmanaged switch: 5x 1G, no PoE.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "notes": "Vendor figures for **JH407A**: 5 autosensing 10/100/1000 ports, **unmanaged and unpowered**, fanless metal case, wall-mountable. The 1405 v3 series is the cheapest way onto gigabit and it does nothing else - no VLANs, no management, no PoE."
+}
