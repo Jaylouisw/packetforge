@@ -306,12 +306,44 @@ class CliSession {
       this.device.ospfRoutes = [];
       out.push('OSPF disabled');
     } else if (head === 'ip' && tokens[1] === 'route') {
-      // ip route DEST MASK GW [iface]
-      const dest = tokens[2], mask = tokens[3], gw = tokens[4], iface = tokens[5] || null;
-      if (!dest || !mask) return ['% Incomplete command'];
-      net.maskToInt(mask); // validate
+      // ip route DEST MASK GW [iface]   and   ip route DEST MASK <iface>   (the directly-connected form)
+      const dest = tokens[2], mask = tokens[3];
+      let gw = tokens[4] || null;
+      let iface = tokens[5] || null;
+      if (!dest || !mask) return ['% Incomplete command: ip route <dest> <mask> <gateway|interface>'];
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(dest)) return ['% Invalid destination "' + dest + '"'];
+      net.maskToInt(mask); // validate: the one mask rule
+      // A port name used to be stored in the *gateway* field: `ip route 10.9.0.0 255.255.0.0 Gi0` kept
+      // gw:"Gi0", and the route then tried to ARP for an address called "Gi0" - a route that is listed,
+      // installed, printed, and cannot carry a packet, with nothing anywhere saying why. The directly
+      // connected form is legal, so it is stored where routeTo() looks for it.
+      if (gw) {
+        const asPort = resolvePortName(this.device, gw);
+        if (asPort) {
+          if (iface) return ['% ' + dest + '/' + net.prefixOf(mask) + ': ' + asPort +
+            ' is an interface, so it cannot also be followed by ' + iface];
+          gw = null;
+          iface = asPort;
+        } else if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(gw)) {
+          return ['% ' + dest + '/' + net.prefixOf(mask) + ': "' + gw + '" is neither a next-hop address ' +
+            'nor an interface on ' + this.device.name];
+        }
+      }
+      if (iface) {
+        const named = resolvePortName(this.device, iface);
+        if (!named) return ['% ' + dest + '/' + net.prefixOf(mask) + ': no interface called "' + iface + '"'];
+        iface = named;
+      }
       this.device.config.routes.push({ dest: dest, mask: mask, gw: gw || null, iface: iface });
-      out.push('Route added: ' + dest + '/' + net.prefixOf(mask) + ' via ' + (gw || 'on-link'));
+      out.push('Route added: ' + dest + '/' + net.prefixOf(mask) +
+        (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')));
+      if (!gw && iface) {
+        // Legal, and often not what the operator wanted on a segment that is not point-to-point: with no
+        // next hop the box ARPs for the *destination* on that wire, and only answers if the router in
+        // between proxies ARP for it. Saying so at the moment of configuration is cheaper than letting it
+        // look installed and carry nothing.
+        out.push('  no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side');
+      }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'route') {
       const dest = tokens[3], mask = tokens[4], gw = tokens[5] || null;
       const before = this.device.config.routes.length;
@@ -366,6 +398,18 @@ class CliSession {
       if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
       this.device.config.vrrp = kept;
       return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+    }
+    if (head === 'ip' && tokens[1] === 'address' && String(tokens[2] || '').indexOf('/') !== -1) {
+      // `ip address 10.0.0.1/24` was answered with "% Incomplete command", which says nothing about what is
+      // wrong or what would work. The address-and-prefix spelling is what almost every other tool takes, so
+      // the refusal names the problem and both forms this parser accepts.
+      const parts = String(tokens[2]).split('/');
+      const bits = parts[1];
+      const maskFromPrefix = require('./net').maskFromPrefix;
+      const dotted = /^\d+$/.test(bits) && parseInt(bits, 10) <= 32
+        ? maskFromPrefix(parseInt(bits, 10)) : '255.255.255.0';
+      return ['% "' + tokens[2] + '" is an address with a prefix length, not an address and a mask: use ' +
+        '"ip address ' + parts[0] + ' ' + dotted + '" or "ip address ' + parts[0] + ' ' + bits + '"'];
     }
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
@@ -1245,8 +1289,27 @@ class CliSession {
     if (head === 'end') return finish(MODE_EXEC);
     if (head === 'network') {
       if (!tokens[1]) return incomplete('Incomplete command: network <network> [mask|/prefix]');
-      pool.network = tokens[1];
-      if (tokens[2]) pool.mask = tokens[2];
+      // The usage line has always advertised the `/prefix` spelling, and the parser stored it verbatim: the
+      // pool then held network "10.5.0.0/24", which the validator rejects, so a documented form of the
+      // command produced a pool that could not serve. Split it here, with the one mask rule, so both
+      // spellings end up as the same state.
+      const slash = String(tokens[1]).indexOf('/');
+      if (slash !== -1) {
+        const networkPart = String(tokens[1]).slice(0, slash);
+        const prefixPart = String(tokens[1]).slice(slash + 1);
+        const maskFromPrefix = require('./net').maskFromPrefix;
+        const mask = /^\d+$/.test(prefixPart) && parseInt(prefixPart, 10) <= 32
+          ? maskFromPrefix(parseInt(prefixPart, 10)) : null;
+        if (!networkPart || !mask) {
+          return incomplete('Invalid network "' + tokens[1] +
+            '" - use <network> <mask> or <network> <prefix-bits>');
+        }
+        pool.network = networkPart;
+        pool.mask = mask;
+      } else {
+        pool.network = tokens[1];
+        if (tokens[2]) pool.mask = tokens[2];
+      }
     } else if (head === 'default-router') {
       if (!tokens[1]) return incomplete('Incomplete command: default-router <address>');
       pool.gateway = tokens[1];
@@ -1686,7 +1749,12 @@ class CliSession {
         // while every packet to that prefix is dropped - and the drop says "no ARP reply from X", which
         // sends you looking for a host rather than at the wire (#1271).
         const egress = r.iface && r.iface !== '-' ? dev.interfaces.get(r.iface) : dev.egressFor(r.gw);
-        const note = egress ? this._staleNote(egress) : '';
+        // An interface-only static route is installed, printed and reachable-looking, and it carries a packet
+        // only if the far side proxies ARP for the destination. A row that says `via -` and nothing else
+        // reads as a healthy route; the note is what stops the table from lying about it.
+        const noHop = (r.type === 'static' && (r.gw === '-' || r.gw == null))
+          ? '(no next hop: ARP for the destination on that segment)' : '';
+        const note = [noHop, egress ? this._staleNote(egress) : ''].filter(Boolean).join('  ');
         // Three columns whatever the code length, so `S*` does not shift the whole row.
         out.push((code.length === 1 ? code + '  ' : code + ' ') + dest + '  [' + distance + '/0] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
@@ -2143,7 +2211,11 @@ class CliSession {
         for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
       }
       for (const r of dev.config.routes) {
-        out.push('ip route ' + r.dest + ' ' + r.mask + ' ' + (r.gw || '') + (r.iface ? ' ' + r.iface : ''));
+        // Three shapes, each of which the parser takes back: via a next hop (optionally out a port), out a
+        // port alone (the directly-connected form), or bare. The old line printed an empty field for a
+        // missing gateway, leaving two spaces and a line that depended on the tokenizer being forgiving.
+        out.push('ip route ' + r.dest + ' ' + r.mask +
+          (r.gw ? ' ' + r.gw + (r.iface ? ' ' + r.iface : '') : (r.iface ? ' ' + r.iface : '')));
       }
       if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
     } else {
