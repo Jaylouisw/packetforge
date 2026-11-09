@@ -1,0 +1,190 @@
+[
+  {
+    "vendor": "teltonika",
+    "model": "TRB142",
+    "label": "Teltonika TRB142 (RS232)",
+    "category": "router",
+    "description": "Rugged Cat 1 gateway with RS232: 2x 100 Mbps Ethernet, one WAN configurable as LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "10M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/gateways/trb142",
+    "notes": "Vendor figures from the Teltonika product catalogue: **2 x 10/100 Mbps Ethernet ports: 1 x WAN (configurable as LAN), 1 x LAN**, LTE Cat 1, plus a **DB9 RS232** port. The serial port is in the note rather than in the interface list, since the catalogue models network interfaces. **Cat 1 cellular is a tenth of Cat 6** - this is a telemetry gateway for a serial device, and the 100 Mbps ports are not the slowest part of it."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRB145",
+    "label": "Teltonika TRB145 (RS485)",
+    "category": "router",
+    "description": "Rugged Cat 1 gateway with RS485: 2x 100 Mbps Ethernet, one WAN configurable as LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "10M"
+      }
+    ],
+    "sourceUrl": "https://teltonika-networks.com/products/gateways/trb145",
+    "notes": "Vendor figures from the Teltonika product catalogue: **2 x 10/100 Mbps Ethernet ports: 1 x WAN (configurable as LAN), 1 x LAN**, LTE Cat 1, with an **RS485** bus interface. The RS485 port is in the note rather than in the interface list. Two Ethernet ports on an RS485 gateway is one more than the TRB142's serial cousin needs, and it is what lets the gateway sit inline."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRB141",
+    "label": "Teltonika TRB141 (GPIO)",
+    "category": "router",
+    "description": "Rugged Cat 1 GPIO gateway: no Ethernet port, cellular plus digital/analog I/O.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "10M"
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TRB141_Interfaces",
+    "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **4G LTE Cat 1** radio, **3 x digital inputs, 1 x analog input, 2 x relays**, UART on the PCB and **1 x virtual network interface via micro USB** - and **no Ethernet port at all**. That is the point of the TRB141: it is an I/O bridge for a machine, so there is nothing to plug a cable into. Recorded with its cellular interface only; a request that expects a copper port on this model is asking for a different device."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRM240",
+    "label": "Teltonika TRM240",
+    "category": "modem",
+    "description": "Industrial 4G Cat 1 modem: USB only, no Ethernet port.",
+    "capabilities": [
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "10M"
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TRM240_Interfaces",
+    "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **4G LTE Cat 1** radio, UART on the PCB, and **1 x virtual network interface via micro USB** - **no Ethernet port**. A modem is a component, not a router: the host provides the network interface, which is why nothing here is recorded as copper. The capability list carries `wireless` only: a modem has a radio and no forwarding engine, so claiming routing, NAT or firewall here would make the simulator pretend a component is a router."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "TRM500",
+    "label": "Teltonika TRM500",
+    "category": "modem",
+    "description": "Industrial 5G Cat 19 modem: USB Type-C only, no Ethernet port.",
+    "capabilities": [
+      "wireless"
+    ],
+    "interfaces": [
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "3.4G"
+      }
+    ],
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TRM500_Interfaces",
+    "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **5G LTE Cat 19** radio, and **1 x USB Type-C**, which must be supplied **5 V at 3 A** by the host - **no Ethernet port**. The power requirement is the practical detail: a 5 V / 3 A host port is not a default on industrial PCs, so a plain USB port may not bring it up. The capability list carries `wireless` only: a modem has a radio and no forwarding engine, so claiming routing, NAT or firewall here would make the simulator pretend a component is a router."
+  },
+  {
+    "vendor": "teltonika",
+    "model": "OTD144",
+    "label": "Teltonika OTD144",
+    "category": "router",
+    "description": "Outdoor Wi-Fi 4G Cat 4 router: 2x 100 Mbps Ethernet, PoE in on one and PoE out on the other.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "150M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://www.mouser.com/datasheet/3/3785/1/OTD144_Datasheet_v1.pdf",
+    "notes": "Vendor figures: **two 10/100 Mbps Ethernet ports**, one **PoE in** and one **PoE out**, LTE Cat 4, integrated Wi-Fi, **IP55**. The difference from the OTD140 is the Wi-Fi radio on the same two-port chassis - and **the ports are still fast Ethernet**, so the wireless is served by a 100 Mbps uplink."
+  }
+]

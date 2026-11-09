@@ -1,0 +1,19 @@
+{
+  "vendor": "teltonika",
+  "model": "TRM500",
+  "label": "Teltonika TRM500",
+  "category": "modem",
+  "description": "Industrial 5G Cat 19 modem: USB Type-C only, no Ethernet port.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "3.4G"
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TRM500_Interfaces",
+  "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **5G LTE Cat 19** radio, and **1 x USB Type-C**, which must be supplied **5 V at 3 A** by the host - **no Ethernet port**. The power requirement is the practical detail: a 5 V / 3 A host port is not a default on industrial PCs, so a plain USB port may not bring it up. The capability list carries `wireless` only: a modem has a radio and no forwarding engine, so claiming routing, NAT or firewall here would make the simulator pretend a component is a router."
+}

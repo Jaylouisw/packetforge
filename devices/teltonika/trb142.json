@@ -1,0 +1,37 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB142",
+  "label": "Teltonika TRB142 (RS232)",
+  "category": "router",
+  "description": "Rugged Cat 1 gateway with RS232: 2x 100 Mbps Ethernet, one WAN configurable as LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "10M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/gateways/trb142",
+  "notes": "Vendor figures from the Teltonika product catalogue: **2 x 10/100 Mbps Ethernet ports: 1 x WAN (configurable as LAN), 1 x LAN**, LTE Cat 1, plus a **DB9 RS232** port. The serial port is in the note rather than in the interface list, since the catalogue models network interfaces. **Cat 1 cellular is a tenth of Cat 6** - this is a telemetry gateway for a serial device, and the 100 Mbps ports are not the slowest part of it."
+}

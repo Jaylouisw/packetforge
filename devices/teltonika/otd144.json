@@ -1,0 +1,50 @@
+{
+  "vendor": "teltonika",
+  "model": "OTD144",
+  "label": "Teltonika OTD144",
+  "category": "router",
+  "description": "Outdoor Wi-Fi 4G Cat 4 router: 2x 100 Mbps Ethernet, PoE in on one and PoE out on the other.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://www.mouser.com/datasheet/3/3785/1/OTD144_Datasheet_v1.pdf",
+  "notes": "Vendor figures: **two 10/100 Mbps Ethernet ports**, one **PoE in** and one **PoE out**, LTE Cat 4, integrated Wi-Fi, **IP55**. The difference from the OTD140 is the Wi-Fi radio on the same two-port chassis - and **the ports are still fast Ethernet**, so the wireless is served by a 100 Mbps uplink."
+}

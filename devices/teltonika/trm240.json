@@ -1,0 +1,19 @@
+{
+  "vendor": "teltonika",
+  "model": "TRM240",
+  "label": "Teltonika TRM240",
+  "category": "modem",
+  "description": "Industrial 4G Cat 1 modem: USB only, no Ethernet port.",
+  "capabilities": [
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "10M"
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TRM240_Interfaces",
+  "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **4G LTE Cat 1** radio, UART on the PCB, and **1 x virtual network interface via micro USB** - **no Ethernet port**. A modem is a component, not a router: the host provides the network interface, which is why nothing here is recorded as copper. The capability list carries `wireless` only: a modem has a radio and no forwarding engine, so claiming routing, NAT or firewall here would make the simulator pretend a component is a router."
+}

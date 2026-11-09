@@ -1,0 +1,25 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB141",
+  "label": "Teltonika TRB141 (GPIO)",
+  "category": "router",
+  "description": "Rugged Cat 1 GPIO gateway: no Ethernet port, cellular plus digital/analog I/O.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "10M"
+    }
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/TRB141_Interfaces",
+  "notes": "Vendor figures from the Teltonika wiki interface table: SIM slot, **4G LTE Cat 1** radio, **3 x digital inputs, 1 x analog input, 2 x relays**, UART on the PCB and **1 x virtual network interface via micro USB** - and **no Ethernet port at all**. That is the point of the TRB141: it is an I/O bridge for a machine, so there is nothing to plug a cable into. Recorded with its cellular interface only; a request that expects a copper port on this model is asking for a different device."
+}

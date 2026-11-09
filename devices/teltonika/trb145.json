@@ -1,0 +1,37 @@
+{
+  "vendor": "teltonika",
+  "model": "TRB145",
+  "label": "Teltonika TRB145 (RS485)",
+  "category": "router",
+  "description": "Rugged Cat 1 gateway with RS485: 2x 100 Mbps Ethernet, one WAN configurable as LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "10M"
+    }
+  ],
+  "sourceUrl": "https://teltonika-networks.com/products/gateways/trb145",
+  "notes": "Vendor figures from the Teltonika product catalogue: **2 x 10/100 Mbps Ethernet ports: 1 x WAN (configurable as LAN), 1 x LAN**, LTE Cat 1, with an **RS485** bus interface. The RS485 port is in the note rather than in the interface list. Two Ethernet ports on an RS485 gateway is one more than the TRB142's serial cousin needs, and it is what lets the gateway sit inline."
+}
