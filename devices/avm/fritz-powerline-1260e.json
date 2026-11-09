@@ -1,0 +1,36 @@
+{
+  "vendor": "avm",
+  "model": "FRITZ!Powerline 1260E",
+  "label": "FRITZ!Powerline 1260E powerline + Wi-Fi adapter",
+  "category": "powerline",
+  "description": "HomePlug AV2 powerline adapter with one gigabit RJ45 port and dual-band Wi-Fi (866 Mbit/s on 5 GHz, 400 Mbit/s on 2.4 GHz) running concurrently, bridging both onto the mains wiring at up to 1200 Mbit/s.",
+  "capabilities": [
+    "host",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "400M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "sourceUrl": "https://en.avm.de/products/fritzpowerline/fritzpowerline-1260e/technical-specifications/",
+  "notes": "AVM technical specifications: '1 x gigabit LAN (10/100/1000 Base-T, RJ45 port)', 'Up to 1200 Mbit/s powerline data throughput ... HomePlug AV2', 'Wireless AC (up to 866 Mbit/s gross, 5 GHz) and N (up to 400 Mbit/s gross, 2.4 GHz)', 'Dual wireless: concurrent use of the 5 and 2.4 GHz bands'. The radios are modelled at their per-band gross rates (400M / 866M) rather than as one 1266M port, because they are two independent bands. Also has a WPS button, a web UI in FRITZ!OS, IGMP multicast and 128-bit AES link encryption. Distinct from the 1220E: this one trades the second LAN port for radios. Rate note: the powerline port is declared at 1G, not the datasheet's 1200 Mbit/s, because the engine's powerline ladder is 200/1000/1700/2500 Mbps - see the 1220E note."
+}
