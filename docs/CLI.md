@@ -590,9 +590,31 @@ Vlan    Mac Address         Type        Ports
   parameters are stored independently of the mode, `show running-config` prints them either way, so a staged
   trunk survives a backup.
 * **A port's entries are flushed when its VLAN membership changes** (`switchport access vlan`,
-  `switchport mode`, `switchport trunk native|allowed vlan`, `no switchport`). A switch that keeps a
-  VLAN-1 entry on a port it has moved to VLAN 20 is a switch whose table describes a topology that no
+  `switchport mode`, `switchport trunk native|allowed vlan`, and the `no` forms below). A switch that keeps
+  a VLAN-1 entry on a port it has moved to VLAN 20 is a switch whose table describes a topology that no
   longer exists, and nothing here would ever remove it.
+
+### `no switchport …` removes one leaf
+
+Each negation removes its own value, refuses when the value is already the default, and says which value it
+took away:
+
+```
+sw1(config-if)#no switchport access vlan
+Access VLAN 30 removed from Fa0/1 (back to 1)
+sw1(config-if)#no switchport
+% Fa0/1 already has default switchport settings (access VLAN 1)
+```
+
+`no switchport mode` returns the port to access mode and **keeps** the trunk settings, printing them, so
+`switchport mode trunk` brings the trunk back without retyping the native VLAN and the allowed list. Bare
+`no switchport` is the only command that resets the whole port, and it lists each field it changed
+(`mode trunk -> access, access VLAN 30 -> 1, native VLAN 20 -> 1, allowed list -> all`).
+
+Every `no switchport …` form used to fall through to that whole-port reset: `no switchport access vlan`
+cleared the mode, the access VLAN, the native VLAN and the allowed list together, announced as "reset to
+defaults". The reset also left an empty allowed list behind, which printed as a bare
+`switchport trunk allowed vlan` line — a backup the console answers with `% Incomplete command`.
 
 Trunk ports carry their allowed VLANs, so their entries are not marked; a moved host re-learns on the next
 frame it sends.

@@ -483,7 +483,11 @@ class CliSession {
     } else if (head === 'switchport') {
       out.push.apply(out, this._switchport(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'switchport') {
-      out.push.apply(out, this._switchport(['reset'], iface));
+      // `no switchport access vlan` has to remove the access VLAN, not the whole switchport configuration.
+      // Every `no switchport ...` form used to fall through to the blanket reset, so removing one leaf
+      // cleared the mode, the native VLAN and the allowed list as well - five fields gone, announced as
+      // "reset to defaults".
+      out.push.apply(out, this._switchport(['no'].concat(tokens.slice(2)), iface));
     } else if (head === 'channel-group') {
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
@@ -988,6 +992,81 @@ class CliSession {
       if (current === wanted) return '';
       return ' (stored; the port is in ' + current + ' mode - set "switchport mode ' + wanted + '" to use it)';
     }
+    // ---------------------------------------------------------------- per-leaf `no`
+    if (t[0] === 'no') {
+      const leaf = t.slice(1);
+      const cur = vlanLib.normalizePortConfig(iface.vlan || {});
+      const written = function (next, message) {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, cur, next));
+        this.device.flushMacsOnPort(iface.name);
+        return [message];
+      }.bind(this);
+
+      // `no switchport` - the whole port, back to the defaults it boots with.
+      if (!leaf.length) {
+        // Spelled out rather than left to the normaliser: for an access port it fills an unset allowed list
+        // with `[]`, which is indistinguishable from the empty list the reset would then report as a change
+        // on every subsequent run. A trunk's default really is "all".
+        const defaults = vlanLib.normalizePortConfig({
+          mode: 'access', accessVlan: 1, nativeVlan: 1, allowedVlans: 'all', voiceVlan: null
+        });
+        const changed = [];
+        if (cur.mode !== 'access') changed.push('mode ' + cur.mode + ' -> access');
+        if (Number(cur.accessVlan) !== 1) changed.push('access VLAN ' + cur.accessVlan + ' -> 1');
+        if (Number(cur.nativeVlan) !== 1) changed.push('native VLAN ' + cur.nativeVlan + ' -> 1');
+        if (JSON.stringify(cur.allowedVlans) !== JSON.stringify(defaults.allowedVlans)) {
+          changed.push('allowed list -> all');
+        }
+        if (cur.voiceVlan !== null) changed.push('voice VLAN ' + cur.voiceVlan + ' -> none');
+        if (!changed.length) {
+          // Nothing to do, so do not claim to have done it.
+          return ['% ' + iface.name + ' already has default switchport settings (access VLAN 1)'];
+        }
+        iface.vlan = defaults;
+        this.device.flushMacsOnPort(iface.name);
+        return ['Switchport reset to defaults on ' + iface.name + ' (' + changed.join(', ') + ')'];
+      }
+
+      if (leaf[0] === 'access' && leaf[1] === 'vlan') {
+        const wanted = leaf[2] === undefined ? null : parseInt(leaf[2], 10);
+        if (wanted !== null && wanted !== Number(cur.accessVlan)) {
+          return ['% ' + iface.name + ' access VLAN is ' + cur.accessVlan + ', not ' + wanted];
+        }
+        if (Number(cur.accessVlan) === 1) {
+          return ['% ' + iface.name + ' access VLAN is already the default (1)'];
+        }
+        const was = cur.accessVlan;
+        return written({ accessVlan: 1 }, 'Access VLAN ' + was + ' removed from ' + iface.name +
+          ' (back to 1)');
+      }
+      if (leaf[0] === 'trunk' && leaf[1] === 'native' && leaf[2] === 'vlan') {
+        if (Number(cur.nativeVlan) === 1) {
+          return ['% ' + iface.name + ' trunk native VLAN is already the default (1)'];
+        }
+        const was = cur.nativeVlan;
+        return written({ nativeVlan: 1 }, 'Trunk native VLAN ' + was + ' removed from ' + iface.name +
+          ' (back to 1)');
+      }
+      if (leaf[0] === 'trunk' && leaf[1] === 'allowed' && leaf[2] === 'vlan') {
+        if (cur.allowedVlans === 'all') {
+          return ['% ' + iface.name + ' trunk already allows all VLANs'];
+        }
+        return written({ allowedVlans: 'all' }, 'Trunk on ' + iface.name + ' allows all VLANs again');
+      }
+      if (leaf[0] === 'mode') {
+        if (cur.mode === 'access') {
+          return ['% ' + iface.name + ' is already in access mode'];
+        }
+        // The parameters are stored independently of the mode, so they stay - which is what makes it
+        // possible to go back to a trunk later without retyping them.
+        return written({ mode: 'access' },
+          iface.name + ' back to access mode (trunk settings kept: native ' + cur.nativeVlan + ', allowed ' +
+          (cur.allowedVlans === 'all' ? 'all' : (Array.isArray(cur.allowedVlans) ? cur.allowedVlans.join(',') : 'all')) +
+          ')');
+      }
+      return ['% Unrecognized switchport command: no ' + leaf.join(' ')];
+    }
+
     if (t[0] === 'access' && t[1] === 'vlan') {
       const id = parseInt(t[2], 10);
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
@@ -2189,7 +2268,11 @@ class CliSession {
           const spAccess = Number(i.vlan.accessVlan) || 1;
           const spNative = Number(i.vlan.nativeVlan) || 1;
           const spAllowed = i.vlan.allowedVlans;
-          const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed)) ? null : spAllowed.join(',');
+          // An empty list is the engine's "unset", not a configuration: no command can produce it
+          // (`switchport trunk allowed vlan` with no list is `% Incomplete command`), so printing it would
+          // emit a line the console cannot read back - which is what `no switchport` used to leave behind.
+          const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed) || spAllowed.length === 0)
+            ? null : spAllowed.join(',');
           if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
           if (spAccess !== 1) out.push('  switchport access vlan ' + spAccess);
           if (spNative !== 1) out.push('  switchport trunk native vlan ' + spNative);
