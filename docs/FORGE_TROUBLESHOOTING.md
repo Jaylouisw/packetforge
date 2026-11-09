@@ -178,3 +178,68 @@ wrong, and one of them loses work:
   repository` are different failures and the distinction is the whole diagnosis.
 - **When it comes back**, push the branch and then re-read `main` before opening
   the pull request: an outage hides merges that landed from elsewhere.
+
+## The forge is up, git works, and the API answers `403`
+
+Symptom, seen exactly like this:
+
+```
+$ curl -s -o /dev/null -w '%{http_code}' -u "$USER:$TOKEN" https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge
+403
+$ curl -s -u "$USER:$TOKEN" https://git.jayw.uk/api/v1/user
+{"message":"You must change your password. Change it at: https://git.jayw.uk//user/change_password"}
+```
+
+Meanwhile `git push` works and the web UI is fine, so the instance looks half-alive and the
+temptation is to go looking at the backend again. It is not the backend. Forgejo refuses **every
+authenticated API call** — reads included — for an account with `must_change_password` set, and git
+over SSH/HTTP does not consult that flag.
+
+Check it against the database rather than guessing:
+
+```sh
+ssh root@10.0.10.20 "sqlite3 'file:/mnt/cache/appdata/forgejo/data/gitea/forgejo.db?mode=ro' \
+  'select id,lower_name,must_change_password,is_admin from user;'"
+# 1|jaylouisw|1|1
+```
+
+To clear it without touching the password (stop the container first — SQLite on a live data
+directory is the mistake this document exists to prevent):
+
+```sh
+docker stop forgejo
+sqlite3 /mnt/cache/appdata/forgejo/data/gitea/forgejo.db \
+  'update user set must_change_password=0 where id=1;'
+docker start forgejo   # ~2 s to serving; nothing else is affected
+```
+
+Then re-check with a single API call before assuming the token itself is broken. Do **not** reset the
+password to get past this: that is a change to somebody's credential to fix a flag.
+
+The flag was first seen after `MIN_PASSWORD_LENGTH` was raised from the default to 12 in `[service]`
+— an existing shorter password is a plausible reason for the account to be asked to change it, though
+this was not confirmed against Forgejo's source. If it reappears on the next restart, that is the
+first thing to look at.
+
+## The database file you are about to query may not be the database
+
+`app.ini` points at `/data/gitea/forgejo.db`:
+
+```ini
+[database]
+DB_TYPE = sqlite3
+PATH = /data/gitea/forgejo.db
+```
+
+The name everybody reaches for is `gitea.db`, and it is not there — but `sqlite3 gitea.db 'select ...
+from user'` does not complain about a missing file: it **creates** a 0-byte one and then answers
+`Parse error ... no such table: user`, which reads like a corrupted instance and is not. If a stray
+`gitea.db` appears in that directory, that is where it came from; `rm` it.
+
+Take the path from `app.ini`, and query read-only while the container is running:
+
+```sh
+sqlite3 'file:/mnt/cache/appdata/forgejo/data/gitea/forgejo.db?mode=ro' \
+  'select id,lower_name,must_change_password,is_admin from user;'
+```
+
