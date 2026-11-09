@@ -1,0 +1,79 @@
+{
+  "vendor": "hikvision",
+  "model": "ds-3e0505p-e",
+  "label": "Hikvision DS-3E0505P-E (4-port gigabit PoE switch)",
+  "category": "switch",
+  "description": "Hikvision 4-port gigabit unmanaged PoE switch: 4x 1G PoE+ (60 W budget) plus 1x 1G uplink.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "poe1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge-uplink",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the DS-3E0505P-E datasheet: **4 x 10/100/1000 Mbps ethernet ports plus 1 x 10/100/1000 Mbps uplink port**, 802.3af/at, **PoE power budget 60 W** (30 W per port), max consumption 5 W. **60 W across four ports is 15 W average** - and it is more PoE budget than the eight-port DS-3E0510P-E carries."
+}

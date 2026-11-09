@@ -1,0 +1,1175 @@
+[
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e0505p-e",
+    "label": "Hikvision DS-3E0505P-E (4-port gigabit PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 4-port gigabit unmanaged PoE switch: 4x 1G PoE+ (60 W budget) plus 1x 1G uplink.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E0505P-E datasheet: **4 x 10/100/1000 Mbps ethernet ports plus 1 x 10/100/1000 Mbps uplink port**, 802.3af/at, **PoE power budget 60 W** (30 W per port), max consumption 5 W. **60 W across four ports is 15 W average** - and it is more PoE budget than the eight-port DS-3E0510P-E carries."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e0505hp-e",
+    "label": "Hikvision DS-3E0505HP-E (4-port PoE with 60 W Hi-PoE)",
+    "category": "switch",
+    "description": "Hikvision 4-port gigabit unmanaged PoE switch: 3x 1G PoE+ (30 W) + 1x 1G Hi-PoE (802.3bt, 60 W) plus 1x 1G uplink, 65 W total.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "802.3bt"
+    ],
+    "interfaces": [
+      {
+        "name": "hipoe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E0505HP-E datasheet: **3 x gigabit PoE ports, 1 x gigabit Hi-PoE port and 1 x gigabit RJ45 uplink**, **port 1 is Hi-PoE: 802.3af/at/bt, 60 W max**; ports 2-4 are 802.3af/at, 30 W; total **65 W**. **The Hi-PoE port is the reason to buy it** - 60 W on port 1 runs a PTZ dome or a heated camera that 802.3at cannot start, and the 65 W total means running it at full draw leaves ~5 W for everything else."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e0510p-e",
+    "label": "Hikvision DS-3E0510P-E (8-port gigabit PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 8-port gigabit unmanaged PoE switch: 8x 1G PoE+ (58 W budget), 1x 1G uplink, 1x 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E0510P-E datasheet: **8 x gigabit PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE budget 58 W**, max consumption 7 W. **58 W across eight powered ports is 7.25 W average** - two 30 W 802.3at devices and it is done. Note it carries **less** budget than the four-port DS-3E0505P-E (60 W): more ports does not mean more power in this range."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e0518p-e",
+    "label": "Hikvision DS-3E0518P-E (16-port gigabit PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 16-port gigabit unmanaged PoE switch: 16x 1G PoE+ (230 W budget), 1x 1G uplink, 1x 1G SFP.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E0518P-E datasheet: **16 x 10/100/1000 Mbps PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE budget 230 W**, max consumption 20 W, 6 kV surge protection. **230 W across sixteen ports is 14 W average** - seven 30 W devices fit, eight do not."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e1105p-ei",
+    "label": "Hikvision DS-3E1105P-EI (4-port fast ethernet smart PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 4-port fast-ethernet smart-managed PoE switch: 4x 100M PoE+ (60 W budget) plus 1x 100M uplink.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "fe-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E1105P-EI datasheet: **4 x 10/100 Mbps PoE ports and 1 x 10/100 Mbps RJ45**, **total PoE budget 60 W**, 6 kV surge protection, PoE watchdog, **\"up to 300 m long-range PoE\"**. **Every port is fast ethernet** - 100 Mbps is fine for a camera and wrong for anything that also carries a trunk."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e1318p-ei",
+    "label": "Hikvision DS-3E1318P-EI (16-port fast ethernet smart PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 16-port fast-ethernet smart-managed PoE switch: 16x 100M PoE+ (130 W budget), 1x 1G uplink, 1x 1G combo.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge-uplink",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100,
+          10
+        ]
+      },
+      {
+        "name": "combo1",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E1318P-EI datasheet: **16 x 10/100 Mbps PoE ports, 1 x gigabit RJ45, 1 x gigabit combo**, **total PoE budget 130 W**, 802.3at/af, VLAN, PoE watchdog, 300 m long-range PoE. **130 W across sixteen ports is 8.1 W average**: it is sized for sixteen fixed cameras, not for PTZ or heater loads."
+  },
+  {
+    "vendor": "hikvision",
+    "model": "ds-3e1326p-ei",
+    "label": "Hikvision DS-3E1326P-EI (24-port fast ethernet smart PoE switch)",
+    "category": "switch",
+    "description": "Hikvision 24-port fast-ethernet smart-managed PoE switch: 24x 100M PoE+ (370 W budget) plus 2x 1G combo uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "poe1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "poe24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "speedCaps": [
+          100,
+          10
+        ],
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "combo1",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      },
+      {
+        "name": "combo2",
+        "type": "ethernet",
+        "connector": "combo",
+        "speed": "1G",
+        "speedCaps": [
+          1000,
+          100
+        ]
+      }
+    ],
+    "notes": "Vendor figures from the DS-3E1326P-EI datasheet: **24 x 10/100 Mbps PoE ports, 2 x gigabit combo uplinks, total PoE budget 370 W**, 802.3at/af, PoE watchdog, VLAN, STP/RSTP. **The budget is nearly three times the 16-port DS-3E1318P-EI's 130 W** while the ports are still fast ethernet - the money went into power, not into speed."
+  }
+]

@@ -1,0 +1,80 @@
+{
+  "vendor": "hikvision",
+  "model": "ds-3e0505hp-e",
+  "label": "Hikvision DS-3E0505HP-E (4-port PoE with 60 W Hi-PoE)",
+  "category": "switch",
+  "description": "Hikvision 4-port gigabit unmanaged PoE switch: 3x 1G PoE+ (30 W) + 1x 1G Hi-PoE (802.3bt, 60 W) plus 1x 1G uplink, 65 W total.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "hipoe1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "poe2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge-uplink",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the DS-3E0505HP-E datasheet: **3 x gigabit PoE ports, 1 x gigabit Hi-PoE port and 1 x gigabit RJ45 uplink**, **port 1 is Hi-PoE: 802.3af/at/bt, 60 W max**; ports 2-4 are 802.3af/at, 30 W; total **65 W**. **The Hi-PoE port is the reason to buy it** - 60 W on port 1 runs a PTZ dome or a heated camera that 802.3at cannot start, and the 65 W total means running it at full draw leaves ~5 W for everything else."
+}

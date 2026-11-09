@@ -1,0 +1,75 @@
+{
+  "vendor": "hikvision",
+  "model": "ds-3e1105p-ei",
+  "label": "Hikvision DS-3E1105P-EI (4-port fast ethernet smart PoE switch)",
+  "category": "switch",
+  "description": "Hikvision 4-port fast-ethernet smart-managed PoE switch: 4x 100M PoE+ (60 W budget) plus 1x 100M uplink.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "poe1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "poe4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "fe-uplink",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        100,
+        10
+      ]
+    }
+  ],
+  "notes": "Vendor figures from the DS-3E1105P-EI datasheet: **4 x 10/100 Mbps PoE ports and 1 x 10/100 Mbps RJ45**, **total PoE budget 60 W**, 6 kV surge protection, PoE watchdog, **\"up to 300 m long-range PoE\"**. **Every port is fast ethernet** - 100 Mbps is fine for a camera and wrong for anything that also carries a trunk."
+}
