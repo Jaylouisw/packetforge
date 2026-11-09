@@ -14,6 +14,7 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 // engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
 // failure mode this repo has already been bitten by (#1247).
 const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
+const ifaceName = { resolvePortName };
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
 const mediaLib = require('./media');
@@ -137,17 +138,39 @@ class CliSession {
       // stopped printing `vlan 42` while `show vlan` still listed it from the ports, so the table and the
       // config described different switches.
       if (!have) return ['% VLAN ' + id + ' does not exist'];
-      const users = [];
+      // Two kinds of port depend on this VLAN, and both have to be named.
+      //
+      //   * ports that carry it - asked of the data plane's own rule (`classifyEgress`), not of a second
+      //     copy of it, so a trunk allowing all VLANs counts and a staged parameter does not;
+      //   * ports that only reference it - a native VLAN or an allowed list stored on a port that is not in
+      //     trunk mode yet. Those used to be missed, and removing the VLAN then rewrote the port's staged
+      //     configuration in silence: `no vlan 20` said "VLAN 20 removed" and a port that had been staged for
+      //     VLAN 20 quietly came back with native VLAN 1.
+      const carriers = [];
+      const staged = [];
       for (const i of this.device.interfaces.values()) {
         if (!i.vlan) continue;
-        if (Number(i.vlan.accessVlan) === id) users.push(i.name);
-        else if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) users.push(i.name);
+        const verdict = vlanLib.classifyEgress(i.vlan, id);
+        const action = (verdict && verdict.action) || 'drop';
+        if (action !== 'drop') {
+          carriers.push(i.name + (i.vlan.mode === 'trunk' && action === 'untagged' ? ' (native)' : ''));
+          continue;
+        }
+        const where = [];
+        if (Number(i.vlan.nativeVlan) === id) where.push('trunk native');
+        if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) where.push('trunk allowed');
+        if (where.length) staged.push(i.name + ' (' + where.join(', ') + ', stored)');
       }
-      if (users.length) {
-        const shown = users.slice(0, 5).join(', ') +
-          (users.length > 5 ? ' (+' + (users.length - 5) + ' more)' : '');
-        return ['% VLAN ' + id + ' is still carried by ' + users.length + ' port(s): ' + shown +
+      const list = function (arr) {
+        return arr.slice(0, 5).join(', ') + (arr.length > 5 ? ' (+' + (arr.length - 5) + ' more)' : '');
+      };
+      if (carriers.length) {
+        return ['% VLAN ' + id + ' is still carried by ' + carriers.length + ' port(s): ' + list(carriers) +
           ' - move them off it first'];
+      }
+      if (staged.length) {
+        return ['% VLAN ' + id + ' is still referenced by ' + staged.length + ' port(s): ' + list(staged) +
+          ' - clear that first'];
       }
       delete this.device.config.vlans[id];
       out.push('VLAN ' + id + ' removed');
@@ -358,7 +381,10 @@ class CliSession {
       this.device.config.defaultGateway = null;
       out.push('Default gateway cleared');
     } else if (head === 'exit' || head === 'end') {
-      this.mode = MODE_EXEC;
+      // One level up from config mode is privileged EXEC (`#`), not user EXEC (`>`). Both `exit` and `end`
+      // dropped two levels, so a script that left config mode came back with a `>` prompt - a prompt that
+      // says the session lost its privileges, when it had lost nothing but a level.
+      this.mode = MODE_ENABLE;
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else if (head === 'do') {
@@ -508,7 +534,7 @@ class CliSession {
     } else if (head === 'exit') {
       this.mode = MODE_CONFIG;
     } else if (head === 'end') {
-      this.mode = MODE_EXEC;
+      this.mode = MODE_ENABLE;
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else {
@@ -1428,7 +1454,7 @@ class CliSession {
     };
 
     if (head === 'exit') return finish(MODE_CONFIG);
-    if (head === 'end') return finish(MODE_EXEC);
+    if (head === 'end') return finish(MODE_ENABLE);
     if (head === 'network') {
       if (!tokens[1]) return incomplete('Incomplete command: network <network> [mask|/prefix]');
       // The usage line has always advertised the `/prefix` spelling, and the parser stored it verbatim: the
@@ -1767,6 +1793,34 @@ class CliSession {
 
   // "speed: 1Gb/s (auto), duplex: full" - or the forced rate, plainly marked, with what the link actually
   // negotiated when the two differ.
+  // One sentence for what a port does with a frame: the mode, the VLAN an untagged frame lands in, and - when
+  // a trunk parameter is stored but not in use - that it is staged rather than in force. Silent for a port
+  // with no switchport configuration at all, because "switchport: none" would be a claim about a mode this
+  // device does not have.
+  _switchportLine(i) {
+    const v = i.vlan;
+    if (!v) return null;
+    // A routed port carries a `vlan` object too - the engine fills a default for every interface - but it does
+    // not switch, so printing "switchport: access, access VLAN 1" beside a router's `ip: 10.9.9.1/24` claims a
+    // mode the device does not have. The VLAN table is what makes a port a switchport.
+    const switches = Array.isArray(this.device.capabilities) &&
+      this.device.capabilities.indexOf('l2-forward') !== -1;
+    if (!switches) return null;
+    const cfg = vlanLib.normalizePortConfig(v);
+    const mode = cfg.mode === 'trunk' ? 'trunk' : 'access';
+    const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans) || !cfg.allowedVlans.length)
+      ? 'all' : cfg.allowedVlans.join(',');
+    if (mode === 'access') {
+      let line = 'switchport: access, access VLAN ' + cfg.accessVlan;
+      const staged = [];
+      if (Number(cfg.nativeVlan) !== 1) staged.push('native ' + cfg.nativeVlan);
+      if (allowed !== 'all') staged.push('allowed ' + allowed);
+      if (staged.length) line += ' (trunk staged: ' + staged.join(', ') + ', not in use)';
+      return line;
+    }
+    return 'switchport: trunk, native ' + cfg.nativeVlan + ', allowed ' + allowed;
+  }
+
   _linkRateLine(iface) {
     const rated = mediaLib.parseSpeedMbps(iface.speed);
     const forced = iface.speedMbps || null;
@@ -2154,7 +2208,51 @@ class CliSession {
         out.push(pad(r[0], 8) + pad(r[1], 20) + pad('DYNAMIC', 12) + name + (note ? ' ' + note : ''));
       }
     } else if (what === 'interfaces' || what === 'interface') {
-      for (const i of dev.interfaces.values()) {
+      // `show interfaces Fa0/1` printed every port on the box: the answer to a question about one socket was
+      // the whole switch, and on a 48-port model the socket asked about could be eight screens down. The name
+      // is resolved by the same table `interface Fa0/1` uses, so every spelling works, and a name that
+      // matches nothing is refused by name rather than answered with a list.
+      const wanted = tokens.length > 1 ? String(tokens[1]) : null;
+      let shown = [...dev.interfaces.values()];
+      if (wanted) {
+        const name = ifaceName.resolvePortName(dev, wanted);
+        const one = name ? dev.interfaces.get(name) : null;
+        if (!one) {
+          // Ambiguity is refused rather than guessed, exactly as `interface` refuses it: the panel is the
+          // only authority on which socket a spelling means.
+          const ambiguous = portKey(wanted) !== null && [...dev.interfaces.keys()]
+            .filter(function (n) { return portKey(n) === portKey(wanted); }).length > 1;
+          return ['% No interface ' + wanted + ' on ' + (dev.name || 'this device') +
+            (ambiguous ? ' (that spelling is ambiguous: more than one port folds onto it)' : '')];
+        }
+        shown = [one];
+      }
+      // A subinterface is an interface: it can hold an address, carry traffic and be configured, so it has to
+      // be in the listing. It was omitted, and `show interfaces` printed 3 of the 4 interfaces on a router -
+      // the one that was missing being the one with the address on it. Children follow their parent, which is
+      // the order the blocks are read in.
+      if (!wanted) {
+        const byName = new Map(shown.map(function (i) { return [i.name, i]; }));
+        const ordered = [];
+        const placed = new Set();
+        for (const i of shown) {
+          if (placed.has(i.name)) continue;
+          ordered.push(i); placed.add(i.name);
+          for (const child of shown) {
+            if (child === i || placed.has(child.name)) continue;
+            if (child.parent === i.name || String(child.name).indexOf(i.name + '.') === 0) {
+              ordered.push(child); placed.add(child.name);
+            }
+          }
+        }
+        shown = ordered;
+        // Anything the parent walk did not reach (an orphaned child) is still printed, at the end.
+        for (const i of shown) placed.add(i.name);
+        for (const name of byName.keys()) {
+          if (!placed.has(name)) shown.push(byName.get(name));
+        }
+      }
+      for (const i of shown) {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
         // The reason travels with the status: this block used to print `status: up` directly above
         // `peer: disconnected`, which is two halves of the same output disagreeing (#1237).
@@ -2168,6 +2266,12 @@ class CliSession {
         // The rate the link actually runs at, and whether anybody forced it. A forced 100 on a 1G port is
         // the answer to "why is this link slow", so it belongs in the block you read to ask (#1259).
         out.push('  ' + this._linkRateLine(i));
+        // What the port does with a frame, which is the other half of "what is this socket". The switchport
+        // configuration was only visible in `show vlan` (membership) and `show running-config` (the lines),
+        // so the command an operator opens first said `ip: unassigned` about a port whose whole job is its
+        // VLAN.
+        const swLine = this._switchportLine(i);
+        if (swLine) out.push('  ' + swLine);
         // What has actually crossed this socket. The simulator counted it all along, per device, so the
         // command could not answer the one question it is opened for: is traffic flowing on THIS port?
         // Counted wherever a frame is enqueued and received, including frames later dropped - a frame the
