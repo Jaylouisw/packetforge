@@ -67,12 +67,30 @@ function request(port, method, urlPath, headers, body) {
 function bodyOf(res) {
   return String(res.headers['content-encoding'] || '') === 'gzip' ? zlib.gunzipSync(res.raw) : res.raw;
 }
-function waitReady(port) {
+function waitReady(port, opts) {
+  // A wall-clock deadline, not an attempt count (#1242). 60 attempts x 100 ms is six seconds: enough for
+  // a server that loads a 4.4 MB catalogue on an idle machine, not enough when the runner is busy, and
+  // the failure looked identical to a server that crashed on startup.
+  const o = opts || {};
+  const deadlineMs = Number(o.deadlineMs) > 0 ? Number(o.deadlineMs) : 60000;
+  const started = Date.now();
   return new Promise(function (resolve, reject) {
-    let left = 60;
+    let lastError = null;
     (function attempt() {
-      const req = http.request({ host: '127.0.0.1', port: port, path: '/api/version' }, function (res) { res.resume(); resolve(); });
-      req.on('error', function () { if (--left <= 0) return reject(new Error('server did not start')); setTimeout(attempt, 100); });
+      const req = http.request({ host: '127.0.0.1', port: port, path: '/api/version' }, function (res) {
+        res.resume();
+        resolve({ waitedMs: Date.now() - started });
+      });
+      req.on('error', function (e) {
+        lastError = e;
+        if (Date.now() - started >= deadlineMs) {
+          const why = (lastError && (lastError.code || lastError.message)) || 'unknown';
+          const tail = typeof o.diagnose === 'function' ? o.diagnose() : '';
+          return reject(new Error('server did not start within ' + deadlineMs + ' ms' +
+            ' (last error: ' + why + ')' + (tail ? '\n--- child output ---\n' + tail : '')));
+        }
+        setTimeout(attempt, 100);
+      });
       req.end();
     })();
   });
@@ -86,10 +104,15 @@ function waitReady(port) {
     env: Object.assign({}, process.env, { PORT: String(port), PF_DATA_DIR: dataDir }),
     stdio: ['ignore', 'pipe', 'pipe']
   });
-  child.stderr.on('data', function () {});
+  const childOutput = [];
+  child.stderr.on('data', function (b) { childOutput.push(String(b)); });
+  child.stdout.on('data', function (b) { childOutput.push(String(b)); });
+  const diagnose = function () { return childOutput.join('').trim().split('\n').slice(-12).join('\n'); };
 
   try {
-    await waitReady(port);
+    // A minute, not six seconds (#1242): the child builds the catalogue before it listens, and on a busy
+    // machine that takes longer than the old attempt count allowed. A failure now says why.
+    await waitReady(port, { deadlineMs: 60000, diagnose: diagnose });
 
     console.log('');
     console.log('The cached bytes are the real bytes:');
@@ -165,6 +188,42 @@ function waitReady(port) {
   } finally {
     try { child.kill('SIGTERM'); } catch (e) { /* already gone */ }
     try { fs.rmSync(dataDir, { recursive: true, force: true }); } catch (e) { /* best effort */ }
+  }
+
+  console.log('');
+  console.log('Waiting for a server is a deadline, not a count (#1242):');
+  {
+    // The regression this guards: a fixed number of attempts gave up after six seconds and said nothing.
+    // A server that takes three seconds to bind must be waited for...
+    const slowPort = await freePort();
+    const slow = spawn(process.execPath, ['-e',
+      'setTimeout(function () { require("http").createServer(function (q, s) { s.writeHead(200); s.end("{}"); })' +
+      '.listen(Number(process.env.P), "127.0.0.1"); }, 3000)'
+    ], { env: Object.assign({}, process.env, { P: String(slowPort) }), stdio: 'ignore' });
+    try {
+      const t0 = Date.now();
+      await waitReady(slowPort, { deadlineMs: 30000 });
+      const waited = Date.now() - t0;
+      ok(waited >= 2500, 'a server that binds after three seconds is still awaited (' + waited + ' ms)');
+    } catch (e) {
+      ok(false, 'a slow server should be awaited, not abandoned', e.message);
+    } finally {
+      try { slow.kill('SIGKILL'); } catch (e) { /* already gone */ }
+    }
+
+    // ...and a port that never opens must fail with the deadline in the message, plus the diagnosis.
+    const deadPort = await freePort();
+    let failure = null;
+    try {
+      await waitReady(deadPort, { deadlineMs: 400, diagnose: function () { return 'child said: boom'; } });
+    } catch (e) {
+      failure = e;
+    }
+    ok(!!failure, 'a port that never opens fails rather than hanging');
+    ok(/did not start within 400 ms/.test(failure ? failure.message : ''),
+      'and the message names the deadline', failure && failure.message.split('\n')[0]);
+    ok(/boom/.test(failure ? failure.message : ''),
+      'and carries the child output that explains it', failure && failure.message.split('\n').slice(-1)[0]);
   }
 
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
