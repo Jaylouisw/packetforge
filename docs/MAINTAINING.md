@@ -74,7 +74,7 @@ written down.
 | vendor | what blocks it | what would unblock it |
 |---|---|---|
 | **FS.com** | CloudFront refuses the host outright: plain fetch returns 0 bytes, the browser gets `ERROR: The request could not be satisfied`, and per-model datasheets 404 at every pattern except `ap-n505` / `ap-t567`. | A copy of the datasheets, or a network that FS will serve. |
-| **Huawei Enterprise** (`support.huawei.com`) | Login wall. `web_extract` returns HTTP 422 "content could not be extracted"; a real browser returns an empty page. The public `e.huawei.com` product tables survive, which is how the NetEngine capacities were confirmed - but the *fixed port lists* live on the support site. | One logged-in session, or someone pasting the port table. |
+| **Huawei Enterprise** (`support.huawei.com`) | Login wall: `web_extract` returns HTTP 422, a browser returns an empty page. **But `e.huawei.com` is not walled** - the marketing datasheet PDFs download and read cleanly, port tables included. That is how `netengine-8000-m1d-b.json` was built. | Nothing for the fixed 1U boxes. The modular chassis still need a card complement or a SKU. |
 | **Garland Technology** | Their own pages carry a banner: *"Internal review build. Anything shown in amber is data we could not confirm from the source spreadsheets … Cards with unconfirmed specs also carry an amber 'Needs Info' pill."* Most cards name no model at all. | The published datasheets, once the site leaves review. |
 | **Hikvision** (partial) | One datasheet (`DS-3E1309P-EI`) returns 403 while its siblings download fine; one request ("Web managed 8P PoE Switch") names no model to look up. | A mirror of that one PDF; a part number for the other. |
 
@@ -98,6 +98,30 @@ stopped instead of at the beginning.
   trustworthy, and copying them into the catalogue would launder an unconfirmed spec into an
   authoritative-looking one. Wait for the datasheets, or find the models on a page that is not
   flagged.
+
+### Port tables that are really four tables
+
+A carrier datasheet often quotes maxima: *"up to 16×10GE, 2×25GE, 2×50GE"*, *"maximum number of
+physical ports on the entire device: 280"*. That is not a port list, and a spec built from it
+advertises ports the box does not have until someone configures it or buys a licence.
+
+Ask these three questions before writing a single interface. The NetEngine 8000 line needs all
+three, which is why one of its boxes is in the catalogue and the rest are not yet:
+
+1. **Is there a default mode?** The M1D-B datasheet names one - `eth-2x50ge-2x25ge-2x10gf-14xgf-mode` -
+   and that default is what `netengine-8000-m1d-b.json` models, with the other three modes and their
+   maxima recorded in the note. A stated default is a fact; picking between the modes yourself is
+   not.
+2. **Is the chassis modular?** M4/M6/M8/M14 are slot machines: the port count is whatever cards are
+   in them. The catalogue's precedent for this is `devices/arista/7504r.json`, labelled
+   *"7504R (4x 36CQ)"* - the card complement goes in the label, because the model number alone does
+   not describe the hardware.
+3. **Is the port count licensed or SKU-specific?** On the NetEngine 8000 F1A, ports 48-55 are 100GE
+   only with a licence RTU; without it they are 40GE/50GE or four-way split. The SKU matters
+   (`F1A-8H20Q` is not `F1A`), and a spec that ignores the licence overstates the box by 800G.
+
+If none of the three can be answered from an open source, the request stays open with the reason
+attached - see the rule above. That is the same decision as a walled vendor, arrived at differently.
 
 The spec vocabulary itself - every field, every accepted value, and the invariant a description has
 to survive - is in [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md).
