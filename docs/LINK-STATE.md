@@ -127,3 +127,20 @@ examples-idempotent test would fail on it, which is how that was caught.
   DHCP segment walk refusing to cross a cut cable, save/load, and the CLI surface.
 - `test/link-state-drawing.test.js` — 13 assertions: the renderer marks a down cable, keeps its
   medium class, and the stylesheet really dashes and recolours it.
+
+## What a state means for traffic
+
+A port that cannot carry a frame is not a candidate for anything: it is not flooded to, it is not a BGP or
+OSPF egress, its bundle membership is decided by `engine/lag.js`, and the tables that print learned state say
+why it cannot be used rather than presenting the entry as current. `Device.ifaceStatus(iface, topo)` is the
+one rule, and every caller shares it:
+
+| caller | what it does with the answer |
+|---|---|
+| `show ip interface brief`, `show interfaces` | prints the status and the reason |
+| `show arp`, `show mac address-table`, `show lldp` | marks the entry `(down: link down)` and keeps it |
+| `show ip route` | marks a configured route whose egress cannot carry |
+| `show etherchannel summary` | `(P)` only for members that can carry, `(D)` with the reason otherwise |
+| canvas, faceplate, inspector | the same sentence in the tooltip and the status bar |
+| `_forwardL2()` | a flood skips it — broadcasting into a dead port invents a discard that never happened |
+| BGP, OSPF | a session or adjacency needs a wire that can carry it |
