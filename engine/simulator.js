@@ -648,6 +648,15 @@ class Simulator {
         if (!ifaceName) continue;
         if (ifaceName.enabled === false || !ifaceName.ip) continue;
 
+        // A virtual address that is not in the interface's own subnet cannot be a gateway for that wire:
+        // the hosts it is meant for would not consider it local. The CLI refuses to configure one, and a
+        // group restored from a file written before that check does not take part either (#1245).
+        const usableIps = ifaceName.mask
+          ? g.ips.filter(function (ip) { return net.sameSubnet(ip, ifaceName.ip, ifaceName.mask); })
+          : [];
+        if (!usableIps.length) continue;
+        const group = Object.assign({}, g, { ips: usableIps });
+
         // The set of routers that can hear each other on this interface.
         const segment = segmentLib.segmentOf(this.topo, dev, ifaceName.name);
         // A VRRP peer is a device that can hold an L3 address in this domain. There is no
@@ -660,7 +669,7 @@ class Simulator {
         const key = peerIds.slice().sort().join('|') + '#vrid' + g.vrid;
 
         if (!elections.has(key)) {
-          elections.set(key, { vrid: g.vrid, group: g, peerIds: peerIds, candidates: [] });
+          elections.set(key, { vrid: g.vrid, group: group, peerIds: peerIds, candidates: [] });
         }
         const e = elections.get(key);
         if (!e.candidates.some(function (c) { return c.id === dev.id; })) {

@@ -959,6 +959,19 @@ class CliSession {
     if (what === 'ip') {
       const ip = tokens[3];
       if (!ip || !net.isIp(ip)) return ['% Invalid address: ' + (tokens[3] || '(none)')];
+      // A virtual gateway is only a gateway for hosts on its own wire. Cisco refuses the line
+      // ("% 10.0.0.254 is not in the subnet of Gi0/0"), and without this check the election happily
+      // makes the router master of a group whose address belongs to a network it cannot reach - the
+      // claim then answers ARP from the wrong segment (#1245).
+      const port = dev.portOf ? dev.portOf(this.iface) : dev.interfaces.get(this.iface);
+      if (!port) return ['% No interface ' + this.iface];
+      if (!port.ip || !port.mask) {
+        return ['% Interface ' + this.iface + ' has no address: a VRRP group needs one in the same subnet'];
+      }
+      if (!net.sameSubnet(ip, port.ip, port.mask)) {
+        return ['% ' + ip + ' is not in the subnet of ' + this.iface +
+          ' (' + port.ip + '/' + net.prefixOf(port.mask) + ')'];
+      }
       if (!group) {
         group = { vrid: vrid, interface: this.iface, ips: [], priority: 100, preempt: true, advertSec: 1 };
         dev.config.vrrp.push(group);
@@ -1017,10 +1030,14 @@ class CliSession {
       const claim = claims.filter(function (c) {
         return c.vrid === g.vrid && c.iface === g.interface;
       })[0];
-      const ifaceName = g.interface;
-      const port = dev.interfaces.get(dev.resolveIface ? (dev.resolveIface(ifaceName) || ifaceName) : ifaceName) ||
-        dev.interfaces.get(ifaceName);
-      const outOfIt = !port || port.enabled === false || !port.ip;
+      const port = dev.portOf ? dev.portOf(g.interface) : dev.interfaces.get(g.interface);
+      // Eligible at all? An interface that is down or unaddressed cannot host the group, and neither can
+      // one whose subnet does not contain the virtual address - the command refuses that now, but a
+      // topology file written before it existed can still carry such a group (#1245).
+      const ips = Array.isArray(g.ips) ? g.ips : [];
+      const offSubnet = !!(port && port.ip && port.mask) && ips.length > 0 &&
+        !ips.some(function (ip) { return net.sameSubnet(ip, port.ip, port.mask); });
+      const outOfIt = !port || port.enabled === false || !port.ip || offSubnet;
       let state;
       let master;
       if (verdict) {
@@ -1030,9 +1047,15 @@ class CliSession {
         master = (verdict.masterIp || verdict.masterName) + (verdict.owning ? '' : ' (pending)');
       } else if (outOfIt) {
         // VRRP calls a router that is not participating Init. "Backup" would claim it is standing by for
-        // a group its own interface cannot reach.
+        // a group its own interface cannot reach - whether it is down, unaddressed, or the address is not
+        // on this wire at all.
         state = 'Init';
         master = '-';
+        if (offSubnet) {
+          out.push('% VRRP group ' + g.vrid + ' on ' + g.interface + ': ' + ips.join(',') +
+            ' is not in the subnet of ' + port.name + ' (' + port.ip + '/' + net.prefixOf(port.mask) +
+            ') - the group cannot take part');
+        }
       } else {
         state = claim ? 'Master' : 'Backup';
         master = claim ? (dev.name || dev.id) : '-';
