@@ -32,6 +32,24 @@ POST /api/topologies/:topoId/links/:linkId/state
 The response carries `reconvergeAtMs` and the whole convergence schedule. In the editor, right-click
 a cable for **Take link down** / **Bring link up**; a down cable is drawn dashed and red.
 
+## What the views say about it
+
+A link taken down is a *patched cable that carries nothing*, which is a different fault from a socket
+with nothing plugged into it. Both read as "down", and the reason tells them apart — in the CLI, on the
+canvas, on the front panel and in the inspector:
+
+| Situation | CLI (`show ip interface brief`) | Panel and canvas |
+|---|---|---|
+| the port is shut | `administratively down` | `administratively down` |
+| nothing plugged in | `down` / `down` | `notconnect`, `down (no cable)` |
+| `link down` on the cable | `down` / `down` | `down (link down)` |
+| the far port is shut | `down` / `down` | `down (peer shut down)` |
+
+The rule behind those four sentences lives in one place — `Device.ifaceStatus()` for the CLI and
+`portState()` in `web/faceplate.js` for the UI, which the canvas and the inspector both call — and
+`test/port-state-agreement.test.js` asserts the two agree, case for case, because a second
+implementation of a rule is a second chance to disagree.
+
 ## What a state change actually does
 
 Four things, and all four are what real gear does — the model would be a lie with any one missing.

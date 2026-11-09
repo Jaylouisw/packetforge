@@ -231,6 +231,10 @@
 .fp-cabled { border-color: rgba(45, 212, 167, 0.35); color: var(--text, #e7ecf5); }
 .fp-down { opacity: 0.45; color: var(--muted, #8b94a7); }
 .fp-down .fp-port-name { text-decoration: line-through; text-decoration-thickness: 1px; }
+/* A port with nothing plugged into it is not a fault: it keeps the neutral LED and no strike-through,
+   so a 48-port faceplate with two cables does not read as 46 alarms (#1238). Its tooltip still says
+   "down (no cable)", because that is the honest answer to "why does this link not work". */
+.fp-notconnect .fp-port-name { color: var(--muted, #8b94a7); }
 
 /* PoE: a powered socket gets the amber "P" chip, the same amber as the fibre tint
    so the panel does not grow a second colour vocabulary. */

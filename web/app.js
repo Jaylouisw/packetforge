@@ -1445,6 +1445,37 @@
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + name); });
   }
 
+  // A port's own verdict, from the one rule in faceplate.js (#1238): "administratively down",
+  // "down (no cable)", "down (peer shut down)", "up". The status bar used to print
+  // "administratively down" or nothing at all, so an unplugged port read as healthy in the one view you
+  // are looking at when a link will not come up.
+  function portVerdict(dev, ifaceName) {
+    const lib = (typeof window !== 'undefined' && window.PFFaceplate) || null;
+    if (!lib || typeof lib.portState !== 'function') return null;
+    const list = (dev && dev.interfaces) || [];
+    const iface = Array.isArray(list) ? list.find(function (i) { return i.name === ifaceName; }) : list[ifaceName];
+    if (!iface) return null;
+    const links = (topo && topo.links) || [];
+    const link = links.find(function (l) {
+      if (!l || !l.a || !l.b) return false;
+      return (l.a.deviceId === dev.id && l.a.iface === ifaceName) ||
+             (l.b.deviceId === dev.id && l.b.iface === ifaceName);
+    });
+    let peerEnabled;
+    if (link) {
+      const other = link.a.deviceId === dev.id ? link.b : link.a;
+      const peerDev = ((topo && topo.devices) || []).find(function (x) { return x.id === other.deviceId; });
+      const plist = (peerDev && peerDev.interfaces) || [];
+      const pi = Array.isArray(plist) ? plist.find(function (i) { return i.name === other.iface; }) : plist[other.iface];
+      if (pi) peerEnabled = pi.enabled !== false;
+    }
+    const facts = { enabled: iface.enabled, cabled: !!link, peerEnabled: peerEnabled,
+      linkDown: !!(link && link.state === 'down') };
+    const verdict = lib.portState(facts);
+    verdict.text = lib.portStateText(facts);
+    return verdict;
+  }
+
   function renderDeviceTab() {
     const wrap = $('#tab-device');
     if (selectedLink) { renderLinkInspector(wrap); return; }
@@ -1583,7 +1614,13 @@
           window.PFFaceplate.bind(fp, function (hit) {
             const name = hit && (hit.port || hit.name);
             const iface = name ? d.interfaces && (d.interfaces[name] || d.interfaces.find(function (i) { return i.name === name; })) : null;
-            if (iface) setStatus(name + ' - ' + (iface.cage || 'connector unknown') + (iface.enabled === false ? ' (administratively down)' : ''));
+            if (iface) {
+              const verdict = portVerdict(d, name);
+              const why = verdict && verdict.state !== 'up' && verdict.state !== 'cabled'
+                ? ' (' + verdict.text + ')'
+                : '';
+              setStatus(name + ' - ' + (iface.cage || 'connector unknown') + why);
+            }
             else if (name) setStatus(String(name));
           });
         } catch (e) { /* binding is an enhancement, not a requirement */ }
@@ -2752,6 +2789,7 @@
     partsHTML: partsHTML,
     reachLabel: reachLabel,
     standardKey: standardKey,
-    opticParts: OPTIC_PARTS
+    opticParts: OPTIC_PARTS,
+    portVerdict: portVerdict
   };
 })();
