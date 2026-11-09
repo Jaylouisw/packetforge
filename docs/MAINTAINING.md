@@ -121,7 +121,7 @@ three, which is why one of its boxes is in the catalogue and the rest are not ye
    (`F1A-8H20Q` is not `F1A`), and a spec that ignores the licence overstates the box by 800G.
 
 If none of the three can be answered from an open source, the request stays open with the reason
-attached - see the rule above. That is the same decision as a walled vendor, arrived at differently.
+attached. None of these three is a reason to close a request: see [RESOLUTIONS.md](RESOLUTIONS.md). That is the same decision as a walled vendor, arrived at differently.
 
 The spec vocabulary itself - every field, every accepted value, and the invariant a description has
 to survive - is in [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md).
