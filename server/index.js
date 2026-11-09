@@ -251,7 +251,6 @@ function broadcast(topoId) {
   wss.broadcast({ type: 'topology', topologyId: topoId, state: fullState(t) });
 }
 
-// --- static file server ---
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -263,24 +262,95 @@ const MIME = {
   '.woff2': 'font/woff2'
 };
 
-function serveStatic(res, urlPath) {
+
+// --- static file server ---
+//
+// The app is five files: 129 KB of app.js, 36 KB of canvas.js, 27 KB of faceplate.js, 30 KB of CSS
+// and 7 KB of HTML. All of it used to go out with `Cache-Control: no-store` and no compression, so
+// every single load re-downloaded ~236 KB that had not changed since the last one.
+//
+// Now: an ETag and a Last-Modified so a reload revalidates into an empty 304, and gzip for the text
+// types, which is most of it. The compressed form is cached per (file, mtime, size) so the cost is
+// paid once per version of a file rather than once per request.
+const gzipCache = new Map();
+
+function cachedGzip(filePath, mtimeMs, data) {
+  const key = filePath + '|' + mtimeMs + '|' + data.length;
+  const hit = gzipCache.get(key);
+  if (hit) return hit;
+  let out = null;
+  try { out = zlib.gzipSync(data); } catch (e) { out = null; }
+  if (out && out.length >= data.length) out = null;
+  // One entry per file version; drop anything older for this path.
+  for (const k of Array.from(gzipCache.keys())) {
+    if (k.indexOf(filePath + '|') === 0) gzipCache.delete(k);
+  }
+  gzipCache.set(key, out);
+  return out;
+}
+
+const COMPRESSIBLE = { '.html': 1, '.css': 1, '.js': 1, '.json': 1, '.svg': 1, '.txt': 1, '.map': 1 };
+
+function sendAsset(req, res, filePath, data, mtimeMs) {
+  const ext = path.extname(filePath).toLowerCase();
+  const headers = {
+    'Content-Type': MIME[ext] || 'application/octet-stream',
+    // Revalidate rather than trust: the server is also the thing being edited, and a browser holding
+    // a stale app.js after a fix is the most confusing bug report there is.
+    'Cache-Control': 'no-cache',
+    'ETag': 'W/"' + data.length + '-' + Math.floor(mtimeMs) + '"',
+    'Last-Modified': new Date(mtimeMs).toUTCString(),
+    'Vary': 'Accept-Encoding'
+  };
+
+  const inm = String((req && req.headers && req.headers['if-none-match']) || '');
+  if (inm && inm.split(',').map(function (t) { return t.trim(); }).indexOf(headers.ETag) !== -1) {
+    res.writeHead(304, headers);
+    return res.end();
+  }
+  const ims = Date.parse(String((req && req.headers && req.headers['if-modified-since']) || ''));
+  if (isFinite(ims) && Math.floor(mtimeMs / 1000) * 1000 <= ims) {
+    res.writeHead(304, headers);
+    return res.end();
+  }
+
+  const accept = String((req && req.headers && req.headers['accept-encoding']) || '');
+  if (COMPRESSIBLE[ext] && /\bgzip\b/i.test(accept) && data.length >= 1024) {
+    const gz = cachedGzip(filePath, mtimeMs, data);
+    if (gz) {
+      headers['Content-Encoding'] = 'gzip';
+      headers['Content-Length'] = gz.length;
+      res.writeHead(200, headers);
+      return res.end(gz);
+    }
+  }
+  headers['Content-Length'] = data.length;
+  res.writeHead(200, headers);
+  res.end(data);
+}
+
+function serveStatic(req, res, urlPath) {
   let rel = urlPath === '/' ? '/index.html' : urlPath;
   const filePath = path.normalize(path.join(WEB_DIR, rel));
   if (filePath.indexOf(WEB_DIR) !== 0) { res.writeHead(403); res.end('Forbidden'); return; }
   fs.readFile(filePath, function (err, data) {
     if (err) {
       // SPA fallback: unknown paths serve index.html
-      fs.readFile(path.join(WEB_DIR, 'index.html'), function (e2, html) {
-        if (e2) { res.writeHead(404); res.end('Not found'); }
-        else { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(html); }
+      const indexPath = path.join(WEB_DIR, 'index.html');
+      fs.readFile(indexPath, function (e2, html) {
+        if (e2) { res.writeHead(404); res.end('Not found'); return; }
+        fs.stat(indexPath, function (e3, st) {
+          sendAsset(req, res, indexPath, html, !e3 && st && st.mtimeMs ? st.mtimeMs : Date.now());
+        });
       });
       return;
     }
-    const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-store' });
-    res.end(data);
+    fs.stat(filePath, function (e4, st) {
+      sendAsset(req, res, filePath, data, !e4 && st && st.mtimeMs ? st.mtimeMs : Date.now());
+    });
   });
 }
+
 
 // --- API ---
 async function handleApi(req, res, urlPath) {
@@ -694,7 +764,7 @@ const server = http.createServer(function (req, res) {
   }
 
   if (urlPath.indexOf('/api/') === 0) { handleApi(req, res, urlPath); return; }
-  serveStatic(res, urlPath);
+  serveStatic(req, res, urlPath);
 });
 
 server.on('upgrade', function (req, socket) {
