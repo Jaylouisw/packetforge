@@ -195,3 +195,29 @@ that it is not the contributor's change, and that nothing was pushed.
 
 If the job fails before that note exists, the comment says so explicitly rather than posting an
 empty block.
+
+## What runs, and why a device PR runs less of it
+
+`ci.yml` starts with a **`Classify the change`** job. It diffs the pull request against its
+base and answers one question: can this diff change runtime behaviour?
+
+| the diff touches | Node matrix | smoke test | Docker build |
+|---|---|---|---|
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | **Node 20 only** | skipped | skipped |
+| anything else (scripts, tests, workflows, server, engine, web, config) | 18 / 20 / 22 | yes | yes |
+
+`npm test` still runs for a data-only change, so every catalogue invariant is still checked —
+once instead of three times. A device spec cannot change how the server boots or whether the
+image builds, and paying five runner slots to learn that is how a two-runner host ends up with a
+queue that never reaches the next pull request.
+
+The classifier is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
+
+- an **empty** diff is a code change — nothing to inspect is not evidence of safety;
+- an **unknown base sha** (shallow clone, force-push, new branch) is a code change;
+- only `<vendor>/<model>.json` under `devices/` counts as data — `devices/registry.js` and
+  `devices/cisco/README.md` do not;
+- `test/`, `scripts/` and `.forgejo/` are never data, because those are the changes that can
+  make CI lie about itself.
+
+`test/classify-change.test.js` asserts each of those, including the mixed-diff case.

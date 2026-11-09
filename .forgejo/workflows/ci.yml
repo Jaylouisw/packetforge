@@ -38,6 +38,40 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Decide what the diff can actually break, before spending runner slots on it.
+  #
+  # The catalogue work is the bulk of this project's pull requests and it is almost always
+  # additive JSON: a device spec, a registry count, a note. That diff cannot change how the
+  # server boots, how the simulator forwards, or whether the image builds - the worst it can
+  # do is fail the catalogue invariants, which `npm test` checks. Paying five runner slots
+  # (three Node versions, a smoke test, a Docker build) to learn that is how a two-runner
+  # host ends up with a queue that never reaches the next pull request.
+  #
+  # Classification is deliberately hostile to the "skip" answer: anything this job cannot
+  # identify - an empty diff, an unknown base sha, a shallow clone - is treated as a code
+  # change and runs everything.
+  changes:
+    name: Classify the change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      data_only: ${{ steps.classify.outputs.data_only }}
+      code: ${{ steps.classify.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ -n "${BASE_SHA:-}" ]; then
+            git fetch -q origin "$BASE_SHA" || true
+            node scripts/classify-change.js --base "$BASE_SHA" --head HEAD
+          else
+            node scripts/classify-change.js --base ""
+          fi
+
   # A job that hangs holds the only runner, and a held runner is a queue that
   # stops moving: issue #930 documents a task stuck in `running` for over forty
   # minutes while every other pull request waited behind it. A bound does not make
@@ -46,6 +80,10 @@ jobs:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: changes
+    # A data-only diff runs one Node version instead of three. The suite is the same suite,
+    # so the invariants that a device spec can break are still checked - just once.
+    if: needs.changes.outputs.data_only != 'true' || matrix.node == 20
     strategy:
       fail-fast: false
       matrix:
@@ -79,6 +117,10 @@ jobs:
     name: Server smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    # A device spec cannot change how the server boots or how the image builds. For a
+    # data-only diff this job reports success without taking a runner for ten minutes.
+    if: needs.changes.outputs.data_only != 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,6 +133,10 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    # A device spec cannot change how the server boots or how the image builds. For a
+    # data-only diff this job reports success without taking a runner for ten minutes.
+    if: needs.changes.outputs.data_only != 'true'
     steps:
       - uses: actions/checkout@v4
       # node:20-bookworm ships no docker binary. The runner mounts the host
