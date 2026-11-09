@@ -32,6 +32,7 @@ Modes and their prompts:
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show power inline [<port>]` | PoE supplied per PSE port, the budget left, and why a powered device was denied |
+| `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
 | `exit` / `logout` | leave the session |
