@@ -80,16 +80,60 @@ differs, which is the same rule the rest of the config follows.
 `test/config-roundtrip.test.js` asserts both halves: the printed config replays into an identical
 config, and no configured value is missing from the text.
 
+### Undoing a command: every printed line has a `no` form
+
+A backup is only a backup if you can edit it back. The rule `test/config-undo.test.js` holds every feature to
+is: add a command, then remove it, and the printed config returns **byte for byte** to what it was — and
+removing something that is not there refuses and names the thing.
+
+```
+r1(config)#no hostname
+% No hostname set (the device is named ASR 1001-X aggregation services router-r1)
+
+r1(config)#no vlan 20
+% VLAN 20 is still carried by 1 port(s): Fa0/3 - move them off it first
+
+r1(config-if)#no ip access-group 103 in
+% Access list 102 is applied in on Gi0, not 103
+```
+
+Four commands used to be one-way doors — accepted, printed, and impossible to take back from the console —
+and `no vlan` printed "VLAN 42 removed" whether or not a VLAN 42 existed:
+
+| command | `no` form | removing what is not there |
+|---|---|---|
+| `hostname <name>` | `no hostname` | `% No hostname set (the device is named …)` |
+| `ip dhcp pool <name>` | `no ip dhcp pool <name>` | `% No DHCP pool named <name>` |
+| `dns zone <name>` | `no dns zone <name>` | `% No DNS zone named <name>` |
+| `ip access-group <n> in\|out` | `no ip access-group [<n>] [in\|out]` | `% No access list <n> applied in on <port>` |
+| `vlan <id>` | `no vlan <id>` | `% VLAN <id> does not exist` |
+
+Two of those refusals are there for more than tidiness:
+
+* `no ip access-group 103 in` while **102** is applied refuses and names 102. Silently clearing "whatever is
+  bound" would remove a policy the operator did not ask about.
+* `no vlan 20` refuses while ports still carry it, naming up to five and counting the rest. Deleting it behind
+  the ports' backs left `show running-config` no longer printing `vlan 20` while `show vlan` still listed it
+  from the member ports — two descriptions of one switch that disagreed.
+
+`no hostname` also puts the device's previous name back, because `hostname` sets both the config line and the
+canvas label so the two cannot disagree (#21); undoing only half of it would leave a clean config over a
+label that lies.
+
 
 ## Config-mode commands
 
 | Command | Effect |
 |---------|--------|
 | `hostname <name>` | set device hostname |
+| `no hostname` | clear it, restoring the device's previous name |
 | `interface <name>` | enter interface config mode |
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
 | `no ip route <dest> <mask> [gw]` | remove static route |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
+| `no vlan <id>` | remove a VLAN (refused while ports still carry it) |
+| `no ip dhcp pool <name>` | remove a DHCP pool |
+| `no dns zone <name>` | remove a DNS zone and its records |
 | `do show …` | run a `show` from config mode |
 | `exit` / `end` | leave config mode |
 
