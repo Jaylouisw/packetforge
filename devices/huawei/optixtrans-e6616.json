@@ -1,0 +1,520 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E6616 (14x B1LDCD)",
+  "label": "OptiXtrans E6616 OTN platform, 14x B1LDCD (56x 100GE client, 28x 200G line)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E6616 - 5U OTN transport platform, 2.8 Tbit/s, 14 service slots, 400G per slot capable. Modelled fully populated with 14x B1LDCD muxponder boards: 56x 100GE client ports and 28x 200G line ports.",
+  "capabilities": [
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "c100g1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g29",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g30",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g31",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g32",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g33",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g34",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g35",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g36",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g37",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g38",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g39",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g40",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g41",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g42",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g43",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g44",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g45",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g46",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g47",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g48",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g49",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g50",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g51",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g52",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g53",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g54",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g55",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g56",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line9",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line10",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line11",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line12",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line13",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line14",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line15",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line16",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line17",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line18",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line19",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line20",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line21",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line22",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line23",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line24",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line25",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line26",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line27",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    },
+    {
+      "name": "line28",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp56"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/en/documents/others/621bfc22e8564cf69ae86581569a7594",
+  "notes": "Port list is a stated card complement, not a fixed chassis figure: the E6616 is a 5U shelf with 14 service slots, so 56 client + 28 line is what \"14x B1LDCD\" means. Fewer boards, or the OTN/SDH switch boards (K5XCH 2.4T OTN, K5SXCH OTN+SDH) in place of a muxponder, give a different box - the same convention as devices/arista/7504r.json.\n\nPer board, B1LDCD is 4x 100GE client (QSFP28, LR4/SR4/CLR4 or OTU4) into 2x programmable 100G/200G line (CFP2). The line side is modelled at 200G in the simulator's 200G optical cage (qsfp56) because there is no CFP cage; the physical module is CFP2, so a lab planning optics should order CFP2, not QSFP56. Switching a board to its 100G line mode halves the line rate and lets 4x OTU4 map to 2x OTU4.\n\nNot a packet switch: client ports carry OTU4/100GE into OTN containers, and there is no L2/L3 forwarding, which is why capabilities is cli only - same reading as the Cisco NCS 1004. FEC, PRBS, ALS, 1588v2, G.8275.1 and AES-256 client encryption are board features and are not modelled as port capabilities."
+}

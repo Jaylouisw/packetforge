@@ -182,6 +182,12 @@ const EXPECTED_ROWS = [
   // QSFP56 is the 200G member of the same physical family: a 100G QSFP28 module seats in it
   // and runs at 100G, exactly as a 1G SFP seats in an SFP+ cage.
   ['qsfp28', 'qsfp56', 'accept:downshift'],
+  // QSFP+ is the same physical connector as QSFP28 and QSFP56 - four lanes, just
+  // slower - so a 40G optic seats in a QSFP56 cage and negotiates 40G. This row was
+  // missing, and the gap only showed up when the catalogue gained its first QSFP56
+  // ports (the OptiXtrans E6616 line side): the wildcard below then expected a refusal
+  // the engine correctly did not give.
+  ['qsfp+', 'qsfp56', 'accept:downshift'],
   ['qsfp56', 'qsfp56', 'accept'],
   ['qsfpdd', 'qsfpdd', 'accept'],
 
