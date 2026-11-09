@@ -42,7 +42,7 @@
     "label": "Comtrend PG-9172 G.hn powerline adapter (NOT CATALOGUED)",
     "description": "G.hn 1200 powerline adapter with pass-through variants (PG-9172PT, PG-9172PoE).",
     "sourceUrl": "https://us.comtrend.com/pg-9172/",
-    "notes": "OPEN: the Comtrend product page renders its Specifications section behind a collapsed widget that the extractor did not open, so the LAN port count for the base PG-9172, PG-9172PT and PG-9172PoE variants was not read from the vendor. The G.hn generation would be worth having (it is a different standard from the HomePlug parts already in the catalogue) - needs the Comtrend datasheet PDF."
+    "notes": "RESOLVED: datasheet DS_PG-9172_V1.0.3 read - 1x RJ-45 10/100/1000BaseT, G.hn PHY up to 1200 Mbps, 802.1D bridge, 802.1Q VLAN, IGMP/MLD snooping, AES-128, TR-069, 16 nodes, HomeGrid certified. Catalogued as comtrend/pg-9172.json with the mains port at 1G (ladder has no 1200 rung). It is the catalogue first G.hn mains part and does not interoperate with the HomePlug parts."
   },
   {
     "vendor": "netgear",
@@ -52,5 +52,14 @@
     "description": "NETGEAR Powerline 2000 + Extra Outlet, already in the catalogue declaring plc0 at 2.5G.",
     "sourceUrl": "devices/netgear/plp2000.json",
     "notes": "FINDING while adding the AVM parts: PLP2000's plc0 is declared at 2.5G, which puts it on the engine's ghn-25 rung - but the PLP2000 is a HomePlug AV2 adapter whose '2000' is a 2000 Mbit/s PHY rate, not a 2.5GBASE-T-class mains link, and HomePlug AV2 tops out on the engine's homeplug-av2 medium (1000 Mbps). The AVM parts hit the same wall from the other side: their honest 1200 Mbit/s is not on the ladder at all (200/1000/1700/2500), so they are declared at 1G. Suggested follow-up: either add a 1200 rung to CAGE_SPEEDS.powerline (engine/optical-adjacent table in engine/media.js) or correct PLP2000 down to 1G. Left alone here because it changes an existing device's modelled capability and belongs in its own commit with the ladder decision."
+  },
+  {
+    "vendor": "tp-link",
+    "model": "PGW2440 KIT",
+    "category": "powerline",
+    "label": "G.hn2400 Powerline AX1800 Wi-Fi 6 kit (NOT CATALOGUED)",
+    "description": "G.hn 2400 extender (PGW2440) + passthrough adapter (PG2400P), Wi-Fi 6 AX1800.",
+    "sourceUrl": "https://www.tp-link.com/uk/home-networking/powerline/pgw2440-kit/",
+    "notes": "OPEN + why: TP-Link states G.hn2400 rate and AX1800 Wi-Fi 6, but the kit page does not give the per-unit LAN port count for the PGW2440 (the PG2400P adapter is already in the catalogue), and 2400 Mbit/s is not on the engine powerline ladder either. Needs the PGW2440 datasheet and the ladder fix (add 1200 and 2400 rungs) before it can be added honestly. Note also: TP-Link state the G.hn kits are NOT compatible with HomePlug AV/AV2 - a real lab constraint worth modelling once both families are present."
   }
 ]
