@@ -487,7 +487,7 @@ Everything the rules engine can emit, and where it comes from:
 | `W_OPTICAL_HEADROOM` | warning | validation | PON link within 3 dB of the budget |
 | `W_DISTANCE` | warning | validation | Length exceeds the medium's reach |
 | `W_COPPER_LONGRUN` | warning | validation | Copper past the 90 m horizontal limit |
-| `W_DUPLEX_MISMATCH` | warning | validation | Ends disagree on duplex |
+| `W_DUPLEX_MISMATCH` | warning | validation | Ends disagree on duplex (set with `duplex half` / `duplex full`) |
 | `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of *both* ports |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |

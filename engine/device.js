@@ -63,6 +63,10 @@ class Interface {
     };
     this.lagId = null;        // LAG (link aggregation) group this port belongs to
     this.duplex = 'full';
+    // A rate forced by configuration (`speed 100`), in Mbps, or null for auto-negotiation. The validator
+    // has modelled a duplex mismatch since the beginning and nothing could ever set duplex, so the rule
+    // was unreachable; both live here now and both are read by validateLink (#1259).
+    this.speedMbps = null;
     this.mtu = 1500;
   }
 
