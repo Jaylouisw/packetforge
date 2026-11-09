@@ -23,6 +23,60 @@
   // person filing it only has to say what they did and what they saw.
   const ISSUE_NEW = 'https://git.jayw.uk/jaylouisw/packetforge/issues/new';
 
+  // ---------- what the app saw go wrong ----------
+  //
+  // The most expensive part of a bug report is the part the reporter cannot possibly know:
+  // what the app was doing when it broke. The browser hands that over for free - message,
+  // file, line, stack - and it is discarded unless something is listening, which is why the
+  // reports this project used to receive said "it doesn't work" and nothing else.
+  //
+  // Bounded on purpose: five entries, four stack frames each. A page that throws in a loop
+  // must not turn its own bug report into a 2 MB issue body.
+  const MAX_ERRORS = 5;
+  const recentErrors = [];
+
+  function recordError(kind, message, extra) {
+    const e = extra || {};
+    const entry = {
+      kind: or2(kind, 'error'),
+      message: or2(message, 'unknown error'),
+      where: or2(e.where, ''),
+      detail: String(e.detail || '').split('\n').slice(0, 4).join('\n'),
+      at: new Date().toISOString()
+    };
+    recentErrors.push(entry);
+    while (recentErrors.length > MAX_ERRORS) recentErrors.shift();
+    return entry;
+  }
+
+  function or2(v, fallback) {
+    return (v === undefined || v === null || v === '') ? fallback : String(v);
+  }
+
+  /**
+   * Render the caught errors for a report body. Always returns at least one line, because an
+   * empty section reads like the app forgot to fill it in - and "none since the page loaded"
+   * is itself a useful fact when the bug is a visual one.
+   */
+  function describeErrors(list) {
+    const items = (list || []).slice(-MAX_ERRORS);
+    if (!items.length) {
+      return ['- None since the page loaded. If something looked wrong without an error, the',
+              '  screenshot is the useful part.'];
+    }
+    const out = [];
+    for (const e of items) {
+      out.push('- `' + or2(e.kind, 'error') + '`: ' + or2(e.message, 'unknown error')
+        + (e.where ? ' (' + e.where + ')' : ''));
+      if (e.detail) {
+        out.push('  ```');
+        for (const line of String(e.detail).split('\n')) out.push('  ' + line);
+        out.push('  ```');
+      }
+    }
+    return out;
+  }
+
   function bugReportBody(env) {
     const e = env || {};
     function or(v) { return (v === undefined || v === null || v === '') ? 'unknown' : String(v); }
@@ -37,6 +91,12 @@
       '2. ',
       '3. ',
       '',
+      '### Errors the app caught',
+      '',
+      '<!-- Recorded automatically while the app was running. Paste nothing here. -->',
+      ''
+    ].concat(describeErrors(e.errors)).concat([
+      '',
       '### Where it happened',
       '',
       '- PacketForge: ' + or(e.version),
@@ -47,7 +107,7 @@
       '',
       '<!-- Everything above was filled in by the app. Correct anything that is wrong. -->',
       ''
-    ].join('\n');
+    ]).join('\n');
   }
 
   function bugReportUrl(env) {
@@ -64,7 +124,9 @@
       node: 'unknown',
       browser: (typeof navigator !== 'undefined' && navigator && navigator.userAgent) || 'unknown',
       page: (typeof location !== 'undefined' && location && location.href) || '',
-      devices: (catalog && catalog.specs && catalog.specs.length) || null
+      devices: (catalog && catalog.specs && catalog.specs.length) || null,
+      // What the app caught, not what the reporter has to remember.
+      errors: recentErrors.slice()
     };
     try {
       const v = await api('GET', '/version');
@@ -94,10 +156,19 @@
   async function api(method, path, body) {
     const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
     if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch('/api' + path, opts);
+    let res;
+    try {
+      res = await fetch('/api' + path, opts);
+    } catch (e) {
+      // The server not answering is the single most common failure this app has, and it used
+      // to leave no trace anywhere. Record it before rethrowing.
+      recordError('network', method + ' /api' + path + ' failed: ' + ((e && e.message) || e));
+      throw e;
+    }
     if (!res.ok) {
       let msg = res.status + ' ' + res.statusText;
       try { const j = await res.json(); if (j.error) msg = j.error; } catch (e) {}
+      recordError('http ' + res.status, method + ' /api' + path + ': ' + msg);
       throw new Error(msg);
     }
     return res.json();
@@ -2348,7 +2419,37 @@
   }
 
   // ---------- boot ----------
+  // Start listening before anything else can fail, or the first error - the interesting one -
+  // is the one nobody catches.
+  function installErrorCapture() {
+    const w = (typeof window !== 'undefined' && window) ? window : null;
+    if (!w || typeof w.addEventListener !== 'function') return false;
+    w.addEventListener('error', function (event) {
+      const t = event && event.target;
+      if (t && t !== w && (t.tagName === 'IMG' || t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+        // A resource that failed to load is a real bug - the asset is missing - but it has no
+        // message or stack, so record what was being fetched.
+        recordError('resource', 'failed to load ' + String(t.tagName).toLowerCase(),
+          { where: t.src || t.href || '' });
+        return;
+      }
+      const err = event && event.error;
+      recordError('error', (event && event.message) || (err && err.message) || 'unknown error', {
+        where: [event && event.filename, event && event.lineno, event && event.colno]
+          .filter(function (x) { return x !== undefined && x !== null && x !== ''; }).join(':'),
+        detail: (err && err.stack) || ''
+      });
+    });
+    w.addEventListener('unhandledrejection', function (event) {
+      const r = event && event.reason;
+      recordError('unhandled rejection', (r && r.message) || r || 'unknown rejection',
+        { detail: (r && r.stack) || '' });
+    });
+    return true;
+  }
+
   async function boot() {
+    installErrorCapture();
     bindTopbar();
     // Static content: draw it before the first API call so a slow or failed
     // /api/catalog does not leave the canvas colours unexplained.
@@ -2415,6 +2516,10 @@
     // without opening a window.
     bugReportBody: bugReportBody,
     bugReportUrl: bugReportUrl,
+    recordError: recordError,
+    describeErrors: describeErrors,
+    installErrorCapture: installErrorCapture,
+    recentErrors: recentErrors,
     openBugReport: openBugReport,
     issueUrl: ISSUE_NEW,
     renderCableLegend: renderCableLegend,

@@ -159,7 +159,8 @@ function makeCtx(openResult, warnSink) {
     encodeURIComponent: encodeURIComponent,
     fetch: function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({ version: '0.1.0', node: 'v20.0.0', platform: 'linux/x64' }); } }); },
     document: { addEventListener: function () {}, querySelector: function () { return fakeNode(); }, querySelectorAll: function () { return []; } },
-    window: {},
+    // A listener registry, so the tests can fire the events the browser would fire at us.
+    window: { __listeners: {}, addEventListener: function (name, fn) { (this.__listeners[name] = this.__listeners[name] || []).push(fn); } },
     navigator: { userAgent: 'TestAgent/1.0' },
     location: { href: 'http://localhost:8000/' },
     PFCanvas: { on: {}, setTopology: function () {}, fitView: function () {}, render: function () {}, setSelected: function () {}, setSelectedLink: function () {}, animateEvents: function () {}, zoomBy: function () {} }
@@ -195,6 +196,63 @@ function finish() {
   const allowed = makeCtx({}, opened);
   const ret2 = await allowed.window.__pf.openBugReport();
   ok(ret2.indexOf('/issues/new') !== -1, 'the same handler returns the URL when the window does open');
+
+  // The part the reporter cannot know: what the app was doing when it broke. The browser
+  // hands this over for free and it is discarded unless something is listening, which is why
+  // this project's reports used to say "it doesn't work" and nothing else.
+  console.log('\nErrors the app caught go into the report:');
+  const pf = makeCtx({}, []).window.__pf;
+
+  const clean = pf.bugReportBody({ version: '1.0.0', errors: [] });
+  ok(clean.indexOf('### Errors the app caught') !== -1, 'the report has a section for caught errors');
+  ok(clean.indexOf('None since the page loaded') !== -1,
+    'with nothing caught it says so, rather than leaving the section blank');
+
+  pf.recordError('error', 'x is not a function', { where: 'app.js:120:9', detail: 'TypeError: x is not a function\n    at render (app.js:120:9)' });
+  const one = pf.bugReportBody({ version: '1.0.0', errors: pf.recentErrors });
+  ok(one.indexOf('x is not a function') !== -1, 'a caught error appears in the body');
+  ok(one.indexOf('app.js:120:9') !== -1, 'and so does where it happened');
+  ok(one.indexOf('at render') !== -1, 'the stack makes it into the body');
+  ok(one.indexOf('None since the page loaded') === -1, 'the "none" line is gone once there is something to report');
+
+  for (let i = 0; i < 20; i++) pf.recordError('error', 'loop failure ' + i);
+  ok(pf.recentErrors.length === 5, 'the buffer is bounded at five, so a throwing loop cannot bloat the report');
+  ok(pf.bugReportBody({ errors: pf.recentErrors }).indexOf('loop failure 19') !== -1, 'the newest error is kept');
+  ok(pf.bugReportBody({ errors: pf.recentErrors }).indexOf('loop failure 0') === -1, 'the oldest is dropped');
+
+  const huge = pf.recordError('error', 'boom', { detail: 'a\nb\nc\nd\ne\nf\ng' });
+  ok(huge.detail.split('\n').length === 4, 'a stack is truncated to four frames, so one bad error cannot produce a 2 MB issue');
+
+  const missing = pf.bugReportBody({ errors: [{}] });
+  ok(missing.indexOf('unknown error') !== -1, 'a malformed error still renders instead of printing undefined');
+  ok(missing.indexOf('undefined') === -1, 'and nothing in the body says undefined');
+
+  // The listeners themselves, fired the way a browser would fire them.
+  const live = makeCtx({}, []);
+  ok(live.window.__pf.installErrorCapture() === true, 'capture installs when the window can be listened to');
+  ok((live.window.__listeners.error || []).length === 1, 'an error listener is registered');
+  ok((live.window.__listeners.unhandledrejection || []).length === 1, 'and one for unhandled rejections');
+
+  live.window.__listeners.error[0]({ message: 'x is not a function', filename: 'app.js', lineno: 42, colno: 7, error: { stack: 'TypeError\n    at render' } });
+  ok(live.window.__pf.recentErrors.length === 1, 'a thrown error is caught');
+  ok(live.window.__pf.recentErrors[0].where === 'app.js:42:7', 'it records file, line and column - the first thing anyone asks for');
+  ok(live.window.__pf.recentErrors[0].detail.indexOf('at render') !== -1, 'the stack is kept');
+
+  live.window.__listeners.unhandledrejection[0]({ reason: new Error('promise gave up') });
+  ok(live.window.__pf.recentErrors[1].kind === 'unhandled rejection', 'a rejected promise is caught under its own name');
+  ok(live.window.__pf.recentErrors[1].message === 'promise gave up', 'and with its message');
+
+  live.window.__listeners.error[0]({ target: { tagName: 'IMG', src: '/missing.png' } });
+  ok(live.window.__pf.recentErrors[2].where.indexOf('/missing.png') !== -1,
+    'a missing asset is recorded with the URL that failed, since it has no stack');
+
+  const dead = makeCtx({}, []);
+  dead.window.addEventListener = undefined;
+  ok(dead.window.__pf.installErrorCapture() === false,
+    'installErrorCapture reports honestly when the window cannot be listened to');
+  ok(typeof makeCtx({}, []).window.__pf.installErrorCapture === 'function',
+    'the capture hook is installed by boot, not by a separate entry point');
+
   finish();
 })();
 
