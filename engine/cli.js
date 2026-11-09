@@ -2717,7 +2717,16 @@ class CliSession {
       '  show version | ip interface brief | ip route | arp',
       '  show vlan [brief] | spanning-tree | etherchannel summary',
       '  show access-lists',
-      '  show mac address-table | interfaces | running-config'
+      '  show mac address-table | interfaces | running-config',
+      // Three protocol families were configurable and absent from this list: the console could do VRRP, OSPF
+      // and BGP and the index that says what the console can do never mentioned any of them. `show vrrp` was
+      // documented in prose and missing here and from the docs table.
+      '  vrrp <vrid> ip <addr> | priority <1-255> | preempt      (interface mode)',
+      '  show vrrp                          the group, its state, and the master it elected',
+      '  ospf router-id <ip> | area <id>                        (config mode)',
+      '  ip ospf cost <n> | area <id> | passive                 (interface mode)',
+      '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
+      '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];
   }
 }
