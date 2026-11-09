@@ -1,0 +1,93 @@
+{
+  "vendor": "amcrest",
+  "model": "NV4108E-HS",
+  "label": "NV4108E-HS 8-channel PoE NVR",
+  "category": "nvr",
+  "description": "8-channel 4K NVR with one gigabit RJ45 LAN port, one independent 100M RJ45 port, eight PoE camera ports (802.3af/at, 25.5 W per port, 80 W aggregate) and one SATA bay up to 6 TB.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "dhcp-server",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "WAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 25.5
+    }
+  ],
+  "poe": {
+    "budgetW": 80,
+    "sourceUrl": "https://s3.amazonaws.com/amcrest-files/Documentation/NV4108E-HS+Technical+Specifications.pdf",
+    "note": "Amcrest technical specifications: max 25.5 W single port, 80 W in total, 802.3af/at, 48 V 2 A supply."
+  },
+  "icon": "nvr",
+  "color": "#22c55e",
+  "sourceUrl": "https://s3.amazonaws.com/amcrest-files/Documentation/NV4108E-HS+Technical+Specifications.pdf",
+  "notes": "The datasheet lists two separate copper data ports: 'Interface 1 RJ-45 port (10/100/1000Mbps)' and 'Ethernet Port 1 Independent 100Mbps Ethernet Port'. Both are modelled - dropping the second one would understate the box - and the eight PoE ports are 10/100 as specified. One SATA III bay, 6 TB per disk, 80 Mbps record rate, 128 users."
+}
