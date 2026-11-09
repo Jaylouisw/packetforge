@@ -1,0 +1,52 @@
+{
+  "vendor": "profitap",
+  "model": "F1RL",
+  "label": "F1RL passive 1-link LC fibre TAP",
+  "description": "Passive 1-link optical TAP for a duplex LC fibre run: the two network LC ports stay mated to the live link and each direction is split onto its own monitor LC port, at a 50/50 (or 60/40, 70/30, 80/20) ratio. Unpowered, no IP stack, no management - a dead TAP cannot drop the link it sits in.",
+  "category": "tap",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.profitap.com/wp-content/uploads/LC-Fiber-Optic-TAPs-Datasheet.pdf",
+  "notes": "Profitap LC TAP datasheet (v4.3): '1 network link / 1 monitor link', LC connectors with zirconia sleeve adapters, passive and unpowered. The vendor sells the same passive hardware across a rate ladder - MM 62.5 um to 1 Gbps, OM4 to 1-100 Gbps, SM 9 um to 1-400 Gbps - and split ratios 50/50, 60/40, 70/30, 80/20 (part suffix -50/-60/-70/-80). Modelled here as the 1G/10G LC class the catalogue's fibre ports run at; the split ratio is not a modelling knob, because the simulator carries the copy at line rate either way. Insertion loss (50/50, MM 50 um): 3.8 dB per direction. The hardware presents LC/UPC adapters, not cages; the four ports are modelled as SFP+ because a link in this simulator runs port to port and both ends must be the same cage class for a cable to exist at all - the convention the Garland fibre taps already set. Cabling it to an LC/UPC port instead is refused by the engine, which is the one thing a passive tap must never do to a lab."
+}

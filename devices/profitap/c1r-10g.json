@@ -1,0 +1,54 @@
+{
+  "vendor": "profitap",
+  "model": "C1R-10G",
+  "label": "C1R-10G passive 10GBASE-T copper TAP",
+  "description": "Inline copper TAP for one 10M/100M/1G/10GBASE-T link: two RJ45 network ports stay mated to the live link with PoE passed through to the powered device, and two SFP+ monitor ports carry a wire-speed copy that can accept SR, LR or copper modules. No IP address, and the monitor side is a data diode - nothing injected there can reach the network.",
+  "category": "tap",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.profitap.com/wp-content/uploads/C1R-10G-Datasheet.pdf",
+  "notes": "Datasheet (v3.7): '2 x RJ45 8 pins, 2 x SFP+', 770 g, 120 x 205 x 41 mm, redundant 12 VDC powering, latency 2.3 us at 10G. It is passive in the data path and in the engine's sense - net to net goes through, every monitor port gets a copy, and injection on a monitor port is refused - but unlike the fibre TAPs it is powered: the 12 V is for link-failure propagation and PHY retiming, not for a management plane. There is no IP address and no CLI, so it carries no capabilities. 10 Mbit/s copper is also supported by the hardware; it is left out of speedCaps because 10GBASE-T ports do not run at 10M in practice and the engine would otherwise offer a 10M link on a 10G cage."
+}

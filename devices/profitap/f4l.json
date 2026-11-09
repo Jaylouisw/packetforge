@@ -1,0 +1,172 @@
+{
+  "vendor": "profitap",
+  "model": "F4L",
+  "label": "F4L passive 4-link LC fibre TAP",
+  "description": "Passive 4-link optical TAP in one compact box: eight network LC ports stay mated to four live duplex fibre runs and eight monitor LC ports hand a split copy of each direction to the tooling. Unpowered, no IP stack; three fit in a 1U rack frame.",
+  "category": "tap",
+  "capabilities": [],
+  "interfaces": [
+    {
+      "name": "netA1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netA2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netA3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netA4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.profitap.com/wp-content/uploads/LC-Fiber-Optic-TAPs-Datasheet.pdf",
+  "notes": "Datasheet: '4 network links / 4 monitor links', 113 x 88 x 30 mm, 260 g, up to three per 1U rack frame (ARF-1U). Each of the four links is an independent duplex LC coupler - sixteen LC adapters in total, which is why this model has sixteen ports and not four. Same rate ladder as the F1RL (1 Gbps on 62.5 um MM, 1-100 Gbps on OM4, 1-400 Gbps on SM), modelled at the 1G/10G SFP+ class for the same reason as the F1RL: the tap presents LC/UPC adapters, but a simulator link runs port to port, so the ports are caged as SFP+ to stay cableable to the switches they sit between."
+}
