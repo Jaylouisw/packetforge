@@ -1,0 +1,115 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD4-MBX-LTEA",
+  "label": "Peplink MAX HD4 MBX (LTE-A)",
+  "category": "router",
+  "description": "Four-modem mobile router, LTE-A: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan4",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/hd4.pdf",
+  "notes": "Vendor figures from the HD4 MBX datasheet: Ethernet WAN port **3 / 2 (GE)**, LAN port **8 / 9 (GE)**, **Router Throughput 2.5 Gbps**, Wi-Fi AP Yes, PoE Input No. WAN 3 can be reconfigured as a LAN port, so the same chassis is 3 WAN / 8 LAN or 2 WAN / 9 LAN. Same port layout as the HD4 MBX 5G entry, different modem technology.",
+  "role": [
+    "sd-wan"
+  ]
+}

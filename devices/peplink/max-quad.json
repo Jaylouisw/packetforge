@@ -1,0 +1,61 @@
+{
+  "vendor": "peplink",
+  "model": "Max Quad",
+  "label": "Peplink Max Quad 4G LTE",
+  "category": "router",
+  "description": "Mobile router with four embedded LTE-A modems: 2x GE ports, 400 Mbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wwan4",
+      "type": "wireless",
+      "speed": "100M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/PepLINK_MaxHD4MobileRouter_Datasheet_NI.pdf",
+  "notes": "Vendor figures from the Max Quad datasheet: **2x GE ports** (modelled as one WAN and one LAN, since the sheet lists two copper ports without splitting them) and **4x embedded LTE-A modems**, Router Throughput 400 Mbps. Four radios on two copper ports is the whole point - it is a bonding appliance for vehicles, and the 400 Mbps router ceiling is what the bonded output actually tops out at.",
+  "role": [
+    "sd-wan"
+  ]
+}

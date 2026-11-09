@@ -1,0 +1,59 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 20",
+  "label": "Peplink Balance 20",
+  "category": "router",
+  "description": "Entry branch router: 2x GE WAN, 4x GE LAN.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/peplink_balance_20_datasheet.pdf",
+  "notes": "Vendor figures from the Balance 20 datasheet: **2x GE WAN ports and 4x GE LAN ports**. Six copper ports, gigabit throughout - the constraint here is the routing throughput, which the sheet states separately and which a two-WAN failover design should be checked against before it is sized for a 1 Gbps circuit.",
+  "role": [
+    "sd-wan"
+  ]
+}

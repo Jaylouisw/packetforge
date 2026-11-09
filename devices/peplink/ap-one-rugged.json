@@ -1,0 +1,47 @@
+{
+  "vendor": "peplink",
+  "model": "AP One Rugged",
+  "label": "Peplink AP One Rugged",
+  "category": "wireless",
+  "description": "Outdoor/industrial 802.11ac access point with three gigabit Ethernet ports.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/peplink_ap_one_rugged_datasheet.pdf",
+  "notes": "Vendor figures from the Peplink AP One Rugged datasheet: **3x GE ports** in a ruggedised enclosure. Same port count as the AP One Flex but rated for outdoor/industrial mounting, so the choice between them is environmental rather than electrical."
+}

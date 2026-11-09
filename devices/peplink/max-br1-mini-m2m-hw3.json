@@ -1,0 +1,47 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-MINI-M2M-HW3",
+  "label": "Peplink MAX BR1 Mini M2M (HW3)",
+  "category": "router",
+  "description": "Compact M2M router, hardware revision 3: 0/1x GE WAN, 2/1x GE LAN, 300 Mbps throughput, Wi-Fi, PoE in.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/br1-mini-m2m.pdf",
+  "notes": "Vendor figures from the BR1 Mini M2M HW3 datasheet: Ethernet WAN port **0 / 1 (GE)**, LAN port **2 / 1 (GE)** under PrimeCare, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes. **This HW3 M2M is gigabit**, unlike the older MAX BR1 Industrial M2M in this catalogue which has fast-Ethernet ports and a 100 Mbps ceiling - the same product name, a different hardware revision, and a ten-times throughput difference.",
+  "role": [
+    "sd-wan"
+  ]
+}

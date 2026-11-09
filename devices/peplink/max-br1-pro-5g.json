@@ -13,39 +13,40 @@
     "l2-forward",
     "l3-forward",
     "nat",
+    "poe-pd",
+    "wifi-ap",
     "wireless"
   ],
   "interfaces": [
     {
-      "name": "wan",
+      "name": "wan1",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "2.5G"
     },
     {
       "name": "lan1",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "lan2",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
-    },
-    {
-      "name": "wlan0",
-      "type": "wireless",
-      "speed": "100M"
-    },
-    {
-      "name": "wlan1",
-      "type": "wireless",
-      "speed": "2.5G"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "2.5G"
+      "speed": "1.2G"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
     }
   ],
-  "sourceUrl": "https://www.peplink.com/products/mobile-routers/max-br1-pro-5g/"
+  "sourceUrl": "https://www.peplink.com/products/mobile-routers/max-br1-pro-5g/",
+  "notes": "Vendor figures from the BR1 Pro 5G datasheet: Ethernet WAN port **1 / 0 (2.5G)**, LAN port **2 / 3 (GE)**, **Router Throughput 1 Gbps**, Wi-Fi AP Yes, **PoE Input Yes**. **The WAN port is 2.5G while the LAN ports are gigabit**, so a 2.5G uplink cannot be passed to a 2.5G host without crossing the 1 Gbps router ceiling anyway. (This entry previously listed a 100 Mbps and a 2.5 Gbps *wireless* interface - port speeds that had leaked into the radio rows of an earlier parse; the radios are Wi-Fi 6 and the 5G modem, and both are now recorded as such.)"
 }

@@ -1,0 +1,51 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-TST-DUO-E",
+  "label": "Peplink MAX Transit Duo (multi-LTE)",
+  "category": "router",
+  "description": "Transportation router with two LTE modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/pepwace_max_transit_datasheet.pdf",
+  "notes": "Vendor figures from the MAX Transit datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, **Router Throughput 400 Mbps**, Wi-Fi AP Yes, PoE Input No. The slash means the single WAN port can be reconfigured as a second LAN port. Two modems share a 400 Mbps router ceiling, so bonding two carriers cannot deliver their sum.",
+  "role": [
+    "sd-wan"
+  ]
+}

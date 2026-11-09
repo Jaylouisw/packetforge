@@ -1,0 +1,667 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "Balance 20",
+    "label": "Peplink Balance 20",
+    "category": "router",
+    "description": "Entry branch router: 2x GE WAN, 4x GE LAN.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_balance_20_datasheet.pdf",
+    "notes": "Vendor figures from the Balance 20 datasheet: **2x GE WAN ports and 4x GE LAN ports**. Six copper ports, gigabit throughout - the constraint here is the routing throughput, which the sheet states separately and which a two-WAN failover design should be checked against before it is sized for a 1 Gbps circuit."
+  },
+  {
+    "vendor": "peplink",
+    "model": "AP One Flex",
+    "label": "Peplink AP One Flex",
+    "category": "wireless",
+    "description": "Wall-plate style 802.11ac access point with three gigabit Ethernet ports.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/pepwave_apone_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink AP One datasheet: **3x GE Ethernet LAN ports** for the Flex. Those three ports are the reason to pick it over a plain AP - one uplink and two switched ports for a desk phone and a PC - but the radio is 802.11ac class, so the copper outruns the wireless."
+  },
+  {
+    "vendor": "peplink",
+    "model": "AP One Rugged",
+    "label": "Peplink AP One Rugged",
+    "category": "wireless",
+    "description": "Outdoor/industrial 802.11ac access point with three gigabit Ethernet ports.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_ap_one_rugged_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink AP One Rugged datasheet: **3x GE ports** in a ruggedised enclosure. Same port count as the AP One Flex but rated for outdoor/industrial mounting, so the choice between them is environmental rather than electrical."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-DUO-PRO",
+    "label": "Peplink MAX Transit Duo Pro",
+    "category": "router",
+    "description": "Transportation router with two LTE-A modems: 1x GE WAN (convertible), 1x GE LAN, 1 Gbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/transit-duo-pro.pdf",
+    "notes": "Vendor figures from the Transit Duo Pro datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, **Router Throughput 1 Gbps**, Wi-Fi AP Yes, PoE Input No. The Pro doubles the router ceiling of the standard Transit Duo (1 Gbps against 400 Mbps) on the same two-copper-port layout - the fastest member of the Transit family, and the one to pick when the bonded links are expected to actually aggregate."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-DUO-E",
+    "label": "Peplink MAX Transit Duo (multi-LTE)",
+    "category": "router",
+    "description": "Transportation router with two LTE modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/pepwace_max_transit_datasheet.pdf",
+    "notes": "Vendor figures from the MAX Transit datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, **Router Throughput 400 Mbps**, Wi-Fi AP Yes, PoE Input No. The slash means the single WAN port can be reconfigured as a second LAN port. Two modems share a 400 Mbps router ceiling, so bonding two carriers cannot deliver their sum."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-DUO-LTEA-CAT6",
+    "label": "Peplink MAX Transit Duo (LTE-A CAT-6, worldwide)",
+    "category": "router",
+    "description": "Transportation router with two LTE-A CAT-6 modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/transit-duo.pdf",
+    "notes": "Vendor figures from the Transit Duo datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. **CAT-6 here, CAT-12 on the other LTE-A Duo in this catalogue** - the same ports and the same 400 Mbps ceiling, with the difference living entirely in the modem's cellular capability, which the port list cannot show."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD4-MBX-LTEA",
+    "label": "Peplink MAX HD4 MBX (LTE-A)",
+    "category": "router",
+    "description": "Four-modem mobile router, LTE-A: 3x GE WAN (WAN3 convertible), 8x GE LAN, 2.5 Gbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/hd4.pdf",
+    "notes": "Vendor figures from the HD4 MBX datasheet: Ethernet WAN port **3 / 2 (GE)**, LAN port **8 / 9 (GE)**, **Router Throughput 2.5 Gbps**, Wi-Fi AP Yes, PoE Input No. WAN 3 can be reconfigured as a LAN port, so the same chassis is 3 WAN / 8 LAN or 2 WAN / 9 LAN. Same port layout as the HD4 MBX 5G entry, different modem technology."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-PRO-5G",
+    "label": "Peplink MAX BR1 Pro 5G",
+    "category": "router",
+    "description": "Compact 5G router: 1x 2.5G WAN (convertible), 2x GE LAN, 1 Gbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/br1-pro-5g.pdf",
+    "notes": "Vendor figures from the BR1 Pro 5G datasheet: Ethernet WAN port **1 / 0 (2.5G)**, LAN port **2 / 3 (GE)**, **Router Throughput 1 Gbps**, Wi-Fi AP Yes, **PoE Input Yes**. Note the mixed speeds: **the WAN port is 2.5G while the LAN ports are gigabit**, so a 2.5G uplink cannot be passed through to a 2.5G host without crossing the 1 Gbps router ceiling anyway."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-BR1-MINI-M2M-HW3",
+    "label": "Peplink MAX BR1 Mini M2M (HW3)",
+    "category": "router",
+    "description": "Compact M2M router, hardware revision 3: 0/1x GE WAN, 2/1x GE LAN, 300 Mbps throughput, Wi-Fi, PoE in.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/br1-mini-m2m.pdf",
+    "notes": "Vendor figures from the BR1 Mini M2M HW3 datasheet: Ethernet WAN port **0 / 1 (GE)**, LAN port **2 / 1 (GE)** under PrimeCare, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes. **This HW3 M2M is gigabit**, unlike the older MAX BR1 Industrial M2M in this catalogue which has fast-Ethernet ports and a 100 Mbps ceiling - the same product name, a different hardware revision, and a ten-times throughput difference."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD4-LTE",
+    "label": "Peplink MAX HD4 (quad LTE)",
+    "category": "router",
+    "description": "Quad-modem mobile router: 2-5x GE WAN, 5-8x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet_ru.pdf",
+    "notes": "Vendor figures from the MAX HD4 datasheet: Ethernet WAN port **2-5 (GE)**, LAN port **5-8 (GE)** - the ranges come from a WAN licence that converts LAN ports into WAN ports - Router Throughput 400 Mbps, Wi-Fi AP Yes, PoE Input No. Base 2 WAN / 5 LAN modelled. Four modems behind a 400 Mbps ceiling: this chassis is about redundancy and coverage, not aggregate speed."
+  },
+  {
+    "vendor": "peplink",
+    "model": "Max Quad",
+    "label": "Peplink Max Quad 4G LTE",
+    "category": "router",
+    "description": "Mobile router with four embedded LTE-A modems: 2x GE ports, 400 Mbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "100M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "300M"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/PepLINK_MaxHD4MobileRouter_Datasheet_NI.pdf",
+    "notes": "Vendor figures from the Max Quad datasheet: **2x GE ports** (modelled as one WAN and one LAN, since the sheet lists two copper ports without splitting them) and **4x embedded LTE-A modems**, Router Throughput 400 Mbps. Four radios on two copper ports is the whole point - it is a bonding appliance for vehicles, and the 400 Mbps router ceiling is what the bonded output actually tops out at."
+  }
+]

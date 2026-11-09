@@ -1,0 +1,91 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD4-LTE",
+  "label": "Peplink MAX HD4 (quad LTE)",
+  "category": "router",
+  "description": "Quad-modem mobile router: 2-5x GE WAN, 5-8x GE LAN, 400 Mbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan4",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet_ru.pdf",
+  "notes": "Vendor figures from the MAX HD4 datasheet: Ethernet WAN port **2-5 (GE)**, LAN port **5-8 (GE)** - the ranges come from a WAN licence that converts LAN ports into WAN ports - Router Throughput 400 Mbps, Wi-Fi AP Yes, PoE Input No. Base 2 WAN / 5 LAN modelled. Four modems behind a 400 Mbps ceiling: this chassis is about redundancy and coverage, not aggregate speed.",
+  "role": [
+    "sd-wan"
+  ]
+}

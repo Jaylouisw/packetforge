@@ -1,0 +1,51 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-TST-DUO-PRO",
+  "label": "Peplink MAX Transit Duo Pro",
+  "category": "router",
+  "description": "Transportation router with two LTE-A modems: 1x GE WAN (convertible), 1x GE LAN, 1 Gbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/transit-duo-pro.pdf",
+  "notes": "Vendor figures from the Transit Duo Pro datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, **Router Throughput 1 Gbps**, Wi-Fi AP Yes, PoE Input No. The Pro doubles the router ceiling of the standard Transit Duo (1 Gbps against 400 Mbps) on the same two-copper-port layout - the fastest member of the Transit family, and the one to pick when the bonded links are expected to actually aggregate.",
+  "role": [
+    "sd-wan"
+  ]
+}

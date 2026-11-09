@@ -1,0 +1,51 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-TST-DUO-LTEA-CAT6",
+  "label": "Peplink MAX Transit Duo (LTE-A CAT-6, worldwide)",
+  "category": "router",
+  "description": "Transportation router with two LTE-A CAT-6 modems: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/transit-duo.pdf",
+  "notes": "Vendor figures from the Transit Duo datasheet: Ethernet WAN port **1 / 0 (GE)**, LAN port **1 / 2 (GE)**, Router Throughput 400 Mbps, Wi-Fi AP Yes. **CAT-6 here, CAT-12 on the other LTE-A Duo in this catalogue** - the same ports and the same 400 Mbps ceiling, with the difference living entirely in the modem's cellular capability, which the port list cannot show.",
+  "role": [
+    "sd-wan"
+  ]
+}
