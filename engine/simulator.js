@@ -2790,7 +2790,18 @@ class Simulator {
     if (bcast) {
       for (const iface of dev.activeInterfaces()) {
         if (iface.parent) continue;               // subinterfaces are not bridged ports
-        if (iface.name !== inIface) candidates.push(iface.name);
+        if (iface.name === inIface) continue;
+        // A flood goes to ports that are up, not to every port nobody shut. An uncabled port, a port whose
+        // cable is down and a port whose far end is shut are not candidates: a real switch does not send a
+        // broadcast into a dead port, and doing so invented a discard on every such port for every flood -
+        // `show interfaces` on a lab with spare ports reported drops with reasons no operator could act on,
+        // on ports that were never part of the path (#1273).
+        //
+        // A member of a port-channel is left to the bundle: whether a member can carry is the LAG rule's
+        // decision, made in one place (`engine/lag.js`), and the timeline records what it skipped there.
+        const inBundle = dev.lagFor ? dev.lagFor(iface.name) : null;
+        if (!inBundle && dev.ifaceStatus(iface, this.topo).status !== 'up') continue;
+        candidates.push(iface.name);
       }
     } else {
       const out = table.get(frame.dstMac);
