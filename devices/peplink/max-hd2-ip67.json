@@ -1,0 +1,45 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD2-IP67",
+  "label": "Peplink MAX HD2 IP67",
+  "category": "router",
+  "description": "Outdoor IP67 dual-LTE router: 1x GE WAN, 1x GE LAN, 400 Mbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-ip67.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec PDF: **Number of Ethernet WAN port 1 (GE)**, **Number of Ethernet LAN port 1 (GE)**, **Router Throughput 400 Mbps**, SpeedFusion 100 Mbps unencrypted and 60 Mbps at 256-bit AES. **Two copper ports and two modems** - the IP67 case is the point, and the encrypted VPN figure (60 Mbps) is a sixth of the routing figure, which is what a bonded outdoor deployment actually gets.",
+  "role": [
+    "sd-wan"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "vendor": "peplink",
+  "model": "Balance 310 Fiber 5G",
+  "label": "Peplink Balance 310 Fiber 5G",
+  "category": "router",
+  "description": "Branch SD-WAN router with a fibre WAN and 5G: 1x GE WAN, 5x GE LAN, 1 Gbps routing throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-310-fiber-5g.pdf",
+  "notes": "Vendor figures, extracted from the Peplink tech-spec PDF with the text layer read directly: **Number of Ethernet WAN port 1 (GE)**, **Number of Ethernet LAN port 5 (GE)**, **Router Throughput 1 Gbps**, SpeedFusion 600 Mbps unencrypted and 500 Mbps at 256-bit AES, and the sheet's own summary row reads **'1 WAN with 5 LAN'**. The 'Fiber' in the name refers to a fibre-capable WAN path, not to an SFP cage in the port list - the sheet lists GE copper. Requests #508 and #509 are the two 5G modem SKUs (BPL-310-FBR-5GD-TPRM and -5GN-T-PRM) over this same port layout.",
+  "role": [
+    "sd-wan"
+  ]
+}

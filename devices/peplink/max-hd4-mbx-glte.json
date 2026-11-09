@@ -1,0 +1,127 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD4-MBX-GLTE",
+  "label": "Peplink MAX HD4 MBX (GLTE)",
+  "category": "router",
+  "description": "Four-modem mobile router, global LTE: 2x GE WAN, 8x GE LAN with 802.3at PoE output, 400 Mbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wwan4",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "1.2G"
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet.pdf",
+  "notes": "Vendor figures from the Peplink MAX HD4 datasheet: **2x 100/1000M Ethernet WAN** and **8x 100/1000M Ethernet LAN with 802.3at PoE Output**, four cellular modems, 802.11ac 2x2 MIMO Wi-Fi at 1166 Mbps, Router Throughput 400 Mbps. **All eight LAN ports are PoE outputs** - this chassis powers cameras and APs directly - and the 400 Mbps router ceiling sits well below what four bonded LTE links can deliver, so the box, not the cellular side, is the limit.",
+  "role": [
+    "sd-wan"
+  ]
+}

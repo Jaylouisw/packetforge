@@ -1,0 +1,670 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "Balance 310 Fiber 5G",
+    "label": "Peplink Balance 310 Fiber 5G",
+    "category": "router",
+    "description": "Branch SD-WAN router with a fibre WAN and 5G: 1x GE WAN, 5x GE LAN, 1 Gbps routing throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/balance-310-fiber-5g.pdf",
+    "notes": "Vendor figures, extracted from the Peplink tech-spec PDF with the text layer read directly: **Number of Ethernet WAN port 1 (GE)**, **Number of Ethernet LAN port 5 (GE)**, **Router Throughput 1 Gbps**, SpeedFusion 600 Mbps unencrypted and 500 Mbps at 256-bit AES, and the sheet's own summary row reads **'1 WAN with 5 LAN'**. The 'Fiber' in the name refers to a fibre-capable WAN path, not to an SFP cage in the port list - the sheet lists GE copper. Requests #508 and #509 are the two 5G modem SKUs (BPL-310-FBR-5GD-TPRM and -5GN-T-PRM) over this same port layout."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD2-IP67",
+    "label": "Peplink MAX HD2 IP67",
+    "category": "router",
+    "description": "Outdoor IP67 dual-LTE router: 1x GE WAN, 1x GE LAN, 400 Mbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-ip67.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec PDF: **Number of Ethernet WAN port 1 (GE)**, **Number of Ethernet LAN port 1 (GE)**, **Router Throughput 400 Mbps**, SpeedFusion 100 Mbps unencrypted and 60 Mbps at 256-bit AES. **Two copper ports and two modems** - the IP67 case is the point, and the encrypted VPN figure (60 Mbps) is a sixth of the routing figure, which is what a bonded outdoor deployment actually gets."
+  },
+  {
+    "vendor": "peplink",
+    "model": "PSW-48-800W",
+    "label": "Peplink PSW-48-800W",
+    "category": "switch",
+    "description": "48-port gigabit PoE+ SD switch with four SFP+ cages and an 800 W PoE budget.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_ac_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink SD switch datasheet, which prints the 24- and 48-port models side by side: **48x 802.3at (PoE+) GE Ports, 4x SFP+ Ports**, **800 W PoE+ power budget**, 100 W system power, 131 Mpps inter-VLAN routing. **The 48-port model has the smaller budget of the two** - 800 W against the 24-port's 850 W - so a PoE plan cannot assume the bigger switch powers more: 48 ports sharing 800 W is 16 W average."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-HD4-MBX-GLTE",
+    "label": "Peplink MAX HD4 MBX (GLTE)",
+    "category": "router",
+    "description": "Four-modem mobile router, global LTE: 2x GE WAN, 8x GE LAN with 802.3at PoE output, 400 Mbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3at",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "lan8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "wwan1",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan2",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan3",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wwan4",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "1.2G"
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink MAX HD4 datasheet: **2x 100/1000M Ethernet WAN** and **8x 100/1000M Ethernet LAN with 802.3at PoE Output**, four cellular modems, 802.11ac 2x2 MIMO Wi-Fi at 1166 Mbps, Router Throughput 400 Mbps. **All eight LAN ports are PoE outputs** - this chassis powers cameras and APs directly - and the 400 Mbps router ceiling sits well below what four bonded LTE links can deliver, so the box, not the cellular side, is the limit."
+  }
+]

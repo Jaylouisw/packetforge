@@ -17,3 +17,7 @@ Thumbs.db
 # someone's own hardware must not end up in the repository (see CONTRIBUTING.md).
 /data/
 .tmp-*
+
+# vendor datasheet cache (downloaded, never committed)
+research/pdf/
+research/_*.json
