@@ -1,0 +1,162 @@
+{
+  "vendor": "huawei",
+  "model": "NetEngine 8000 M1D-B",
+  "label": "NetEngine 8000 M1D-B universal service router",
+  "category": "router",
+  "description": "Huawei NetEngine 8000 M1D-B - 1U fixed-configuration service router, 368 Gbps switching, 50GE uplinks with 25GE/10GE/GE access. Modelled in its default port bandwidth mode: 2x 50GE QSFP28, 2x 25GE SFP28, 2x 10GE SFP+, 14x GE SFP and 4x GE RJ45.",
+  "capabilities": [
+    "cli",
+    "l2-forward",
+    "l3-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "50G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "50G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth19",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth20",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp"
+    },
+    {
+      "name": "eth21",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth22",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth23",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "eth24",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    }
+  ],
+  "icon": "router",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/d90f145262704e7d98541b3fe592120d/M3T1A590N1140257116414410888/NetEngine%208000%20M1D-B%20Universal%20Service%20Router%20Datasheet.pdf",
+  "notes": "Port list is the datasheet's DEFAULT service mode, eth-2x50ge-2x25ge-2x10gf-14xgf-mode, not its maxima: the same cages can be re-partitioned with \"set service-mode card-bandwidth-mode\" into eth-2x50ge-6x10gf-14xgf, eth-2x25ge-12x10gf-14xgf or eth-16x10gf-14xgf, which is how the sheet quotes \"up to 16x10GE\" and \"26 GE optical\". The four electrical GE ports are present in every mode and are modelled as RJ45. MACsec is limited to specific cages - 50GE on ports 26/27, 25GE/10GE/GE on 24/25, 10GE/GE on 22/23 - so a MACsec requirement pins the service mode as well. No PoE in any configuration: this is a carrier router with AC or -48 V DC feeds (-40 to 65 C, 125.1 W typical), not a PoE PSE. FE(o)/FE(e) are supported on the GE cages by software, so a 100M link here is a configured 1G port, not a separate interface."
+}
