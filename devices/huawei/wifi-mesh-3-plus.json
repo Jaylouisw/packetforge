@@ -1,0 +1,62 @@
+{
+  "vendor": "huawei",
+  "model": "wifi-mesh-3-plus",
+  "label": "HUAWEI WiFi Mesh 3+",
+  "category": "router",
+  "description": "HUAWEI WiFi Mesh 3+ mesh router: Wi-Fi 6 (2.4 GHz 574 Mbps + 5 GHz 2402 Mbps), 3x 1G adaptive Ethernet ports where any port can be the WAN.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "wireless",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ]
+    },
+    {
+      "name": "radio-2g",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio-5g",
+      "type": "wireless",
+      "speed": "2402M"
+    }
+  ],
+  "notes": "Vendor figures from Huawei's own spec page: **3 x 10/100/1000 Mbps adaptive rate Ethernet ports**, and the footnote matters - *\"Adaptive WAN and LAN interfaces: the home network cable can be plugged into any network port\"*. **There is no fixed WAN port**, so all three are modelled as plain 1G ports rather than one `wan` plus two `lan`. Wi-Fi 6, 2.4 GHz 574 Mbps + 5 GHz 2402 Mbps, 12 V/1 A, under 12 W, 250+ devices across a 3-pack, WPA3 and 802.11k/v/r roaming."
+}
