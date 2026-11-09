@@ -221,3 +221,53 @@ The classifier is deliberately hostile to the "skip" answer (`scripts/classify-c
   make CI lie about itself.
 
 `test/classify-change.test.js` asserts each of those, including the mixed-diff case.
+
+## Known issue: some pushes create no workflow runs at all
+
+Observed 2026-11-09, unresolved, recorded here because a log nobody can read is not a report.
+
+### What happens
+
+Pull requests opened and merged through the API, from a branch pushed over HTTPS with a
+repository token, produce **no workflow runs and no task rows**. Not "queued forever", not
+"started and failed" — nothing is created. The commit statuses on the pull request stay
+`pending` for every check, because nothing ever reports them.
+
+At the same time, pushes from another writer on the same repository, same account and same
+two-runner host dispatch normally and finish in about a minute.
+
+### What was ruled out
+
+| hypothesis | how it was tested | result |
+|---|---|---|
+| runner starvation | `actions/tasks` during the window | **ruled out** — 0 waiting, 2 running, jobs starting within seconds |
+| the concurrency group | runs from the same period on other branches | **ruled out** — they dispatch under the same group key |
+| a multi-clause `if:` guard | reverted it in #1172 | **no change** — still nothing dispatched |
+| data-only gating (`changes` job) | the probe PRs predate and postdate #1174 | **ruled out** — an empty-commit probe also produced nothing |
+| pull-request `head` format | probe opened with `jaylouisw:branch` and without | **ruled out** — identical result |
+| the workflow files themselves | identical files run fine for other branches | **ruled out** |
+| only pull requests affected | checked the merge of #1175 to `main` | **no push run either** — so it is every event from this credential |
+
+### What that leaves
+
+The event is created for other writers and not for this one, on the same repository, with the
+same workflow files and the same runners. The remaining suspects are all server-side and need
+access this project does not have from the API:
+
+1. **Token-authenticated pushes being skipped.** Some runners deliberately skip workflow runs
+   for commits pushed with the CI token to avoid recursion. If the *push* credential is the same
+   token the workflows consume, every event from it can be dropped. Try pushing with a different
+   credential (SSH key or a second token) and see whether runs appear.
+2. **A repository or user Actions setting** that suppresses runs for this actor.
+
+### How to confirm in one look
+
+Open any affected pull request in the web UI and look at the checks list. Then open
+*Actions → Runs*:
+
+- **no run row at all** → the event never created a run: settings or credential, not the workflow;
+- **a run row stuck at "waiting"** → the scheduler never handed it to a runner: runner labels.
+
+Run logs on this instance are behind a session login, so anyone debugging from an API token
+cannot read them. That is why this section exists: the failure had to be documented somewhere a
+person could find it.

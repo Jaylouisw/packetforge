@@ -41,7 +41,8 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 - Keep the project **zero-dependency** — do not add npm packages without a strong
   reason and a discussion in the issue first.
 - All checks must pass before merge (CI runs them automatically — what each one
-  does, and what a red one means, is in [docs/CI.md](docs/CI.md)).
+  does, and what a red one means, is in [docs/CI.md](docs/CI.md)
+- [docs/MAINTAINING.md](docs/MAINTAINING.md) - how a vendor gets from request to reviewed spec, and which source to trust).
 
 ## Development setup
 
