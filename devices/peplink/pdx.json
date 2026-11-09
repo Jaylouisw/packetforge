@@ -1,0 +1,77 @@
+{
+  "vendor": "peplink",
+  "model": "PDX",
+  "label": "Peplink PDX",
+  "category": "router",
+  "description": "Portable rapid-deployment SD-WAN router: 2x GE WAN, 7x GE LAN, 2.5 Gbps throughput.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/pdx.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 (GE)**, Number of Ethernet LAN port **7 (GE)**, Router Throughput **2.5 Gbps**. Seven LAN ports on a 'portable' box is unusual and is the point - it is a deploy-and-distribute unit, and a lab that treats it as a two-port branch router will under-wire the LAN side.",
+  "role": [
+    "sd-wan"
+  ]
+}

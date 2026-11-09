@@ -1,0 +1,46 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-TST-LTEA-CAT6",
+  "label": "Peplink MAX Transit (LTE-A, CAT-6, worldwide)",
+  "category": "router",
+  "description": "Transportation router with one LTE-A CAT-6 modem: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput, Wi-Fi.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "50M"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/transit.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 / 0 (GE), Number of Ethernet LAN port 1 / 2 (GE), Router Throughput 400 Mbps, Wi-Fi AP Yes. **CAT-6 and CAT-12 Transits share this sheet and this 400 Mbps ceiling** - the modem category changes the cellular rate available from the carrier, not what the chassis forwards, so the port and throughput rows cannot tell the two apart.",
+  "role": [
+    "sd-wan"
+  ]
+}

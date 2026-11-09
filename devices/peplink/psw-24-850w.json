@@ -1,0 +1,230 @@
+{
+  "vendor": "peplink",
+  "model": "PSW-24-850W",
+  "label": "Peplink PSW-24-850W",
+  "category": "switch",
+  "description": "24-port gigabit PoE+ SD switch with two SFP+ cages and an 850 W PoE budget.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
+  "notes": "Vendor figures from the Peplink SD switch datasheet: 'PoE enabled (delivers up to 850W) Gigabit **(24 ports) and SFP+ (2 ports)**'. Two things to hold on to: the PoE budget is **850 W for 24 ports**, so powering 24 PoE+ devices at 30 W each (720 W) leaves almost nothing spare and a 60 W device per port is impossible; and these are **SFP+ (10G) cages**, unlike the 1G SFP on the rugged PSW-8 in this catalogue."
+}

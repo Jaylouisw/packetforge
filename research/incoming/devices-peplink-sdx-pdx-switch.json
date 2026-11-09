@@ -1,0 +1,385 @@
+[
+  {
+    "vendor": "peplink",
+    "model": "PSW-24-850W",
+    "label": "Peplink PSW-24-850W",
+    "category": "switch",
+    "description": "24-port gigabit PoE+ SD switch with two SFP+ cages and an 850 W PoE budget.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "ge24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
+    "notes": "Vendor figures from the Peplink SD switch datasheet: 'PoE enabled (delivers up to 850W) Gigabit **(24 ports) and SFP+ (2 ports)**'. Two things to hold on to: the PoE budget is **850 W for 24 ports**, so powering 24 PoE+ devices at 30 W each (720 W) leaves almost nothing spare and a 60 W device per port is impossible; and these are **SFP+ (10G) cages**, unlike the 1G SFP on the rugged PSW-8 in this catalogue."
+  },
+  {
+    "vendor": "peplink",
+    "model": "PDX",
+    "label": "Peplink PDX",
+    "category": "router",
+    "description": "Portable rapid-deployment SD-WAN router: 2x GE WAN, 7x GE LAN, 2.5 Gbps throughput.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/pdx.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 (GE)**, Number of Ethernet LAN port **7 (GE)**, Router Throughput **2.5 Gbps**. Seven LAN ports on a 'portable' box is unusual and is the point - it is a deploy-and-distribute unit, and a lab that treats it as a two-port branch router will under-wire the LAN side."
+  },
+  {
+    "vendor": "peplink",
+    "model": "MAX-TST-LTEA-CAT6",
+    "label": "Peplink MAX Transit (LTE-A, CAT-6, worldwide)",
+    "category": "router",
+    "description": "Transportation router with one LTE-A CAT-6 modem: 1x GE WAN (convertible), 1x GE LAN, 400 Mbps throughput, Wi-Fi.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server",
+      "wireless",
+      "wifi-ap"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wwan0",
+        "type": "wireless",
+        "speed": "50M"
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/transit.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 / 0 (GE), Number of Ethernet LAN port 1 / 2 (GE), Router Throughput 400 Mbps, Wi-Fi AP Yes. **CAT-6 and CAT-12 Transits share this sheet and this 400 Mbps ceiling** - the modem category changes the cellular rate available from the carrier, not what the chassis forwards, so the port and throughput rows cannot tell the two apart."
+  },
+  {
+    "vendor": "peplink",
+    "model": "SDX Pro",
+    "label": "Peplink SDX Pro",
+    "category": "router",
+    "description": "Modular enterprise SD-WAN router: 2 integrated GE WAN/LAN ports expanding to 18 with modules, 24 Gbps throughput. M2 / 1TB / 2TB storage SKUs.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "firewall",
+      "dhcp-server",
+      "dhcp-client",
+      "sd-wan",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "wan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "wan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/sdx-pro.pdf",
+    "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2-18 (GE)**, Number of Ethernet LAN port **0-18 (GE)**, Router Throughput **24 Gbps**. The ranges are modular capacity, not licence unlocks: **2 integrated GE WAN/LAN ports, plus up to 16 more via expansion modules**, so the port count is a build decision rather than a fixed property of the model. Only the two integrated ports are modelled here. The three requests this covers (#455, #456, #457) are the **M2, 1 TB and 2 TB storage SKUs** - identical ports and throughput, different onboard storage, which no interface list records."
+  }
+]

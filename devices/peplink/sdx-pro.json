@@ -1,0 +1,35 @@
+{
+  "vendor": "peplink",
+  "model": "SDX Pro",
+  "label": "Peplink SDX Pro",
+  "category": "router",
+  "description": "Modular enterprise SD-WAN router: 2 integrated GE WAN/LAN ports expanding to 18 with modules, 24 Gbps throughput. M2 / 1TB / 2TB storage SKUs.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/sdx-pro.pdf",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2-18 (GE)**, Number of Ethernet LAN port **0-18 (GE)**, Router Throughput **24 Gbps**. The ranges are modular capacity, not licence unlocks: **2 integrated GE WAN/LAN ports, plus up to 16 more via expansion modules**, so the port count is a build decision rather than a fixed property of the model. Only the two integrated ports are modelled here. The three requests this covers (#455, #456, #457) are the **M2, 1 TB and 2 TB storage SKUs** - identical ports and throughput, different onboard storage, which no interface list records.",
+  "role": [
+    "sd-wan"
+  ]
+}
