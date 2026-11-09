@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Pro-Outdoor",
+  "label": "Ubiquiti UniFi U7 Pro Outdoor",
+  "category": "wireless",
+  "description": "Outdoor Wi-Fi 7 access point with one 1/2.5 GbE port, pole or wall mount.",
+  "capabilities": [
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "poeIn": 12.95
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "2.9G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro-outdoor-us",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 1/2.5 GbE RJ45 port**, wind loading 74.6 N at 200 km/h, pole mount 25-63.5 mm, UV-stabilised polycarbonate and aluminium. The **2.5G port is required** to make Wi-Fi 7 worthwhile - the same AP behind a gigabit port tops out at 1 Gbps of real traffic. Radio rates are modelled at Wi-Fi 7 class (688M on 2.4 GHz, 2.9G on 6 GHz) because the per-band rows were not in the extracted section."
+}

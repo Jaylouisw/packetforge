@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UFiber-Loco",
+  "label": "Ubiquiti UFiber Loco",
+  "category": "ont",
+  "description": "GPON ONT: one SC/APC GPON WAN port and one gigabit RJ45 LAN port, powered by micro-USB or 24V passive PoE.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "gpon0",
+      "type": "ethernet",
+      "connector": "sc-apc",
+      "speed": "2.5G"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeIn": 24
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/ufiber-loco",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(1) SC/APC ITU-G.984 GPON WAN port and (1) GbE RJ45 LAN port**, power method **micro-USB 5V 1A or 24V passive PoE (pins 4,5+ / 7,8-)**, micro-USB adapter included **only in the single-pack**. Two practical notes: the PoE-in is **passive 24V**, so an 802.3af switch port will not power it, and the multi-pack SKUs ship **without** the USB adapter."
+}

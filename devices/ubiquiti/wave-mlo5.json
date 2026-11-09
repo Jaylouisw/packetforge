@@ -1,0 +1,40 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-MLO5",
+  "label": "Ubiquiti Wave MLO5",
+  "category": "ptp",
+  "description": "60 GHz Wave AP with one 10G RJ45 port and one 10G SFP+ port, passive PoE.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "poe-pd",
+    "passive-poe",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "poeIn": 54
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "5.8G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/wave-mlo5",
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 10 GbE RJ45 port and (1) 10G SFP+ port**, power method **passive PoE 4-pair or 2-pair, 44-54V DC (2-pair only above 44V)**, 54V 0.56A 10 GbE PoE adapter included, max power consumption 20 W. **Ten-gigabit on both ports** is unusual at this size and means the radio, not the copper, is the bottleneck; the 2-pair PoE mode requires at least 44V, so a 24V passive injector will not bring it up."
+}

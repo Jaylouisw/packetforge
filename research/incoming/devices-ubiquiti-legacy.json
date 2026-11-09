@@ -1,0 +1,674 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "US-8",
+    "label": "Ubiquiti UniFi Switch 8 (Gen1)",
+    "category": "switch",
+    "description": "Eight-port gigabit Layer 2 switch, no PoE, compact desktop enclosure.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **8x 1 GbE RJ45 (1G/100M/10M)**, switching capacity 16 Gbps, non-blocking throughput 8 Gbps, forwarding rate 12 Mpps. **This is the plain US-8 - it has no PoE at all**; the US-8-60W in this catalogue has the same eight ports with four of them PoE. Same shape, same name stem, one letter different."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "US-8-60W",
+    "label": "Ubiquiti UniFi Switch 8 (60W)",
+    "category": "switch",
+    "description": "Eight-port gigabit Layer 2 switch with PoE on ports 5-8 and a 48 W total PoE budget.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "poe-pse",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-60w",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **8x 1 GbE RJ45, 4 with PoE**, **Max PoE output up to PoE (802.3af)**, **Total PoE availability 48 W**, switching capacity 16 Gbps. **Only four of the eight ports carry power, and the whole switch shares 48 W** - that is roughly two 802.3at-class loads or four 802.3af ones, so a PoE plan built on 'eight PoE ports' will overdraw it."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "USW-Flex-Mini",
+    "label": "Ubiquiti USW Flex Mini",
+    "category": "switch",
+    "description": "Five-port gigabit managed Layer 2 switch, powered by USB-C, no PoE output.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex-mini",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **5x 1 GbE RJ45 (1G/100M/10M)**, switching capacity 10 Gbps, non-blocking throughput 5 Gbps, 1,000 VLANs. Managed, but **no PoE in either direction** - it is USB-C powered - so it cannot be the powered device on a PoE run, which is a common assumption for a five-port switch this size."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "USW-Aggregation",
+    "label": "Ubiquiti USW Aggregation",
+    "category": "switch",
+    "description": "Eight-port 10G SFP+ aggregation switch, rack mount 1U.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-aggregation",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **8x 10G SFP+ (10G/1G)**, switching capacity 160 Gbps, non-blocking throughput 80 Gbps, forwarding rate 119 Mpps. **All eight cages are SFP+ with no copper RJ45 ports at all** - there is no way to plug a copper link into this switch without a transceiver, and the 10G/1G note means a 1G optic works but a 2.5G or 5G SFP does not."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "USW-Mission-Critical",
+    "label": "Ubiquiti USW Mission Critical",
+    "category": "switch",
+    "description": "Nine-port gigabit Layer 3 switch with battery backup: four PoE+ ports, four PoE++ ports, 120 W PoE budget.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "l3-forward",
+      "poe-pse",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE+"
+      },
+      {
+        "name": "eth6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      },
+      {
+        "name": "eth7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      },
+      {
+        "name": "eth8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      },
+      {
+        "name": "eth9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-mission-critical",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Port Layout **9x 1 GbE RJ45 (4 PoE+, 4 PoE++)**, **Total PoE availability 120 W**, **Redundancy: battery power backup**, Layer 3 supported, 18 Gbps switching capacity. Nine ports total means **eight powered and one unpowered**, and 120 W across four PoE++ ports is 30 W each at best - so a PoE++ device that wants more than that cannot be powered on this switch even before the PoE+ ports take their share."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UAP-AC-LR",
+    "label": "Ubiquiti UniFi AC Long Range",
+    "category": "wireless",
+    "description": "Indoor 802.11ac access point with one gigabit port, long-range antenna design.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3af",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "450M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "867M"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/unifi-ac-lr",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) GbE RJ45 port**, channel bandwidth HT 20/40 and VHT 20/40/80 MHz. **A single gigabit port is the ceiling for the whole AP**: the two radios together exceed 1 Gbps of PHY rate, so any client load that maxes both bands is bounded by the copper, not the radio."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "U7-Pro-Outdoor",
+    "label": "Ubiquiti UniFi U7 Pro Outdoor",
+    "category": "wireless",
+    "description": "Outdoor Wi-Fi 7 access point with one 1/2.5 GbE port, pole or wall mount.",
+    "capabilities": [
+      "wireless",
+      "wifi-ap",
+      "poe-pd",
+      "802.3at",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "wlan0",
+        "type": "wireless",
+        "speed": "688M"
+      },
+      {
+        "name": "wlan1",
+        "type": "wireless",
+        "speed": "2.9G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro-outdoor-us",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 1/2.5 GbE RJ45 port**, wind loading 74.6 N at 200 km/h, pole mount 25-63.5 mm, UV-stabilised polycarbonate and aluminium. The **2.5G port is required** to make Wi-Fi 7 worthwhile - the same AP behind a gigabit port tops out at 1 Gbps of real traffic. Radio rates are modelled at Wi-Fi 7 class (688M on 2.4 GHz, 2.9G on 6 GHz) because the per-band rows were not in the extracted section."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "N-SW",
+    "label": "Ubiquiti NanoSwitch",
+    "category": "switch",
+    "description": "Outdoor four-port gigabit switch: one PoE-in port and three PoE passthrough ports, passive 24V.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pd",
+      "poe-pse",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "eth1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 24.0
+      },
+      {
+        "name": "eth2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      },
+      {
+        "name": "eth4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": true,
+        "poeOutClass": "passive"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/n-sw",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(4) GbE RJ45 ports [(1) PoE-in, (3) PoE passthrough]**, total non-blocking line rate 4 Gbps, **Power method passive 24V 2-pair PoE-in**, supported voltage 21.6-30V, max power consumption **30 W**, POE-24-30W-G adapter **not included**. It is unmanaged: three ports repeat whatever PoE comes in, so the 30 W input is the budget for all three downstream devices combined."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UFiber-Loco",
+    "label": "Ubiquiti UFiber Loco",
+    "category": "ont",
+    "description": "GPON ONT: one SC/APC GPON WAN port and one gigabit RJ45 LAN port, powered by micro-USB or 24V passive PoE.",
+    "capabilities": [
+      "l3-forward",
+      "nat",
+      "cli",
+      "http-server",
+      "poe-pd",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "gpon0",
+        "type": "ethernet",
+        "connector": "sc-apc",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 24.0
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/fiber/ufiber-loco",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(1) SC/APC ITU-G.984 GPON WAN port and (1) GbE RJ45 LAN port**, power method **micro-USB 5V 1A or 24V passive PoE (pins 4,5+ / 7,8-)**, micro-USB adapter included **only in the single-pack**. Two practical notes: the PoE-in is **passive 24V**, so an 802.3af switch port will not power it, and the multi-pack SKUs ship **without** the USB adapter."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "Wave-MLO5",
+    "label": "Ubiquiti Wave MLO5",
+    "category": "ptp",
+    "description": "60 GHz Wave AP with one 10G RJ45 port and one 10G SFP+ port, passive PoE.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "poe-pd",
+      "passive-poe",
+      "cli"
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "poeIn": 54.0
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "radio0",
+        "type": "wireless",
+        "speed": "5.8G"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wireless/wave-mlo5",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 10 GbE RJ45 port and (1) 10G SFP+ port**, power method **passive PoE 4-pair or 2-pair, 44-54V DC (2-pair only above 44V)**, 54V 0.56A 10 GbE PoE adapter included, max power consumption 20 W. **Ten-gigabit on both ports** is unusual at this size and means the radio, not the copper, is the bottleneck; the 2-pair PoE mode requires at least 44V, so a 24V passive injector will not bring it up."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UISP-S-Plus",
+    "label": "Ubiquiti UISP Switch Plus",
+    "category": "switch",
+    "description": "Eight-port Layer 2 switch: four 1/2.5GbE RJ45 LAN ports and four 1/10G SFP+ cages, 50 Gbps non-blocking.",
+    "capabilities": [
+      "l2-forward",
+      "poe-pse",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "lan4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G"
+      },
+      {
+        "name": "SFP+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "SFP+4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-s-plus",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(4) 1/2.5 GbE RJ45 LAN ports and (4) 1/10G SFP+ ports**, total non-blocking throughput **50 Gbps**, switching capacity 100 Gbps, forwarding rate 74.4 Mpps, powered by an external AC/DC adapter or 27V DC Power TransPort input. **Half the ports are 2.5G copper and half are 10G fibre** - a plan that treats all eight as interchangeable will mis-place a 10G link on a 2.5G port."
+  },
+  {
+    "vendor": "ubiquiti",
+    "model": "UACC-LR-Endpoint",
+    "label": "Ubiquiti UACC Long-Range Endpoint",
+    "category": "powerline",
+    "description": "Long-range PoE endpoint for the LR Switch: two 100M ports, PoE+++ input with passthrough up to PoE++.",
+    "capabilities": [
+      "poe-pd",
+      "poe-pse",
+      "passive-poe"
+    ],
+    "interfaces": [
+      {
+        "name": "in0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M"
+      },
+      {
+        "name": "out0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "100M",
+        "poeOut": true,
+        "poeOutClass": "PoE++"
+      }
+    ],
+    "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uacc-lr-endpoint",
+    "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(2) 100M/10M ports**, power method **PoE+++**, max PoE output **passthrough up to PoE++**, max power consumption 2 W, supported voltage 52-57V, surge protection 3kA/6kV. **Both data ports are 100M** - this is an extender for long PoE runs, not a data-path switch, and putting it in front of a gigabit camera halves that camera's link."
+  }
+]
