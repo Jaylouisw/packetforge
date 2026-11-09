@@ -1,0 +1,48 @@
+[
+  {
+    "kind": "duplicate-device-audit",
+    "date": "2026-11-09",
+    "method": "Normalised every devices/**/*.json model string (lowercase, strip the RackStation/DiskStation/NAS words and all non-alphanumerics) and grouped by vendor, then grouped by normalised model alone to find cross-brand twins. Ran against devices/catalogue-batch at 2,037 models / 251 vendors.",
+    "fixed": [
+      {
+        "finding": "synology/rackstation-rs1221.json and synology/rs1221.json are the same product",
+        "evidence": "Both declare vendor synology, category nas, 4x 1GbE RJ45, 2U 8-bay. Model strings 'RackStation RS1221+' vs 'RS1221+' differ only by Synology's marketing prefix; interface names differed only as lan1-4 vs eth0-3.",
+        "action": "Deleted rackstation-rs1221.json, kept rs1221.json (which carried the substantive note about the PCIe 3.0 x8/x4 slot for the 10/25GbE path), merged the fuller label 'Synology RackStation RS1221+ 2U 8-bay NAS', and recorded in notes that the duplicate was removed.",
+        "counts": "2,037 -> 2,036 models before the Dahua addition in the same commit; vendors unchanged."
+      }
+    ],
+    "open": [
+      {
+        "finding": "athom/Homey Pro (2023) and homey/Homey Pro (2023)",
+        "evidence": "Athom is the company that makes Homey; both files describe the same 2023 hub.",
+        "why_not_fixed": "Which vendor name is canonical is a judgement call, and deleting one changes the vendor count (251 -> 250) which doc-catalog-counts asserts. Needs an owner decision: keep 'homey' as the consumer-facing brand and treat 'athom' as an alias, or vice versa."
+      },
+      {
+        "finding": "philips/Hue Bridge and philips-hue/Hue Bridge",
+        "evidence": "Identical product; the vendor string differs only by hyphenation.",
+        "why_not_fixed": "Same vendor-identity decision as above. 'philips-hue' matches Signify's own product branding more closely, but 'philips' may be what existing topologies reference."
+      },
+      {
+        "finding": "ixsystems/TrueNAS Mini X+ and truenas/Mini X+",
+        "evidence": "Same hardware; iXsystems makes TrueNAS. Not caught by the vendor grouping (model strings differ) and only surfaced by the cross-brand pass.",
+        "why_not_fixed": "Same decision, plus this one spans a brand rename over time, so both names may legitimately appear in saved topologies. Suggest an explicit alias mechanism rather than deletion."
+      }
+    ],
+    "recommendation": "The catalogue needs either an alias/deprecated field (preferred: nothing breaks, topologies keep resolving) or a documented rule that one product has exactly one entry. Deleting duplicates is only safe today because nothing under test/ or docs/ references the removed path - that will not stay true once users have saved topologies."
+  },
+  {
+    "kind": "device-addition",
+    "vendor": "dahua",
+    "model": "NVR5232-16P-4KS2E",
+    "category": "nvr",
+    "label": "NVR5232-16P-4KS2E 32-channel NVR with 16-port PoE",
+    "description": "32-channel sibling of the NVR5216-16P-4KS2E already catalogued; identical 1U 16PoE chassis and ports.",
+    "sourceUrl": "https://www.dahuasecurity.com/asset/upload/product/20180201/DHI-NVR5216_5232-16P-4KS2E_Datasheet_20180201.pdf",
+    "notes": "One Dahua sheet covers both SKUs: Ordering Information gives DHI-NVR5216-16P-4KS2E as 16 channel and DHI-NVR5232-16P-4KS2E as 32 channel, both '1U 16PoE 4K&H.265 Pro Network Video Recorder'. Network: 1 x RJ-45 10/100/1000 Mbps; PoE 16 ports 802.3af/at, ports 1-8 ePoE & EoC; 2 x SATA III to 10 TB; 1 rear USB 3.0 + 1 front USB 2.0; RS232. Channel count is a recording fact, not a cabling one, so the interfaces are deliberately identical to the 5216 and only label/description differ."
+  },
+  {
+    "kind": "dead-end",
+    "target": "printers (26 models, 10 vendors)",
+    "notes": "Tried to add HP Color LaserJet Pro MFP 4301fdw and Brother MFC-L8390CDW. The HP shop URL resolves to a generic storefront marketing page with no port table, and brother.co.uk returns HTTP 403 to the extractor. Both dropped rather than guessed - printer port counts (1x GbE + USB vs 100M-only) are exactly the detail that must come from the vendor. Needs the HP QuickSpecs PDF or a Brother datasheet PDF."
+  }
+]

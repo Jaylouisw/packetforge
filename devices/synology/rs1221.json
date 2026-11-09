@@ -1,7 +1,7 @@
 {
   "vendor": "synology",
   "model": "RS1221+",
-  "label": "RackStation RS1221+ 2U 8-bay NAS",
+  "label": "Synology RackStation RS1221+ 2U 8-bay NAS",
   "category": "nas",
   "description": "2U 8-bay rackmount NAS with four 1GbE RJ45 ports and one PCIe 3.0 x8 (x4 link) slot. That slot takes 10GbE or 25GbE network cards, which are add-in and not part of the onboard count.",
   "capabilities": [
@@ -33,5 +33,5 @@
     }
   ],
   "sourceUrl": "https://global.download.synology.com/download/Document/Hardware/ProductSpec/RackStation/21-year/RS1221+/enu/Product_Spec_RS1221+_enu.pdf",
-  "notes": "Onboard: 4x 1GbE RJ45. The 10/25GbE path is a PCIe 3.0 x8 (x4 electrical) slot - E10G18-T1, E10G30-T2/F2 or a 25GbE card - so those ports are add-in, not onboard. Rear console port is serial, not Ethernet. No BMC."
+  "notes": "Onboard: 4x 1GbE RJ45. The 10/25GbE path is a PCIe 3.0 x8 (x4 electrical) slot - E10G18-T1, E10G30-T2/F2 or a 25GbE card - so those ports are add-in, not onboard. Rear console port is serial, not Ethernet. No BMC. Catalogue note: this file and the former devices/synology/rackstation-rs1221.json described the same product twice - same vendor, same 4x 1GbE RJ45 onboard layout, model string differing only by the RackStation marketing prefix. The duplicate was removed and its descriptive label merged here, so saved topologies that referenced the RS1221+ by model keep resolving to one entry."
 }
