@@ -478,5 +478,51 @@ console.log('\nPunctuation cannot smuggle a duplicate into the catalogue:');
 }
 
 
+console.log('A product is described once, whatever its file is called:');
+{
+  // The NanoStation M3 landed as nbm3.json beside an nsm3.json that already existed, because a
+  // stale research record and the device request disagreed about the model string while both
+  // named the same box. Two files, one product: nothing in the catalogue could tell a reader
+  // which one to cable, and the importer kept recreating the twin on every run.
+  //
+  // The label is the product's name; the model is only its identity. So a repeated label means
+  // one product under a second slug. The exceptions are products a vendor genuinely lists under
+  // two model numbers, tracked in test/known-issues.json (which can only shrink) along with the
+  // labels that are outright wrong - a shared label is the symptom, the wrong name is the bug.
+  let knownLabels = {};
+  try { knownLabels = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, 'known-issues.json'), 'utf8')); } catch (e) { knownLabels = {}; }
+  const waived = (knownLabels.duplicateLabels || []).map(function (s) { return String(s).toLowerCase(); });
+  const groups = new Map();
+  for (const s of catalog) {
+    const label = String(s.label || '').trim().toLowerCase();
+    if (!label) continue;
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(s);
+  }
+  const offenders = [];
+  const examples = [];
+  for (const pair of groups) {
+    const list = pair[1];
+    if (list.length < 2) continue;
+    const sorted = list.slice().sort(function (a, b) {
+      return (a.vendor + '/' + a.model).localeCompare(b.vendor + '/' + b.model);
+    });
+    for (const extra of sorted.slice(1)) {
+      offenders.push(String(extra.vendor + '/' + extra.model).toLowerCase());
+      examples.push(extra.vendor + '/' + extra.model + ' <= "' + pair[0] + '"');
+    }
+  }
+  const fresh = offenders.filter(function (n) { return waived.indexOf(n) === -1; });
+  const stale = waived.filter(function (n) { return offenders.indexOf(n) === -1; });
+  ok(fresh.length === 0, 'no NEW device repeats a product name the catalogue already uses' +
+    (fresh.length ? ' (' + fresh.slice(0, 3).join(', ') + ')' : ''));
+  ok(stale.length === 0, 'the duplicate-name list has no stale entries' +
+    (stale.length ? ' (fixed already, remove from test/known-issues.json: ' + stale.join(', ') + ')' : ''));
+  if (offenders.length) {
+    console.log('    ' + offenders.length + ' repeated name(s) tracked: ' + examples.join('; '));
+  }
+}
+
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

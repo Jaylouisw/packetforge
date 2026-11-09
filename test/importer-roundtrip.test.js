@@ -138,5 +138,44 @@ console.log('\nA thin spec on disk can be repaired, and a rich one is left alone
 }
 
 fs.rmSync(scratch, { recursive: true, force: true });
+console.log('A second file for a product already in the catalogue is refused:');
+{
+  // The NanoStation M3 arrived as nbm3.json while nsm3.json already held the same box, and
+  // every later import re-created the twin because the model strings never collided. The label
+  // is the product name, so the importer refuses a repeated one and names the file to fix.
+  const twin = JSON.parse(JSON.stringify(rich));
+  twin.model = 'RICH-24P-TWIN';
+  // An earlier block cleans up both scratch trees, so put a catalogue back before testing
+  // what happens to a second file for a product that is already in it.
+  fs.mkdirSync(incoming, { recursive: true });
+  fs.mkdirSync(path.join(devices, 'probe'), { recursive: true });
+  fs.writeFileSync(path.join(devices, 'probe', 'rich-24p.json'), JSON.stringify(rich, null, 2));
+  fs.writeFileSync(path.join(incoming, 'devices-probe-twin.json'), JSON.stringify([twin], null, 2));
+
+  // A refusal exits non-zero, so the report has to be read from the thrown error.
+  let out = '';
+  try {
+    out = execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'import-devices.js'), '--apply'], {
+      env: Object.assign({}, process.env, { PF_INCOMING: incoming, PF_DEVICES: devices }),
+      encoding: 'utf8'
+    });
+  } catch (e) {
+    out = String((e && e.stdout) || '') + String((e && e.stderr) || '');
+  }
+  ok(/duplicate product|already in the catalogue/.test(out),
+    'a second file for a product the catalogue already has is refused');
+  ok(out.indexOf('rich-24p.json') !== -1, 'and names the file that already holds it');
+
+  const files = [];
+  (function walk(d) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const f = path.join(d, e.name);
+      if (e.isDirectory()) walk(f); else if (/\.json$/i.test(e.name)) files.push(f);
+    }
+  })(devices);
+  ok(files.length === 1, 'the catalogue still holds exactly one file (' + files.length + ')');
+}
+
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
