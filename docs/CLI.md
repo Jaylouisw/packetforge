@@ -296,6 +296,22 @@ interface Gi0/0
   no vrrp <vrid>                      # remove the group
 ```
 
+The virtual address has to be **in the interface's own subnet** — a gateway address is only a gateway for
+hosts on its wire. Anything else is refused and no group is created:
+
+```
+R1(config-if)#vrrp 42 ip 10.0.0.254
+% 10.0.0.254 is not in the subnet of Gi0 (10.9.9.1/24)
+R1(config-if)#vrrp 42 ip 10.9.9.254
+VRRP group 42 on Gi0 owns 10.9.9.254
+```
+
+An interface with no address cannot host a group at all, and says so. The election enforces the same rule
+independently, so a topology restored from a file written before this check does not get a master for a
+group it cannot serve: `show vrrp` reports that group as `Init` and prints the reason. A virtual address is
+per-segment by nature — the same VRID and the same address on two unbridged segments elects one master per
+segment, and each answers only on its own wire.
+
 `show vrrp` reports the state after the last election:
 
 ```
