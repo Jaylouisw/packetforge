@@ -377,6 +377,20 @@ function nextFlowId(state) {
   return 'flow-' + s.seq;
 }
 
+// The shape of a port tally with nothing counted yet. One function so the counter, the reader and the
+// drop path cannot disagree about which fields exist (#1257).
+function emptyPort() {
+  return {
+    packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
+    transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0,
+    drops: { total: 0, byReason: {} }
+  };
+}
+
+function emptyDrops() {
+  return { total: 0, byReason: {}, unported: 0 };
+}
+
 function counterFor(state, devId) {
   const s = state || null;
   if (!s) return null;
@@ -384,6 +398,7 @@ function counterFor(state, devId) {
     s.counters[devId] = {
       bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
       flowsOpened: 0, flowsRefused: 0,
+      drops: emptyDrops(),
       ports: {}
     };
   }
@@ -416,10 +431,7 @@ function countPacket(state, devId, dir, bytes, port, kind) {
   if (port) {
     const key = String(port);
     if (!c.ports) c.ports = {};
-    const p = c.ports[key] || (c.ports[key] = {
-      packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
-      transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
-    });
+    const p = c.ports[key] || (c.ports[key] = emptyPort());
     if (dir === 'out') {
       p.packetsOut += 1; p.bytesOut += n;
       if (transport) { p.transportPacketsOut += 1; p.transportBytesOut += n; }
@@ -466,10 +478,44 @@ function portCounters(state, devId, port) {
       transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
     };
   }
-  return c.ports[String(port)] || {
-    packetsIn: 0, bytesIn: 0, packetsOut: 0, bytesOut: 0,
-    transportPacketsIn: 0, transportBytesIn: 0, transportPacketsOut: 0, transportBytesOut: 0
-  };
+  return c.ports[String(port)] || emptyPort();
+}
+
+// What a device threw away, and why.
+//
+// `show interfaces` reported what crossed a port but nothing about what was discarded there, so two
+// datagrams dropped for want of a route read the same as a port nothing ever touched: "0 packets input"
+// beside a ping that failed twice. The reasons were already computed at every drop site and thrown away
+// with the event log. Counted at the one place every drop passes through, so a new drop site cannot
+// forget to tally itself.
+function countDrop(state, devId, port, reason) {
+  const c = counterFor(state, devId);
+  if (!c) return null;
+  if (!c.drops) c.drops = emptyDrops();
+  const why = reason ? String(reason) : 'unspecified';
+  c.drops.total += 1;
+  c.drops.byReason[why] = (c.drops.byReason[why] || 0) + 1;
+  // Some drops never had a port in scope - "no route to 10.77.77.77" happens before an egress is chosen -
+  // and counting those against a port would invent one.
+  if (port) {
+    const key = String(port);
+    const p = c.ports[key] || (c.ports[key] = emptyPort());
+    if (!p.drops) p.drops = { total: 0, byReason: {} };
+    p.drops.total += 1;
+    p.drops.byReason[why] = (p.drops.byReason[why] || 0) + 1;
+  } else {
+    c.drops.unported += 1;
+  }
+  return c.drops;
+}
+
+// The device's whole drop tally, including the drops that named no port.
+function dropsFor(state, devId) {
+  const s = state || null;
+  if (!s || !s.counters) return null;
+  const c = s.counters[devId];
+  if (!c || !c.drops) return emptyDrops();
+  return c.drops;
 }
 
 function listFlows(state) {
@@ -523,6 +569,9 @@ module.exports = {
   resetFlowState,
   nextFlowId,
   counterFor,
+  countDrop,
+  dropsFor,
+  emptyPort,
   countPacket,
   frameBytes,
   portCounters,

@@ -247,6 +247,30 @@ With **no simulation run** behind the device, the block says `counters: not meas
 rather than printing zeros. "Nothing has looked" and "nothing crossed" are different answers, and a table
 that conflates them is a table you cannot trust when a link is quiet.
 
+#### What the port threw away
+
+A fourth kind of line appears when the port discarded something, and only then:
+
+```
+  4 packets input, 200 bytes
+  2 packets output, 124 bytes
+  2 drops (ACL 101 denied (in) x2)
+```
+
+The reason is the engine's own, so it names the thing you have to edit — the ACL and its direction, the VLAN
+that had no path, the address nobody answered for. Counted in one place, where every discard passes:
+`drop`, `acl-deny`, `vlan-drop`, `nat-drop`, and any event marked `discard: true`. An `acl-deny` emitted no
+`drop` event at all before this, so a denied ping left the port looking completely idle.
+
+Drops that never had a port in scope — `no route to 10.0.0.99` happens before an egress is chosen — are
+reported once at the end of the table as `device-wide N drops (…)`, rather than being invented onto
+whichever port was printed first. A frame waiting on an ARP reply that never came is reported the same way
+it is counted: `no ARP reply from 10.0.0.9`, on the port that asked, and the `ping` that failed says the
+same sentence instead of carrying a null reason.
+
+`show interfaces` never claims a drop that did not happen: a port with a clean record prints no drops line
+at all, because a wall of `0 drops` on every unused port is how a real one gets missed.
+
 ### Reading `show arp`
 
 ```
