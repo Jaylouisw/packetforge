@@ -1,0 +1,92 @@
+[
+  {
+    "vendor": "fs",
+    "model": "ap-n505",
+    "label": "FS AP-N505 (Wi-Fi 6 indoor AP, 2.5G combo SFP)",
+    "category": "wireless",
+    "description": "FS AP-N505 - dual-radio Wi-Fi 6 (802.11ax) indoor AP, 2x2 on 2.4 GHz and 5 GHz, up to 3 Gbps aggregate. 1x 1G RJ45 with PoE-in, 1x 2.5GE combo SFP (accepts 1G copper or 1G SFP), 1x RJ45 console.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "cli",
+      "poe-pd",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 25.5
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "2.5G",
+        "speedCaps": [
+          2500,
+          1000,
+          100
+        ]
+      },
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio-5g",
+        "type": "wireless",
+        "speed": "2.4G"
+      }
+    ],
+    "notes": "Vendor figures from the FS AP-N505 datasheet: **1 x 10/100/1000Base-T RJ45 with PoE-in, 1 x 2.5GE combo SFP port** (\"10/100/1000Base-T electrical port, conformity to 1GE SFP\") and a **1 x RJ45 console port**. The combo cage is the interesting part: it takes either a copper 1G module or a 1G SFP, so one AP can be fed by fibre without a media converter - and it is 2.5G-capable, so the wired side is faster than the 1G port next to it. Dual power: DC barrel preferred when both DC and PoE are present. Supports up to 256 clients and 32 ESSIDs; fat/fit mode detection is automatic."
+  },
+  {
+    "vendor": "fs",
+    "model": "ap-t567",
+    "label": "FS AP-T567 (Wi-Fi 6 outdoor AP, copper + fibre)",
+    "category": "wireless",
+    "description": "FS AP-T567 - Wi-Fi 6 (802.11ax) IP68 outdoor AP, dual 5 GHz-capable 2x2 radios up to 2.4 Gbps, built-in directional antennas. 1x 1G RJ45 with PoE-in, 1x 1G SFP, 1x RJ45 console.",
+    "capabilities": [
+      "wireless",
+      "l2-forward",
+      "http-server",
+      "cli",
+      "poe-pd",
+      "802.3af"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeIn": 12.95
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "574M"
+      },
+      {
+        "name": "radio-5g",
+        "type": "wireless",
+        "speed": "1.8G"
+      }
+    ],
+    "notes": "Vendor figures from the FS AP-T567 datasheet: **1 x 10/100/1000Base-T Ethernet with PoE input, 1 x GE SFP, 1 x RJ45 console**, **802.3af powered, 12.95 W max**, IP68. The datasheet's headline \"up to 2G wired access rate\" is the **sum of the two ports** - each is 1G, and the SFP is 1G only, not 2.5G. Directional antennas and multi-hop PtMP bridging are in the box; the PoE injector is not."
+  }
+]
