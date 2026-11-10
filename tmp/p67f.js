@@ -1,0 +1,13 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router'),PC=c.find(s=>s.model==='generic-pc');
+const t=new Topology();const r=t.addDevice(R);r.name='R1';const p=t.addDevice(PC);p.name='PC1';const l=t.connect(r.id,'Gi0/0',p.id,'eth0');
+const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds){const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED '+x+' => '+o[0]);}s.run('end');return s;};
+const sr=cfg(r,['interface Gi0/0','ip address 192.168.5.1 255.255.255.0','exit','ip dhcp pool LAN','network 192.168.5.0 255.255.255.0','range 192.168.5.10 192.168.5.20','lease 0 0 1','exit']);
+const sp=cfg(p,['interface eth0','ip address dhcp','exit']);
+const show=(s,x)=>{console.log('$ '+x);s.run(x).output.forEach(l=>console.log('   '+l));};
+show(sp,'show ip interface brief');
+sr.run('link down '+l.id);
+show(sp,'show ip interface brief at 90000');
+show(sp,'show ip interface brief');
+show(sr,'show ip dhcp binding at 90000');

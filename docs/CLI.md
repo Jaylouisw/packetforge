@@ -68,6 +68,9 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `flow open <dst> [port <n>] [bytes <n>] [proto tcp\|udp] [sport <n>]` | start a conversation from this device; `dst` is an address or a name ([Flows](#flows)) |
 | `flow close <id>` | close one: TCP runs a four-way close, UDP is retired |
 | `ping <dst> [count <n>] [at <ms>\|converged]` | ICMP echo; `dst` is an address **or a hostname** ([Destination names](#destination-names)) |
+| `ping ipv6 <v6dst> [count <n>] [at <ms>\|converged]` | the same echo over IPv6 (an IPv6 address needs no keyword either) |
+| `renew dhcp [<port>]` | ask the server for a lease now, on a port configured `ip address dhcp` |
+| `release dhcp [<port>]` | give the lease back; the port stays unaddressed until renewed |
 | `traceroute <dst> [at <ms>\|converged] [numeric]` | the forwarding path, hop by hop, with one-way delay (`tracert` too); `numeric` = addresses only |
 | `converge [<ms>]` | when every control plane finishes (a bare number — the `at` keyword is **not** accepted here) |
 | `links` / `link …` | cables and their state ([Cables](#cables)) |
@@ -1173,6 +1176,74 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### A DHCP lease can be taken and given back
+
+`ip address dhcp` and `show ip dhcp binding` existed, so the client half of the exchange was readable
+and untouchable — the two things an operator does with a lease had no command:
+
+```
+PC1#renew dhcp
+% Unrecognized command: renew dhcp
+PC1#release dhcp
+% Unrecognized command: release dhcp
+```
+
+Both exist now, and they write **both** tables — the client's address and the server's binding — in
+one call, because two commands that each write one table can disagree:
+
+```
+PC1#renew dhcp
+Renewed DHCP lease on eth0: 192.168.5.10 (lease 86400s)
+PC1#release dhcp
+Released DHCP lease on eth0 (was 192.168.5.10)
+  the server forgot the binding (1 table updated)
+R1#show ip dhcp binding
+DHCP bindings on R1: (none)
+  no client has completed an exchange
+R1#show ip dhcp pool
+  LAN
+    Range      : 192.168.5.10 - 192.168.5.20
+    In use     : 0 of 11
+```
+
+A released lease **stays released** — otherwise the next refresh (every `show` derives the planes,
+which runs the lease pass) would DISCOVER and hand the same address straight back, making the command
+a success message with no effect. It comes back through `renew dhcp`, or by re-issuing
+`ip address dhcp`.
+
+Refusals are specific, because "it did not work" is not an answer:
+
+```
+R1#renew dhcp
+% R1 has no DHCP client interfaces
+% Configure one with "ip address dhcp" in an interface block
+R1#renew dhcp Gi0/0
+% Gi0/0 is not a DHCP client - it has no "ip address dhcp" configured
+% "show ip interface brief" lists the Method column (DHCP or manual) for every port
+PC1#renew dhcp Fa9/9
+% No interface named Fa9/9 on PC1
+```
+
+### ...and the first question already knows the answer
+
+The lease was answered two ways, depending on what had been typed first:
+
+```
+PC1#show ip interface brief          <- nothing has run yet
+Interface  IP-Address  OK?  Method  Status  Protocol
+eth0       unassigned  YES  DHCP    up      up
+PC1#show ip dhcp binding
+DHCP lease on PC1/eth0:  IP address : 192.168.5.10/24     <- the lease, all along
+PC1#ping 192.168.5.1
+PC1#show ip interface brief
+eth0       192.168.5.10/24  YES  DHCP  up  up             <- now it agrees
+```
+
+The address arrives when the DHCP ACK is delivered, and delivering it is part of deriving the planes —
+which `show ip interface brief` did not do. Any `show` that prints an address now derives them, and the
+DHCP plane remembers whether its queue has actually been run (`_planesDhcp`, exactly as LLDP and RA
+already did), so a lab configured a minute ago answers with its address on the first question.
 
 ### IPv6 can be configured, tested, and its arguments are its own
 

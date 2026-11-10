@@ -412,8 +412,13 @@ class Simulator {
     // something else had run - so a reader derives the planes itself. Deriving them again on every
     // keystroke would re-run the DHCP exchange and re-announce LLDP, which are events, not answers.
     const asked = o.atMs !== undefined && o.atMs !== null;
+    // Each "announce then hear" plane remembers whether its queue has actually been run: a plane that
+    // was derived but whose frames were never delivered is not answered yet. DHCP joins LLDP and RA
+    // here because the ACK is what puts the address on the port - without the flag, a lab configured
+    // a moment ago answered `unassigned` to the first question and an address to the second.
     if (!asked && !o.force && this._planesDone === this._planesRev &&
-      this._planesAtMs === this.runAtMs && (!o.lldp || this._planesLldp) && (!o.ra || this._planesRa)) {
+      this._planesAtMs === this.runAtMs && (!o.lldp || this._planesLldp) &&
+      (!o.ra || this._planesRa) && (!o.dhcp || this._planesDhcp)) {
       return;
     }
     this.computeStp();
@@ -434,11 +439,17 @@ class Simulator {
     // Announcing is not hearing. `announceLldp()` puts frames in the queue, and a queue that is never
     // run leaves every neighbour table empty - which is why `show lldp neighbors` said "none" on a
     // fresh lab however often it was asked, and only filled in after a ping had delivered the frames.
-    if (o.lldp || o.ra) this._run();
+    // The DHCP exchange is also announce-then-hear: responding to the ACK is what puts the address on
+    // the interface, and that happens when the queue runs. Leaving the queue unrun meant a fresh
+    // client's lease existed (so `show ip dhcp binding` reported it) while `show ip interface brief`
+    // still said `unassigned`, until some unrelated command ran the queue - the answer depended on
+    // what else had been typed.
+    if (o.lldp || o.ra || o.dhcp) this._run();
     this._planesDone = this._planesRev;
     this._planesAtMs = this.runAtMs;
     if (o.lldp) this._planesLldp = true;
     if (o.ra) this._planesRa = true;
+    if (o.dhcp) this._planesDhcp = true;
   }
 
   // An SVI is not up merely because it exists.
@@ -1076,7 +1087,14 @@ class Simulator {
         // A host that already holds a live lease does not start over. Before this, every refresh ran
         // a fresh DISCOVER, so asking the same question twice could hand the client a *different*
         // address (10.0.1.100, then 10.0.1.101) and re-stamp the timer as if no time had passed.
-        const held = clientIface.dhcpLease;
+        // A released lease stays released until someone asks for one. Without this, the next refresh
+        // (any `show` at all, since deriving the planes runs this pass) ran a fresh DISCOVER and the
+        // address came straight back - so `release dhcp` reported a release, `show ip interface brief`
+        // showed no address, and the next command showed the address again with the same lease.
+        if (clientIface.dhcpReleased && !clientIface.dhcpForceRenew) continue;
+        // `renew dhcp` is an instruction, not a question: it asks the server even inside T1, which is
+        // the whole point of the verb. Everything else keeps the "still valid" shortcut.
+        const held = clientIface.dhcpForceRenew ? null : clientIface.dhcpLease;
         if (held && held.expiresStep !== undefined && held.expiresStep > nowStep) {
           // Renewal is due at T1 = half the lease; before that the lease is simply still valid, and
           // nothing about it changes.
@@ -1148,6 +1166,34 @@ class Simulator {
   // The leases a device holds as a DHCP server, ordered by address. Public: the CLI
   // and an inspector panel should read the same numbers, and neither should reach
   // into `_dhcpStates`.
+  // Give a lease back. The client drops the address and every server that recorded the binding
+  // forgets it, which is what makes `show ip dhcp binding` on the server agree with
+  // `show ip interface brief` on the client after `release dhcp` - the two tables are written by
+  // this one call rather than by two commands that could disagree.
+  releaseDhcpLease(clientId, ifaceName) {
+    const client = this.topo.getDevice(clientId);
+    if (!client) return null;
+    const iface = client.interfaces.get(ifaceName);
+    if (!iface || !iface.dhcpLease) return null;
+    const mac = iface.dhcpLease.mac || iface.mac;
+    const held = iface.dhcpLease;
+    let forgotten = 0;
+    for (const state of (this._dhcpStates ? this._dhcpStates.values() : [])) {
+      if (dhcpLib.releaseLease(null, state, mac)) forgotten++;
+    }
+    if (Array.isArray(this.dhcpLeases)) {
+      const before = this.dhcpLeases.length;
+      this.dhcpLeases = this.dhcpLeases.filter(function (l) {
+        return !(l.clientId === clientId && l.iface === ifaceName);
+      });
+      forgotten += before - this.dhcpLeases.length;
+    }
+    iface.ip = null;
+    iface.mask = null;
+    iface.dhcpLease = null;
+    return { ip: held.ip, mac: mac, forgotten: forgotten };
+  }
+
   dhcpBindings(devId) {
     // Passed the clock the answer is about, so `Expires in` is a countdown rather than the
     // configured lease length restated.

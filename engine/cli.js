@@ -385,7 +385,11 @@ class CliSession {
         out.push.apply(out, this._configMode(tokens));
       } else {
         // exec / enable mode
-        if (head === 'enable' || head === 'en') {
+        if (head === 'renew' && tokens[1] === 'dhcp') {
+          out.push.apply(out, this._dhcpClientVerb('renew', tokens.slice(2)));
+        } else if (head === 'release' && tokens[1] === 'dhcp') {
+          out.push.apply(out, this._dhcpClientVerb('release', tokens.slice(2)));
+        } else if (head === 'enable' || head === 'en') {
           this.mode = MODE_ENABLE;
         } else if (head === 'clear' && (tokens[1] === 'counters' ||
             ((tokens[1] === 'interface' || tokens[1] === 'interfaces') && tokens[2] === 'counters'))) {
@@ -915,6 +919,8 @@ class CliSession {
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
         iface.dhcp = true;
+        // Asking for an address again is the third way out of a released lease, after `renew dhcp`.
+        iface.dhcpReleased = false;
         out.push('Interface ' + iface.name + ' set to DHCP');
       } else {
         // `secondary` is an IOS keyword, not a typo, so it is answered as a limitation before the
@@ -3876,18 +3882,31 @@ class CliSession {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
     const out = [];
-    if (atMs === null && this.sim && this._instantCapable(tokens)) {
+    // A DHCP client has no address until it has asked, and the asking is part of deriving the planes.
+    // `show ip interface brief` did not derive them, so a fresh client answered `unassigned` - and
+    // then a ping ran the exchange and the same command answered 192.168.5.10, while
+    // `show ip dhcp binding` had been showing the lease all along. Which answer you got depended on
+    // whether something else had run first, which is not a property of a table.
+    const showsAddress = (function () {
+      const a = String(tokens[0] || '').toLowerCase();
+      const b = String(tokens[1] || '').toLowerCase();
+      return (a === 'ip' && (b === 'interface' || b === 'route' || b === 'dhcp')) || a === 'interfaces';
+    })();
+    if (atMs === null && this.sim && (this._instantCapable(tokens) || showsAddress)) {
       // The same question must get the same answer on a fresh simulator as after a ping. Without this,
       // `show spanning-tree` answered "No bridged ports: this device is not part of any L2 loop" until
       // something else had run - a confident conclusion drawn from an empty table. Cheap: the planes
       // are derived once per change of the lab, so a second show does no work.
       const first = String(tokens[0] || '').toLowerCase();
-      const second = String(tokens[1] || '').toLowerCase();
       const wantsIpv6 = first === 'ipv6';
-      this.sim.refreshControlPlanes({
-        lldp: first === 'lldp' || wantsIpv6,
-        ra: wantsIpv6
-      });
+      if (showsAddress) {
+        this.sim.refreshControlPlanes({ dhcp: true });
+      } else {
+        this.sim.refreshControlPlanes({
+          lldp: first === 'lldp' || wantsIpv6,
+          ra: wantsIpv6
+        });
+      }
     }
     if (atMs !== null) {
       if (!this.sim) return ['% Simulator not attached'];
@@ -4818,6 +4837,80 @@ class CliSession {
   // The bindings are the lease state the DORA exchange actually wrote, read back
   // through dhcpLib.leaseTable(), so this is the same answer the run produced and
   // not a second opinion. The client side reports the lease the device was handed.
+  // `renew dhcp [<port>]` and `release dhcp [<port>]` - the two verbs of the DHCP client.
+  //
+  // `ip address dhcp` and `show ip dhcp binding` existed, so a lease could be watched but never
+  // renewed or given back: both verbs answered `% Unrecognized command`. A lease that cannot be
+  // released is a lease an operator cannot test the pool with, and "the address is stuck" has no
+  // answer in the console. Releasing writes both tables - the client's address and the server's
+  // binding - in one call, because two commands that each write one table can disagree.
+  _dhcpClientVerb(verb, tokens) {
+    const dev = this.device;
+    const usage = verb + ' dhcp [<port>]';
+    const extra = this._noExtra(tokens, 1, usage);
+    if (extra) return extra;
+    const typed = tokens.length ? String(tokens[0]) : null;
+    const pick = typed ? this._portArg(tokens, dev, usage) : { ok: true, port: null };
+    if (!pick.ok) return pick.output;
+    const clients = [];
+    for (const i of dev.interfaces.values()) {
+      if (pick.port && i.name !== pick.port) continue;
+      if (i.dhcp) clients.push(i);
+    }
+    if (!clients.length) {
+      if (pick.port) {
+        return ['% ' + pick.port + ' is not a DHCP client - it has no "ip address dhcp" configured',
+          '% "show ip interface brief" lists the Method column (DHCP or manual) for every port'];
+      }
+      return ['% ' + (dev.name || dev.id) + ' has no DHCP client interfaces',
+        '% Configure one with "ip address dhcp" in an interface block'];
+    }
+    if (!this.sim) return ['% Simulator not attached'];
+    // Both verbs are about a lease, so the exchange that produces one has to have happened before
+    // either can be answered: `release dhcp` as the first command of a session reported "already
+    // released" for a client that was about to be handed an address.
+    this.sim.refreshControlPlanes({ dhcp: true });
+    const out = [];
+    for (const i of clients) {
+      if (verb === 'release') {
+        const had = i.dhcpLease;
+        const res = this.sim.releaseDhcpLease(dev.id, i.name);
+        // Stay released. The lease pass runs on every refresh, so without this flag the address would
+        // be handed straight back and the command would be a no-op with a success message.
+        i.dhcpReleased = true;
+        if (!res) {
+          out.push('DHCP lease on ' + i.name + ' was already released - the port holds no address');
+          continue;
+        }
+        out.push('Released DHCP lease on ' + i.name + ' (was ' + res.ip + ')');
+        if (res.forgotten) {
+          out.push('  the server forgot the binding (' + res.forgotten + ' table' +
+            (res.forgotten === 1 ? '' : 's') + ' updated)');
+        } else if (had && had.from) {
+          out.push('  no server binding to clear - the lease came from ' + had.from);
+        }
+        continue;
+      }
+      // renew: force the exchange rather than answering "still valid". A renewal asked for by hand
+      // is an instruction, not a question, so the client asks the server even inside T1.
+      const before = i.dhcpLease ? i.dhcpLease.ip : null;
+      i.dhcpReleased = false;
+      i.dhcpForceRenew = true;
+      this.sim.refreshControlPlanes({ force: true });
+      i.dhcpForceRenew = false;
+      if (!i.dhcpLease) {
+        out.push('% No DHCP server answered on ' + i.name + ' - it holds no address' +
+          (before ? ' (the previous lease ' + before + ' is gone)' : ''));
+        continue;
+      }
+      const held = i.dhcpLease;
+      out.push('Renewed DHCP lease on ' + i.name + ': ' + held.ip +
+        (held.leaseSec ? ' (lease ' + held.leaseSec + 's)' : ''));
+      if (before && before !== held.ip) out.push('  note: the server handed out a different address');
+    }
+    return out;
+  }
+
   _showDhcp(tokens) {
     const dev = this.device;
     const dhcpLib = require('./dhcp');
@@ -5944,6 +6037,8 @@ class CliSession {
       helpLine('ping ipv6 <v6dst> [count <n>] [at <ms>|converged]',
         'the same echo over IPv6 (an IPv6 address needs no keyword either)'),
       helpLine('traceroute <dst> [at <ms>|converged] [numeric]', 'the forwarding path, hop by hop; numeric = addresses only (tracert too)'),
+      helpLine('renew dhcp [<port>]', 'ask the server for a lease now (DHCP client ports)'),
+      helpLine('release dhcp [<port>]', 'give the lease back; the port stays unaddressed until renewed'),
       helpLine('nslookup <name> [type]', 'resolve a name (own zones first, then the lab)'),
       helpLine('converge [<ms>|converged]', 'when each control plane finishes'),
       helpLine('link up|down <id> [at <ms>]', 'pull or replace a cable, re-converge from there'),

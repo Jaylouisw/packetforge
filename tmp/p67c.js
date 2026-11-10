@@ -1,0 +1,13 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router'),PC=c.find(s=>s.model==='generic-pc');
+const t=new Topology();const r=t.addDevice(R);r.name='R1';const p=t.addDevice(PC);p.name='PC1';t.connect(r.id,'Gi0/0',p.id,'eth0');
+const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds){const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED '+x+' => '+o[0]);}s.run('end');return s;};
+const sr=cfg(r,['interface Gi0/0','ip address 192.168.5.1 255.255.255.0','exit','ip dhcp pool LAN','network 192.168.5.0 255.255.255.0','range 192.168.5.10 192.168.5.20','default-router 192.168.5.1','exit']);
+const sp=cfg(p,['interface eth0','ip address dhcp','exit']);
+const iface=p.interfaces.get('eth0');
+console.log('after config: ip=',iface.ip,'dhcp=',!!iface.dhcp,'lease=',JSON.stringify(iface.dhcpLease));
+sim.refreshControlPlanes({dhcp:true});
+console.log('after refresh: ip=',iface.ip,'lease=',JSON.stringify(iface.dhcpLease), 'planesDone=',sim._planesDone,'rev=',sim._planesRev);
+sim.refreshControlPlanes({force:true, dhcp:true});
+console.log('after force: ip=',iface.ip,'lease=',JSON.stringify(iface.dhcpLease));
