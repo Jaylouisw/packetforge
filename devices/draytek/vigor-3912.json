@@ -1,0 +1,190 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor 3912",
+  "label": "DrayTek Vigor 3912 VPN enterprise router (V3912-K)",
+  "category": "router",
+  "description": "DrayTek Vigor 3912 quad-core multi-WAN VPN router: 2x 10G/1G SFP+ and 2x 2.5G/1G/100M RJ45 switchable WAN or LAN, 4x 1G RJ45 switchable WAN or LAN, plus 4x fixed 1G LAN - 12 data ports, up to 8 WAN links and 11 LAN ports. 12.5 Gbps NAT, 500 LAN-to-LAN and teleworker VPN tunnels, 100 port- or tag-based VLANs, 1U rack mount.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan5",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "wan6",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    }
+  ],
+  "sourceUrl": "https://www.4gon.co.uk/draytek-vigor-3912-vpn-enterprise-router-v3912k-p-11342.html",
+  "notes": "The 12 ports are three physical types and two roles: 2x SFP+ (10G or 1G), 2x 2.5G RJ45 and 4x 1G RJ45 are switchable LAN *or* WAN, while the last 4x 1G are fixed LAN - so `dualRole` is on the eight switchable ports and the fixed four are LAN only. Whether a switchable port is a WAN or a LAN is configuration, not hardware, and the model keeps the port's speed regardless of the answer. The 2x USB 3.0 and the RJ-45 console are in the box list and are not data interfaces, so neither is modelled. OSPF, BGP, RIP and inter-VLAN routing are capabilities of the device family rather than ports; the spec declares the routing and NAT capabilities a lab can exercise."
+}

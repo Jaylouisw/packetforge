@@ -175,5 +175,50 @@ console.log('\nA managed PoE switch and an unmanaged one, from the same batch (#
     'ES-3308P: a gigabit host on one of its ports runs at 100M (' + (down.mediaName || down.mediaId) + ')');
 }
 
+console.log('\nA PoE-powered access point and a router whose ports have two roles (#678, #680):');
+{
+  const ap = find('VigorAP 962C');
+  const apPorts = effectiveInterfaces(ap);
+  eq(apPorts.length, 3, 'VigorAP 962C: one wired uplink and two radios');
+  const uplink = apPorts.filter(function (p) { return p.type === 'ethernet'; })[0];
+  eq(uplink.speed, '2.5G', 'VigorAP 962C: the wired port is 2.5G');
+  ok((uplink.speedCaps || []).indexOf(2500) !== -1 && (uplink.speedCaps || []).indexOf(10) !== -1,
+    'VigorAP 962C: it accepts 2.5G down to 10M, as the port does');
+  eq(uplink.poeIn, 12, 'VigorAP 962C: it is a powered device drawing 12 W');
+  ok((ap.capabilities || []).includes('wireless') && (ap.capabilities || []).includes('cli'),
+    'VigorAP 962C: wireless, and its Telnet/SSH console is a real capability');
+
+  // Powered from a PoE+ port and running at 2.5G: the two facts a lab needs from this AP.
+  const t3 = new Topology();
+  const apDev = t3.addDevice(ap);
+  const pse = t3.addDevice(find('PLS-24-H2G-410W'));
+  // port17 is the first 2.5G copper port on that switch; ports 1-16 are 1G, so cabling there would
+  // prove only that the AP downshifts.
+  const cab = t3.validateLink(apDev.id, 'eth0', pse.id, 'port17', {});
+  ok(cab.ok && cab.speedMbps === 2500, 'VigorAP 962C: on a 2.5G PoE+ port it links at 2.5G (' +
+    (cab.mediaName || cab.mediaId) + ')');
+  t3.connect(apDev.id, 'eth0', pse.id, 'port17', {});
+  const sim3 = new Simulator(t3);
+  sim3.computePoe();
+  ok(apDev.poeUnpowered !== true, 'VigorAP 962C: the PoE+ switch powers it');
+  const apLink = t3.links.get(cab.linkId) || Array.from(t3.links.values())[0];
+  ok(!!apLink, 'VigorAP 962C: the cable exists, so the power decision was made on a real link');
+
+  const rt = find('Vigor 3912');
+  const rtPorts = effectiveInterfaces(rt);
+  eq(rtPorts.length, 12, 'Vigor 3912: twelve data ports');
+  eq(rtPorts.filter(function (p) { return (p.connector || '') === 'sfp+'; }).length, 2,
+    'Vigor 3912: two 10G SFP+ cages');
+  eq(rtPorts.filter(function (p) { return Array.isArray(p.dualRole); }).length, 8,
+    'Vigor 3912: eight ports are WAN or LAN by configuration');
+  eq(rtPorts.filter(function (p) { return !Array.isArray(p.dualRole) && p.role === 'lan'; }).length, 4,
+    'Vigor 3912: and four are fixed LAN');
+  ok(rtPorts.filter(function (p) { return Array.isArray(p.dualRole); })
+    .every(function (p) { return p.dualRole.indexOf('wan') !== -1 && p.dualRole.indexOf('lan') !== -1; }),
+    'Vigor 3912: a switchable port offers both roles, not one');
+  ok(rtPorts.filter(function (p) { return p.role === 'lan' && p.bridgeGroup; }).length === 4,
+    'Vigor 3912: the fixed LAN ports share one bridge group, as a consumer router\'s LAN sockets do');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

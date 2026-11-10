@@ -1,0 +1,40 @@
+{
+  "vendor": "draytek",
+  "model": "VigorAP 962C",
+  "label": "DrayTek VigorAP 962C (VAP962C-K)",
+  "category": "wireless",
+  "description": "DrayTek VigorAP 962C - Wi-Fi 6 AX3000 ceiling/wall access point: 2x2 5 GHz up to 2402 Mbps and 2x2 2.4 GHz up to 574 Mbps, with one 2.5GbE RJ45 uplink that takes 802.3at PoE+ in (12 W maximum). Managed over HTTP/HTTPS, Telnet/SSH or TR-069, and able to manage up to 8 mesh VigorAPs.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "poeIn": 12,
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "sourceUrl": "https://www.4gon.co.uk/draytek-vigorap-962c-wifi-6-access-point-vap962ck-p-11280.html",
+  "notes": "Powered by 802.3at PoE+ on the uplink or by a DC 12 V 1.5 A supply that is not included, so a lab has to power it from a PoE+ switch or injector - the spec declares `poeIn: 12` W for exactly that reason, and an 802.3af-only PSE is short of the class this AP asks for. One wired port only: the 2.5 Gigabit uplink, which also accepts 1G/100M/10M. Both radios are 2x2 with 1024-QAM, which is where 2402 + 574 Mbps comes from; 256 concurrent clients and 16 SSIDs are management limits the switch model does not police."
+}
