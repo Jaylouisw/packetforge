@@ -213,6 +213,67 @@ console.log('\nThe show interfaces family names the three tables that answer:');
     'and points at the tables, even with a port named');
 }
 
+console.log('\nThe hardware the model does not have is a sentence, not an "invalid command":');
+{
+  const env = lab();
+  // `show tech-support` is what an operator types when something is wrong. A model with no memory
+  // image, no registers and no log file cannot collect one - but it can say what it *does* answer.
+  match(/no tech-support bundle/, env.a.run('show tech-support'), 'show tech-support explains itself');
+  match(/show running-config/, env.a.run('show tech-support'), 'and names the configuration view');
+  match(/show ip route \/ show ip ospf \/ show ip bgp summary/, env.a.run('show tech-support'),
+    'and the forwarding views, in one line');
+  match(/show logging \/ show history/, env.a.run('show tech-support'), 'and what happened');
+  for (const [cmd, re, why] of [
+    ['show memory', /no memory, buffers or controller registers/i, 'no RAM'],
+    ['show buffers', /no memory, buffers or controller registers/i, 'no buffer pools'],
+    ['show controllers', /no memory, buffers or controller registers/i, 'no registers'],
+    ['show diagnostics', /no on-board diagnostics/i, 'no self-tests'],
+    ['show flash', /no filesystem/i, 'no flash'],
+    ['show filesystems', /no filesystem/i, 'no filesystems'],
+    ['show license', /no licence/i, 'no licence'],
+    ['show boot', /no boot image/i, 'no boot variables'],
+    ['show module', /one fixed chassis/i, 'no modules'],
+    ['show stack', /one fixed chassis/i, 'no stacking']
+  ]) {
+    noMatch(/% Invalid show command/, env.a.run(cmd), cmd + ' is not called a typo');
+    match(re, env.a.run(cmd), cmd + ' names the absence (' + why + ')');
+  }
+  match(/write memory/, env.a.run('show flash'), 'show flash names where configuration actually lives');
+}
+
+console.log('\nEvery command a refusal points at is really a command:');
+{
+  const env = lab();
+  // The rule the older families were held to, applied mechanically: take the pointers out of the
+  // refusal text and run them. A pointer to a command that does not exist is worse than no pointer.
+  const absent = ['show tech-support', 'show memory', 'show flash', 'show module', 'show inventory',
+    'show environment', 'show processes cpu', 'show switchport', 'show interfaces switchport'];
+  let checked = 0;
+  for (const cmd of absent) {
+    const out = env.a.run(cmd).output || [];
+    const lines = out.filter(function (l) { return /^\s*%\s{2,}(show|write|copy)\s/.test(l); })
+      .concat(out.filter(function (l) { return /^\s*%/.test(l) && /"(show|write|copy) /.test(l); }));
+    for (const line of lines) {
+      const segments = line.split(' / ');
+      for (const seg of segments) {
+        const m = seg.match(/\b((?:show|write|copy)\s+[a-z0-9][a-z0-9\-]*(?:\s+[a-z0-9<>\[\]\-]+)*)/i);
+        if (!m) continue;
+        // Try the longest candidate, then shorten - a pointer may name an argument too.
+        const words = m[1].trim().split(/\s+/);
+        let answered = false;
+        for (let n = words.length; n >= 2 && !answered; n--) {
+          const candidate = words.slice(0, n).join(' ');
+          const res = (env.a.run(candidate).output || []).join('\n');
+          if (!/% (Invalid|Unrecognized)/i.test(res)) answered = true;
+        }
+        ok(answered, '"' + m[1].trim() + '" (offered by "' + cmd + '") is a command that answers');
+        checked++;
+      }
+    }
+  }
+  ok(checked >= 8, 'the sweep itself found pointers to check (' + checked + ' found)');
+}
+
 console.log('\nA genuinely unknown command is still refused as one:');
 {
   const env = lab();

@@ -1758,6 +1758,32 @@ SW1#show processes cpu
 %   show interfaces counters            packets, bytes and drops per port
 ```
 
+The families an operator reaches for when a device misbehaves were the ones still answering like
+typos, and `show tech-support` was the worst of them — it is the *first* command typed when something
+is wrong:
+
+```
+SW1#show tech-support
+% There is no tech-support bundle here: no memory image, no register state, no log file to collect
+% The views that answer the same questions in this model:
+%   show version / show running-config     what this device is and how it is configured
+%   show interfaces / show interfaces counters   ports, addresses and per-port drops
+%   show ip route / show ip ospf / show ip bgp summary   the forwarding state
+%   show logging / show history            what happened, and what was typed
+
+SW1#show memory
+% No memory, buffers or controller registers: this model keeps no hardware counters
+% What it does keep is the forwarding state and what happened to each packet:
+%   show interfaces counters   packets, bytes and drops per port
+%   show logging              every drop, with the reason it was dropped
+```
+
+`show memory`, `show buffers` and `show controllers` share one sentence (no hardware counters),
+`show flash`, `show filesystems`, `show boot` and `show license` another (nothing is stored on disk,
+and `write memory` is where configuration actually lives), `show module`/`show stack` a third (one
+fixed chassis). None of them invents a number: a fabricated free-RAM figure would be the same class of
+lie as the invented VLAN 1 rows this series removed.
+
 One table (`_absentShow`) holds the whole family: CDP → LLDP, inventory → `show version` and
 `show interfaces transceiver`, environment and PSU readings → `show power inline`, users/sessions/line
 → this one console, cpu → the per-port counters, NTP → the fact that time here is an *instant* you ask

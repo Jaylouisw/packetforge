@@ -3500,6 +3500,38 @@ class CliSession {
         '%   show lldp neighbors detail        chassis, port, TTL and medium per neighbour',
         '%   show lldp interface               the per-port transmit/receive decision'];
     }
+    // `show tech-support` is the first thing an operator types when a device misbehaves, and the
+    // honest answer is not "invalid command": it is the list of views this model does keep, which
+    // answer the same questions.
+    if (first === 'tech-support' || (first === 'tech' && words[1] === 'support')) {
+      return ['% There is no tech-support bundle here: no memory image, no register state, no log file to collect',
+        '% The views that answer the same questions in this model:',
+        '%   show version / show running-config     what this device is and how it is configured',
+        '%   show interfaces / show interfaces counters   ports, addresses and per-port drops',
+        '%   show ip route / show ip ospf / show ip bgp summary   the forwarding state',
+        '%   show logging / show history            what happened, and what was typed'];
+    }
+    if (first === 'memory' || first === 'buffers' || first === 'controllers') {
+      // A logical model has no RAM, no buffer pools and no register dumps - and inventing numbers for
+      // them would be the same class of lie as an invented VLAN row.
+      return ['% No memory, buffers or controller registers: this model keeps no hardware counters',
+        '% What it does keep is the forwarding state and what happened to each packet:',
+        '%   show interfaces counters   packets, bytes and drops per port',
+        '%   show logging              every drop, with the reason it was dropped'];
+    }
+    if (first === 'diagnostic' || first === 'diagnostics' || first === 'selftest') {
+      return ['% No on-board diagnostics: there is no hardware to test, so no self-test result exists',
+        '% A port that is up and passing traffic is "up" in "show interfaces status"'];
+    }
+    if (first === 'flash' || first === 'filesystems' || first === 'boot' || first === 'license') {
+      return ['% No filesystem, no boot image and no licence: nothing here is stored on disk',
+        '% Configuration lives in this session: "write memory" keeps it as the startup config,',
+        '%   and "show running-config" / "show startup-config" show the two sides'];
+    }
+    if (first === 'module' || first === 'stack' || first === 'chassis') {
+      return ['% One fixed chassis: this model has no modules, no stacking and no supervisor slots',
+        '% What the device is, including its port count, is in "show version"'];
+    }
     if (first === 'inventory') {
       return ['% There is no inventory: this model has no serial numbers, no FRUs and no modules',
         '% What a device is: "show version" (vendor, model, capabilities, port count)',
