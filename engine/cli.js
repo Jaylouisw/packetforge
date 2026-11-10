@@ -5250,8 +5250,10 @@ class CliSession {
     }
     const mbps = parseInt(word, 10);
     if (caps && caps.indexOf(mbps) === -1) {
+      // The usage line named the model-wide range while the refusal named this port's speeds, so the
+      // second line invited a number the first line had just refused.
       return ['% ' + port + ' cannot run at ' + mbps + ' Mbps - it supports ' + caps.join(', ') + ' Mbps',
-        '% Usage: ' + usage];
+        '% Usage: speed ' + caps.join('|') + '   (the speeds this port has)'];
     }
     if (!caps && !(mbps >= 10 && mbps <= 100000)) {
       return ['% Speed ' + mbps + ' is outside 10-100000 Mbps', '% Usage: ' + usage];
@@ -5268,13 +5270,28 @@ class CliSession {
       iface.speedNegotiatedMbps = iface.speedMbps;
     }
     const was = iface.speed;
+    // The cost that is being replaced. A port that has never been configured keeps its speed in the
+    // display string alone (`iface.speed = '1G'`), so reading only `speedMbps` printed no "(was …)" at
+    // all on the first change - the one place the reader most wants the before and after.
+    const wasMbps = iface.speedMbps || (function (label) {
+      const m = /^(\d+)\s*([GgMm])/.exec(String(label || ''));
+      if (!m) return null;
+      return parseInt(m[1], 10) * (m[2].toLowerCase() === 'g' ? 1000 : 1);
+    })(was);
     iface.speedMbps = mbps;
     // `iface.speed` is the display string the rest of the model prints (`1G`, `100M`).
     iface.speed = mbps >= 1000 ? (mbps % 1000 === 0 ? (mbps / 1000) + 'G' : mbps + 'M') : mbps + 'M';
     iface.speedConfigured = true;
     const out = ['Speed on ' + port + ' set to ' + iface.speed + ' (was ' + was + ')'];
-    if (cost) out.push('  Spanning-tree path cost from this port is now ' + cost +
-      ' (was ' + ((sim.speedToCost && iface.speedNegotiatedMbps) ? sim.speedToCost(iface.speedNegotiatedMbps) : '?') + ')');
+    // `(was ?)` was printed whenever the port had not negotiated a speed: the old cost was read from
+    // the *negotiated* figure only, and a port configured from the start never has one. The cost that
+    // is being replaced is the one the port was already using.
+    if (cost) {
+      const oldCost = (sim.speedToCost && (wasMbps || iface.speedNegotiatedMbps))
+        ? sim.speedToCost(wasMbps || iface.speedNegotiatedMbps) : null;
+      out.push('  Spanning-tree path cost from this port is now ' + cost +
+        (oldCost === null ? '' : ' (was ' + oldCost + ')'));
+    }
     return out;
   }
 

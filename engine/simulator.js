@@ -117,7 +117,11 @@ function speedToCost(mbps) {
   if (mbps >= 25000) return 800;
   if (mbps >= 10000) return 2000;
   if (mbps >= 1000) return 20000;
-  return 200000;
+  if (mbps >= 100) return 200000;
+  // 10 Mbps is 2,000,000 in the 802.1t table. It was falling through to the 100 Mbps figure, so a
+  // 10 Mbps port and a 100 Mbps port cost a spanning tree the same and the slower port was chosen.
+  if (mbps >= 10) return 2000000;
+  return 20000000;
 }
 
 class Simulator {

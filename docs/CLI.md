@@ -1546,6 +1546,35 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A number in a message is a number
+
+```
+SW1(config-if)#speed 100
+Speed on Fa0/1 set to 100M (was 1G)
+  Spanning-tree path cost from this port is now 200000 (was ?)
+```
+
+The before-and-after is the reason the line exists, and it printed a question mark. The "(was …)" figure
+was read only from a *negotiated* speed, and a port configured from the start never has one; it is now read
+from the speed the port was already using, whether that lives in `speedMbps` or only in the display label.
+
+The same probe found the cost table had **no 10 Mbps row** — a 10M port and a 100M port were both 200000,
+so a spanning tree could not tell them apart and would pick the slower link. The 802.1t figures now hold from
+10M to 100G:
+
+```
+10M 2000000   100M 200000   1G 20000   10G 2000   25G 800   40G 400   100G 200
+```
+
+And a refusal must agree with the usage line under it: `speed 250` on a 10/100/1000 port named those three
+speeds in the refusal and then offered `speed <10-100000>` in the usage, inviting a number the first line had
+just refused. The usage now lists the speeds that port has.
+
+The guard that keeps this honest is a sweep: a lab configured until every table has a row in it —
+addresses, a static route, NAT sides, VRRP, an SVI, a trunk, port security, OSPF, BGP, a DHCP pool, an ACL —
+then **every literal `show` row** typed on three device kinds and checked for `undefined`, `null`, `NaN`,
+`(was ?)` and `[object Object]`.
+
 ### Keywords are case-insensitive, and the exact spelling wins
 
 ```
