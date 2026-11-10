@@ -1177,6 +1177,65 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A device answers for an address it holds — including its own
+
+Pinging your own address is the first check after configuring one, and it failed silently:
+
+```
+R1#ping 10.0.0.1 count 2
+Sending 2, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
+..
+Success rate is 0 percent (0/2)
+```
+
+The echo was routed out of the very port it was addressed to, ARP'd for itself, and died — with no
+drop event anywhere. An address this box holds is answered **by this box**, without a frame reaching
+a wire:
+
+```
+R1#ping 10.0.0.1 count 2
+!!
+Success rate is 100 percent (2/2)
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+```
+
+Nothing is counted as traffic (`show interfaces counters` stays at "no port has carried a frame"),
+which is what makes it a loopback rather than a lucky round trip. The same rule answers a switch's
+management SVI and a VRRP master's **virtual** address — the master could not reach the group address
+it advertised.
+
+### One group, one master — and the reason when it moves
+
+After the master's cable was pulled, both boxes called themselves master:
+
+```
+[R1] Gi0/0  1  150  Master  R1  192.168.9.1  00:00:5e:00:01:01   <- cable pulled a moment ago
+[R2] Gi0/0  1  100  Master  R2  192.168.9.1  00:00:5e:00:01:01
+```
+
+The candidate's `up` flag asked whether the port was enabled and had an address, never whether the
+cable was still in it. It now means what `show ip interface brief` means by down — shut, no cable, or
+an SVI whose VLAN carries nothing:
+
+```
+R1#show vrrp
+Interface  Group  Pri  State   Master  Virtual IP   Virtual MAC
+Gi0/0      1      150  Backup  R2      192.168.9.1  -
+  R1: Gi0/0 has no line, so group 1 moved to R2
+```
+
+Two things in that answer are new, and both are the same defect one level down:
+- the **Master column names who holds the group**, not who is asking — it used to print the device's
+  own name beside `State: Backup`, a table contradicting itself in one row;
+- a group that **moved says why**, because `Backup` alone sends an operator looking for a priority
+  mistake when the cable is out. A shut port says `is administratively down`, a pulled cable says
+  `has no line`.
+
+Preemption returns the group to the higher priority when the line comes back, and the PC never loses
+its gateway. When *no* router holds the address, the note distinguishes the two cases instead of
+saying "run a simulation" with a simulator attached: `(no router holds the virtual address yet - the
+group has not converged)` or `(no simulation is attached, so no group has held its address)`.
+
 ### A DHCP lease can be taken and given back
 
 `ip address dhcp` and `show ip dhcp binding` existed, so the client half of the exchange was readable

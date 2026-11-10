@@ -103,7 +103,10 @@ console.log('\nVRRP answers for an instant:');
   const early = cli(r1, ['show vrrp at 0']);
   match(/^VRRP at t=0 ms/, early, 'the label names the instant');
   match(/Backup/, early, 'at t=0 the group is still a backup');
-  match(/no group holds its address yet/, early, 'and nothing owns the virtual address');
+  // The note was reworded: it used to tell an operator to "run a simulation" while one was attached,
+  // and at an instant before the election the honest statement is that the group has not converged.
+  match(/no router holds the virtual address yet - the group has not converged/, early,
+    'and nothing owns the virtual address');
   ok(!/00:00:5e:00:01:0a/.test(early), 'no virtual MAC exists yet');
 
   const settled = cli(r1, ['show vrrp at converged']);

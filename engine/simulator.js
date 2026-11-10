@@ -905,9 +905,16 @@ class Simulator {
           e.candidates.push({
             id: dev.id, dev: dev, iface: ifaceName,
             priority: g.priority, ip: ifaceName.ip,
-            // A group on a down interface relinquishes mastership - that is the failover every
-            // lab is built to demonstrate.
-            up: ifaceName.enabled !== false && !!(ifaceName.ip)
+            // A group on a down interface relinquishes mastership - that is the failover every lab
+            // is built to demonstrate. "Down" has to mean what `show ip interface brief` says it
+            // means: shut, no cable, or an SVI whose VLAN carries nothing. Checking only `enabled`
+            // and `ip` left a router that had its cable pulled reporting `State: Master` while the
+            // other router had already taken the group - two masters in one table.
+            up: ifaceName.enabled !== false && !!(ifaceName.ip) && ifaceName.lineUp !== false &&
+              (function () {
+                const l = this._linkAt(dev.id, ifaceName.name);
+                return !(ifaceName.peer && l && !l.isUp());
+              }).call(this)
           });
         }
       }
@@ -2746,6 +2753,26 @@ class Simulator {
   // ---------------------------------------------------------------------
 
   _sendIcmp(src, dstIp, icmp) {
+    // An address this box holds is answered by this box, without a frame ever reaching a wire.
+    // `ping 10.0.0.1` typed on the router that owns 10.0.0.1 answered **0 percent** with no drop
+    // event anywhere: the packet was routed out of the very port it was addressed to, ARP'd for
+    // itself, and died. Pinging your own new address is the first check an operator runs, and it is
+    // also what makes a VRRP master unable to see its own virtual address.
+    const mine = (function () {
+      const configured = typeof src.interfaceWithIp === 'function' ? src.interfaceWithIp(dstIp) : null;
+      if (configured) return configured;
+      if (typeof src.vrrpClaimFor !== 'function') return null;
+      const claim = src.vrrpClaimFor(dstIp, null);
+      if (!claim) return null;
+      const held = src.interfaces.get(claim.iface);
+      return held || null;
+    })();
+    if (mine) {
+      this._emit({ type: 'icmp-echo', dev: src.id, iface: mine.name, from: dstIp, seq: icmp.seq, local: true });
+      this.icmpReplies.push({ dst: src.id, id: icmp.id, seq: icmp.seq, step: this.step, local: true });
+      this._emit({ type: 'icmp-reply', dev: src.id, iface: mine.name, to: dstIp, seq: icmp.seq, local: true });
+      return;
+    }
     const route = src.routeTo(dstIp);
     if (!route) {
       this._emit({ type: 'drop', reason: 'no route to ' + dstIp, dev: src.id, summary: 'No route to ' + dstIp });

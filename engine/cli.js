@@ -2596,16 +2596,62 @@ class CliSession {
     const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
     if (!groups.length) { out.push('% VRRP is not configured' + NEEDS.vrrp); return out; }
     const claims = (dev.vrrpClaims || []);
-    out.push.apply(out, renderTable(['Interface', 'Group', 'Pri', 'State', 'Master', 'Virtual IP', 'Virtual MAC'],
-      groups.map(function (g) {
-        const claim = claims.filter(function (c) {
-          return c.vrid === g.vrid && c.iface === g.interface;
+    // Who actually holds each group, which is not the same question as "do I". The Master column
+    // used to print this device's own name beside `State: Backup` - a table contradicting itself in
+    // one row - and a Backup told the operator "no group holds its address yet - run a simulation"
+    // with a simulator attached and the peer holding it.
+    const holderFor = (function (g) {
+      const wanted = (g.ips || []);
+      const self = claims.filter(function (c) {
+        return c.vrid === g.vrid && c.iface === g.interface;
+      })[0];
+      if (self) return { dev: dev, claim: self };
+      if (!this.sim) return null;
+      for (const other of this.sim.topo.devices.values()) {
+        if (other === dev) continue;
+        const c = (other.vrrpClaims || []).filter(function (x) {
+          return x.vrid === g.vrid && (x.ips || []).some(function (ip) { return wanted.indexOf(ip) !== -1; });
         })[0];
-        return [g.interface, g.vrid, (g.priority === undefined ? 100 : g.priority),
-          claim ? 'Master' : 'Backup', dev.name || '', (g.ips || []).join(','),
-          claim ? claim.mac : '-'];
-      })));
-    if (!claims.length) out.push('(no group holds its address yet - run a simulation)');
+        if (c) return { dev: other, claim: c };
+      }
+      return null;
+    }).bind(this);
+    const rows = [];
+    const why = [];
+    for (const g of groups) {
+      const own = claims.filter(function (c) { return c.vrid === g.vrid && c.iface === g.interface; })[0];
+      const holder = holderFor(g);
+      rows.push([g.interface, g.vrid, (g.priority === undefined ? 100 : g.priority),
+        own ? 'Master' : 'Backup', holder ? (holder.dev.name || holder.dev.id) : '-',
+        (g.ips || []).join(','), own ? own.mac : '-']);
+      // A group that moved needs the reason in the same answer: "Backup" alone sends an operator
+      // looking for a priority mistake when the cable is out.
+      if (!own && holder) {
+        const minePort = dev.resolveIface(g.interface);
+        // The cable is the simulator's business and the administrative state is the device's; both
+        // have to be asked, because the group moved for one of them and the operator gets one line.
+        let cableDown = false;
+        if (minePort && minePort.peer && this.sim && typeof this.sim._linkAt === 'function') {
+          const l = this.sim._linkAt(dev.id, minePort.name);
+          cableDown = !!(l && !l.isUp());
+        }
+        const reason = minePort && minePort.enabled === false ? 'is administratively down'
+          : (minePort && (minePort.lineUp === false || cableDown) ? 'has no line'
+            : null);
+        if (reason) {
+          why.push('  ' + (dev.name || dev.id) + ': ' + g.interface + ' ' + reason +
+            ', so group ' + g.vrid + ' moved to ' + (holder.dev.name || holder.dev.id));
+        }
+      }
+    }
+    out.push.apply(out, renderTable(['Interface', 'Group', 'Pri', 'State', 'Master', 'Virtual IP', 'Virtual MAC'], rows));
+    out.push.apply(out, why);
+    const anyHolder = groups.some(function (g) { return !!holderFor(g); });
+    if (!anyHolder) {
+      out.push(this.sim
+        ? '(no router holds the virtual address yet - the group has not converged)'
+        : '(no simulation is attached, so no group has held its address)');
+    }
     return out;
   }
 

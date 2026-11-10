@@ -1,0 +1,10 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const sim=new Simulator(t);
+const s=new CliSession(r1,t,sim);s.run('enable');
+s.run('configure terminal','interface Gi0/0','ip address 10.0.0.1 255.255.255.0','exit','end');
+s.run('ping 10.0.0.1 count 1').output.forEach(l=>console.log('A|'+l));
+s.run('configure terminal','interface Gi0/1','ip address 10.9.9.1 255.255.255.0','exit','end');
+s.run('ping 10.9.9.1 count 1').output.forEach(l=>console.log('B|'+l));
+console.log('ifaceWithIp 10.9.9.1:', !!r1.interfaceWithIp('10.9.9.1'));
+console.log('mode:', s.mode);
