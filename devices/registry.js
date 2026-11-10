@@ -6,6 +6,23 @@ const path = require('path');
 
 const CATEGORY_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server', 'wireless', 'ptp', 'cloud'];
 
+// docs/DEVICE_SCHEMA.md has always said `count` is 1..512. The gate below used to accept any positive whole
+// number, and the expander obeys whatever it is given: `count: 1000000` asked the loader for a million ports, and
+// `count: Infinity` - which passes `Math.floor(count) === count && count > 0` - asked for infinitely many, so
+// building the catalogue never returned (#1319). One number in one file, at boot.
+const MAX_TEMPLATE_PORTS = 512;
+
+// The rule for a template's port count, in one place, so the loader, the expander and any future caller agree.
+function portCountProblem(count) {
+  if (count === undefined || count === null) return '';  // absent means 1
+  // JSON.stringify(Infinity) is "null", which would report the wrong value back to the person who wrote it.
+  const shown = (typeof count === 'number' && !Number.isFinite(count)) ? String(count) : JSON.stringify(count);
+  const rule = 'must be a whole number from 1 to ' + MAX_TEMPLATE_PORTS + ', got ' + shown;
+  if (typeof count !== 'number' || !Number.isFinite(count) || Math.floor(count) !== count) return rule;
+  if (count < 1 || count > MAX_TEMPLATE_PORTS) return rule;
+  return '';
+}
+
 // How a spec that cannot describe a device is reported.
 //
 // The loader used to swallow these: a file whose `interfaces` was a string got four invented ports
@@ -78,11 +95,11 @@ function loadCatalog(dir) {
           }
         }
         if (spec.portTemplate) {
-          const count = spec.portTemplate.count;
           // "count": 0, -5 or "8" used to produce exactly one invented port, because the expander
           // treats any falsy or non-numeric count as 1. A typo should be loud, not a silent eth0.
-          if (count != null && !(typeof count === 'number' && Math.floor(count) === count && count > 0)) {
-            specs.push(brokenSpec(full, '"portTemplate.count" must be a positive whole number, got ' + JSON.stringify(count)));
+          const countProblem = portCountProblem(spec.portTemplate.count);
+          if (countProblem) {
+            specs.push(brokenSpec(full, '"portTemplate.count" ' + countProblem));
             continue;
           }
         }
@@ -200,6 +217,11 @@ function effectiveInterfaces(spec) {
     const prefix = t.prefix || 'eth';
     const start = (t.start === undefined || t.start === null) ? 1 : t.start;
     const count = (t.count === undefined || t.count === null) ? 1 : t.count;
+    // Refuse rather than obey: this function is called by the loader (which reports the file), by audits, and -
+    // through engine/topology.js - by anything that builds a device from a spec, including a hand-edited saved
+    // board. None of them wants a million ports, and `Infinity` never returns (#1319).
+    const problem = portCountProblem(count);
+    if (problem) throw new Error('portTemplate.count ' + problem);
     const type = t.type || 'ethernet';
     const speed = t.speed || '1G';
     // carry explicit hardware hints onto every generated port
@@ -229,4 +251,5 @@ function groupByCategory(specs) {
   return groups;
 }
 
-module.exports = { loadCatalog, groupByCategory, modelKey, effectiveInterfaces, CATEGORY_ORDER };
+module.exports = { loadCatalog, groupByCategory, modelKey, effectiveInterfaces, CATEGORY_ORDER,
+  portCountProblem, MAX_TEMPLATE_PORTS };
