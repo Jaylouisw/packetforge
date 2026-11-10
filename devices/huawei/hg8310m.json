@@ -1,0 +1,30 @@
+{
+  "vendor": "huawei",
+  "model": "HG8310M",
+  "label": "Huawei HG8310M GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT with 1× 1G LAN and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-upc, managed over web UI.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-upc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-huawei-hg8310m/"
+}

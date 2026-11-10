@@ -1,0 +1,32 @@
+{
+  "vendor": "comtrend",
+  "model": "GRG-4362",
+  "label": "Comtrend GRG-4362 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT (Realtek RTL9615C, 512MiB RAM / SPI NAND 128MiB (Winbond W25N01GVZEIG) flash, Linux 5.10.70 (Realtek ASDK64-10.2.0 Build 3544)) with 1× 10G LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over web UI + SSH + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-comtrend-grg-4362/",
+  "notes": "Vendor specifications: 'XGS-PON x1' (PHY US 10Gbps, DS 10Gbps, Standard ITU-T G.987, US 1270 nm, DS 1577 nm) and '10Giga Ethernet x1' (10G/5G/2.5G/1G/100M/10M bps, IEEE 802.3an/bz/ab/u/i, Auto-MDIX). The 10GBase-T port auto-negotiates 5G/2.5G/1G, so a slower host on it is not a misconfiguration. The vendor states 'Routing function: Routing software function integrated', hence l3-forward. Package includes a 12 Vdc/1.0 A adapter. No Wi-Fi and no voice port."
+}
