@@ -39,9 +39,6 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `copy startup-config running-config` | put the saved copy back, **merging** it into the running config — exec-only, and the way back from an unsaved change ([Saving the configuration](#saving-the-configuration)) |
 | `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
-| `terminal length <0-512>` | set how many lines the console claims to print before pausing; `0` means no pager ([The console's two settings](#the-consoles-two-settings-and-neither-changes-what-the-device-does)) |
-| `terminal width <40-512>` | set the width tables are drawn to; on this tree it only changes `show terminal` itself ([The console's two settings](#the-consoles-two-settings-and-neither-changes-what-the-device-does)) |
-| `show terminal` | the console's length, width, pager and session, with the defaults named ([The console's two settings](#the-consoles-two-settings-and-neither-changes-what-the-device-does)) |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. `clear arp interface <port>` is a third accepted spelling of the same thing — bare port, `interface <port>` and `clear ip arp` all reach one implementation, and `clear arp <address>` is the fourth form, which refuses by name when that host has no entry. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
@@ -1683,66 +1680,6 @@ in one place, before dispatch, so no command has to know about it.
 `switchport access vlan 10`, `spanning-tree vlan 10 priority 4096`). The first cut joined it to its number
 and turned all three into interface names; it is excluded from the join, and the SVI keeps its single-token
 spellings (`interface Vlan10`, `interface vlan 10`).
-
-### The console's two settings, and neither changes what the device does
-
-`terminal length` and `terminal width` exist so a pasted transcript that opens with `terminal length 0`
-does something honest rather than answering "unknown command". Measured:
-
-```
-R1>terminal length 0
-Console length set to 0 lines: no pager, every line is printed
-  This console has no pager to pause: the setting is kept and reported by "show terminal"
-
-R1>terminal width 40
-Console width set to 40 columns
-  Tables are drawn to this width by "show terminal"
-```
-
-The second line of each answer is the honest half. **There is no pager** — every view prints all its
-lines however low the length is set — and **the width changes exactly one table**: `show terminal`'s
-own. Measured by setting `terminal width 40` and reprinting `show ip interface`, which is byte-identical
-to the width-80 output, because the views here are not wrapped to the console at all.
-
-```
-R1>show terminal
-Console settings for this session:
-Setting          Value
-Terminal length  0 (default)
-Terminal width   80 (default)
-Pager            none - every line of a view is printed
-Session          R1, user exec
-```
-
-Both take the range they name and refuse the rest, quoting the range rather than a synopsis:
-
-```
-R1>terminal length 513
-% length 513 is outside 0-512
-% Usage: terminal length <0-512>   (0 = no pager)
-%        terminal width <40-512>    (how wide the tables are drawn)
-
-R1>terminal length abc
-% terminal length takes a number, not "abc"
-
-R1>terminal length
-% Incomplete command: terminal length <n>
-
-R1>terminal length 24 80
-% Unexpected argument "80" - terminal length <0-512> | terminal width <40-512> takes no more
-```
-
-The neighbouring command a pasted transcript often carries is refused by name, and the refusal says what
-this console has instead:
-
-```
-R1>terminal monitor
-% There is no "terminal monitor" - this console has length and width
-% Both change how the screen is drawn, not what the device is
-```
-
-That last line is the rule for the whole section: these are **console** settings. Nothing here changes a
-forwarding decision, an election, a timer or a table's contents.
 
 ### The exec verbs take no word either
 
