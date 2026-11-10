@@ -389,6 +389,27 @@ everything" from "wrote some of it", and the output always ends with the
 catalogue instead of `devices/`, which is how `test/apply-research.test.js` covers it without
 touching the real tree.
 
+### The other catalogue scripts — and which ones are spent
+
+`scripts/` holds five more tools that write device JSON. They are not interchangeable, and two of them
+were one-off repairs for a specific issue, which is the thing a reader most needs to know before running
+one:
+
+| Script | What it does | Dry run | Still useful? |
+|---|---|---|---|
+| `apply-port-layouts.js <file> [...]` | applies a researched port layout, limited to `connector`, `cage`, `speed`, `speedCaps`, `notes` — anything else in the record is metadata, not a write | **yes, by default**; `--apply` writes. Exits 2 with a usage line and 1 when it finds problems | yes — the general port-layout tool |
+| `apply-port-fixes.js` | same idea for the `research/incoming/issue9-*.json` shape, rewriting only connector/speed on named ports | **yes, by default**; `--apply` writes. Prints `No issue9-*.json files to apply.` and exits 0 when there is nothing | yes, when research arrives in that shape |
+| `fix-optics.js` | gives optical uplinks their own ports instead of inheriting the copper `portTemplate` | `--apply` writes | yes, for specs with mixed copper/optical layouts |
+| `fix-optics-claims.js` | one-off repair for issue #9: converts a port named as SFP that was modelled as copper | `--apply` writes | **spent** — kept as a record of the rule it applied |
+| `merge-research.js` | one-shot merge of the swarm-researched homelab gear into the registry | **none** — it writes as it runs | **spent and unsafe to re-run** |
+
+Running the last two again is not a no-op: `merge-research.js` writes immediately and takes no flags, and
+`fix-optics-claims.js` re-derives its decisions from the current specs rather than a snapshot, so its
+result on today's tree is not the result it was written for. Prefer `apply-research.js` (above) or
+`apply-port-layouts.js` for anything new.
+
+`scripts/syntax-check.js` is in the same directory and writes nothing — it is what `npm run syntax` runs,
+recursing the tree with `node --check` and no dependencies.
 ## Included catalog
 
 **1,638 models across 246 vendors**, one JSON file each, in 25 distinct `category` values
