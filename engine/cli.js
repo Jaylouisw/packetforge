@@ -1887,7 +1887,9 @@ class CliSession {
       // it is 3800 ms ago. Say both, and say plainly when the instant belongs to a run that is not this one.
       const now = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
       let when = '';
-      if (l.stateSinceMs) {
+      // `l.stateSinceMs` was tested for truth, so a cable pulled at t=0 - the first change in a run - printed no
+      // instant at all, while every later one did (#1385).
+      if (l.stateSinceMs !== null && l.stateSinceMs !== undefined) {
         if (now === null) when = ', changed at ' + l.stateSinceMs + ' ms';
         else if (l.stateSinceMs > now) when = ', changed at ' + l.stateSinceMs + ' ms (not this run)';
         else when = ', changed at ' + l.stateSinceMs + ' ms (' + (now - l.stateSinceMs) + ' ms ago)';
@@ -1900,14 +1902,15 @@ class CliSession {
     }
     if (!id) return ['% Incomplete command: link ' + what + ' <linkId>'];
 
-    let atMs = 0;
+    // No `at` means "now", and "now" is wherever the session is standing - not t=0 (#1385).
+    let atMs = null;
     const at = args.indexOf('at');
     if (at !== -1) {
       atMs = Number(args[at + 1]);
       if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid time: ' + (args[at + 1] || '(none)')];
     }
 
-    const res = this.sim.setLinkState(id, what, { atMs: atMs });
+    const res = this.sim.setLinkState(id, what, atMs === null ? {} : { atMs: atMs });
     if (!res.ok) return ['% ' + (res.code || 'refused') + (res.detail ? ': ' + res.detail : '')];
     if (!res.changed) {
       out.push('Link ' + id + ' is already ' + what + '.');

@@ -418,7 +418,24 @@ class Simulator {
       return { ok: false, code: 'E_BAD_STATE', detail: 'state must be up or down' };
     }
 
-    const atMs = Number.isFinite(Number(o.atMs)) ? Number(o.atMs) : 0;
+    // A change with no instant named happened at the instant the question is being asked at. `Number(o.atMs) || 0`
+    // meant `link down L1` typed in a console sitting at t=60000 recorded the pull at t=0 and then answered
+    // "Network converges again at 30000 ms" - half a minute before the moment it was asked about - while
+    // `markTopologyChange()` two methods up already used the operator's instant for exactly this reason (#1385).
+    // A settled board (Infinity) has no instant, and 0 is where a board's clock starts.
+    let atMs;
+    if (o.atMs === undefined || o.atMs === null) {
+      atMs = Number.isFinite(this.runAtMs) ? this.runAtMs : 0;
+    } else {
+      const asked = Number(o.atMs);
+      if (!Number.isFinite(asked) || asked < 0) {
+        return {
+          ok: false, code: 'E_BAD_INSTANT', linkId: linkId,
+          detail: 'atMs must be a time in milliseconds, at or after 0 (got ' + JSON.stringify(o.atMs) + ')'
+        };
+      }
+      atMs = asked;
+    }
     const before = link.state;
     link.state = state;
     if (o.force !== true && before === state) {

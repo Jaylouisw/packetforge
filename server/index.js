@@ -762,7 +762,12 @@ async function handleApi(req, res, urlPath) {
         return sendJSON(res, 422, { error: 'state must be up or down', code: 'E_BAD_STATE' });
       }
       const sim = simForFlows(topo);
-      const result = sim.setLinkState(parts[4], state, { atMs: Number(body.atMs) || 0 });
+      // `Number(body.atMs) || 0` quietly turned a mistyped instant into t=0; the engine now refuses one and applies
+      // the one rule for an absent one (the instant this request is being answered at) (#1385).
+      const result = sim.setLinkState(parts[4], state, { atMs: body.atMs });
+      if (!result.ok && result.code === 'E_BAD_INSTANT') {
+        return sendJSON(res, 400, { error: result.detail, code: 'E_BAD_INSTANT' });
+      }
       if (!result.ok) {
         return sendJSON(res, 404, { error: 'no such link', code: result.code || 'E_NO_LINK' });
       }
