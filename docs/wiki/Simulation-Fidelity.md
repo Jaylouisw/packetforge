@@ -9,14 +9,21 @@ is right.
 
 - **Physical layer**: cages, media, transceivers, ferrule polish (UPC/APC), optical budget,
   cable length, speed negotiation, PoE.
-- **Layer 2**: MAC learning, VLANs (access/trunk/native), LAG, STP, LLDP.
-- **Layer 3**: IPv4 and IPv6, ARP/ND, ICMP, static routes, longest-prefix match.
+- **Layer 2**: MAC learning, VLANs (access/trunk/native, voice VLAN), LAG, STP, LLDP,
+  port security with its violation modes and aging (`switchport port-security …`, `clear port-security`).
+- **Layer 3**: IPv4 and IPv6, ARP/ND, ICMP, static routes, longest-prefix match, IPv6 first-hop
+  configuration (`ipv6 nd prefix`, `ipv6 nd ra`, `ipv6 nd suppress-ra`) with SLAAC on the hosts.
 - **Services**: DHCP client and server, NAT (static, dynamic pool and PAT — all three translated in
   the data path and visible in `show ip nat translations`; static and PAT rules can be written from the
   console with `ip nat inside source …`, but a pool-based dynamic rule still comes from the topology
   JSON, because `ip nat pool` is refused), ACLs, VRRP.
 - **Routing**: OSPF (areas, SPF, passive interfaces), BGP (eBGP/iBGP, split horizon).
 - **Naming and overlay**: DNS, SCION.
+- **Flows**: a transport flow can be opened against a destination and inspected rather than
+  inferred from pings — `flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>|converged]`,
+  with `show flows` and `show flows counters` reading back what the data path did. A refused flow
+  names its code, which is the difference between "it did not work" and "here is which rule or
+  missing route stopped it".
 
 ## Approximated
 
