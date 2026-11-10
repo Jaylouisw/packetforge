@@ -1197,6 +1197,31 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A keyword abbreviates where it stands, not only first
+
+The console abbreviates every keyword by prefix, from the help rows. That rule applied to the command
+words and stopped at the *argument* position:
+
+```
+R1#show run int Gi0/0    % show running-config takes one port, not "int Gi0/0"
+R1#show arp int Gi0/0    % show arp takes one port or one address, not "int Gi0/0"
+```
+
+Two refusals that name no port and offer no clue, for a word with exactly one continuation in that
+slot and no port it could name. The argument parsers stripped the literal `interface` and nothing
+else, so the two spellings of the same read gave different answers — one the interface block, the
+other advice about the port list.
+
+`interface` now abbreviates in an argument position wherever it stands: one shared predicate in the
+port-argument helper (which every `show` that takes a port uses) and the same rule in the ARP
+parser, which has its own. A single letter is still refused, because `i` could be the start of a port
+name — being unhelpfully picky about `int` is not the same as inventing a rule for `i`.
+
+The guard is a sweep rather than a list: for every `show …` row made only of literal keywords,
+abbreviate each keyword after the first to three characters when that prefix identifies exactly one
+word in the exec vocabulary, and require the same answer as the full spelling. It walks 46 positions
+today, so a new argument keyword that forgets the rule fails the suite without anyone thinking of it.
+
 ### A slot that takes a number takes a number
 
 Sweeping every numeric placeholder on the config pages with junk (`abc`, `-1`, `1e3`), an
@@ -4107,8 +4132,26 @@ The filters, and the question each one answers:
 - `show logging last <n>` — the tail, for "it was working a minute ago"
 - `show logging summary` — counts by type and by device, the aggregate view
 
-Each one names the event type it filters on, so `show logging` + a wrong type answers with the types
-that do exist rather than an empty table.
+Each one names the event type it filters on, so `show logging` + a type it cannot satisfy answers with
+the types that *do* have events rather than an empty table — and it says exactly that, which matters,
+because the filter cannot tell a typo from a real type that simply has not happened yet:
+
+```text
+PC1#show logging not-a-type
+% No event of type "not-a-type" has happened here
+% Types with events so far: arp-request, frame, lldp, ping
+% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is
+%   either a type that has not happened yet or a typo - "show logging" lists them all
+
+PC1#show logging icmp-reply
+% No event of type "icmp-reply" has happened here
+% Types with events so far: arp-request, frame, lldp, ping
+```
+
+`icmp-reply` **is** a real type — it is one of the names in
+[the vocabulary above](#event-log) — it just never fired in this lab. So the refusal below is a
+statement about this log, not about the simulator: read the list as "what has happened", and the
+inventory table as "what can happen".
 
 ```
 PC1#show logging summary

@@ -8053,7 +8053,14 @@ class CliSession {
       // `show arp interface <port>` is the other spelling the help row offers, so the literal word
       // is stripped before the argument is judged by shape.
       let arpArgs = tokens.slice(what === 'arp' ? 1 : 2);
-      const saidInterface = String(arpArgs[0] || '').toLowerCase() === 'interface';
+      // `interface` abbreviates here as it does in every other argument position, because the console
+      // abbreviates keywords by prefix everywhere else: `show arp int Gi0/0` answered "% show arp
+      // takes one port or one address, not \"int Gi0/0\"" - a refusal that names no port and offers no
+      // clue, for a word with exactly one continuation in this slot.
+      const saidInterface = (function () {
+        const s = String(arpArgs[0] || '').toLowerCase();
+        return s === 'interface' || (s.length >= 2 && 'interface'.startsWith(s));
+      })();
       if (saidInterface) arpArgs = arpArgs.slice(1);
       if (saidInterface && !arpArgs.length) {
         return ['% ' + (what === 'arp' ? 'show arp' : 'show ip arp') + ' needs a port after "interface"',
@@ -9485,12 +9492,16 @@ class CliSession {
   // keyword and was told "no interface named summary" has been sent to look for a port that cannot
   // exist, which is worse than a plain "unknown word".
   _portArg(args, dev, what, keywords) {
-    const hadKeyword = (args || []).some(function (a) {
-      return String(a).toLowerCase() === 'interface';
-    });
-    const rest = (args || []).filter(Boolean).filter(function (a) {
-      return String(a).toLowerCase() !== 'interface';
-    });
+    // The word `interface` in an argument position abbreviates like every other keyword on this
+    // console, because the console abbreviates keywords by prefix everywhere else: `show run int
+    // Gi0/0` answered "% show running-config takes one port, not \"int Gi0/0\"" - advice about the
+    // port list, for a word that has exactly one continuation here and no port could spell.
+    const isIface = function (a) {
+      const s = String(a || '').toLowerCase();
+      return s === 'interface' || (s.length >= 2 && 'interface'.startsWith(s));
+    };
+    const hadKeyword = (args || []).some(isIface);
+    const rest = (args || []).filter(Boolean).filter(function (a) { return !isIface(a); });
     if (!rest.length) {
       // `interface` on its own is a truncated command, not an absent argument: answering it with the
       // whole table is the same silent-ignore this helper exists to prevent, one keystroke earlier.
@@ -9514,7 +9525,7 @@ class CliSession {
     if (!port) {
       // A word after the literal `interface` is unambiguously a port, so that refusal names the
       // missing port; only a bare word can be a keyword in the wrong place.
-      const saidInterface = String(args[0] || '').toLowerCase() === 'interface';
+      const saidInterface = isIface(args[0]);
       if (keywords && keywords.length && !saidInterface) {
         return {
           ok: false,
