@@ -126,6 +126,27 @@
     [/(base-|optics|fiber|fibre|sx|lx|er|sr|fr|dr|lr4|cr4|base-x)/, 'fiber']
   ];
 
+  // An impossible cable - one the engine refuses - must not be drawn as a working one either (#1305).
+  //
+  // The verdict arrives with the topology payload (`state.verdicts`, built by `validateTopology()` in
+  // server/index.js), so the drawing reads the same answer the inspector prints instead of forming its own
+  // opinion. No verdict in the payload means nothing is claimed: the cable is drawn as it always was, and
+  // `data-link-valid` says the drawing could not check it rather than implying it is fine.
+  function linkIssue(topo, linkId) {
+    const v = topo && topo.verdicts;
+    if (!v || v.checked === false || !v.byLink) return null;
+    // A malformed entry must not cost the cable its drawing: `filter` over a list containing null would throw,
+    // the per-link try/catch would swallow it, and a refused cable would silently vanish from the canvas - the
+    // worst of the three possible outcomes.
+    const list = (v.byLink[linkId] || []).filter(function (i) { return i && typeof i === 'object'; });
+    if (!list.length) return null;
+    // An error is a refusal - the cable cannot be what it claims. A warning is a caveat - a run that is longer
+    // than the medium's reach still links, it just will not carry. They are drawn differently on purpose.
+    const err = list.filter(function (i) { return i.severity === 'error'; })[0];
+    const warn = list.filter(function (i) { return i.severity === 'warning' || i.severity === 'warn'; })[0];
+    return err || warn || null;
+  }
+
   function mediumClass(mediaId) {
     const id = String(mediaId || '').toLowerCase();
     if (!id) return '';
@@ -215,15 +236,31 @@
           // the most important thing on the page, and drawing it identically is how a lab ends up
           // showing a cut cable carrying traffic.
           const dead = link.state && link.state !== 'up';
+          // A cable the engine refuses is a third kind of bad: it is up, it just cannot be what it claims. Drawn
+          // separately from `link-down`, because "cut" and "impossible" need different fixes.
+          const issue = linkIssue(state.topology, link.id);
+          const refused = !!(issue && issue.severity === 'error');
           const drawLine = el('line', {
             class: 'link' + (family ? ' link-' + family : '') + (sel ? ' selected' : '') +
-              (link.mediaId ? ' link-media' : '') + (dead ? ' link-down' : ''),
+              (link.mediaId ? ' link-media' : '') + (dead ? ' link-down' : '') +
+              (refused ? ' link-invalid' : '') + (issue && !refused ? ' link-caveat' : ''),
             x1: a.x, y1: a.y, x2: b.x, y2: b.y,
             'data-link-id': link.id,
             'data-medium': family || 'unknown',
             'data-media-id': link.mediaId || '',
-            'data-link-state': link.state || 'up'
+            'data-link-state': link.state || 'up',
+            // Three states, said out loud: refused, accepted, and not checked.
+            'data-link-valid': refused ? 'false'
+              : ((state.topology && state.topology.verdicts && state.topology.verdicts.checked !== false)
+                ? (issue ? 'warn' : 'true') : 'unchecked'),
+            'data-link-issue': issue ? issue.code : '',
+            'data-link-issue-text': issue ? String(issue.message || '') : ''
           }, cableLayer);
+          // The message on hover, so a red cable says what is wrong without a click.
+          if (issue) {
+            el('title', {}, drawLine).textContent = (link.mediaId ? link.mediaId + ': ' : '') +
+              String(issue.message || issue.code);
+          }
           cableNodes.push({
             id: link.id,
             a: { deviceId: link.a.deviceId, iface: link.a.iface },
