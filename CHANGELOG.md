@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The output pipe: `| include`, `| exclude`, `| begin`, `| section`, `| count`.** `show running-config |
+  include route` was read as a **port name** — `% show running-config takes one port, not "| include route"` —
+  so the console blamed the port table for a filter it did not have. Five filters now, matched as plain
+  case-insensitive text rather than as regular expressions (the page says so instead of pretending to be
+  grep), chaining (`| include interface | count`), usable after `do` inside a configuration block, with an
+  unknown filter refused by name and the five that exist listed. Two rules keep the pipe from lying: **a
+  refusal is never filtered** — a `% …` line passes through untouched, because a filter that swallowed the
+  reason a command failed would be the most expensive filter in the console — and **silence is reported**,
+  because "printed twelve lines, none matched" and "printed nothing" look identical on a blank screen. See
+  [docs/CLI.md](docs/CLI.md).
+
+- **`?` at a value slot completes from the device.** `interface Fa?` answered *"Nothing after `interface`
+  starts with `Fa`"* while the device held eight such ports: the placeholder was completed from the help
+  table, which holds the word `interface` and no device's ports. It now completes from the device, with a
+  second column saying what each one is (`Fa0/1  switchport, VLAN 1, up, 1G`), `interface vlan ?` explains
+  the slot it is asking for ("the switch's own address in that VLAN (an SVI)"), and a fragment that fits
+  nothing is still refused. See
+  [docs/CLI.md](docs/CLI.md).
+
+- **`terminal length`, `terminal width` and `show terminal` — and a `#` line is told which mark comments.**
+  `terminal length 0` opens half the pasted transcripts on the internet and `show terminal` is the question
+  "what is this session set to"; both answered `% Unrecognized command` and `% Invalid show command`.
+  Now `terminal length <0-512>` (0 = no pager), `terminal width <40-512>` and `show terminal`, which reports
+  length, width, that there is no pager and which exec level the session is at. The answer says plainly that
+  the setting changes nothing anybody can see — there is no pager to pause, so every line a view prints is
+  printed — rather than pretending a page break exists; an out-of-range number is refused with the range and
+  a word after the number is refused rather than dropped. A `#` line is still a command here (there is no
+  `#` comment), but the refusal names the mark that works: `!`. See [docs/CLI.md](docs/CLI.md).
+
 - **`ip nat inside source static …` and `… list <acl> interface <if> overload` are commands now.**
   The rules had a data path — `engine/nat.js` translates static, dynamic and PAT, and the translations
   show up in `show ip nat translations` — but the only way to write one was the topology JSON. Static
