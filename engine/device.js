@@ -46,6 +46,9 @@ class Interface {
     // `role` is what it currently is; a port with no dualRole just has a fixed role
     // or none at all.
     this.role = spec.role || null;             // 'wan' | 'lan'
+    // Which side of a NAT translation this port is on: 'inside' | 'outside' | null. Set by
+    // `ip nat inside` / `ip nat outside` (#1391).
+    this.natRole = spec.natRole || null;
     this.dualRole = spec.dualRole || null;     // e.g. ['wan', 'lan']
 
     // Bridge group: the ports of an internal switch chip all reach the same L3
@@ -986,6 +989,10 @@ class Device {
         };
         // A combo port shares one cage with its sibling: cabling either half occupies it. Without these the pair
         // came back as two independent ports and the "only one half" rule stopped applying (#1321).
+        // `ip nat inside` / `ip nat outside`: which side of the translation this port is on. Written only when
+        // set, like every other optional port fact - a board should not grow a `natRole: null` line on every
+        // port in the catalogue (#1391).
+        if (i.natRole) doc.natRole = i.natRole;
         if (i.comboWith) doc.comboWith = i.comboWith;
         if (i.comboRole) doc.comboRole = i.comboRole;
         if (i.hardware.maxRangeM !== null && i.hardware.maxRangeM !== undefined) doc.maxRangeM = i.hardware.maxRangeM;
@@ -1074,6 +1081,7 @@ class Device {
           if (is.duplex) iface.duplex = is.duplex;
           if (is.lagId !== undefined) iface.lagId = is.lagId || null;
           if (is.role !== undefined) iface.role = is.role || null;
+          if (is.natRole !== undefined) iface.natRole = (is.natRole === 'inside' || is.natRole === 'outside') ? is.natRole : null;
           if (is.dualRole !== undefined) iface.dualRole = is.dualRole || null;
           if (is.bridgeGroup !== undefined) iface.bridgeGroup = is.bridgeGroup || null;
           if (is.vlan && typeof is.vlan === 'object') {

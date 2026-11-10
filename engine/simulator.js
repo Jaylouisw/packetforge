@@ -2957,7 +2957,7 @@ class Simulator {
       // to the inside local before anyone asks whether the address is ours, which
       // is the order a real NAT box works in -- otherwise the router would
       // swallow its own translation.
-      this._natInbound(dev, frame);
+      this._natInbound(dev, frame, inIface);
       if (dev.ownsIpOn(inIface, frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
       if (dev.isL3()) { this._forwardL3(dev, frame, inIface); return true; }
       this._emit({ type: 'drop', reason: 'packet not for us and not routable', dev: dev.id, iface: inIface });
@@ -3082,7 +3082,11 @@ class Simulator {
     // NAT happens before the routing decision on the way in and after it on the
     // way out; this is the "out" half. A translated packet keeps its identity
     // (the flow tag) but gets a new source address.
-    if (this._natOutbound(dev, frame) === 'drop') return;
+    //
+    // The "out" half now runs *after* the route lookup, because which port the packet leaves by is half of the
+    // question: a translation belongs on the boundary between an inside port and an outside one, and before the
+    // roles existed there was no boundary to be on (#1391). Source rewriting does not disturb the lookup - it
+    // reads the destination - so moving it here changes nothing else.
     frame.ip.ttl -= 1;
     if (frame.ip.ttl <= 0) {
       this._emit({ type: 'drop', reason: 'TTL expired', dev: dev.id });
@@ -3098,6 +3102,7 @@ class Simulator {
       this._emit({ type: 'drop', reason: 'no usable egress interface', dev: dev.id });
       return;
     }
+    if (this._natOutbound(dev, frame, inIface, egress) === 'drop') return;
     const nextHopIp = route.via;
     this._emit({ type: 'route', dev: dev.id, dst: frame.ip.dst, via: nextHopIp, iface: egress.name, ttl: frame.ip.ttl });
     // Plain routing: preserve the original source IP, decrement TTL, rewrite
@@ -3801,7 +3806,36 @@ class Simulator {
   }
 
   // Inside -> outside. Returns 'translate', 'pass' or 'drop'.
-  _natOutbound(dev, frame) {
+  // Which ports a translation may happen on. A device that declares a side is taken at its word: an outbound
+  // translation only starts on an `inside` port and a returning one only arrives on an `outside` port, so a
+  // rule for 192.168.10.0/24 stops rewriting traffic from one inside host to another. A device that declares
+  // nothing keeps the older behaviour - translate wherever the source matches - because that is what every lab
+  // built before the roles existed does, and `show ip nat` says so out loud (#1391).
+  _natRoles(dev) {
+    const roles = { inside: [], outside: [], any: false };
+    if (dev && dev.interfaces && typeof dev.interfaces.forEach === 'function') {
+      dev.interfaces.forEach(function (i) {
+        if (!i || !i.natRole) return;
+        roles.any = true;
+        if (roles[i.natRole]) roles[i.natRole].push(i.name);
+      });
+    }
+    return roles;
+  }
+
+  // May a translation happen on this ingress port, in this direction? No role declared anywhere means "yes,
+  // anywhere" - the only answer the model had before.
+  _natMayTranslate(dev, iface, dir) {
+    const roles = this._natRoles(dev);
+    if (!roles.any) return true;
+    const name = typeof iface === 'string' ? iface : (iface && iface.name ? iface.name : null);
+    if (!name) return false;
+    return roles[dir] ? roles[dir].indexOf(name) !== -1 : false;
+  }
+
+  _natOutbound(dev, frame, inIface, egress) {
+    if (!this._natMayTranslate(dev, inIface, 'inside')) return 'pass';
+    if (egress !== undefined && !this._natMayTranslate(dev, egress, 'outside')) return 'pass';
     const pkt = this._natPacket(frame);
     if (!pkt || !this._isNat(dev)) return 'pass';
     const table = this._natTableOf(dev);
@@ -3834,7 +3868,8 @@ class Simulator {
   }
 
   // Outside -> inside. Returns true when the packet was rewritten.
-  _natInbound(dev, frame) {
+  _natInbound(dev, frame, inIface) {
+    if (!this._natMayTranslate(dev, inIface, 'outside')) return false;
     const pkt = this._natPacket(frame);
     if (!pkt || !this._isNat(dev)) return false;
     const table = this._natTableOf(dev);
