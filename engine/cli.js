@@ -1499,8 +1499,17 @@ class CliSession {
       // Every other verb in this block has a `no` form; `encapsulation dot1q` did not, so the tag
       // could be set and never taken back.
       if (!iface.parent) {
+        // The advice has to be advice this device can take. On a router the old second line said
+        // "a switch trunk does that with switchport" - and `switchport` on a router answers
+        // "R1 does not switch - it has no switchports". A router tags with a subinterface; a switch
+        // port tags by being made a trunk. Both spellings run where they are named.
+        const switches = typeof this.device.isL2 === 'function' && this.device.isL2();
         return ['% ' + iface.name + ' is not a subinterface - only a subinterface carries a tag',
-          '% (a physical port is untagged on the wire; a switch trunk does that with "switchport")'];
+          switches
+            ? '% A physical port is untagged on the wire; make it carry tags with ' +
+              '"switchport mode trunk" in this interface'
+            : '% A routed port is untagged; tag it with a subinterface: "interface ' + iface.name +
+              '.10", then "encapsulation dot1q 10"'];
       }
       if (tokens.length > 3) {
         return ['% Unexpected argument "' + tokens[3] + '" - no encapsulation dot1q takes no more'];
