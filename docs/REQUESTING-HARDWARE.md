@@ -64,7 +64,21 @@ If you already have the JSON, skip the form and open a PR — see
 
 `router` · `switch` · `l3-switch` · `firewall` · `wireless` · `ptp` · `olt` ·
 `ont` · `modem` · `powerline` · `server` · `nas` · `desktop` · `laptop` · `phone` ·
-`printer` · `camera` · `nvr` · `iot` · `host` · `cloud`
+`printer` · `camera` · `nvr` · `iot` · `host` · `cloud` · `splitter` · `tap` ·
+`tablet` · `ap`
+
+That is **25** values, not the 21 this list used to carry — `splitter`, `tap`, `tablet` and `ap` were
+missing, and they are not hypothetical: the catalogue holds 16 splitters, 9 taps, 10 tablets and one
+access point today. A request whose hardware is a PON splitter needs the value that exists, not the
+nearest one that used to appear on this list:
+
+```bash
+node -e "const{loadCatalog}=require('./devices/registry');const c=loadCatalog(require('path').resolve('devices')).filter(d=>!d.error);const m={};for(const d of c)m[d.category]=(m[d.category]||0)+1;for(const [k,v] of Object.entries(m).sort((a,b)=>b[1]-a[1]))console.log(v,k)"
+```
+
+Most categories map to a palette bucket in the UI (`router`, `switch`, `l3-switch`, `firewall`, …), but
+not all of them do: the palette collapses 25 `category` values into 24 buckets, so a spec's category is
+a fact about the device first and a colour second.
 
 Anything that is internet-connected and networked is in scope: phones, laptops,
 servers, printers, cameras, recorders, powerline and MoCA adapters, cable modems,
@@ -77,10 +91,18 @@ node scripts/request-queue.js                  # the queue, grouped by readiness
 node scripts/request-queue.js --skeleton 12    # JSON stub for request #12
 ```
 
-`--skeleton` is the **only** flag this script parses (`argv.indexOf('--skeleton')`). There is no
-`--json` switch despite what an earlier version of this page said — a `--json` on the command line is
-ignored and you get the same grouped text report. If you want the raw queue, read the API directly with
-the `curl` in [TRIAGE.md](TRIAGE.md).
+There are **two** flags, and this page said for a while that there was one — an earlier version
+correctly reported no `--json`, then `--json` was added and the correction outlived the fact:
+
+| Flag | What it does | Where |
+|---|---|---|
+| `--skeleton <n>` | prints a JSON stub for request `#n`, with vendor, model, category and source URL already filled in | `argv.indexOf('--skeleton')` |
+| `--json` | prints the whole queue as JSON instead of the grouped text report | `argv.includes('--json')`, then `JSON.stringify(queue, null, 2)` |
+
+`--skeleton` wins if both are present: the stub branch (`skelIdx !== -1`) runs before the `--json`
+branch, so `--json --skeleton 12` gives you the stub, not the queue. Anything else on the command line
+is ignored. If you want the raw queue without either flag, read the API directly with the `curl` in
+[TRIAGE.md](TRIAGE.md).
 
 **Every invocation needs `FORGEJO_TOKEN`.** Without it the script stops before parsing anything and
 exits **2**, with a message that is worth reading rather than skimming because it names the mistake
