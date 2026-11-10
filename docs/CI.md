@@ -235,9 +235,18 @@ for (const d of docs){ const L=fs.readFileSync(d,"utf8").split("\n");
 console.log(bad?bad+" missing file citation(s)":"every cited file exists");'
 ```
 
-On this tree it prints **11** missing, and all eleven are the proposed design suites counted above (it
-omits `CHANGELOG.md`, which is why `md-check` reads 13 for the same fact). Anything else in that list is
-a renamed file and a broken page.
+On this tree it prints **14** missing, and every one is deliberate. Do not quote that number as a
+target: the narrower suite-only version of the same question (the one `cat > /tmp/md-check.js` builds)
+read **13** an hour before this paragraph was written and **15** an hour after, because an audit row
+that *describes* an absent suite adds an absent suite. Run the one-liner, read the list, and check each
+entry against the three groups below. The fourteen
+break down as: **9** citations of the four proposed design suites counted above
+(`bgp-policy.test.js` ×2, `bgp-policy-wire.test.js` ×2, `upstream-baseline.test.js` ×3,
+`upstream-service.test.js` ×2); **2** citing `test/poe-derived.test.js`, which has never existed in
+`git log --all` and appears only in §11 rows whose subject *is* that absence; and **3** citing
+`web/link-parts.js`, which was deleted and is named only by the rows that record its removal. So the
+number grows whenever history grows, which is why this paragraph carries the breakdown and not just a
+count. Anything that does not fall into one of those three groups is a renamed file and a broken page.
 
 **Every `npm run x` a page tells you to type, must be a script.** A renamed script is worse than a
 missing file because the reader believes they made the mistake:
@@ -395,6 +404,13 @@ services, and a job that has to swap makes the whole queue slower.
   |---|---|---|
   | while the `show`-argument work was in flight | 232 suites, **9,980 passed, 62 failed** | 14 |
   | after the help rows caught up | 232 suites, **10,037 passed, 4 failed** | 3 — and one of those is a crash, not four failed assertions: `config-do-show` 1, `link-parts` 2, `ma5801` **0 passed, 1 failed, `(no summary line)`** |
+  | three suites later, the OSPF and cost work landed | **239 suites, 10,200 passed, 3 failed** | 2 — `link-parts` 2 failed assertions (`the UI carries every catalogue part (34 of 58)`, and 24 QSFP-DD/QSFP56 rows the catalogue has and `PART_ROWS` does not) and `ma5801` a `TypeError: Cannot read properties of undefined (reading 'hardware')` crash rather than an assertion |
+
+  The second and third rows are the same two suites red for a different reason each time, which is the
+  useful part: `link-parts` fails whenever the catalogue grows past the UI's hard-coded part table, and
+  `ma5801` crashes when a device's port list no longer matches what the suite indexes. Neither is a
+  documentation problem, and both are worth naming here so the next reader does not investigate the
+  wrong six hundred lines.
 
   The fourteen-suite failure had one cause rather than fourteen: `_showExtraArgRefusal()` in
   `engine/cli.js` reads the **enable-mode help table as the contract**, so a handler that accepts an
