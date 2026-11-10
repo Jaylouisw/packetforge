@@ -1,0 +1,141 @@
+{
+  "vendor": "draytek",
+  "model": "VSP2100-K",
+  "label": "DrayTek VigorSwitch VSP2100-K 8-port PoE+ gigabit switch",
+  "category": "switch",
+  "description": "DrayTek VigorSwitch VSP2100-K - passively cooled 1U managed Layer 2+ switch with 8x 10/100/1000BASE-T PoE+ ports (802.3at, 30 W per port, 140 W aggregate budget), 2x 1000BASE-X SFP uplinks and an RJ45 console port. 802.1Q VLANs with voice and surveillance profiles, 802.1x/TACACS+ authentication, ACLs, ONVIF camera management, cloud managed via VigorACS or standalone.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poeBudget": 140,
+  "icon": "switch",
+  "color": "#0f766e",
+  "sourceUrl": "https://www.4gon.co.uk/draytek-vigorswitch-vsp2100k-8-port-gigabit-switch-p-9391.html",
+  "notes": "The port census is quoted ('8 RJ-45 Ethernet Ports - 10/100/1000Mbps', '2 SFP Ports - 1000Mbps', 'Console Port (RJ-45 physical, RS-232 electrical)'), and so is the power story: **PoE+ on all 8 ports, 140 W budget**, with 164.3 W maximum input consumption - so the budget is real and not the PSU rating, which is the distinction that matters on this part. **One contradiction recorded rather than resolved:** the product is sold as VSP2100-K, the specification heading on the same page says 'VSP2121-K', and the body text repeatedly calls it 'VigorSwitch P2100' and quotes P2100 and G2100 figures side by side. The 8-port PoE chassis (P2100) numbers are the ones used here, because they are the ones attached to the PoE budget; the model string kept is the one the page sells and the request names. Layer 2+ with VLAN routing and static routes justifies `l3-forward`; the console port is declared as console, not as Ethernet."
+}

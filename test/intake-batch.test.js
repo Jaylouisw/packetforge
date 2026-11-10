@@ -565,5 +565,34 @@ console.log('\nNine LAN ports, four modems, and a PoE footnote that changes the 
     'APO-AX-LITE: still an 802.3at device even though 14.5 W fits inside 802.3af');
 }
 
+console.log('\nA PoE budget smaller than the port count times the port rating (#670, #675):');
+{
+  const ews = find('EWS7952P');
+  const ewsPorts = effectiveInterfaces(ews);
+  eq(ewsPorts.filter(function (p) { return p.type === 'ethernet' && p.connector === 'rj45'; }).length, 48,
+    'EWS7952P: 48 copper ports');
+  eq(ewsPorts.filter(function (p) { return p.connector === 'sfp'; }).length, 4,
+    'EWS7952P: four gigabit SFP uplinks - the spec table says 100/1000, not the 10G the blurb claims');
+  eq(ewsPorts.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'EWS7952P: a console port that is not an Ethernet port');
+  eq(ews.poeBudget, 410, 'EWS7952P: the quoted 410 W aggregate budget');
+  // 48 x 30 W is 1440 W, so the budget is the binding constraint, not the port rating.
+  ok(ews.poeBudget < 48 * 30, 'EWS7952P: the budget binds before the per-port rating does');
+
+  const vsp = find('VSP2100-K');
+  const vspPorts = effectiveInterfaces(vsp);
+  eq(vspPorts.filter(function (p) { return p.connector === 'rj45' && p.type === 'ethernet'; }).length, 8,
+    'VSP2100-K: eight copper PoE+ ports');
+  eq(vspPorts.filter(function (p) { return p.connector === 'sfp'; }).length, 2, 'VSP2100-K: two SFP uplinks');
+  eq(vsp.poeBudget, 140, 'VSP2100-K: 140 W budget, against a 164.3 W maximum input draw');
+
+  // The budget has to be spendable: an AP that needs 23 W fits, and the link comes up at 1G.
+  const t17 = new Topology();
+  const sw = t17.addDevice(vsp);
+  const ap = t17.addDevice(find('APO-AX'));
+  const link = t17.validateLink(sw.id, 'port1', ap.id, 'eth0', {});
+  ok(link.ok && link.speedMbps === 1000, 'VSP2100-K: an 802.3at AP on port1 links at 1G');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
