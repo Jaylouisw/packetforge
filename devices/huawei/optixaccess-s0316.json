@@ -4,11 +4,7 @@
   "label": "Huawei OptiXaccess S0316 PoF active distribution unit",
   "category": "splitter",
   "description": "Huawei OptiXaccess S0316 - power-over-fibre active distribution unit that integrates an optical splitter and a power supply: 2x SC/UPC upstream (NNI) optical ports and 16x hybrid SC PoF downstream (UNI) ports that carry both the optical signal and PoE/PoE+ power to ONUs. Maximum 30 W per PoF port, 400 W total output, 400 W maximum consumption, IP20, 19-inch cabinet or network box, fan cooled.",
-  "capabilities": [
-    "poe-pse",
-    "802.3at",
-    "802.3af"
-  ],
+  "capabilities": [],
   "interfaces": [
     {
       "name": "nni1",
@@ -38,8 +34,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni2",
@@ -49,8 +44,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni3",
@@ -60,8 +54,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni4",
@@ -71,8 +64,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni5",
@@ -82,8 +74,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni6",
@@ -93,8 +84,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni7",
@@ -104,8 +94,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni8",
@@ -115,8 +104,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni9",
@@ -126,8 +114,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni10",
@@ -137,8 +124,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni11",
@@ -148,8 +134,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni12",
@@ -159,8 +144,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni13",
@@ -170,8 +154,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni14",
@@ -181,8 +164,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni15",
@@ -192,8 +174,7 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     },
     {
       "name": "uni16",
@@ -203,13 +184,11 @@
       "speedCaps": [
         1244,
         2488
-      ],
-      "poeOut": 30
+      ]
     }
   ],
-  "poeBudget": 400,
   "icon": "splitter",
   "color": "#7c3aed",
   "sourceUrl": "https://e.huawei.com/en/products/optical-access/optixaccess-s0316.html",
-  "notes": "The spec table is unusually complete for this box: '**NNI: 2 x SC/UPC**', '**UNI: 16 x Hybrid SC(PoF)**', '**PoF output power: maximum output power of a single port: PoE/PoE+: 30W, total output power: 100V~240V: 400W**'. So the PoE side is **quoted, not inferred**: `poeOut: 30` on each of the sixteen UNI ports and `poeBudget: 400` for the unit - and unlike the standard-PSE cases in this catalogue, the 400 W here really is the PoF output budget the datasheet names, not a power-supply rating borrowed as one (compare #527, where the two were different numbers and only volts and amps were published). **`sc-upc`, not `sc-apc`:** this is the one PON-family device whose polish the vendor states, and it states **UPC** on the NNI. The sixteen UNI ports are 'Hybrid SC' - the same hybrid SC connector the catalogue already carries in `catalogue/optics/hybrid-patch-cords.json` for PoF runs - so they are declared with the same `sc-upc` end face rather than inheriting the OLT side's APC convention. **One assumption, flagged:** the datasheet publishes no optical rate. The ports carry GPON to ONUs over PoF, so they are given the GPON ladder `[1244, 2488]` that every OLT and ONU in this catalogue uses - but that is a family convention here, not a figure from this page. No `splitRatio` is declared: the page says the splitter is integrated but never states the ratio, and 2 NNI to 16 UNI could be 2x1:8 or one 1:16 with a protected feed. Guessing which would put a wrong loss figure in front of anyone budgeting a PoF run."
+  "notes": "The spec table is unusually complete for this box: '**NNI: 2 x SC/UPC**', '**UNI: 16 x Hybrid SC(PoF)**', '**PoF output power: maximum output power of a single port: PoE/PoE+: 30W, total output power: 100V~240V: 400W**'. **The PoF watts are recorded here and nowhere else, and that is a correction.** An earlier revision of this spec put `poeOut: 30` on the sixteen UNI ports and `poeBudget: 400` on the device. `test/poe-inference.test.js` caught it: its catalogue-wide rule is that no port on a non-copper cage may source power, because this engine's PoE model is a *copper* model - it computes cable resistance, PSE class and PD draw on Ethernet pairs, and `sc-upc` is an optical cage. Power over Fibre is a real thing and this box really does 30 W a port, but the simulation cannot carry it, so claiming it machine-readably would have the engine evaluate a power budget over a fibre it does not model. **Also corrected: the hybrid-cord claim.** An earlier note said these ports match the hybrid SC cords in `catalogue/optics/hybrid-patch-cords.json`. They do not - 'hybrid' in those cords means *polish* (SC/UPC on one end, SC/APC on the other, one factory assembly, issue #18), not power. There is no PoF cord in this catalogue, which is the same gap from the other side. **`sc-upc`, not `sc-apc`:** this is the one PON-family device whose polish the vendor states, and it states **UPC** on the NNI. **One assumption, flagged:** the datasheet publishes no optical rate. The ports carry GPON to ONUs over PoF, so they carry the GPON ladder `[1244, 2488]` used by every OLT and ONU here - a family convention, not a figure from this page. No `splitRatio` is declared: the page says the splitter is integrated but never states the ratio, and 2 NNI to 16 UNI could be 2x1:8 or one 1:16 with a protected feed."
 }

@@ -1,0 +1,61 @@
+{
+  "vendor": "fs",
+  "model": "AP-N716",
+  "label": "FS AP-N716 Wi-Fi 7 indoor access point",
+  "category": "ap",
+  "description": "FS AP-N716 - Wi-Fi 7 (802.11be) indoor access point with three radios (2.4 GHz, 5 GHz and 6 GHz), 2x2 MU-MIMO, six spatial streams and up to 9.3 Gbps aggregate, a 320 MHz channel, PicOS with AmpCon-Campus management, 2x 10/100/1000/2.5GBase-T Ethernet (one of them 5G-capable), 802.3at PoE or 12V/2.5A DC input, IP20, ceiling or wall mount.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan2",
+      "type": "wireless"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://www.fs.com/products/320689.html",
+  "notes": "Ports and power come from the **comparison table on the FS product pages**, which is the only place these APs publish a port census at all: the product page itself renders marketing copy for a keyless fetch, and the datasheet URLs 404. The table's **column order follows the page you are on** - the page's own product is column 1 and the rest keep catalogue order (N716, N516, N506, N506H, T566D) - which is worth knowing before reading a row across. **Two Ethernet ports, and the second is a 5G port:** '1x 10/100/1000/2.5GBase-T Ethernet Port, 1x 100/1000/2.5G/5GBase-T Ethernet Port'. That 5GBase-T cage is why `eth2` carries `[100, 1000, 2500, 5000]` rather than stopping at 2.5G - the FS listing sells it as a 5 GbE AP. **Three radios, no per-band rate claimed:** the table publishes 'Three Radios (2.4 GHz, 5 GHz and 6GHz)', '2 x 2 MU-MIMO' and an aggregate 'Max Throughput 9300 Mbps', and splitting 9.3 Gbps across three bands would be my arithmetic rather than their figure, so the radios carry no `speed` and the aggregate lives here. Power is 'IEEE 802.3 at PoE, DC 12V/2.5A'.\n\nThe AP power inlet carries no wattage: the vendor publishes the PoE **class** and a DC input rating ('DC 12V/2A' is the adapter's rating, not a draw), so no `poeIn` figure is invented. `poeIn: 0` on the other sockets keeps the engine from treating a downlink port as a power inlet."
+}

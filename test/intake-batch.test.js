@@ -889,9 +889,13 @@ console.log('\nA pof unit quotes its output budget, and its polish (#785):');
     'OptiXaccess S0316: sixteen hybrid SC PoF downstream ports');
   ok(ports.every(function (p) { return p.connector === 'sc-upc'; }),
     'OptiXaccess S0316: sc-upc everywhere - the vendor states UPC on the NNI, so APC is not assumed');
-  eq(s.poeBudget, 400, 'OptiXaccess S0316: 400 W total PoF output, which IS the datasheet figure');
-  eq(ports.filter(function (p) { return p.poeOut === 30; }).length, 16,
-    'OptiXaccess S0316: 30 W PoE/PoE+ on every UNI port');
+  // Power over Fibre is real and this box publishes 30 W per port / 400 W total,
+  // but the engine's PoE model is copper-only, so a machine-readable poeOut/popBudget
+  // here would have it evaluate a budget over a fibre it cannot simulate.
+  eq(ports.filter(function (p) { return p.poeOut !== undefined; }).length, 0,
+    'OptiXaccess S0316: no PSE ports - the rail cannot carry power over fibre yet (see poe-inference)');
+  ok(s.poeBudget === undefined,
+    'OptiXaccess S0316: and no device-level PoE budget either, for the same reason');
   ok(s.splitRatio === undefined,
     'OptiXaccess S0316: no splitRatio - the page never states the ratio, and 2 NNI to 16 UNI is ambiguous');
   ok(ports.filter(function (p) { return p.type === 'pon'; }).length === 18,
@@ -1065,6 +1069,43 @@ console.log('\nAn access point with one socket, a router with eight poe ports (#
     'SDX: the MGMT port is out-of-band and stays out of the LAN bridge');
   eq(sdxPorts.filter(function (p) { return p.type === 'console'; }).length, 1,
     'SDX: one console port');
+}
+
+console.log('\nFive fs access points from one comparison table (#770, #773, #774, #775, #779):');
+{
+  const shape = {
+    'AP-N716': { eth: 2, radios: 3, console: 0, fastest: '5G' },
+    'AP-N516': { eth: 2, radios: 2, console: 1, fastest: '2.5G' },
+    'AP-N506': { eth: 2, radios: 2, console: 0, fastest: '1G' },
+    'AP-N506H': { eth: 5, radios: 2, console: 0, fastest: '1G' },
+    'AP-T566D': { eth: 1, radios: 2, console: 0, fastest: '2.5G' }
+  };
+  Object.keys(shape).forEach(function (model) {
+    const s = find(model);
+    const ports = effectiveInterfaces(s);
+    const want = shape[model];
+    eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, want.eth,
+      model + ': ' + want.eth + ' Ethernet sockets, as the comparison row states');
+    eq(ports.filter(function (p) { return p.type === 'wireless'; }).length, want.radios,
+      model + ': ' + want.radios + ' radio(s)');
+    eq(ports.filter(function (p) { return p.type === 'console'; }).length, want.console,
+      model + ': console port count straight from the row');
+    const eth = ports.filter(function (p) { return p.connector === 'rj45'; });
+    ok(eth.some(function (p) { return p.speed === want.fastest; }),
+      model + ': one socket runs at ' + want.fastest + ', as the row states');
+  });
+
+  // The N506H pass-through is a coupler, not a switched port.
+  eq(effectiveInterfaces(find('AP-N506H')).filter(function (p) { return /pass|through/i.test(p.name); }).length, 0,
+    'AP-N506H: the rear-to-bottom pass-through is not modelled as an interface');
+  // Only the inlet port may be inferred as a powered device.
+  ['AP-N716', 'AP-N516', 'AP-N506', 'AP-N506H', 'AP-T566D'].forEach(function (model) {
+    const eth = effectiveInterfaces(find(model)).filter(function (p) { return p.connector === 'rj45'; });
+    ok(eth.slice(1).every(function (p) { return p.poeIn === 0; }),
+      model + ': every non-inlet socket says poeIn 0, so nothing infers power where there is none');
+  });
+  ok(!('poeIn' in effectiveInterfaces(find('AP-N716'))[0]),
+    'AP-N716: the inlet carries no invented wattage - 12V/2.5A is the adapter rating, not a draw');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

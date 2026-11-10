@@ -68,7 +68,7 @@ unticked line that survives here is a real gap.
 
 ## Project
 
-- [x] Device models — **1,645 models across 247 vendors**, one JSON file each
+- [x] Device models — **1,650 models across 247 vendors**, one JSON file each
       ([docs/DEVICE_REGISTRY.md](DEVICE_REGISTRY.md)). A community device-pack format is still
       an open question; today a "pack" is a pull request.
 - [x] Unit tests for the simulator's edge cases — **well over a hundred suites**

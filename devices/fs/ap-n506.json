@@ -1,0 +1,54 @@
+{
+  "vendor": "fs",
+  "model": "AP-N506",
+  "label": "FS AP-N506 Wi-Fi 6 indoor access point",
+  "category": "ap",
+  "description": "FS AP-N506 - Wi-Fi 6 (802.11ax) indoor access point, dual radio 2x2 MU-MIMO, up to 1.8 Gbps aggregate, 256 clients (64 concurrent), 32 SSIDs, 2x 100/1000Base-T Ethernet, 802.3af/at PoE or 12V/1A DC, IP30, ceiling or wall mount.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://www.fs.com/products/320693.html",
+  "notes": "Ports and power come from the **comparison table on the FS product pages**, which is the only place these APs publish a port census at all: the product page itself renders marketing copy for a keyless fetch, and the datasheet URLs 404. The table's **column order follows the page you are on** - the page's own product is column 1 and the rest keep catalogue order (N716, N516, N506, N506H, T566D) - which is worth knowing before reading a row across. **Gigabit only, and only two of them:** '2x 100/1000Base-T Ethernet Port'. The 1.8 Gbps aggregate is the radio's, not the wire's - a lab that expects 2.5G here because the N516 has it will be wrong, which is why the two models are separate files. Power: 'IEEE 802.3 af/at PoE, DC 12V/1A' - the only member of the family that an 802.3af injector can feed on its own rating. 256 max clients, 64 concurrent, 32 SSIDs, IP30.\n\nThe AP power inlet carries no wattage: the vendor publishes the PoE **class** and a DC input rating ('DC 12V/2A' is the adapter's rating, not a draw), so no `poeIn` figure is invented. `poeIn: 0` on the other sockets keeps the engine from treating a downlink port as a power inlet."
+}
