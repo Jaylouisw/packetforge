@@ -789,5 +789,33 @@ console.log('\nThe same name, a different chassis and a different port count (#4
     'CAT-20: still ONE modem with redundant SIM slots');
 }
 
+console.log('\nFour sockets, quoted as three plus one (#690):');
+{
+  const r4g = find('V2767AX-4G-K');
+  const ports = effectiveInterfaces(r4g);
+  const rj = ports.filter(function (p) { return p.connector === 'rj45'; });
+  eq(rj.length, 4, 'V2767AX-4G-K: four RJ-45 sockets - "in total 4 (3+1)", not five');
+  eq(rj.filter(function (p) { return p.speed === '2.5G'; }).length, 1,
+    'V2767AX-4G-K: one of them is the 2.5G switchable WAN/LAN port');
+  eq(rj.filter(function (p) { return p.speed === '1G'; }).length, 3, 'V2767AX-4G-K: and three are 1G LAN');
+  eq(ports.filter(function (p) { return p.type === 'dsl'; }).length, 1,
+    'V2767AX-4G-K: plus the RJ-11 DSL port for the built-in VDSL2 modem');
+  eq(ports.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 1,
+    'V2767AX-4G-K: ONE Cat 6 modem with two SIM slots and eSIM, not several cellular WANs');
+  eq(ports.filter(function (p) { return p.name === 'wwan0'; })[0].speed, '300M',
+    'V2767AX-4G-K: the quoted Cat 6 downlink rate');
+  eq(ports.filter(function (p) { return p.type === 'wireless' && p.role !== 'wan'; }).length, 2,
+    'V2767AX-4G-K: two Wi-Fi radios - wireless WAN is a configuration of these, not a third port');
+
+  // The 2.5G port must fall back, since the datasheet spells out 2.5G/1G/100M/10M.
+  const t23 = new Topology();
+  const rt = t23.addDevice(r4g);
+  const pc10 = t23.addDevice(find('generic-pc'));
+  const link = t23.validateLink(rt.id, 'wan', pc10.id, 'eth0', {});
+  ok(link.ok && link.speedMbps === 1000, 'V2767AX-4G-K: the 2.5G port links to a 1G host at 1G');
+  ok(!t23.validateLink(rt.id, 'dsl0', pc10.id, 'eth0', {}).ok,
+    'V2767AX-4G-K: and the DSL port still refuses an RJ45 lead');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

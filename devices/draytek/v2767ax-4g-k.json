@@ -1,0 +1,103 @@
+{
+  "vendor": "draytek",
+  "model": "V2767AX-4G-K",
+  "label": "DrayTek Vigor 2767ax-4G VDSL2 / 2.5GbE Wi-Fi 6 4G router",
+  "category": "router",
+  "description": "DrayTek Vigor 2767ax-4G - VDSL2/ADSL2+ router with a 2.5 Gigabit Ethernet switchable WAN/LAN port, three Gigabit LAN ports, an integrated 4G/LTE Cat 6 modem with dual nano-SIM and eSIM, and Wi-Fi 6 AX3000 dual-band (574 Mbps at 2.4 GHz, 2402 Mbps at 5 GHz). Up to 2.3 Gbps NAT throughput, 300 Mbps IPsec, 16 VPN tunnels, 4 LAN subnets with 8 VLANs.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "connector": "rj11",
+      "speed": "100M",
+      "role": "wan"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/draytek-vigor-2767ax4g-vdsl2-25gbe-wifi-6-4glte-vpn-router-v2767ax4gk-p-11427.html",
+  "notes": "The physical-interface block is quoted in full: '**WAN Ports: 1x VDSL2 / ADSL2+, RJ-11**', '**WAN/LAN Switchable Port: 2.5 Gigabit Ethernet (2.5G/1G/100M/10M), RJ-45**', '**LAN Ports: 3x Gigabit Ethernet (1G/100M/10M), RJ-45**'. The page then says '**In total 4 (3+1) LAN ports (1 is the WAN/LAN switchable)**', which is the modelling decision: four RJ-45 sockets, not five. So the spec declares `dsl0`, a 2.5G `wan` and three 1G LAN ports, and a lab that needs four LAN sockets reassigns the 2.5G one - which is exactly what the hardware does. Declaring both a `wan` and four LAN ports would show five sockets on a four-socket box (the same call as the V2765-K and V2766-K). The 4G side is one Cat 6 modem (300 Mbps down / 50 Mbps up) with **two nano-SIM slots and eSIM**, so a single `wwan0` bearer with failover inside it - not four cellular WANs. DrayTek also lists 2.4 GHz and 5 GHz **wireless WAN** as WAN3/WAN4: Wi-Fi as an uplink is a configuration of the radios, not extra sockets, so it lives in this note rather than as a port. Radios are AX3000: 574 Mbps at 2.4 GHz and 2402 Mbps at 5 GHz, both quoted. No PoE anywhere - 12 V supply."
+}
