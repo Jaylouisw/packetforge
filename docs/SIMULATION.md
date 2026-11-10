@@ -409,9 +409,27 @@ HSRP and GLBP do not exist.
 |---|---|---|
 | **Modelled** | Adjacency graph from live links, Dijkstra SPF, code `O` routes installed at AD 110, next hop resolved to a directly connected neighbour. | `engine/simulator.js:397-493`, `engine/ospf.js:467` |
 | **Modelled** | Areas: one area per link, an interface area overrides the router area (the ABR pattern), and a link is only usable when both ends agree on the area. | `engine/ospf.js:10-21`, `engine/ospf.js:363` |
-| **Modelled** | Per-interface cost overrides, and interface cost otherwise derived from link rate against a 100 Mbps reference. | `engine/simulator.js:352`, `engine/simulator.js:380` |
+| **Modelled** | Cost is per interface: `ip ospf cost <n>` overrides, otherwise it is derived from the port's speed against a **10 Gbps** reference — 100M → 100, 1G → 10, 2.5G → 4, 5G → 2, 10G and faster → 1. A link's cost is the **sum of both ends**, so downgrading one end is enough to move traffic off it. | `_ospfCost()` in `engine/simulator.js`; the comment above it says "100 Mbps reference" and its own table is 10 Gbps-referenced |
 | **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no DR/BDR election, no adjacency FSM. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9` |
-| **Approximate** | Link metric is a fixed 10 in the simulator's link list; per-interface costs enter through the graph builder. | `engine/simulator.js:1562` — `cost: 10` on every link the OSPF graph is built from |
+| **Approximate** | The `cost: 10` on each entry of the simulator's link list is a **last-resort fallback**, used only when an end contributes no interface cost — not the metric in the normal case. | `buildGraph()` in `engine/ospf.js`; the `links.push({ … cost: 10 })` call in `computeOspf()` |
+
+The cost ladder is worth seeing move, because the reference bandwidth in the comment (100 Mbps) and the
+one its numbers use (10 Gbps) disagree by two orders of magnitude. Three routers, a direct `R1 -- R2`
+link and a two-hop detour `R1 -- R3 -- R2`, all 1G, OSPF on all three:
+
+```
+R1#show ip route ospf
+  *  O 10.0.23.0/24  110  10.0.12.2  Gi0/0        (direct: 10 + 10 = 20, detour 20 + 20 = 40)
+
+R1(config-if)#speed 100                            (one end of the direct link)
+R1#show ip route ospf
+  *  O 10.0.23.0/24  110  10.0.13.3  Gi0/1        (direct: 100 + 10 = 110, detour 40)
+```
+
+One end downgraded to 100M is enough to push the prefix onto the detour, which is the sum-of-both-ends
+rule doing something visible. `ip ospf cost 50` on one end only moves it the same way (60 against 40),
+and on both ends it reads 100 — so configuring the knob on a single router half-works, which is the kind
+of half that costs an afternoon.
 | **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
 | **Modelled** | Adjacency comes from the **segment walk**, not from direct links: two OSPF speakers that share a segment through a switch become neighbours. A tagged walk (`segmentOf(…, { vid })`) is used for subinterfaces, and a tag crosses only switch ports whose trunk permits it. Measured: `R1 -- SW1 -- R2` answers `FULL 10.0.0.2 … Gi0/0`; `segmentOf(R1, Gi0/0)` returns `SW1:Fa0/1, R2:Gi0/0`; the same call with `{ vid: 10 }` on an untagged port returns nothing. | `segmentOf()` and `portCarriesTag()` in `engine/segment.js` |
 
@@ -1036,6 +1054,7 @@ number cannot be checked by reading, and a grep for the symbol can.
 | `docs/CI.md` said the Server smoke test catches a server that "boots but cannot serve: every API route, the catalogue, WebSocket upgrade" | It is 18 checks over the UI shell, catalog, media, version and topology CRUD; `config`, `interfaces`, `ping`, `flows`, `layout`, `load`, `reset`, `link-options`, `links/:id/state` are outside it, and the WebSocket upgrade is driven by nothing anywhere (`grep -rl Sec-WebSocket` finds only `server/ws.js`) | **Ran the smoke script and counted.** 18 `ok` lines, listed route by route, then diffed against the route table in `server/index.js` to name the nine uncovered paths instead of implying "most". Separately: the catalogue count moved again mid-iteration (1,628 → 1,629), so `CONTRIBUTING.md` now says a prose count is a claim about one revision and carries the rule to copy the command rather than the number. |
 | The per-mode help section stated "57 exec forms / 130 total" verified, and `clear arp` had a second and third spelling nobody had measured, while `show interfaces transceiver`'s two refusals were unquoted | Two new exec forms landed the same evening, so the page now says 59 / 46 / 27 = 132 and tells the reader to recount; `clear arp interface <port>` is a third spelling of one implementation and `clear arp <address>` a fourth; the copper-only answers are `% Every port on R1 is copper: there are no module bays` and `% No transceiver port named Gi0/0` | **Counted the exec list again rather than trusting a number one hour old, and it had moved.** Probed the near duplicates the new list revealed — two `clear arp` rows and three `show ip interface` forms — and found them aliases of one implementation, not competing commands, which is worth saying so a reader does not hunt for a difference that is not there. |
 | §5.5 said an adjacency needs a **direct link between two OSPF speakers**, and that two routers on one VLAN through a switch "never become neighbours, however long you wait" — a claim this page's own §10 row and `docs/CLI.md` had already contradicted after the segment walk landed | Measured `R1 -- SW1 -- R2` with OSPF on both: `show ip ospf neighbor` answers `FULL 10.0.0.2 … Gi0/0`. `segmentOf(R1, Gi0/0)` returns `SW1:Fa0/1, R2:Gi0/0`, and the tagged walk `{ vid: 10 }` on an untagged port returns nothing. Row corrected from *Approximate* to *Modelled* | **A correction of mine was the stale one.** I had tightened that row earlier to "direct link", which was true before `8ac57e8` taught `segmentOf` to walk segments and 45 lines later to walk them tagged; two pages then disagreed and the newer work was in the other one. Fixing it meant re-measuring rather than picking the page I trusted. |
+| §5.5 cited OSPF cost to `simulator.js:352`/`:380` (a traceroute helper and a closing brace) and called the link metric "a fixed 10" | Cost is per interface — `ip ospf cost` else a speed ladder against a **10 Gbps** reference (100M→100, 1G→10, 2.5G→4, 5G→2, 10G+→1) — and a link's cost is the **sum of both ends**, with `cost: 10` only a last-resort fallback. Proven by flipping a prefix between a direct link and a detour by slowing one end to 100M | **Nearly wrote the wrong correction here.** Reading `buildGraph()` alone says an interface cost counts only when *both* ends set one, so I was about to delete the page's "100 Mbps reference" claim as false; the path test disagreed, `_ospfCost()` at `simulator.js:1489` was the missing half, and its table turned out to be 10 Gbps-referenced while its own comment says 100 Mbps. Both numbers re-derived by hand (detour 20 + 20 = 40, not 30). |
 
 ---
 
