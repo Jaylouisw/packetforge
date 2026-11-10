@@ -1017,6 +1017,12 @@ class Simulator {
 
     for (const dev of this.topo.devices.values()) {
       dev.ospfRoutes = [];
+      // What the neighbours and the interfaces looked like when SPF ran. OSPF could be configured and could
+      // compute routes, and the console could not answer "who are my neighbours" or "what cost is on this
+      // port" at all - the engine's own conclusions were reachable only through `show ip route` (#1371).
+      dev.ospfNeighbors = [];
+      dev.ospfInterfaces = [];
+      dev.ospfConverged = false;
       const cfg = dev.config && dev.config.ospf;
       if (!cfg || !cfg.routerId) continue;
 
@@ -1030,6 +1036,9 @@ class Simulator {
           ip: i.ip,
           mask: i.mask,
           cost: (ov && ov.cost) || this._ospfCost(i),
+          // Whether that number was typed or derived from the link rate: "cost 10" and "cost 10 because the
+          // wire is 100 Mbps" are the same route and a different story.
+          costSource: (ov && ov.cost) ? 'configured' : 'derived',
           area: (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0),
           // A passive interface suppresses hellos, not its prefix: it forms no
           // adjacency but still appears in the router LSA as a stub (#43).
@@ -1038,6 +1047,17 @@ class Simulator {
       }
       if (!ifaces.length) continue;
 
+      // The interface view is published here, not later: a router with no OSPF peer at all still has
+      // interfaces in the process, and reporting "nothing has been evaluated" about a box with two OSPF ports
+      // would be a lie the console had no way to correct (#1371).
+      dev.ospfInterfaces = ifaces.map(function (x) {
+        return {
+          name: x.name, ip: x.ip, mask: x.mask, area: x.area,
+          cost: x.cost, costSource: x.costSource || 'derived',
+          passive: x.passive, adjacent: false
+        };
+      });
+      dev.ospfConverged = this._converged('ospf', dev);
       const entry = { id: dev.id, routerId: cfg.routerId, areaId: cfg.areaId || 0, interfaces: ifaces };
       routers.push(entry);
       byId[dev.id] = { dev: dev, entry: entry };
@@ -1093,6 +1113,22 @@ class Simulator {
           if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface };
         }
       }
+
+      // The adjacency the SPT was built on, in the words the console will print.
+      const ospfDevR = byId[r.id].dev;
+      const nbList = Object.keys(nbr).map(function (peerId) {
+        return {
+          routerId: byId[peerId].entry.routerId,
+          address: nbr[peerId].ip,
+          iface: nbr[peerId].iface,
+          state: 'Full'
+        };
+      });
+      ospfDevR.ospfNeighbors = nbList;
+      for (const row of (ospfDevR.ospfInterfaces || [])) {
+        row.adjacent = nbList.some(function (n) { return n.iface === row.name; });
+      }
+      ospfDevR.ospfConverged = this._converged('ospf', ospfDevR);
 
       const spt = ospfLib.spf(graph, r.id);
       const routes = [];
