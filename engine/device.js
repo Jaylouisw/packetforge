@@ -690,8 +690,59 @@ class Device {
     return null;
   }
 
-  // Connected + static routes as display rows.
-  routesTable() {
+  // The administrative distance of a route source, in one place: `show ip route` prints it, its
+  // "Gateway of last resort" line sorts by it, and the inspector's table shows it (#1301). Two copies of this
+  // would drift the moment a source is added.
+  static routeDistance(r) {
+    if (!r) return 1;
+    if (r.type === 'connected') return 0;
+    if (r.type === 'static') return 1;
+    if (r.type === 'ospf') return 110;
+    if (r.type === 'bgp') return (r.ad === undefined || r.ad === null) ? 200 : r.ad;
+    if (r.type === 'default') return 254;
+    return 1;
+  }
+
+  // Why a row in the route table cannot carry a packet, in the sentence the console prints - and the same
+  // sentence the inspector shows, because a route table that reads healthy while every packet to that prefix is
+  // dropped sends the operator looking for a host instead of at the wire (#1271, #1301).
+  //
+  // Two different faults, deliberately kept apart:
+  //   * the egress cannot carry a frame (shut, no cable, peer shut, link down) - the route is unusable;
+  //   * an interface-only static has no next hop at all, and works only if the far side proxies ARP for the
+  //     destination - that is a caveat, not a fault, so the row stays usable.
+  routeNote(row, topo) {
+    if (!row) return { note: '', unusable: false };
+    const carry = (iface) => {
+      if (!iface) return null;
+      const link = this.ifaceStatus(iface, topo);
+      if (link.status === 'up') return '';
+      const why = (!link.reason || link.reason === 'shut down' || link.reason === link.status)
+        ? link.status : link.status + ': ' + link.reason;
+      return '(' + why + ')';
+    };
+    if (row.type === 'connected') {
+      const iface = row.iface && row.iface !== '-' ? this.interfaces.get(row.iface) : null;
+      const why = iface ? carry(iface) : '(gone)';
+      return { note: why || '', unusable: !!why };
+    }
+    if (row.type === 'static' && (row.gw === '-' || row.gw == null)) {
+      // No next hop: the packet is ARPed for on the segment. Worth saying, but the row still works where the
+      // far side proxies.
+      const why = row.iface && row.iface !== '-' ? carry(this.interfaces.get(row.iface)) : '';
+      return {
+        note: ['(no next hop: ARP for the destination on that segment)', why].filter(Boolean).join('  '),
+        unusable: !!why
+      };
+    }
+    const egress = row.iface && row.iface !== '-' ? this.interfaces.get(row.iface) : this.egressFor(row.gw);
+    const why = egress ? carry(egress) : '';
+    return { note: why || '', unusable: !!why };
+  }
+
+  // Connected + static routes as display rows, annotated so that every surface prints the same thing about
+  // them: the code (`S*` for the installed default), the distance, and the reason a row cannot be used.
+  routesTable(topo) {
     const rows = [];
     for (const iface of this.activeInterfaces()) {
       if (iface.ip && iface.mask) {
@@ -722,6 +773,19 @@ class Device {
     }
     if (this.config.defaultGateway) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
+    }
+    // Annotate in one pass, so a row cannot reach a surface without its verdict. `checked` says whether the
+    // verdict could be computed at all: without a topology there is no cable state, and a row that reports
+    // "usable" because nobody looked is the guess that produced #1299. Surfaces print `note` and honour
+    // `unusable`; a caller that passes no topology gets `checked: false` and should say so rather than imply
+    // the route was examined.
+    for (const row of rows) {
+      row.displayCode = row.type === 'default' ? 'S*' : row.code;
+      row.distance = Device.routeDistance(row);
+      const verdict = this.routeNote(row, topo);
+      row.note = verdict.note;
+      row.unusable = verdict.unusable;
+      row.checked = !!topo;
     }
     return rows;
   }

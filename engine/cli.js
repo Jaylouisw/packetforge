@@ -2003,26 +2003,17 @@ class CliSession {
       // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
       // guess at (#1234).
       out.push('Codes: C - connected, S - static, O - OSPF, B - BGP');
-      const rows = dev.routesTable();
+      // Every row arrives annotated by the device - displayCode, distance, and the sentence that says why it
+      // cannot carry a packet - and the inspector's Routes table reads those same fields. Two surfaces printing
+      // different verdicts for the same route is the defect this replaced (#1301).
+      const rows = dev.routesTable(this.topo);
 
-      // The administrative distance of a route source, in one place: the table prints it and the
-      // gateway line sorts by it, so the two can never disagree (#1234).
-      const distanceOf = function (r) {
-        if (r.type === 'connected') return 0;
-        if (r.type === 'static') return 1;
-        if (r.type === 'ospf') return 110;
-        if (r.type === 'bgp') return (r.ad === undefined || r.ad === null) ? 200 : r.ad;
-        if (r.type === 'default') return 254;
-        return 1;
-      };
-
-      // "Gateway of last resort" names the default that is actually installed — the one routeTo()
-      // would pick among the candidates: longest prefix first, then lowest distance. A configured
-      // gateway (254) loses to a static default (1), and printing the losing one would send the reader
-      // after a next hop no packet ever uses.
+      // "Gateway of last resort" names the default that is actually installed - the one routeTo() would pick
+      // among the candidates: lowest distance. A configured gateway (254) loses to a static default (1), and
+      // printing the losing one would send the reader after a next hop no packet ever uses.
       const fallback = rows
         .filter(function (r) { return r.mask === '0.0.0.0' && r.gw && r.gw !== '-'; })
-        .sort(function (a, b) { return distanceOf(a) - distanceOf(b); })[0];
+        .sort(function (a, b) { return a.distance - b.distance; })[0];
       if (fallback) out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
 
       for (const r of rows) {
@@ -2032,31 +2023,16 @@ class CliSession {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
           // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
-          const cIf = r.iface && r.iface !== '-' ? dev.interfaces.get(r.iface) : null;
-          const cNote = cIf ? this._staleNote(cIf) : '';
-          out.push('C   ' + dest + '  is directly connected, ' + r.iface + (cNote ? '  ' + cNote : ''));
+          out.push('C   ' + dest + '  is directly connected, ' + r.iface + (r.note ? '  ' + r.note : ''));
           continue;
         }
         // [administrative distance/metric] - the distance is half of the rule that picks the installed
         // route (longest prefix first, then lowest distance), so a table without it cannot be checked
-        // by reading.
-        const code = r.type === 'default' ? 'S*' : r.code;
-        const distance = distanceOf(r);
-        // A route can be installed and still lead nowhere: its next hop sits behind a port that cannot carry
-        // a frame. Printing the row without saying so leaves the operator reading a table that looks healthy
-        // while every packet to that prefix is dropped - and the drop says "no ARP reply from X", which
-        // sends you looking for a host rather than at the wire (#1271).
-        const egress = r.iface && r.iface !== '-' ? dev.interfaces.get(r.iface) : dev.egressFor(r.gw);
-        // An interface-only static route is installed, printed and reachable-looking, and it carries a packet
-        // only if the far side proxies ARP for the destination. A row that says `via -` and nothing else
-        // reads as a healthy route; the note is what stops the table from lying about it.
-        const noHop = (r.type === 'static' && (r.gw === '-' || r.gw == null))
-          ? '(no next hop: ARP for the destination on that segment)' : '';
-        const note = [noHop, egress ? this._staleNote(egress) : ''].filter(Boolean).join('  ');
-        // Three columns whatever the code length, so `S*` does not shift the whole row.
-        out.push((code.length === 1 ? code + '  ' : code + ' ') + dest + '  [' + distance + '/0] via ' + r.gw +
+        // by reading. Three columns whatever the code length, so `S*` does not shift the whole row.
+        out.push((r.displayCode.length === 1 ? r.displayCode + '  ' : r.displayCode + ' ') + dest +
+          '  [' + r.distance + '/0] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
-          (note ? '  ' + note : ''));
+          (r.note ? '  ' + r.note : ''));
       }
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));

@@ -1476,6 +1476,41 @@
     return verdict;
   }
 
+  // The inspector's Routes table, in the console's own terms (#1301).
+  //
+  // It used to print `code | dest/len | gw` straight out of runtime state, which meant three things the console
+  // says were missing from the panel: the code the table actually prints (`S*` for the installed default rather
+  // than a bare `S`), the administrative distance that decides which route wins, and - the one that mattered -
+  // the sentence saying a row cannot carry a packet. On a router whose only uplink was down, the console marked
+  // every row `(down: link down)` while the panel drew a perfectly healthy table.
+  //
+  // The verdict is computed once, in `Device.routesTable(topo)`; this only formats it. `unusable` drives the
+  // styling, so a row that cannot be used does not look like one that can.
+  function routesRows(d) {
+    const rows = (topo.runtime && topo.runtime[d.id] && topo.runtime[d.id].routes) || [];
+    return rows.map(function (r) {
+      const connected = r.type === 'connected';
+      let via;
+      if (connected) {
+        via = 'is directly connected, ' + (r.iface && r.iface !== '-' ? r.iface : '-');
+      } else {
+        via = 'via ' + (r.gw && r.gw !== '-' ? r.gw : '-') +
+          (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
+          (typeof r.distance === 'number' ? '  [' + r.distance + '/0]' : '');
+      }
+      // A payload from an older server carries no verdict. Saying "not checked" is honest; printing nothing
+      // would put the panel back where it started, implying every row is fine because nobody looked.
+      const unchecked = typeof r.unusable !== 'boolean' && r.checked !== true;
+      return {
+        code: r.displayCode || r.code,
+        network: r.dest + '/' + maskBits(r.mask),
+        via: via,
+        note: r.note || (unchecked ? '(not checked)' : ''),
+        unusable: !!r.unusable
+      };
+    });
+  }
+
   // The interface header summarises the rows underneath it, and it used to count `enabled` - so a device
   // with nothing plugged in read "28 ports · 28 up" while the front panel two lines above painted every socket
   // `notconnect` and the console said `down (no cable)` for all 28 (#1299). A summary that disagrees with the
@@ -1594,10 +1629,13 @@
 
     // routes
     html += '<div class="field-label">Routes</div>';
-    const routes = (topo.runtime && topo.runtime[d.id] && topo.runtime[d.id].routes) || [];
-    if (routes.length) {
+    const routeRows = routesRows(d);
+    if (routeRows.length) {
       html += '<table class="iface-table"><thead><tr><th>Type</th><th>Network</th><th>Via</th></tr></thead><tbody>';
-      for (const r of routes) html += '<tr><td>' + r.code + '</td><td>' + r.dest + '/' + maskBits(r.mask) + '</td><td>' + r.gw + '</td></tr>';
+      for (const r of routeRows) {
+        html += '<tr class="' + (r.unusable ? 'route-dead' : '') + '"><td>' + r.code + '</td><td>' + r.network +
+          '</td><td>' + r.via + (r.note ? ' <span class="route-note">' + r.note + '</span>' : '') + '</td></tr>';
+      }
       html += '</tbody></table>';
     } else {
       html += '<div class="hint">No routes. Assign IPs to interfaces.</div>';
@@ -2831,6 +2869,7 @@
     cordOfferFor: cordOfferFor,
     renderDeviceTab: renderDeviceTab,
     interfacesHeader: interfacesHeader,
+    routesRows: routesRows,
     renderLinkInspector: renderLinkInspector,
     ifaceRowHTML: ifaceRowHTML,
     poeSummary: poeSummary,

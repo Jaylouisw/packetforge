@@ -139,7 +139,7 @@ one rule, and every caller shares it:
 |---|---|
 | `show ip interface brief`, `show interfaces` | prints the status and the reason |
 | `show arp`, `show mac address-table`, `show lldp` | marks the entry `(down: link down)` and keeps it |
-| `show ip route` | marks a configured route whose egress cannot carry |
+| `show ip route`, inspector Routes table | marks a configured route whose egress cannot carry, in the same words |
 | `show etherchannel summary` | `(P)` only for members that can carry, `(D)` with the reason otherwise |
 | canvas, faceplate, inspector | the same sentence in the tooltip and the status bar |
 | inspector interface header | counts the ports that can carry, and names every other one by reason |

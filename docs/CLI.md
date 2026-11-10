@@ -530,6 +530,11 @@ ones an operator is usually asking about:
 * idle ports are summarised rather than printed one per line: a wall of `nothing plugged in` is how the one row
   that matters gets missed. `show power inline <port>` asks about any of them by name.
 
+The inspector's **Routes** table is the same table: it reads the rows `Device.routesTable(topo)` annotates,
+so it shows the code the console prints (`S*` for the gateway of last resort), the administrative distance, and
+the same sentence when a row cannot carry a packet — rather than a healthy-looking `code / prefix / gateway` list
+on the one screen an operator has open while a link is broken.
+
 Three things it refuses to fake: with no simulation run it prints `Not measured (no simulation run)` rather than
 zeros; a device with PSE ports but **no budget** reports the ports and says the budget is not modelled, rather
 than reporting 0 W it never measured; and a question about one port gets no device-wide total, because the number

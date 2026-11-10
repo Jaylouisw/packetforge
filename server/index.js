@@ -166,7 +166,7 @@ function fullState(topo) {
     runtime[d.id] = {
       macTable: mapToObject(d.macTable),
       arp: mapToObject(d.arp),
-      routes: d.routesTable(),
+      routes: d.routesTable(topo),
       // Throughput, so a table or a sparkline can be drawn without a second call.
       counters: counters[d.id] || {
         bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
