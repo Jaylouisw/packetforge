@@ -185,8 +185,9 @@ node -e "const m=require('./engine/media.js');console.log(Object.keys(m.MEDIA).l
 # 25 distinct device categories
 node -e "const{loadCatalog}=require('./devices/registry');console.log(new Set(loadCatalog(require('path').resolve('devices')).filter(d=>!d.error).map(d=>d.category)).size,'categories')"
 
-# 147 refusal codes
+# 147 error codes, plus 12 lines of `W_` (eleven warnings and the bare prefix)
 grep -ho "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l
+grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l
 
 # how many suites, and whether they are green
 ls test/*.test.js | wc -l
