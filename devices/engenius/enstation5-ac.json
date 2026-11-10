@@ -1,0 +1,47 @@
+{
+  "vendor": "engenius",
+  "model": "ENSTATION5-AC",
+  "label": "EnGenius EnStation5-AC outdoor 5 GHz PtP bridge",
+  "category": "ptp",
+  "description": "EnGenius EnStation5-AC - IP55 outdoor 5 GHz 802.11ac Wave 2 bridge/AP with a 19 dBi integrated dual-polarised directional antenna and 26 dBm transmit power, reaching 867 Mbps and up to 5 miles point-to-point. Two Gigabit Ethernet ports, both PoE-capable: one takes proprietary 24 V PoE in from the bundled adapter, the other passes PoE through to a downstream device such as an IP camera. 6.3 W peak consumption; AP, client-bridge and WDS modes.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 6.3
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/engenius-outdoor-5-ghz-11ac-wave-2-longrange-ptp-wireless-bridge-enstation5ac-p-8543.html",
+  "notes": "Two Gigabit ports, and the second one is the reason to model this carefully: the page calls it a '**secondary PoE pass through Gigabit port**' that powers a downstream camera. It is a **pass-through**, not a PSE with a published budget, so `eth1` declares no `poeOut` - the watts come from the 24 V injector upstream and neither originate nor terminate here. Giving it 15.4 W would invent a budget the datasheet never states (the same call as the Garland FieldTAP and the airCube). The input is **proprietary 24 V PoE**, not 802.3af/at, which is why no `802.3af` capability is declared: a lab that tries to feed this from a standard PoE switch is describing a link that will not power up. Peak draw is 6.3 W. One radio, 5 GHz only - 867 Mbps 802.11ac Wave 2 with MU-MIMO - and no 2.4 GHz band at all, so a lab cannot put a 2.4 GHz client on it."
+}

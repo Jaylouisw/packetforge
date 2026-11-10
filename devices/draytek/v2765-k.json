@@ -1,0 +1,82 @@
+{
+  "vendor": "draytek",
+  "model": "V2765-K",
+  "label": "DrayTek Vigor 2765 VDSL2 / Ethernet WAN VPN router",
+  "category": "router",
+  "description": "DrayTek Vigor 2765 - SoHo VDSL2 and Ethernet WAN VPN router (base model: no Wi-Fi, no VoIP ports) with one RJ-11 VDSL2/VDSL2 35b/ADSL2+ WAN, four Gigabit Ethernet RJ-45 ports one of which can be reassigned as the Ethernet WAN2, two USB 2.0 ports, SPI firewall with content filtering, 2 LAN subnets with port-based or 802.1Q VLANs and two VPN tunnels. 950 Mbps firewall throughput on Ethernet WAN, 21.8 W maximum from a 12 V external supply.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "connector": "rj11",
+      "speed": "100M",
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/documents/DrayTek_Datasheet_Vigor_2765_series.pdf",
+  "notes": "The series datasheet lists the sockets one by one: '**WAN1: VDSL2 / VDSL2 35b / ADSL2+, RJ-11**', '**WAN2/LAN Switchable Port: 1x Gigabit Ethernet, RJ-45**', '**LAN Ports: 4x Gigabit Ethernet, RJ-45 (3x with WAN2 enabled)**', '**WAN3: USB 2.0**'. That parenthetical is the modelling decision: the Ethernet WAN is **not a fifth socket** - it is one of the four, reassigned. So the spec declares `dsl0` plus four LAN ports and puts the reassignment in this note, rather than inventing a `wan2` that would make the box look like it has five RJ-45s. A lab that needs an Ethernet WAN should cable `lan4` and treat it as the uplink. The USB sockets are WAN-capable (3G/4G modem) but are not Ethernet, so they are described and not modelled. This is the base `-K` model: the datasheet's AC1300 radios belong to the 'ac' variants and the two FXS phone ports to 'Vac', so neither is declared here. No PoE in or out - 12 V external PSU."
+}

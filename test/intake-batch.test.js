@@ -657,5 +657,46 @@ console.log('\nA combo cage counts twice, and a controller is not a switch (#646
     'OC300: a management appliance forwards nothing');
 }
 
+console.log('\nA PoE pass-through is not a PSE, and a proprietary injector is not 802.3af (#669):');
+{
+  const ens = find('ENSTATION5-AC');
+  const ep = effectiveInterfaces(ens);
+  eq(ep.filter(function (p) { return p.type === 'ethernet'; }).length, 2,
+    'ENSTATION5-AC: two Gigabit ports, both PoE-capable per the datasheet');
+  eq(ep.filter(function (p) { return p.poeIn > 0; }).length, 1,
+    'ENSTATION5-AC: only one port takes power in - the other passes it through');
+  ok(ep.every(function (p) { return !p.poeOut; }),
+    'ENSTATION5-AC: no poeOut declared - the pass-through sources from the 24 V injector, not from the AP');
+  ok((ens.capabilities || []).indexOf('802.3af') === -1,
+    'ENSTATION5-AC: no 802.3af capability - it wants proprietary 24 V PoE');
+  eq(ep.filter(function (p) { return p.type === 'wireless'; }).length, 1,
+    'ENSTATION5-AC: one radio, 5 GHz only - there is no 2.4 GHz band to put a client on');
+  eq(ep.filter(function (p) { return p.type === 'wireless'; })[0].speed, '867M',
+    'ENSTATION5-AC: 867 Mbps 802.11ac Wave 2, as quoted');
+}
+
+console.log('\nAn ethernet wan that is one of the lan sockets (#679):');
+{
+  const v = find('V2765-K');
+  const vp = effectiveInterfaces(v);
+  eq(vp.filter(function (p) { return p.type === 'ethernet'; }).length, 4,
+    'V2765-K: four RJ-45 sockets - the Ethernet WAN is one of them, not a fifth');
+  eq(vp.filter(function (p) { return p.type === 'dsl'; }).length, 1,
+    'V2765-K: and one RJ-11 DSL port for the built-in modem');
+  ok(vp.filter(function (p) { return p.type === 'wireless'; }).length === 0,
+    'V2765-K: the base model has no radios - the AC1300 belongs to the ac variants');
+  ok(!(v.capabilities || []).includes('wireless'), 'V2765-K: and no wireless capability either');
+  // The DSL socket is a phone line: an RJ45 host cannot go in, and it is refused with a code.
+  const t20 = new Topology();
+  const r2 = t20.addDevice(v);
+  const pc8 = t20.addDevice(find('generic-pc'));
+  const noPhone = t20.validateLink(r2.id, 'dsl0', pc8.id, 'eth0', {});
+  ok(!noPhone.ok, 'V2765-K: the DSL port refuses an RJ45 lead (' +
+    ((noPhone.errors[0] || {}).code || 'no code') + ')');
+  const copper3 = t20.validateLink(r2.id, 'lan4', pc8.id, 'eth0', {});
+  ok(copper3.ok && copper3.speedMbps === 1000,
+    'V2765-K: lan4 is the socket that can be reassigned as the Ethernet WAN, and it cables at 1G');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
