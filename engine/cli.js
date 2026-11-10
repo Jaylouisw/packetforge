@@ -104,6 +104,7 @@ const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
 const MODE_DHCP_POOL = 'dhcp-pool';
+const MODE_ACL = 'acl';
 
 // One line per logged event. Rather than a switch per type - which would drift the moment a protocol
 // adds a field - this prefers the fields that carry the *reason*, then the well-known addresses, then
@@ -293,6 +294,7 @@ class CliSession {
     if (this.mode === MODE_CONFIG) return host + '(config)#';
     if (this.mode === MODE_IFACE) return host + '(config-if)#';
     if (this.mode === MODE_DHCP_POOL) return host + '(config-dhcp)#';
+    if (this.mode === MODE_ACL) return host + '(config-' + (this.aclKindWord || 'std') + '-nacl)#';
     if (this.mode === MODE_ENABLE) return host + '#';
     return host + '>';
   }
@@ -381,6 +383,8 @@ class CliSession {
         out.push.apply(out, this._ifaceMode(tokens));
       } else if (this.mode === MODE_DHCP_POOL) {
         out.push.apply(out, this._dhcpPoolMode(tokens));
+      } else if (this.mode === MODE_ACL) {
+        out.push.apply(out, this._aclMode(tokens));
       } else if (this.mode === MODE_CONFIG) {
         out.push.apply(out, this._configMode(tokens));
       } else {
@@ -391,6 +395,29 @@ class CliSession {
           out.push.apply(out, this._dhcpClientVerb('release', tokens.slice(2)));
         } else if (head === 'enable' || head === 'en') {
           this.mode = MODE_ENABLE;
+        } else if (head === 'clear' && tokens[1] === 'ip' && (tokens[2] === 'access-list' || tokens[2] === 'access-lists')) {
+          // `clear ip access-list counters` - the spelling an operator reaches for first, because
+          // every other ACL command starts with `ip`.
+          if (tokens[3] !== 'counters') {
+            out.push('% Incomplete command: clear ip access-list counters [<id|name>]');
+          } else if (this.mode !== MODE_ENABLE) {
+            out.push('% Privileged command - type "enable" first');
+          } else {
+            out.push.apply(out, this._clearAclCounters(tokens.slice(4)));
+          }
+        } else if (head === 'clear' && (tokens[1] === 'access-list' || tokens[1] === 'access-lists')) {
+          // `clear ip access-list counters` and `clear access-list counters` are the same act; the
+          // `ip` is optional exactly as it is on IOS.
+          const rest = tokens[1] === 'access-list' || tokens[1] === 'access-lists'
+            ? (tokens[2] === 'counters' ? tokens.slice(3) : null)
+            : null;
+          if (rest === null) {
+            out.push('% Incomplete command: clear access-list counters [<id|name>]');
+          } else if (this.mode !== MODE_ENABLE) {
+            out.push('% Privileged command - type "enable" first');
+          } else {
+            out.push.apply(out, this._clearAclCounters(rest));
+          }
         } else if (head === 'clear' && (tokens[1] === 'counters' ||
             ((tokens[1] === 'interface' || tokens[1] === 'interfaces') && tokens[2] === 'counters'))) {
           // Zeroing a counter is how you ask "what has happened *since the last problem*", which is the
@@ -720,6 +747,10 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'scion') {
       this.device.config.scionAs = null;
       out.push('SCION membership removed');
+    } else if (head === 'ip' && tokens[1] === 'access-list') {
+      out.push.apply(out, this._ipAccessList(tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'access-list') {
+      out.push.apply(out, this._noIpAccessList(tokens.slice(3)));
     } else if (head === 'spanning-tree') {
       out.push.apply(out, this._stpConfig(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'spanning-tree') {
@@ -2511,6 +2542,227 @@ class CliSession {
   }
 
   // ---------- access lists ----------
+
+  // `ip access-list standard|extended <name>` - the named half of the ACL surface. Until this
+  // existed an access list could only be built by number, one line per command, with no way to
+  // name one; `ip access-list extended BLOCK` was `% Unrecognized config command`.
+  //
+  // Sequence numbers are the IOS default step of 10 (10, 20, 30 …), which is what makes
+  // `no 20` a usable way to remove one line and what `show access-lists` prints.
+  _ipAccessList(tokens) {
+    const aclLib = require('./acl');
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    const usage = 'ip access-list standard|extended <name>';
+    if (!t.length) return ['% Incomplete command: ' + usage];
+    const kind = t[0];
+    if (kind !== 'standard' && kind !== 'extended') {
+      return ['% access lists come in standard or extended, not "' + tokens[0] + '"',
+        '% Usage: ' + usage];
+    }
+    const name = tokens[1];
+    if (name === undefined) return ['% Incomplete command: ip access-list ' + kind + ' <name>'];
+    const extra = this._noExtra(t, 2, 'ip access-list ' + kind + ' <name>');
+    if (extra) return extra;
+    // A number in a named ACL is legal on IOS and means the numbered list, but the two live in
+    // different namespaces here; saying so is better than creating a second list with the same name.
+    if (/^\d+$/.test(name)) {
+      const numericKind = aclLib.aclKind(Number(name));
+      if (!numericKind) {
+        return ['% ' + name + ' is not a valid ACL number (standard 1-99, extended 100-199)'];
+      }
+      return ['% ' + name + ' is a number, and numbered access lists are built with',
+        '%   access-list ' + name + ' <permit|deny> ...',
+        '% ip access-list names a list; it does not number one'];
+    }
+    if (!dev.config.acls) dev.config.acls = {};
+    const key = String(name);
+    const existing = dev.config.acls[key];
+    if (existing && existing.kind && existing.kind !== kind) {
+      return ['% Access list ' + name + ' is ' + existing.kind + ', not ' + kind,
+        '% Remove it first with: no ip access-list ' + kind + ' ' + name];
+    }
+    const out = [];
+    if (!existing) {
+      // Arrays carry the kind and the counters, the way a numbered list does; a named list is the
+      // same object with a name, which is what keeps `show access-lists` and the dump one code path.
+      const created = [];
+      created.kind = kind;
+      dev.config.acls[key] = created;
+      out.push('Creating ' + kind + ' access list ' + name + ', 1 entry');
+    } else {
+      out.push(kind.charAt(0).toUpperCase() + kind.slice(1) + ' access list ' + name + ' (' +
+        existing.length + ' entr' + (existing.length === 1 ? 'y' : 'ies') + ')');
+    }
+    this.mode = MODE_ACL;
+    this.aclName = key;
+    this.aclKindWord = kind === 'extended' ? 'ext' : 'std';
+    this._enteredAclBlock = true;
+    return out;
+  }
+
+  // `no ip access-list standard|extended <name>` - remove a named list whole, and say what it
+  // unbinds. A list removed while a port still points at it is how a filter silently stops
+  // filtering; the same rule the VLAN removal follows.
+  _noIpAccessList(tokens) {
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    const usage = 'no ip access-list standard|extended <name>';
+    if (!t.length || t[0] === undefined) return ['% Incomplete command: ' + usage];
+    // The kind is optional in the common case: an operator naming a list should not have to
+    // remember which half of the syntax made it.
+    const nameIndex = (t[0] === 'standard' || t[0] === 'extended') ? 1 : 0;
+    const name = tokens[nameIndex];
+    if (name === undefined) return ['% Incomplete command: ' + usage];
+    const extra = this._noExtra(t, nameIndex + 1, usage);
+    if (extra) return extra;
+    const key = String(name);
+    const list = (dev.config.acls || {})[key];
+    if (!list) {
+      return ['% No access list ' + name + ' - the lists here: ' +
+        (Object.keys(dev.config.acls || {}).join(', ') || '(none)')];
+    }
+    const bound = [];
+    const binds = dev.aclBindings || {};
+    for (const k of Object.keys(binds)) {
+      if (String(binds[k].in) === key) bound.push(k + ' in');
+      if (String(binds[k].out) === key) bound.push(k + ' out');
+    }
+    delete dev.config.acls[key];
+    for (const k of Object.keys(binds)) {
+      if (String(binds[k].in) === key) delete binds[k].in;
+      if (String(binds[k].out) === key) delete binds[k].out;
+    }
+    const what = (list.kind === 'standard' ? 'Standard' : 'Extended');
+    return [what + ' access list ' + name + ' removed (' + list.length + ' entr' +
+      (list.length === 1 ? 'y' : 'ies') + ')' +
+      (bound.length ? ', unbound from ' + bound.join(', ') : '')];
+  }
+
+  // Inside `ip access-list ...`: one entry per line, `no <seq>` or `no <entry>` to remove one.
+  _aclMode(tokens) {
+    const aclLib = require('./acl');
+    const dev = this.device;
+    const key = this.aclName;
+    const list = (dev.config.acls || {})[key];
+    const head = String(tokens[0] || '').toLowerCase();
+    const out = [];
+    if (!list) {
+      // The list disappeared underneath the session (a `no ip access-list` in another console).
+      this.mode = MODE_CONFIG;
+      return ['% Access list ' + key + ' no longer exists - back to config'];
+    }
+    if (head === 'exit') { this.mode = MODE_CONFIG; this.aclName = null; return out; }
+    if (head === 'end') { this.mode = this._modeAfterConfig(); this.aclName = null; return out; }
+    // `show` works from inside a block, as it does in an interface block: the question "what does the
+    // list look like now" is asked while adding to it, not after leaving it.
+    if (head === 'show') {
+      out.push.apply(out, this._show(tokens.slice(1)));
+      return out;
+    }
+    const kind = list.kind || 'extended';
+    if (head === 'no') {
+      const rest = tokens.slice(1);
+      if (!rest.length) return ['% Incomplete command: no <sequence> | no <permit|deny ...>'];
+      const numeric = /^\d+$/.test(String(rest[0]));
+      if (numeric && rest.length > 1) {
+        return ['% no ' + rest[0] + ' takes a sequence number alone, or the entry without one'];
+      }
+      let idx = -1;
+      if (numeric) {
+        idx = list.findIndex(function (e) { return Number(e.sequence) === Number(rest[0]); });
+        if (idx === -1) {
+          return ['% No entry ' + rest[0] + ' in access list ' + key,
+            '% Entries: ' + (list.map(function (e) { return e.sequence; }).join(', ') || '(none)')];
+        }
+      } else {
+        const parsed = aclLib.parseEntry(rest.join(' '), null, kind);
+        if (!parsed || parsed.error) {
+          const detail = parsed && parsed.error && (parsed.error.message || parsed.error.code);
+          return ['% ' + key + ': ' + (detail || 'invalid entry')];
+        }
+        const wanted = aclLib.entryKey(parsed);
+        idx = list.findIndex(function (e) { return aclLib.entryKey(e) === wanted; });
+        if (idx === -1) {
+          return ['% No entry matching "' + rest.join(' ') + '" in access list ' + key,
+            '% See "show access-lists ' + key + '" for the lines that are there'];
+        }
+      }
+      const gone = list[idx];
+      list.splice(idx, 1);
+      return ['Removed entry ' + gone.sequence + ' (' + (gone.line || gone.action) + ') from ' + key];
+    }
+    // A line may carry its own sequence number: `10 permit ip any any` is what `show running-config`
+    // prints, and a dump that cannot be pasted is not a dump.
+    const numbered = /^\d+$/.test(head) && tokens.length > 1;
+    if (!numbered && head !== 'permit' && head !== 'deny') {
+      // A pasted dump has no `exit` between blocks: the next unindented line ends this one. So any
+      // config-mode command typed here is applied globally and leaves the block - unless it is
+      // refused, in which case the block is kept, because a refusal must not move the operator.
+      // The flag, not the name: re-entering the *same* list (`ip access-list extended BLOCK` typed
+      // again) leaves the name unchanged, so comparing names made that look like "no new block".
+      this._enteredAclBlock = false;
+      const asConfig = this._configMode(tokens);
+      if (asConfig.some(function (l) { return /^%/.test(l); })) {
+        return ['% Inside an access list, a line starts with permit or deny (or no <sequence>)',
+          '% Got: "' + (tokens[0] || '') + '"'].concat(asConfig);
+      }
+      // `_configMode` sets whatever mode the command implies: an `interface` line goes to the port
+      // block, and `ip access-list …` opens another list. Only a command that leaves the session in
+      // this block still has to be told that the block no longer owns it - and only when the
+      // command did not name a new list of its own (clearing the name it just set is how a pasted
+      // dump lost every line after its first `ip access-list`).
+      if (!this._enteredAclBlock && this.mode === MODE_ACL) {
+        this.aclName = null;
+        this.mode = MODE_CONFIG;
+      }
+      this._enteredAclBlock = false;
+      return asConfig;
+    }
+    const parsed = aclLib.parseEntry(tokens.join(' '), null, kind);
+    if (!parsed || parsed.error) {
+      const detail = parsed && parsed.error && (parsed.error.message || parsed.error.code);
+      // The library judges the words; the console prints the library's sentence and the list it
+      // belongs to, so the message names where the mistake is.
+      return ['% ' + key + ': ' + (detail || 'invalid entry')];
+    }
+    // A sequence number typed in the line is kept, which is what makes a pasted dump rebuild the
+    // same list order; without one the entry goes on the end at the next step of 10.
+    const given = (parsed.sequence === undefined || parsed.sequence === null) ? null : Number(parsed.sequence);
+    const last = list.length ? Number(list[list.length - 1].sequence || 0) : 0;
+    const seq = given === null ? last + 10 : given;
+    parsed.sequence = seq;
+    parsed.line = tokens.join(' ').replace(/^\d+\s+/, '');
+    list.push(parsed);
+    list.sort(function (a, b) { return Number(a.sequence) - Number(b.sequence); });
+    return ['  ' + seq + ' ' + parsed.line + '  (added to ' + key + ')'];
+  }
+
+  // `clear access-list counters [<id|name>]` - an ACL counter is evidence, and evidence you cannot
+  // zero is evidence you cannot date.
+  _clearAclCounters(tokens) {
+    const dev = this.device;
+    const acls = dev.config.acls || {};
+    const want = tokens.length ? String(tokens[0]) : null;
+    if (want !== null && !acls[want]) {
+      return ['% No access list ' + want + ' - the lists here: ' +
+        (Object.keys(acls).join(', ') || '(none)')];
+    }
+    const keys = want === null ? Object.keys(acls) : [want];
+    let zeroed = 0;
+    for (const k of keys) {
+      const list = acls[k];
+      if (!list) continue;
+      for (const e of list) {
+        if (e.matches) { zeroed += e.matches; e.matches = 0; }
+      }
+      if (list.implicitMatches) { zeroed += list.implicitMatches; list.implicitMatches = 0; }
+    }
+    if (!keys.length) return ['% No access lists configured - nothing to clear'];
+    return ['Cleared ' + zeroed + ' access-list match counter' + (zeroed === 1 ? '' : 's') +
+      ' on ' + (want === null ? Object.keys(acls).length + ' list(s)' : want)];
+  }
+
   _accessList(tokens) {
     const aclLib = require('./acl');
     if (!tokens.length) return ['% Incomplete command'];
@@ -2528,10 +2780,20 @@ class CliSession {
     const dev = this.device;
     if (!dev.config.acls) dev.config.acls = {};
     const key = String(num);
-    if (!dev.config.acls[key]) dev.config.acls[key] = [];
-    dev.config.acls[key].push(entry);
+    if (!dev.config.acls[key]) {
+      const created = [];
+      created.kind = kind;
+      dev.config.acls[key] = created;
+    }
+    const list = dev.config.acls[key];
+    // Sequence numbers in the IOS default step of 10, so a numbered list and a named list print the
+    // same way and `no <sequence>` means the same thing in both.
+    const seq = (list.length ? Number(list[list.length - 1].sequence || 0) : 0) + 10;
+    entry.sequence = seq;
+    entry.line = tokens.slice(1).join(' ');
+    list.push(entry);
     return [kind.charAt(0).toUpperCase() + kind.slice(1) + ' access list ' + num +
-      ': ' + entry.action + ' entry added'];
+      ' (' + seq + '): ' + entry.action + ' entry added'];
   }
 
   // no access-list <n> [<entry...>]
@@ -2578,21 +2840,12 @@ class CliSession {
     // had just read in `show access-lists` under a different spelling.
     // A spec is canonicalised too: `host 10.0.1.6` and `10.0.1.6 0.0.0.0` are the same address,
     // and only the `host` flag records which spelling was used.
-    const specKey = function (spec) {
-      if (!spec) return null;
-      if (spec.any) return 'any';
-      return spec.ip + '/' + (spec.host ? '0.0.0.0' : spec.wildcard);
-    };
-    const canon = function (e) {
-      const c = {};
-      for (const k of Object.keys(e)) {
-        if (k === 'line' || k === 'sequence') continue;
-        if (k === 'source' || k === 'destination') { c[k] = specKey(e[k]); continue; }
-        c[k] = e[k];
-      }
-      return JSON.stringify(c);
-    };
-    const strip = canon;
+    // Entry identity is the library's `entryKey`, which is the decision plus the fields the
+    // decision reads - never the sequence number, the stored text, or the hit counter. Building a
+    // second comparison here is how `no access-list 130 deny ip any any` started refusing a line
+    // that was plainly there: the entry had been *used* since it was typed, so it carried a
+    // `matches` counter the freshly parsed probe did not, and the key differed by that one field.
+    const strip = function (e) { return aclLib.entryKey(e); };
     let idx = -1;
     for (let i = 0; i < list.length; i++) {
       if (strip(list[i]) === strip(probe)) { idx = i; break; }
@@ -2614,19 +2867,29 @@ class CliSession {
   }
 
   _accessGroup(tokens, iface) {
-    const aclLib = require('./acl');
-    const num = parseInt(tokens[0], 10);
     const dir = String(tokens[1] || '').toLowerCase();
-    if (!aclLib.aclKind(num)) return ['% Invalid access list number: ' + (tokens[0] || '')];
-    if (dir !== 'in' && dir !== 'out') return ['% Usage: ip access-group <acl> in|out'];
     const dev = this.device;
-    if (!dev.config.acls || !dev.config.acls[String(num)]) {
-      return ['% Access list ' + num + ' does not exist'];
+    if (dir !== 'in' && dir !== 'out') return ['% Usage: ip access-group <acl> in|out'];
+    // Three words for a binding meant the third was dropped silently, and a binding to a list that
+    // is not there turned the port into a filter that filters nothing - the worst kind of quiet.
+    if (tokens.length > 2) {
+      return ['% Unexpected argument "' + tokens[2] + '" - ip access-group <acl> in|out takes no more'];
+    }
+    const want = String(tokens[0] || '');
+    if (!want) return ['% Incomplete command: ip access-group <acl> in|out'];
+    const acls = dev.config.acls || {};
+    // A named list is bound by name: `ip access-group BLOCK in` used to be read with parseInt and
+    // refused as "Invalid access list number: BLOCK", so a named ACL could be built and never applied.
+    if (!acls[want]) {
+      const numeric = /^\d+$/.test(want);
+      return ['% Access list ' + want + ' does not exist' +
+        (numeric ? '' : ' (named lists are bound by name)'),
+        '% Configured: ' + (Object.keys(acls).join(', ') || '(none)')];
     }
     if (!dev.aclBindings) dev.aclBindings = {};
     if (!dev.aclBindings[iface.name]) dev.aclBindings[iface.name] = {};
-    dev.aclBindings[iface.name][dir] = num;
-    return ['Interface ' + iface.name + ': access list ' + num + ' applied ' + dir];
+    dev.aclBindings[iface.name][dir] = want;
+    return ['Interface ' + iface.name + ': access list ' + want + ' applied ' + dir];
   }
 
   // no ip access-group [<acl>] [in|out]
@@ -2647,7 +2910,8 @@ class CliSession {
     for (const t of tokens) {
       const s = String(t).toLowerCase();
       if (s === 'in' || s === 'out') wantDir = s;
-      else if (/^\d+$/.test(s)) wantNum = parseInt(s, 10);
+      // A named list unbinds by the same word it was bound with, not only by number.
+      else if (s) wantNum = /^\d+$/.test(s) ? parseInt(s, 10) : s;
     }
     const removed = [];
     for (const dir of ['in', 'out']) {
@@ -3897,6 +4161,34 @@ class CliSession {
     const ospfIfaces = (ospf && ospf.interfaces) || [];
     const vrrp = Array.isArray(dev.config.vrrp) ? dev.config.vrrp : [];
 
+    // Access lists are emitted before the interface blocks. A dump is pasted from the top, so an
+    // interface that says `ip access-group BLOCK in` before BLOCK exists is refused by the very
+    // device that wrote the dump - and the binding is lost in the paste. (OSPF's global lines are
+    // ordered first for the same reason.)
+    const allAcls = dev.config.acls || {};
+    const aclIds = Object.keys(allAcls).sort(function (a, b) {
+      const na = parseInt(a, 10), nb = parseInt(b, 10);
+      if (isNaN(na) && isNaN(nb)) return a < b ? -1 : (a > b ? 1 : 0);
+      if (isNaN(na)) return 1;
+      if (isNaN(nb)) return -1;
+      return na - nb;
+    });
+    for (const id of aclIds) {
+      const list = allAcls[id];
+      // A named list pastes back as the block that made it. `access-list BLOCK deny ...` would be
+      // read as a *numbered* list whose number is the word, which is a different object - and the
+      // one form the device would then refuse.
+      if (/^\d+$/.test(id)) {
+        for (const e of list) out.push('access-list ' + id + ' ' + (e.line || e.action));
+      } else {
+        out.push('ip access-list ' + (list.kind || 'extended') + ' ' + id);
+        for (const e of list) {
+          out.push('  ' + ((e.sequence === undefined || e.sequence === null) ? '' : e.sequence + ' ') +
+            (e.line || e.action));
+        }
+      }
+    }
+
     for (const i of dev.interfaces.values()) {
       out.push('interface ' + i.name);
       if (i.description) out.push('  description ' + i.description);
@@ -3962,10 +4254,6 @@ class CliSession {
         if (g.advertSec !== undefined && g.advertSec !== 1) out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
       }
       if (!i.enabled) out.push('  shutdown');
-    }
-    const allAcls = dev.config.acls || {};
-    for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
-      for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
     }
     for (const r of dev.config.routes) {
       // An interface-only route has no next hop, and `(r.gw || '')` left its slot empty, so the line
@@ -4274,11 +4562,21 @@ class CliSession {
       if (!ids.length) out.push('% No access lists configured');
       const binds = dev.aclBindings || {};
       for (const id of ids) {
-        const kind = aclLib.aclKind(parseInt(id, 10));
+        const list = acls[id];
+        const kind = list.kind || aclLib.aclKind(parseInt(id, 10)) || 'extended';
         out.push((kind === 'standard' ? 'Standard' : 'Extended') + ' IP access list ' + id);
-        let n = 1;
-        for (const e of acls[id]) {
-          out.push('  ' + (n++) + ' ' + (e.line || (e.action + ' ' + (e.protocol || 'ip'))));
+        let n = 0;
+        for (const e of list) {
+          n += 1;
+          const seq = (e.sequence === undefined || e.sequence === null) ? n * 10 : e.sequence;
+          // The counter is the part an operator comes for: a list of rules with no hits is a list of
+          // intentions, and "which line ate my packet" has no answer in it.
+          out.push('  ' + String(seq).padStart(3) + ' ' + (e.line || (e.action + ' ' + (e.protocol || 'ip'))) +
+            (e.matches ? '  (' + e.matches + ' match' + (e.matches === 1 ? '' : 'es') + ')' : ''));
+        }
+        if (list.implicitMatches) {
+          out.push('      implicit deny  (' + list.implicitMatches + ' match' +
+            (list.implicitMatches === 1 ? '' : 'es') + ')');
         }
         for (const k of Object.keys(binds)) {
           if (String(binds[k].in) === String(id)) out.push('    applied IN on ' + k);
@@ -6225,6 +6523,9 @@ class CliSession {
       helpLine('interface <parent>.<vlan>', 'creates a tagged subinterface'),
       helpLine('no interface <parent>.<vlan>', 'remove a subinterface'),
       helpLine('vlan <id> [name]', 'declare a VLAN  (no vlan <id>)'),
+      helpLine('ip access-list standard|extended <name>', 'build a named access list, entry by entry'),
+      helpLine('access-list <n> <permit|deny ...>', 'one line of a numbered list'),
+      helpLine('no ip access-list <name>', 'remove a named list and its bindings'),
       helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge  (no spanning-tree vlan <id>)'),
       helpLine('spanning-tree vlan <id> root primary|secondary', 'ask to be root, in words'),
       helpLine('ip route <dest> <mask> <gw> [iface]', 'add a static route'),
@@ -6288,6 +6589,16 @@ class CliSession {
       helpLine('<any config-mode command>', 'applied globally, then back to config'),
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'config / exec')
+    ]);
+
+    if (this.mode === MODE_ACL) return helpRows([
+      'Access-list ' + this.aclName + ' (' + (this.aclKindWord === 'ext' ? 'extended' : 'standard') + '):',
+      helpLine('permit|deny <entry>', 'one line, in the order shown by "show access-lists"'),
+      helpLine('no <sequence>', 'remove the line with that number'),
+      helpLine('no permit|deny <entry>', 'remove the line that matches, without its number'),
+      helpLine('show access-lists [<name>]', 'the list as it stands, with match counters'),
+      helpLine('help / ?', 'this list'),
+      helpLine('exit / end', 'back to config / to enable')
     ]);
 
     if (this.mode === MODE_DHCP_POOL) return helpRows([

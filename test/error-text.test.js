@@ -52,8 +52,10 @@ console.log('\nAn ACL entry that does not parse answers with its own sentence:')
     'an out-of-range list number is refused as before');
   eq(env.d.config.acls === undefined || Object.keys(env.d.config.acls).length === 0, true,
     'and no refused entry was stored');
+  // The confirmation names the sequence number the line was given, because that number is what
+  // `no <sequence>` and the dump will use from now on.
   eq(s.run('access-list 110 permit tcp 10.0.0.0 0.0.0.255 any eq 443').output[0],
-    'Extended access list 110: permit entry added', 'while a good entry is added');
+    'Extended access list 110 (10): permit entry added', 'while a good entry is added');
 }
 
 console.log('\nNo refusal anywhere is "the shape of an answer":');

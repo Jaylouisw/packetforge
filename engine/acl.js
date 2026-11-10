@@ -161,7 +161,10 @@ function portMatches(spec, pkt) {
 
 // 'permit|deny <source> [log]'
 // 'permit|deny <protocol> <source> <dest> [eq|gt|lt <port>] [log]'
-function parseEntry(line, aclNumber) {
+// `forcedKind` exists because a *named* list has no number to read the kind from: on IOS the kind
+// came from `ip access-list standard|extended <name>`, and every entry inside inherits it. Without
+// it, `permit 10.0.0.0 0.0.0.255` inside a named standard list was parsed as an extended entry.
+function parseEntry(line, aclNumber, forcedKind) {
   const text = typeof line === 'string' ? line.trim() : '';
   if (!text) return err('E_ENTRY', 'empty ACL line');
 
@@ -187,6 +190,8 @@ function parseEntry(line, aclNumber) {
     kind = aclKind(number);
     if (!kind) return err('E_ACL_NUMBER', 'invalid ACL number: ' + number);
     aclNumberValue = typeof number === 'number' ? number : Number(String(number).trim());
+  } else if (forcedKind === 'standard' || forcedKind === 'extended') {
+    kind = forcedKind;
   } else {
     const head = String(tokens[i] === undefined ? '' : tokens[i]).toLowerCase();
     kind = PROTOCOLS.indexOf(head) !== -1 ? 'extended' : 'standard';
@@ -348,6 +353,36 @@ function entriesOf(acl) {
   return [];
 }
 
+// What makes two entries the same line: the decision and every field the decision reads, without
+// the sequence number or the hit counter. `no <permit|deny …>` needs this to name the line it means.
+function entryKey(entry) {
+  const e = entry || {};
+  // Canonical on purpose: `host 10.0.1.7` and `10.0.1.7 0.0.0.0` are one address, and `eq www` and
+  // `eq 80` are one port. Matching on how a line was typed refuses to remove a line the operator
+  // just read under the other spelling.
+  const spec = function (s) {
+    if (!s) return null;
+    if (s.any) return 'any';
+    const ip = String(s.ip || s.address || '');
+    const wild = String(s.wildcard || (s.host ? '0.0.0.0' : ''));
+    return ip + '/' + wild;
+  };
+  const port = function (p) {
+    if (!p) return '';
+    const v = (p.value === undefined) ? p : p.value;
+    if (typeof v === 'object' && v !== null) return String(v.value === undefined ? JSON.stringify(v) : v.value);
+    return String(v).toLowerCase();
+  };
+  return [
+    String(e.action || '').toLowerCase(),
+    String(e.protocol || 'ip').toLowerCase(),
+    spec(e.source),
+    spec(e.destination),
+    port(e.sourcePort),
+    port(e.destinationPort)
+  ].join('/');
+}
+
 // First match wins. Falling off the end is the implicit deny.
 function evaluate(acl, pkt) {
   const list = sortAcl(entriesOf(acl));
@@ -475,5 +510,6 @@ module.exports = {
   matchEntry,
   evaluate,
   validateAcl,
-  sortAcl
+  sortAcl,
+  entryKey
 };

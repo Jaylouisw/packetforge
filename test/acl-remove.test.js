@@ -62,7 +62,7 @@ console.log('One entry goes, the others stay:');
     'access-list 101 permit tcp any host 10.0.1.6 eq 443',
     'exit']);
   const before = cli(r1, ['show access-lists']);
-  match(/1 permit tcp any host 10\.0\.1\.5 eq 80/, before, 'three entries are there to begin with');
+  match(/10 permit tcp any host 10\.0\.1\.5 eq 80/, before, 'three entries are there to begin with');
 
   const out = cli(r1, ['configure terminal', 'no access-list 101 permit tcp any host 10.0.1.5 eq 80', 'exit']);
   match(/^Access list 101: removed "permit tcp any host 10\.0\.1\.5 eq 80" \(2 left\)$/m, out,
@@ -71,8 +71,10 @@ console.log('One entry goes, the others stay:');
   const after = cli(r1, ['show access-lists']);
   ok(!/10\.0\.1\.5/.test(after), 'the removed entry is gone');
   ok(/deny ip any any/.test(after) && /10\.0\.1\.6/.test(after), 'the other two are untouched');
-  eq((after.match(/^  \d+ /gm) || []).length, 2, 'and they are renumbered, not left with a hole');
-  eq((after.match(/^  1 deny ip any any$/m) || []).length, 1, 'the deny is now entry 1');
+  // Sequence numbers are the IOS default 10, 20, 30 and they persist: removing the middle line
+  // leaves 10 and 30, which is what makes a sequence number a stable name for a line.
+  eq((after.match(/^ +\d+ /gm) || []).length, 2, 'and two entries are left');
+  eq((after.match(/^ +20 deny ip any any$/m) || []).length, 1, 'the deny keeps its own number, 20');
 }
 
 console.log('\nAn entry is matched by meaning, not by spelling:');

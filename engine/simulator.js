@@ -2776,6 +2776,15 @@ class Simulator {
     };
     const verdict = aclLib.evaluate(list, pkt);
     verdict.acl = bind[dir];
+    // Counters, per line, counted where the decision is made. `show access-lists` printing rules
+    // with no hit counts is a list of intentions: the question an operator brings to an ACL that
+    // blocks the wrong traffic is *which line ate my packet*, and only the counter answers it.
+    if (verdict.matchedIndex !== null && verdict.matchedIndex !== undefined && list[verdict.matchedIndex]) {
+      const entry = list[verdict.matchedIndex];
+      entry.matches = (entry.matches || 0) + 1;
+    } else if (verdict.implicit) {
+      list.implicitMatches = (list.implicitMatches || 0) + 1;
+    }
     return verdict;
   }
 

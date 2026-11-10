@@ -1,0 +1,24 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router'),PC=c.find(s=>s.model==='generic-pc'),SW=c.find(s=>s.model==='generic-switch');
+function lab(){const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const r2=t.addDevice(R);r2.name='R2';const sw=t.addDevice(SW);sw.name='SW1';const pc=t.addDevice(PC);pc.name='PC1';
+t.connect(pc.id,'eth0',sw.id,'Fa0/1');t.connect(sw.id,'Fa0/2',r1.id,'Gi0/0');t.connect(r1.id,'Gi0/1',r2.id,'Gi0/0');
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const s1=mk(r1),s2=mk(r2),sp=mk(pc);const cfg=(s,cmds)=>{s.run('configure terminal');cmds.forEach(x=>{const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED '+x+' => '+o.join(' / '));});s.run('end');};
+cfg(s1,['hostname R1','interface Gi0/0','ip address 10.0.0.1 255.255.255.0','exit','interface Gi0/1','ip address 10.9.0.1 255.255.255.0','exit','ip route 10.1.0.0 255.255.255.0 10.9.0.2']);
+cfg(s2,['hostname R2','interface Gi0/0','ip address 10.9.0.2 255.255.255.0','exit','interface Gi0/1','ip address 10.1.0.1 255.255.255.0','exit']);
+cfg(sp,['hostname PC1','interface eth0','ip address 10.0.0.50 255.255.255.0','ip default-gateway 10.0.0.1','exit']);
+return {t,sim,r1,s1,sp,cfg};}
+const env=lab();
+console.log('plain ping:', env.sp.run('ping 10.1.0.1 count 1').output.filter(l=>/Success/.test(l))[0]);
+env.cfg(env.s1,['ip access-list extended BLOCK','deny icmp any host 10.1.0.1','permit ip any any','exit','interface Gi0/0','ip access-group BLOCK in','exit']);
+console.log('denied ping:', env.sp.run('ping 10.1.0.1 count 2').output.filter(l=>/Success/.test(l))[0]);
+env.s1.run('show access-lists').output.forEach(l=>console.log('  |'+l));
+const dump=env.s1.run('show running-config').output;
+console.log('--- dump'); dump.forEach(l=>console.log('  '+l));
+const f=lab();
+f.s1.run('configure terminal');
+dump.filter(l=>!/^!/.test(l)&&!/^hostname /.test(l)).forEach(l=>{const o=f.s1.run(l).output;if(o.some(x=>/^%/.test(x)))console.log('  PASTE-REFUSED: '+JSON.stringify(l)+' => '+o.join(' / '));});
+f.s1.run('end');
+console.log('prompt after paste:', f.s1.prompt());
+f.s1.run('show access-lists').output.forEach(l=>console.log('  |'+l));
+console.log('fresh ping:', f.sp.run('ping 10.1.0.1 count 1').output.filter(l=>/Success/.test(l))[0]);

@@ -1177,6 +1177,84 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### An access list can be named, and every line can be counted
+
+A filter could only be built by number, one line per command, and never counted:
+
+```
+R1(config)#ip access-list extended BLOCK
+% Unrecognized config command: ip access-list extended BLOCK
+R1(config-if)#ip access-group BLOCK in
+% Invalid access list number: BLOCK
+R1#show access-lists
+Extended IP access list 101
+   1 deny icmp any host 10.1.0.1
+   2 permit ip any any
+```
+
+Both halves work now, and the numbering is IOS's default step of 10:
+
+```
+R1(config)#ip access-list extended BLOCK
+Creating extended access list BLOCK, 1 entry
+R1(config-ext-nacl)#deny icmp any host 10.1.0.1
+    10 deny icmp any host 10.1.0.1  (added to BLOCK)
+R1(config-ext-nacl)#deny tcp any host 10.1.0.1 eq 23
+    20 deny tcp any host 10.1.0.1 eq 23  (added to BLOCK)
+R1(config-ext-nacl)#exit
+R1(config)#interface Gi0/0
+R1(config-if)#ip access-group BLOCK in
+Interface Gi0/0: access list BLOCK applied in
+```
+
+The prompt names the block (`config-std-nacl` / `config-ext-nacl`), `show` works from inside it, and
+`no <sequence>` removes one line by number while `no deny icmp any host 10.1.0.1` removes it by
+meaning — a line that has been *used* since it was typed is still removable, because a hit counter is
+not part of what the line means.
+
+**Counters.** `show access-lists` now carries the number an operator comes for:
+
+```
+R1#show access-lists
+Extended IP access list BLOCK
+   10 deny icmp any host 10.1.0.1  (3 matches)
+   20 permit ip any any  (2 matches)
+    applied IN on Gi0/0
+```
+
+and the implicit deny is counted too, because falling off the end of a list is the line that ate the
+packet:
+
+```
+Extended IP access list STRICT
+   10 deny icmp any host 10.1.0.5
+      implicit deny  (2 matches)
+```
+
+`clear access-list counters [<id|name>]` (and `clear ip access-list counters`) zeroes them and says
+how many it cleared, so a counter becomes dated evidence; clearing one list leaves the others.
+
+**Refusals**, each naming the thing that was wrong: a kind that is not `standard|extended`, a missing
+or trailing word, a *number* given to `ip access-list` (which points at `access-list <n> …`), a list
+that cannot change kind, a binding to a list that is not configured (with the lists that are), a
+third word on a binding, and `no 10 20` (a sequence number takes nothing else).
+
+**The dump** prints the block and pastes back:
+
+```
+ip access-list extended BLOCK
+  10 deny icmp any host 10.1.0.1
+  20 permit ip any any
+interface Gi0/0
+  ip address 10.0.0.1 255.255.255.0
+  ip access-group BLOCK in
+```
+
+Access lists are emitted **before** the interface blocks, because a dump is pasted from the top: an
+interface that binds a list before the list exists is refused by the very device that wrote the dump,
+and the binding is lost in the paste. A block ends where a pasted dump ends it — the next unindented
+command closes it — and a *refused* command leaves the session in the block.
+
 ### The root bridge can be chosen, and the table names it
 
 `show spanning-tree` printed roles and states and never a root — while its own help row promised

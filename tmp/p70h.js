@@ -1,0 +1,25 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router'),PC=c.find(s=>s.model==='generic-pc'),SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const r1=t.addDevice(R),r2=t.addDevice(R),sw=t.addDevice(SW),pc=t.addDevice(PC);
+r1.name='R1';r2.name='R2';sw.name='SW1';pc.name='PC1';
+t.connect(pc.id,'eth0',sw.id,'Fa0/1');t.connect(sw.id,'Fa0/2',r1.id,'Gi0/0');t.connect(r1.id,'Gi0/1',r2.id,'Gi0/0');
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const s1=mk(r1),s2=mk(r2),sp=mk(pc);
+const cfg=(s,cmds)=>{s.run('configure terminal');cmds.forEach(x=>{const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED '+x+' => '+o.join(' / '));});s.run('end');};
+cfg(s1,['hostname R1','interface Gi0/0','ip address 10.0.0.1 255.255.255.0','exit','interface Gi0/1','ip address 10.9.0.1 255.255.255.0','exit','ip route 10.1.0.0 255.255.255.0 10.9.0.2']);
+cfg(s2,['hostname R2','interface Gi0/0','ip address 10.9.0.2 255.255.255.0','exit','interface Gi0/1','ip address 10.1.0.1 255.255.255.0','exit']);
+cfg(sp,['hostname PC1','interface eth0','ip address 10.0.0.50 255.255.255.0','ip default-gateway 10.0.0.1','exit']);
+// replicate the failing test block exactly
+cfg(s1,['ip access-list extended BLOCK','deny icmp any host 10.1.0.1','permit ip any any','exit','interface Gi0/0','ip access-group BLOCK in','exit']);
+s1.run('configure terminal','ip access-list extended BLOCK');
+console.log('no20:', s1.run('no 20').output.join(' | '));
+console.log('no20 again:', s1.run('no 20').output.join(' | '));
+console.log('ping:', sp.run('ping 10.1.0.1 count 1').output.filter(l=>/Success/.test(l))[0]);
+console.log('no deny:', s1.run('no deny icmp any host 10.1.0.1').output.join(' | '));
+console.log('ping:', sp.run('ping 10.1.0.1 count 1').output.filter(l=>/Success/.test(l))[0]);
+console.log('mode now:', s1.prompt());
+cfg(s1,['ip access-list extended BLOCK','deny icmp any host 10.1.0.1','permit ip any any','exit']);
+console.log('list:', JSON.stringify(s1.device.config.acls.BLOCK.map(e=>[e.sequence,e.line])), 'prompt', s1.prompt());
+sp.run('ping 10.1.0.1 count 2');
+s1.run('show access-lists').output.forEach(l=>console.log('  |'+l));
+console.log('mode:', s1.prompt());

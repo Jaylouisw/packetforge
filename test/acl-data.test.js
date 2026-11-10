@@ -119,7 +119,10 @@ console.log('\nScenario D: ACL persistence');
   const r2 = t2.getDevice(L.r1.id);
   ok(r2.config.acls && r2.config.acls['10'] && r2.config.acls['10'].length === 2,
     'ACL entries restored after load');
-  ok(r2.aclBindings && r2.aclBindings['Gi0/0'] && r2.aclBindings['Gi0/0'].in === 10,
+  // Bindings are stored under the string key of the list, because a list can be *named*: an ACL
+  // called BLOCK has no number to store, and two doors onto the same binding must not disagree
+  // about whether it is 10 or "10".
+  ok(r2.aclBindings && r2.aclBindings['Gi0/0'] && String(r2.aclBindings['Gi0/0'].in) === '10',
     'ACL binding restored after load');
 
   const sim2 = new Simulator(t2);
