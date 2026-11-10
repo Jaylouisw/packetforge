@@ -440,37 +440,42 @@ services, and a job that has to swap makes the whole queue slower.
     that a quarantined file whose entire purpose is to record the stale URL is not a violation. The two
     assertions that depended on a clean tree followed the exemption.
 
-- **A red suite can exist in a working copy without existing in the repository.** At one point
-  `test/block-stray-words.test.js` reported **15 passed, 4 failed** while `git ls-files test/block-stray-words.test.js`
-  returned nothing: the suite was **untracked**, sitting in a working copy next to an uncommitted 163-line change
-  to `engine/cli.js`. CI checks out `HEAD` and runs `test/*.test.js` from there, so on that tree the suite does not
-  exist and CI is green. Both statements are true at once, and only one of them belongs in this page.
+- **A red suite can exist in a working copy without existing in the repository — and it can go green while
+  you watch.** `test/block-stray-words.test.js` is **untracked** (`git ls-files` returns nothing for it), so CI,
+  which checks out `HEAD`, never runs it. It reported `15 passed, 4 failed` at one point and `19 passed, 0 failed`
+  twenty minutes later: it was being written alongside an uncommitted change to `engine/cli.js`, and the pair
+  converged. Neither number belonged in this page, and both were true.
 
-  What the four failures showed was a mismatch *inside that in-flight pair*: the suite matches
-  `/is not an argument to "shutdown"/`, and the new engine code answers differently:
+  The measurement that *does* belong here is the full run, split by where the failure comes from:
 
   ```text
-  D1(config-if)#shutdown zzzz
-  % Unexpected argument "zzzz" - shutdown takes no more
-
-  D1(config-if)#no ip address zzzz
-  % Unexpected argument "zzzz" - no ip address takes no more
+  234 suite(s) in 314.5 s — 10064 assertions passed, 15 failed
+  Failed: link-parts, ma5801, poe-admin, port-security, ps-aging,
+          skip-audit, switchport-args, undo-completeness
   ```
 
-  The refusal itself is real and the state is untouched — the suite's own `✓ the port was not taken down by the
-  refused line` and `✓ the lease is still configured after the refused line` pass, as does the 183-row sweep — so
-  the stale half is the expectation, not the engine, and the fix is four regexes rather than a behaviour change.
-  The two older red suites (`spec-vs-description`, `canonical-urls`) are green now at 3/0 and 43/0, so "the
-  known-red suites" is a set that moves in both directions.
-
-  Before quoting any of this, ask git whether the suite is in the tree at all:
+  `link-parts` and `ma5801` fail on `HEAD` as well — they are property of the tree. The other six fail only in a
+  working copy carrying that uncommitted `engine/cli.js` change; run the same six against a pristine `HEAD` and
+  they pass (34/0, 99/0, 53/0, 15/0, 42/0, 30/0). To separate the two without touching the working copy:
 
   ```bash
-  git ls-files 'test/*.test.js' | wc -l   # what CI would run
-  ls test/*.test.js | wc -l               # what your working copy would run
+  d=$(mktemp -d) && git archive HEAD | tar -x -C "$d" && cd "$d" \
+    && node test/poe-admin.test.js       # 34 passed, 0 failed - HEAD is clean, so the failure was the change
   ```
 
-  A difference between those two numbers is the whole explanation, and it is the check this page was missing.
+  The two failures that are actually the tree's:
+
+  - `test/link-parts.test.js` — **the UI carries every catalogue part (34 of 58)**, and the two assertions that fail
+    name what is missing: `QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-SR4`,
+    `QSFP56-200G-FR4`, `QSFP28-100G-SR4`, `QSFP28-100G-BIDI`, `QSFP28-100G-eBIDI` and the rest of the QSFP family.
+    `web/link-parts.js` is behind the catalogue; nothing regenerates it.
+  - `test/ma5801.test.js` — **crashes rather than failing**: `TypeError: Cannot read properties of undefined
+    (reading 'hardware')` at line 96, because the suite asks for `gpon1/1` and the GP16's PON ports are now named
+    `pon1 … pon20` (`new Topology().addDevice(spec).interfaces.has('gpon1/1')` is false). A rename in the catalogue
+    left the test addressing the old names.
+
+  Both are tests-vs-catalogue drift, which is the failure mode this project's own suite is worst at catching,
+  because the test *is* the thing that is wrong.
 
 - **Nothing checks that the generated wiki is current.** `docs/wiki/` is written by
   `scripts/build-wiki.js` from text templates held in that script, and no job runs
