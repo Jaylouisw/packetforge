@@ -59,6 +59,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show vrrp` | group state after the last election ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
+| `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
 | `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
 | `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
@@ -1191,6 +1192,40 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### BGP had no mode, and the line after it was lost
+
+`router bgp 65001` enabled the process and **stayed in global config**. On a real router it enters
+`(config-router)#` — the same mode `router ospf` enters, which this console's prompt was already
+claiming. Every BGP block in every lab ends in `exit`, so pasting one dropped the operator to exec on
+that line, and every command after it was read as exec and silently lost:
+
+```
+R1(config)#router bgp 65001
+BGP enabled, local AS 65001
+R1(config-router)#neighbor 10.0.0.2 remote-as 65002
+BGP neighbor 10.0.0.2 remote-as 65002
+R1(config-router)#exit
+Leaving router configuration mode
+R1(config)#ip access-list extended WEB      <- used to be: % Unrecognized command, and then the rest
+Creating extended access list WEB, 1 entry
+```
+
+The mode is shared with OSPF (`this.routerKind` records which process is being edited), so `exit`
+returns to config, `end` to exec, a verb from the wrong process is refused in that process's words,
+and anything that is not a BGP verb leaves the mode and is re-dispatched as configuration — which is
+what makes a dump without `exit` pasteable. `router bgp` on a layer 2 switch is refused by name.
+
+**Three more found by the same round trip, in families the first harness did not reach:**
+
+| Symptom | Cause | Now |
+| --- | --- | --- |
+| `ipv6 route …` appeared twice after pasting a dump twice | the IPv4 table had been made idempotent, the IPv6 table had not | the same identity rule; a re-add says *"already configured: via …"* with the `no` form that removes it |
+| `vrrp 1 preempt` was set, was in the group record, and was **not** in the dump | the dump printed only `ip`, `priority`, `advertise` | `preempt` and `no preempt` are both dumped, because *not default* is not the same as *not configured* |
+| `spanning-tree vlan <id> root primary` | the dump printed the priority against VLAN 1 whatever VLAN was named, so a switch set up for VLAN 10 pasted back as VLAN 1 - one bridge priority is kept per device, and the dump no longer invents a VLAN | the VLAN the operator named is kept for the dump, and both the confirmation and the `root` form say that one spanning tree covers every VLAN here |
+| `show ip bgp summary` read `0 of 0 neighbour(s)` with a peer configured one command earlier | the table was built from the simulator's evaluation, so configuration was invisible until a packet moved | every configured peer is listed, with state `Idle`, reason `not yet evaluated` |
+| `mikrotik/RB960PGS` declared `poe-pse, 802.3at, 802.3af`, and `show power inline` said *"neither sources nor draws PoE"* while `power inline never` was refused on every port | per-port power comes only from explicit port records, so a capability list that claims a standard and no port that carries it left the console describing the *device* | the disagreement is reported as what it is: **"% POE1 declares poe-pse, 802.3at, 802.3af, passive-poe in its catalogue entry, but no port record on it carries power-out"** … *"That is a gap in the device specification, not a state of the device"*, and `power inline never` gives the same reason instead of "does not source PoE". The first fix derived a per-port wattage from the declared standard; three catalogue-wide guards refused it and were right - a port's wattage is a datasheet fact, not something to infer from a capability tag |
+| a port told `power inline never` with nothing plugged in vanished from `show power inline` | the table was built from powered devices, so the state just configured was the one it could not show | configured-withheld ports are listed with `Admin never` and `off (administratively)` |
 
 ### `ip routing`, and configuration that is not the same when applied twice
 

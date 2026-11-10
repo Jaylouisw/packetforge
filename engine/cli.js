@@ -868,7 +868,26 @@ class CliSession {
       this.device.ospfRoutes = [];
       out.push('OSPF disabled');
     } else if (head === 'router' && tokens[1] === 'bgp') {
-      out.push.apply(out, this._bgp(['as', tokens[2]]));
+      // `router bgp <as>` started BGP and stayed in config mode. Every real BGP block ends in `exit`,
+      // so pasting one - the most common configuration in any BGP lab - dropped the operator out of
+      // config mode on that line and every command after it was read as exec and lost. The mode is
+      // the same one `router ospf` uses, which is why the prompt already says (config-router).
+      // A switch has no routes to advertise and no table to put them in, and it accepted
+      // `router bgp 65001` and entered router configuration mode. Refuse it in its own terms.
+      if (typeof this.device.isL3 === 'function' && !this.device.isL3()) {
+        return ['% ' + (this.device.name || this.device.id) + ' is a layer 2 switch: it cannot run BGP',
+          '% BGP needs a device that routes - a router, or a layer 3 switch with "ip routing"'];
+      }
+      const accepted = this._bgp(['as', tokens[2]]);
+      out.push.apply(out, accepted);
+      if (!accepted.some(function (l) { return /^%/.test(l); })) {
+        this.modeBeforeOspf = this.mode;
+        this.routerKind = 'bgp';
+        this.mode = MODE_OSPF;
+        out.push('Entering router configuration mode (local AS ' + this.device.config.bgp.as + ')');
+        out.push('  "neighbor <ip> remote-as <as>" adds a peer, "bgp router-id <ip>" names this router',
+          '  "exit" leaves the mode, and a pasted configuration does not need it');
+      }
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
@@ -1789,8 +1808,18 @@ class CliSession {
       }
       const was = dev.config.stpPriority;
       dev.config.stpPriority = n;
+      // The VLAN the operator named is kept only so the dump can print the same words back. The
+      // priority itself is the device's, which the next line says out loud.
+      dev.config.stpVlan = vid;
       const said = ['Spanning tree bridge priority ' + n + ' on ' + (dev.name || dev.id)];
       if (was !== undefined && was !== n) said.push('  was ' + was);
+      // One bridge priority is kept, for one spanning-tree instance, however the VLAN word is spelled.
+      // The command accepted `vlan 10`, answered "for VLAN 10", and then applied it to the device - and
+      // the dump wrote `spanning-tree vlan 1`, inventing a VLAN nobody typed. Say what it did.
+      if (vid !== '1' && vid !== 'all') {
+        said.push('  This model runs one spanning tree for every VLAN, so the priority is the device\'s;');
+        said.push('  "show spanning-tree" prints it against that single instance');
+      }
       return said;
     }
     if (sub === 'root') {
@@ -1817,8 +1846,10 @@ class CliSession {
       if (which === 'primary' && bestOther <= target) target = Math.max(0, bestOther - 4096);
       if (which === 'secondary' && bestOther <= target) target = Math.max(0, bestOther + 4096);
       dev.config.stpPriority = target;
+      dev.config.stpVlan = vid;
       return ['Spanning tree for VLAN ' + vid + ': ' + (dev.name || dev.id) + ' is set to be root ' +
-        which + ' (bridge priority ' + target + ')'];
+        which + ' (bridge priority ' + target + ')',
+        '  One spanning tree covers every VLAN here, so the priority is the device\'s'];
     }
     return ['% Unrecognized spanning-tree command: spanning-tree ' + t.join(' '), '% Usage: ' + usage];
   }
@@ -2238,6 +2269,17 @@ class CliSession {
     if (extra) return extra;
     if (!this.device.config.routes6) this.device.config.routes6 = [];
     const net = v6.networkAddress6(dest);
+    // Same rule as the IPv4 table: an identical route is not a second route. Found by pasting a dump
+    // twice - the IPv4 half had been made idempotent and this half had not, so a double paste left
+    // two identical `ipv6 route` lines and no way to tell why a dump had grown.
+    const twin = (this.device.config.routes6 || []).filter(function (r) {
+      return String(r.dest) === String(net) && Number(r.prefix) === p.prefixLen &&
+        String(r.nextHop) === String(nh);
+    })[0];
+    if (twin) {
+      return [net + '/' + p.prefixLen + ' is already configured: via ' + nh,
+        '  The table is unchanged - "no ipv6 route ' + net + '/' + p.prefixLen + '" removes it'];
+    }
     this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
     return ['IPv6 route ' + net + '/' + p.prefixLen + ' via ' + nh];
   }
@@ -2438,6 +2480,7 @@ class CliSession {
     // `network` inside the mode would have nothing to attach to.
     this.device.config.ospf = cfg;
     this.modeBeforeOspf = this.mode;
+    this.routerKind = 'ospf';
     this.mode = MODE_OSPF;
     const out = [already ? 'Entering router configuration mode (process ' + pid + ' was already there)'
       : 'OSPF process ' + pid + ' enabled, entering router configuration mode'];
@@ -2453,15 +2496,18 @@ class CliSession {
   // Inside `router ospf`: the two verbs that matter, and nothing that pretends to be something else.
   _ospfRouterMode(tokens) {
     const head = String(tokens[0] || '').toLowerCase();
-    const cfg = this.device.config.ospf;
-    if (!cfg) { this.mode = MODE_CONFIG; return ['% OSPF is no longer configured']; }
     if (head === 'help' || head === '?') return this._help();
+    if (this.routerKind === 'bgp') return this._bgpRouterMode(tokens);
+    const cfg = this.device.config.ospf;
+    if (!cfg) { this.mode = MODE_CONFIG; this.routerKind = null; return ['% OSPF is no longer configured']; }
     if (head === 'exit') {
       this.mode = MODE_CONFIG;
+      this.routerKind = null;
       return ['Leaving router configuration mode'];
     }
     if (head === 'end') {
       this.mode = MODE_ENABLE;
+      this.routerKind = null;
       return [];
     }
     if (head === 'network') return this._ospfNetwork(tokens, false);
@@ -2489,6 +2535,54 @@ class CliSession {
     return ['% "' + tokens.join(' ') + '" is not a router ospf command',
       '% In this mode: network <net> <wildcard> area <id>, router-id <ip>, exit, end',
       '% Interface settings (cost, passive, area) are configured on the interface'];
+  }
+
+  // (config-router)# when the process is BGP. Deliberately the same mode and prompt as OSPF, because
+  // on a real router it is the same mode; only the verbs differ.
+  _bgpRouterMode(tokens) {
+    const head = String(tokens[0] || '').toLowerCase();
+    if (!this.device.config.bgp) { this.mode = MODE_CONFIG; this.routerKind = null; return ['% BGP is no longer configured']; }
+    if (head === 'exit') {
+      this.mode = MODE_CONFIG;
+      this.routerKind = null;
+      return ['Leaving router configuration mode'];
+    }
+    if (head === 'end') {
+      this.mode = MODE_ENABLE;
+      this.routerKind = null;
+      return [];
+    }
+    // A dump emits `neighbor ...` / `bgp router-id ...` and does not say `exit` between blocks.
+    if (head === 'neighbor' || head === 'no' || head === 'bgp' || head === 'network') {
+      if (head === 'network') {
+        return ['% BGP "network" is not modelled here: the routes this box announces are the connected',
+          '% and static ones its own table holds - "show ip bgp" lists what it would send'];
+      }
+      if (head === 'no') {
+        const asGlobalNo = (function (self) {
+          const saved = self.mode; self.mode = MODE_CONFIG;
+          const r = self._configMode(tokens);
+          self.mode = saved;
+          return r;
+        })(this);
+        const refused = asGlobalNo.length && /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobalNo[0]);
+        if (!refused) return asGlobalNo;
+      } else {
+        return this._bgp(tokens);
+      }
+    }
+    // Anything else leaves the mode and is re-dispatched, exactly as OSPF does, so a paste never
+    // loses a line: `interface Gi0/0` after a BGP block is configuration, not a BGP verb.
+    const saved = this.mode;
+    this.mode = MODE_CONFIG;
+    this.routerKind = null;
+    const asGlobal = this._configMode(tokens);
+    const refused = asGlobal.length && /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobal[0]);
+    if (!refused) return asGlobal;
+    this.mode = saved;
+    this.routerKind = 'bgp';
+    return ['% "' + tokens.join(' ') + '" is not a router bgp command',
+      '% In this mode: neighbor <ip> remote-as <as>, bgp router-id <ip>, exit, end'];
   }
 
   // `network <net> <wildcard> area <id>` - the area is a property of the interface here, so this
@@ -3965,6 +4059,14 @@ class CliSession {
     if (!iface.poeOut) {
       const sourcing = Array.from(dev.interfaces.values()).filter(function (i) { return i.poeOut; });
       if (!sourcing.length) {
+        // When the catalogue claims PoE and the ports do not carry it, the answer is the same
+        // reason the show gives: a gap in the specification, not a state of the device.
+        const claim = this._poeClaimWithoutPorts();
+        if (claim) {
+          return ['% ' + (dev.name || dev.id) + ' declares ' + claim + ' in its catalogue entry,',
+            '% but no port record on it carries power-out - so ' + iface.name + ' has nothing to switch',
+            '% That is a gap in the device specification, not something this console can configure'];
+        }
         return ['% ' + (dev.name || dev.id) + ' does not source PoE, so ' + iface.name +
           ' has no power to give',
           '% PoE-out ports appear in "show power inline" on the devices that have them'];
@@ -5604,13 +5706,22 @@ class CliSession {
       try { this.sim.computeBgp(); } catch (e) { /* keep the persisted state */ }
     }
 
-    const rows = dev.bgpNeighbors || [];
+    let rows = dev.bgpNeighbors || [];
+    // A configured neighbour that the simulator has not looked at yet was simply missing from the
+    // table, which read "0 of 0" for a router with a peer configured one command earlier. The list of
+    // neighbours is configuration; the state is not. Show every configured peer, and say `Idle` for
+    // the ones with no evaluation yet, so the count is a count of reality.
+    if (!rows.length && (cfg.neighbors || []).length) {
+      rows = (cfg.neighbors || []).map(function (n) {
+        return { address: n.address, remoteAs: n.remoteAs, state: 'Idle', reason: 'not yet evaluated' };
+      });
+    }
     out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
       ', local AS number ' + cfg.as);
     out.push('');
     if (!rows.length) {
       out.push(pad('Neighbor', 17) + pad('V', 3) + pad('AS', 8) + pad('State', 16) + 'Reason');
-      out.push('(no neighbours have been evaluated yet - run a simulation)');
+      out.push('(no neighbour is configured - "neighbor <ip> remote-as <as>" adds one)');
     } else {
       const table = rows.map(function (r) {
         return [r.address, '4', String(r.remoteAs == null ? '?' : r.remoteAs),
@@ -5774,6 +5885,20 @@ class CliSession {
   // you about a neighbour that formed but produced no route - a stub, or a port
   // that is passive. `show ip ospf` reports the process and its interfaces;
   // `show ip ospf neighbor` reports the peers.
+  // A device whose capability list claims a PoE standard, and whose ports carry none. Returns the
+  // claim in words, or null. One door, so the show and the verbs give the same reason.
+  _poeClaimWithoutPorts() {
+    const dev = this.device;
+    const caps = ((dev.spec && dev.spec.capabilities) || []).filter(function (c) {
+      return /^poe-pse$/.test(c) || /^802\.3(at|af)$/.test(c) || /^passive-poe$/.test(c);
+    });
+    if (!caps.length) return null;
+    for (const i of dev.interfaces.values()) {
+      if (i.poeOut || (i.hardware && i.hardware.poeOut)) return null;
+    }
+    return caps.join(', ');
+  }
+
   _showOspf(args) {
     const dev = this.device;
     const cfg = dev.config && dev.config.ospf;
@@ -6259,7 +6384,9 @@ class CliSession {
     // Spanning tree priority, before the interface blocks: a dump that forgets the root the
     // operator chose is a dump that pastes back into a different topology.
     if (dev.config.stpPriority !== undefined) {
-      out.push('spanning-tree vlan 1 priority ' + dev.config.stpPriority);
+      // The VLAN the operator named, not VLAN 1: the dump used to invent one, so a switch configured
+      // with `spanning-tree vlan 10 priority 4096` dumped - and pasted back - VLAN 1.
+      out.push('spanning-tree vlan ' + (dev.config.stpVlan || 1) + ' priority ' + dev.config.stpPriority);
     }
 
     // OSPF process first: `ip ospf …` inside an interface is refused until
@@ -6422,6 +6549,12 @@ class CliSession {
         for (const vip of (g.ips || [])) out.push('  vrrp ' + g.vrid + ' ip ' + vip);
         if (g.priority !== undefined && g.priority !== 100) out.push('  vrrp ' + g.vrid + ' priority ' + g.priority);
         if (g.advertSec !== undefined && g.advertSec !== 1) out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
+        // `vrrp <vrid> preempt` was accepted, was in the group record, and was not in the dump: so a
+        // paste silently dropped the one setting that decides whether this router takes the group
+        // back when it returns. Both directions are printed, because "not default" is not the same
+        // as "not configured".
+        if (g.preempt === true) out.push('  vrrp ' + g.vrid + ' preempt');
+        else if (g.preempt === false) out.push('  no vrrp ' + g.vrid + ' preempt');
       }
       if (!i.enabled) out.push('  shutdown');
     }
@@ -8743,6 +8876,9 @@ class CliSession {
     const sourcing = Array.from(dev.interfaces.values()).filter(function (i) { return i.poeOut; });
 
     if (rec) {
+      // Where a budget came from decides how much it can be trusted, so the line always says. A
+      // derived budget is the standard's per-port limit times the copper ports, and it says so rather
+      // than looking like a figure off a data sheet.
       const label = { spec: 'spec', research: 'research', name: 'model name', unknown: 'unknown' }[dev.poeBudgetSource] ||
         dev.poeBudgetSource;
       out.push('Power inline on ' + dev.name + ':');
@@ -8750,7 +8886,22 @@ class CliSession {
       out.push('  Used         : ' + round1(rec.used) + ' W');
       out.push('  Available    : ' + round1(Math.max(0, rec.budget - rec.used)) + ' W');
       const shown = only ? rec.ports.filter(function (x) { return x.iface === only; }) : rec.ports;
-      if (!rec.ports.length) {
+      // A port told `power inline never` with nothing plugged into it produced no row at all, because
+      // the table was built from powered devices rather than from the ports. So the one state an
+      // operator had just *configured* was the one the show could not display: the summary said
+      // "(no powered device is attached)" and the decision was invisible.
+      const withheld = Array.from(dev.interfaces.values()).filter(function (i) {
+        return !i.svi && !i.parent && i.poeOut && i.poeAdmin === 'never' && i.name !== only;
+      });
+      if (!rec.ports.length && withheld.length) {
+        out.push('  ' + pad('Port', 8) + pad('Admin', 8) + pad('Powered device', 22) +
+          pad('Requested', 11) + 'Status');
+        for (const i of withheld) {
+          out.push('  ' + pad(i.name, 8) + pad('never', 8) + pad('-', 22) + pad('-', 11) +
+            'off (administratively)');
+        }
+        out.push('  (no powered device is attached to the remaining ports)');
+      } else if (!rec.ports.length) {
         out.push('  (no powered device is attached)');
       } else if (!shown.length) {
         // A port can be administratively without power and still cabled to a device; the filter has
@@ -8774,6 +8925,14 @@ class CliSession {
     } else if (sourcing.length) {
       out.push('% ' + dev.name + ' has ' + sourcing.length + ' PoE-capable port(s) but no power budget, ' +
         'so none of them can source power');
+    } else if (this._poeClaimWithoutPorts()) {
+      // The device's catalogue entry and its port records disagree, and the show used to answer
+      // "% POE1 neither sources nor draws PoE" - a statement about the device, when the fact is a gap
+      // in the device's specification. An operator cannot fix this from the console, and should not
+      // be sent looking for a fault in the box.
+      out.push('% ' + dev.name + ' declares ' + this._poeClaimWithoutPorts() + ' in its catalogue entry,');
+      out.push('% but no port record on it carries power-out - so there is nothing to switch on or off');
+      out.push('% That is a gap in the device specification, not a state of the device');
     }
 
     // The other half of the same decision: what this device is being fed. Only a

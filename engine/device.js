@@ -200,6 +200,7 @@ class Device {
       }
       if (!sources) this.poeBudget = 0;
     }
+
   }
 
   interface(name) { return this.interfaces.get(name); }
