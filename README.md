@@ -132,6 +132,34 @@ Four labs ship as JSON, and each one is checked by a ping when it is built:
 | `lab3-multi-vendor-campus.json` | 8 devices from 4 vendors — cloud, Cisco `ISR4321`, MikroTik `CRS326-24G`, Huawei `S5735-L24T4S`, Ubiquiti `EdgeSwitch-16`, 2 PCs, 1 server (7 cables) | a campus edge with a WAN: a static default route on `EDGE` toward `198.51.100.1`, and `10.0.0.0/24` behind it |
 | `lab4-vlans-trunk-stp.json` | 2 switches, 3 PCs (5 cables, including a second link between the switches) | VLANs 10 and 20 over a trunk with a deliberate loop, so STP has to block one port before anything passes |
 
+**`lab4` is the one lab where something does not ping, and it is worth knowing which.** The loop is
+broken by spanning tree before any traffic passes: SW2 blocks `Fa0/8` as an alternate, and says why —
+`Fa0/8 is alternate: SW1 reaches the root for 0, this bridge for 20000` — while `Fa0/7` becomes its root
+port. What that leaves, measured on the file as shipped:
+
+| From → to | Result |
+|---|---|
+| `PC1` 192.168.10.10 → `PC2` 192.168.10.20 | **4/4**, over `SW1 Fa0/7 → SW2 Fa0/7` (the port STP kept) |
+| `PC1` → `PC3` 192.168.10.30 | **0/4** |
+| `PC2` → `PC3` | **0/4** |
+
+`PC3` is not broken by STP: it is on `SW2 Fa0/2`, which is in **VLAN 20**, while its address is in the
+VLAN 10 subnet. There is no router and no SVI in the lab, so VLAN 20 has nowhere to go — `show vlan brief`
+on SW2 lists `20 GUEST active Fa0/2, Fa0/7(t), Fa0/8(t)` and nothing bridges the two VLANs. Move that
+port into VLAN 10 and all three PCs are in one broadcast domain — measured, from the console, with STP
+still blocking `Fa0/8` afterwards:
+
+```text
+SW2(config)#interface Fa0/2
+SW2(config-if)#switchport mode access
+Switchport mode access on Fa0/2
+SW2(config-if)#switchport access vlan 10
+Access VLAN 10 on Fa0/2
+```
+
+`PC1 → PC3` and `PC2 → PC3` then report `Success rate is 100 percent (4/4)`. Leave the port where it is
+and the lab is a working example of a device that is cabled, up, and unreachable.
+
 Open one with the **Import** button in the editor — it posts the file to
 `POST /api/topologies/<id>/load` — or from the shell:
 
