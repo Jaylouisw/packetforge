@@ -72,7 +72,10 @@ pending queue until the reply arrives).
 ### Why it's correct, not canned
 
 - ARP requests actually **flood** the L2 segment and only the owner replies.
-- MAC tables are **learned** from real traffic.
+- MAC tables are **learned** from real traffic, and stamped with the instant they were learned, so an entry ages out
+  after 300 s of silence (`MAC_AGE_MS`). The same aged lookup decides forwarding and reading: an entry the table
+  only remembers is not a port a frame may be sent to. An entry with no timestamp — a fixture's, an imported lab's —
+  is never aged and reports no age.
 - Cross-subnet pings traverse the router with **TTL decrement** and correct
   L2/L3 header handling (source IP is preserved; only the MAC is rewritten).
 - Unreachable destinations **time out** because the ARP request is never answered.
@@ -233,6 +236,10 @@ and a live one look identical in the bare map, which is why the rows exist.
 
 One consequence worth knowing: a link state change **flushes** what was learned on that port, so `(down: link down)`
 is unreachable in the MAC table by design — the entry is gone, not stale.
+
+`runtime[d].macTable` is published as address -> port even though the table keeps `{ port, atMs }` internally: the
+instant is not part of what that map has ever meant. The rows in `runtime[d].mac` carry an `age` per entry for a
+client that wants it.
 
 ### Where the boxes are
 

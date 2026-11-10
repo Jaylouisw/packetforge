@@ -2802,7 +2802,9 @@ class Simulator {
     // ways regardless of what it has seen before.
     // A passive coupler and a passive tap have no table to learn into: neither can
     // remember what it has seen, so neither may be credited with learning.
-    if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.macTableFor(vid).set(f.srcMac, inIface);
+    // Learned *at an instant*, so the entry can age. `this.runAtMs` is the question being asked - Infinity on a
+    // settled lab, which means no clock and so no ageing (#1395).
+    if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.learnMac(vid, f.srcMac, inIface, this._nowMs());
 
     // 3b. Inbound access list.
     const aclIn = this._aclCheck(dev, inIface, 'in', f);
@@ -2971,7 +2973,6 @@ class Simulator {
   // ---------------------------------------------------------------------
 
   _forwardL2(dev, frame, inIface, bcast, vid) {
-    const table = dev.macTableFor(vid);
     const candidates = [];
 
     if (bcast) {
@@ -2991,7 +2992,8 @@ class Simulator {
         candidates.push(iface.name);
       }
     } else {
-      const out = table.get(frame.dstMac);
+      // The lookup is at the same instant: an entry the table only remembers is not a port a frame can go to.
+      const out = dev.macLookup(vid, frame.dstMac, this._nowMs());
       if (out && out !== inIface) {
         candidates.push(out);
       } else if (out === inIface) {
@@ -3068,10 +3070,13 @@ class Simulator {
       return;
     }
 
+    // "Did the switch know where to send it?" is the same question the forwarding decision asked, at the same
+    // instant, so it is answered by the same lookup rather than by a second reading of the table (#1395).
+    const known = bcast ? null : dev.macLookup(vid, frame.dstMac, this._nowMs());
     for (const e of egresses) {
       this._emit({
         type: 'switch', dev: dev.id, iface: e, vlan: vid,
-        action: bcast ? 'flood' : (table.has(frame.dstMac) ? 'forward' : 'flood')
+        action: bcast ? 'flood' : (known ? 'forward' : 'flood')
       });
       const iface = dev.interfaces.get(e);
       this._emitFrame(dev, iface, frame, vid);
@@ -3768,6 +3773,12 @@ class Simulator {
   // handed. `this.step` is a packet count, so passing it here said a translation had been idle for twelve
   // "seconds" when twelve packets had crossed. The instant is the only unit a timeout can be measured in; it is
   // null on a settled lab, which is 0 seconds into the run.
+  // The instant a forwarding decision is made at, in milliseconds. Infinity (a settled lab) and null (no clock
+  // given) both mean "no ageing", which `Number.isFinite` expresses without a second flag.
+  _nowMs() {
+    return Number.isFinite(this.runAtMs) ? this.runAtMs : null;
+  }
+
   _natNowSec() {
     return Math.floor((Number.isFinite(this.runAtMs) ? this.runAtMs : 0) / 1000);
   }
