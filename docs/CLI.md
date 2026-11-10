@@ -24,6 +24,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | Command | Effect |
 |---------|--------|
 | `enable` | enter enable mode |
+| `show history` | the commands typed into this session, last 10 ([Commands from a lab guide](#commands-from-a-lab-guide-and-the-word-this-console-answers-with)) |
 | `configure terminal` | enter config mode |
 | `show version` | vendor, model, category, capabilities |
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
@@ -1188,6 +1189,50 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Commands from a lab guide, and the word this console answers with
+
+A real switch answers `show cdp neighbors`, `show inventory`, `show processes cpu`, `show users`,
+`show line`. This one has none of them, and answered `% Invalid show command: cdp neighbors` — which
+reads like a typo, so the operator retypes it and then goes looking for a bug that is not there.
+Being told *what this console answers instead* is the difference between a dead end and a redirection:
+
+```
+SW1#show cdp neighbors
+% CDP is not modelled: nothing here speaks it
+% These devices speak LLDP, and the table is the same one you were asking for:
+%   show lldp neighbors [<port>]      who is on the other end of each port
+%   show lldp neighbors detail        chassis, port, TTL and medium per neighbour
+%   show lldp interface               the per-port transmit/receive decision
+
+SW1#show processes cpu
+% No CPU and no scheduler: every device forwards at line rate in this model
+% The only delay is serialisation at each port, and it is reported per packet:
+%   show interfaces counters            packets, bytes and drops per port
+```
+
+One table (`_absentShow`) holds the whole family: CDP → LLDP, inventory → `show version` and
+`show interfaces transceiver`, environment and PSU readings → `show power inline`, users/sessions/line
+→ this one console, cpu → the per-port counters, NTP → the fact that time here is an *instant* you ask
+about, and `show switchport` → the three tables that split a port's L2 state between them. Every
+pointer in those sentences is a command the test runs, because a refusal that recommends something
+absent is the defect this whole series is about.
+
+`show history` was the one of these that deserved to exist rather than be explained: the console keeps
+the lines typed into it, bounded at 200, and prints the last 10 the way IOS does. Asking for the
+history is deliberately *not* recorded — a question that changes its own answer is the same defect as
+a `show` that moves a counter.
+
+Two commands did come out of the sweep as real work:
+
+* **`show interfaces <port> switchport`** — the word was silently dropped and the plain counters view
+  printed instead, so an operator checking a trunk was told nothing about it. It now prints
+  administrative/operational mode, access VLAN (with its name) or native VLAN and allowed list, port
+  security state, description and channel-group. Two bugs found by running it: the shut marker read
+  `iface.shutdown` where the model stores `enabled` (so no port ever showed as shut), and the access
+  VLAN line ended in a trailing space when the VLAN had no name.
+* **`show interfaces vlan <id>`** — the two-word spelling of an SVI was read as a port called `vlan`;
+  `show interfaces counters errors` was read as a port called `errors`.
 
 ### One LLDP view, and three questions it could not answer
 

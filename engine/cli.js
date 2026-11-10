@@ -329,6 +329,15 @@ class CliSession {
     }
     let tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
+    // `show history` is a view of this session, so the console has to keep one. Bounded, because a
+    // long run types thousands of lines and a history nobody can read is not history.
+    this.history = this.history || [];
+    // Asking for the history must not become part of it, or every question about it changes the
+    // answer - the same defect as a `show` that moves a counter.
+    if (!/^show\s+history\b/i.test(line.trim())) {
+      this.history.push(line.trim());
+      if (this.history.length > 200) this.history.shift();
+    }
 
     // A trailing `?` asks what can follow what you have already typed - `sh ?`, `show ip ?`,
     // `show ip route ?`. This used to be an error about the `?` itself (`sh ?` answered
@@ -2853,6 +2862,124 @@ class CliSession {
     if (!n) return ['No sticky secure addresses on ' + where + ' - nothing to clear'];
     return ['Sticky secure addresses cleared on ' + where + ' (' + n + ')',
       '  The stations must be learned again, and the next one may be a different station'];
+  }
+
+  // `show interfaces <port> switchport` - the L2 view of one port. It was silently ignored: the
+  // plain detail view was printed and the word `switchport` dropped, so an operator checking a trunk
+  // was shown the counters of one and told nothing about it.
+  _showPortSwitchport(dev, iface) {
+    const v = iface.vlan || { mode: 'access', accessVlan: 1 };
+    const mode = String(v.mode || 'access').toLowerCase();
+    const out = ['Name: ' + iface.name,
+      '  Administrative Mode: ' + (mode === 'trunk' ? 'trunk' : mode === 'access' ? 'static access' : mode) +
+        // The model calls it `enabled`, not `shutdown`: a port is disabled by `shutdown` and enabled
+        // by `no shutdown`, and `_ifaceState()` reads the same field.
+        (iface.enabled === false ? ' (administratively down)' : '')];
+    if (mode === 'trunk') {
+      const allowed = v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans)
+        ? 'ALL' : v.allowedVlans.slice().sort(function (a, b) { return a - b; }).join(',');
+      out.push('  Operational Mode: trunk');
+      out.push('  Trunking Native Mode VLAN: ' + (Number(v.nativeVlan) || 1));
+      out.push('  Trunking VLANs Enabled: ' + allowed);
+      out.push('  Administrative private-vlan: none');
+    } else if (mode === 'access') {
+      out.push('  Operational Mode: static access');
+      const vid = Number(v.accessVlan) || 1;
+      const decl = (dev.config.vlans || {})[vid];
+      const vname = typeof decl === 'string' ? decl : (decl && decl.name ? String(decl.name) : '');
+      // The name only when there is one: the line used to end in a trailing space otherwise.
+      out.push('  Access Mode VLAN: ' + vid + (vname ? ' (' + vname + ')' : ''));
+    } else {
+      out.push('  Operational Mode: ' + mode);
+    }
+    out.push('  Voice VLAN: none');
+    // Port security is part of this view on a real switch, and it is modelled here.
+    const sec = dev.portSecurity && dev.portSecurity.ports ? dev.portSecurity.ports[iface.name] : null;
+    if (sec && sec.enabled) {
+      out.push('  Port Security: Enabled');
+      out.push('  Maximum MAC Addresses: ' + (sec.maximum || 1));
+      out.push('  Violation Mode: ' + (sec.violation || 'shutdown'));
+      out.push('  Status: ' + (sec.errDisabled ? 'Secure-shutdown' : 'Secure-up'));
+      const total = (sec.configured || []).length + (sec.sticky || []).length + (sec.learned || []).length;
+      out.push('  Total Addresses: ' + total);
+    } else {
+      out.push('  Port Security: Disabled');
+    }
+    out.push('  Description: ' + (iface.description || '-'));
+    if (iface.channelGroup || iface.lag) {
+      out.push('  Channel-group: ' + (iface.channelGroup || iface.lag));
+    }
+    return out;
+  }
+
+  // Commands an operator brings from a real device or a lab guide, which this model deliberately
+  // does not have. `% Invalid show command: cdp neighbors` reads like a typo, so the operator retypes
+  // it and then goes looking for a bug that is not there. Naming the equivalent here costs one table
+  // and turns a dead end into a redirection.
+  _absentShow(tokens) {
+    const words = tokens.map(function (t) { return String(t).toLowerCase(); });
+    const has = function (w) { return words.indexOf(w) !== -1; };
+    const first = words[0] || '';
+    if (first === 'cdp') {
+      return ['% CDP is not modelled: nothing here speaks it',
+        '% These devices speak LLDP, and the table is the same one you were asking for:',
+        '%   show lldp neighbors [<port>]      who is on the other end of each port',
+        '%   show lldp neighbors detail        chassis, port, TTL and medium per neighbour',
+        '%   show lldp interface               the per-port transmit/receive decision'];
+    }
+    if (first === 'inventory') {
+      return ['% There is no inventory: this model has no serial numbers, no FRUs and no modules',
+        '% What a device is: "show version" (vendor, model, capabilities, port count)',
+        '% What its optics are: "show interfaces transceiver" (cage, medium, reach vs cable)'];
+    }
+    if (first === 'environment' || first === 'power' && has('supply')) {
+      return ['% There are no environmental sensors here: no temperature, fan or PSU readings are modelled',
+        '% The one power view this model keeps is PoE: "show power inline" (budget, allocation, denied ports)'];
+    }
+    if (first === 'users' || first === 'sessions' || first === 'line') {
+      return ['% One session: this console. Nothing else can log in, and there is no VTY line to configure',
+        '% What this session has done is in "show history"'];
+    }
+    if (first === 'processes' || has('cpu')) {
+      return ['% No CPU and no scheduler: every device forwards at line rate in this model',
+        '% The only delay is serialisation at each port, and it is reported per packet:',
+        '%   show interfaces counters            packets, bytes and drops per port'];
+    }
+    if (first === 'switchport') {
+      // The three tables that carry the same facts, named so the operator does not have to guess.
+      return ['% This model has no "show switchport": a port\'s L2 state is split across three tables',
+        '%   show interfaces status             connected/notconnect, VLAN, duplex, speed, type',
+        '%   show interfaces <port>             switchport mode, access VLAN, trunking, port security',
+        '%   show interfaces <port> switchport  mtu, speed, duplex, description for one port'];
+    }
+    if (first === 'interfaces' && (has('switchport') || has('counters') && has('errors'))) {
+      return ['% No port-level error counters are kept: this model drops frames by name instead',
+        '% Every drop is an event with the reason (mtu, acl, port-security, no-cable), so:',
+        '%   show interfaces counters            packets, bytes and drops per port',
+        '%   show interfaces <port>              the drops on one port, in words'];
+    }
+    // `show clock` is implemented and answers in its own words, so it is not in this table; `ntp` is
+    // the one that has nowhere else to go.
+    if (first === 'ntp') {
+      return ['% There is no wall clock here, so no time source to synchronise with',
+        '% Time is whatever you ask about: append "at <ms>" or "converged" to a show that depends on it',
+        '%   show mac address-table at 50       the table as it stood 50 ms into the run'];
+    }
+    return null;
+  }
+
+  // `show history` - the commands typed into this session, from the console's own record.
+  _showHistory() {
+    const h = (this.history || []).slice();
+    const size = 10;
+    const shown = h.slice(Math.max(0, h.length - size));
+    if (!shown.length) return ['No commands in this session yet'];
+    const out = ['Last ' + shown.length + ' command' + (shown.length === 1 ? '' : 's') + ' in this session:'];
+    shown.forEach(function (line, i) {
+      out.push('  ' + String(i + 1) + '  ' + line);
+    });
+    if (h.length > size) out.push('  (' + h.length + ' typed; IOS keeps the last ' + size + ' by default)');
+    return out;
   }
 
   // `show lldp` - the device's own LLDP state, which nothing printed: the console had exactly one
@@ -6958,6 +7085,15 @@ class CliSession {
         return out;
       }
       if (ifSub === 'counters') {
+        // `errors` is the word an operator adds when a link is flapping, and this model keeps no
+        // error counters - so say that, rather than reading the word as a port named `errors`.
+        const cw = String(tokens[2] || '').toLowerCase();
+        if (['errors', 'detail', 'discards'].indexOf(cw) !== -1) {
+          return ['% No per-port error counters are kept: this model drops frames by name instead',
+            '% Each drop is an event with its reason (mtu, acl, port-security, no-cable), so:',
+            '%   show interfaces counters            packets, bytes and drops per port',
+            '%   show interfaces <port>              the drops on one port, in words'];
+        }
         // This used to be refused with a pointer to a command that had no counters in it. It is a
         // command now, and the pointer is gone because it is no longer needed.
         const pick = this._portArg(tokens.slice(2), dev, 'show interfaces counters');
@@ -6981,20 +7117,49 @@ class CliSession {
         return out;
       }
       if (tokens[1] !== undefined) {
-        only = resolvePortName(dev, tokens[1]);
+        // `show interfaces vlan 20` is how an SVI is asked about on a real switch; the model names the
+        // interface `Vlan20` and the two-word spelling was read as a port called `vlan`.
+        if (String(tokens[1]).toLowerCase() === 'vlan' && /^\d+$/.test(String(tokens[2] || ''))) {
+          const svi = dev.interfaces.get('Vlan' + tokens[2]) || dev.interfaces.get('VLAN' + tokens[2]) ||
+            dev.interfaces.get('vlan' + tokens[2]);
+          if (svi) {
+            only = svi.name;
+            tokens = [tokens[0], tokens[1] + ' ' + tokens[2]].concat(tokens.slice(3));
+          }
+        } else {
+          only = resolvePortName(dev, tokens[1]);
+        }
         if (!only) {
           // A word that looks like an IOS subcommand but is not a port reads as a typo otherwise:
           // `show interfaces counters` answered "No interface named counters", which is true and
           // sends the operator looking for a port by that name.
           const KNOWN_SUB = ['counters', 'status', 'summary', 'brief', 'description', 'switchport'];
           if (KNOWN_SUB.indexOf(String(tokens[1]).toLowerCase()) !== -1) {
-            return ['% "show interfaces ' + tokens[1] + '" is not a command here',
-              '% Per-port counters and status are in "show interfaces <port>"',
-              '% The list of ports is in "show ip interface brief"'];
+            // One sentence for every word of this family, and it names the three tables that do
+            // answer - including `show interfaces <port> switchport`, which now exists.
+            return [
+              '% "show interfaces ' + tokens.slice(1).join(' ') + '" is not a command here',
+              '% A port\'s L2 state is split across three tables:',
+              '%   show interfaces status             connected/notconnect, VLAN, duplex, speed, type',
+              '%   show interfaces <port>             counters, MTU, speed, duplex, drops, peer',
+              '%   show interfaces <port> switchport  mode, access VLAN or trunking, port security',
+              '% No per-port error counters are kept: a frame is dropped by name (mtu, acl, port-security)',
+              '% and each drop is an event, so "show interfaces counters" totals them per port'];
           }
           return ['% No interface named ' + tokens[1] + ' on ' + (dev.name || dev.id),
             '% Try "show ip interface brief" for the ports this device has'];
         }
+      }
+      // `switchport` narrows the detail view to the L2 half of one port.
+      if (only && String(tokens[2] || '').toLowerCase() === 'switchport') {
+        const extra = this._noExtra(tokens, 3, 'show interfaces <port> switchport');
+        if (extra) return out.concat(extra);
+        const port = dev.interfaces.get(only);
+        if (!port || port.svi || port.parent) {
+          return ['% ' + only + ' is a logical interface: it has no switchport state',
+            '% Ask for the physical port it belongs to'];
+        }
+        return out.concat(this._showPortSwitchport(dev, port));
       }
       for (const i of dev.interfaces.values()) {
         if (only && i.name !== only) continue;
@@ -7064,6 +7229,16 @@ class CliSession {
         out.push.apply(out, this._configBlock(this._runningConfigLines(dev), pick.port));
       }
     } else {
+      // Commands this model deliberately does not have, answered with the equivalent here rather
+      // than `% Invalid show command`. Every one of these is a line from a real lab guide, so the
+      // operator typed it in good faith and deserves to be told what this console answers instead.
+      if (String(tokens[0] || '').toLowerCase() === 'history') {
+        const extra = this._noExtra(tokens, 1, 'show history');
+        if (extra) return out.concat(extra);
+        return out.concat(this._showHistory());
+      }
+      const absent = this._absentShow(tokens);
+      if (absent) return out.concat(absent);
       out.push('% Invalid show command: ' + (tokens.join(' ') || '(empty)'));
     }
     return out;
@@ -8876,6 +9051,8 @@ class CliSession {
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
       helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
+      helpLine('show interfaces <port> switchport', 'one port\'s L2 state: mode, access VLAN or trunking, port security'),
+      helpLine('show history', 'the commands typed into this session, last 10'),
       helpLine('show interfaces description [<port>]', 'every port label in one list, with its state'),
       helpLine('show ip interface [brief] [<port>]', 'per-port detail: address, mask, MTU, ACLs, NAT'),
       helpLine('show interfaces counters [<port>]', 'one row per port: packets, bytes, drops'),
