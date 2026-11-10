@@ -1767,10 +1767,16 @@ class CliSession {
       return ['% Invalid ping target: ' + target + ' (not an IPv4 address, and not a name that could resolve)'];
     }
     if (!this.sim) return ['% Simulator not attached'];
+    // The instant is a property of the question, not of the session. `setRunTime()` persists on the simulator, so
+    // `ping <a> at 0` used to leave the whole console answering at t=0 - the next plain `ping`, a later
+    // `show ip route`, anything - and the answer's convergence line printed `at t=null ms` because it read the
+    // typed value instead of the instant used (#1383).
+    const priorRunAtMs = this.sim.runAtMs;
     if (atMs !== null) {
       if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid instant: ' + tokens[tokens.indexOf('at') + 1]];
       this.sim.setRunTime(atMs);
     }
+    try {
     out.push('Type escape sequence to abort.');
     let shownTarget = target;
     if (namedTarget) {
@@ -1813,15 +1819,23 @@ class CliSession {
           : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
         out.push('Reply from ' + shownTarget + ': bytes=100 time=' + t);
       } else if (r.reason === 'converging') {
-        // Not "request timed out": nothing was lost, the network is not up yet.
-        const who = (r.pending || []).map(function (p) { return p.process + ' on ' + p.device; }).join(', ');
-        out.push('% Still converging at t=' + atMs + ' ms: ' + who +
-          (r.convergingUntilMs !== null ? ' (ready at ' + r.convergingUntilMs + ' ms)' : ''));
+        // Not "request timed out": nothing was lost, the network is not up yet. Said once, below, rather than
+        // once per echo - the answer is one fact about the path, not four (#1383).
       } else {
         out.push('Request timed out (seq ' + r.seq + ')');
       }
     }
+    // "Still converging" is a statement about the path, so it is printed once, with the instant the answer was
+    // given at - which is the answer's own, not the one the operator typed (#1383).
+    const converging = require('./simulator').pingConvergenceSentence(res.replies);
+    if (converging) {
+      out.push('% ' + converging + (res.runAtMs === null ? '' : ' at t=' + res.runAtMs + ' ms'));
+    }
     return out;
+    } finally {
+      // Whatever the ping did or failed to do, the session is left at the instant it arrived with.
+      this.sim.runAtMs = priorRunAtMs;
+    }
   }
 
   // ---------- converge ----------

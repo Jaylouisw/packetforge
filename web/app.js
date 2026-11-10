@@ -2388,6 +2388,55 @@
     return null;
   }
 
+  // "The path is not up yet" is not packet loss. The engine writes the sentence (engine/simulator.js
+  // `pingConvergenceSentence`) and the console prints it; this is the same rule for the browser, checked against
+  // the engine by test/ping-convergence.test.js (#1383).
+  function pingConvergenceSentence(replies) {
+    const conv = (replies || []).filter(function (r) { return r && r.reason === 'converging'; });
+    if (!conv.length) return null;
+    const who = [];
+    conv.forEach(function (r) {
+      (r.pending || []).forEach(function (p) {
+        const label = String(p.process || 'a process') + ' on ' + String(p.device || 'a device');
+        if (who.indexOf(label) < 0) who.push(label);
+      });
+    });
+    const until = conv.map(function (r) { return r.convergingUntilMs; })
+      .filter(function (x) { return typeof x === 'number' && isFinite(x); });
+    const ready = until.length ? Math.max.apply(null, until) : null;
+    return 'Still converging' + (who.length ? ': ' + who.join(', ') : '') +
+      (ready !== null ? ' (ready at ' + ready + ' ms)' : '');
+  }
+
+  // What the Simulate dialog says about one ping answer. Pure, so test/ping-convergence.test.js can ask it the
+  // awkward cases directly instead of driving a form (#1383): a converging path gets a sentence and no percentage,
+  // a name that did not resolve is not 0% loss, and a plain answer gets a rate.
+  function pingResultHtml(r, dst, askedCount) {
+    const replies = (r && r.replies) || [];
+    const ok = replies.filter(function (x) { return x.success; }).length;
+    const sentCount = (r && r.count) || askedCount || replies.length || 1;
+    const dns = (r && r.dns) || null;
+    const resolvedLine = dns
+      ? (dns.ok
+        ? '<div class="hint">' + esc(dst) + ' resolved to ' + esc(dns.address) +
+          (dns.serverIp ? ' via ' + esc(dns.serverIp) : '') + '</div>'
+        : '<div class="fail">' + esc(dst) + ' did not resolve: ' + esc(String(dns.status || 'unknown')) +
+          ' - nothing was sent</div>')
+      : '';
+    if (dns && !dns.ok) return resolvedLine;
+    const converging = pingConvergenceSentence(replies);
+    const convergenceLine = converging
+      ? '<div class="hint">' + esc(converging) +
+        (r.runAtMs === null || r.runAtMs === undefined ? '' : ' at t=' + esc(String(r.runAtMs)) + ' ms') +
+        '</div>'
+      : '';
+    if (!replies.length) return resolvedLine + '<span class="fail">No echoes were sent</span>' + convergenceLine;
+    if (ok === 0 && converging) return resolvedLine + convergenceLine;
+    const rate = '<span class="' + (ok === sentCount ? 'ok' : 'fail') + '">Success rate ' +
+      Math.round(ok / sentCount * 100) + '% (' + ok + '/' + sentCount + ')</span>';
+    return resolvedLine + rate + convergenceLine;
+  }
+
   async function runPing() {
     const dst = $('#ping-dst').value.trim();
     const d = deviceById(selectedId);
@@ -2413,10 +2462,7 @@
           : '<div class="fail">' + esc(dst) + ' did not resolve: ' + esc(String(dns.status || 'unknown')) +
             ' - nothing was sent</div>')
         : '';
-      $('#ping-result').innerHTML = dns && !dns.ok
-        ? resolvedLine
-        : resolvedLine + '<span class="' + (ok === count ? 'ok' : 'fail') + '">Success rate ' +
-          Math.round(ok / count * 100) + '% (' + ok + '/' + count + ')</span>';
+      $('#ping-result').innerHTML = pingResultHtml(r, dst, count);
       renderEventLog(r.events);
       PFCanvas.animateEvents(r.events);
     } catch (e) { $('#ping-result').innerHTML = '<span class="fail">' + esc(e.message) + '</span>'; }
@@ -2942,6 +2988,8 @@
     maskBits: maskBits,
     pingTargetProblem: pingTargetProblem,
     pingCountProblem: pingCountProblem,
+    pingConvergenceSentence: pingConvergenceSentence,
+    pingResultHtml: pingResultHtml,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,

@@ -1083,12 +1083,17 @@ finished, the reply is not a timeout - the engine names the process that is not 
 ```
 SW1#ping 10.0.0.2 1 at 5000
 Success rate is 0 percent (0/1)
-% Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+% Still converging: stp on SW1 (ready at 30000 ms) at t=5000 ms
 ```
 
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+A converging path is reported as such — `Still converging: <process> on <device> (ready at <ms>) at t=<ms>` — and
+never as packet loss. The line is printed once per ping, and the `t=` is the instant the answer belongs to: a ping
+with no `at` is asked at `Infinity` and cannot be converging. `at <ms>` applies to that command only; the console
+does not leave the session at the instant you last asked about.
 
 ### converge — when is it up?
 
