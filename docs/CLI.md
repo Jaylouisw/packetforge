@@ -26,6 +26,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `enable` | enter enable mode |
 | `show history` | the commands typed into this session, last 10 ([Commands from a lab guide](#commands-from-a-lab-guide-and-the-word-this-console-answers-with)) |
 | `configure terminal` | enter config mode |
+| `?` in any mode | only the commands this device can use ([help](#the-help-page-was-the-same-page-on-every-device)) |
 | `show version` | vendor, model, category, capabilities |
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
 | `show clock` | the instant the lab is being asked about, and a plain statement that there is no wall clock ([Event log](#event-log)) |
@@ -1192,6 +1193,66 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The help page was the same page on every device
+
+`?` printed **62 identical config rows on a PC, a server, a switch and a router**. A host with one
+Ethernet port was offered `vlan <id>`, `switchport <verb>`, `spanning-tree vlan <id> root primary`,
+`ip nat inside source …` and `router ospf <process-id>`. Worse, four of those were not merely
+unhelpful - they were **accepted**:
+
+```
+PC1(config)#vlan 10
+VLAN 10 created (name: VLAN0010)          <- a bridge domain on a host that does not bridge
+
+PC1(config)#router ospf 1
+OSPF process 1 enabled, entering router configuration mode   <- OSPF on a host
+```
+
+`switchport` and `router bgp` already refused a device that could not use them; `vlan` and
+`router ospf` did not, so the page and the parser were wrong in the same direction. Both now use the
+gate their neighbours had, and each says what the device *is* rather than what the command wanted:
+
+```
+PC1(config)#vlan 10
+% PC1 is not a switch or a router, so it has no VLANs
+% A VLAN is a broadcast domain: something has to switch it, or route between it
+% A host reaches other networks with "ip default-gateway <gw>"
+
+PC1(config)#switchport mode access
+% PC1 does not switch, so no port on it has a switchport to configure
+% Switchport verbs belong to a switch
+```
+
+The page is now filtered by capability, per verb family — switching on `l2-forward`, routing and the
+routing protocols on `l3-forward`, NAT, DHCP server, ACLs, VRRP and IPv6 on their own capability
+tags, and the three exec tables (`clear mac address-table`, `clear ip nat translation`,
+`clear port-security …`) the same way. A router keeps `vlan <id>`, because it routes between VLANs
+and its running-config round-trips the line, but loses `switchport` and `spanning-tree`; an L3 switch
+keeps the switchport verbs and loses NAT. Row counts are a poor proxy for that — a router and an L3
+switch both show 41 rows today, with different contents.
+
+A `?` that finds nothing because of that filter says so, instead of leaving the operator to wonder
+whether the word is a typo:
+
+```
+R1(config)#no span?
+% Nothing after "no" starts with "span" on R1
+% "no spanning-tree vlan <id>" is a command here, but not on R1: it runs no spanning tree, because it
+  has no bridged domain to protect
+```
+
+The reason comes from the same table that hides the row (`_helpRefusal`), so the page, the completion
+list and the parser's own refusals cannot disagree about *why* a family is absent.
+
+**What guards it** (`test/help-truthful.test.js`, 32 assertions):
+
+* every row a device is shown is typed back at that device — placeholders instantiated, optional
+  groups dropped — and must not answer `% Unrecognized`, across six generic kinds and two real
+  catalogue entries;
+* a hidden row must be one the device really refuses, asked of the device rather than assumed;
+* the filtered page must be a **subset** of the unfiltered one (`help-coverage`), so the filter can
+  hide a row but never invent one.
 
 ### BGP had no mode, and the line after it was lost
 

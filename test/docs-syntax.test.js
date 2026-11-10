@@ -21,6 +21,7 @@
 const path = require('path');
 const fs = require('fs');
 const { Topology, Simulator, runCommands } = require('../engine');
+const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -36,8 +37,13 @@ dev.name = 'R1';
 const sim = new Simulator(topo);
 
 // ---------- read the help ----------
+// The unfiltered page, on purpose: the docs are read against the whole command set, not against
+// what one device is shown. `?` on a router now hides the families a router cannot use, and a
+// documented switch command would look undocumented if the corpus came from a filtered page.
 function helpLines(cmds) {
-  const lines = runCommands(dev, topo, sim, cmds).lines;
+  const s = new CliSession(dev, topo, sim);
+  for (const c of cmds.slice(0, -1)) s.run(c);
+  const lines = s._helpPage();
   const rows = [];
   for (let i = 0; i < lines.length; i++) {
     const m = /^ {2}(\S.*?)(?: {2,}(\S.*))?$/.exec(lines[i]);

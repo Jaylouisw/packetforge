@@ -7,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
+const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -43,6 +44,16 @@ function helpOf(commands) {
     .filter(function (l) { return !/^[A-Za-z0-9._()\/-]*[>#]/.test(l); });
 }
 
+// The page *this* device is shown is filtered by capability: a router is not offered `switchport`
+// or `spanning-tree`, because it cannot use them. So "documented" here means documented for some
+// device - the unfiltered page - and the filtered page is checked to be a subset of it, never a
+// place where a row can be invented.
+function everyHelpOf(commands) {
+  const s = new CliSession(r, t, sim);
+  for (const c of commands.slice(0, -1)) s.run(c);
+  return s._helpPage().filter(function (l) { return !/^[A-Za-z0-9._()\/-]*[>#]/.test(l); });
+}
+
 const MODES = [
   { name: 'exec', method: 'run', cmd: ['enable', '?'], label: 'Available commands:' },
   { name: 'config', method: '_configMode', cmd: ['enable', 'configure terminal', '?'], label: 'Config-mode commands' },
@@ -56,18 +67,23 @@ const ALLOWED = ['!'];
 console.log('Every command a mode dispatches on is listed in that mode\'s help:');
 for (const mode of MODES) {
   const heads = Array.from(acceptedHeads(methodBody(mode.method))).sort();
-  const text = helpOf(mode.cmd).join('\n');
+  const text = everyHelpOf(mode.cmd).join('\n');
   const missing = heads.filter(function (h) {
     return ALLOWED.indexOf(h) === -1 && text.toLowerCase().indexOf(h.toLowerCase()) === -1;
   });
   ok(missing.length === 0, mode.name + ': all ' + heads.length + ' accepted commands are documented' +
     (missing.length ? ' — missing ' + missing.join(', ') : ''));
   ok(text.indexOf(mode.label) !== -1, mode.name + ': the list opens by naming the mode');
+  // Capability filtering may hide a row from a device that cannot use it, and must never add one.
+  const shown = helpOf(mode.cmd);
+  const invented = shown.filter(function (l) { return /^ {2}\S/.test(l) && text.indexOf(l) === -1; });
+  ok(invented.length === 0, mode.name + ': the filtered page is a subset of the whole one' +
+    (invented.length ? ' — invented ' + invented.slice(0, 2).join(' | ') : ''));
 }
 
 console.log('\nHelp rows are built, not hand-padded:');
 {
-  const body = methodBody('_help');
+  const body = methodBody('_helpPage');
   // A row written as a literal that starts with two spaces is held in place by
   // typing spaces; helpLine() pads to a column instead, so they cannot drift.
   const handPadded = (body.match(/'  [A-Za-z<]/g) || []).length;

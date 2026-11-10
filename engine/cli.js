@@ -661,6 +661,16 @@ class CliSession {
       // ("accessVlan 9999 is outside 1-4094") instead of naming the VLAN; re-typing an existing VLAN
       // said "created" again; and a router - which has no VLANs at all - accepted one. Four different
       // answers to "what is a VLAN id", from one command.
+      // A PC with one Ethernet port answered "VLAN 10 created (name: VLAN0010)" and stored it, and so
+      // did a server: a bridge domain on a device that neither bridges nor routes, which nothing on it
+      // would ever read. A router may still declare one - it can route between VLANs and its
+      // running-config round-trips the line - but a host cannot, and the refusal says which it is.
+      if (!this._canDeclareVlan()) {
+        return ['% ' + (this.device.name || this.device.id) +
+          ' is not a switch or a router, so it has no VLANs',
+          '% A VLAN is a broadcast domain: something has to switch it, or route between it',
+          '% A host reaches other networks with "ip default-gateway <gw>"'];
+      }
       const typed = tokens[1];
       if (typed === undefined) return ['% Incomplete command: vlan <id> [name]'];
       if (!/^\d+$/.test(String(typed))) {
@@ -853,6 +863,13 @@ class CliSession {
       this.device.config.routes6 = [];
       out.push('IPv6 routes cleared');
     } else if (head === 'switchport') {
+      // The capability comes before the mode. On a host the old answer told the operator to enter an
+      // interface and try again - advice that cannot work, because no port on it has a switchport.
+      if (typeof this.device.isL2 === 'function' && !this.device.isL2()) {
+        return ['% ' + (this.device.name || this.device.id) +
+          ' does not switch, so no port on it has a switchport to configure',
+          '% Switchport verbs belong to a switch'];
+      }
       // The verbs are per interface, and at global scope the bare refusal reads like a typo. `vrrp`
       // already answers this way; `switchport` is typed here far more often.
       return ['% switchport is configured per interface: enter one first, e.g. "interface Gi0/1"',
@@ -862,6 +879,14 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'routing') {
       out.push.apply(out, this._ipRouting(tokens));
     } else if (head === 'router' && tokens[1] === 'ospf') {
+      // `router bgp` was refused on a layer 2 switch; `router ospf 1` was accepted on a *host*, which
+      // answered "OSPF process 1 enabled, entering router configuration mode" and then had no
+      // interfaces to put in an area. The same gate, in the same words.
+      if (typeof this.device.isL3 === 'function' && !this.device.isL3()) {
+        return ['% ' + (this.device.name || this.device.id) +
+          ' is not a router: OSPF describes paths between interfaces it can forward between',
+          '% A host reaches other networks with "ip default-gateway <gw>"'];
+      }
       out.push.apply(out, this._routerOspf(tokens));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'ospf') {
       this.device.config.ospf = null;
@@ -5885,6 +5910,15 @@ class CliSession {
   // you about a neighbour that formed but produced no route - a stub, or a port
   // that is passive. `show ip ospf` reports the process and its interfaces;
   // `show ip ospf neighbor` reports the peers.
+  // Can this device own a VLAN at all? It switches, or it routes between VLANs. A host does neither:
+  // it has one address and one gateway. One door, so `vlan`, `no vlan` and the help page agree.
+  _canDeclareVlan() {
+    const dev = this.device;
+    const l2 = typeof dev.isL2 === 'function' && dev.isL2();
+    const l3 = typeof dev.isL3 === 'function' && dev.isL3();
+    return l2 || l3;
+  }
+
   // A device whose capability list claims a PoE standard, and whose ports carry none. Returns the
   // claim in words, or null. One door, so the show and the verbs give the same reason.
   _poeClaimWithoutPorts() {
@@ -8444,9 +8478,13 @@ class CliSession {
         if (d && meanings.get(spelling).indexOf(d) === -1) meanings.get(spelling).push(d);
       }
       if (!meanings.size) {
-        return ['% Nothing after "' + typedStem + '" starts with "' + partial + '"',
-          '% Ask ? on its own for the words that can follow it',
-          '% To write a literal "?" instead of asking, end the line with \\?'];
+        const why = this._explainMissingHelp(prefix, partial);
+        const out = ['% Nothing after "' + typedStem + '" starts with "' + partial + '"' +
+          (why ? ' on ' + (this.device.name || this.device.id) : '')];
+        if (why) out.push('% ' + why);
+        out.push('% Ask ? on its own for the words that can follow it',
+          '% To write a literal "?" instead of asking, end the line with \\?');
+        return out;
       }
       const out = ['Completions for "' + typedStem + ' ' + partial + '" (' + meanings.size +
         ', completing "' + partial + '"):'];
@@ -8481,8 +8519,10 @@ class CliSession {
     if (!survivors.length) {
       // A trailing `?` is a question, so text that ends in one cannot be typed as text - which is
       // exactly the trap a real console has, and it needs the same way out: say so, and name it.
-      return ['% No completions for "' + typed + '"',
-        '% Type ? on its own for every command this mode accepts',
+      const whyTrailing = this._explainMissingHelp(words, '');
+      return ['% No completions for "' + typed + '"' +
+        (whyTrailing ? ' on ' + (this.device.name || this.device.id) : ''),
+        whyTrailing || '% Type ? on its own for every command this mode accepts',
         '% To write a literal "?" instead of asking, end the line with \\?'];
     }
     // Group by what can come next. A label that several different commands reach is a *subtree*
@@ -8564,6 +8604,25 @@ class CliSession {
     if (this.mode === MODE_EXEC || this.mode === MODE_ENABLE) return MODE_ENABLE;
     if (first === 'show' || first.indexOf('sh') === 0) return MODE_ENABLE;
     return this.mode;
+  }
+
+  // The same parse, over the *unfiltered* page: for the callers that ask "is this command documented
+  // anywhere?" rather than "would this device be shown it?" - the docs sweep, the `no`-form audit and
+  // the help-coverage suite all ask the first question.
+  _helpFormRowsAll(mode) {
+    if (!this._helpRowCacheAll) this._helpRowCacheAll = new Map();
+    if (this._helpRowCacheAll.has(mode)) return this._helpRowCacheAll.get(mode);
+    const saved = this.mode;
+    this.mode = mode;
+    let rows;
+    try {
+      rows = this._helpPage();
+    } finally {
+      this.mode = saved;
+    }
+    const parsed = require('./abbrev').parseFormsWithDesc(rows);
+    this._helpRowCacheAll.set(mode, parsed);
+    return parsed;
   }
 
   // Parsed help rows (with descriptions) per mode, cached like the plain forms.
@@ -9276,7 +9335,120 @@ class CliSession {
   // refuses is a worse lie than a missing line. Modes differ, so the help differs
   // with this.mode rather than dumping one wall of text at an operator who is
   // three prompts deep.
+  // Why a verb family has no meaning on this device, or null if it has. One table, three readers:
+  // the help page (which hides the row), the completion list (which explains the empty answer), and
+  // the parser's own refusals quote the same facts.
+  _helpRefusal(cmd) {
+    const dev = this.device;
+    const words = String(cmd).toLowerCase().replace(/\|/g, ' ').trim().split(/\s+/);
+    const l2 = typeof dev.isL2 === 'function' && dev.isL2();
+    const l3 = typeof dev.isL3 === 'function' && dev.isL3();
+    const has = function (c) { return typeof dev.hasCap === 'function' && dev.hasCap(c); };
+    const first = words[0], second = words[1] || '';
+    const switches = 'it does not switch, so no port on it has a switchport';
+    const bridged = 'it runs no spanning tree, because it has no bridged domain to protect';
+    const routes = 'it does not forward between interfaces, so it has no routes or adjacencies';
+    // Switching: a VLAN, a port's L2 mode, the spanning tree over it.
+    if (first === 'vlan' || (first === 'no' && second === 'vlan')) {
+      return this._canDeclareVlan() ? null : 'it neither switches nor routes, so it has no VLANs';
+    }
+    if (first === 'spanning-tree' || (first === 'no' && second === 'spanning-tree')) {
+      return l2 ? null : bridged;
+    }
+    if (first === 'switchport' ||
+      (first === 'clear' && second === 'mac') || (first === 'clear' && second === 'port-security')) {
+      return l2 ? null : switches;
+    }
+    if (first === 'interface' && (second === 'vlan' || second === '<parent>.<vlan>')) {
+      return l2 ? null : switches;
+    }
+    if (first === 'no' && second === 'interface' && words[2] === '<parent>.<vlan>') {
+      return l2 ? null : switches;
+    }
+    // Routing between interfaces.
+    if (first === 'ip' && (second === 'routing' || second === 'route')) return l3 ? null : routes;
+    if (first === 'no' && second === 'ip' && (words[2] === 'routing' || words[2] === 'route')) {
+      return l3 ? null : routes;
+    }
+    if (first === 'router' && (second === 'ospf' || second === 'bgp')) return l3 ? null : routes;
+    if (first === 'no' && second === 'router') return l3 ? null : routes;
+    if (first === 'neighbor' || first === 'bgp') return l3 ? null : routes;
+    // Address translation and address service.
+    if (first === 'ip' && second === 'nat') return has('nat') ? null : 'it does not translate addresses';
+    if (first === 'no' && second === 'ip' && words[2] === 'nat') {
+      return has('nat') ? null : 'it does not translate addresses';
+    }
+    if (first === 'clear' && second === 'ip' && words[2] === 'nat') {
+      return has('nat') ? null : 'it does not translate addresses';
+    }
+    if (first === 'ip' && second === 'dhcp') return has('dhcp-server') ? null : 'it is not a DHCP server';
+    // ACLs, VRRP and IPv6 are not filtered, deliberately: the parser accepts them on anything that
+    // takes a config line - a generic router has no `acl`, `vrrp` or `ipv6` capability tag and does
+    // all three - so hiding them would hide working commands. The gate is the parser's, not the
+    // catalogue's: help may only hide a family the parser actually refuses.
+    return null;
+  }
+
+  _helpApplies(cmd) {
+    return this._helpRefusal(cmd) === null;
+  }
+
+  // A completion that finds nothing used to say only that nothing matched, which reads like a typo
+  // even when the word is a command on another device. When the *unfiltered* page has a row for what
+  // was typed, say which row and why it is not here.
+  _explainMissingHelp(stemWords, partial) {
+    if (!stemWords.length) return null;
+    const saved = this.mode;
+    let all = [];
+    try {
+      all = this._helpPage ? this._helpPage() : [];
+    } finally {
+      this.mode = saved;
+    }
+    const want = stemWords.map(function (w) { return String(w).toLowerCase(); });
+    for (const line of all) {
+      if (!/^ {2}\S/.test(line)) continue;
+      const synopsis = line.trim().split(/\s{2,}/)[0];
+      const row = synopsis.toLowerCase().split(/\s+/);
+      let ok = true;
+      for (let i = 0; i < want.length; i++) {
+        if (row[i] !== want[i]) { ok = false; break; }
+      }
+      if (!ok) continue;
+      const next = row[want.length] || '';
+      if (partial && next.indexOf(String(partial).toLowerCase()) !== 0) continue;
+      const why = this._helpRefusal(synopsis);
+      if (!why) continue;
+      return '"' + synopsis + '" is a command here, but not on ' + (this.device.name || this.device.id) +
+        ': ' + why;
+    }
+    return null;
+  }
+
+  // The page an operator sees, after the capability filter. Rows are strings (some of them two lines
+  // when the synopsis is long), so the synopsis is recovered the way a reader recovers it: the first
+  // run of text before the column gap.
   _help() {
+    return this._helpShown(this._helpPage());
+  }
+
+  _helpShown(lines) {
+    const out = [];
+    let keep = true;
+    for (const line of lines) {
+      if (/^ {45}\S/.test(line)) { if (keep) out.push(line); continue; }
+      if (/^ {2}\S/.test(line)) {
+        keep = this._helpApplies(line.trim().split(/\s{2,}/)[0]);
+        if (keep) out.push(line);
+        continue;
+      }
+      keep = true;
+      out.push(line);
+    }
+    return out;
+  }
+
+  _helpPage() {
     if (this.mode === MODE_CONFIG) return helpRows([
       'Config-mode commands (exit / end to leave):',
       helpLine('hostname <name>', 'set device hostname (spaces kept)'),

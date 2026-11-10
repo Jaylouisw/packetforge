@@ -88,8 +88,11 @@ function helpKeywords(mode) {
   const s = session(ROUTER);
   if (mode === 'config') s.run('configure terminal');
   else if (mode === 'iface') { s.run('configure terminal'); s.run('interface Gi0/0'); }
-  const rows = s._helpFormRows(mode === 'iface' ? 'iface' : (mode === 'config' ? 'config' : 'exec')) ||
-    s._helpFormRows(s._completionMode([]));
+  // The *unfiltered* page: this suite asks whether every `no` branch the parser has is documented
+  // for some device. A row a router is not shown (`no spanning-tree vlan <id>`, `no ip nat …`) is
+  // still a documented command, and reading the filtered page would report it as missing.
+  const which = mode === 'iface' ? 'iface' : (mode === 'config' ? 'config' : 'exec');
+  const rows = s._helpFormRowsAll(which) || s._helpFormRows(which) || [];
   return rows.filter(function (r) { return r.tokens[0] === 'no'; })
     .map(function (r) {
       return r.tokens.slice(1).filter(function (t) { return typeof t === 'string'; }).join(' ');
@@ -120,7 +123,10 @@ console.log('\nAnd the console answers `?` at the depths a reader reaches:');
 {
   const cfg = session(ROUTER);
   cfg.run('configure terminal');
-  const depths = ['no vlan ?', 'no ip nat ?', 'no spanning-tree ?', 'no ospf ?', 'no router bgp ?',
+  // `no spanning-tree ?` is not in this list: a router has no spanning tree, so the row is filtered
+  // out of its page and the honest answer is the sentence below, not a completion. It is asked of a
+  // switch further down.
+  const depths = ['no vlan ?', 'no ip nat ?', 'no ospf ?', 'no router bgp ?',
     'no bgp neighbor ?', 'no ip name-server ?', 'no ip default-gateway ?', 'no scion ?',
     'no ipv6 unicast-routing ?', 'no ipv6 route ?'];
   for (const q of depths) {
@@ -133,12 +139,23 @@ console.log('\nAnd the console answers `?` at the depths a reader reaches:');
   const iface = session(ROUTER);
   iface.run('configure terminal');
   iface.run('interface Gi0/0');
-  for (const q of ['no ip nat ?', 'no spanning-tree ?', 'no ip ospf ?', 'no ip address ?',
+  for (const q of ['no ip nat ?', 'no ip ospf ?', 'no ip address ?',
     'no ip helper-address ?', 'no vrrp ?', 'no description ?']) {
     const out = iface.run(q).output;
     ok(!out.some(function (l) { return /% No completions/.test(l); }),
       '`' + q + '` (interface mode) answers');
   }
+  // `no spanning-tree ?` is a switch question. On a router the family is filtered out of the page -
+  // a router runs no spanning tree - so the answer is not a completion but a sentence saying why,
+  // which is the point: an empty list that explains itself, not an empty list that looks like a typo.
+  const spanRouter = iface.run('no spanning-tree ?').output.join('\n');
+  ok(/runs no spanning tree|not on /i.test(spanRouter),
+    '`no spanning-tree ?` on a router says why it has nothing to complete');
+  const sw = session(SWITCH);
+  sw.run('configure terminal');
+  sw.run('interface ' + Array.from(sw.device.interfaces.keys())[0]);
+  const spanSwitch = sw.run('no spanning-tree ?').output.join('\n');
+  ok(!/% No completions/.test(spanSwitch), '`no spanning-tree ?` on a switch completes');
 }
 
 console.log('\nThe tag can be taken back off a subinterface:');

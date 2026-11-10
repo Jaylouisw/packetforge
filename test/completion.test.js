@@ -262,7 +262,14 @@ console.log('\nThe `?` does not need a space in front of it:');
   // now listed for the same console, `no rou?` completes `router` instead, and `no ip rou?` is
   // ambiguous through abbreviation (the stem `ip` is a prefix of `ipv6`, whose route row ends
   // differently). `no span?` has exactly one ending, and it still says what follows it.
-  ok(/Then: vlan/.test(env.text('no span?')), 'and says what follows the word it completed');
+  ok(/Then: <ip>/.test(env.text('no bgp n?')), 'and says what follows the word it completed');
+  // The same question for a family the device does not have. `no span?` on a router used to complete
+  // `spanning-tree` and say "Then: vlan"; the family is now filtered by capability, because a router
+  // runs no spanning tree - and the empty answer says which, rather than only that nothing matched.
+  const noSpan = env.text('no span?');
+  ok(/not on R1: it runs no spanning tree/i.test(noSpan),
+    'and where the family does not exist here, the empty answer says why');
+  ok(/is a command here, but not on R1/.test(noSpan), 'naming the row it would have been');
   ok(!/Then:/.test(env.text('no ip route?')),
     'a stem whose endings disagree says nothing after the word');
   env.run('exit');
