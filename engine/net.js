@@ -50,6 +50,19 @@ function ipInSubnet(ip, net, mask) { return networkOf(ip, mask) === networkOf(ne
 // with ipToInt() got a throw from the parser - `% Error: Invalid IPv4 address: 10.0.0.999` at the
 // console, on a value the same module had just called valid. The regex stays as the cheap first pass
 // and the parser has the final word.
+// A mask is a run of ones followed by a run of zeros, and nothing else. `maskToInt()` parses any
+// dotted quad, so it accepted 255.0.255.0 and the console then printed the prefix of its *leading*
+// ones - "10.0.0.1/8" for a mask that is not a mask at all.
+function isContiguousMask(mask) {
+  try {
+    const m = maskToInt(mask);
+    const inv = (~m) >>> 0;                 // the host part, inverted: all ones at the end
+    return (inv & (inv + 1)) === 0;         // ...which is exactly when it is 0..0111
+  } catch (e) {
+    return false;
+  }
+}
+
 function isIp(s) {
   if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(String(s).trim())) return false;
   try { ipToInt(s); return true; } catch (e) { return false; }
@@ -90,7 +103,7 @@ const ICMP_ECHO_REPLY = 0;
 module.exports = {
   BROADCAST_MAC, ZERO_MAC,
   ipToInt, intToIp, maskToInt, prefixOf, networkOf, broadcastOf,
-  sameSubnet, ipInSubnet, isIp,
+  sameSubnet, ipInSubnet, isIp, isContiguousMask,
   macToInt, intToMac, isBroadcastMac, isMulticastMac, normalizeMac,
   ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY
 };

@@ -231,7 +231,10 @@ console.log('\nThe panel spelling and the console spelling get the same answer:'
     'the answer uses the panel spelling, not the one typed');
   // A port the config parser accepts must not be refused here: the exact split that woke this file up.
   const cfg = runCommands(env.dev, env.t, env.sim,
-    ['enable', 'configure terminal', 'interface sfp-sfpplus1', 'ip address 10.9.9.9/24', 'exit', 'exit']);
+    // A subnet of its own: eth1 is 10.9.9.1/24 in this lab, and a second interface in that subnet is
+    // now refused as an overlap - which is the point of `ip address`, not of this test. The port name
+    // is what is under test here.
+    ['enable', 'configure terminal', 'interface sfp-sfpplus1', 'ip address 10.9.99.9/24', 'exit', 'exit']);
   ok(!cfg.lines.some(function (l) { return /^%/.test(l); }),
     'config accepts sfp-sfpplus1 (' + cfg.lines.join(' / ').slice(0, 80) + ')');
   ok(!/^%/.test(run(env.dev, env.t, env.sim, ['show ipv6 interface sfp-sfpplus1'])),

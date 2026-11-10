@@ -1,0 +1,16 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const s=new CliSession(r1,t,new Simulator(t));
+s.run('enable');s.run('configure terminal');
+const p=(x)=>{const o=s.run(x).output;console.log('> '+x);o.forEach(l=>console.log('   '+l));if(!o.length)console.log('   (SILENT)')};
+p('router bgp 65001'); p('neighbor 300.0.0.1 remote-as 65002'); p('bgp router-id 1.2.3.999');
+p('bgp router-id 1.1.1.1'); p('exit');
+p('ip name-server 300.0.0.1'); p('ip name-server 8.8.8.8');
+p('interface Gi0/0');
+p('ip address 0.0.0.0 0.0.0.0'); p('ip address 10.0.0.255 255.255.255.0'); p('ip address 10.0.0.0 255.255.255.0');
+p('ip address 10.0.0.1 255.0.255.0'); p('ip address 10.0.0.1 255.255.255.0'); p('ip address 10.0.0.1/24 secondary');
+p('ip address 10.0.0.1/24 extra');
+p('interface Gi0/1'); p('ip address 10.0.0.1 255.255.255.0'); p('ip address 10.0.0.5 255.255.255.0');
+p('ip address 10.0.1.5 255.255.255.0'); p('ip address 192.168.0.1 255.255.255.0');
+p('interface Gi0/2'); p('ip address 10.0.1.9 255.255.0.0');
+p('exit'); p('show ip interface brief'); p('show running-config');

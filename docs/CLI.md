@@ -266,7 +266,7 @@ which requires every prompt line in the docs to be a command some mode recognise
 
 | Command | Effect |
 |---------|--------|
-| `ip address <ip> <mask>` | assign an IP — `192.168.1.1 255.255.255.0` and `192.168.1.1/24` are the same fact and both are accepted; a bare address is refused by name, not with `% Incomplete command` |
+| `ip address <ip> <mask>` | assign an IP — `192.168.1.1 255.255.255.0` and `192.168.1.1/24` are the same fact and both are accepted; a bare address is refused by name, not with `% Incomplete command`. The address must be a **host** in its own subnet, the mask must be **contiguous**, and neither the address nor the subnet may already belong to another interface ([Address rules](#address-rules--a-host-in-its-own-subnet-on-one-interface)) |
 | `no ip address` | remove the IP |
 | `ip address dhcp` | make this a DHCP client — the DORA exchange runs before the first packet ([DHCP server](#dhcp-server)) |
 | `ip helper-address <addr>` | relay DHCP requests heard on this port to a server elsewhere — `no ip helper-address [<addr>]` removes one, or all ([DHCP relay](#dhcp-relay)) |
@@ -1173,6 +1173,69 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Address rules — a host in its own subnet, on one interface
+
+`ip address` used to store whatever four numbers it was given. Every one of these was answered
+"IP address set":
+
+```
+R1(config-if)#ip address 10.0.0.1 255.0.255.0
+IP address set on Gi0/0: 10.0.0.1/8
+R1(config-if)#ip address 10.0.0.255 255.255.255.0
+IP address set on Gi0/0: 10.0.0.255/24
+R1(config-if)#ip address 0.0.0.0 0.0.0.0
+IP address set on Gi0/0: 0.0.0.0/0
+```
+
+`255.0.255.0` is not a mask — `prefixOf()` counted its leading ones and printed `/8`, so the console
+described a subnet that does not exist. `10.0.0.255` is the broadcast address of its own subnet: no
+host can answer for it. `0.0.0.0/0` is the default route worn as a port. Now:
+
+```
+R1(config-if)#ip address 10.0.0.1 255.0.255.0
+% 255.0.255.0 is not a contiguous mask - the ones must all be on the left
+% Try 255.255.255.0, or the prefix form "ip address 10.0.0.1/24"
+R1(config-if)#ip address 10.0.0.255 255.255.255.0
+% 10.0.0.255 is the broadcast address of 10.0.0.0/24 - a router address must be a host in its own subnet
+% Try 10.0.0.254, or a wider mask
+R1(config-if)#ip address 0.0.0.0 0.0.0.0
+% 0.0.0.0 is not a host address, so no interface can hold it
+```
+
+A `/31` and a `/32` have no network or broadcast address, so that rule does not apply to them — a
+point-to-point pair and a host route are both accepted, which is why the check is written against the
+prefix rather than against "ends in `.255`".
+
+**One address, one interface. One subnet, one interface.** Both of these were silent, and both matter
+here more than they would on a real box, because a router in this lab answers for *every* address it
+holds and forwards by lookup — so a duplicate address or an overlapping subnet makes two questions
+unanswerable: who owns this address, and which port does it leave by.
+
+```
+R1(config-if)#ip address 10.0.0.1 255.255.255.0     (Gi0/1; Gi0/0 already has it)
+% 10.0.0.1 is already on Gi0/0 - one address cannot be on two interfaces
+R1(config-if)#ip address 10.0.0.2 255.255.255.0
+% 10.0.0.0/24 overlaps Gi0/0 (10.0.0.1/24) - two interfaces in one subnet is ambiguous
+% A router routes between subnets: give this interface a different one
+```
+
+The overlap test compares subnets as **unsigned** 32-bit ranges. A signed comparison makes any subnet
+whose network address has the top bit set negative, which reported `192.168.0.0/24` as an overlap of
+`10.0.0.0/24` — a false refusal is as bad as a false acceptance, and the test asserts both directions.
+
+**`secondary` is a limitation, not a typo.** `ip address <ip> <mask> secondary` put the address on the
+interface and dropped the word, so the answer said the whole line had been understood. One address per
+interface is what this model holds, and it says so:
+
+```
+R1(config-if)#ip address 10.0.0.1/24 secondary
+% "secondary" is not modelled - one address per interface in this lab
+% Use a subinterface ("interface Gi0/0.10") for a second subnet on the same cable
+```
+
+Re-setting the **same** address on the **same** interface is a re-set, not a duplicate — the duplicate
+rule looks at the other interfaces only.
 
 ### Clearing a learnt table — and the two that cannot be cleared
 

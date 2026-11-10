@@ -1,0 +1,18 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const s=new CliSession(r1,t,new Simulator(t));
+const prompt=()=>s.prompt? s.prompt() : (typeof s.promptString==='function'?s.promptString():'?');
+const p=(x)=>{const o=s.run(x).output;console.log('$ '+x+'   ['+(s.mode)+'] '+(o.length?'\n   '+o.join('\n   '):'(SILENT)'));};
+p('enable');
+p('configure terminal');
+p('interface Gi0/0');
+p('exit');
+p('router bgp 65001');
+p('exit');
+p('hostname R2');
+p('interface Gi0/0');
+p('ip address 10.0.0.1 255.255.255.0');
+p('exit');
+p('ip dhcp pool p1');
+p('exit');
+p('hostname R3');

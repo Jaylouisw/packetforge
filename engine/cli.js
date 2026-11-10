@@ -755,7 +755,8 @@ class CliSession {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
       const ip = tokens[2];
-      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip || '')) {
+      // A shape regex called `300.0.0.1` a name server. The parser decides.
+      if (!net.isIp(ip)) {
         out.push('% Invalid name server "' + (ip || '') + '"');
       } else {
         if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
@@ -904,16 +905,27 @@ class CliSession {
         iface.dhcp = true;
         out.push('Interface ' + iface.name + ' set to DHCP');
       } else {
+        // `secondary` is an IOS keyword, not a typo, so it is answered as a limitation before the
+        // mask is judged - otherwise `ip address 10.0.0.1/24 secondary` was told that "secondary"
+        // is not a contiguous mask, which is true and useless.
+        if (tokens.some(function (t, i) { return i >= 2 && String(t).toLowerCase() === 'secondary'; })) {
+          return ['% "secondary" is not modelled - one address per interface in this lab',
+            '% Use a subinterface ("interface Gi0/0.10") for a second subnet on the same cable'];
+        }
         let ip = tokens[2];
         let mask = tokens[3];
+        // A word left over after a `10.0.0.1/24` address is the third token, not the fourth: the
+        // prefix form already carries its mask, so anything after it is extra.
+        let leftover = null;
         // `ip address 10.0.0.1/24` is the *same fact* as `10.0.0.1 255.255.255.0`, and it is the form
         // this console prints everywhere (`show ip interface brief`, `show running-config`, every table
         // with an Address column) and the form `ipv6 address` already accepts. Refusing what it prints
         // is the same asymmetry as a port name the config parser takes and the show commands do not.
-        if (ip && mask === undefined && String(ip).indexOf('/') !== -1) {
+        if (ip && String(ip).indexOf('/') !== -1) {
           const split = String(ip).split('/');
           ip = split[0];
           mask = split[1];
+          if (tokens[3] !== undefined) leftover = tokens[3];
         }
         if (!ip) {
           return ['% ip address needs an address: "ip address 10.0.0.1 255.255.255.0" or "ip address 10.0.0.1/24"'];
@@ -925,7 +937,67 @@ class CliSession {
           return ['% ip address ' + ip + ' needs a mask - the address alone does not say the subnet',
             '% Either spelling works: "ip address ' + ip + ' 255.255.255.0" or "ip address ' + ip + '/24"'];
         }
-        net.ipToInt(ip); net.maskToInt(mask);
+        // A router address is a *host* address in its own subnet, on exactly one interface. Every
+        // rule below was violated silently before this: `ip address 0.0.0.0 0.0.0.0` became an
+        // interface address of 0.0.0.0/0 (a default route worn as a port), `ip address 10.0.0.255
+        // 255.255.255.0` took the subnet's broadcast address, `ip address 10.0.0.1 255.0.255.0`
+        // printed "10.0.0.1/8" for a mask that is not a mask, the same address could sit on two
+        // interfaces (so `show ip interface brief` had two owners for one address), and `secondary`
+        // was dropped from the line while the answer said "IP address set".
+        const addrInt = net.ipToInt(ip);
+        if (!net.isContiguousMask(mask)) {
+          return ['% ' + mask + ' is not a contiguous mask - the ones must all be on the left',
+            '% Try 255.255.255.0, or the prefix form "ip address ' + ip + '/24"'];
+        }
+        const maskInt = net.maskToInt(mask);
+        const prefix = net.prefixOf(mask);
+        if (addrInt === 0 || addrInt === 0xffffffff) {
+          return ['% ' + ip + ' is not a host address, so no interface can hold it'];
+        }
+        if (prefix <= 30) {
+          const netAddr = (addrInt & maskInt) >>> 0;
+          const bcast = (netAddr | ((~maskInt) >>> 0)) >>> 0;
+          if (addrInt === netAddr) {
+            return ['% ' + ip + ' is the network address of ' + net.intToIp(netAddr) + '/' + prefix +
+              ' - a router address must be a host in its own subnet',
+              '% Try ' + net.intToIp((netAddr + 1) >>> 0) + ', or a wider mask'];
+          }
+          if (addrInt === bcast) {
+            return ['% ' + ip + ' is the broadcast address of ' + net.intToIp(netAddr) + '/' + prefix +
+              ' - a router address must be a host in its own subnet',
+              '% Try ' + net.intToIp((bcast - 1) >>> 0) + ', or a wider mask'];
+          }
+        }
+        for (const other of this.device.interfaces.values()) {
+          if (other === iface || !other.ip) continue;
+          if (other.ip === ip) {
+            return ['% ' + ip + ' is already on ' + other.name + ' - one address cannot be on two interfaces'];
+          }
+          let otherMask = null;
+          try { otherMask = net.maskToInt(other.mask); } catch (e) { otherMask = null; }
+          if (otherMask === null) continue;
+          const otherPrefix = net.prefixOf(other.mask);
+          if (prefix > 30 || otherPrefix > 30) continue;
+          // `>>> 0` on the low ends: without it these are signed 32-bit results, and a subnet whose
+          // network address has the top bit set compares as a negative number - which made
+          // 192.168.0.0/24 "overlap" 10.0.0.0/24.
+          const aLo = (addrInt & maskInt) >>> 0;
+          const aHi = (aLo | ((~maskInt) >>> 0)) >>> 0;
+          const bLo = (net.ipToInt(other.ip) & otherMask) >>> 0;
+          const bHi = (bLo | ((~otherMask) >>> 0)) >>> 0;
+          if (aLo <= bHi && bLo <= aHi) {
+            // Overlapping subnets on two interfaces make "which port does this address leave by"
+            // unanswerable, which is the question every ping in this lab asks.
+            return ['% ' + net.intToIp(aLo) + '/' + prefix + ' overlaps ' + other.name + ' (' +
+              other.ip + '/' + otherPrefix + ') - two interfaces in one subnet is ambiguous',
+              '% A router routes between subnets: give this interface a different one'];
+          }
+        }
+        const extra = leftover === null ? tokens[4] : leftover;
+        if (extra !== undefined) {
+          return ['% Unexpected argument "' + extra + '" - ip address <ip> <mask> takes no more' +
+            ' ("ip address ' + ip + ' ' + net.intToIp(maskInt) + '")'];
+        }
         iface.ip = ip; iface.mask = mask; iface.dhcp = false;
         out.push('IP address set on ' + iface.name + ': ' + ip + '/' + net.prefixOf(mask));
       }
@@ -1655,7 +1727,10 @@ class CliSession {
     let t = tokens.map(function (x) { return String(x); });
     if (String(t[0] || '').toLowerCase() === 'bgp') t = t.slice(1);
     if (String(t[0] || '').toLowerCase() === 'neighbor') t = t.slice(1);
-    const isIp = function (s) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(s || '')); };
+    // This module-shadowing regex was the reason `neighbor 300.0.0.1 remote-as 65002` was accepted
+    // and written to running-config: 300 matches `\d{1,3}`. `net.isIp()` parses the address, so it
+    // cannot. (The library's own header notes the same mistake in another place.)
+    const isIp = net.isIp;
 
     function ensure(asn) {
       if (!dev.config.bgp) dev.config.bgp = { as: null, routerId: null, neighbors: [] };
@@ -2320,16 +2395,27 @@ class CliSession {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + NEEDS.vrrp];
       const p = parseInt(tokens[3], 10);
       if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
+      if (tokens[4] !== undefined) {
+        return ['% Unexpected argument "' + tokens[4] + '" - vrrp <vrid> priority <p> takes no more'];
+      }
       group.priority = p;
       out.push('VRRP group ' + vrid + ' priority ' + p);
     } else if (what === 'preempt') {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      // `vrrp 1 preempt extra` answered "preempt enabled" and dropped the word - the answer looked
+      // like it had considered it.
+      if (tokens[3] !== undefined) {
+        return ['% Unexpected argument "' + tokens[3] + '" - vrrp <vrid> preempt takes no more'];
+      }
       group.preempt = !(tokens[0] === 'no');
       out.push('VRRP group ' + vrid + ' preempt ' + (group.preempt ? 'enabled' : 'disabled'));
     } else if (what === 'advertise' || what === 'advertisement') {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
       const a = Number(tokens[3]);
       if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)')];
+      if (tokens[4] !== undefined) {
+        return ['% Unexpected argument "' + tokens[4] + '" - vrrp <vrid> advertise <s> takes no more'];
+      }
       group.advertSec = a;
       out.push('VRRP group ' + vrid + ' advertises every ' + a + ' s');
     } else if (what === 'authentication') {
