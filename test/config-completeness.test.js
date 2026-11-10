@@ -81,6 +81,7 @@ const KEY_PRINTS = {
   vlans: { re: /^vlan \d+/m, why: 'the VLAN table' },
   dhcpPools: { re: /^ip dhcp pool /m, why: 'DHCP pools' },
   dnsZones: { re: /^dns zone /m, why: 'DNS zones' },
+  stpPriority: { re: /^spanning-tree priority \d+/m, why: 'the bridge priority that decides the STP root' },
   dnsServers: { re: /^ip name-server /m, why: 'name servers' },
   acls: { re: /^access-list \d+/m, why: 'access lists' },
   routes: { re: /^ip route /m, why: 'static routes' },

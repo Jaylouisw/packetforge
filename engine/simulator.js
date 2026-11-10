@@ -611,7 +611,11 @@ class Simulator {
 
       bridges.push({
         key: dev.id,
-        priority: (dev.config && dev.config.stpPriority) || stpLib.STP_DEFAULT_PRIORITY,
+        // Not `|| default`: 0 is a legal bridge priority and the best one there is, so truthiness
+        // turned "this box must be root" into "this box must not" (#1364).
+        priority: (dev.config && dev.config.stpPriority !== null && dev.config.stpPriority !== undefined)
+          ? dev.config.stpPriority
+          : stpLib.STP_DEFAULT_PRIORITY,
         mac: mac || '00:00:00:00:00:00',
         ports: ports
       });

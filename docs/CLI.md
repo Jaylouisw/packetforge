@@ -25,7 +25,7 @@ Modes and their prompts:
 | `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with stale entries marked |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
-| `show spanning-tree` | per-port STP role and state, or "not measured" when nothing has run |
+| `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
@@ -448,10 +448,43 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 ```
 Spanning tree enabled protocol ieee
+  Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
 Port          Role          State
 Fa0/1         designated    forwarding
 Fa0/2         root          blocking   (traffic dropped)
 ```
+
+The header names the **bridge priority** and the **root bridge the election chose**. Without it the report
+described a tree but not why it had that shape: priority decides the election before MAC address does, so two
+switches with the same ports and the same cables can produce different trees and the output gave no clue which
+one you were looking at. The priority in force is this device's; the root is named by hostname, else by the id
+the lab uses — not by the model label, which is the same string on every switch of one kind.
+
+### Setting the root
+
+```
+spanning-tree priority 4096
+no spanning-tree priority
+```
+
+The bridge priority is `0`–`61440` in steps of `4096` (the low 12 bits are the system ID extension), and **lower
+wins**. `0` is legal and is the best priority there is. A value that is not a step is refused rather than
+rounded, because rounding silently picks a root the operator did not ask for:
+
+```
+% 4500 is not a valid bridge priority: it must be a multiple of 4096 (the low 12 bits are the system ID
+  extension); the nearest valid values are 4096 and 8192
+```
+
+This model runs **one spanning tree for the device**, so IOS's per-VLAN spelling is refused with that reason
+rather than accepted and quietly applied to everything:
+
+```
+% This device runs one spanning tree, not one per VLAN: use `spanning-tree priority <0-61440>`
+```
+
+`no spanning-tree priority` returns the bridge to the default `32768` and says what the default is. The value is
+printed by `show running-config` and survives a save, so a reloaded lab elects the same root it did before.
 
 With **no simulation run** behind the device the command says
 `Not measured (no simulation run): nothing has computed the spanning tree` — the same distinction
