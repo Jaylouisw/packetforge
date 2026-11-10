@@ -222,5 +222,5 @@ console.log('It survives the config and the file');
 }
 
 console.log('');
-console.log('passed=' + passed + ' failed=' + failed);
+console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

@@ -826,5 +826,9 @@ module.exports = {
   formatTable,
   DEFAULT_TIMEOUTS,
   TABLE_HEADER,
+  // The timeout a translation is held to is part of what the table means, so the console prints it rather
+  // than describing it a second time (#1393).
+  timeoutFor,
+  expireTranslations,
   formatRuleLine
 };

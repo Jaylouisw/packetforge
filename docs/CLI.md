@@ -726,8 +726,37 @@ refuses while a rule still uses the pool, and says how many.
 ```
 show ip nat rules            # the rules, printed as the commands that would create them
 show ip nat translations     # the live table: proto, inside global, inside local, outside local/global
-show ip nat statistics       # rules by type, pools, active translations
+show ip nat statistics       # rules by type, pools, timeouts, active translations
 ```
+
+### A translation that has been idle is not in force
+
+A dynamic or PAT translation lives for its protocol's timeout, and each packet through it restarts the clock:
+
+| protocol | default |
+|---|---|
+| icmp | 60 s |
+| udp | 300 s |
+| tcp | 3600 s |
+| anything else | 300 s |
+
+`config.nat.timeouts` overrides any of them, and `show ip nat statistics` prints the values in force rather than
+leaving the rule to be guessed:
+
+```
+Timeouts (seconds): icmp 60, udp 300, tcp 3600, other 300
+```
+
+The model has had `expireTranslations()` since it was written and nothing called it, so a translation was in force
+for the life of the run. Two things were wrong because of it. A **two-address pool with three inside hosts** refused
+the third host for ever — the first two connections had ended minutes earlier and still held the addresses. And
+`show ip nat translations` listed entries past their timeout, because the report read the table directly instead of
+asking at the instant the command was about.
+
+Both now go through the same funnel: the table is aged at the instant being asked about, on the data path and in the
+report. A translation that is still carrying traffic is never aged — the timeout is idle time, not a lifetime — and
+a device that has carried no NAT traffic still says `No translations: no packet needing NAT has crossed this
+device` rather than presenting an empty table it just created.
 
 `show ip nat translations` distinguishes *nothing has crossed* (`No translations: no packet needing NAT has
 crossed this device`) from *traffic crossed and nothing needed translating* — the same distinction

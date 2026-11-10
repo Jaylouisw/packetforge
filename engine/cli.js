@@ -109,6 +109,17 @@ class CliSession {
 
   // Which side of a NAT translation a port is on. One setter and one clearer, so the interface command and the
   // `no` form that arrives through global config mode cannot drift apart (#1391).
+  // The translation table at the instant this session is asking about, aged first. Reading `dev.natTable`
+  // directly showed entries that had been idle longer than their protocol timeout, because ageing only ever ran
+  // on the data path (#1393). A device that has never translated anything still has no table: creating one to
+  // read it would turn "nothing has crossed" into "an empty table", which are different answers.
+  _natTableAt() {
+    const dev = this.device;
+    if (!dev.natTable) return null;
+    if (this.sim && typeof this.sim._natTableOf === 'function') return this.sim._natTableOf(dev);
+    return dev.natTable;
+  }
+
   // One sentence for "which ports are inside, and which outside", or the honest statement that nobody has said.
   _natPortsSentence() {
     const inside = [];
@@ -2804,7 +2815,7 @@ class CliSession {
         // `dev.natTable` is created by the first packet that needed translating, so "no table" and "no
         // translations" are different answers: the first means nothing has crossed, the second means it has
         // and nothing needed translating.
-        const table = dev.natTable;
+        const table = this._natTableAt();
         if (!table) {
           out.push('No translations: no packet needing NAT has crossed this device' +
             (rules.length ? '' : ' (and there are no rules to need one)'));
@@ -2829,7 +2840,14 @@ class CliSession {
             const p = pools[n];
             return n + ' ' + p.start + (p.start === p.end ? '' : '-' + p.end);
           }).join(', ') + ')' : ''));
-        const table = dev.natTable;
+        // The timeouts are in force whether or not anyone asked: a dynamic translation that has been idle for
+        // one is gone. Printing them is the only way to read the rule the table is being held to.
+        const timeouts = natCfg.timeouts;
+        out.push('Timeouts (seconds): icmp ' + natLib.timeoutFor(timeouts, 'icmp') +
+          ', udp ' + natLib.timeoutFor(timeouts, 'udp') +
+          ', tcp ' + natLib.timeoutFor(timeouts, 'tcp') +
+          ', other ' + natLib.timeoutFor(timeouts, 'other'));
+        const table = this._natTableAt();
         const live = table && Array.isArray(table.translations) ? table.translations.length : 0;
         out.push('Active translations: ' + live + (table ? '' : ' (nothing has needed translating yet)'));
       } else {
