@@ -61,6 +61,8 @@
           ],
           "poeOut": null,
           "poeIn": null,
+          "maxSpeedMbps": 1000,
+          "poeOutDeclared": false,
           "duplex": "full",
           "vlan": {
             "mode": "access",
@@ -137,6 +139,8 @@
           ],
           "poeOut": null,
           "poeIn": null,
+          "maxSpeedMbps": 1000,
+          "poeOutDeclared": false,
           "duplex": "full",
           "vlan": {
             "mode": "access",
@@ -214,6 +218,8 @@
           ],
           "poeOut": null,
           "poeIn": null,
+          "maxSpeedMbps": 1000,
+          "poeOutDeclared": false,
           "duplex": "full",
           "vlan": {
             "mode": "access",
@@ -252,6 +258,8 @@
           ],
           "poeOut": null,
           "poeIn": null,
+          "maxSpeedMbps": 1000,
+          "poeOutDeclared": false,
           "duplex": "full",
           "vlan": {
             "mode": "access",
@@ -290,6 +298,8 @@
           ],
           "poeOut": null,
           "poeIn": null,
+          "maxSpeedMbps": 1000,
+          "poeOutDeclared": false,
           "duplex": "full",
           "vlan": {
             "mode": "access",
