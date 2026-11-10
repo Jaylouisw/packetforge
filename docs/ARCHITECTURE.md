@@ -90,6 +90,21 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### Port names in URLs
+
+A port name is not one path segment: `1/1/1`, `Fa0/1`, `Gi0/0/2`. `POST /api/topologies/:name/interfaces/:device/:port`
+therefore takes **the rest of the path** as the name, and decodes it, so both of these reach the same port:
+
+```
+POST /api/topologies/default/interfaces/d1/1/1/5
+POST /api/topologies/default/interfaces/d1/1%2F1%2F5
+```
+
+Until it did, the plain form split into extra segments and answered `404 unknown endpoint`, and the encoded form
+answered `404 interface not found` - which meant the inspector's shutdown toggle did nothing at all on every port
+named that way, and that is most of the catalogue. The control was rendered, wired, and inert; nothing in the
+tests noticed because the tests drove the engine, not the URL.
+
 ### Transport flows
 
 A ping proves a path carries one packet; a flow proves it carries a conversation.
