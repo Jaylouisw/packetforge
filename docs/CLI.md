@@ -1546,6 +1546,35 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### The console has settings, and it has no pager
+
+`terminal length 0` opens half the pasted transcripts on the internet, and `show terminal` is the question
+"what is this session set to". Before this pass the first answered `% Unrecognized command` and the second
+`% Invalid show command`. Both are real now:
+
+| Command | What it does here |
+|---|---|
+| `terminal length <0-512>` | keeps the setting; `0` means no pager, **which is what this console already is** |
+| `terminal width <40-512>` | keeps the width the tables are drawn to |
+| `show terminal` | length, width, that there is no pager, and which exec level the session is at |
+
+The answer says plainly that the setting changes nothing anybody can see — there is no pager to pause, every
+line a view prints is printed — rather than pretending a page break exists. Out-of-range numbers are refused
+with the range, a word after the number is refused rather than dropped, and in a configuration block the
+command is named as an exec command with the way back (`end`).
+
+`!` is the comment mark in a pasted configuration; `#` is the other language's, and reading it as a command is
+the last thing an operator needs to debug — so the refusal names the mark that works:
+
+```
+R1(config)# # just a note
+% Unrecognized command: # just a note
+% A comment line starts with "!" - a line beginning with "#" is read as a command
+```
+
+The line is still a command to this console (there is no `#` comment), and the sentence under it says which
+mark a comment does use; `! just a note` stays silent, as a comment should.
+
 ### The pipe, and the values behind a placeholder
 
 ```

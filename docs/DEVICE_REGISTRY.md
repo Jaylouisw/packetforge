@@ -456,9 +456,31 @@ entry in the dropdown and the device is reachable only through palette **search*
 yourself:
 
 ```bash
-node scripts/audit-devices.js          # models, vendors, ports, cablability
+node scripts/audit-devices.js          # models, vendors, ports, cablability, optics, verdict
 node scripts/missing-devices.js        # what the catalogue is still missing
 ```
+
+`audit-devices.js` prints **four** counts and a verdict, not three. On this tree, in order:
+
+```
+Models: 1661 across 247 vendors
+Ports:  17030
+Uncablable ethernet ports: 0
+Describe optics but have no optical cage: 26
+   - brocade/G720 (57 ports)
+   ...
+No hard defects.
+```
+
+The fourth line is the one this page used to leave out, and it is the interesting one: 26 specs name
+transceivers or wavelengths in their description while declaring **no optical cage** at all, so
+`cagesMate()` has nowhere to put the optic the text promises. That is reported, not failed — it is a
+soft finding, which is why the verdict underneath still reads `No hard defects.` The largest are
+`brocade/G720` (57 ports), `dell/DS-6630B` (105) and `hpe/SN3600B` (25), and the tail is dominated by
+GPON ONT sticks (`halny/HL-GSFP`, `leox/LXT-010S-H`, `fs/GPON-ONU-34-20BI`) whose "port" is the fibre
+itself. The audit prints the first fifteen and `... and N more`; `--json` carries the whole list as
+`opticalMissing` (and the empty `uncabliable` array beside it), which is the form to diff when a spec
+change is supposed to empty it.
 
 The catalogue spans routers, switches, L3 switches, firewalls, taps, hosts, servers, wireless
 APs, PTP radios, OLTs, ONTs, splitters, modems, powerline/MoCA adapters, NAS, desktops, laptops,

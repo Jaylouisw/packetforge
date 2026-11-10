@@ -817,6 +817,40 @@ class CliSession {
             this.mode = MODE_CONFIG;
           }
           else out.push('% Invalid input: ' + line);
+        } else if (head === 'terminal') {
+          // `terminal length 0` opens half the pasted transcripts on the internet, and it answered
+          // "% Unrecognized command". There is no pager here - every line a view prints is printed -
+          // so the honest answer is to take the command, keep the setting, and say what it changed.
+          const what = String(tokens[1] || '').toLowerCase();
+          const value = tokens[2];
+          const extra = this._noExtra(tokens, 3, 'terminal length <0-512> | terminal width <40-512>');
+          const usage = ['% Usage: terminal length <0-512>   (0 = no pager)',
+            '%        terminal width <40-512>    (how wide the tables are drawn)'];
+          if (extra) out.push.apply(out, extra);
+          else if (!what) out.push.apply(out, ['% Incomplete command: terminal length|width <n>'].concat(usage));
+          else if (what !== 'length' && what !== 'width') {
+            out.push('% There is no "terminal ' + tokens[1] + '" - this console has length and width',
+              '% Both change how the screen is drawn, not what the device is');
+          } else if (value === undefined) {
+            out.push.apply(out, ['% Incomplete command: terminal ' + what + ' <n>'].concat(usage));
+          } else if (!/^\d+$/.test(String(value))) {
+            out.push.apply(out, ['% terminal ' + what + ' takes a number, not "' + value + '"'].concat(usage));
+          } else {
+            const n = parseInt(value, 10);
+            const lo = what === 'length' ? 0 : 40;
+            const hi = what === 'length' ? 512 : 512;
+            if (n < lo || n > hi) {
+              out.push.apply(out, ['% ' + what + ' ' + n + ' is outside ' + lo + '-' + hi].concat(usage));
+            } else if (what === 'length') {
+              this.terminalLength = n;
+              out.push('Console length set to ' + n + (n === 0 ? ' lines: no pager, every line is printed' :
+                ' lines'), '  This console has no pager to pause: the setting is kept and reported by ' +
+                '"show terminal"');
+            } else {
+              this.terminalWidth = n;
+              out.push('Console width set to ' + n + ' columns', '  Tables are drawn to this width by "show terminal"');
+            }
+          }
         } else if (head === 'reload') {
           // `reload` reboots the box from its saved configuration. Nothing here boots - there is no
           // boot loader, no image, no POST - so answering "% Unrecognized command" would send the
@@ -854,6 +888,11 @@ class CliSession {
           out.push.apply(out, this._help());
         } else {
           out.push('% Unrecognized command: ' + line);
+          // `!` is a comment here (as it is in a pasted IOS config); `#` is the other language's
+          // comment and reading it as a command is the last thing an operator needs to debug.
+          if (/^\s*#/.test(line)) {
+            out.push('% A comment line starts with "!" - a line beginning with "#" is read as a command');
+          }
         }
       }
     } catch (e) {
@@ -4271,6 +4310,19 @@ class CliSession {
     if (first === 'environment' || first === 'power' && has('supply')) {
       return ['% There are no environmental sensors here: no temperature, fan or PSU readings are modelled',
         '% The one power view this model keeps is PoE: "show power inline" (budget, allocation, denied ports)'];
+    }
+    if (first === 'terminal') {
+      // The settings this console actually has. `terminal length`/`width` are real words here now, so
+      // the question "what are they set to" needs an answer - and the answer includes the fact that
+      // there is no pager, which is why `length 0` changes nothing anybody can see.
+      const rows = [
+        ['Terminal length', (this.terminalLength === undefined ? '0 (default)' : String(this.terminalLength))],
+        ['Terminal width', (this.terminalWidth === undefined ? '80 (default)' : String(this.terminalWidth))],
+        ['Pager', 'none - every line of a view is printed'],
+        ['Session', (this.device.name || this.device.id) + ', ' + (this.mode === MODE_ENABLE ? 'privileged' : 'user') + ' exec']
+      ];
+      return ['Console settings for this session:'].concat(
+        renderTable(['Setting', 'Value'], rows));
     }
     if (first === 'users' || first === 'sessions' || first === 'line') {
       return ['% One session: this console. Nothing else can log in, and there is no VTY line to configure',
@@ -11801,6 +11853,9 @@ class CliSession {
       helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
       helpLine('show interfaces <port> switchport', 'one port\'s L2 state: mode, access VLAN or trunking, port security'),
       helpLine('show history', 'the commands typed into this session, last 10'),
+      helpLine('show terminal', 'console length and width for this session, and that there is no pager'),
+      helpLine('terminal length <0-512>', 'how many lines the screen holds (0 = no pager, which is what this is)'),
+      helpLine('terminal width <40-512>', 'how many columns the tables are drawn to'),
       helpLine('show interfaces description [<port>]', 'every port label in one list, with its state'),
       helpLine('show ip interface [brief] [<port>]', 'per-port detail: address, mask, MTU, ACLs, NAT'),
       helpLine('show interfaces counters [<port>]', 'one row per port: packets, bytes, drops'),
