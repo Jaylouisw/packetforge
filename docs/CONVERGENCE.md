@@ -102,7 +102,14 @@ Network converges again at 40000 ms.
 ```
 
 Ten seconds plus the two forward delays, because a switch that has to bring a new port into
-forwarding walks it through Listening and Learning just as it does at boot. Ask inside that window
+forwarding walks it through Listening and Learning just as it does at boot.
+
+With no `at`, the change happens at the instant the console is standing at — `link down l5` typed in a session at
+60000 ms records the pull at 60000 and reconverges at 90000. It used to be stamped t=0 regardless, so the console
+answered "Network converges again at 30000 ms" half a minute *before* the moment it was asked about, while the same
+board asked through the API with `atMs` answered 90000. One rule now, at both doors: an instant that is named is
+used; an instant that is not named is the instant of the question; a settled board (no instant) starts at 0. An
+`atMs` that is not a time at or after 0 is refused (`E_BAD_INSTANT`) instead of quietly becoming zero. Ask inside that window
 and the answer is `reason: 'converging'`, naming the processes that are not done; ask after it and
 the alternate path is carrying traffic.
 

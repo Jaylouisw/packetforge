@@ -1193,6 +1193,7 @@ A cable is not owned by a device, so these are accepted from any console in the 
 ```
 links                              # every cable, its ends and its state
 link down <linkId> [at <ms>]       # pull it: frames die, STP rebuilds, tables flush
+                                   #   no `at` means now - the instant this session is at
 link up   <linkId> [at <ms>]       # put it back
 link state <linkId>                # what it is now, and since when
 ```
