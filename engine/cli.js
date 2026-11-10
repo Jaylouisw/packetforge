@@ -464,17 +464,74 @@ class CliSession {
       // set from the same text, so they cannot disagree.
       if (name) this.device.name = name;
     } else if (head === 'vlan') {
-      const id = parseInt(tokens[1], 10);
-      const chk = require('./vlan').validatePortConfig({ accessVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      // Every refusal below used to be a guess. `vlan abc` answered "VLAN NaN created (name:
+      // VLAN0NaN)" and wrote `config.vlans[NaN]`; an out-of-range id leaked the data-model field name
+      // ("accessVlan 9999 is outside 1-4094") instead of naming the VLAN; re-typing an existing VLAN
+      // said "created" again; and a router - which has no VLANs at all - accepted one. Four different
+      // answers to "what is a VLAN id", from one command.
+      const typed = tokens[1];
+      if (typed === undefined) return ['% Incomplete command: vlan <id> [name]'];
+      if (!/^\d+$/.test(String(typed))) {
+        return ['% VLAN id must be a number, not "' + typed + '"',
+          '% Usage: vlan <id> [name]'];
+      }
+      const id = parseInt(typed, 10);
+      if (!(id >= 1 && id <= 4094)) return ['% VLAN ' + typed + ' is outside 1-4094'];
       if (!this.device.config.vlans) this.device.config.vlans = {};
-      const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
-      this.device.config.vlans[id] = { name: name };
-      out.push('VLAN ' + id + ' created (name: ' + name + ')');
+      const existing = this.device.config.vlans[id];
+      const typedName = tokens.slice(2).join(' ');
+      if (existing) {
+        if (typedName) {
+          existing.name = typedName;
+          out.push('VLAN ' + id + ' name changed to ' + typedName);
+        } else {
+          out.push('VLAN ' + id + ' already configured (name: ' + existing.name + ')');
+        }
+      } else {
+        const name = typedName || ('VLAN' + String(id).padStart(4, '0'));
+        this.device.config.vlans[id] = { name: name };
+        out.push('VLAN ' + id + ' created (name: ' + name + ')');
+      }
     } else if (head === 'no' && tokens[1] === 'vlan') {
-      const id = parseInt(tokens[2], 10);
-      if (this.device.config.vlans) delete this.device.config.vlans[id];
-      out.push('VLAN ' + id + ' removed');
+      // `no vlan 99` answered "VLAN 99 removed" for a VLAN that never existed, `no vlan` answered
+      // "VLAN NaN removed", and `no vlan 30` answered "removed" while two ports still carried it - so
+      // `show vlan` kept printing the VLAN the command said it had deleted. Success was the one thing
+      // this verb could not report honestly, because nothing checked whether there was anything to
+      // remove or whether removing it meant anything.
+      const typed = tokens[2];
+      if (typed === undefined) return ['% Incomplete command: no vlan <id>'];
+      if (!/^\d+$/.test(String(typed))) {
+        return ['% VLAN id must be a number, not "' + typed + '"',
+          '% Usage: no vlan <id>'];
+      }
+      const id = parseInt(typed, 10);
+      if (!(id >= 1 && id <= 4094)) return ['% VLAN ' + typed + ' is outside 1-4094'];
+      const extra = this._noExtra(tokens, 3, 'no vlan <id>');
+      if (extra) return extra;
+      const deps = this._vlanDependents(this.device, id);
+      const declared = this.device.config.vlans && this.device.config.vlans[id];
+      if (deps.hard.length) {
+        return ['% VLAN ' + id + ' is carried by ' + deps.hard.join(', ') +
+          ' - it cannot be removed while those ports are in it',
+          '% Move them first, e.g. "switchport access vlan <other>" in each interface block'];
+      }
+      if (!declared) {
+        return ['% No VLAN ' + id + ' on ' + (this.device.name || this.device.id) +
+          ' - nothing is configured for it and no port carries it',
+          '% "show vlan" lists the VLANs this device has'];
+      }
+      const was = declared.name;
+      delete this.device.config.vlans[id];
+      out.push('VLAN ' + id + ' removed (was named ' + was + ')');
+      // A trunk that listed the VLAN explicitly now passes one fewer VLAN; saying so is the
+      // difference between a removal the operator can see in `show vlan` and one they have to
+      // discover.
+      for (const port of deps.listed) {
+        const vi = this.device.interfaces.get(port);
+        if (!vi || !vi.vlan || !Array.isArray(vi.vlan.allowedVlans)) continue;
+        vi.vlan.allowedVlans = vi.vlan.allowedVlans.filter(function (x) { return Number(x) !== id; });
+        out.push('  ' + port + ': VLAN ' + id + ' removed from the allowed list');
+      }
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
       const typed = tokens[2];
       const name = resolvePortName(this.device, typed);
@@ -874,6 +931,53 @@ class CliSession {
         ' shadowed by a lower administrative distance - "show ip route" marks the installed ones');
     }
     return out;
+  }
+
+  // Which ports carry which VLANs - one walk, so the table, the refusal in `no vlan` and the 404 in
+  // `show vlan <id>` cannot disagree about who is in a VLAN. Each entry carries the decoration the
+  // table prints: `(t)` for a trunk member, `(n)` for the native VLAN, `(trunk)` for a trunk that
+  // allows them all and therefore has no list to name.
+  _vlanMap(dev) {
+    const by = new Map();
+    const add = function (id, text) {
+      if (!by.has(id)) by.set(id, []);
+      by.get(id).push(text);
+    };
+    for (const i of dev.interfaces.values()) {
+      const v = i.vlan || { mode: 'access', accessVlan: 1 };
+      if (v.mode === 'trunk') {
+        const native = Number(v.nativeVlan) || 1;
+        const all = v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans);
+        if (all) add('all', i.name + '(trunk)');
+        for (const id of (all ? [native] : v.allowedVlans.map(Number))) {
+          add(id, i.name + (Number(id) === native ? '(n)' : '(t)'));
+        }
+      } else {
+        add(Number(v.accessVlan) || 1, i.name);
+      }
+    }
+    return by;
+  }
+
+  // Who would break if a VLAN went away. Two different dependencies, and they are not the same fact:
+  // a port whose *own* classification is that VLAN (an access port, or a trunk's native VLAN) cannot
+  // go on without it, while a trunk that merely lists it in an allowed list can simply stop listing
+  // it. Folding them together would either refuse a removal that is perfectly possible or allow one
+  // that silently strands a port.
+  _vlanDependents(dev, id) {
+    const want = Number(id);
+    const hard = [], listed = [];
+    for (const i of dev.interfaces.values()) {
+      const v = i.vlan || { mode: 'access', accessVlan: 1 };
+      if (v.mode === 'trunk') {
+        if ((Number(v.nativeVlan) || 1) === want) hard.push(i.name + ' (native)');
+        else if (Array.isArray(v.allowedVlans) &&
+          v.allowedVlans.map(Number).indexOf(want) !== -1) listed.push(i.name);
+      } else if ((Number(v.accessVlan) || 1) === want) {
+        hard.push(i.name);
+      }
+    }
+    return { hard: hard, listed: listed };
   }
 
   // One spelling of a flow id, shared by every door: `flow-3` and `3` are the same flow, and
@@ -2946,11 +3050,21 @@ class CliSession {
     } else if (what === 'vrrp') {
       out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
+      // A router answered `show vlan` with a fabricated VLAN 1 containing every port, two lines after
+      // `interface vlan 10` refuses to exist because "this device does not switch". A bridge domain is
+      // a thing a router does not have, so the table was describing an object the model does not
+      // contain.
+      // A router printed VLAN 1 with every port in it - a fabricated bridge domain, because a router
+      // forwards between its own sockets and never bridges them into a VLAN. It can still *declare* a
+      // VLAN (a name for a broadcast domain its subinterfaces sit in), and `show running-config`
+      // round-trips that, so the declaration is shown and the membership is not invented.
+      const bridged = dev.isL2();
       // `show vlan <id>` took an argument and printed every VLAN whatever you typed - the same
       // ignored-argument defect as the nine shows that ignored a port, in a command that was missed
       // because it never claimed a port. A VLAN id either narrows the answer or is refused by name;
       // a word that is not an id at all is refused as a word, not silently dropped.
       let wantVlan = null;
+      let typedVlan = null;      // what was typed, so a refusal quotes the operator's spelling
       {
         const rest = tokens.slice(1).map(function (t) { return String(t); });
         let i = 0;
@@ -2964,6 +3078,7 @@ class CliSession {
               '% Try "show vlan" for every VLAN this device carries']);
           }
           wantVlan = Number(value);
+          typedVlan = String(value);
           i += 2;
         } else if (String(rest[i] || '').toLowerCase() === 'brief') {
           i += 1;
@@ -2972,36 +3087,26 @@ class CliSession {
             return out.concat(['% Invalid VLAN id "' + rest[i] + '" - ids are numbers 1-4094',
               '% Try "show vlan" for every VLAN this device carries']);
           }
+          // A number outside the range is not an id that is missing; it cannot be an id at all, and
+          // saying "no VLAN 9999" invites the reader to go looking for where it went.
+          if (!(Number(rest[i]) >= 1 && Number(rest[i]) <= 4094)) {
+            return out.concat(['% VLAN ' + rest[i] + ' is outside 1-4094',
+              '% Try "show vlan" for every VLAN this device carries']);
+          }
           wantVlan = Number(rest[i]);
+          typedVlan = rest[i];
           i += 1;
         }
         if (String(rest[i] || '').toLowerCase() === 'brief') i += 1;
         const extra = this._noExtra(rest, i, 'show vlan [<id>|brief]');
         if (extra) return out.concat(extra);
       }
-      const byVlan = new Map();
-      for (const i of dev.interfaces.values()) {
-        const v = i.vlan || { mode: 'access', accessVlan: 1 };
-        if (v.mode === 'trunk') {
-          const ids = (v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans))
-            ? [Number(v.nativeVlan) || 1]
-            : v.allowedVlans;
-          for (const id of ids) {
-            if (!byVlan.has(id)) byVlan.set(id, []);
-            byVlan.get(id).push(i.name + (id === (Number(v.nativeVlan) || 1) ? '(n)' : '(t)'));
-          }
-          if (v.allowedVlans === 'all') {
-            const anyKey = 'all';
-            if (!byVlan.has(anyKey)) byVlan.set(anyKey, []);
-            byVlan.get(anyKey).push(i.name + '(trunk)');
-          }
-        } else {
-          const id = Number(v.accessVlan) || 1;
-          if (!byVlan.has(id)) byVlan.set(id, []);
-          byVlan.get(id).push(i.name);
-        }
-      }
-      let keys = Array.from(byVlan.keys()).sort(function (a, b) {
+      // One walk for the whole console: `_vlanMap()` is what `no vlan` and `show vlan <id>` read too.
+      const byVlan = this._vlanMap(dev);
+      const declaredIds = Object.keys(dev.config.vlans || {}).map(Number);
+      // A device that does not bridge has no membership to report: its VLANs are names it declared.
+      let keys = bridged ? Array.from(byVlan.keys()) : Array.from(new Set([1].concat(declaredIds)));
+      keys = keys.sort(function (a, b) {
         if (a === 'all') return 1;
         if (b === 'all') return -1;
         return a - b;
@@ -3015,7 +3120,7 @@ class CliSession {
           // separately is the difference between "you have not made it" and "you made it empty".
           const declared = Object.keys(dev.config.vlans || {}).map(Number)
             .filter(function (id) { return carried.indexOf(id) === -1; });
-          return out.concat(['% No VLAN ' + wantVlan + ' on ' + dev.name +
+          return out.concat(['% No VLAN ' + (typedVlan === null ? wantVlan : typedVlan) + ' on ' + dev.name +
             ' - no port carries it and it is not configured',
             '% Carried VLANs: ' + (carried.join(', ') || '(none)') +
               (declared.length ? '; configured but empty: ' + declared.join(', ') : '')]);
@@ -3033,7 +3138,10 @@ class CliSession {
         const name = (dev.config.vlans && dev.config.vlans[id] && dev.config.vlans[id].name) || ('VLAN' + String(id).padStart(4, '0'));
         // A configured VLAN with no port in it is a real answer and says so, rather than printing an
         // empty Ports cell that reads like a layout failure.
-        vlanRows.push([id, name, 'active', (byVlan.get(id) || []).join(', ') || '(no ports)']);
+        const ports = bridged
+          ? ((byVlan.get(id) || []).join(', ') || '(no ports)')
+          : '-';       // no bridge, so no membership - not an empty cell, a column with nothing to say
+        vlanRows.push([id, name, 'active', ports]);
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
     } else if (what === 'spanning-tree') {

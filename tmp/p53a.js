@@ -1,0 +1,18 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const sw=t.addDevice(SW);sw.name='SW1';
+const s=new CliSession(sw,t,new Simulator(t)); s.run('enable');
+const R=(x)=>{const o=s.run(x).output; console.log('$ '+x); o.forEach(l=>console.log('    '+l));};
+s.run('configure terminal');
+R('vlan 30');
+R('interface Fa0/1'); R('switchport access vlan 30'); R('exit');
+R('end');
+R('show vlan');
+R('show running-config');
+R('show vlan ?');
+R('show flows ?');
+R('show logging ?');
+R('show vlan br');
+R('show vlan b');
+R('show vlan 30 ?');

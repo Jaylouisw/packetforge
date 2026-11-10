@@ -2040,6 +2040,91 @@ interface Fa0/2              # uplink
 no switchport                # reset a port to access VLAN 1
 ```
 
+`vlan <id> [name]` reports what it did, and the second word is the name:
+
+```
+SW1(config)#vlan 30 SALES
+VLAN 30 created (name: SALES)
+SW1(config)#vlan 30
+VLAN 30 already configured (name: SALES)
+SW1(config)#vlan abc
+% VLAN id must be a number, not "abc"
+% Usage: vlan <id> [name]
+SW1(config)#vlan 4095
+% VLAN 4095 is outside 1-4094
+```
+
+`no vlan <id>` is a promise, so it refuses the two cases where it would be a lie — a VLAN that is
+not there, and a VLAN a port is still in:
+
+```
+SW1(config)#no vlan 99
+% No VLAN 99 on SW1 - nothing is configured for it and no port carries it
+% "show vlan" lists the VLANs this device has
+SW1(config)#no vlan 30
+% VLAN 30 is carried by Fa0/1 - it cannot be removed while those ports are in it
+% Move them first, e.g. "switchport access vlan <other>" in each interface block
+```
+
+Move the port and the removal is real, and says what it removed:
+
+```
+SW1(config)#interface Fa0/1
+SW1(config-if)#switchport access vlan 1
+SW1(config-if)#exit
+SW1(config)#no vlan 30
+VLAN 30 removed (was named SALES)
+SW1#show vlan
+VLAN  Name      Status  Ports
+1     VLAN0001  active  Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
+```
+
+A trunk is a **different dependency** from an access port, and the two are not folded together. A
+trunk whose *native* VLAN is the one being removed cannot lose it (untagged frames would have nowhere
+to land), so that blocks the removal and the port is marked `(native)`. A trunk that merely lists the
+VLAN in its allowed list goes on without it, so the removal prunes the list and says so:
+
+```
+SW1(config)#interface Fa0/8
+SW1(config)#switchport mode trunk
+Switchport mode trunk on Fa0/8
+SW1(config)#switchport trunk native vlan 30
+Trunk native VLAN 30 on Fa0/8
+SW1(config)#exit
+SW1(config)#no vlan 30
+% VLAN 30 is carried by Fa0/8 (native) - it cannot be removed while those ports are in it
+% Move them first, e.g. "switchport access vlan <other>" in each interface block
+```
+
+```
+SW1(config)#switchport trunk allowed vlan 10,30
+Trunk on Fa0/8 allows VLANs 10,30
+SW1(config)#exit
+SW1(config)#no vlan 30
+VLAN 30 removed (was named VLAN0030)
+  Fa0/8: VLAN 30 removed from the allowed list
+SW1#show vlan
+VLAN  Name      Status  Ports
+1     VLAN0001  active  Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7
+10    VLAN0010  active  Fa0/8(t)
+```
+
+A device that does not bridge — a router — may still **declare** a VLAN (its `show running-config`
+carries the line and `interface Vlan99` sits in it), but it has no port membership to report, so the
+Ports column holds `-` instead of inventing a bridge domain that contains every router port:
+
+```
+R1#show vlan
+VLAN  Name   Status  Ports
+1     VLAN0001  active  -
+99    users     active  -
+```
+
+`show vlan <id>` and `no vlan <id>` read **one** membership walk (`_vlanMap()`), so the ports a
+refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (43
+assertions), which also proves the domain is real by pinging across it and then separating the hosts
+by moving one port.
+
 A trunk with no explicit allowed list carries **everything**; `switchport trunk allowed vlan all`
 says so again. A list is accepted as ids and ranges (`10,20,30-32` is echoed back as
 `10,20,30,31,32`), and an id outside 1–4094 is refused.
