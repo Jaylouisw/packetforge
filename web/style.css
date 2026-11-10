@@ -233,6 +233,11 @@ a.btn { text-decoration: none; display: inline-block; line-height: normal; }
 table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
 .iface-table th { text-align: left; color: var(--muted); font-weight: 500; font-size: 10px; text-transform: uppercase; padding: 4px 6px; border-bottom: 1px solid var(--border); }
 .iface-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+/* A route that cannot carry a packet, and the sentence saying why (#1301). The row is dimmed rather than
+   hidden: it is still installed, so an operator needs to see that it exists and why it cannot be used. */
+.route-dead td { color: var(--muted); }
+.route-note { color: var(--red); font-size: 11px; }
+.route-dead .route-note { color: var(--red); }
 .iface-table input[type="text"] {
   width: 96px; background: var(--bg-2); border: 1px solid var(--border-2);
   color: var(--text); border-radius: 4px; padding: 2px 6px; font-family: var(--mono); font-size: 11px;
