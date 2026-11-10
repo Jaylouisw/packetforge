@@ -1,0 +1,102 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UDM",
+  "label": "UniFi Dream Machine (UDM)",
+  "category": "router",
+  "description": "Ubiquiti UniFi Dream Machine - all-in-one security gateway, 4-port managed Gigabit switch and dual-band 802.11ac Wave 2 access point in one chassis. 5x GbE RJ45 (1 WAN + 4 LAN), 4x4 MU-MIMO on 5 GHz, 2.4 GHz 802.11n, 1 Gbps IDS/IPS throughput, 26 W maximum draw from an internal AC/DC adapter.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.7G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-unifi-dream-machine-access-pointswitchsecurity-gateway-udm-p-8550.html",
+  "notes": "The page states the wiring twice over ('5 GbE Ports: 1 WAN and 4 LAN', then '4 x LAN 10/100/1000 RJ45 Ports, 1 x WAN 10/100/1000 RJ45 Port'), so the split is quoted, not inferred: exactly one WAN socket and four LAN sockets in one bridge group. Per-band radio rates (300 Mbps on 2.4 GHz, 1.7 Gbps on 5 GHz) are the class rates for 802.11n 2.4 GHz and 4x4 802.11ac Wave 2; the page states the radio classes but no PHY rate, so the numbers are the class convention and are not presented as a quoted figure. Power is an internal AC/DC adapter at 26 W with no PoE in or out, which is why no `poeIn` is declared - a lab cannot power this over the LAN cable. Power is the important silence: the page gives an internal AC/DC adapter and 26 W with no PoE-in, so every RJ45 port declares `poeIn: 0` rather than leaving it out. Left out, the engine's access-point heuristic (any model or label containing \"UniFi\") would infer 12.95 W on each port and then warn that a PC cannot feed it - a wattage no datasheet claims, on a box that plugs into the wall."
+}

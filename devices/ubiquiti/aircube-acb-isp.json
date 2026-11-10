@@ -18,7 +18,8 @@
         10,
         100
       ],
-      "role": "wan"
+      "role": "wan",
+      "poeIn": 0
     },
     {
       "name": "lan1",
@@ -41,7 +42,8 @@
         100
       ],
       "role": "lan",
-      "bridgeGroup": "lan"
+      "bridgeGroup": "lan",
+      "poeIn": 0
     },
     {
       "name": "lan3",
@@ -52,7 +54,8 @@
         100
       ],
       "role": "lan",
-      "bridgeGroup": "lan"
+      "bridgeGroup": "lan",
+      "poeIn": 0
     },
     {
       "name": "radio0",
@@ -63,5 +66,5 @@
   "icon": "ap",
   "color": "#3b82f6",
   "sourceUrl": "https://www.4gon.co.uk/ubiquiti-aircube-airmax-isp-home-wifi-access-point-acbisp-p-7078.html",
-  "notes": "Everything here is 100M: four Fast Ethernet ports and a 2.4 GHz 802.11n radio, so this is a WISP subscriber box, not the gigabit dual-band AP its name suggests. The PoE is *passive* and passes through to the CPE on the WAN port (24 V on pairs 4,5 / 7,8) - the page publishes no wattage for it, so no `poeOut` number is declared rather than inventing one; the 5 W is the device's own draw, which is what `poeIn` on LAN port 1 means. Only LAN port 1 accepts power in, which is why `poeIn` sits on that port and not on the device."
+  "notes": "Everything here is 100M: four Fast Ethernet ports and a 2.4 GHz 802.11n radio, so this is a WISP subscriber box, not the gigabit dual-band AP its name suggests. The PoE is *passive* and passes through to the CPE on the WAN port (24 V on pairs 4,5 / 7,8) - the page publishes no wattage for it, so no `poeOut` number is declared rather than inventing one; the 5 W is the device's own draw, which is what `poeIn` on LAN port 1 means. Only LAN port 1 accepts power in, which is why `poeIn` sits on that port and not on the device. The three ports that do not accept power say `poeIn: 0` explicitly: without it the engine's access-point heuristic would put 12.95 W on all four sockets, which contradicts the page and would make a lab believe any LAN port can feed this box."
 }

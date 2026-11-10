@@ -321,5 +321,42 @@ console.log('\nTwo Ubiquiti devices that are 100M, not gigabit (#43, #322):');
     'UniFi AP (UAP): a gigabit host on its port runs at 100M (' + (link.mediaName || link.mediaId) + ')');
 }
 
+console.log('\nThe one plug-in-the-wall device and the one that is powered over its cable (#138, #213):');
+{
+  // The engine infers PoE-in for anything called "UniFi" (engine/media.js isPoePd). Most of that family
+  // earns it; the Dream Machine does not, and the difference is a spec that says so out loud.
+  const udm = find('UDM');
+  eq(effectiveInterfaces(udm).filter(function (p) { return p.type === 'ethernet'; }).length, 5,
+    'UDM: five RJ45 ports, one WAN and four LAN, as the page states twice');
+  ok(effectiveInterfaces(udm).filter(function (p) { return p.type === 'ethernet'; })
+    .every(function (p) { return p.poeIn === 0; }),
+    'UDM: every port declares poeIn 0 - it runs from an internal AC adapter and cannot be fed over copper');
+
+  const t7 = new Topology();
+  const udmDev = t7.addDevice(udm);
+  const pc = t7.addDevice(find('generic-pc'));
+  const v = t7.validateLink(udmDev.id, 'lan1', pc.id, 'eth0', {});
+  ok(v.ok && !(v.warnings || []).some(function (w) { return w.code === 'W_POE_DRAW'; }),
+    'UDM: a PC on a LAN port draws no phantom PoE warning');
+
+  // The other half of the same coin: a radio base really is a powered device, and a PC cannot feed it.
+  const ps = find('PS-5AC');
+  const psPorts = effectiveInterfaces(ps);
+  eq(psPorts.filter(function (p) { return p.type === 'ethernet'; }).length, 1,
+    'PS-5AC: a single Ethernet port, which is both data and power');
+  eq(psPorts[0].poeIn, 10, 'PS-5AC: passive PoE in, 10 W');
+  const t8 = new Topology();
+  const psDev = t8.addDevice(ps);
+  const pc2 = t8.addDevice(find('generic-pc'));
+  const v2 = t8.validateLink(psDev.id, 'eth0', pc2.id, 'eth0', {});
+  ok((v2.warnings || []).some(function (w) { return w.code === 'W_POE_DRAW'; }),
+    'PS-5AC: a PC on that port is flagged as unable to power it');
+
+  const cube = find('airCube ACB-ISP');
+  const cubePoe = effectiveInterfaces(cube).filter(function (p) { return p.type === 'ethernet'; });
+  eq(cubePoe.filter(function (p) { return p.poeIn > 0; }).length, 1,
+    'airCube: only LAN port 1 accepts power; the other three declare poeIn 0 rather than being inferred');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

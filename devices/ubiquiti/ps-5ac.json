@@ -1,32 +1,41 @@
 {
   "vendor": "ubiquiti",
   "model": "PS-5AC",
-  "label": "PrismStation 5AC",
-  "category": "ptp",
-  "description": "5 GHz airMAX ac PrismStation shielded radio base (antenna not included - takes Horn-5 or PrismStation sector antennas), 10 W, 24 V 1 A passive PoE in. Ports: 1x GbE RJ45 (PoE in); no SFP.",
+  "label": "PrismStation 5AC (PS-5AC)",
+  "category": "wireless",
+  "description": "Ubiquiti PrismStation 5AC shielded airMAX ac radio base - one Gigabit Ethernet data port with passive PoE in (24 V, 10 W maximum draw), a 5 GHz 2x2 802.11ac radio with an interchangeable horn antenna and a dedicated 2.4 GHz management radio. Antenna sold separately; GPS sync connector on the housing.",
   "capabilities": [
-    "l3-forward",
     "wireless",
-    "cli",
+    "l2-forward",
     "http-server",
-    "nat",
-    "firewall",
-    "dhcp-server",
-    "dhcp-client",
-    "passive-poe"
+    "cli"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 10
     },
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "867M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "300M"
     }
   ],
-  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/ps-5ac"
+  "icon": "ptp",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-prismstation-ps5ac-p-6959.html",
+  "notes": "Two things a lab gets wrong here. (1) The antenna is **not** part of the box - the PrismStation is a radio base for an interchangeable horn, so its 5 GHz 'radio' has no integrated gain and a topology that expects a built-in antenna is modelling a different product (LiteAP/NanoBeam). (2) The 2.4 GHz radio is a *management* radio, not a second data channel: it exists to reach the radio when the 5 GHz link is down, so it is declared as `radio1` and should not be used to carry traffic. Per-band rates (867 Mbps on 5 GHz 2x2 802.11ac, 300 Mbps on the 2.4 GHz 802.11n management radio) are class rates - the page quotes real throughput, not PHY rates. Power is passive 24 V PoE in on the single data port at 10 W; there is no PoE out and no second Ethernet port."
 }
