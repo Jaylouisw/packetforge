@@ -347,7 +347,7 @@ Config mode:
 
 | Command | Effect |
 |---------|--------|
-| `ipv6 route <prefix>/<len> <next-hop>` | add a static IPv6 route — **no** interface argument, unlike `ip route` ([details](#static-routes-and-the-gateway-of-last-resort)) |
+| `ipv6 route <prefix/len> <next-hop>` | add a static IPv6 route — **no** interface argument, unlike `ip route` ([details](#static-routes-and-the-gateway-of-last-resort)) |
 | `ipv6 gateway <addr>` | set the default IPv6 gateway |
 | `no ipv6` | clear the IPv6 gateway and static routes |
 | `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertise prefixes to the link (`l3-forward` only) |
@@ -1140,34 +1140,37 @@ Route removed: 10.9.0.0/24 via 10.0.0.3
 ```
 
 and asking for a gateway that is not configured is refused rather than ignored (`% No route to
-10.9.0.0/24 via 10.0.0.99 is configured`, followed by what *is* configured). The IPv6 side is not, and its help line overstates what it
-does. Help advertises `no ipv6 route <prefix>/<len> [<next-hop>] | no ipv6 gateway [<addr>]`, but the
-handler ignores the tail entirely: it clears the IPv6 default gateway *and* every static IPv6 route, and
-says so with a message that names nothing.
+10.9.0.0/24 via 10.0.0.99 is configured`, followed by what *is* configured).
+
+**The IPv6 side used to be the counter-example and no longer is.** This page once recorded that
+`no ipv6 route <prefix>/<len> [<next-hop>]` ignored its tail and cleared the whole IPv6 table — the
+help line advertised a targeted removal the handler did not perform. That is fixed; the four forms are
+now distinguishable, each with its own sentence:
 
 ```text
-R1#show ipv6 route
-  *  C 2001:db8:1::/64  0   -              Gi0/0
-  *  S 2001:db8:9::/64  1   2001:db8:1::2  -
-  *  S 2001:db8:8::/64  1   2001:db8:1::2  -
 R1(config)#no ipv6 route 2001:db8:9::/64
-IPv6 routes cleared
-R1#show ipv6 route
-Codes: C - connected
-  *  Prefix             AD  Gateway  Interface
-  *  C 2001:db8:1::/64  0   -        Gi0/0
+IPv6 route to 2001:db8:9::/64 removed
+
+R1(config)#no ipv6 route 2001:db8:9::/64 2001:db8:1::9
+IPv6 route to 2001:db8:9::/64 removed (via 2001:db8:1::9)
+
+R1(config)#no ipv6 route 2001:db8:77::/64
+% No IPv6 route to 2001:db8:77::/64 on R1
+% "show ipv6 route" lists the routes this device has
+
+R1(config)#no ipv6 gateway
+IPv6 default gateway cleared
 ```
 
-Both static routes are gone. A prefix that was never configured removes everything just as cheerfully
-(`no ipv6 route 2001:db8:77::/64` → `IPv6 routes cleared`, table emptied), so the echo is not a report
-of what matched — it is a report of what the command does unconditionally. The same arm swallows `no ipv6 gateway`
-as well — a reader removing a gateway should not lose a routing table — and repeating either command on
-an already-empty configuration still answers `IPv6 routes cleared`. Until the handler honours its own
-help line, treat any `no ipv6 …` as "clear all IPv6 routes and the IPv6 gateway", and re-add the ones you
-wanted to keep. (`no ipv6 unicast-routing` is carved out and does *not* clear the table — measured: both static
-routes survive and `show ipv6 route` grows a two-line `!` banner saying routing is disabled. The comment
-in `engine/cli.js` above the bare `no ipv6` arm says that carve-out exists precisely because the two
-commands once shared a handler that ate the configuration.)
+A prefix that was never configured is now refused instead of emptying the table, and removing a route
+leaves its siblings alone. The bare `no ipv6` is still the blunt one — it answers `IPv6 routes cleared` —
+which is the behaviour you want from a command that names nothing. `no ipv6 unicast-routing` is carved out
+and does not clear anything: both static routes survive and `show ipv6 route` grows a `!` banner —
+`! IPv6 unicast routing is DISABLED on this device - these routes are configured but no packet is forwarded
+(ipv6 unicast-routing re-enables it)` — while `no ipv6 unicast-routing` itself answers `IPv6 unicast routing
+disabled on R1 - this device now forwards no IPv6 packet (its own addresses still answer)`. The comment in
+`engine/cli.js` above the bare `no ipv6` arm says that carve-out exists precisely because two commands once
+shared a handler that ate the configuration.
 
 **`ip default-gateway` is not host-only.** The table above says "hosts" because that is the IOS story,
 but the command is accepted on a router and installs a real route — a `0.0.0.0/0` entry at AD 254:
