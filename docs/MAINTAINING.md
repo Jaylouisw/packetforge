@@ -15,7 +15,11 @@ reviewed pull request, and what to do when the usual route fails.
    spellings, unknown interface types, unknown capabilities. It refuses rather than guesses, and
    its refusals are how most bad entries surface.
 4. **The suite checks it** (`npm test`): catalogue invariants, spec-versus-description agreement,
-   naming rules, registry counts in `docs/DEVICE_REGISTRY.md`.
+   naming rules, registry counts in `docs/DEVICE_REGISTRY.md`. Do not edit those counts by hand —
+   run `npm run regen:registry-doc` and let it print the numbers from `loadCatalog()`. Hand-editing
+   them is how `main` goes red for everybody: a batch that merges while a second batch updates the
+   same sentence leaves the page describing a catalogue that no longer exists, and every open pull
+   request is branched from a commit before the drift, so one stale sentence blocks the whole queue.
 5. **The request is closed** with a comment naming the file and the facts worth knowing.
 
 ## Getting the ports out of a vendor
