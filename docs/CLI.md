@@ -1200,6 +1200,40 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### Advice has to be advice somebody can take
+
+Every earlier pass on the `show` views asked whether a view *answers*. This one asked whether what it
+says can be **done**. The first probe was one command:
+
+```
+SW1#show port-security interface Vlan20
+Port security is not enabled on Vlan20
+  Enable it with "switchport port-security" in that interface
+```
+
+`switchport port-security` in an SVI has been refused since the interface-capability pass — the same
+console answers *"Vlan20 is a logical interface: port security applies to a physical port"*. So the
+view was pointing at a command that cannot be run, one prompt away from working:
+
+```
+SW1#show port-security interface Vlan20
+% Vlan20 is a logical interface - port security needs a port
+% A secured port is one that learns addresses; an SVI is the address its VLAN answers on
+```
+
+A physical port keeps the advice, because there it works.
+
+The guard is the general form of the rule: **every quoted command a view prints is typed back** at the
+session it was printed in — exec, global config, and the interface block the view named — and must not
+come back as `% Unrecognized` or as a capability refusal. The sweep walks every `show` row on the exec
+page, across a switch with an SVI, a trunk, a tagged subinterface and a secured port, plus a router:
+264 views, 71 quoted commands. It found the port-security case and one false positive of its own
+(`no lldp transmit`, which is correct advice *inside* the port the view names — the sweep now enters
+that block before judging).
+
+A guard that cannot fail is not a guard, so the sweep's counts are asserted too: if the page stops
+printing rows or the quote filter stops matching, the suite fails loudly instead of agreeing.
+
 ### A subinterface is a tag on a wire
 
 Probing the object the last pass left standing — the subinterface — found three commands that

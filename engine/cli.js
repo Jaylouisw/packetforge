@@ -4122,6 +4122,12 @@ class CliSession {
       }
       const pick = this._portArg(args.slice(1), dev, 'show port-security interface', null);
       if (!pick.ok) return pick.output;
+      // Advice has to be advice somebody can take. On an SVI this said "Enable it with switchport
+      // port-security in that interface" - a command this console refuses there, with the very
+      // sentence that says port security needs a physical port.
+      const logical = this._logicalPortRefusal(dev.interfaces.get(pick.port), 'port security needs a port',
+        'A secured port is one that learns addresses; an SVI is the address its VLAN answers on');
+      if (logical) return logical;
       const st = psLib.peek(dev, pick.port);
       if (!st || !st.enabled) {
         return ['Port security is not enabled on ' + pick.port,
