@@ -413,6 +413,20 @@ HSRP and GLBP do not exist.
 | **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no DR/BDR election, no adjacency FSM. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9` |
 | **Approximate** | The `cost: 10` on each entry of the simulator's link list is a **last-resort fallback**, used only when an end contributes no interface cost — not the metric in the normal case. | `buildGraph()` in `engine/ospf.js`; the `links.push({ … cost: 10 })` call in `computeOspf()` |
 
+**One asymmetry worth knowing before you tune a stub.** A *transit* interface's `ip ospf cost` reaches other
+routers' routing tables; a *stub* interface's does not, even though `show ip ospf interface` reports it.
+Measured on R1 ── R3 with an OSPF stub behind R1:
+
+| R1's stub `Gi0/1` | `show ip ospf interface` on R1 | R3's route to the stub |
+|---|---|---|
+| nothing (1G, derived 10) | `Gi0/1  10` | `O 10.0.12.0/24  110  via 10.0.13.1` — cost **20** |
+| `ip ospf cost 50` | `Gi0/1  50` | same route, cost **20** |
+
+So the knob is honest about itself and inert about the far side: the port says 50, and every other router
+still costs the stub at 20. Only the hop *between* two OSPF speakers carries the configured cost — which is
+the same sum-of-both-ends rule described above, applied where both ends are speakers. Do not tune a stub
+port to shift a path; tune the transit link.
+
 The cost ladder is worth seeing move, because the reference bandwidth in the comment (100 Mbps) and the
 one its numbers use (10 Gbps) disagree by two orders of magnitude. Three routers, a direct `R1 -- R2`
 link and a two-hop detour `R1 -- R3 -- R2`, all 1G, OSPF on all three:
@@ -1119,6 +1133,7 @@ number cannot be checked by reading, and a grep for the symbol can.
 | `docs/CI.md` recorded the wiki as "after publishing, all six are content-identical" — true when written, and false again by the time I read it: re-cloning `packetforge.wiki.git` and diffing with CRLF normalised shows **three of six** pages stale, and all three stale because a count inside them moved (`Home.md` 1,584/245 → 1,661/247; `Requesting-Hardware.md` 1,234 `sourceUrl` → 1,313; `Simulation-Fidelity.md` missing voice VLAN, port security, IPv6 first-hop) | Added a drift table with the live-vs-repo values and the reason it is stuck: a publish from a tty-less machine hangs on `could not read Username`, exactly how my own run died. Also corrected `CONTRIBUTING.md`'s scripts table, which listed `--quiet` as a `publish-wiki.js` flag | A wiki page holding a number goes stale **by being right** — correcting the catalogue is what breaks it — and a script that ignores unknown flags turns a documentation typo into a publish |
 | Swept every `engine/`, `server/`, `web/`, `scripts/`, `test/`, `catalogue/` path quoted in backticks across all pages against the filesystem: six names do not exist, five are legitimately proposed (`bgp-policy*`, `upstream-*`, `poe-derived` — the last is narrated as never-written), and one was a stale **file** name, `web/link-parts.js`, cited by `docs/CI.md` and this page | The table it means is `PART_ROWS` in `web/app.js` — pipe-delimited `part\|form\|media\|speed\|reach\|polish\|nm` rows — and the suite still fails 2 of 83 the same way (34 of 58 parts, QSFP-DD/QSFP56/QSFP28 missing). Repointed both citations at the symbol and said plainly that the old file is not in the tree | A renamed **file** breaks a doc silently: the sentence stays grammatical and the reader's grep returns nothing. Name the table, not the module it lives in |
 | Swept both directions between the tree and the pages: every `npm run <script>` cited exists (54 scripts; the only miss was the prose placeholder `npm run x`), no script points at a missing file — and `CLI.md`'s "**103** distinct `E_` tokens appear anywhere in this document" had gone stale again, to **117** | 47 appendix rows still correct; the 147-code grep still correct. Corrected to 117, added the one-line recount, then measured it: it prints **118**, because the pattern `\bE_[A-Z0-9_]*\b` contains the string it hunts — verified exactly one bare `E_` token in the page, so 117 codes + 1 ruler. Wrote that into the paragraph rather than the higher number | Any grep that counts symbols in a file that also contains the grep counts one extra, and a documentation pass adds text to the file it measures — so the ruler has to be documented as part of the measurement |
+| `CHANGELOG.md`'s known-defect #44 was the one entry marked *not exercised* ("no lab here builds it"), and the summary above it still said none of the five reproduces | Built the lab in two probes: three routers FULL on one segment with `ip ospf cost 10` on R1's port and `100` on R2's — R3's route to each LAN came out **20** and **110**, and swapping the costs swapped the answers, so each advertiser's own cost is used and nothing is chosen by router-id order. #44 is closed with numbers and the summary is now true. A by-product became a new paragraph: a *stub* port's `ip ospf cost 50` shows up in `show ip ospf interface` and changes nothing for other routers (route still 20) — transit costs propagate, stub costs do not | The first attempt at the same lab reported a flat 20 everywhere and looked like a defect in cost handling; the real cause was config order — `ip ospf cost` is refused with *"% OSPF is not enabled"* before `ospf router-id`. A probe that skips its own refusals measures the default |
 
 ---
 

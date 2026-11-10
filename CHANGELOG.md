@@ -461,10 +461,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
 longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
 
-**As of this pass, none of the five reproduces.** Four were already marked that way; the fifth (#41) was
-re-measured below and moved from *still real* to *no longer reproduces*. The list is kept because it is the
-record of what was filed, not a claim about today — but the summary line at the top of a section is the one
-that gets quoted, so it has to move when the entries do.
+**As of this pass, none of the five reproduces.** #42, #43 and #54 were re-spot-checked against the code
+(`flowKeyOf()` still keys on `insideLocal` *and* `insideGlobal`), #41 was re-measured end to end, and #44 —
+the one entry that used to read *not exercised* — was given the lab it asked for and closed with numbers.
+None of the five is now a claim about today; the entries stay as the record of what was filed.
 
 - #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
   **No longer reproduces** — re-measured on the current tree with the same three routers in AS 65001 and
@@ -485,8 +485,12 @@ that gets quoted, so it has to move when the entries do.
   network still advertised.
 
 - #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
-  **Not exercised** — the tie needs two routers advertising the same shared network at different costs,
-  which no lab here builds; do not take this line as either confirmation or clearance.
+  **No longer reproduces** — built the lab: R1, R2, R3 all FULL neighbours on one segment, R1's segment
+  port `ip ospf cost 10` and R2's `100`. R3's route to R1's LAN came out at cost **20** and to R2's LAN at
+  **110**; flipping the two costs flipped the routes to **110** and **20**. Each router's own interface
+  cost is used, so nothing is being chosen by router-id order. (The lab also has to enable OSPF before
+  setting interface costs — `ip ospf cost` is refused with *"% OSPF is not enabled"* otherwise, which is
+  how the first attempt at this measured a flat 20 everywhere and nearly became a false report.)
 
 - #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
   **No longer reproduces** — `flowKeyOf()` now keys on both `insideLocal` and `insideGlobal`, and two
