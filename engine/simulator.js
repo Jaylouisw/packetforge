@@ -560,10 +560,18 @@ class Simulator {
           iface.lineStateReason = 'parent ' + parent.name + ' is administratively down';
           continue;
         }
-        const plink = this._linkAt(dev.id, parent.name);
-        if (parent.peer && plink && !plink.isUp()) {
+        // A child borrows its parent's line - and the parent's line is already computed, by
+        // `computePortState` for a physical port (cable, link, err-disable) and by the loop above for
+        // an SVI (a live port in its VLAN). Reading it is the whole rule. The old version only
+        // consulted the cable when the parent had a *peer*, so `Fa0/1.30` reported `up up` on a port
+        // nothing was plugged into, and an SVI's child reported `up` under a parent whose own line
+        // read `down (no port is cabled)`.
+        if (!parent.lineUp) {
           iface.lineUp = false;
-          iface.lineStateReason = 'parent ' + parent.name + ' has no link';
+          // `parent Gi0/0: the cable is down` - the parent, then its own reason. Nesting the
+          // parent's sentence in brackets produced `down (parent Gi0/0 is down (the cable is down))`.
+          iface.lineStateReason = 'parent ' + parent.name +
+            (parent.lineStateReason ? ': ' + parent.lineStateReason : ' is down');
           continue;
         }
         iface.lineUp = true;

@@ -116,7 +116,10 @@ console.log('\nA pulled cable is a different fact from a shut port:');
   const row = briefRow(env.s1.run('show ip interface brief').output, 'Gi0/0.10');
   eq(row.status, 'up', 'the administrator has not shut anything, so Status stays up');
   eq(row.protocol, 'down', 'but the line is down');
-  ok(/line protocol: down \(parent Gi0\/0 has no link\)/.test(
+  // The wording follows the behaviour: the reason used to say only that the parent had no link, and
+  // now carries the parent's own reason after it. What the assertion is about is unchanged - the
+  // line is down because of the cable, and nothing here blames the administrator.
+  ok(/line protocol: down \(parent Gi0\/0: the cable is down\)/.test(
     env.s1.run('show interfaces Gi0/0.10').output.join('\n')),
     'and the reason is the cable, not the administrator');
   eq(rate(env.s1.run('ping 10.10.0.2 count 2').output), 0, 'and the ping fails');

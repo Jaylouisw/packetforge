@@ -1253,6 +1253,18 @@ class CliSession {
       if (m && parent) {
         const vid = parseInt(m[2], 10);
         if (!(vid >= 1 && vid <= 4094)) return { lines: ['% VLAN out of range: ' + m[2]], name: null };
+        // A subinterface is a tag on a wire. An SVI has no wire - it is the address a VLAN answers
+        // on - and creating one on it did two things nobody asked for: the parent SVI was rewritten
+        // as a trunk with an empty allowed list, so VLAN 20 vanished from `show vlan`, and the child
+        // was listed as a port of VLAN 1.
+        const parentIface = this.device.interfaces.get(parent);
+        if (parentIface && (parentIface.svi || parentIface.parent)) {
+          return { lines: ['% ' + parent + ' is a logical interface - there is no wire to tag',
+            parentIface.svi
+              ? '% An SVI is the address its VLAN answers on; tag frames on the physical port'
+              : '% A subinterface hangs off a physical port or a port-channel, not off another tag'],
+            name: null };
+        }
         this.device.addSubinterface(parent, vid);
         name = parent + '.' + vid;
         this.iface = name;
@@ -1260,9 +1272,21 @@ class CliSession {
         // The VLAN tag comes from the interface number, which is a real convenience and also an
         // assumption: say it, and the `encapsulation dot1q` line the dump prints is no surprise.
         const inferred = String(name).indexOf('.') !== -1 ? String(name).split('.').pop() : null;
-        return { lines: ['Created subinterface ' + name + ' (parent ' + parent +
-          (inferred ? ', dot1q ' + inferred + ' from the interface number' : '') + ')'],
-          name: name };
+        const lines = ['Created subinterface ' + name + ' (parent ' + parent +
+          (inferred ? ', dot1q ' + inferred + ' from the interface number' : '') + ')'];
+        // A tag the port is not allowed to carry is configuration that forwards nothing - the same
+        // class as a route statement that matches no interface. It is not refused here, because the
+        // subinterface is configured before the trunk as often as after it, but it is said out loud
+        // rather than left for the operator to discover from an empty flow.
+        const pv = (this.device.interfaces.get(parent) || {}).vlan;
+        if (pv && pv.mode === 'trunk' && Array.isArray(pv.allowedVlans) &&
+            pv.allowedVlans.map(Number).indexOf(vid) === -1) {
+          lines.push('  VLAN ' + vid + ' is not in ' + parent + '\'s allowed list (' +
+            pv.allowedVlans.join(',') + '), so frames tagged ' + vid + ' are dropped there');
+          lines.push('  Allow it with: interface ' + parent +
+            ', then "switchport trunk allowed vlan add ' + vid + '"');
+        }
+        return { lines: lines, name: name };
       }
       // `interface Vlan10` must work on a device that has no SVI yet, or `show running-config` cannot
       // be pasted: the dump names the object by its interface name, and a dump that has to be
@@ -1704,6 +1728,11 @@ class CliSession {
       by.get(id).push(text);
     };
     for (const i of dev.interfaces.values()) {
+      // A subinterface is a tag on its parent, not a port in a bridge domain: it has no cable and
+      // no membership. It was listed in a column headed Ports under VLAN 1 - wrong twice, since it
+      // is not a port and its tag was 30. The VLAN it tags is carried by the parent, which is
+      // already in the table under its own memberships.
+      if (i.parent) continue;
       const v = i.vlan || { mode: 'access', accessVlan: 1 };
       if (v.mode === 'trunk') {
         const native = Number(v.nativeVlan) || 1;
@@ -3300,18 +3329,72 @@ class CliSession {
         'this port stays in VLAN ' + untagged + ')'];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
-      const spec = t.slice(3).join('');
-      if (!spec) return ['% Incomplete command: switchport trunk allowed vlan <list|all>'];
+      // `switchport trunk allowed vlan add 30` - the spelling IOS uses to widen a list without
+      // retyping it - was joined into one token ("add30") and refused with the *parser's* words:
+      // `% cannot parse VLAN token "add30"`. Three defects in one line: a real command that did not
+      // exist, an error message written in the library's vocabulary, and no way to narrow a list
+      // without retyping the whole thing (so `show vlan` and the notice on a new subinterface were
+      // both pointing at a command that could not be run).
+      let rest = t.slice(3);
+      let op = null;
+      if (rest.length > 1 && (rest[0] === 'add' || rest[0] === 'remove')) {
+        op = rest[0];
+        rest = rest.slice(1);
+      } else if (rest.length > 1 && rest[0] === 'except') {
+        return ['% This console keeps an explicit allowed list, so there is no "except" form',
+          '% Use "switchport trunk allowed vlan add <list>" or "... remove <list>"'];
+      }
+      const spec = rest.join(',');
+      if (!spec) {
+        return [op
+          ? '% Incomplete command: switchport trunk allowed vlan ' + op + ' <list>' +
+            ' - the VLANs to ' + (op === 'add' ? 'add' : 'remove')
+          : '% Incomplete command: switchport trunk allowed vlan <list|all>'];
+      }
+      // An empty allowed list is a real state (the trunk carries nothing tagged) and needs a
+      // spelling, or the dump cannot express it: `switchport trunk allowed vlan` with nothing after
+      // it is an incomplete command, so the state would vanish on a paste.
+      if (spec === 'none') {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: [] }));
+        return ['Trunk on ' + iface.name + ' allows no VLAN: every tagged frame is dropped there'];
+      }
       if (spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
         return ['Trunk on ' + iface.name + ' allows all VLANs'];
       }
       const parsed = vlanLib.parseVlanList(spec);
-      if (!parsed.ok) return ['% ' + (parsed.message || 'invalid VLAN list')];
+      if (!parsed.ok) {
+        // The library's complaint names a "token", which is a parser's word and not an operator's.
+        return ['% "' + spec + '" is not a VLAN id, a list (10,20) or a range (10-20)',
+          '% Usage: switchport trunk allowed vlan <list|all> [add|remove <list>]'];
+      }
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
-      return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
+      if (!op) {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
+      }
+      const current = iface.vlan.allowedVlans;
+      if (!Array.isArray(current)) {
+        if (op === 'add') return ['Trunk on ' + iface.name + ' already allows every VLAN - nothing to add'];
+        return ['% The trunk on ' + iface.name + ' allows all VLANs - there is no list to remove ' +
+          parsed.vlans.join(',') + ' from',
+          '% Give it an explicit list first: "switchport trunk allowed vlan <list>"'];
+      }
+      const next = op === 'add'
+        ? current.concat(parsed.vlans.filter(function (v) { return current.indexOf(v) === -1; }))
+          .sort(function (a, b) { return a - b; })
+        : current.filter(function (v) { return parsed.vlans.indexOf(v) === -1; });
+      if (op === 'add' && next.length === current.length) {
+        return ['Trunk on ' + iface.name + ' already allows ' + parsed.vlans.join(',')];
+      }
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: next }));
+      const lines = [op === 'add'
+        ? 'Trunk on ' + iface.name + ' now allows VLANs ' + next.join(',')
+        : 'Trunk on ' + iface.name + ' no longer allows ' + parsed.vlans.join(',') +
+          ' (now: ' + (next.length ? next.join(',') : 'nothing tagged') + ')'];
+      if (!next.length) lines.push('  No VLAN is allowed on this trunk: every tagged frame it receives is dropped');
+      return lines;
     }
     if (t[0] === 'no') {
       // Every `no switchport …` used to become a full reset. A removal has to be as narrow as the
@@ -7322,7 +7405,8 @@ class CliSession {
           out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
           const av = i.vlan.allowedVlans;
           out.push('  switchport trunk allowed vlan ' +
-          (av === 'all' || !Array.isArray(av) ? 'all' : av.join(',')));
+          (av === 'all' || !Array.isArray(av) ? 'all'
+            : (av.length ? av.join(',') : 'none')));
         } else {
           const av = Number(i.vlan.accessVlan) || 1;
           if (av !== 1) {
@@ -10656,6 +10740,10 @@ class CliSession {
       helpLine('switchport trunk native vlan <id>', 'the untagged VLAN on a trunk'),
       helpLine('switchport voice vlan <id>', 'a second, always-tagged VLAN for a phone on this port'),
       helpLine('switchport trunk allowed vlan <list|all>', 'which VLANs the trunk carries'),
+      // Two rows, not one with a bracketed tail: `allowed vlan 10 add 10` is not a form the parser
+      // takes, and a row that brackets an alternative the grammar does not allow is a page that lies.
+      helpLine('switchport trunk allowed vlan add <list>', 'widen that list without retyping it'),
+      helpLine('switchport trunk allowed vlan remove <list>', 'narrow that list'),
       helpLine('switchport port-security', 'secure the port: one source by default, and what to do about a second'),
       helpLine('switchport port-security maximum <n>', 'how many source addresses the port may hold (default 1)'),
       helpLine('switchport port-security mac-address <mac>', 'pin one station to this port'),
