@@ -657,10 +657,45 @@ it, so a reloaded lab still separates voice from data.
 ### NAT: configuring it, and reading what it did
 
 ```
+interface Gi0/0/1
+  ip nat inside
+exit
+interface Gi0/0/0
+  ip nat outside
+exit
 ip nat pool WAN 203.0.113.1 203.0.113.1 netmask 255.255.255.0
 ip nat inside source list 192.168.10.0/24 pool WAN overload
 ip nat inside source static 192.168.10.60 203.0.113.1 tcp 443
 ```
+
+### Which side of the translation a port is on
+
+`ip nat inside` and `ip nat outside` name the boundary, and a translation happens on it. Without them the model
+translated on **every** port in both directions, because the "out" half ran before the route lookup and asked only
+whether the source matched a rule — so a rule for `192.168.10.0/24` rewrote the source of a packet going from one
+inside host to another through the same router, traffic that never left the private network.
+
+```
+% ip nat inside belongs to an interface: enter one first, e.g. interface Gi0/0/1
+Interface Gi0/0/1 is now the inside interface for NAT
+Interface Gi0/0/1 is now the outside interface for NAT (was inside)
+% Gi0/0/1 is not the inside interface (it is the outside interface)
+```
+
+A port holds one side, not two: setting the second names the side it left. Clearing the side it does not hold says
+which side it does hold. A device without the `nat` capability is refused all of it.
+
+**A lab that declares no sides keeps the older behaviour** — a rule may translate on any port — because that is what
+every board built before the roles existed does, and quietly changing what a saved lab does would be worse than the
+defect. `show ip nat statistics` says which of the two rules is in force, first line:
+
+```
+Ports: inside Gi0/0/0, Gi0/0/1 - outside Gi0/0/2
+Ports: no port is declared inside or outside - a rule may translate on any port
+```
+
+Declaring the sides is what stops the inside-to-inside translation, and the sides survive a save, a reload, and a
+`show running-config` (printed inside the interface block, which is the only place the parser accepts them).
 
 The engine has translated static, dynamic and PAT since it was written, and until now **no command could
 configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Four spellings

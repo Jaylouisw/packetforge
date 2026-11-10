@@ -107,6 +107,43 @@ class CliSession {
       : '';
   }
 
+  // Which side of a NAT translation a port is on. One setter and one clearer, so the interface command and the
+  // `no` form that arrives through global config mode cannot drift apart (#1391).
+  // One sentence for "which ports are inside, and which outside", or the honest statement that nobody has said.
+  _natPortsSentence() {
+    const inside = [];
+    const outside = [];
+    this.device.interfaces.forEach(function (i) {
+      if (!i || !i.natRole) return;
+      if (i.natRole === 'inside') inside.push(i.name);
+      else if (i.natRole === 'outside') outside.push(i.name);
+    });
+    if (!inside.length && !outside.length) {
+      return 'Ports: no port is declared inside or outside - a rule may translate on any port';
+    }
+    return 'Ports: inside ' + (inside.length ? inside.join(', ') : '(none)') +
+      ' - outside ' + (outside.length ? outside.join(', ') : '(none)');
+  }
+
+  _setNatRole(iface, role) {
+    const was = iface.natRole || null;
+    if (was === role) return ['Interface ' + iface.name + ' is already the ' + role + ' interface for NAT'];
+    iface.natRole = role;
+    this._controlPlaneChanged();
+    return ['Interface ' + iface.name + ' is now the ' + role + ' interface for NAT' + (was ? ' (was ' + was + ')' : '')];
+  }
+
+  _clearNatRole(iface, role) {
+    const was = iface.natRole || null;
+    if (was !== role) {
+      return ['% ' + iface.name + ' is not the ' + role + ' interface' +
+        (was ? ' (it is the ' + was + ' interface)' : ' (it has no NAT role)')];
+    }
+    iface.natRole = null;
+    this._controlPlaneChanged();
+    return ['Interface ' + iface.name + ' is no longer the ' + role + ' interface for NAT'];
+  }
+
   _capabilityRefusal(cap, consequence) {
     const dev = this.device;
     if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
@@ -116,6 +153,13 @@ class CliSession {
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat' &&
+        tokens[2] && /^(inside|outside)$/i.test(String(tokens[2])) && tokens[3] === undefined) {
+      // The keyword belongs to a port, not to the box. Saying so beats printing the pool/rule usage, which does
+      // not mention inside or outside at all (#1391).
+      return ['% ip nat ' + String(tokens[2]).toLowerCase() + ' belongs to an interface: enter one first, ' +
+        'e.g. interface Gi0/0/1'];
+    }
     if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat') {
       // engine/nat.js models static, dynamic and PAT translation, and the flow path translates and emits
       // `nat-drop` -- but nothing in the product ever wrote `config.nat`, so `_isNat()` was always false and
@@ -172,6 +216,12 @@ class CliSession {
       const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat' &&
+               tokens[3] && /^(inside|outside)$/i.test(String(tokens[3])) && tokens[4] === undefined &&
+               this.mode === MODE_IFACE) {
+      // `no ip nat inside` typed on a port clears that port's role. It reached the rule handler below, which read
+      // "inside" as the start of a rule and answered with the pool/rule usage (#1391).
+      return [this._clearNatRole(this.topo.getDevice(this.device.id).interfaces.get(this.iface), String(tokens[3]).toLowerCase())];
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat') {
       const nat = this.device.config.nat || { rules: [], pools: {} };
       const rest = tokens.slice(3).map(function (t) { return String(t).toLowerCase(); });
@@ -527,6 +577,18 @@ class CliSession {
       if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
       this.device.config.vrrp = kept;
       return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+    }
+    if (head === 'ip' && tokens[1] && String(tokens[1]).toLowerCase() === 'nat') {
+      // `ip nat inside` / `ip nat outside` - which side of the translation this port is on. The model translated
+      // on every port in both directions, so a rule for 192.168.10.0/24 rewrote the source of a packet going from
+      // one inside host to another. The two words that say which side is which were missing (#1391).
+      const cannotTranslate = this._capabilityRefusal('nat', 'translate addresses');
+      if (cannotTranslate) return [cannotTranslate];
+      const role = tokens[2] ? String(tokens[2]).toLowerCase() : '';
+      if (role !== 'inside' && role !== 'outside') {
+        return ['% Usage: ip nat inside | ip nat outside'];
+      }
+      return [this._setNatRole(iface, role)];
     }
     if (head === 'ip' && tokens[1] === 'address' && String(tokens[2] || '').indexOf('/') !== -1) {
       // `ip address 10.0.0.1/24` was answered with "% Incomplete command", which says nothing about what is
@@ -2753,6 +2815,9 @@ class CliSession {
           out.push.apply(out, Array.isArray(shown) ? shown : String(shown).split(String.fromCharCode(10)));
         }
       } else if (sub === 'statistics' || sub === 'stat') {
+        // Which ports a translation may happen on. Without this line a rule that never fires has no explanation:
+        // the ports say nothing and the rule looks broken (#1391).
+        out.push(this._natPortsSentence());
         const pools = natCfg.pools || {};
         const names = Object.keys(pools);
         out.push('Inside source rules: ' + rules.length + ' (' +
@@ -3278,6 +3343,9 @@ class CliSession {
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;
         // Printed in the console's vocabulary, which is the only spelling the parser takes back.
         if (lag) out.push('  channel-group ' + lag.id + ' mode ' + require('./lag').cliMode(lag.mode));
+        // Which side of the translation this port is on. A port declared inside or outside is a fact the config
+        // parser accepts, so it belongs in the block that reads it back (#1391).
+        if (i.natRole === 'inside' || i.natRole === 'outside') out.push('  ip nat ' + i.natRole);
         const binds = dev.aclBindings && dev.aclBindings[i.name];
         if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
         if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
