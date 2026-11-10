@@ -1,0 +1,13 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router'),SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const sw=t.addDevice(SW);sw.name='SW1';
+t.connect(r1.id,'Gi0/0',sw.id,'Fa0/1');const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds)s.run(x);s.run('end');return s;};
+const sws=cfg(sw,['vlan 10','exit','vlan 20','exit','interface Fa0/1','switchport mode trunk','switchport trunk allowed vlan 10,20','exit']);
+const dump=(label)=>{const i=r1.interfaces.get('Gi0/0');console.log(label, JSON.stringify({mode:i.mode,vlan:i.accessVlan,native:i.trunkNative,allowed:i.trunkAllowed}));};
+dump('R1 Gi0/0 after switch trunk:');
+console.log('R1 rc:'); new CliSession(r1,t,sim).run('show running-config').output.forEach(l=>console.log('  '+l));
+const s=new CliSession(r1,t,sim);s.run('enable');
+console.log('--- R1 show interfaces Gi0/0:'); s.run('show interfaces Gi0/0').output.forEach(l=>console.log('  '+l));
+console.log('--- SW1 show interfaces Fa0/1:'); new CliSession(sw,t,sim).run('show interfaces Fa0/1').output.slice(0,6).forEach(l=>console.log('  '+l));

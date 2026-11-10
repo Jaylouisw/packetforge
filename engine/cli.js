@@ -850,7 +850,12 @@ class CliSession {
         name = parent + '.' + vid;
         this.iface = name;
         this.mode = MODE_IFACE;
-        return { lines: ['Created subinterface ' + name + ' (parent ' + parent + ')'], name: name };
+        // The VLAN tag comes from the interface number, which is a real convenience and also an
+        // assumption: say it, and the `encapsulation dot1q` line the dump prints is no surprise.
+        const inferred = String(name).indexOf('.') !== -1 ? String(name).split('.').pop() : null;
+        return { lines: ['Created subinterface ' + name + ' (parent ' + parent +
+          (inferred ? ', dot1q ' + inferred + ' from the interface number' : '') + ')'],
+          name: name };
       }
       // `interface Vlan10` must work on a device that has no SVI yet, or `show running-config` cannot
       // be pasted: the dump names the object by its interface name, and a dump that has to be
@@ -3450,7 +3455,13 @@ class CliSession {
       // An SVI is a member of its VLAN by definition, not by configuration: `switchport` on a
       // logical interface is not a thing, and emitting it made the dump describe the port rather
       // than the object it belongs to.
-      if (i.vlan && !i.svi) {
+      // ...and only a device that bridges has switchports at all. A router's port carries the tagged
+      // frames of its subinterfaces (the model marks the parent as a trunk to do it), but the dump
+      // then printed three `switchport` lines that the same device refuses:
+      //   % R1 does not switch - it has no switchports
+      // so its own running-config could not be pasted back into it. The tagging requirement is
+      // already stated once, by the subinterface's `encapsulation dot1q <vid>` line.
+      if (i.vlan && !i.svi && (typeof dev.isL2 !== 'function' || dev.isL2())) {
         if (i.vlan.mode === 'trunk') {
           out.push('  switchport mode trunk');
           out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);

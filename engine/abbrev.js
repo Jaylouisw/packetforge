@@ -55,7 +55,14 @@ const PLACEHOLDER = /^<(.+)>$/;
 // The first version of this read a group as a *single* value slot, so `[<dest>|connected|static]`
 // became "any word here" - which made `show ip route summ` an invalid destination instead of a
 // request for the summary. A group is a set of alternative *sequences*, not one opaque value.
-const WORD = /[^\s\[\]|]+/g;
+// `<` and `>` are placeholder punctuation, not part of a word. They were not excluded, so the help
+// row `switchport trunk allowed vlan <list|all>` lexed into the two "keywords" `<list` and `all>`,
+// and abbreviation expansion then rewrote the word an operator typed (`all`) into the documented one
+// (`all>`) - a stray `>` inserted into the command line:
+//   SW1(config-if)#switchport trunk allowed vlan all
+//   % cannot parse VLAN token "all>"
+// Excluding them here means `<list|all>` lexes as `list | all`, which is what it means.
+const WORD = /[^\s\[\]|<>]+/g;
 
 function lex(text) {
   const out = [];
@@ -76,6 +83,14 @@ function lex(text) {
       continue;
     }
     if (c === '/') { out.push('|'); i++; continue; } // `a / b` is an alias = two alternatives
+    // A placeholder is one token, brackets and alternatives included: `<list|all>` must reach
+    // `tokenOf()` as a single word so it becomes a value slot. Splitting it on the `|` first
+    // produced the keywords `<list` and `all>`, and an operator typing the documented `all` had it
+    // rewritten to `all>` - see WORD below.
+    if (c === '<') {
+      const close = s.indexOf('>', i);
+      if (close !== -1) { out.push(s.slice(i, close + 1)); i = close + 1; continue; }
+    }
     if (s.startsWith('…', i)) { out.push('…'); i += 1; continue; }
     WORD.lastIndex = i;
     const m = WORD.exec(s);

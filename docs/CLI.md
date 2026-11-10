@@ -1174,6 +1174,54 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A help placeholder must not become part of the command line
+
+`switchport trunk allowed vlan all` is what the help row documents, and it was refused:
+
+```
+SW1(config-if)#switchport mode trunk
+Switchport mode trunk on Fa0/1
+SW1(config-if)#switchport trunk allowed vlan all
+% cannot parse VLAN token "all>"
+```
+
+The word `all` was correct. The lexer that turns help rows into completable forms used
+`WORD = /[^\s\[\]|]+/`, which does not exclude the angle brackets, so `… vlan <list|all>` became two
+*keywords* — `<list` and `all>` — and abbreviation expansion rewrites a typed word to the documented
+one. Typing `all` therefore produced `all>`, and the switchport parser quite correctly refused a VLAN
+token that is not a VLAN.
+
+A bracketed placeholder is now lexed as **one** token, brackets and alternatives included, so it
+reaches the form parser as a value slot. `test/help-placeholders.test.js` sweeps every token of every
+help form in every mode and asserts none of them contains a bracket — the class, not the row.
+
+### A subinterface takes its tag from its number — and says so
+
+```
+R1(config)#interface Gi0/0.20
+Created subinterface Gi0/0.20 (parent Gi0/0, dot1q 20 from the interface number)
+```
+
+The inference is a convenience, but it was silent, so `show running-config` printing
+`encapsulation dot1q 20` for a line nobody typed looked like the dump inventing configuration. The
+answer now names the assumption, and `encapsulation dot1q <vid>` overrides it.
+
+### A router's dump contains no `switchport` lines
+
+A router's port carries the tagged frames of its subinterfaces, and the model marks the parent as a
+trunk to do it — so the dump printed `switchport mode trunk`, `switchport trunk native vlan 1` and
+`switchport trunk allowed vlan all` for that port. The same device refuses `switchport` outright:
+
+```
+R1(config-if)#switchport mode trunk
+% R1 does not switch - it has no switchports
+```
+
+A dump the device will not accept cannot restore the device. `switchport` lines are now emitted only
+for a device that bridges; the tagging requirement is already stated once, by the subinterface's
+`encapsulation dot1q <vid>` line. The test pastes the dump into a fresh router and asserts both that
+every line is accepted and that the pasted device answers with the **same** dump.
+
 ### Address rules — a host in its own subnet, on one interface
 
 `ip address` used to store whatever four numbers it was given. Every one of these was answered

@@ -1,0 +1,11 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const abbrev=require('../engine/abbrev');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const sw=t.addDevice(SW);sw.name='SW1';const s=new CliSession(sw,t,new Simulator(t));
+s.run('enable');s.run('configure terminal');s.run('interface Fa0/1');
+const forms=s._helpForms(s.mode);
+const mine=forms.filter(f=>f.tokens && f.tokens.join(' ').indexOf('switchport trunk allowed')===0);
+console.log('forms:', mine.map(f=>JSON.stringify(f.tokens)).join('\n       '));
+console.log('expand:', JSON.stringify(abbrev.expand(['trunk','allowed','vlan','all'], forms)));
+const r=s._expandAbbrev(['switchport','trunk','allowed','vlan','all']);
+console.log('_expandAbbrev:', JSON.stringify(r));
