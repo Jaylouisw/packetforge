@@ -1,0 +1,33 @@
+const {Topology,Simulator,CliSession}=require('../engine');
+const {loadCatalog}=require('../devices/registry');
+const cat=loadCatalog('C:/Users/jay/packetforge/devices');
+const model=(m)=>cat.find(x=>x.model===m);
+function lab(mode){
+  const t=new Topology();
+  const r1=t.addDevice(model('generic-router')); r1.name='R1';
+  const r2=t.addDevice(model('generic-router')); r2.name='R2';
+  t.connect(r1.id,'Gi0/0',r2.id,'Gi0/0');
+  const sim=new Simulator(t);
+  const a=new CliSession(r1,t,sim); a.run('enable');
+  const b=new CliSession(r2,t,sim); b.run('enable');
+  for (const line of ['configure terminal','interface Gi0/0','ip address 10.0.1.1 255.255.255.0','no shutdown','ip ospf area 0','exit','ospf router-id 1.1.1.1','exit']) a.run(line);
+  for (const line of ['configure terminal','interface Gi0/0','ip address 10.0.1.2 255.255.255.0','no shutdown','ip ospf area 0','exit','ospf router-id 2.2.2.2','exit']) b.run(line);
+  return {t,sim,a,b};
+}
+const env=lab();
+const show=(label,cmd)=>{const o=env.a.run(cmd).output;console.log('--- '+label+': '+cmd);for(const l of o.slice(0,7))console.log('   ',l);};
+show('fresh','show ip route');
+show('fresh','show ip ospf neighbor');
+console.log('=== now a ping, then the same questions');
+env.a.run('ping 10.0.1.2 count 1');
+show('after ping','show ip route');
+show('after ping','show ip ospf neighbor');
+console.log('=== fresh LLDP question on the switch lab');
+const t2=new Topology();
+const sw=t2.addDevice(model('CX 6000 24G CL4 PoE 4SFP 370W')); sw.name='SW1';
+const r1=t2.addDevice(model('generic-router')); r1.name='R1';
+t2.connect(r1.id,'Gi0/0',sw.id,'1/1/1');
+const sim2=new Simulator(t2);
+const cs=new CliSession(sw,t2,sim2); cs.run('enable');
+console.log('fresh lldp:', JSON.stringify(cs.run('show lldp neighbors').output));
+console.log('r1.lldp flag:', !!r1.lldp, 'sw.lldp flag:', !!sw.lldp);

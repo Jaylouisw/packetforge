@@ -1,0 +1,23 @@
+Give the destination slot one rule in ping, traceroute and flow open
+
+All three take a destination first and all three have keywords of their own
+after it, and nothing kept the two apart:
+
+  ping                     -> % Invalid ping target: (none)
+  ping at 5000             -> % Unknown host at: no DNS server in this lab hosts a zone for it
+  flow open port 22        -> % Unknown host port: no DNS server in this lab hosts a zone for it
+  flow open                -> % Incomplete command: flow open <dst-ip> [port <n>] ...
+
+The keyword cases are wrong answers to a different question: a forgotten
+address came back as a claim about the lab's DNS. (none) prints a placeholder
+where a value belongs, and <dst-ip> is a placeholder no help row advertises.
+
+_requireDest() now refuses a missing first token or one of DEST_KEYWORDS, and
+every message quotes the synopsis help prints. nslookup with no name joined
+them. The resolver is only consulted once a destination is present; the cost -
+a host actually named `at` or `port` cannot be pinged by name - is stated in
+docs/CLI.md rather than hidden.
+
+test/dest-arguments.test.js: 38 assertions over every keyword in the
+destination slot, upper case, a name beginning with "at", and the forms that
+must keep working.

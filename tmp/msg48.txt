@@ -1,0 +1,24 @@
+Derive what a show displays, and accept both BGP spellings
+
+A state show used to answer from whatever an earlier command left behind, so
+`show ip bgp` printed "(no neighbours have been evaluated yet - run a
+simulation)" on a lab whose session was configured and would establish, and
+`show ip route` printed C rows only until something else happened to run OSPF.
+A reader now derives the control planes it displays; a non-reader bumps a
+revision so the next reader does the work. The same question gives the same
+answer regardless of what was typed before it.
+
+The docs still taught the old behaviour in five places, so CLI.md's "which
+shows need a run first" became two kinds of fact - control-plane products are
+derived before printing, data-path products need frames - with transcripts
+taken on a lab that had never been pinged.
+
+`bgp neighbor <ip> remote-as <as>` is what help offers and the parser refused
+it with a usage line, while `bgp router-id` in the same row worked: the row of
+alternatives hid the broken one, and the sweep could not see it because a
+session with no BGP enabled answers on state. Both spellings now work, and the
+row is pinned where BGP is on.
+
+test/help-forms.test.js learned "% Usage:" as a shape complaint and now offers
+both readings of an arm inside a group - `[proto tcp|udp]` means `proto udp`,
+and reading it literally offered a bare `udp` that masked the real finding.

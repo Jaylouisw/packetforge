@@ -876,6 +876,28 @@ class CliSession {
     return out;
   }
 
+  // One spelling of a flow id, shared by every door: `flow-3` and `3` are the same flow, and
+  // anything else is not an id at all. Returns the canonical key, or null when the token cannot be
+  // one - which keeps "wrong shape" and "no such flow" as two different answers.
+  _flowId(token) {
+    const text = String(token === undefined || token === null ? '' : token).trim().toLowerCase();
+    if (!text) return null;
+    const m = /^(?:flow-)?(\d+)$/.exec(text);
+    return m ? 'flow-' + m[1] : null;
+  }
+
+  // An argument the command does not use must be refused by name, because ignoring it is
+  // indistinguishable from honouring it. This console has been bitten by that shape five times now -
+  // a port ignored by nine shows, an instant read as a destination, `ping at 5000` asking DNS about
+  // `at`, `show vlan 99` printing every VLAN, `converge 100 extra` converging anyway - and each one
+  // looked like an answer. One wording, so the next command that grows an argument inherits it.
+  _noExtra(tokens, from, usage) {
+    const extra = tokens.slice(from).filter(function (t) { return String(t).length; });
+    if (!extra.length) return null;
+    return ['% Unexpected argument "' + extra.join(' ') + '" - ' + usage + ' takes no more',
+      '% Usage: ' + usage];
+  }
+
   // The codes actually in the table, so a refusal can name what is there instead of only what is not.
   _routeCodesPresent(rows) {
     const names = { C: 'connected', S: 'static', O: 'OSPF', B: 'BGP' };
@@ -2030,6 +2052,8 @@ class CliSession {
       const when = parseInstant(tokens[0]);
       if (!when.ok) return ['% Invalid instant: ' + tokens[0]];
       atMs = when.atMs;
+      const extra = this._noExtra(tokens, 1, 'converge [<ms>|converged]');
+      if (extra) return extra;
     }
     const rows = sched.entries.map(function (e) {
       const mark = (atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs) ? '  (pending)' : '';
@@ -2806,6 +2830,13 @@ class CliSession {
         // the only place the difference between "in the table" and "installed" is a number.
         const arg = tokens.slice(2);
         const word = String(arg[0] === undefined ? '' : arg[0]).toLowerCase();
+        if (LOAD_ROUTE_FILTERS[word] || word === 'summary') {
+          // `show ip route ospf at 5000` is answered by the instant handler above; anything else
+          // after a protocol word would be silently dropped, which reads as a filter it does not
+          // have.
+          const extra = this._noExtra(arg, 1, 'show ip route ' + word);
+          if (extra) return out.concat(extra);
+        }
         if (LOAD_ROUTE_FILTERS[word]) return out.concat(this._routeFiltered(dev, LOAD_ROUTE_FILTERS[word], word));
         if (word === 'summary') return out.concat(this._routeSummary(dev));
         return out.concat(this._routeLookup(dev, arg));
@@ -2915,6 +2946,39 @@ class CliSession {
     } else if (what === 'vrrp') {
       out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
+      // `show vlan <id>` took an argument and printed every VLAN whatever you typed - the same
+      // ignored-argument defect as the nine shows that ignored a port, in a command that was missed
+      // because it never claimed a port. A VLAN id either narrows the answer or is refused by name;
+      // a word that is not an id at all is refused as a word, not silently dropped.
+      let wantVlan = null;
+      {
+        const rest = tokens.slice(1).map(function (t) { return String(t); });
+        let i = 0;
+        // `brief` is the synonym the docs already promise (and `show vlan 10 brief` is the same
+        // table, narrower), so it is consumed rather than read as a VLAN id. `id <n>` is the IOS
+        // spelling; both take one value and nothing else.
+        if (String(rest[i] || '').toLowerCase() === 'id') {
+          const value = rest[i + 1];
+          if (!/^\d+$/.test(String(value === undefined ? '' : value))) {
+            return out.concat(['% Incomplete command: show vlan id <id>',
+              '% Try "show vlan" for every VLAN this device carries']);
+          }
+          wantVlan = Number(value);
+          i += 2;
+        } else if (String(rest[i] || '').toLowerCase() === 'brief') {
+          i += 1;
+        } else if (rest[i] !== undefined) {
+          if (!/^\d+$/.test(rest[i])) {
+            return out.concat(['% Invalid VLAN id "' + rest[i] + '" - ids are numbers 1-4094',
+              '% Try "show vlan" for every VLAN this device carries']);
+          }
+          wantVlan = Number(rest[i]);
+          i += 1;
+        }
+        if (String(rest[i] || '').toLowerCase() === 'brief') i += 1;
+        const extra = this._noExtra(rest, i, 'show vlan [<id>|brief]');
+        if (extra) return out.concat(extra);
+      }
       const byVlan = new Map();
       for (const i of dev.interfaces.values()) {
         const v = i.vlan || { mode: 'access', accessVlan: 1 };
@@ -2937,11 +3001,27 @@ class CliSession {
           byVlan.get(id).push(i.name);
         }
       }
-      const keys = Array.from(byVlan.keys()).sort(function (a, b) {
+      let keys = Array.from(byVlan.keys()).sort(function (a, b) {
         if (a === 'all') return 1;
         if (b === 'all') return -1;
         return a - b;
       });
+      if (wantVlan !== null) {
+        const configured = dev.config.vlans && dev.config.vlans[wantVlan];
+        if (keys.indexOf(wantVlan) === -1 && !configured) {
+          const carried = keys.filter(function (k) { return k !== 'all'; });
+          // A VLAN that is configured but carries nothing is neither carried nor absent, and an
+          // operator who declared it should not be told it does not exist. Naming the two sets
+          // separately is the difference between "you have not made it" and "you made it empty".
+          const declared = Object.keys(dev.config.vlans || {}).map(Number)
+            .filter(function (id) { return carried.indexOf(id) === -1; });
+          return out.concat(['% No VLAN ' + wantVlan + ' on ' + dev.name +
+            ' - no port carries it and it is not configured',
+            '% Carried VLANs: ' + (carried.join(', ') || '(none)') +
+              (declared.length ? '; configured but empty: ' + declared.join(', ') : '')]);
+        }
+        keys = [wantVlan];
+      }
       const vlanRows = [];
       for (const id of keys) {
         if (id === 'all') {
@@ -2951,7 +3031,9 @@ class CliSession {
           continue;
         }
         const name = (dev.config.vlans && dev.config.vlans[id] && dev.config.vlans[id].name) || ('VLAN' + String(id).padStart(4, '0'));
-        vlanRows.push([id, name, 'active', byVlan.get(id).join(', ')]);
+        // A configured VLAN with no port in it is a real answer and says so, rather than printing an
+        // empty Ports cell that reads like a layout failure.
+        vlanRows.push([id, name, 'active', (byVlan.get(id) || []).join(', ') || '(no ports)']);
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
     } else if (what === 'spanning-tree') {
@@ -3319,7 +3401,15 @@ class CliSession {
   _flowClose(args) {
     const id = String(args[0] || '');
     if (!id) return ['% Incomplete command: flow close <flow-id>'];
-    const res = this.sim.closeFlow(id);
+    // An id has a shape: `flow-3` as the list prints it, or the bare number for an operator who read
+    // the table and typed the figure. `flow close abc` used to answer `% no such flow: abc`, which is
+    // the answer to "is there a flow called abc" - a question nobody asked, in lower case unlike
+    // every other refusal, hiding the typo behind a lookup that could never succeed.
+    const shaped = this._flowId(id);
+    if (!shaped) {
+      return ['% Invalid flow id "' + id + '" - ids look like "flow-3" or "3" (see "show flows")'];
+    }
+    const res = this.sim.closeFlow(shaped);
     if (!res.ok) return ['% ' + res.reason];
     const rec = res.flow;
     const tail = res.already ? ' (already closed)'
@@ -3351,9 +3441,16 @@ class CliSession {
       if (a === 'summary') {
         summary = true;
       } else if (a === 'last') {
-        lastN = Number(args[++i]);
-        if (!Number.isFinite(lastN) || lastN <= 0 || Math.floor(lastN) !== lastN) {
-          return ['% show logging last <n> takes a positive whole number of events'];
+        // Digits, not "whatever Number() accepts": `last 0x10` and `last 1e3` were both taken as a
+        // count, so a typo shaped like a number quietly chose how much of the log to show. The
+        // message claims a whole number of events, so the check is the spelling of one.
+        const typed = String(args[i + 1] === undefined ? '' : args[i + 1]);
+        i++;                                   // consume the value, as the old `args[++i]` did
+        lastN = Number(typed);
+        if (!/^\d+$/.test(typed) || !Number.isFinite(lastN) || lastN <= 0 ||
+            Math.floor(lastN) !== lastN) {
+          return ['% show logging last <n> takes a positive whole number of events' +
+            (typed ? ' (got "' + typed + '")' : '')];
         }
       } else if (a === 'device' || a === 'dev') {
         const wanted = args[++i];
@@ -3510,6 +3607,8 @@ class CliSession {
     const what = String(tokens[0] || '').toLowerCase();
 
     if (what === 'counters') {
+      const extra = this._noExtra(tokens, 1, 'show flows counters');
+      if (extra) return extra;
       const ids = Object.keys(counters);
       if (!ids.length) return ['Flow counters: none - no traffic has been offered yet'];
       const out = ['Flow counters in this lab:'];
@@ -3529,9 +3628,17 @@ class CliSession {
     }
 
     if (what) {
-      const rec = records.filter(function (r) { return String(r.id).toLowerCase() === what; })[0];
+      const extra = this._noExtra(tokens, 1, 'show flows <id>');
+      if (extra) return extra;
+      // The same id rule as `flow close`, so the two doors cannot disagree about what `3` means.
+      const key = this._flowId(tokens[0]);
+      if (!key) {
+        return ['% Invalid flow id "' + tokens[0] + '" - ids look like "flow-3" or "3"',
+          '% Try: show flows (for the list) or show flows counters'];
+      }
+      const rec = records.filter(function (r) { return String(r.id).toLowerCase() === key; })[0];
       if (!rec) {
-        return ['% No flow ' + tokens[0] + ' in this lab',
+        return ['% No flow ' + key + ' in this lab',
           '% Try: show flows (for the list) or show flows counters'];
       }
       const out = ['Flow ' + rec.id + ' (' + rec.proto + '):'];
@@ -4685,7 +4792,7 @@ class CliSession {
         'the table, a lookup, a protocol filter, or an instant'),
       helpLine('show arp [<port>]', 'IP-to-MAC cache'),
       helpLine('show mac address-table [interface <port>]', 'addresses learned per port and VLAN'),
-      helpLine('show vlan', 'VLANs and their members'),
+      helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
       helpLine('show spanning-tree [<port>]', 'root bridge, port roles and states'),
       helpLine('show etherchannel', 'LAGs and their members'),
       helpLine('show lldp neighbors [<port>]', 'what announced itself on each port'),

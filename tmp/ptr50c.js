@@ -1,0 +1,13 @@
+const {Topology,Simulator}=require('../engine');
+const {CliSession}=require('../engine/cli');
+const {loadCatalog}=require('../devices/registry');
+const catalog=loadCatalog('C:/Users/jay/packetforge/devices');
+const mk=(n)=>catalog.find(x=>x.model===n);
+const t=new Topology(); const r=t.addDevice(mk('generic-router')); r.name='R1';
+const pc=t.addDevice(mk('generic-pc')); pc.name='PC1';
+t.connect(pc.id,'eth0',r.id,'Gi0/0');
+const sim=new Simulator(t); const s=new CliSession(r,t,sim); s.run('enable');
+const cases=['ping','ping at 5000','traceroute','traceroute at 1000','flow open','flow open port 22','flow open at 1000','nslookup','show ip route <dest>'];
+for (const c of cases) console.log('$ '+c+'\n    '+(s.run(c).output.join('\n    ')));
+console.log('--- help rows:');
+for (const l of s.run('help').output) if (/ping|traceroute|flow open/.test(l)) console.log('   '+l);

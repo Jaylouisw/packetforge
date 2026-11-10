@@ -1,0 +1,26 @@
+// Do the doors agree? Every fact the console can reach from more than one command is compared.
+const {Topology,Simulator,CliSession}=require('../engine');
+const {loadCatalog}=require('../devices/registry');
+const cat=loadCatalog('C:/Users/jay/packetforge/devices');
+const model=(m)=>{const s=cat.find(x=>x.model===m); if(!s) throw new Error('no '+m); return s;};
+const t=new Topology();
+const sw=t.addDevice(model('CX 6000 24G CL4 PoE 4SFP 370W')); sw.name='SW1';
+const r1=t.addDevice(model('generic-router')); r1.name='R1';
+const pc=t.addDevice(model('generic-pc')); pc.name='PC1';
+t.connect(pc.id,'eth0',sw.id,'1/1/3');
+t.connect(r1.id,'Gi0/0',sw.id,'1/1/1');
+const sim=new Simulator(t);
+const s=new CliSession(r1,t,sim);
+const run=(...cmds)=>{const o=[];for(const c of cmds)o.push(...s.run(c).output);return o;};
+run('enable','configure terminal','interface Gi0/0','ip address 10.0.1.1 255.255.255.0','no shutdown','exit','exit');
+const r2=new CliSession(sw,t,sim); r2.run('enable');
+const dump=(cl,cmd)=>{console.log('--- '+cl+'# '+cmd);for(const l of cl.run(cmd).output)console.log('   ',l);};
+dump(r2,'show lldp neighbors');
+dump(s,'links');
+dump(s,'show interfaces Gi0/0');
+dump(s,'show ip interface brief');
+dump(r2,'show ip interface brief 1/1/1');
+dump(r2,'show mac address-table');
+dump(r2,'show interfaces 1/1/3');
+dump(r2,'show spanning-tree');
+dump(r2,'show power inline');

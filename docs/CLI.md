@@ -41,7 +41,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show interfaces counters [<port>]` | one row per port: packets, bytes and drops ([Interface counters](#interface-counters)) |
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
-| `show vlan` | VLAN table with trunk ports marked `(t)` ([VLANs](#vlans)) |
+| `show vlan [<id>]` | VLAN table with trunk ports marked `(t)`, or one VLAN ([VLANs](#vlans)) |
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
@@ -929,6 +929,51 @@ This is intentionally a **unified** command set. A future release can add
 per-vendor "translators" (e.g. accept Juniper `set interfaces …` or Huawei
 `interface GigabitEthernet0/0/0`) while keeping the single underlying
 configuration model. See `docs/ROADMAP.md`.
+
+### An argument the command does not use is refused, not dropped
+
+Every command below used to accept an extra word and answer anyway, which is indistinguishable from
+honouring it:
+
+```
+SW1#show vlan 99                       (printed every VLAN)
+SW1#show flows counters 99             (printed the counters)
+R1#show ip route connected extra       (printed the connected-routes filter)
+R1#converge 100 extra                  (converged anyway)
+R1#show logging last 0x10              (took 0x10 as 16 and showed the last sixteen events)
+R1#flow close abc                      (answered "% no such flow: abc")
+```
+
+Now each one refuses and quotes its own synopsis:
+
+```
+R1#show ip route connected extra
+% Unexpected argument "extra" - show ip route connected takes no more
+% Usage: show ip route connected
+R1#show logging last 0x10
+% show logging last <n> takes a positive whole number of events (got "0x10")
+R1#flow close abc
+% Invalid flow id "abc" - ids look like "flow-3" or "3" (see "show flows")
+```
+
+Three details that matter more than the wording:
+
+- **`show vlan <id>` narrows; it does not repeat the whole table.** Asking for a VLAN that is not
+  there is refused by name and the refusal distinguishes the two ways a VLAN can be absent:
+  `% Carried VLANs: 1, 10, 20; configured but empty: 30` — a VLAN a port carries, versus one that was
+  declared and has nothing in it. `show vlan 30` answers with `(no ports)` rather than an empty cell.
+  `show vlan brief` (the documented synonym) and `show vlan id 10` (the IOS spelling) still work —
+  adding an argument must not remove a form the page already promised.
+- **A flow id has a shape.** `flow-3` is what the list prints and `3` is the same flow, so
+  `show flows 3`, `show flows flow-3`, `flow close 3` and `flow close flow-3` all agree. `abc` is
+  refused as a shape, not looked up and reported missing — "no such flow: abc" was the answer to a
+  question nobody asked.
+- **`last <n>` takes the spelling of a count.** `0x10`, `1e3`, `+2`, `1.5`, `0`, `-2` and `abc` are
+  all refused; before, the first two were silently read as 16 and 1000.
+
+`test/extra-arguments.test.js` (59 assertions) covers all of it, plus a regression block over the nine
+shows that already took a port strictly (`show arp Fa0/1 zzz` and friends), so the rule cannot drift
+back in the commands that already obey it.
 
 ### The destination slot — one rule, three commands
 

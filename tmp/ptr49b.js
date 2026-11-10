@@ -1,0 +1,15 @@
+const {Topology,Simulator}=require('../engine');
+const {CliSession}=require('../engine/cli');
+const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const mk=(n)=>c.find(x=>x.model===n);
+const t=new Topology(); const r=t.addDevice(mk('generic-router')); r.name='R1';
+const s=new CliSession(r,t,new Simulator(t)); s.run('enable');
+for (const cmd of ['show ip bgp','show ip ospf','show vrrp','show scion']) console.log(cmd+' -> '+s.run(cmd).output.join(' | '));
+s.run('configure terminal');
+console.log('bgp router-id -> '+s.run('bgp router-id 1.1.1.1').output.join(' | '));
+s.run('interface Gi0/0');
+console.log('vrrp priority -> '+s.run('vrrp 10 priority 120').output.join(' | '));
+const s2=new CliSession(r,t,new Simulator(t));
+console.log('clear counters -> '+s2.run('clear counters').output.join(' | '));
+console.log('write memory -> '+s2.run('write memory').output.join(' | '));

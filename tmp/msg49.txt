@@ -1,0 +1,22 @@
+Make every prerequisite refusal name the fix, and type the fix back
+
+Six call sites answered the same missing prerequisite with four spellings, and
+the two that named no command at all were the shows - `show ip bgp` said only
+"% BGP is not enabled" while the config verb said '(use "router bgp <as>")'.
+The show is where you learn a feature is off, so it was the one door with no
+way out.
+
+One string per feature now (NEEDS in engine/cli.js), so a show and the verb it
+guards cannot disagree, and every message quotes the command in the form the
+console accepts. `% No VRRP group 10 on Gi0/0` gained the command that creates
+one instead of "give it an address first".
+
+A hint is a promise, so test/refusal-pointers.test.js takes the quoted command
+out of each of twelve refusals, fills its placeholders, types it in the mode
+the hint claims (config, interface block, or `enable` itself), requires it to
+work, then re-enters the original mode and requires the original command to
+answer. Verified non-vacuous: a wrong spelling in the BGP hint fails 4
+assertions, a deleted OSPF hint fails 3.
+
+Four stale quotes in BGP-POLICY.md and three in CLI.md corrected to the
+measured wording.

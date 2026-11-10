@@ -1,0 +1,13 @@
+const {Topology,Simulator,CliSession}=require('../engine');
+const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const t=new Topology();
+const sw=t.addDevice(c.find(x=>x.model==='CX 6000 24G CL4 PoE 4SFP 370W'));sw.name='SW1';
+const r1=t.addDevice(c.find(x=>x.model==='generic-router'));r1.name='R1';
+t.connect(r1.id,'Gi0/0',sw.id,'1/1/1');
+const sim=new Simulator(t);const s=new CliSession(sw,t,sim);s.run('enable');
+const show=(label,cmd)=>{console.log('--- '+label+': '+cmd);for(const l of s.run(cmd).output)console.log('   ',l);};
+show('fresh','show lldp neighbors');
+show('fresh','show interfaces counters 1/1/1');
+show('second ask','show lldp neighbors');
+show('counters again','show interfaces counters 1/1/1');
