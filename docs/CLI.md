@@ -5233,6 +5233,38 @@ conversation as the network was at that instant (and `at converged` goes back to
 as for `ping`). `flow open` prints the record it created, because the interesting part is the detail —
 the handshake, the segmentation and the MSS the path allowed, not just "ok":
 
+"Ephemeral" here means one specific number: **49152, every time**. `EPHEMERAL_FIRST` is the literal
+default rather than a counter, so two conversations from the same host to the same address and port keep
+separate records with an identical five-tuple:
+
+```
+PC1#flow open 10.0.1.20
+Flow flow-1 opened: tcp 10.0.1.10:49152 -> 10.0.1.20:80, established
+  1000 bytes in 1 segment, 5 packets on the wire, MSS 1460 (MTU 1500)
+PC1#flow open 10.0.1.20
+Flow flow-2 opened: tcp 10.0.1.10:49152 -> 10.0.1.20:80, established
+```
+
+A real client would pick a free port; this one reuses 49152 unless you say otherwise (`sport 40000`),
+so do not read a repeated source port in `show flows` as evidence of one flow being listed twice — the
+`Id` and the packet counts are what distinguish them.
+
+The three ways to get the arguments wrong are refusals in their own words, not the data path's codes:
+
+```
+PC1#flow open 10.0.1.20 proto icmp
+% proto must be tcp or udp (got icmp)
+PC1#flow open 10.0.1.20 port 0
+% port out of range: 0
+PC1#flow open 10.0.1.20 port 65536
+% port out of range: 65536
+PC1#flow open 10.0.1.20 port abc
+% port needs a number (got abc)
+```
+
+Note the shape: `0` and `65536` are answered with the value echoed back, while a non-number is answered
+about the word rather than the range — and neither is `E_REFUSED`, because nothing reached the wire.
+
 ```
 PC1#flow open 10.0.2.20 port 80 bytes 5000
 Flow flow-1 opened: tcp 10.0.1.10:49152 -> 10.0.2.20:80, established
@@ -5241,7 +5273,12 @@ Flow flow-1 opened: tcp 10.0.1.10:49152 -> 10.0.2.20:80, established
 ```
 
 A refusal is an answer with a reason, not silence. The code is the one the data path produced, so
-"nothing is listening" and "there is no route" read differently — they are different failures. And
+"nothing is listening" and "there is no route" read differently — they are different failures. Note also
+that **the protocol decides whether a closed port is an error at all**: a TCP flow to a port nobody serves
+is refused, while the same port over UDP is accepted as `open`, because a datagram has no handshake to
+fail. And the MSS follows the protocol rather than the wire — `1460` for TCP, `1472` for UDP on the same
+1500-byte MTU, because the number is the MTU minus the IPv4 header minus *that protocol's* header: 20 + 20
+for TCP, 20 + 8 for UDP. And
 when the reason is that a control plane has not finished, the pending process is named, because "no
 response" from an address whose owner has not been elected yet looks exactly like a dead server:
 
