@@ -6764,21 +6764,31 @@ Neighbor ID  Pri  State  Address    Interface
 Joining an interface to an OSPF process that does not exist is refused rather than silently ignored:
 `% OSPF is not enabled - "ospf router-id <ip>" in config mode turns OSPF on`.
 
-A neighbour appears only if the link passed the passive and subnet checks — the same set the SPF
-ran over — so the table cannot claim an adjacency the routes did not use. When nothing passes, the
+A neighbour appears only if the link passed the passive, subnet **and area** checks — the same set
+the SPF ran over — so the table cannot claim an adjacency the routes did not use. When nothing passes, the
 table says so instead of printing an empty header:
 
 ```
 R1#show ip ospf neighbor
-Neighbor ID     Pri   State           Address         Interface
-(no adjacencies - no neighbour passed the passive and subnet checks)
+Neighbor ID  Pri  State  Address   Interface
+(no adjacencies - no neighbour passed the passive, subnet and area checks)
 ```
 
-**An adjacency needs a direct cable between two routers.** Routers that share a subnet through a
-switch never peer — the adjacency graph is built from links whose two ends both run OSPF, and a
-switch between them breaks that in two — so a campus lab with a router on each side of a switch shows
-the empty table above, for reasons the message does not name. Cabling the two routers directly is the
-only way to see `FULL`.
+**An adjacency does *not* need a direct cable.** This paragraph used to say the opposite — that
+routers sharing a subnet through a switch "never peer", because a switch between them breaks the link
+in two — and that is wrong on this tree. Measured with `R1 -- SW1 -- R2` as the only path between
+them, both in `10.0.0.0/24`, OSPF on both:
+
+```
+R1#show ip ospf neighbor
+Neighbor ID  Pri  State  Address   Interface
+2.2.2.2      1    FULL   10.0.0.2  Gi0/0
+```
+
+and the routes cross: R1 installs `10.0.2.0/24` via `10.0.0.2`, R2 installs `10.0.1.0/24` via
+`10.0.0.1`. The adjacency is built from the **segment** the port is on, not from the cable: a switch
+in the middle is walked through, so routers on one VLAN do peer. `docs/SIMULATION.md` carries the same
+correction beside its segment row, and it is the page to believe if this one drifts again.
 
 BGP is the opposite, which is worth knowing before blaming the tool: a session is keyed on the
 configured neighbour address and rides the data path, so two eBGP routers on either side of a switch
