@@ -250,7 +250,7 @@ which requires every prompt line in the docs to be a command some mode recognise
 
 | Command | Effect |
 |---------|--------|
-| `hostname <name>` | set device hostname |
+| `hostname <name>` | set device hostname — the whole rest of the line, spaces included; a bare `hostname` is `% Incomplete command: hostname <name>` rather than a silent clear |
 | `interface vlan <id>` | the switch's own address in that VLAN — an **SVI** (`Vlan<id>`), the only way a switch can hold a management IP ([Switch management address](#switch-management-address--an-svi)) |
 | `interface <name>` | enter interface config mode |
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
@@ -1312,17 +1312,40 @@ ip dhcp pool <name>
 ```
 
 A pool is a named object on the device, not a property of an interface: one server can hold several
-and a client picks by the subnet its own interface sits in. The pool is validated once, when the
-sub-mode is left — `network` before `range` is the second keystroke, not an error:
+and a client picks by the subnet its own interface sits in.
+
+**Incomplete waits; wrong is refused on the spot.** `network` before `range` is the second keystroke,
+not an error, so a pool that is still being typed is judged when the sub-mode is left:
 
 ```
 R1(config)#ip dhcp pool lan
+Created DHCP pool lan
 R1(config-dhcp)#network 10.0.0.0 255.255.255.0
 R1(config-dhcp)#exit
-% E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
+% DHCP pool lan: no address range was given - "range <start> <end>" is required.
 % Pool lan discarded - a pool is kept only once it is valid
 % Add "range <start> <end>" inside the pool, or start again with "ip dhcp pool lan"
 ```
+
+A value that is already *wrong*, on the other hand, is refused where it is typed: nothing the operator
+does afterwards can rescue a network that is not an address, and waiting until `exit` meant the answer
+arrived two commands later, in the validator's vocabulary (`% E_DHCP_BAD_RANGE: DHCP pool lan: both
+rangeStart and rangeEnd are required.` — a field name the operator never typed):
+
+```
+R1(config-dhcp)#network abc
+% "abc" is not an IPv4 address, so it cannot be the pool's network
+R1(config-dhcp)#default-router abc
+% "abc" is not an IPv4 address, so it cannot be the default router
+R1(config-dhcp)#dns-server abc
+% "abc" is not an IPv4 address, so it cannot be a DNS server
+R1(config-dhcp)#range 10.9.9.50 10.9.9.10
+% The range starts at 10.9.9.50 and ends at 10.9.9.10 - the start must not be above the end
+```
+
+`excluded-address` is checked the same way (each end of an `a-b` range), and the pool's remaining
+complaints at `exit` are sentences: `E_DHCP_*` codes still exist in `engine/dhcp.js` and in the
+validation table below, where they are useful, but they are no longer what the console prints.
 
 **`lease <days>` takes days, as in IOS.** The one place this page is easiest to misread: `lease 600`
 is 600 *days* and the pool then prints `Lease : 51840000s`; one day is `lease 1` (`86400s`); ten
@@ -2719,9 +2742,65 @@ no ip name-server                    # clear the list
 
 A record added before any zone exists is refused (`% No zone yet - create one with "dns zone
 <name>"`), and `dns add` attaches it to the zone most recently opened — or the last one created.
-Only the single token after the type is stored as the value, so an `SRV` or `MX` line keeps its
-first number and drops the rest of the row. Answers and failures — `dns-nxdomain`, `dns-nodata`,
-`dns-servfail` — are distinguishable in the event log; see [SIMULATION.md §5](SIMULATION.md).
+Answers and failures — `dns-nxdomain`, `dns-nodata`, `dns-servfail` — are distinguishable in the
+event log; see [SIMULATION.md §5](SIMULATION.md).
+
+**A record's value is the rest of the line, and it is judged by the library that will answer for
+it.** Two things used to be wrong here. The value was one token, so `dns add note TXT hello world`
+stored `hello` and dropped `world` in silence; and nothing checked the value against the record's
+type, so `dns add www.lab.example A abc` was answered **`Added www.lab.example A abc`** while
+`validateZone()` in `engine/dns.js` called the same record *not a dotted-quad IPv4 address* — and the
+resolver then handed `abc` to the data path, which printed `Sending 1, 100-byte ICMP Echos to abc`:
+
+```
+R1(config)#dns add www.lab.example A abc
+% www.lab.example A: "abc" is not a dotted-quad IPv4 address.
+% www.lab.example A abc was not added to lab.example
+R1(config)#dns add www.lab.example A 10.0.2.10
+Added www.lab.example A 10.0.2.10 to lab.example
+R1(config)#dns add note.lab.example TXT hello world
+Added note.lab.example TXT hello world to lab.example
+R1(config)#dns add mail.lab.example MX mail.lab.example
+% An MX record needs a preference before the host
+% Usage: dns add <name> MX <preference> <host>   e.g. dns add lab MX 10 mail.lab.test
+R1(config)#dns add mail.lab.example MX 10 mail.lab.example
+Added mail.lab.example MX 10 mail.lab.example to lab.example
+```
+
+The refusal is the library's own sentence, not a second set of rules: the record is appended, the
+zone is validated, and a record that introduces an error is removed again — so duplicates
+(`E_DNS_DUPLICATE`) and a `CNAME` sharing its owner name (`E_DNS_CNAME_CONFLICT`) are refused by the
+same mechanism as a bad address. Errors the zone already had are compared away, so a zone containing
+a hand-written bad record can still be repaired at the console.
+
+An `MX` preference is stored as a number and shown with the host, which is also what
+`show running-config` emits (`dns add mail.lab.example MX 10 mail.lab.example`). That matters for a
+reason beyond tidiness: the dump has to be pasteable into a fresh device, and an `MX` line without its
+preference is a line this console now refuses.
+
+```
+R1#show dns
+DNS zones on R1:
+  lab.example  (4 records)
+    Name              Type  Value
+    www.lab.example   A     10.0.2.10
+    note.lab.example  TXT   hello world
+    mail.lab.example  MX    10 mail.lab.example
+    br.lab.example    A     10.0.0.5
+  Name servers: none (queries go to any server in the lab)
+
+R1#ping www.lab.example count 1
+Translating "www.lab.example"...domain server (R1 (authoritative for lab.example))
+Sending 1, 100-byte ICMP Echos to 10.0.2.10, timeout is 2 seconds:
+```
+
+The translation prints an address the packet can be addressed to (the ping itself fails only because
+nothing in that one-router lab holds `10.0.2.10`). If a zone was written by hand with an `A` record
+whose value is not an address, the lookup refuses rather than passing it on:
+
+```
+% The A record for www.broken.test is "abc", which is not an address - fix the record on R1
+```
 
 Show the table, and resolve a name:
 

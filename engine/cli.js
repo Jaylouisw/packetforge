@@ -501,6 +501,13 @@ class CliSession {
       // "core switch 1" to "core", which is what the UI's hostname field appeared to do
       // (issue #19) - the box was fine, the parser was eating the rest of the line.
       const name = tokens.slice(1).join(' ').trim();
+      // A bare `hostname` used to clear config.hostname and say nothing - and because `device.name`
+      // is only set when a name was given, the two fields the comment below promises cannot disagree
+      // disagreed: the label said R1, the running-config said nothing. Nothing typed is not a rename.
+      if (!name) {
+        return ['% Incomplete command: hostname <name>',
+          '% e.g. "hostname R1" - the name is the first line of "show running-config"'];
+      }
       this.device.config.hostname = name || null;
       // device.name is what the UI renders: the canvas label, the inspector header, the
       // status bar. Setting only config.hostname left a device that reported
@@ -1629,12 +1636,32 @@ class CliSession {
     }
 
     if (t[0] === 'add') {
+      const USAGE = 'dns add <name> <type> <value>';
       const name = t[1];
       const type = String(t[2] || 'A').toUpperCase();
-      const value = t[3];
-      if (!name || !value) return ['% Usage: dns add <name> <A|CNAME|MX|TXT> <value>'];
+      if (!name || !t[2]) return ['% Incomplete command: ' + USAGE,
+        '% Types: ' + dnsLib.RECORD_TYPES.join(', ')];
       if (dnsLib.RECORD_TYPES.indexOf(type) === -1) {
         return ['% Unknown record type "' + type + '" (use ' + dnsLib.RECORD_TYPES.join('/') + ')'];
+      }
+      // A record's value is the *rest* of the line, not one word: `dns add note TXT hello world`
+      // stored `hello` and dropped `world` without saying so.
+      let value = t.slice(3).join(' ');
+      let priority = null;
+      if (type === 'MX') {
+        // An MX record is a preference and a host; the library rejects one without a preference
+        // (E_DNS_MX_NO_PRIORITY), so the console asks for it in that order rather than guessing.
+        if (!t[3] || !/^\d+$/.test(t[3])) {
+          return ['% An MX record needs a preference before the host',
+            '% Usage: dns add <name> MX <preference> <host>   e.g. dns add lab MX 10 mail.lab.test'];
+        }
+        priority = Number(t[3]);
+        value = t.slice(4).join(' ');
+        if (!value) {
+          return ['% Incomplete command: dns add <name> MX <preference> <host>'];
+        }
+      } else if (!value) {
+        return ['% Incomplete command: ' + USAGE];
       }
       let z = null;
       if (this._dnsZone) {
@@ -1642,8 +1669,32 @@ class CliSession {
       }
       if (!z) z = dev.config.dnsZones[dev.config.dnsZones.length - 1];
       if (!z) return ['% No zone yet - create one with "dns zone <name>"'];
-      z.records.push({ name: name, type: type, ttl: z.defaultTtl, value: value });
-      return ['Added ' + name + ' ' + type + ' ' + value + ' to ' + z.name];
+
+      // One opinion about what a record is: the library that answers the query judges the record.
+      // Before, the console stored `dns add www A abc` and answered "Added ...", while validateZone()
+      // in engine/dns.js called the same record `not a dotted-quad IPv4 address` - and the resolver
+      // then handed `abc` to the data path, so `ping www.example.test` printed `Echos to abc`.
+      // The errors a zone had *before* this record are not this record's fault, so they are compared
+      // away rather than blocking the edit: a zone with a pre-existing complaint can still be fixed.
+      const before = dnsLib.validateZone(z).errors.map(function (e) { return e.message; });
+      const rec = { name: name, type: type, ttl: z.defaultTtl, value: value };
+      if (priority !== null) rec.priority = priority;
+      z.records.push(rec);
+      const after = dnsLib.validateZone(z).errors;
+      const fresh = after.filter(function (e) { return before.indexOf(e.message) === -1; });
+      if (fresh.length) {
+        z.records.pop();
+        const out = fresh.slice(0, 3).map(function (e) {
+          // `record 3 (www A): ...` - the position is noise when the operator just typed the record.
+          // `record 3 (www.example.test A): ...` -> `www.example.test A: ...`
+          return '% ' + String(e.message).replace(/^record \d+ \((.*?)\): /, '$1: ');
+        });
+        out.push('% ' + name + ' ' + type + (priority !== null ? ' ' + priority : '') + ' ' + value +
+          ' was not added to ' + z.name);
+        return out;
+      }
+      return ['Added ' + name + ' ' + type + (priority !== null ? ' ' + priority : '') + ' ' + value +
+        ' to ' + z.name];
     }
 
     return ['% Usage: dns zone <name> | dns add <name> <type> <value>'];
@@ -2236,7 +2287,10 @@ class CliSession {
       // Leaving the sub-mode is the first honest moment to judge the pool.
       const check = dhcpLib.validatePool(dhcpLib.normalizePool(pool));
       if (!check.ok) {
-        for (const e of check.errors) out.push('% ' + e.code + ': ' + e.message);
+        // The console speaks sentences, not validator codes. `% E_DHCP_RANGE_ORDER: ...` named the
+        // library's constant where the operator needed the pool's problem; the code is still in the
+        // docs' validation table and in the library, where it is useful.
+        for (const e of check.errors) out.push('% ' + e.message);
         // An invalid pool is not configuration, so it does not stay in the configuration. The old
         // behaviour validated on exit and kept the object anyway, which left a pool that `show
         // ip dhcp pool` listed, that allocated nothing, and whose own line in `show running-config`
@@ -2264,24 +2318,55 @@ class CliSession {
 
     if (head === 'exit') return finish(MODE_CONFIG);
     if (head === 'end') return finish(this._modeAfterConfig());
+    // A pool is legitimately *incomplete* while it is being typed, so a missing piece waits for the
+    // exit check. A piece that is already *wrong* does not: `network abc` and `default-router abc`
+    // were stored in silence and reported at `exit` as `% E_DHCP_BAD_NETWORK: ...`, two commands
+    // later, in the validator's vocabulary. Nothing the operator types afterwards can rescue a value
+    // that is not an address, so it is refused where it is typed.
+    const badAddress = function (value, what) {
+      return ['% "' + value + '" is not an IPv4 address, so it cannot be ' + what];
+    };
     if (head === 'network') {
       if (!tokens[1]) return incomplete('Incomplete command: network <network> [mask|/prefix]');
+      if (!net.isIp(tokens[1])) return badAddress(tokens[1], "the pool's network");
+      if (tokens[2] && !/^\d+$/.test(String(tokens[2]).replace(/^\//, ''))) {
+        if (!net.isIp(tokens[2])) {
+          return ['% "' + tokens[2] + '" is not a subnet mask (e.g. 255.255.255.0 or /24)'];
+        }
+      }
       pool.network = tokens[1];
       if (tokens[2]) pool.mask = tokens[2];
     } else if (head === 'default-router') {
       if (!tokens[1]) return incomplete('Incomplete command: default-router <address>');
+      if (!net.isIp(tokens[1])) return badAddress(tokens[1], 'the default router');
       pool.gateway = tokens[1];
     } else if (head === 'dns-server') {
       if (!tokens[1]) return incomplete('Incomplete command: dns-server <address...>');
+      for (const a of tokens.slice(1)) {
+        if (!net.isIp(a)) return badAddress(a, 'a DNS server');
+      }
       pool.dns = tokens.slice(1).join(' ');
     } else if (head === 'range') {
       if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: range <start> <end>');
+      if (!net.isIp(tokens[1])) return badAddress(tokens[1], 'the start of the range');
+      if (!net.isIp(tokens[2])) return badAddress(tokens[2], 'the end of the range');
+      // The library has a code for this (E_DHCP_RANGE_ORDER); the operator gets the sentence now,
+      // while the two values are still on the line in front of them.
+      if (net.ipToInt(tokens[1]) > net.ipToInt(tokens[2])) {
+        return ['% The range starts at ' + tokens[1] + ' and ends at ' + tokens[2] +
+          ' - the start must not be above the end'];
+      }
       pool.rangeStart = tokens[1];
       pool.rangeEnd = tokens[2];
     } else if (head === 'excluded-address' || (head === 'excluded' && tokens[1] === 'address')) {
       const from = head === 'excluded' ? 2 : 1;
       const addrs = tokens.slice(from).filter(Boolean);
       if (!addrs.length) return incomplete('Incomplete command: excluded-address <address[-address]>');
+      for (const a of addrs) {
+        for (const part of String(a).split('-')) {
+          if (part && !net.isIp(part)) return badAddress(part, 'an excluded address');
+        }
+      }
       pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
     } else if (head === 'lease') {
       // Days by default, like IOS: `lease 0 12 0` is 12 hours.
@@ -2357,7 +2442,16 @@ class CliSession {
       if (!res.authoritative) continue;
       const address = firstA(res);
       if (address) {
-        return { ok: true, ip: address, server: (dev.name || dev.id) + ' (authoritative for ' + zone.name + ')' };
+        // The zone is the authority, but a zone can be written by hand (a topology file, an API
+        // call) instead of at the console. A record whose value is not an address used to be handed
+        // straight to the data path, so `ping www.example.test` printed `Echos to abc` and reported
+        // timeouts against a value no packet can be addressed to.
+        if (!net.isIp(address)) {
+          return { ok: false, message: '% The A record for ' + raw + ' is "' + address +
+            '", which is not an address - fix the record on ' + (dev.name || dev.id) };
+        }
+        return { ok: true, ip: address,
+          server: (dev.name || dev.id) + ' (authoritative for ' + zone.name + ')' };
       }
       // An authoritative NXDOMAIN is a statement about the name, not a failure to ask.
       return { ok: false, message: '% Unknown host ' + raw + ': ' + (res.rcodeName || 'no A record') +
@@ -2747,8 +2841,13 @@ class CliSession {
         const records = z.records || [];
         out.push('  ' + z.name + '  (' + records.length + ' record' +
           (records.length === 1 ? '' : 's') + ')');
+        // An MX record's preference is part of its value, and the table showed only the host - so
+        // `show dns` and `show running-config` disagreed about the same record.
         const recRows = records.map(function (rec) {
-          return [rec.name, rec.type, rec.value || ''];
+          const shown = (rec.priority === null || rec.priority === undefined)
+            ? (rec.value || '')
+            : rec.priority + ' ' + (rec.value || '');
+          return [rec.name, rec.type, shown];
         });
         out.push.apply(out, renderTable(['Name', 'Type', 'Value'], recRows, 4));
       }
@@ -3220,7 +3319,13 @@ class CliSession {
     // them to the right zone rather than the last one opened.
     for (const z of (dev.config.dnsZones || [])) {
       out.push('dns zone ' + z.name);
-      for (const rec of (z.records || [])) out.push('dns add ' + rec.name + ' ' + rec.type + ' ' + rec.value);
+      for (const rec of (z.records || [])) {
+        // An MX record carries a preference, and the dump dropped it: `dns add lab MX mail.lab.test`
+        // is a line the console now refuses, so the dump could not be pasted back into itself.
+        out.push('dns add ' + rec.name + ' ' + rec.type +
+          (rec.priority === null || rec.priority === undefined ? '' : ' ' + rec.priority) +
+          ' ' + rec.value);
+      }
     }
     for (const ns of (dev.config.dnsServers || [])) out.push('ip name-server ' + ns);
 

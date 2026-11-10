@@ -331,18 +331,29 @@ t('A run asked before the exchange finished leaves the host unaddressed');
 }
 
 // ---------------------------------------------------------------------------
-t('CLI: the pool sub-mode validates on exit, not on every keystroke');
+t('CLI: an incomplete pool waits for exit, a wrong value does not');
 
 {
   const L = lab(0);
   // One session: a sub-mode only exists inside the session that entered it.
+  // `network` before `range` is the second keystroke, not an error, so a pool that is merely
+  // incomplete is judged once, on the way out. A value that is already wrong is a different case:
+  // nothing typed later can rescue a network that is not an address, so it is refused where it is
+  // typed instead of arriving two commands later in the validator's vocabulary.
   const session = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool lan',
     'network 10.0.0.0 255.255.255.0', 'exit']);
   ok(session.some(function (l) { return /Created DHCP pool lan/.test(l); }), 'a pool can be created');
-  const typing = session.filter(function (l) { return /E_DHCP_BAD_RANGE/.test(l); });
+  const typing = session.filter(function (l) { return /no address range was given/.test(l); });
   eq(typing.length, 1, 'a half-typed pool is only judged once, on the way out');
-  ok(session.some(function (l) { return /rangeStart and rangeEnd/.test(l); }),
-    'with the library\'s own message, not a second opinion');
+  ok(!session.some(function (l) { return /E_DHCP_/.test(l); }),
+    'and is judged in the console\'s words, not in validator codes');
+
+  const wrong = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool lan2',
+    'network abc', 'default-router abc']);
+  ok(wrong.some(function (l) { return /"abc" is not an IPv4 address, so it cannot be the pool\'s network/.test(l); }),
+    'a network that is not an address is refused while it is typed');
+  ok(wrong.some(function (l) { return /"abc" is not an IPv4 address, so it cannot be the default router/.test(l); }),
+    'and so is a default router');
 
   const bad = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool bad!name']);
   ok(bad.some(function (l) { return /Invalid pool name/.test(l); }), 'an invalid pool name is refused');

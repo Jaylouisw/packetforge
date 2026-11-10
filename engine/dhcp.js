@@ -337,7 +337,9 @@ function validatePool(pool) {
 
   // --- range --------------------------------------------------------------
   if (p.rangeStart === '' || p.rangeEnd === '') {
-    err('E_DHCP_BAD_RANGE', where + 'both rangeStart and rangeEnd are required.');
+    // The console's word is `range`, and its two ends are the start and the end: `rangeStart` and
+    // `rangeEnd` are field names from this file, not something the operator ever typed.
+    err('E_DHCP_BAD_RANGE', where + 'no address range was given - "range <start> <end>" is required.');
   } else {
     const startInt = parseIp(p.rangeStart);
     const endInt = parseIp(p.rangeEnd);
@@ -347,7 +349,8 @@ function validatePool(pool) {
     } else {
       if (startInt > endInt) {
         err('E_DHCP_RANGE_ORDER',
-          where + 'rangeStart ' + p.rangeStart + ' is above rangeEnd ' + p.rangeEnd + '.');
+          where + 'the range starts at ' + p.rangeStart + ' and ends at ' + p.rangeEnd +
+          ' - the start must not be above the end.');
       }
       if (networkInt !== null && maskInt !== null) {
         const bcast = (networkInt | (~maskInt >>> 0)) >>> 0;
@@ -369,11 +372,13 @@ function validatePool(pool) {
   if (p.gateway !== null) {
     const gwInt = parseIp(p.gateway);
     if (gwInt === null) {
-      err('E_DHCP_BAD_GATEWAY', where + 'gateway "' + p.gateway + '" is not a valid IPv4 address.');
+      err('E_DHCP_BAD_GATEWAY',
+        where + 'default router "' + p.gateway + '" is not a valid IPv4 address.');
     } else if (networkInt !== null && maskInt !== null &&
       ((gwInt & maskInt) >>> 0) !== networkInt) {
       err('E_DHCP_GATEWAY_OUTSIDE',
-        where + 'gateway ' + p.gateway + ' is outside ' + p.network + '/' + prefixOfMask(maskInt) + '.');
+        where + 'default router ' + p.gateway + ' is outside ' +
+        p.network + '/' + prefixOfMask(maskInt) + '.');
     }
   }
 

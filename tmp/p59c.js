@@ -1,0 +1,16 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const d=t.addDevice(R);d.name='R1';const s=new CliSession(d,t,new Simulator(t));s.run('enable');s.run('configure terminal');
+const p=(x)=>{let o;try{o=s.run(x).output;}catch(e){console.log('$ '+x+'\n    THREW: '+e.message);return;}console.log('$ '+x+(o.length?'\n    '+o.join('\n    '):'    (silent)'))};
+p('logging'); p('logging 10.0.0.1'); p('clock rate abc');
+p('dns zone example.test');
+p('dns add www A abc');
+p('dns add mail CNAME');
+p('dns add mail CNAME www.example.test');
+p('dns add txt1 TXT hello world');
+console.log('zone=',JSON.stringify(d.config.dns||d.config.dnsZones||null));
+p('exit');
+p('show dns');
+p('show hosts');
+p('ping www.example.test');

@@ -218,7 +218,9 @@ function validateZone(zone) {
   const errors = [];
 
   function add(code, message) {
-    errors.push({ code: code, message: message });
+    // Messages end in a period and several embed fqdn(), which already ends in one:
+    // "... already defined at dup.example.test.." was what the console printed.
+    errors.push({ code: code, message: String(message).replace(/\.\.$/, '.') });
   }
 
   if (isBlank(raw.name)) {

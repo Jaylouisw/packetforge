@@ -206,7 +206,9 @@ console.log('\nA pool that cannot be validated does not become configuration:');
   const env = lab();
   const made = env.c1.run('configure terminal', 'ip dhcp pool broken',
     'network 10.9.9.0 255.255.255.0', 'default-router 10.9.9.1', 'exit', 'exit').join('\n');
-  ok(/E_DHCP_BAD_RANGE/.test(made), 'the error is still reported');
+  // The sentence, not the validator's constant: `% E_DHCP_BAD_RANGE: ... both rangeStart and
+  // rangeEnd are required.` named a code and two field names the operator never typed.
+  ok(/no address range was given/.test(made), 'the error is still reported');
   ok(/Pool broken discarded/.test(made), 'and the invalid pool is discarded rather than kept');
   ok(!/ip dhcp pool broken/.test(strip(env.c1.run('show running-config')).join('\n')),
     'so it is not in the running configuration');
@@ -216,11 +218,16 @@ console.log('\nA pool that cannot be validated does not become configuration:');
   // Editing a valid pool into an invalid one restores the previous settings instead of destroying it.
   env.c1.run('configure terminal', 'ip dhcp pool good', 'network 10.0.5.0 255.255.255.0',
     'range 10.0.5.10 10.0.5.50', 'exit', 'exit');
+  // A backwards range is now refused on the line that types it, so the pool is never edited into an
+  // invalid state and has nothing to restore. What must still hold is that the old range survives.
   const edited = env.c1.run('configure terminal', 'ip dhcp pool good',
     'range 10.0.5.60 10.0.5.10', 'exit', 'exit').join('\n');
-  ok(/E_DHCP_RANGE_ORDER|E_DHCP_BAD_RANGE/.test(edited), 'a backwards range is refused');
-  ok(/Pool good restored to its previous configuration/.test(edited),
-    'and the pool keeps the settings it had: ' + (edited.split('\n').filter((l) => /restored/.test(l))[0] || ''));
+  ok(/the start must not be above the end/.test(edited), 'a backwards range is refused');
+  // Read the stored object, not the rendered table: the point is that the refused line changed
+  // nothing, and only the object can say that.
+  const kept = (env.r1.config.dhcpPools || []).filter(function (p) { return p.name === 'good'; })[0];
+  eq(JSON.stringify([kept.rangeStart, kept.rangeEnd]), JSON.stringify(['10.0.5.10', '10.0.5.50']),
+    'and the pool keeps the range it had');
   const shown = strip(env.c1.run('show ip dhcp pool')).join('\n');
   ok(/10\.0\.5\.10/.test(shown) && /10\.0\.5\.50/.test(shown), 'the original range is still in force');
   ok(!/10\.0\.5\.60/.test(shown), 'and the rejected range is not');

@@ -1,0 +1,16 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const d=t.addDevice(R);d.name='R1';const s=new CliSession(d,t,new Simulator(t));s.run('enable');s.run('configure terminal');
+const p=(x,prompt)=>{console.log((prompt||'R1(config)#')+x);s.run(x).output.forEach(l=>console.log(l));};
+p('ip dhcp pool lan');
+p('network 10.0.0.0 255.255.255.0','R1(config-dhcp)#');
+p('exit','R1(config-dhcp)#');
+console.log('--- second pool: the wrong values, refused where typed');
+p('ip dhcp pool wan');
+p('network abc','R1(config-dhcp)#');
+p('default-router abc','R1(config-dhcp)#');
+p('range 10.9.9.50 10.9.9.10','R1(config-dhcp)#');
+p('network 10.9.9.0 255.255.255.0','R1(config-dhcp)#');
+p('default-router 10.9.9.1','R1(config-dhcp)#');
+p('range 10.9.9.10 10.9.9.50','R1(config-dhcp)#');
+p('exit','R1(config-dhcp)#');
