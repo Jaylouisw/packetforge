@@ -175,5 +175,52 @@ console.log('\nA radio is not a module bay:');
   match(/^AP1 transceivers \(1 cage port\):/, lines[0], 'only the SFP+ bay is listed');
 }
 
+console.log('\nThe transceiver view answers for the port, not only for the optic:');
+{
+  // A shut port still has an optic in its cage and a cable in the socket, so every number the table
+  // prints above stays true. What it could not say was that nothing crosses: the detail line read
+  // `(up)` from the cable's own state, and the cable was indeed up - so an operator chasing a dead
+  // port was told about the one thing that was working.
+  const lab = fibreLab();
+  const shut = runCommands(lab.a, lab.t, lab.sim,
+    ['enable', 'configure terminal', 'interface ' + lab.pa.name, 'shutdown', 'end',
+      'show interfaces transceiver']).lines.filter(function (l) {
+    return !/[>#](enable|show\b|configure|interface|shut|end|$)/.test(l);
+  });
+  // `shutdown` itself echoes `<port> administratively down`, which also starts with the port name, so
+  // the table row is the matching line that carries the cage column.
+  ok(shut.indexOf(lab.pa.name + ' administratively down') === 0 ||
+    shut.some(function (l) { return l === lab.pa.name + ' administratively down'; }),
+    'the console confirmed the shutdown');
+  const row = shut.filter(function (l) {
+    return l.trim().indexOf(lab.pa.name) === 0 && l.indexOf('sfp+') !== -1;
+  })[0];
+  ok(!!row, 'the shut port still has its row, because the optic is still in it: ' + JSON.stringify(row));
+  match(/10GBASE-SR/, row, 'and the medium it would run is still reported');
+  const note = shut.filter(function (l) { return l.trim().indexOf(lab.pa.name + ':') === 0; })[0] || '';
+  match(/administratively down/, note, 'and the port says why no frame crosses it: ' + JSON.stringify(note));
+  ok(shut.join('\n').indexOf('those ports are why no frame crosses') !== -1,
+    'with one sentence tying the note to the table above it');
+
+  // The same fact in the per-port record, beside the cable's own state rather than instead of it.
+  const detail = show(lab.a, lab.t, lab.sim, 'show interfaces transceiver ' + lab.pa.name);
+  const linkLine = detail.filter(function (l) { return /^\s{2}link\s*:/.test(l); })[0] || '';
+  match(/administratively down/, linkLine, 'the detail line names the port state beside the cable state');
+  match(/\(up, /, linkLine, 'and still reports the cable as up, because it is');
+
+  // A shut port at the far end is named the same way, for the same reason: our port is fine.
+  const far = fibreLab();
+  runCommands(far.b, far.t, far.sim,
+    ['enable', 'configure terminal', 'interface ' + far.pb.name, 'shutdown', 'end']);
+  const farLines = show(far.a, far.t, far.sim, 'show interfaces transceiver');
+  const farNote = farLines.filter(function (l) { return l.trim().indexOf(far.pa.name + ':') === 0; })[0] || '';
+  match(/far port/, farNote, 'a shut port at the other end is named with its device: ' + JSON.stringify(farNote));
+
+  // And an ordinary, working cable gets none of it.
+  const healthy = show(fibreLab().a, fibreLab().t, fibreLab().sim, 'show interfaces transceiver');
+  ok(healthy.filter(function (l) { return /^\s{2}\S+: (this|there|the)/.test(l); }).length === 0,
+    'a working port gets no note at all');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

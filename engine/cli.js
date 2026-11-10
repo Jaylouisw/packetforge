@@ -3435,7 +3435,7 @@ class CliSession {
       // frames is the one thing it certainly is not. `_ifaceState` is the single answer to "is this
       // interface up", and the claim about frames is only made when it is true.
       const st = p ? this._ifaceState(p) : null;
-      const stale = p ? this._lldpStaleReason(port) : null;
+      const stale = p ? this._portNotCarryingReason(port) : null;
       out.push('Local port state: ' + (st ? st.status + '/' + st.protocol : 'gone') +
         (stale ? ' - ' + stale + ', so this block is what was learned, not what is there now'
           : ' - the announcement is what proves the link is passing frames'));
@@ -6791,17 +6791,16 @@ class CliSession {
     return { status: 'up', protocol: 'up', reason: null };
   }
 
-  // Why an LLDP neighbour is no longer a fact about right now, or null when it still is.
+  // Why this port is not carrying frames right now, or null when it is.
   //
-  // The neighbour table is built from frames that crossed the link, which is the whole point of
-  // modelling LLDP instead of reading the cable out of the spec. The gap was on the other side of
-  // that sentence: nothing ever took an entry away again, so a port that had been shut went on
-  // listing the neighbour it heard an hour ago - and `show lldp neighbors detail` went further and
-  // said our port was *passing frames*, which was false. A cable pulled out of the topology is
-  // dropped outright by `topology.disconnect()`; every other way a frame stops crossing - this port
-  // shut, the far port shut - is reported here in words, because this model keeps no timers and a
-  // fabricated hold-time would be a number rather than a fact.
-  _lldpStaleReason(port) {
+  // Two views need this and neither can get it from a field: the LLDP neighbour table (a row built
+  // from frames that crossed the link, which nothing ever took away again) and `show interfaces
+  // transceiver` (which reported `(up)` from the cable's own state on a port the administrator had
+  // shut). A cable pulled out of the topology is dropped outright by `topology.disconnect()`; every
+  // other way a frame stops crossing - the port shut, the far port shut - is reported here in words,
+  // because this model keeps no timers and a fabricated hold-time would be a number rather than a
+  // fact.
+  _portNotCarryingReason(port) {
     const own = this.device.interfaces.get(port);
     if (!own) return 'that port is gone from ' + (this.device.name || this.device.id);
     const here = this._ifaceState(own);
@@ -7102,7 +7101,7 @@ class CliSession {
         // there now", which is the same mistake the access-list filter made from the other side.
         const staleRows = [];
         for (const r of rows) {
-          const why = self._lldpStaleReason(r[0]);
+          const why = self._portNotCarryingReason(r[0]);
           if (why) {
             staleRows.push('  ' + r[0] + ': ' + (r[1].systemName || 'the neighbour') +
               ' was heard here, but ' + why);
@@ -9062,12 +9061,16 @@ class CliSession {
         ? optics.length + ' for this cage (' + optics.slice(0, 3).map(function (o) { return o.partNumber; }).join(', ') +
           (optics.length > 3 ? ', ...' : '') + ')'
         : 'none catalogued - this cage is described by its rate class'));
+      // The cable's state is not the port's. A run can be up while the socket it enters is
+      // administratively down, and this line used to answer `(up)` from `link.state` alone: true
+      // about the cable, and the one thing an operator chasing a dead port needed to be told here.
+      const portNote = link ? this._portNotCarryingReason(i.name) : null;
       out.push('  link         : ' + (link
         ? link.id + ' -> ' + (function () {
           const far = link.a.deviceId === dev.id ? link.b : link.a;
           const farDev = topo.getDevice(far.deviceId);
           return (farDev ? farDev.name : far.deviceId) + '/' + far.iface;
-        })() + ' (' + (link.state || 'up') + ')'
+        })() + ' (' + (link.state || 'up') + (portNote ? ', ' + portNote : '') + ')'
         : 'not cabled'));
       if (medium) {
         out.push('  medium       : ' + medium.name + ' (' + medium.family + ', ' + medium.connector +
@@ -9102,6 +9105,21 @@ class CliSession {
         'W_DISTANCE is a warning, not a refusal.');
     }
     out.push.apply(out, renderTable(['Port', 'Cage', 'Medium', 'Rate', 'Reach', 'Length', 'Verdict'], rows, 2));
+    // The table answers one question - what optic is in the socket, and does the run reach - and a
+    // shut port still has an optic in it, so every number above stays true. But a reader who asks
+    // this is usually chasing why nothing crosses, and a row that looks healthy on a socket nothing
+    // can pass was the whole defect in `show lldp neighbors`. Uncabled ports are not listed: their
+    // Verdict already reads "not cabled", which is the same fact in the row.
+    const stuck = [];
+    for (const i of ports) {
+      if (!linkFor(i.name)) continue;
+      const why = this._portNotCarryingReason(i.name);
+      if (why) stuck.push('  ' + i.name + ': ' + why);
+    }
+    if (stuck.length) {
+      out.push.apply(out, stuck);
+      out.push('  The optic and the run are as above; those ports are why no frame crosses them.');
+    }
     return out;
   }
 

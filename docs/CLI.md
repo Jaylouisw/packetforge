@@ -4045,6 +4045,31 @@ smm10g1 (ethernet, sfp+) - transceiver
   verdict      : W_DISTANCE: 1.2 km > 300 m reach
 ```
 
+The cable's state and the port's are two different facts, and `link` prints both when they disagree.
+A run can be up while the socket it enters is administratively down, and this line used to answer
+`(up)` from the cable alone — true about the copper, and silent about the thing that was stopping
+every frame:
+
+```
+SW1#show interfaces transceiver 10g-sfp
+10g-sfp (ethernet, sfp+) - transceiver
+  cage         : sfp+
+  rate         : 10G
+  optics       : 18 for this cage (SFP-10G-SR, SFP-10G-LR, SFP-10G-ER, ...)
+  link         : l3 -> R2/Te0/0/0 (up, this port is administratively down)
+```
+
+The table gains no column, because the optic really is in the socket and the reach numbers are true
+whatever the port is doing. The reason comes as a note under the rows instead, in the same words
+`show lldp neighbors` uses — one helper answers both — and it names a shut port at the far end too,
+since in that case our own port is genuinely up:
+
+```
+  smm10g1: this port is administratively down
+  smm10g2: the far port Te0/0/0 on R2 is administratively down
+  The optic and the run are as above; those ports are why no frame crosses them.
+```
+
 Only module bays are listed. That is not "not copper": an antenna, a coax spur and a console socket
 are all non-copper cages with nothing to plug in, so the test is what the cage can carry — fibre,
 fibre-channel and twinax are modules; copper, coax, console and wireless are not. A cage with no
