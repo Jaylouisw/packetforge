@@ -281,9 +281,9 @@ which requires every prompt line in the docs to be a command some mode recognise
 | `hostname <name>` | set device hostname — the whole rest of the line, spaces included; a bare `hostname` is `% Incomplete command: hostname <name>` rather than a silent clear |
 | `interface vlan <id>` | the switch's own address in that VLAN — an **SVI** (`Vlan<id>`), the only way a switch can hold a management IP ([Switch management address](#switch-management-address--an-svi)) |
 | `interface <name>` | enter interface config mode |
-| `ip route <dest> <mask> <gw> [iface]` | add static route |
+| `ip route <dest> <mask> <gw> [iface]` | add static route — the next hop is required, see [the interface-only refusal](#static-routes-and-the-gateway-of-last-resort) |
 | `no ip route <dest> <mask> [gw]` | remove static route |
-| `ip default-gateway <gw>` | set default gateway (hosts) |
+| `ip default-gateway <gw>` | gateway of last resort at **AD 254** — accepted on hosts *and* routers |
 | `vlan <id> [name]` | declare a VLAN ([VLANs](#vlans)) |
 | `do show …` | run a `show` from config mode |
 | `exit` / `end` | leave config mode |
@@ -952,6 +952,62 @@ R1#ping 192.168.2.10 count 2
 Success rate is 100 percent (2/2)
 ```
 
+## Static routes and the gateway of last resort
+
+Two things about `ip route` are only visible if you run it rather than read the syntax line.
+
+**The `Interface` column is filled by the fourth word, not by the route.** With a next hop alone the
+table shows the hop and no port; add the interface and the same route gains one:
+
+```text
+R1(config)#ip route 10.9.0.0 255.255.255.0 10.0.0.2
+Route added: 10.9.0.0/24 via 10.0.0.2
+R1(config)#ip route 10.8.0.0 255.255.255.0 10.0.0.2 Gi0/0
+Route added: 10.8.0.0/24 via 10.0.0.2
+R1#show ip route
+Codes: C - connected, S - static
+  *  Prefix         AD  Gateway   Interface
+  *  C 10.0.0.0/24  0   -         Gi0/0
+  *  S 10.9.0.0/24  1   10.0.0.2  -
+  *  S 10.8.0.0/24  1   10.0.0.2  Gi0/0
+```
+
+The echo for the second command does **not** mention `Gi0/0`, so the only evidence that the interface
+was stored is the table two commands later. Nothing about forwarding changes — this model forwards to a
+next-hop address — which is why the interface-only form is refused rather than quietly accepted:
+
+```text
+R1(config)#ip route 10.7.0.0 255.255.255.0 Gi0/0
+% Gi0/0 is an interface, not a next hop - this model forwards to a next-hop address
+% Name the neighbour's address instead: "ip route 10.7.0.0 255.255.255.0 <neighbour-ip>"
+% (the interface-only form is accepted by IOS on point-to-point links, and would forward nothing here)
+```
+
+That is one of the few refusals here that names the IOS behaviour being declined, which makes it the
+clearest place to learn the model's rule.
+
+**`ip default-gateway` is not host-only.** The table above says "hosts" because that is the IOS story,
+but the command is accepted on a router and installs a real route — a `0.0.0.0/0` entry at AD 254:
+
+```text
+R1(config)#ip default-gateway 10.0.0.254
+Default gateway: 10.0.0.254
+R1#show ip route
+Codes: C - connected, S - static
+  *  Prefix         AD   Gateway     Interface
+  *  C 10.0.0.0/24  0    -           Gi0/0
+  *  S 10.9.0.0/24  1    10.0.0.2    -
+  *  S 10.8.0.0/24  1    10.0.0.2    Gi0/0
+  *  S 0.0.0.0/0    254  10.0.0.254  -
+```
+
+AD 254 is why it is the gateway of *last resort*: a static default route (AD 1), eBGP (20) or OSPF (110)
+all win over it. There is no way to type a distance here — the fourth word of `ip route` is an interface,
+and a number in that slot is stored as an interface name — so 254 is the only distance the console lets
+you reach, and it reaches it through this command alone. [SIMULATION.md §3.3](SIMULATION.md#33-routing-and-administrative-distance)
+has the full order; the point for the console is that configuring it on a router is not a mistake the
+engine punishes — it quietly adds a very last-resort default.
+
 `ip default-gateway` is held to the same rule (`% "abc" is not an IPv4 address, so it cannot be a
 default gateway`), and so are the small neighbours that used to quote an empty or placeholder value:
 `ipv6 route <prefix>` with no next hop, `vrrp <vrid> ip` with no address (`% Invalid address: (none)`
@@ -1217,6 +1273,41 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### A refusal that names a command is a promise
+
+The `show` views were swept last pass for advice that cannot be taken. This pass swept the
+**refusals**. Every honest row on every page was broken three ways — last word dropped, a bogus word
+appended, an impossible number pushed through a numeric slot — at a switch, a router and a PC in each
+mode: **384 refusals**, and the command each one quotes was typed back in exec, in config, and in the
+interface block the refusal named.
+
+It found one, on the most common device kind there is:
+
+```
+R1(config-if)#no encapsulation dot1q
+% Gi0/0 is not a subinterface - only a subinterface carries a tag
+% (a physical port is untagged on the wire; a switch trunk does that with "switchport")
+
+R1(config-if)#switchport
+% R1 does not switch - it has no switchports
+```
+
+The advice named a command the same console refuses. A router tags with a subinterface; a switch port
+tags by becoming a trunk, and each is now told the thing that works there:
+
+```
+R1(config-if)#no encapsulation dot1q
+% A routed port is untagged; tag it with a subinterface: "interface Gi0/0.10", then "encapsulation dot1q 10"
+SW1(config-if)#no encapsulation dot1q
+% A physical port is untagged on the wire; make it carry tags with "switchport mode trunk" in this interface
+```
+
+The sweep had one thing to learn about itself. *"interface Gi0/0.10, then encapsulation dot1q 10"* is
+one instruction in two steps, and judging the second on its own called correct advice broken — so a
+run of quoted commands joined by **then** is now typed in order, in one session, and the last step is
+the one judged. A guard that mis-reads the advice it is checking is a guard that teaches the wrong
+lesson.
 
 ### Advice has to be advice somebody can take
 
