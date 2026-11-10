@@ -782,7 +782,14 @@ class Simulator {
         const peerDev = this.topo.getDevice(first.peer.deviceId);
         const link = this._linkAt(dev.id, first.name);
         let cost = speedToCost(link ? link.speedMbps : null);
-        if (members.length > 1) cost = Math.round(cost / members.length); // aggregate
+        // `spanning-tree cost <n>` beats the speed-derived cost, exactly as on real gear: the whole
+        // point of the command is to make the tree choose a path the speeds would not.
+        for (const m of members) {
+          if (m.stpCost !== undefined && m.stpCost !== null) { cost = Number(m.stpCost); break; }
+        }
+        if (members.length > 1 && members[0].stpCost === undefined) {
+          cost = Math.round(cost / members.length); // aggregate
+        }
         ports.push({
           name: key,
           cost: cost,
@@ -799,7 +806,10 @@ class Simulator {
 
       bridges.push({
         key: dev.id,
-        priority: (dev.config && dev.config.stpPriority) || stpLib.STP_DEFAULT_PRIORITY,
+        // Priority 0 is legal (it wins every election) and `||` threw it away, so the lowest
+        // possible bridge priority was the one priority the model ignored.
+        priority: (dev.config && dev.config.stpPriority !== undefined && dev.config.stpPriority !== null)
+          ? dev.config.stpPriority : stpLib.STP_DEFAULT_PRIORITY,
         mac: mac || '00:00:00:00:00:00',
         ports: ports
       });
@@ -811,7 +821,27 @@ class Simulator {
     // Reset, then apply decisions back onto physical ports.
     for (const dev of this.topo.devices.values()) {
       if (!dev.isL2()) continue;
-      dev.stp = { blocked: new Set(), states: {}, roles: {} };
+      // `show spanning-tree` has to answer "who is root, and why this port" -- the help row for it
+      // promised a root bridge while the table printed roles only. Carrying the election's own
+      // answers (root identity, path cost, per-port cost) alongside the roles costs nothing here
+      // and is the difference between a table and an answer.
+      dev.stp = {
+        blocked: new Set(), states: {}, roles: {}, costs: {},
+        root: { priority: res.root && res.root.priority, mac: res.root && res.root.mac },
+        pathCost: (res.pathCost && res.pathCost[dev.id] !== undefined) ? res.pathCost[dev.id] : null,
+        // The bridge ID is the lowest interface MAC, which is what the election actually compared;
+        // `dev.mac` is null on a switch until something assigns it, so comparing against it made
+        // every switch look like a non-root and left the root unnamed.
+        bridgeId: (function () {
+          let m = null;
+          for (const i of dev.interfaces.values()) {
+            if (i.mac && (!m || i.mac < m)) m = i.mac;
+          }
+          return m;
+        })(),
+        isRoot: false
+      };
+      dev.stp.isRoot = !!(res.root && String(res.root.mac || '') === String(dev.stp.bridgeId || ''));
     }
     for (const bridgeKey of Object.keys(res.ports || {})) {
       const dev = this.topo.getDevice(bridgeKey);
@@ -821,6 +851,7 @@ class Simulator {
         const info = portMap[logicalName];
         dev.stp.states[logicalName] = info.state;
         dev.stp.roles[logicalName] = info.role;
+        dev.stp.costs[logicalName] = info.cost;
         if (info.state === 'blocking') {
           // mark every physical member of this logical port as blocked
           for (const iface of dev.interfaces.values()) {

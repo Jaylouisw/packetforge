@@ -1177,6 +1177,61 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The root bridge can be chosen, and the table names it
+
+`show spanning-tree` printed roles and states and never a root — while its own help row promised
+"root bridge, port roles and states". And nothing in the console could influence the election:
+
+```
+SW1(config)#spanning-tree vlan 1 root primary
+% Unrecognized config command: spanning-tree vlan 1 root primary
+SW1(config-if)#spanning-tree cost 19
+% Unrecognized interface command: spanning-tree cost 19
+```
+
+The tree was decided by device creation order and cable speed alone. Both knobs now work, and the
+table answers the question the command exists for:
+
+```
+SW2#show spanning-tree
+Spanning tree enabled protocol ieee
+  Root bridge: priority 4096, 02:00:00:00:01:00 (SW2)
+  This bridge: SW2 priority 4096, 02:00:00:00:01:00   (this bridge is the root)
+Port   Role        State       Cost
+Fa0/1  designated  forwarding  20000
+Fa0/2  designated  forwarding  20000
+```
+
+```
+SW3#show spanning-tree
+Spanning tree enabled protocol ieee
+  Root bridge: priority 32768, 02:00:00:00:00:00 (SW1)
+  This bridge: SW3 priority 32768, 02:00:00:00:02:00   root path cost 20000
+Port   Role       State                         Cost
+Fa0/1  alternate  blocking   (traffic dropped)  20000
+Fa0/2  root       forwarding                    20000
+  Fa0/1 is alternate: SW2 reaches the root for the same 20000, and the tie goes to the lower bridge ID
+```
+
+- `spanning-tree vlan <id> priority <n>` must be `0-61440` in steps of `4096`, and the refusal says
+  so. Priority `0` is legal and wins every election — it was the one value a truthiness check threw
+  away, so the lowest possible priority was the one the model ignored.
+- `spanning-tree vlan <id> root primary|secondary` answers with the priority it chose (`24576` /
+  `28672`, lowered when the current root is already at or below it), rather than storing a wish.
+- `no spanning-tree vlan <id>` restores the default and reports what it replaced. A bare
+  `no spanning-tree` says it cannot turn the protocol off, because it cannot.
+- `spanning-tree cost <n>` per port is what the tree charges — **on the port the BPDU arrives on**,
+  which is the port an operator configures. The election used the *sending* port's cost while the
+  root-port choice used the receiving port's, so the two disagreed and a cost set on the port you
+  care about moved nothing.
+
+Refused by name, because this model has nothing for them to do: `port-priority` (a cost tie is
+broken by bridge ID and port name), `portfast` (every port converges at the same instant — there is
+no Listening/Learning hold-off to skip) and `bpduguard`/`bpdufilter` (no BPDU is ever injected into
+an edge port). A router is refused with `does not bridge - spanning tree runs on switches`.
+
+`show running-config` carries both lines, so the dump pastes back into the same tree.
+
 ### A device answers for an address it holds — including its own
 
 Pinging your own address is the first check after configuring one, and it failed silently:

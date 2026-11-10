@@ -720,6 +720,32 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'scion') {
       this.device.config.scionAs = null;
       out.push('SCION membership removed');
+    } else if (head === 'spanning-tree') {
+      out.push.apply(out, this._stpConfig(tokens.slice(1)));
+    } else if (head === 'no' && tokens[1] === 'spanning-tree') {
+      // `no spanning-tree vlan <id>` restores the default priority. The VLAN word is required, because
+      // a bare `no spanning-tree` would read as "turn spanning tree off", which this model cannot do.
+      const stpLib = require('./stp');
+      const rest = tokens.slice(2).map(function (x) { return String(x).toLowerCase(); });
+      const usage = 'no spanning-tree vlan <id>';
+      if (rest[0] !== 'vlan') {
+        out.push('% Usage: ' + usage);
+        out.push('% (spanning tree itself cannot be turned off in this model; only its priority can)');
+      } else if (rest[1] === undefined) {
+        out.push('% Incomplete command: ' + usage);
+      } else if (!/^\d+$/.test(rest[1]) || !(Number(rest[1]) >= 1 && Number(rest[1]) <= 4094)) {
+        out.push('% VLAN id must be a number 1-4094, not "' + rest[1] + '"');
+      } else if (this._noExtra(rest, 2, usage)) {
+        out.push.apply(out, this._noExtra(rest, 2, usage));
+      } else if (this.device.config.stpPriority === undefined) {
+        out.push('Spanning tree bridge priority on ' + (this.device.name || this.device.id) +
+          ' is already the default (' + stpLib.STP_DEFAULT_PRIORITY + ')');
+      } else {
+        const had = this.device.config.stpPriority;
+        delete this.device.config.stpPriority;
+        out.push('Spanning tree bridge priority reset to the default (' + stpLib.STP_DEFAULT_PRIORITY +
+          ') on ' + (this.device.name || this.device.id) + ' (was ' + had + ')');
+      }
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
     } else if (head === 'ipv6' && tokens[1] === 'unicast-routing') {
@@ -1032,6 +1058,22 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'spanning-tree') {
+      out.push.apply(out, this._stpIface(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'spanning-tree') {
+      const rest = tokens.slice(2);
+      const what = String(rest[0] || '').toLowerCase();
+      if (what === 'cost') {
+        if (iface.stpCost === undefined) {
+          out.push('Spanning tree cost on ' + iface.name + ' is already the speed-derived default');
+        } else {
+          const was = iface.stpCost;
+          delete iface.stpCost;
+          out.push('Spanning tree cost on ' + iface.name + ' back to the speed-derived default (was ' + was + ')');
+        }
+      } else {
+        out.push.apply(out, this._stpIface(rest, iface));
+      }
     } else if (head === 'ipv6' && tokens[1] === 'address') {
       out.push.apply(out, this._ipv6Iface(tokens.slice(2), iface));
     } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'address') {
@@ -1505,6 +1547,128 @@ class CliSession {
   // missing line in a running-config is not a claim that forwarding is off. What the command buys is
   // the other direction: `no ipv6 unicast-routing` really does stop the box forwarding, which is the
   // only way to tell a router with a broken route from a router that is not routing at all.
+  // 'spanning-tree vlan <id> priority <n> | root primary|secondary'
+  //
+  // None of this existed: `spanning-tree vlan 1 root primary` and `... priority 4096` were both
+  // `% Unrecognized config command`, so the election could be observed and never influenced - and
+  // `show spanning-tree` did not print a root at all, while the help row for it promised "root
+  // bridge, port roles and states". A spanning tree whose root cannot be chosen is a topology the
+  // operator cannot build.
+  _stpConfig(tokens) {
+    const dev = this.device;
+    const stpLib = require('./stp');
+    const usage = 'spanning-tree vlan <id> priority <n> | root primary|secondary';
+    if (!dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not bridge - spanning tree runs on switches',
+        '% ' + dev.label + ' forwards at L3, where a loop is a routing problem, not a bridging one'];
+    }
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (!t.length) return ['% Incomplete command: ' + usage];
+    if (t[0] !== 'vlan') {
+      return ['% Unrecognized spanning-tree command: spanning-tree ' + t.join(' '),
+        '% Usage: ' + usage];
+    }
+    const vidWord = t[1];
+    if (vidWord === undefined) return ['% Incomplete command: ' + usage];
+    // `all` is the spelling an operator reaches for, and the model keeps one bridge priority, so it
+    // is answered as what it would do rather than refused as nonsense.
+    const vid = vidWord === 'all' ? 1 : Number(vidWord);
+    if (vidWord !== 'all' && (!/^\d+$/.test(vidWord) || !(vid >= 1 && vid <= 4094))) {
+      return ['% VLAN id must be a number 1-4094, not "' + vidWord + '"'];
+    }
+    const sub = t[2];
+    if (sub === undefined) {
+      const cur = (dev.config.stpPriority === undefined ? stpLib.STP_DEFAULT_PRIORITY : dev.config.stpPriority);
+      return ['Spanning tree for VLAN ' + vid + ' on ' + (dev.name || dev.id) + ': bridge priority ' + cur,
+        '  ' + usage];
+    }
+    if (sub === 'priority') {
+      const raw = t[3];
+      if (raw === undefined) return ['% Incomplete command: spanning-tree vlan ' + vid + ' priority <n>'];
+      const extra = this._noExtra(t, 4, 'spanning-tree vlan ' + vid + ' priority <n>');
+      if (extra) return extra;
+      const n = Number(raw);
+      if (!stpLib.validateBridgePriority(n)) {
+        // IOS refuses with the rule, not just the number: 0-61440 in steps of 4096.
+        return ['% Invalid bridge priority "' + raw + '" - it must be 0-61440 in steps of 4096',
+          '% e.g. 4096, 8192, 24576, 32768 (the default), 61440'];
+      }
+      const was = dev.config.stpPriority;
+      dev.config.stpPriority = n;
+      const said = ['Spanning tree bridge priority ' + n + ' on ' + (dev.name || dev.id)];
+      if (was !== undefined && was !== n) said.push('  was ' + was);
+      return said;
+    }
+    if (sub === 'root') {
+      const which = t[3];
+      if (which === undefined) return ['% Incomplete command: spanning-tree vlan ' + vid + ' root primary|secondary'];
+      const extra = this._noExtra(t, 4, 'spanning-tree vlan ' + vid + ' root primary|secondary');
+      if (extra) return extra;
+      if (which !== 'primary' && which !== 'secondary') {
+        return ['% Unknown spanning-tree root role "' + which + '" - primary or secondary'];
+      }
+      // IOS picks 24576 for primary and 28672 for secondary, and goes lower if the current root is
+      // already at or below that. The same rule here, so the answer is the priority it chose.
+      const others = [];
+      if (this.sim) {
+        for (const other of this.sim.topo.devices.values()) {
+          if (other === dev || !other.isL2 || !other.isL2()) continue;
+          const p = other.config && other.config.stpPriority !== undefined
+            ? other.config.stpPriority : stpLib.STP_DEFAULT_PRIORITY;
+          others.push(p);
+        }
+      }
+      const bestOther = others.length ? Math.min.apply(null, others) : stpLib.STP_DEFAULT_PRIORITY;
+      let target = which === 'primary' ? 24576 : 28672;
+      if (which === 'primary' && bestOther <= target) target = Math.max(0, bestOther - 4096);
+      if (which === 'secondary' && bestOther <= target) target = Math.max(0, bestOther + 4096);
+      dev.config.stpPriority = target;
+      return ['Spanning tree for VLAN ' + vid + ': ' + (dev.name || dev.id) + ' is set to be root ' +
+        which + ' (bridge priority ' + target + ')'];
+    }
+    return ['% Unrecognized spanning-tree command: spanning-tree ' + t.join(' '), '% Usage: ' + usage];
+  }
+
+  // The per-port half: `spanning-tree cost <n>` changes the election (the tree picks a different
+  // root port, which is the whole point); the two knobs this model has nothing to do with are
+  // refused by naming that, rather than accepted as decoration.
+  _stpIface(tokens, iface) {
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (!dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not bridge - spanning tree runs on switches'];
+    }
+    if (!t.length) {
+      return ['% Incomplete command: spanning-tree cost <n> | port-priority <n> | portfast | bpduguard'];
+    }
+    if (t[0] === 'cost') {
+      const raw = t[1];
+      if (raw === undefined) return ['% Incomplete command: spanning-tree cost <n>'];
+      const extra = this._noExtra(t, 2, 'spanning-tree cost <n>');
+      if (extra) return extra;
+      const n = Number(raw);
+      if (!/^\d+$/.test(raw) || !(n >= 1 && n <= 200000000)) {
+        return ['% Invalid path cost "' + raw + '" - it must be 1-200000000'];
+      }
+      iface.stpCost = n;
+      return ['Spanning tree cost ' + n + ' on ' + iface.name];
+    }
+    if (t[0] === 'port-priority') {
+      return ['% port-priority is not modelled - this spanning tree breaks a cost tie by bridge ID',
+        '% and port name, never by port priority, so storing one would change nothing'];
+    }
+    if (t[0] === 'portfast') {
+      return ['% portfast is not modelled - every port here converges at the same instant',
+        '% (there is no Listening/Learning hold-off to skip; see "show spanning-tree <port> at <ms>")'];
+    }
+    if (t[0] === 'bpduguard' || t[0] === 'bpdufilter') {
+      return ['% ' + t[0] + ' is not modelled - this model never injects a BPDU into an edge port,',
+        '% so a guard would have nothing to react to'];
+    }
+    return ['% Unrecognized interface command: spanning-tree ' + t.join(' '),
+      '% Usage: spanning-tree cost <n> | port-priority <n> | portfast | bpduguard'];
+  }
+
   // The per-port spelling of a global command, or null when there is none worth naming.
   // Only forms that actually exist in this console are listed: the note exists to help an operator
   // who typed a global command in an interface block, and inventing a command does the opposite.
@@ -3716,6 +3880,12 @@ class CliSession {
       out.push('vlan ' + id + (vlans[id] && vlans[id].name ? ' ' + vlans[id].name : ''));
     }
 
+    // Spanning tree priority, before the interface blocks: a dump that forgets the root the
+    // operator chose is a dump that pastes back into a different topology.
+    if (dev.config.stpPriority !== undefined) {
+      out.push('spanning-tree vlan 1 priority ' + dev.config.stpPriority);
+    }
+
     // OSPF process first: `ip ospf …` inside an interface is refused until
     // `ospf router-id` has enabled the process, so the global lines must
     // precede the interface blocks to round-trip.
@@ -3764,6 +3934,7 @@ class CliSession {
           }
         }
       }
+      if (i.stpCost !== undefined) out.push('  spanning-tree cost ' + i.stpCost);
       const lag = dev.lagFor ? dev.lagFor(i.name) : null;
       if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
       const binds = dev.aclBindings && dev.aclBindings[i.name];
@@ -4225,15 +4396,78 @@ class CliSession {
           '% It is not part of any L2 loop - see "show spanning-tree" for the ports that are']);
       }
       out.push('Spanning tree enabled protocol ieee');
+      // The root, and the bridge that decided it. The help row has always promised "root bridge,
+      // port roles and states"; the table printed roles and states and never a root, so the one
+      // question the command exists for - which switch is root, and why - had no answer in it.
+      const root = (st.root && st.root.mac) ? st.root : null;
+      const sim = this.sim;
+      const rootName = (function (self) {
+        if (!root) return null;
+        if (st.isRoot) return (self.name || self.id);
+        // A device has no back-reference to the simulator; the session has it. Asking the device
+        // made every non-root switch print a bridge MAC with no name beside it.
+        if (!sim) return null;
+        for (const other of sim.topo.devices.values()) {
+          if (other.stp && String(other.stp.bridgeId || '') === String(root.mac)) {
+            return other.name || other.id;
+          }
+        }
+        return null;
+      }).call(this, dev);
+      if (root) {
+        out.push('  Root bridge: ' + (rootName ? 'priority ' + root.priority + ', ' + root.mac +
+          ' (' + rootName + ')' : 'priority ' + root.priority + ', ' + root.mac));
+        const mine = dev.config.stpPriority === undefined
+          ? require('./stp').STP_DEFAULT_PRIORITY : dev.config.stpPriority;
+        out.push('  This bridge: ' + (dev.name || dev.id) + ' priority ' + mine + ', ' +
+          (st.bridgeId || '-') + (st.isRoot ? '   (this bridge is the root)'
+            : (st.pathCost !== null && st.pathCost !== undefined ? '   root path cost ' + st.pathCost : '')));
+      }
       if (!names.length) {
         out.push('  No bridged ports: this device is not part of any L2 loop.');
       } else {
         const stRows = names.map(function (n) {
           const role = (st.roles || {})[n] || '-';
-          return [n, role, st.states[n] +
-            (st.states[n] === 'blocking' ? '   (traffic dropped)' : '')];
+          const cost = (st.costs || {})[n];
+          // Why an alternate port is alternate: its path to the root costs more than the winning
+          // port on the same segment. Naming the cost is what turns "blocking" into a reason.
+          const note = st.states[n] === 'blocking' ? '   (traffic dropped)' : '';
+          return [n, role, st.states[n] + note, cost === undefined ? '-' : String(cost)];
         });
-        out.push.apply(out, renderTable(['Port', 'Role', 'State'], stRows));
+        out.push.apply(out, renderTable(['Port', 'Role', 'State', 'Cost'], stRows));
+        // Why that port and not the other one, on its own line: a reason wedged into a column
+        // stretches the table and makes the roles unreadable at a glance.
+        for (const n of names) {
+          if (((st.roles || {})[n] || '') !== 'alternate') continue;
+          // Whose port won the segment, and on what: a cheaper path, or the same path and a lower
+          // bridge ID. Both reasons are honest and they send an operator to different commands.
+          const iface = dev.interfaces.get(n);
+          const peer = iface && iface.peer && this.sim
+            ? this.sim.topo.getDevice(iface.peer.deviceId) : null;
+          const peerPort = peer && iface.peer
+            ? peer.stp && peer.stp.roles ? ((function (pdev, pend) {
+              for (const ifc of pdev.interfaces.values()) {
+                if (ifc.name === pend) return ifc.name;
+              }
+              return pend;
+            })(peer, iface.peer.iface)) : null
+            : null;
+          // The segment is won on root path cost, then on bridge ID - so the reason quotes those two
+          // numbers, not the port's own cost (which is what the table's Cost column shows).
+          const peerPath = peer && peer.stp ? peer.stp.pathCost : undefined;
+          const minePath = st.pathCost;
+          let why;
+          if (peerPath !== undefined && peerPath !== null && minePath !== null && peerPath < minePath) {
+            why = (peer.name || peer.id) + ' reaches the root for ' + peerPath + ', this bridge for ' +
+              minePath;
+          } else if (peerPath !== undefined && peerPath !== null) {
+            why = (peer.name || peer.id) + ' reaches the root for the same ' + peerPath +
+              ', and the tie goes to the lower bridge ID';
+          } else {
+            why = 'the other end of the segment wins it on root path cost or bridge ID';
+          }
+          out.push('  ' + n + ' is alternate: ' + why);
+        }
       }
     } else if (what === 'etherchannel') {
       const lags = dev.config.lags || {};
@@ -5991,6 +6225,8 @@ class CliSession {
       helpLine('interface <parent>.<vlan>', 'creates a tagged subinterface'),
       helpLine('no interface <parent>.<vlan>', 'remove a subinterface'),
       helpLine('vlan <id> [name]', 'declare a VLAN  (no vlan <id>)'),
+      helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge  (no spanning-tree vlan <id>)'),
+      helpLine('spanning-tree vlan <id> root primary|secondary', 'ask to be root, in words'),
       helpLine('ip route <dest> <mask> <gw> [iface]', 'add a static route'),
       helpLine('no ip route <dest> <mask> [gw]', 'remove one, or all with that prefix'),
       helpLine('ip default-gateway <gw>', 'default gateway for hosts'),
@@ -6046,6 +6282,7 @@ class CliSession {
       helpLine('vrrp <vrid> ip <addr> [priority <p>] [preempt] [advertise <s>]',
         'join (or create) a VRRP group'),
       helpLine('no vrrp <vrid>', 'remove the group'),
+      helpLine('spanning-tree cost <n>', 'this port\'s path cost  (no spanning-tree cost)'),
       helpLine('interface <name>', 'switch to another port, stay in config-if'),
       helpLine('show <what>', 'any exec show, from here too'),
       helpLine('<any config-mode command>', 'applied globally, then back to config'),

@@ -133,6 +133,15 @@ function runStp(input) {
   const portsOut = {};
   for (const key of order) portsOut[key] = {};
 
+  // Port cost is looked up by (bridge, port name) because the path cost of a link belongs to the
+  // port it arrives on.
+  const portIndex = new Map();
+  for (const key of order) {
+    const m = new Map();
+    for (const p of byKey.get(key).ports) m.set(p.name, p);
+    portIndex.set(key, m);
+  }
+
   if (order.length === 0) {
     return {
       root: { priority: STP_DEFAULT_PRIORITY, mac: null },
@@ -170,7 +179,14 @@ function runStp(input) {
     for (const p of ub.ports) {
       if (!p.enabled || !p.to) continue;
       if (!byKey.has(p.to.bridge) || visited.has(p.to.bridge)) continue;
-      const d = best + p.cost;
+      // 802.1D charges the port a BPDU *arrives on*, and step 3 (root-port choice) already does:
+      // that is the port the operator configures. Charging the sending bridge's port here instead
+      // made the two steps disagree, so `spanning-tree cost 100` on the port you care about moved
+      // nothing at all while the same cost on the far end moved your tree.
+      const vPorts = portIndex.get(p.to.bridge);
+      const vPort = vPorts ? vPorts.get(p.to.port) : null;
+      const weight = (vPort && typeof vPort.cost === 'number') ? vPort.cost : p.cost;
+      const d = best + weight;
       if (d < dist.get(p.to.bridge)) dist.set(p.to.bridge, d);
     }
   }
@@ -258,12 +274,19 @@ function runStp(input) {
     }
   }
 
+  // The distance to the root that decided every segment, not just the port roles: "root path cost"
+  // is the number an operator compares between two switches, and without it a blocked port has a
+  // state but no reason.
+  const pathCost = {};
+  for (const key of order) pathCost[key] = dist.get(key);
+
   return {
     root: {
       priority: root.priority,
       mac: (root.macRaw === null) ? root.mac : root.macRaw
     },
     ports: portsOut,
+    pathCost: pathCost,
     blocked: blocked
   };
 }
