@@ -136,6 +136,7 @@ console.log('No model in the catalogue rejects its own running-config:');
   // read back. This is the sweep that found the bug, kept as a guard so it cannot come back.
   const problems = [];
   let checked = 0;
+  let seededRoutes = 0;
   for (const s of catalog) {
     let dev;
     try { dev = new Device('d1', s); } catch (e) { continue; }
@@ -145,7 +146,12 @@ console.log('No model in the catalogue rejects its own running-config:');
     ports[0].mask = '255.255.255.0';
     ports[0].description = 'seeded by the round-trip test';
     dev.config = dev.config || {};
-    dev.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.9.8.1', iface: null }];
+    // Only a box that forwards can hold a route. Seeding one on a media converter was asking this sweep to replay
+    // configuration the console refuses (#1387): the fixture, not the printer, was the impossible part.
+    if (typeof dev.hasCap === 'function' && dev.hasCap('l3-forward')) {
+      dev.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.9.8.1', iface: null }];
+    }
+    seededRoutes += dev.config.routes && dev.config.routes.length ? 1 : 0;
     if (ports[1]) ports[1].enabled = false;
 
     const a = new CliSession(dev, null, null);
@@ -171,6 +177,9 @@ console.log('No model in the catalogue rejects its own running-config:');
     }
   }
   ok(checked > 1000, 'the sweep covered the catalogue (' + checked + ' models)');
+  // The route round trip is still exercised - on the boxes that can carry one.
+  ok(seededRoutes > 100, 'and a route was seeded on every model that can forward (' + seededRoutes + ' of them)',
+    String(seededRoutes));
   ok(problems.length === 0, 'every model accepts its own running-config back',
     problems.slice(0, 4).join(' | '));
 }

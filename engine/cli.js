@@ -93,6 +93,18 @@ class CliSession {
   }
 
   // ---------- config mode ----------
+
+  // A capability is a promise about what a box can do with a packet: the catalogue declares it, the engine honours
+  // it in the data plane, and until now exactly one command refused configuration on a device that could not keep
+  // the promise (`ipv6 nd ra`). Everything else was accepted and then silently inert - a Raspberry Pi took
+  // `ip dhcp pool`, `ip route` and `ospf router-id` and created objects nothing on it could use (#1387). The
+  // refusal names the capability and the consequence, in the same words the RA gate uses.
+  _capabilityRefusal(cap, consequence) {
+    const dev = this.device;
+    if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
+    return '% ' + dev.name + ' cannot ' + consequence + ': it has no ' + cap + ' capability';
+  }
+
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
@@ -306,6 +318,8 @@ class CliSession {
       // can hold several, and a client chooses by the subnet its own interface sits in.
       const name = tokens[3];
       if (!name) return ['% Incomplete command: ip dhcp pool <name>'];
+      const cannotServe = this._capabilityRefusal('dhcp-server', 'serve DHCP');
+      if (cannotServe) return [cannotServe];
       if (!/^[A-Za-z0-9_.-]{1,32}$/.test(name)) return ['% Invalid pool name: ' + name];
       if (!this.device.config.dhcpPools) this.device.config.dhcpPools = [];
       let pool = this.device.config.dhcpPools.filter(function (p) { return p.name === name; })[0];
@@ -406,6 +420,8 @@ class CliSession {
     } else if (head === 'ip' && tokens[1] === 'route') {
       // ip route DEST MASK GW [iface]   and   ip route DEST MASK <iface>   (the directly-connected form)
       const dest = tokens[2], mask = tokens[3];
+      const cannotRoute = this._capabilityRefusal('l3-forward', 'install a route');
+      if (cannotRoute) return [cannotRoute];
       let gw = tokens[4] || null;
       let iface = tokens[5] || null;
       if (!dest || !mask) return ['% Incomplete command: ip route <dest> <mask> <gateway|interface>'];
@@ -487,6 +503,10 @@ class CliSession {
     }
 
     if (head === 'vrrp') {
+      // A virtual router answers for an address on behalf of a box that routes. Without l3-forward there is
+      // nothing behind the group to answer for (#1387).
+      const cannotRoute = this._capabilityRefusal('l3-forward', 'run a VRRP group');
+      if (cannotRoute) return [cannotRoute];
       const res = this._vrrpIfaceCommand(tokens);
       if (res) return res;
     }
@@ -950,6 +970,8 @@ class CliSession {
     if (!cfg.interfaces) cfg.interfaces = [];
 
     if (t[0] === 'router-id') {
+      const cannotRoute = this._capabilityRefusal('l3-forward', 'run OSPF');
+      if (cannotRoute) return [cannotRoute];
       const ip = t[1] || '';
       if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return ['% Invalid router-id "' + ip + '"'];
       cfg.routerId = ip;
@@ -2382,6 +2404,9 @@ class CliSession {
   // rule means. Rules live in `config.nat.rules` with their named pools in `config.nat.pools`, which is the
   // shape `Simulator._natTableOf()` already reads.
   _natConfig(args) {
+    // Translating is what the `nat` capability means; a box without it can hold a table nothing consults.
+    const cannotTranslate = this._capabilityRefusal('nat', 'translate addresses');
+    if (cannotTranslate) return [cannotTranslate];
     const natLib = require('./nat');
     const nat = this.device.config.nat
       ? JSON.parse(JSON.stringify(this.device.config.nat))
