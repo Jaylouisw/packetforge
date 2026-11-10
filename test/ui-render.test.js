@@ -28,9 +28,15 @@ const l2 = t.connect(sw.id, 'Fa0/2', rt.id, 'Gi0/0');
 runCommands(sw, t, null, ['enable', 'configure terminal',
   'interface Fa0/1', 'switchport mode access', 'switchport access vlan 20']);
 const topo = JSON.parse(JSON.stringify(t.serialize()));
-// The server puts a verdict on every cable (server/index.js fullState); the inspector renders that
-// verdict instead of asserting the check happened, so the fixture has to carry what a browser gets.
-for (const l of topo.links) l.verdict = t.linkVerdict(t.links.get(l.id));
+// The server puts a verdict and a carrying-state on every cable (server/index.js fullState); the
+// inspector renders those instead of asserting the checks happened, so the fixture has to carry what
+// a browser gets.
+for (const l of topo.links) {
+  l.verdict = t.linkVerdict(t.links.get(l.id));
+  const st = t.linkState(t.links.get(l.id));
+  l.carries = st.up;
+  l.stateReason = st.reason;
+}
 
 // --- load the real frontend in a stub environment -------------------------
 // Permissive node stub: any unknown property is a no-op function, so the
@@ -164,6 +170,8 @@ ok(/Physical cable/.test(linkHtml), 'the link inspector opens');
 ok(linkHtml.indexOf(link.mediaId) >= 0, 'the negotiated media id is shown (' + link.mediaId + ')');
 ok(linkHtml.indexOf('SW1') >= 0 && linkHtml.indexOf('PC1') >= 0, 'both endpoints are named');
 ok(/Cages mate/.test(linkHtml), 'and it states the physical check that allowed the cable');
+ok(/<span class="k">State<\/span><span>up<\/span>/.test(linkHtml),
+  'and the link reads up, because the payload says it carries');
 ok((linkHtml.match(/class="endpoint"/g) || []).length === 2, 'two endpoint cards');
 
 console.log('\nA missing link degrades gracefully:');

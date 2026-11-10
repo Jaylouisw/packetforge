@@ -1599,7 +1599,19 @@
       '<button class="btn" id="link-length-save" style="margin-left:6px">Set</button>' +
       '</span></div>';
     if (link.lagId) html += '<div class="kv"><span class="k">LAG</span><span>group ' + link.lagId + '</span></div>';
-    html += '<div class="kv"><span class="k">State</span><span>' + (link.state || 'up') + '</span></div>';
+    // `link.state` is what was done to the cable. It is not the answer to "is this link up" - this
+    // row printed `up` for it on every cable ever drawn, including one entering a port the
+    // administrator had disabled. `carries`/`stateReason` are the engine's answer (fullState), and a
+    // payload without them is reported as unchecked rather than guessed at.
+    const derived = link.carries === undefined || link.carries === null
+      ? 'not checked in this session'
+      : (link.carries ? 'up' : 'down' + (link.stateReason ? ' - ' + link.stateReason : ''));
+    html += '<div class="kv"><span class="k">State</span><span>' + esc(derived) + '</span></div>';
+    // The cable's own state is still a fact worth printing - taking a cable down and shutting a port
+    // are different operations - but only when it says something the line above does not.
+    if ((link.state || 'up') !== 'up') {
+      html += '<div class="kv"><span class="k">Cable</span><span>' + esc(link.state) + '</span></div>';
+    }
 
     // What a medium is called is not what you order. Name the parts the catalogue
     // says implement it, with the reach and the ferrule that go with them.

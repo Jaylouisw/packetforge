@@ -178,6 +178,12 @@ function fullState(topo) {
   s.links.forEach(function (l) {
     const live = topo.links.get(l.id);
     l.verdict = live ? topo.linkVerdict(live) : null;
+    // Whether frames actually cross, which is a different question from the cable's own state: a run
+    // can be up with a port at either end disabled. Derived here, like the verdict, and never written
+    // to the file - `lineUp` is the next computePortState() away from being different.
+    const st = live ? topo.linkState(live) : null;
+    l.carries = st ? st.up : null;
+    l.stateReason = st ? st.reason : null;
   });
   return s;
 }

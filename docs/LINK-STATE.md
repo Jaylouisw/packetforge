@@ -165,6 +165,36 @@ and the topology records `"lastChangeAtMs": 10000`. Links that never changed car
 at all — a field on every cable would be noise in every diff and every regenerated example, and the
 examples-idempotent test would fail on it, which is how that was caught.
 
+## What "up" means: the cable, the ports, or both
+
+`link.state` records what the operator did to the cable — `link down <id>` — and it persists. It is
+not the same question as "is this link passing frames", and three readers used to print it as if it
+were: the web inspector showed `State up` on every cable ever drawn, including one entering a port
+the administrator had disabled, and `show interfaces transceiver` answered `(up)` for the same reason.
+The ports' own state was already derived elsewhere — `Simulator.computePortState()` keeps `lineUp`
+and `lineStateReason` — and nothing joined the two facts.
+
+`Topology.linkState(link)` joins them: the cable's state plus both ports' `enabled` plus both ports'
+`lineUp`, returning `{ up, cause, reason }` where `reason` names the port at fault
+(`SW1/Fa0/1 is administratively down`, `PC1/eth0 is down (the cable is down)`, `SW1/Fa0/99 is gone`)
+and `cause` says which kind of thing it was. `fullState()` attaches `carries` and `stateReason` to
+every link in the payload; `serialize()` does not, because `lineUp` is a fact about the current
+simulation and a saved copy would be read back as one.
+
+Two answers that look contradictory and are both right:
+
+| question | answered by | a port whose far peer is shut |
+| --- | --- | --- |
+| is *this interface* up? | `show ip interface brief`, `_ifaceState()` | **up** — nothing is wrong with this socket |
+| does *this link* carry? | `Topology.linkState()` | **down** — the far end is shut |
+
+The fault does not go unnamed: `_portNotCarryingReason()` reads the link's own answer and says
+`the far port Fa0/1 on SW1 is administratively down`, which is what `show lldp neighbors` and
+`show interfaces transceiver` print. The inspector renders four states rather than one: `up`,
+`down - <reason>`, a separate `Cable` row when the cable itself was taken down (so "down" cannot be
+misread as the cable's doing), and `not checked in this session` for a payload that predates the
+field — never `up` by default, which is what the row used to claim.
+
 ## What this does not model
 
 - **No physical-layer diagnosis.** A cable is up or down; it is never *degraded*. There is no CRC

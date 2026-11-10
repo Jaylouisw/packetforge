@@ -6804,7 +6804,13 @@ class CliSession {
     const own = this.device.interfaces.get(port);
     if (!own) return 'that port is gone from ' + (this.device.name || this.device.id);
     const here = this._ifaceState(own);
-    if (here.reason) return 'this port is ' + here.reason;
+    if (here.reason) {
+      // 'administratively down' is an adjective and reads as one; a line reason is a whole clause
+      // ("the cable is down", "err-disabled (port security): ..."), so it is bracketed rather than
+      // spliced - "this port is the cable is down" is what a blind prefix produces.
+      if (here.reason === 'administratively down') return 'this port is administratively down';
+      return 'this port is down (' + here.reason + ')';
+    }
     if (!own.peer) return 'there is no cable on this port';
     const topo = this.sim && this.sim.topo;
     const far = topo && topo.devices ? topo.devices.get(own.peer.deviceId) : null;

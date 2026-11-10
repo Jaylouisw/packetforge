@@ -475,6 +475,36 @@ class Topology {
     };
   }
 
+  // Is this cable carrying frames, and if not, which end is stopping it.
+  //
+  // `link.state` is what the operator did to the cable, and it is not the answer to "is this link
+  // up". Both readers treated it as if it were - the web inspector printed `State up` on every cable
+  // ever drawn, including one entering a port the administrator had disabled - because the ports'
+  // own state is derived elsewhere (`Simulator.computePortState()` keeps `lineUp` and
+  // `lineStateReason`) and nothing joined the two facts. This joins them, and quotes the port's own
+  // reason rather than inventing a second vocabulary for it.
+  linkState(link) {
+    if (!link) return { up: false, cause: 'gone', reason: 'no such cable' };
+    if (link.state && link.state !== 'up') {
+      return { up: false, cause: 'cable', reason: 'the cable is ' + link.state };
+    }
+    for (const end of [link.a, link.b]) {
+      const dev = this.devices.get(end.deviceId);
+      const iface = dev && dev.interfaces.get(end.iface);
+      const name = dev ? (dev.name || dev.id) : end.deviceId;
+      const where = name + '/' + end.iface;
+      if (!iface) return { up: false, cause: 'gone', reason: where + ' is gone' };
+      if (!iface.enabled) return { up: false, cause: 'admin', reason: where + ' is administratively down' };
+      if (iface.lineUp === false) {
+        return {
+          up: false, cause: 'line',
+          reason: where + ' is down (' + (iface.lineStateReason || 'no carrier') + ')'
+        };
+      }
+    }
+    return { up: true, cause: null, reason: null };
+  }
+
   disconnect(linkId) {
     const link = this.links.get(linkId);
     if (!link) return false;
