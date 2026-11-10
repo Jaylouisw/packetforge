@@ -195,6 +195,13 @@ The fault does not go unnamed: `_portNotCarryingReason()` reads the link's own a
 misread as the cable's doing), and `not checked in this session` for a payload that predates the
 field — never `up` by default, which is what the row used to claim.
 
+The board follows the same rule. A cable whose port is disabled is drawn dashed and recoloured like a
+cut one, because what `link-down` means on the canvas is "no frames cross here", not "somebody pulled
+this out" — while the DOM keeps the two facts apart: `data-link-state` still reports the cable's own
+state, `data-carries` reports the engine's answer, and `data-state-reason` carries the sentence naming
+the end at fault. A payload from before the field existed is drawn as it was and labelled `unknown`:
+nothing crosses is a claim, and nothing is known is not one.
+
 ## What this does not model
 
 - **No physical-layer diagnosis.** A cable is up or down; it is never *degraded*. There is no CRC
@@ -216,5 +223,7 @@ field — never `up` by default, which is what the row used to claim.
   died, `setLinkState` refusals, the tree healing around a failure, a network with no second path
   staying broken, the re-based schedule (nothing works at 11 s, works at 41 s), MAC table flush, the
   DHCP segment walk refusing to cross a cut cable, save/load, and the CLI surface.
-- `test/link-state-drawing.test.js` — 13 assertions: the renderer marks a down cable, keeps its
-  medium class, and the stylesheet really dashes and recolours it.
+- `test/link-state-drawing.test.js` — 22 assertions: the renderer marks a down cable, marks a cable
+  whose port is disabled without claiming the cable is down, keeps its medium class in both cases,
+  labels a payload that predates the field `unknown` rather than guessing, and the stylesheet really
+  dashes and recolours it.

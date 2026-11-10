@@ -208,7 +208,12 @@
           // A cable that is down must not look like a working one. In a diagram a failed link is
           // the most important thing on the page, and drawing it identically is how a lab ends up
           // showing a cut cable carrying traffic.
-          const dead = link.state && link.state !== 'up';
+          // The cable's own state was only half of that: a run can be up while a port at either end
+          // is disabled, and then nothing crosses either. `carries` is the engine's answer
+          // (fullState) and closes the other half. It is tested with `=== false` rather than for
+          // truth, so a payload that predates the field is drawn as before instead of being dashed
+          // on a guess - unknown is not down.
+          const dead = (link.state && link.state !== 'up') || link.carries === false;
           el('line', {
             class: 'link' + (family ? ' link-' + family : '') + (sel ? ' selected' : '') +
               (link.mediaId ? ' link-media' : '') + (dead ? ' link-down' : ''),
@@ -216,7 +221,9 @@
             'data-link-id': link.id,
             'data-medium': family || 'unknown',
             'data-media-id': link.mediaId || '',
-            'data-link-state': link.state || 'up'
+            'data-link-state': link.state || 'up',
+            'data-carries': link.carries === false ? 'no' : (link.carries === true ? 'yes' : 'unknown'),
+            'data-state-reason': (link.carries === false && link.stateReason) ? link.stateReason : ''
           }, cableLayer);
         } catch (e) { skip('link', link && link.id, e); }
       }

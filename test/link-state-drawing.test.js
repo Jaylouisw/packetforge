@@ -79,7 +79,7 @@ function walk(node, fn) {
 }
 
 // One board, one cable, drawn, with the cable's state whatever we ask for.
-function draw(linkState) {
+function draw(linkState, extra) {
   const { PFCanvas, roots } = makeCanvas();
   const t = new Topology();
   // Specs declare type/connector; the cage is derived by Device, so select on the spec and
@@ -97,8 +97,12 @@ function draw(linkState) {
   if (linkState) link.state = linkState;
 
   // Rendered from the serialised form, which is what the browser actually receives - and which is
-  // where a state field silently went missing once already.
-  PFCanvas.render(JSON.parse(JSON.stringify(t.serialize())));
+  // where a state field silently went missing once already. `extra` is what fullState() adds on top
+  // of the saved file (carries, stateReason); a browser gets those, so a drawing test that omits
+  // them would be testing a payload nothing sends.
+  const payload = JSON.parse(JSON.stringify(t.serialize()));
+  if (extra) Object.assign(payload.links[0], extra);
+  PFCanvas.render(payload);
 
   const lines = [], hits = [];
   walk(roots.world, function (n) {
@@ -132,6 +136,31 @@ console.log('\nA cable that is down says so in the drawing');
   ok(line.attrs['data-link-state'] === 'down', 'and its state is readable from the DOM');
   // The family class must survive, or the plant stops being readable from the drawing.
   ok(/\blink-copper\b/.test(String(line.attrs.class || '')), 'without losing its medium class');
+}
+
+console.log('\nA cable with a disabled port at one end is not drawn as a working one either');
+{
+  // The cable itself is up - nobody pulled it - and the drawing used to be identical to a working
+  // one, which is how a board showed a shut port carrying traffic.
+  const d = draw('up', { carries: false, stateReason: 'SW1/Fa0/1 is administratively down' });
+  const line = d.lines[0];
+  ok(/\blink-down\b/.test(String(line.attrs.class || '')), 'the cable is marked as not carrying');
+  ok(line.attrs['data-link-state'] === 'up', 'while the cable itself still reads up');
+  ok(line.attrs['data-carries'] === 'no', 'and the DOM says plainly that it carries nothing');
+  ok(String(line.attrs['data-state-reason']).indexOf('administratively down') !== -1,
+    'with the reason attached, so a test or a tooltip can say which end');
+  ok(/\blink-copper\b/.test(String(line.attrs.class || '')), 'without losing its medium class');
+
+  const good = draw('up', { carries: true });
+  ok(!/\blink-down\b/.test(String(good.lines[0].attrs.class || '')), 'a carrying cable is not marked');
+  ok(good.lines[0].attrs['data-carries'] === 'yes', 'and says so');
+
+  // The conservative case: a payload from before the field existed. Nothing crosses is not the same
+  // claim as nothing is known, and dashing on a guess would put a fault on the board that nobody
+  // reported.
+  const old = draw('up');
+  ok(!/\blink-down\b/.test(String(old.lines[0].attrs.class || '')), 'an unlabelled payload draws as before');
+  ok(old.lines[0].attrs['data-carries'] === 'unknown', 'and admits the state is unknown');
 }
 
 console.log('\nThe class is not decorative: the stylesheet makes it visible');
