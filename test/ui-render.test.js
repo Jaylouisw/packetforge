@@ -163,7 +163,11 @@ const link = topo.links.find(function (l) { return l.id === l1.id; });
 ok(/Physical cable/.test(linkHtml), 'the link inspector opens');
 ok(linkHtml.indexOf(link.mediaId) >= 0, 'the negotiated media id is shown (' + link.mediaId + ')');
 ok(linkHtml.indexOf('SW1') >= 0 && linkHtml.indexOf('PC1') >= 0, 'both endpoints are named');
-ok(/Cages mate/.test(linkHtml), 'and it states the physical check that allowed the cable');
+// The panel used to assert, unconditionally, that the cable had passed the physical-layer check. That
+// sentence moved to the engine's verdict (#1303): with no verdict in the payload this fixture carries, the panel
+// must say the cable was not checked and must not print the reassuring sentence.
+ok(/has not been checked/.test(linkHtml), 'and says the cable was not checked when the payload carries no verdict');
+ok(!/Cages mate/.test(linkHtml), 'never asserting a check nobody ran');
 ok((linkHtml.match(/class="endpoint"/g) || []).length === 2, 'two endpoint cards');
 
 console.log('\nA missing link degrades gracefully:');

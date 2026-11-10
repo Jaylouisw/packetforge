@@ -499,6 +499,25 @@ uses it for severity. Three codes above are emitted but **not** in `RULES`:
 `W_` is a warning, everything else an error — but if you add a code, add it to
 `RULES` so the UI can document it and the counts stay honest.
 
+### At runtime: every cable carries a verdict
+
+`validateTopology(topo)` used to be called only by tests. The server now runs it whenever it builds a state
+payload, so `state.verdicts` holds `{ok, errorCount, warningCount, byLink, issues}` — one verdict per cable, filed
+under the cable that caused it — and the cable inspector prints the engine's message for the cable you selected.
+
+That closed a specific lie. The inspector used to print, for every cable, unconditionally:
+
+> Cages mate and the media is supported at both ends — this cable passed the physical-layer check when it was
+> created. An impossible combination is refused at that moment, not silently accepted.
+
+Nothing computed that sentence. And one path produces a cable nobody checked: `POST /topologies/:id/load` swaps a
+whole document in without validation, so a hand-edited or pre-rule file carried an impossible cable through the
+whole UI wearing the same confident sentence as a good one.
+
+Loading still takes the document as written — an imported lab has to be fixable in place — but the response now
+carries the verdict, and the UI says `Imported, but 1 cable cannot be used` instead of `Topology imported`. A
+payload with no verdict at all reads `This cable has not been checked`, never the reassuring sentence.
+
 ### `validateTopology()` takes a topology
 
 ```js

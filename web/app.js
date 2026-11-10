@@ -1476,6 +1476,20 @@
     return verdict;
   }
 
+  // The engine's verdict for one cable, from the state the server sends (`state.verdicts`, built by
+  // `validateTopology()`). `checked: false` means the payload carried no verdict at all - an older server - and
+  // the panel says so rather than falling back to the reassuring sentence it used to print.
+  function linkVerdict(linkId) {
+    const v = topo && topo.verdicts;
+    if (!v || v.checked === false) return { issues: [], checked: false };
+    const issues = ((v.byLink && v.byLink[linkId]) || []).slice();
+    // An issue with no linkId is about the lab, not about a cable; it must not vanish when no cable is selected.
+    for (const issue of (v.issues || [])) {
+      if (!issue.linkId && issues.indexOf(issue) === -1) issues.push(issue);
+    }
+    return { issues: issues, checked: true };
+  }
+
   // The inspector's Routes table, in the console's own terms (#1301).
   //
   // It used to print `code | dest/len | gw` straight out of runtime state, which meant three things the console
@@ -2231,9 +2245,24 @@
     html += endpointHTML(da, link.a.iface, ia);
     html += endpointHTML(db, link.b.iface, ib);
 
-    html += '<div class="verdict">Cages mate and the media is supported at both ends — ' +
-      'this cable passed the physical-layer check when it was created. An impossible ' +
-      'combination is refused at that moment, not silently accepted.</div>';
+    // The verdict for this cable, from the engine (#1303).
+    //
+    // This block used to say, unconditionally, that "cages mate and the media is supported at both ends" and
+    // that the cable "passed the physical-layer check when it was created". Nothing computed that: it was a
+    // sentence in the renderer. A cable that arrived with a loaded document was never checked at all - the load
+    // path swaps the topology in wholesale - and an impossible one read exactly as confident as a good one.
+    const verdict = linkVerdict(link.id);
+    if (verdict.issues.length) {
+      html += '<div class="verdict bad">' + verdict.issues.map(function (i) {
+        return String(i.message || i.code);
+      }).join(' ') + '</div>';
+    } else if (verdict.checked) {
+      html += '<div class="verdict">Cages mate and the media is supported at both ends — ' +
+        'checked by the engine, not assumed by this panel.</div>';
+    } else {
+      html += '<div class="verdict">This cable has not been checked — the state the panel received carries no ' +
+        'physical-layer verdict.</div>';
+    }
 
     // A cable could not be removed from the UI at all before this (issue #86): the engine
     // had disconnect() and the server had DELETE /links/:id, and nothing reached either.
@@ -2602,7 +2631,18 @@
           topo = r.state || topo; selectedId = null;
           PFCanvas.setTopology(topo); PFCanvas.setSelected(null);
           renderDeviceTab(); renderSimulateTab();
-          toast('Topology imported');
+          // Loading is not validation: the document is taken as written, so say what it contains rather than
+          // letting the operator discover it one cable at a time (#1303).
+          const v = (r && r.verdicts) || (r && r.state && r.state.verdicts) || null;
+          const bad = v && v.checked !== false ? (v.errorCount || 0) : 0;
+          const warn = v && v.checked !== false ? (v.warningCount || 0) : 0;
+          if (bad) {
+            toast('Imported, but ' + bad + ' cable' + (bad === 1 ? '' : 's') + ' cannot be used - see each cable');
+          } else if (warn) {
+            toast('Imported, with ' + warn + ' warning' + (warn === 1 ? '' : 's'));
+          } else {
+            toast('Topology imported');
+          }
         } catch (e) { toast('Import failed: ' + e.message); }
       };
       inp.click();
@@ -2870,6 +2910,7 @@
     renderDeviceTab: renderDeviceTab,
     interfacesHeader: interfacesHeader,
     routesRows: routesRows,
+    linkVerdict: linkVerdict,
     renderLinkInspector: renderLinkInspector,
     ifaceRowHTML: ifaceRowHTML,
     poeSummary: poeSummary,
