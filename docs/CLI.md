@@ -1200,6 +1200,57 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A subinterface is a tag on a wire
+
+Probing the object the last pass left standing — the subinterface — found three commands that
+disagreed with what a subinterface is.
+
+**One.** `interface Vlan20.10` was accepted. An SVI is the address its VLAN answers on, so there is no
+wire under it to tag, and creating the child did two things nobody asked for: the parent SVI was
+rewritten as a trunk with an **empty** allowed list — so VLAN 20 disappeared from `show vlan` — and
+the child was listed as a port of **VLAN 1**.
+
+```
+SW1(config)#interface Vlan20.10
+% Vlan20 is a logical interface - there is no wire to tag
+% An SVI is the address its VLAN answers on; tag frames on the physical port
+SW1#show vlan
+20    VLAN0020  active  Vlan20 (SVI)          <- still there, because nothing happened
+```
+
+**Two.** `show vlan` listed a subinterface in a column headed *Ports*, under VLAN 1, whatever its tag.
+A subinterface has no cable and no membership; the VLAN it tags is carried by its parent, which the
+table already lists under its own memberships. Subinterfaces are now out of that column entirely.
+
+**Three — and the one that mattered most.** The console's own notice, telling an operator how to allow
+a tag the port does not carry, named a command that did not exist:
+
+```
+SW1(config-if)#switchport trunk allowed vlan add 30
+% cannot parse VLAN token "add30"
+```
+
+The tokens were joined with no separator, so `add` and `30` became one word, and the refusal was
+written in the *parser's* vocabulary rather than the operator's. `add`/`remove` now exist (and a
+space-separated list still replaces the list), the bad-value sentence is an operator's (`"abc" is not
+a VLAN id, a list (10,20) or a range (10-20)`), and `except` is refused by naming the two forms this
+console does have instead of pretending to parse it.
+
+That left one state with no spelling: a trunk that allows **nothing** tagged. The dump emitted
+`switchport trunk allowed vlan` with nothing after it, which is an incomplete command on the way back
+in, so the state vanished on a paste. `none` is now the spelling, and it round-trips:
+
+```
+SW1#show running-config | include allowed
+  switchport trunk allowed vlan none
+```
+
+Finally the child's line. It followed its parent only when the parent had a *peer*, so a
+subinterface on an uncabled port answered `up up` in `show ip interface brief` while the port below it
+answered `down down`, and an SVI's child answered `up` under a parent reading `down (no port is
+cabled)`. A child now reads its parent's computed line — cable, link, err-disable, shutdown, or a
+live port in the SVI's VLAN — and says who made it down.
+
 ### A logical interface has no wire
 
 The `switchport` family and `port-security` had refused an SVI by name for several passes. The three
@@ -6567,36 +6618,46 @@ misses all of them.
 | `W_DUPLEX_MISMATCH` | `validation.js:122` | one end half duplex, the other full |
 | `W_DISTANCE` | `cli.js:9659` | an administrative distance outside the range the engine expects — a warning, not a refusal, so a lab can hold a route that will never be used |
 
-### The 22 codes no page names
+### The 31 codes no page names
 
-Of the 159 distinct quoted `[EW]_` strings in `engine/`, two are prefix literals (`'E_'`, `'W_'`) and
-the other **157 are real codes**; of those, **22 appear in no document at all**. They are not missing
-mistakes — every one is a parse-level guard whose message reaches you as prose (a malformed line, a
+Of the 159 distinct quoted `[EW]_` strings in `engine/`, **one** is a bare prefix literal (`'W_'`, used to
+test whether a code starts with the prefix — there is no `'E_'` one) and the other **158 are real codes**;
+of those, **31 were named by no page at all** until this list named them. They are not missing mistakes —
+every one is a parse-level guard whose message reaches you as prose (a malformed line, a
 `% [object Object]`, a topology-validation error drawn in the UI) rather than as a code to grep. The
-concentration is worth knowing, because it tells you where the console is least likely to hand you one:
+concentration is worth knowing, because it tells you where the console is least likely to hand you one.
+Expect the count to read **17** on this tree now, and that is the list working: fourteen of the
+thirty-one appear in the table below, so they are documented the moment it exists. Read the number as
+"codes no page but this one names", and watch it fall. The table is the report that matters:
 
 | File | Undocumented | Which |
 |---|---|---|
-| `ipv6.js` | 14 | `E_DOUBLE_COMPRESSION`-class syntax guards: `E_EMPTY_GROUP`, `E_GROUP_COUNT`, `E_IPV4_POSITION`, `E_PREFIX_LEN`, `E_PREFIX_TYPE`, `E_UNSPECIFIED`, `E_PARSE` … |
-| `acl.js` | 3 | `E_ADDRESS`, `E_ENTRY` — the per-entry guards behind the `% [object Object]` in [the appendix above](#refusal-codes-the-ones-you-will-actually-meet) |
-| `dns.js` | 3 | `E_DNS_BAD_PRIORITY`, `E_DNS_BAD_VALUE`, `E_DNS_MISSING_VALUE` |
-| `ra.js` | 3 | `E_ICMP_TYPE`, `E_SHORT`, `E_TYPE` — RA option parsing |
-| `optical.js` | 1 | `E_UNKNOWN_SPLITTER` |
+| `ipv6.js` | 7 | `E_CHARS`, `E_HEX`, `E_MULTICAST`, `E_PREFIX_FORMAT`, `E_TOO_MANY_GROUPS`, `E_TRIPLE_COLON`, `E_WHITESPACE` — address-syntax guards |
+| `acl.js` | 4 | `E_ACL_NUMBER`, `E_KIND`, `E_NO_ENTRIES`, `E_SEQUENCE` — the per-entry guards behind the `% [object Object]` in [the appendix above](#refusal-codes-the-ones-you-will-actually-meet) |
+| `bgp.js` | 4 | `E_KEEPALIVE_REFUSED`, `E_OPEN_REFUSED`, `E_SESSION_REFUSED`, `E_TCP_REFUSED` — session refusals the CLI reports as prose |
+| `dns.js` | 4 | `E_DNS_BAD_TTL`, `E_DNS_BAD_TYPE`, `E_DNS_MISSING_ZONE_NAME`, `E_DNS_MX_NO_PRIORITY` |
+| `optical.js` | 4 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH`, `E_UNKNOWN_PART`, `E_UNKNOWN_PON_CLASS` |
+| `ra.js` | 3 | `E_OPTION_LEN`, `E_OPTION_TRUNCATED`, `E_TRAILING` — RA option parsing |
+| `topology.js` | 3 | `E_NO_DEVICE`, `E_NO_FREE_PORTS`, `E_SAME_DEVICE` |
+| `vlan.js` | 3 | `E_VOICE_NOT_ALLOWED`, `E_VOICE_VLAN_ACCESS`, `E_VOICE_VLAN_NATIVE` |
+| `media.js` | 2 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH` — the same two as `optical.js`: one code, raised in two modules, so the rows above sum to more than 31 |
 
-The other 135 are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
+The other **127** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
 `PHYSICAL_LAYER.md` carry the optical and validation codes, `ARCHITECTURE.md` the API ones.
 
 Recount both ways; the second number is the one that says whether this table is still true. Note it
 counts **quoted** strings only — matching bare tokens instead finds codes that are assembled rather
-than literal and inflates the answer to 58:
+than literal and inflates the answer to 58. The raw count includes the `'W_'` prefix, which is why it
+reads 32 where the real figure is 31:
 
 ```sh
-grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 159 quoted, 2 of them prefix literals
+grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 159 quoted, 1 of them a prefix literal
 grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
-  | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 22 never named
+  | grep -v '^[EW]_$' \
+  | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 17 today: this table names 14 of the 31
 ```
-`grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 145;
-`grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 69;
+`grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 147;
+`grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 88;
 ``grep -c '^| `E_' docs/CLI.md`` is the 47.
 
 | Surface | How the refusal reads |
