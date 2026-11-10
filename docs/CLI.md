@@ -1666,6 +1666,52 @@ did not move would suggest the frames never arrived, which is a different fault.
 `show lldp interface detail` is answered by name rather than read as a port: the word belongs to the
 neighbour table, and the refusal says so.
 
+### A neighbour table is a record, so it says when the record is history
+
+The table is filled by frames that crossed the link, which is the reason to model LLDP at all rather
+than read the cable out of the device spec. The other half of that sentence was missing: nothing ever
+took an entry away again. Pulling the cable out of the topology did — `topology.disconnect()` drops
+it — but shutting the port did not, and `show lldp neighbors detail` went further and said our port
+was *passing frames*:
+
+```
+PC1#configure terminal
+PC1(config)#interface eth0
+PC1(config-if)#shutdown
+eth0 administratively down
+
+PC1#show lldp neighbors
+LLDP neighbours on PC1:
+  Neighbour  Local port  Port ID  Mgmt address
+  SW1        eth0        Fa0/1    -
+  eth0: SW1 was heard here, but this port is administratively down
+  Those rows are what crossed the link, not what is there now: no timer expires
+  them, so an entry stays until the port passes frames again or is told to stop.
+```
+
+The line the detail block used to print was `Local port state: up (the announcement is what proves
+the link is passing frames)`, taken from `lineUp` alone — and `lineUp` is about the cable, not the
+administrator, so a port that had been shut read **up**. Both views now take the state from
+`_ifaceState`, the single answer every other table already uses, and the sentence about frames is
+printed only when it is true:
+
+```
+PC1#show lldp neighbors detail
+Local port state: administratively down/down - this port is administratively down, so this block is what was learned, not what is there now
+```
+
+A shut port at the far end is named the same way, because our own port is genuinely up — the reason
+comes from the other end of the cable:
+
+```
+  eth0: SW1 was heard here, but the far port Fa0/1 on SW1 is administratively down
+```
+
+No timer expires these rows, because this model keeps none: a fabricated hold-time would be a number
+rather than a fact, and the advertised TTL is what the DU claimed, not a countdown. The entry stays
+until the port carries frames again — undo the shutdown and the note clears — or the port is told to
+stop listening, which drops what it heard.
+
 The same sweep turned up one more word read as a value: `show vlan name users` answered
 `% Invalid VLAN id "name"`. VLANs have names here, so `show vlan name <name>` now resolves one
 (case-insensitively), narrows the table, and on a miss lists the names that do exist. Two bugs in that

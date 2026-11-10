@@ -3430,8 +3430,15 @@ class CliSession {
       out.push('Time To Live: ' + nb.ttl + ' seconds');
       const p = dev.interfaces.get(port);
       out.push('Cage/medium: ' + (nb.cage ? nb.cage + (nb.speedMbps ? ' (' + nb.speedMbps + ' Mbps)' : '') : '-'));
-      out.push('Local port state: ' + (p && p.lineUp === false ? 'down' : 'up') +
-        ' (the announcement is what proves the link is passing frames)');
+      // The state line answered from `lineUp` alone, so a port the administrator had shut still read
+      // "up - the announcement is what proves the link is passing frames": a shut port passing
+      // frames is the one thing it certainly is not. `_ifaceState` is the single answer to "is this
+      // interface up", and the claim about frames is only made when it is true.
+      const st = p ? this._ifaceState(p) : null;
+      const stale = p ? this._lldpStaleReason(port) : null;
+      out.push('Local port state: ' + (st ? st.status + '/' + st.protocol : 'gone') +
+        (stale ? ' - ' + stale + ', so this block is what was learned, not what is there now'
+          : ' - the announcement is what proves the link is passing frames'));
     }
     out.push('--------------------------------------------------');
     out.push('  ' + entries.length + ' neighbour' + (entries.length === 1 ? '' : 's') + ' learned by LLDPDUs that crossed the link');
@@ -6758,8 +6765,9 @@ class CliSession {
   // has no cable of its own, so its line is borrowed: an SVI is up by VLAN membership, a subinterface
   // by its parent. `show ip interface brief` used to answer from `i.enabled` alone, so a subinterface
   // whose parent was shut reported `up/up` while a ping to its own address answered 0 percent.
-  _ifaceState(i) {
-    const parent = i.parent ? this.device.interfaces.get(i.parent) : null;
+  _ifaceState(i, dev) {
+    const owner = dev || this.device;
+    const parent = i.parent ? owner.interfaces.get(i.parent) : null;
     if (!i.enabled) {
       return { status: 'administratively down', protocol: 'down', reason: 'administratively down' };
     }
@@ -6781,6 +6789,33 @@ class CliSession {
       };
     }
     return { status: 'up', protocol: 'up', reason: null };
+  }
+
+  // Why an LLDP neighbour is no longer a fact about right now, or null when it still is.
+  //
+  // The neighbour table is built from frames that crossed the link, which is the whole point of
+  // modelling LLDP instead of reading the cable out of the spec. The gap was on the other side of
+  // that sentence: nothing ever took an entry away again, so a port that had been shut went on
+  // listing the neighbour it heard an hour ago - and `show lldp neighbors detail` went further and
+  // said our port was *passing frames*, which was false. A cable pulled out of the topology is
+  // dropped outright by `topology.disconnect()`; every other way a frame stops crossing - this port
+  // shut, the far port shut - is reported here in words, because this model keeps no timers and a
+  // fabricated hold-time would be a number rather than a fact.
+  _lldpStaleReason(port) {
+    const own = this.device.interfaces.get(port);
+    if (!own) return 'that port is gone from ' + (this.device.name || this.device.id);
+    const here = this._ifaceState(own);
+    if (here.reason) return 'this port is ' + here.reason;
+    if (!own.peer) return 'there is no cable on this port';
+    const topo = this.sim && this.sim.topo;
+    const far = topo && topo.devices ? topo.devices.get(own.peer.deviceId) : null;
+    const farPort = far ? far.interfaces.get(own.peer.iface) : null;
+    if (!far || !farPort) return 'the device at the other end is gone';
+    const there = this._ifaceState(farPort, far);
+    if (there.reason) {
+      return 'the far port ' + farPort.name + ' on ' + (far.name || far.id) + ' is ' + there.reason;
+    }
+    return null;
   }
 
   _show(tokens) {
@@ -7055,12 +7090,29 @@ class CliSession {
       if (!rows.length) {
         out.push('  (none - no LLDP has been heard on any port)');
       } else {
+        const self = this;
         out.push.apply(out, renderTable(['Neighbour', 'Local port', 'Port ID', 'Mgmt address'],
           rows.map(function (r) {
             const port = r[0];
             const nb = r[1];
             return [nb.systemName || '?', port, nb.portId || '?', nb.mgmtIp || '-'];
           }), 2));
+        // A row here is a frame that crossed the link once. When the link can no longer carry one,
+        // the row is history - and a table printed without that sentence reads as "this is what is
+        // there now", which is the same mistake the access-list filter made from the other side.
+        const staleRows = [];
+        for (const r of rows) {
+          const why = self._lldpStaleReason(r[0]);
+          if (why) {
+            staleRows.push('  ' + r[0] + ': ' + (r[1].systemName || 'the neighbour') +
+              ' was heard here, but ' + why);
+          }
+        }
+        if (staleRows.length) {
+          out.push.apply(out, staleRows);
+          out.push('  Those rows are what crossed the link, not what is there now: no timer expires');
+          out.push('  them, so an entry stays until the port passes frames again or is told to stop.');
+        }
       }
     } else if (what === 'port-security') {
       out.push.apply(out, this._showPortSecurity(tokens.slice(1)));
