@@ -73,6 +73,32 @@ A capability that is not in that list but is within edit distance 2 of one is re
 `capability "x" looks like a typo of "y"` rather than silently dropped, because a misspelt
 capability would otherwise make a device quietly less capable than its datasheet.
 
+### What a capability stops you doing
+
+A capability is not a label: the data plane honours it, and the console refuses configuration the box could not
+carry out. A device that cannot forward is not given a route, one without `nat` cannot hold a NAT table, one
+without `dhcp-server` cannot create a pool, and one that is not a router cannot join a VRRP group:
+
+```
+Router> enable
+Router# configure terminal
+Router(config)# ip dhcp pool p1              ! on a Raspberry Pi
+% Raspberry Pi 5 SBC-d1 cannot serve DHCP: it has no dhcp-server capability
+```
+
+The gate is on the *command*, not the file: a hand-edited topology that gives a media converter a static route still
+loads, and `show running-config` still prints it — the printer never drops a configured value. What changes is that
+the console will not *create* one, so the "created / added / enabled" sentence and the hardware agree.
+
+| command | capability | refused when absent |
+|---|---|---|
+| `ip route <dest> <mask> <gw>` | `l3-forward` | cannot install a route |
+| `ospf router-id` / `ospf area` | `l3-forward` | cannot run OSPF |
+| `ip nat pool` / `ip nat inside source …` | `nat` | cannot translate addresses |
+| `ip dhcp pool <name>` | `dhcp-server` | cannot serve DHCP |
+| `vrrp <group> ip <address>` | `l3-forward` | cannot run a VRRP group |
+| `ipv6 nd ra …` | `l3-forward` | cannot advertise |
+
 ## Interfaces
 
 Two ways to write them. Both end up as the same list.

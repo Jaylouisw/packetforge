@@ -1095,6 +1095,20 @@ never as packet loss. The line is printed once per ping, and the `t=` is the ins
 with no `at` is asked at `Infinity` and cannot be converging. `at <ms>` applies to that command only; the console
 does not leave the session at the instant you last asked about.
 
+### Configuration a box cannot carry out is refused
+
+Each command that makes a promise about packet handling is checked against the device's declared capabilities, and
+refused in one sentence naming the device, the capability and the consequence:
+
+```
+Router(config)# ip route 0.0.0.0 0.0.0.0 10.9.8.1     ! on an L2-only switch
+% Aruba CX 6000 24G Class4 PoE 4SFP 370W (R8N87A)-d1 cannot install a route: it has no l3-forward capability
+```
+
+`ip route`, `ospf`, `ip nat`, `ip dhcp pool` and `vrrp` are gated on `l3-forward`, `nat` and `dhcp-server`
+respectively; see [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#what-a-capability-stops-you-doing) for the table. A refused
+command changes nothing — no half-made pool, no route that nothing forwards.
+
 ### converge — when is it up?
 
 ```
