@@ -358,5 +358,44 @@ console.log('\nThe one plug-in-the-wall device and the one that is powered over 
     'airCube: only LAN port 1 accepts power; the other three declare poeIn 0 rather than being inferred');
 }
 
+console.log('\nA cellular WAN is not a cable and an IPMI port is not a LAN port (#12, #22):');
+{
+  const ubr = find('UBR-LTE');
+  const ubrPorts = effectiveInterfaces(ubr);
+  eq(ubrPorts.filter(function (p) { return p.type === 'ethernet'; }).length, 5,
+    'UBR-LTE: one Gigabit WAN and four Gigabit LAN - five copper sockets');
+  eq(ubrPorts.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 2,
+    'UBR-LTE: two embedded LTE modems, kept as wwan ports rather than dropped');
+  eq(effectiveInterfaces(ubr).filter(function (p) { return p.role === 'wan'; }).length, 3,
+    'UBR-LTE: three WAN paths - one copper and two cellular, which is the whole point of the box');
+  ok(!(ubr.capabilities || []).includes('wireless'),
+    'UBR-LTE: no Wi-Fi, so no wireless capability despite two radio-bearer interfaces');
+
+  // A cellular bearer has no connector: a lab must not be able to patch a PC into it.
+  const t9 = new Topology();
+  const ubrDev = t9.addDevice(ubr);
+  const pc3 = t9.addDevice(find('generic-pc'));
+  const cell = t9.validateLink(ubrDev.id, 'wwan0', pc3.id, 'eth0', {});
+  ok(!cell.ok, 'UBR-LTE: an LTE modem cannot be patched to a copper port (' +
+    ((cell.errors[0] || {}).code || 'no code') + ')');
+
+  const uas = find('UAS-XG');
+  const uasPorts = effectiveInterfaces(uas);
+  eq(uasPorts.length, 3, 'UAS-XG: two data ports and one out-of-band management port');
+  eq(uasPorts[0].speedCaps.indexOf(1000) !== -1, true,
+    'UAS-XG: 10GBase-T falls back to 1G - the ladder is stated, not assumed');
+  const ipmi = uasPorts.filter(function (p) { return p.name === 'ipmi'; })[0];
+  ok(!!ipmi && ipmi.bridgeGroup === undefined,
+    'UAS-XG: IPMI is out-of-band and not in the LAN bridge group');
+  ok(uasPorts.every(function (p) { return !p.poeIn; }),
+    'UAS-XG: mains-powered, no PoE in on any port');
+
+  const t10 = new Topology();
+  const srv = t10.addDevice(uas);
+  const sw = t10.addDevice(find('PLS-24-H2G-410W'));
+  const v3 = t10.validateLink(srv.id, 'eth0', sw.id, 'port1', {});
+  ok(v3.ok && v3.speedMbps === 1000, 'UAS-XG: a 10GBase-T port links to a 1G switch port at 1G');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

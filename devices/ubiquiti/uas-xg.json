@@ -1,0 +1,56 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UAS-XG",
+  "label": "UniFi XG Application Server (UAS-XG)",
+  "category": "server",
+  "description": "Ubiquiti UniFi XG Application Server - 1U rackmount Ubuntu host running the UniFi Network and UniFi Video controllers: two 10GBase-T RJ45 LAN ports (1G/10G), a dedicated 1GBase-T IPMI management port, Intel Xeon D-1521 with 32 GB DDR4, two 3.5-inch HDD bays, 150 W maximum (60 W typical) from a universal 100-240 VAC input. Discontinued.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        10000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "ipmi",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-unifi-xg-application-server-p-7097.html",
+  "notes": "The page spells out the three sockets as '(2) 10GBase-T 1G/10G RJ45 LAN ports - 1GBase-T Dedicated IPMI Management Port', which is why the 10G ports carry a 100M/1G/10G ladder rather than a bare 10G: they are 10GBase-T and fall back, unlike the SFP+ cages elsewhere in this catalogue. The IPMI port is deliberately separate and unbridged - it is out-of-band management, so a lab that bridges it into the LAN is modelling a different box. The 150 W is a maximum with 60 W typical from a universal AC input: no PoE in or out on any port. The product is discontinued, which does not change its wiring but does mean the successor in a new design is the UDM."
+}

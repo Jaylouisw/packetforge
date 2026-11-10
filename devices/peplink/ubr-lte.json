@@ -1,0 +1,99 @@
+{
+  "vendor": "peplink",
+  "model": "UBR-LTE",
+  "label": "Peplink UBR LTE industrial SD-WAN router",
+  "category": "router",
+  "description": "Peplink UBR LTE - fanless, DIN-mount industrial SD-WAN router with 1x Gigabit WAN, 4x Gigabit LAN, and two embedded LTE modems with two SIM slots for SpeedFusion bonding. Terminal-block power, -40 to 65 C operating range, InControl management; PrimeCare bundles the SpeedFusion licences.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "100M",
+      "role": "wan"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "100M",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/ubrlteetprm-p-9732.html",
+  "notes": "The page gives the copper as text - '1x Gigabit WAN port, 4X Gigabit LAN port' - so the split is quoted. The two embedded LTE modems with two SIM slots are the reason this box exists, and they are modelled as `wwan0`/`wwan1`, which is this catalogue's name for a cellular WAN (compare Balance 20X): they are WAN bearers with no connector, so they cannot be cabled in a lab, but hiding them entirely would make a triple-WAN SpeedFusion topology look like a single-WAN router. The page does not publish an LTE category, so the 100M on those two ports is the catalogue's neutral default for an unquoted cellular bearer, not a quoted rate. Power is a terminal block with Molex connectors - no PSU in the box and no PoE anywhere, which is why no `poeIn` appears on any port. There is no Wi-Fi on this model, so no `wireless` capability is declared despite the two wwan interfaces."
+}
