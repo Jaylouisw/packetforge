@@ -140,5 +140,39 @@ console.log('\nThe 100G/40G/25G StarryLink parts, tab by tab (#747, #748, #750):
     'and the BER-dependent reach (1e-12 vs 5e-5) is recorded, because the four numbers are not interchangeable');
 }
 
+console.log('\nThe long-reach 100G tab and the 10G tab, which only render on .html (#746, #749):');
+{
+  const byName = {};
+  require('../catalogue/optics/transceivers.json').forEach(function (t) { byName[t.partNumber] = t; });
+
+  // -- 100GE at 2 km and beyond ----------------------------------------------
+  const long = ['QSFP28-100G-CWDM4', 'QSFP28-100G-FR1', 'QSFP28-100G-LR4',
+                'QSFP28-100G-ER4', 'QSFP28-100G-ZR4'];
+  ok(long.every(function (n) { return byName[n]; }), 'all five >=2 km 100GE parts are in the catalogue');
+  eq(byName['QSFP28-100G-CWDM4'].reachM, 2000, 'CWDM4 is 2 km, against the Lite part\'s 500 m');
+  eq(byName['QSFP28-100G-FR1'].wavelengthNm, 1311, 'FR1 is a single 1311 nm lambda, like DR');
+  // LAN-WDM is NOT CWDM: the grid must not be smuggled into cwdmChannel.
+  eq(byName['QSFP28-100G-LR4'].cwdmChannel, null,
+    'LR4 is LAN-WDM (1295/1300/1304/1309 nm), so cwdmChannel is null rather than a 20 nm-grid lie');
+  eq(byName['QSFP28-100G-CWDM4'].cwdmChannel.length, 4, 'while CWDM4 does carry its four-wavelength grid');
+  const ladder = ['QSFP28-100G-CWDM4', 'QSFP28-100G-LR4', 'QSFP28-100G-ER4', 'QSFP28-100G-ZR4']
+    .map(function (n) { return byName[n].reachM; });
+  ok(ladder[0] < ladder[1] && ladder[1] < ladder[2] && ladder[2] < ladder[3],
+    'the reach ladder is ordered: ' + ladder.join(' < ') + ' m');
+
+  // -- 10GE ------------------------------------------------------------------
+  const sr1 = byName['SFP-10G-SR1'];
+  eq(sr1.reachM, 400, 'SFP-10G-SR1 reaches 400 m at its best (OM4)');
+  ok(/OM2/.test(sr1.note) && /OM4/.test(sr1.note),
+    'and the six-step multimode ladder is recorded, because a lab on OM2 gets 82 m and not 400');
+  eq(byName['SFP-10G-SR-E'].reachM, sr1.reachM,
+    'the -E variant publishes the same ladder as SR1: two codes, one optical spec');
+  eq(byName['SFP-10G-iLR'].reachM, 1400, 'iLR is the odd one: 1.4 km on single-mode');
+  ok(/-40/.test(byName['SFP-10G-iLR'].note) && /85/.test(byName['SFP-10G-iLR'].note),
+    '...and its industrial -40 to +85 C range is why it exists, so it is in the note');
+  ok(byName['SFP-10G-LR'] && byName['SFP-10G-ER'] && byName['SFP-10G-ZR'],
+    'LR/ER/ZR were already in the catalogue and are not duplicated by this batch');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
