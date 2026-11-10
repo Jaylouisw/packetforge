@@ -237,11 +237,12 @@ nothing crosses is a claim, and nothing is known is not one.
 
 ## Tests
 
-- `test/link-state.test.js` — 76 assertions: a down link carries nothing and says where the frame
+- `test/link-state.test.js` — 84 assertions: a down link carries nothing and says where the frame
   died, `setLinkState` refusals, the tree healing around a failure, a network with no second path
   staying broken, the re-based schedule (nothing works at 11 s, works at 41 s), MAC table flush, the
-  DHCP segment walk refusing to cross a cut cable, save/load, the CLI surface, and `links` /
-  `link state` reporting that a planted cable with a shut port carries nothing.
+  DHCP segment walk refusing to cross a cut cable, save/load, the CLI surface, `links` / `link state`
+  reporting that a planted cable with a shut port carries nothing, and this page's own transcript
+  checked line for line against a fresh run.
 - `test/link-state-drawing.test.js` — 22 assertions: the renderer marks a down cable, marks a cable
   whose port is disabled without claiming the cable is down, keeps its medium class in both cases,
   labels a payload that predates the field `unknown` rather than guessing, and the stylesheet really

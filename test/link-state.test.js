@@ -13,6 +13,7 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const { Topology, Simulator, runCommands, convergence } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
 
@@ -385,6 +386,41 @@ t('A cable is a record; whether it carries is a second fact');
     'link state gives the same answer for that one cable');
   ok(detail.some(function (l) { return /state: up/.test(l); }),
     'while still reporting the cable itself as up');
+}
+
+// ---------------------------------------------------------------------------
+t('The transcript LINK-STATE.md quotes is this code\'s, line for line');
+
+{
+  // Same discipline as the transceiver transcript: a fenced block in the docs is a copy, and a copy
+  // drifts. This lab is four boxes and two cables, which is what puts the link ids at l5 and l6 - the
+  // ids in the page - so if the ids or the sentences move, the page says so rather than ageing quietly.
+  const topo = new Topology();
+  const sw1 = topo.addDevice(spec('generic-switch')); sw1.name = 'SW1';
+  const sw2 = topo.addDevice(spec('generic-switch')); sw2.name = 'SW2';
+  const pc1 = topo.addDevice(spec('generic-pc')); pc1.name = 'PC1';
+  const pc2 = topo.addDevice(spec('generic-pc')); pc2.name = 'PC2';
+  const l5 = topo.connect(sw1.id, 'Fa0/1', sw2.id, 'Fa0/1');
+  const l6 = topo.connect(sw1.id, 'Fa0/2', pc1.id, 'eth0');
+  const sim = new Simulator(topo);
+  eq(l5.id, 'l5', 'the trunk is l5, as the page says');
+  eq(l6.id, 'l6', 'and the host drop is l6');
+
+  runCommands(sw2, topo, sim, ['enable', 'configure terminal', 'interface Fa0/1', 'shutdown', 'end']);
+  const listed = runCommands(sw1, topo, sim, ['enable', 'links']).lines;
+  const detail = runCommands(sw1, topo, sim, ['enable', 'link state ' + l5.id]).lines;
+  const docs = fs.readFileSync(path.join(__dirname, '..', 'docs', 'LINK-STATE.md'), 'utf8');
+
+  const quoted = [
+    '  ' + l5.id + ': carries nothing - SW2/Fa0/1 is administratively down',
+    '  State is what was done to the cable; the lines above it are where no frame crosses.',
+    '  carries: nothing - SW2/Fa0/1 is administratively down'
+  ];
+  for (const line of quoted) {
+    ok(listed.indexOf(line) !== -1 || detail.indexOf(line) !== -1,
+      'the console still prints: ' + line.trim());
+    ok(docs.indexOf(line) !== -1, 'and docs/LINK-STATE.md still quotes it verbatim');
+  }
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
