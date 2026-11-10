@@ -860,5 +860,24 @@ console.log('\nFour FS controllers from one comparison table (#766-#769):');
     'AC-224AP: the RJ45 half of a combo is refused while its SFP half is cabled');
 }
 
+console.log('\nA packet broker is not a passive tap, and its cages carry ladders (#754):');
+{
+  const npb = find('T5850-48S8C');
+  const ports = effectiveInterfaces(npb);
+  eq(ports.filter(function (p) { return p.connector === 'sfp+'; }).length, 48,
+    'T5850-48S8C: 48 SFP+ cages');
+  eq(ports.filter(function (p) { return p.connector === 'qsfp28'; }).length, 8,
+    'T5850-48S8C: 8 QSFP28 cages');
+  eq(ports.length, 56, 'T5850-48S8C: 56 ports in total, which is the product name');
+  ok(ports.filter(function (p) { return p.connector === 'sfp+'; })
+    .every(function (p) { return p.speedCaps.indexOf(1000) !== -1 && p.speedCaps.indexOf(10000) !== -1; }),
+    'T5850-48S8C: each SFP+ cage takes 1G or 10G');
+  ok(ports.filter(function (p) { return p.connector === 'qsfp28'; })
+    .every(function (p) { return p.speedCaps.indexOf(40000) !== -1 && p.speedCaps.indexOf(100000) !== -1; }),
+    'T5850-48S8C: each QSFP28 cage takes 40G or 100G');
+  ok(npb.passive !== true && (npb.capabilities || []).includes('l2-forward'),
+    'T5850-48S8C: an ACTIVE broker - it filters and aggregates, so it is not marked passive');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
