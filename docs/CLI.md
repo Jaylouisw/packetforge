@@ -7659,6 +7659,35 @@ thirty-one appear in the table below, so they are documented the moment it exist
 | `vlan.js` | 3 | `E_VOICE_NOT_ALLOWED`, `E_VOICE_VLAN_ACCESS`, `E_VOICE_VLAN_NATIVE` |
 | `media.js` | 2 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH` — the same two as `optical.js`: one code, raised in two modules, so the rows above sum to more than 31 |
 
+**The seventeen that are still unnamed**, measured on the current tree, by the file that raises them —
+these are *not* the thirty-one above, which this table named and so removed from the count:
+
+| File | Still unnamed |
+|---|---|
+| `ipv6.js` | 10 — `E_DOUBLE_COMPRESSION`, `E_EMPTY`, `E_EMPTY_GROUP`, `E_GROUP_COUNT`, `E_IPV4`, `E_IPV4_POSITION`, `E_PARSE`, `E_PREFIX_LEN`, `E_PREFIX_TYPE`, `E_UNSPECIFIED` |
+| `dns.js` | 3 — `E_DNS_BAD_PRIORITY`, `E_DNS_BAD_VALUE`, `E_DNS_MISSING_VALUE` |
+| `ra.js` | 2 — `E_ICMP_TYPE`, `E_SHORT` |
+| `acl.js` | 1 — `E_ENTRY` |
+| `optical.js` | 1 — `E_UNKNOWN_SPLITTER` |
+
+Every one of them is a parse guard, and `ipv6.js` holding ten of seventeen is the whole story of that
+file: an IPv6 address is parsed by a dozen small refusals that never reach the console as codes. Recount
+with two lines rather than trusting this table —
+
+```bash
+grep -ohE "'[EW]_[A-Z0-9_]+'" engine/*.js | tr -d "'" | sort -u > /tmp/codes.txt
+while read -r c; do grep -rq "$c" docs/ README.md || echo "$c"; done < /tmp/codes.txt | tee /tmp/un.txt | wc -l
+# 17 before the table above existed; 0 now - see below
+```
+
+The second line asks whether **any** page mentions the string, and "any page" includes this one. So a code
+drops out of the count the moment a table lists it: the seventeen above were unnamed when that line printed
+17, and the same command now prints **0**, because writing them down named them. That is not the measurement
+going wrong — it is the measurement working, and it is why the number in this section has fallen from 31 to
+17 to 0 while nothing about the parser changed. What is worth keeping is the per-file breakdown: an
+`ipv6.js` that raises ten of them is still a file whose refusals arrive as prose, and the fact that a page
+now quotes the strings does not put them in front of an operator.
+
 The other **127** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
 `PHYSICAL_LAYER.md` carry the optical and validation codes, `ARCHITECTURE.md` the API ones.
 
