@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`ip nat inside source static …` and `… list <acl> interface <if> overload` are commands now.**
+  The rules had a data path — `engine/nat.js` translates static, dynamic and PAT, and the translations
+  show up in `show ip nat translations` — but the only way to write one was the topology JSON. Static
+  and PAT are configurable from the console: `ip nat inside source static 10.0.0.5 203.0.113.5` answers
+  `NAT rule added on R1: static 10.0.0.5 -> 203.0.113.5` and lands in `show running-config`, and the
+  PAT form refuses an addressless interface (`% eth0 has no address - "overload" translates onto that
+  address`) or a missing ACL rather than writing a rule that can never match. A **pool** rule is still
+  JSON-only: `ip nat pool …` is refused with `% This model translates inside source addresses ("ip nat
+  inside source …"), not "pool"`. See [docs/CLI.md](docs/CLI.md).
+
 - **`switchport voice vlan <id>`, and a voice VLAN that is finally read.** `voiceVlan` had been in the
   port's VLAN shape since VLANs were modelled — kept by `normalizePortConfig()`, insisted-on by
   `validatePortConfig()`, listed by the switchport reset — and **nothing wrote it and nothing read
@@ -21,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (always tagged on egress, including on an access port, where it is the one tag an access port
   understands); the L2 view and the inspector both name it; `show running-config` prints the line and
   a save restores it. See [docs/CLI.md](docs/CLI.md).
+
 - **The console over HTTP is the console.** Three defects, all measured against
   `POST /api/topologies/:id/config/:devId` (#1335): the session was built on its own `Simulator`, so
   `/flows` counted traffic that `show interfaces` could not see and a `ping` counted nothing the
@@ -32,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `runAtMs`, `null` = settled, plus the `convergence` schedule), and the derived planes are keyed on
   the topology's revision so a cable removed through REST is in the next answer. See
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 - **A number that names something is not a time.** `show vrrp <group>` and `show ip ospf <process-id>`
   took their number as a convenience *instant*, so `show vrrp 1` on the group-1 master answered "VRRP
   at t=1 ms" from before the election, and `show ip ospf 99` answered about process 1 at t=99 ms —
@@ -40,41 +52,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   filter to what they name (`% No VRRP group 9 on R1` / `% No OSPF process 1 on R1` list the ones that
   do exist), `at <ms>` and `converged` stay instants everywhere, and the help page says
   `show vrrp [<group>]` / `show ip ospf [<process-id>]`. See [docs/CLI.md](docs/CLI.md).
+
 - **`show tech-support` answers with the views that exist instead of "invalid command".** A model
   with no memory image, no register state and no log file cannot produce a support bundle, so the
   command says so and then names what does answer the same questions — `show version`,
   `show running-config`, `show interfaces`, `show ip route`/`show ip ospf`/`show ip bgp summary`,
   `show logging`, `show history`.
+
 - **`show spanning-tree vlan <id>` asks about one VLAN, and refuses an absent one honestly** —
   `% No VLAN 20 on SW1 - nothing is configured for it and no port carries it`, followed by the VLANs
   that do exist. It no longer reports VLAN 1's tree for a VLAN nobody configured.
+
 - **The `clear` family takes its keywords, and a bare word is read as an address, not a guess.**
   `clear counters bogus` answers `% No interface named bogus on SW1` with a hint at
   `show ip interface brief`, and `clear port-security …` refuses on privilege
   (`needs enable mode - type "enable" first`) before it argues about the interface.
+
 - **An SVI is an address, not a port.** `no vlan 30` on a VLAN holding the switch's own address now
   answers `% VLAN 30 is this device's own address: Vlan30` and names the remedy
   (`Remove the interface first - "no interface vlan 30" - and the VLAN stays empty`) instead of
   offering `switchport` for something with no cable. `show vlan brief` marks the row `Vlan30 (SVI)`,
   and the two dependencies — the interface and the VLAN — are reported as two separate steps.
+
 - **`traceroute` / `tracert`** — walks the path the routing tables select, hop by hop, with each
   hop's address, device and cumulative one-way delay. It deliberately does **not** send
   TTL-limited probes: ICMP errors are still unmodelled (no destination-unreachable, no
   time-exceeded), so there is nothing for a probe to learn that the table cannot say.
+
 - **`show power inline`** — the PoE decision from both ends: the resolved budget and where it came
   from (`spec` / `research` / `model name` / `unknown`), per-port draw and status (`on` vs
   `denied (budget exhausted)`), and on the powered device what it requests and whether a PSE
   answered. A green port is no longer the only evidence that power was delivered
   (`docs/PHYSICAL_LAYER.md`).
+
 - **`show ip dhcp pool` / `show ip dhcp binding`** — pool summary with addresses actually in use,
   and the lease as seen from the server *and* from the client (`docs/CLI.md`, "DHCP server").
+
 - **`show ip route` names every code it prints.** The legend is built from the table, so `O` (OSPF)
   and `B` (BGP) appear when - and only when - a row uses them, instead of rows the header never
   explained.
+
 - **`nslookup <name> [type]`** — the record type argument (`A`, `AAAA`, `CNAME`, `MX`, `NS`, `PTR`,
   `SOA`, `TXT`, `SRV`). An unknown type is refused with the list rather than silently treated as
   `A`, and a type the name does not carry answers **empty NOERROR**, not NXDOMAIN - the distinction
   a resolver makes and the one worth showing in a lab.
+
 - **`show running-config` round-trips the IPv6 router-advertisement policy** - `ipv6 nd ra
   enable|disable|managed|other-config|lifetime`, `suppress-ra` and advertised prefixes. A dump
   taken from one router and pasted into a fresh one reproduces byte-identically, VRRP `advertise`,
@@ -136,6 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   AN5516-01's HU2A card was missing its second combo position, and the Huawei MA5600T had no uplink
   at all despite naming the H801X2CS in its own description. All three are modelled, cited to their
   datasheets, and the three name-based quarantines in `test/spec-vs-description.test.js` are gone.
+
 - **`xfp` cage.** XFP is 10G in a larger cage than SFP+ and an SFP+ module does not seat in it. The
   FiberHome HU2A's 10GE ports are XFP and the Huawei H801X2CA is its XFP variant of the same 2x10GE
   card as the SFP+ H801X2CS - so the cage is now a hardware fact, and the engine refuses the pair.
@@ -144,8 +167,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file uses an API that arrived after Node 18 (`toSorted`, `Object.groupBy`,
   `Promise.withResolvers`, and the rest), because a green suite on a newer local interpreter says
   nothing about the oldest job in the matrix. This dev machine runs Node 24 while CI tests 18/20/22.
-
-### Added
 
 - **`test/skip-audit.test.js`**: every skip that exempts a class of hardware from a check must name
   an issue, or declare itself ordinary control flow / deliberate with a reason. The three silent
@@ -167,8 +188,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `E_BAUD_MISMATCH` naming both rates instead of "no shared medium", and a console cabled to a data
   port refuses with `E_PROTOCOL_MISMATCH` explaining that a console is out-of-band.
 
-### Added
-
 - **Fibre Channel is a first-class link type** (#980). Four FC cages (`fc-sfp`, `fc-sfp28`,
   `fc-sfpdd`, `fc-qsfp28`), sixteen FC media across 2/4/8/10/16/32/64/128G, and the real rate
   ladder: a 32G port runs at 28.05 Gbit/s and a 64G port at 57.8, because FC frames its payload.
@@ -176,146 +195,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `E_PROTOCOL_MISMATCH` naming both protocols, since the optic seats and the frames never
   cross. Seven SAN switches moved from Ethernet cages to FC ones, including Dell DS-6630B, which
   was hiding 96 × 32G and 8 × 128GFC behind an SFP28 model. See [docs/FIBRE-CHANNEL.md](docs/FIBRE-CHANNEL.md).
+
 - **SFP56 cage and 50GBASE-SR/LR**, so a 50G SFP-form port is neither understated as 25G nor given
   a QSFP connector.
-
-### Fixed
-
-- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
-  only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
-  omitted them and no check noticed.
-- **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
-  ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
-  115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer
-  widens a 9600-baud port to the whole five-rate ladder.
-- **Console ports were exempt from the cage-rate invariant**, which is how those 163 ports stayed
-  green. The exemption is gone; "slow is correct" (DSL, PON, console) still excuses a low rate, and
-  the overreach check now runs on console ports like any other.
-- `derivePortHardware` took a port's line rate from its `speed` label instead of its `speedCaps`.
-  Where the two disagree the caps are the truth, and on `qlogic/5800V` the disagreement was a real
-  one: 32G of FC claimed as 32000 Mbps on a 28050 Mbps port.
-- The `qlogic/5800V` notes said its ports were "modelled at the nearest step (10G) with the real
-  2/4/8G rates in speedCaps" — true when written, false once FC had cages. Its 4 ISL ports are now
-  10GFC and the note describes what the model actually does.
-- `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
-  check learned that `SFP56` is not `SFP`.
-
-### Fixed
-
-- **OSPF refused to form an adjacency between interfaces addressed in different
-  subnets.** The adjacency was built from the cable alone, so two routers that
-  disagreed about the subnet installed routes via a next hop that was on no
-  connected subnet — traffic that never resolves is traffic that is black-holed.
-  Both ends of a broadcast link must now share the subnet **and** the mask, which
-  is the check that makes a misconfigured router a misconfigured router instead of
-  a silently-working one. `test/protocol-regression.test.js` proves the refusal,
-  and proves a matching subnet still forms the adjacency (#240).
-- **DNS reported three different failures as NXDOMAIN.** A name with no `A` record
-  (NODATA), a name the zone does not hold (NXDOMAIN), and a lab with no DNS server
-  configured at all (SERVFAIL) all came back as "no such domain". They are now
-  distinguished — NODATA is NOERROR with an empty answer — and a failed ping says
-  `dns-nodata`, `dns-nxdomain` or `dns-servfail` instead of always
-  `dns-nxdomain` (#241).
-- **`docs/SIMULATION.md` listed five defects as open that were already fixed**
-  (#41, #42, #43, #44, #54). The section now records what each one used to do and
-  what it does instead, so the page does not cry wolf about its own engine.
-
-### Added
 
 - **The simulator has a notion of time.** Propagation (by medium and length), serialisation
   (by frame size and line rate) and a per-hop store-and-forward term are summed over both
   directions, so a 40 km fibre measures slower than a 1 m patch lead instead of identically.
   An unrecorded length stays unknown rather than inventing a distance.
+
 - **A palette search that finds what exists.** Punctuation is folded on both sides, vendor +
   model match together, a punctuation-only query matches everything, and exact model hits
   rank first. No fuzzy typo tolerance — a confident wrong hit is worse than none.
+
 - **A faceplate that fits its labels**: shrink within a floor, then shorten from the front,
   full name in the tooltip. `Fa0/2` and `Fa0/24` can no longer look identical.
+
 - **TP-Link TL-SG105 and TL-SG105E** 5-port gigabit switches, from the datasheet.
+
 - **A hybrid UPC/APC patch-cord catalogue** plus the rules for when a hybrid lead is correct,
   because a flat ferrule cannot meet an 8° angled one.
+
 - **An upstream/transit design** (`docs/UPSTREAM-DESIGN.md`) replacing "the internet is one
   RJ45" with real link types and multihoming.
+
 - **235 assertions over the control plane** (BGP, OSPF, VRRP, DHCP, NAT, DNS), five of which
   document defects as `DOCUMENTS BUG` and reference the issues that will flip them.
-
-### Fixed
-
-- An 8-wide faceplate group no longer clips port names mid-glyph.
-- Palette search finds `MC220L` by `mc-220l`, `mc 220l` or `TL-MC220L`.
-
-### Known defects (filed, not fixed)
-
-Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
-longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
-
-- #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
-  **Still real.** Three routers in AS 65001, full mesh absent by construction: `R3` ends up with
-  `B 10.1.0.0/30  200  10.2.0.1  eth1` — the route `R2` learned over iBGP, re-advertised to a third
-  iBGP peer, with the next hop rewritten to the relayer.
-- #42 OSPF installs a route for its own connected network, at transit cost. **No longer reproduces** —
-  `show ip route` on an OSPF speaker shows `C` and only `C` for its own two subnets, no `O` row for
-  either, and the neighbour learns them instead.
-- #43 OSPF does not advertise a passive interface's network at all. **No longer reproduces** — with
-  `ip ospf passive` on the LAN port (`show ip ospf` reports its state as `passive`), the neighbour still
-  installs `O 172.16.1.0/24`, which is what a passive interface is supposed to do: no adjacency, stub
-  network still advertised.
-- #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
-  **Not exercised** — the tie needs two routers advertising the same shared network at different costs,
-  which no lab here builds; do not take this line as either confirmation or clearance.
-- #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
-  **No longer reproduces** — `flowKeyOf()` now keys on both `insideLocal` and `insideGlobal`, and two
-  hosts behind one overload pool get separate translations (`203.0.113.2:1024` for `10.0.0.10`,
-  `203.0.113.2:1025` for `10.0.0.11`), both pinging the far side `4/4`.
-
-### Added
 
 - **Cables are drawn as what they are made of.** Every medium was one grey 2 px line and
   wireless-versus-not was the only distinction the canvas had. Colour now carries the family
   (copper, fiber, dac, aoc, pon, coax, dsl, powerline, wireless), width the construction and a
   dash "not a plain cable run", with `data-medium` and `data-media-id` on every line (#34).
+
 - **Cable length is a property of the lead.** The picker offers the lengths people actually buy
   per family, defaults to the short lead, and an existing cable's length can be set from the
   inspector or `PATCH /topologies/<id>/links/<id>` (#31).
+
 - **A 3 m DAC is expressible at last**, because the ceiling ("up to 7 m") is no longer printed
   where the length belongs (#31).
+
 - `docs/CONNECTORS.md` gained the canvas colour key and how to wire up a new medium.
-
-### Fixed
-
-- **SFP28 accepts 1G SFP and 10G SFP+ modules**, with the reaches widened to the whole module
-  class (1000BASE-EX/ZX, 10GBASE-ER). 100M stays out deliberately (#17).
-- **MikroTik ports read eth1 / SFP+1**, not the RouterOS CLI spelling, and the CLI keeps the
-  RouterOS names as aliases so existing commands still resolve (#27).
-- **The inspector no longer draws the cable label and the LLDP neighbour on top of each
-  other** — they have their own row and can wrap (#25).
-- **A cable passing behind a chassis is no longer erased**: devices are drawn first, cables
-  after (#34).
-- **Re-validating an existing cable** is no longer refused as `E_PORT_IN_USE`; the check
-  compares the actual endpoint rather than an interface name that is only unique per device.
-- **A server restart no longer discards the board**, and the browser notices when it is stale:
-  connection badge, backoff retry, and a re-fetch that reports when fewer devices come back
-  than the tab was showing (#24).
-
-### Devices
-
-- Acer Nitro 5 AN515-57 added from hardware request #23.
-
-### Fixed
-
-- **A server restart no longer discards the board.** Topologies are saved to
-  `data/topologies/<id>.json` on every change and loaded at start-up, written
-  synchronously: a 120 ms debounce looked harmless but on Windows a kill calls
-  `TerminateProcess`, so no signal handler runs and the tail of your work vanished.
-  Saves are atomic (write then rename), a board that cannot be parsed is reported
-  and left in place rather than deleted, and device ids survive the round trip (#24).
-- **The browser notices when it is stale.** The socket had no `onclose`, no `onerror`
-  and no retry, so a tab kept drawing a board the server had never heard of. It now
-  shows a connection badge in the status bar, retries with backoff, and re-fetches the
-  server's copy on reconnect - reporting it when fewer devices come back than the tab
-  was showing (#24).
-
-### Added
 
 - **SLAAC via router advertisements.** IPv6 hosts can now get an address off the
   wire instead of having one typed in. `engine/ra.js` builds, encodes and parses
@@ -335,6 +254,7 @@ longer reproduces, the measurement is recorded beside it and the entry is kept f
   <prefix>/<len> [valid <s>] [preferred <s>]`, `ipv6 nd suppress-ra`,
   `ipv6 address autoconfig` and `show ipv6 nd`. Tests:
   `test/ipv6-slaac.test.js`.
+
 - **SCION in the forwarding path.** ASes are declared with `scion <isd>-<as>`
   (`1-ff00:0:0` is core because its AS number ends in `:0`, the SCION
   convention). Beaconing runs over the real peering graph derived from the
@@ -347,24 +267,29 @@ longer reproduces, the measurement is recorded beside it and the entry is kept f
   asserted: not one interface has an IPv4 address and the packet still arrives.
   A non-core AS that no beacon reaches has no up-segment, so it gets no path and
   a stated reason.
+
 - **Hardware-aware inspector.** The Device tab only showed port / IP / mask,
   hiding the entire physical layer it was built on. Each port is now a row with
   cage, negotiated rate, admin state and a cabled marker, expanding to an IP
   editor plus a hardware grid (cage, speed caps, supported media, PoE, VLAN
   mode/access/native/allowed, LAG, sub-interface encap). A port filter handles
   52-port switches, and PoE switches report their real power budget.
+
 - **Link inspection.** Cables were previously unselectable. Clicking one opens
   an inspector with the media id, negotiated rate, duplex, length and both
   endpoints' cage and port state — and states that the cable passed the
   physical-layer check rather than implying it.
+
 - **PoE budget bug.** 27 devices exposed PSE-capable ports but every one had a
   0 W budget, because nothing populated it — including an Aruba whose model name
   says `370W`. The budget is now derived from the model name when the spec does
   not carry one, and the inspector says "budget not modelled" rather than
   displaying a misleading 0 W.
+
 - `test/ui-render.test.js` — loads the real `web/app.js` in a stub DOM and
   asserts on the HTML it produces, so the inspector is tested rather than
   assumed.
+
 - **IPv6 in the forwarding path.** Interfaces take `ipv6 address <addr>/<len>`;
   every interface derives an EUI-64 link-local from its MAC; neighbour discovery
   runs over the wire (NS to the solicited-node multicast MAC `33:33:ff:…`, NA
@@ -372,28 +297,35 @@ longer reproduces, the measurement is recorded beside it and the entry is kept f
   (types 128/129) with hop-limit decrement on every router. Multicast MACs are
   now received and flooded like broadcast, which is what makes NS arrive.
   CLI: `ipv6 address`, `ipv6 route`, `ipv6 gateway`. `Simulator.ping6()`.
+
 - **BGP route installation.** Sessions form only when BOTH sides are configured
   (each lists the other with a matching remote-as); advertisement runs to
   convergence with per-neighbour split horizon and AS-path loop detection; the
   best path per prefix is installed with eBGP 20 / iBGP 200 administrative
   distance. CLI: `router bgp <as>`, `bgp router-id`, `neighbor <ip> remote-as`,
   `no neighbor`.
+
 - **DNS in the data path.** `ping` accepts a hostname, resolves it through a
   device that hosts the zone (honouring the client's resolver list) and follows
   CNAMEs before sending a single ICMP packet. CLI: `dns zone`, `dns add`,
   `ip name-server`. `bgp`, `dns`, `scion` and `ipv6` are now exported from the
   public engine API.
+
 - Administrative-distance ordering in the routing table (connected 0, static 1,
   eBGP 20, OSPF 110, iBGP 200, default 254) — previously only prefix length
   decided, so a static route could not override a routing protocol.
+
 - **OSPF route installation.** Area-aware adjacency graph built from the live
   topology, per-router SPF, next-hop resolved to a real adjacent IP, routes
   installed as code `O`; costs derive from link rate, passive interfaces are
   advertised but form no adjacency.
+
 - `scripts/import-devices.js` — strict validation of researched device specs
   (vocabulary, declared ports, line rates, duplicate detection).
+
 - `scripts/audit-devices.js` — catalogue accuracy audit: uncablable ports and
   devices that describe optics but expose no optical cage.
+
 - 226 researched devices across 24 vendor families, taking the catalogue to
   317 models / 32 vendors; every ethernet port verified cablable.
 
@@ -404,29 +336,154 @@ longer reproduces, the measurement is recorded beside it and the entry is kept f
     working topology instead of a broadcast storm
   - LAG groups act as one logical port: STP does not block members, one member
     carries each frame, and frames never hairpin back out the ingress group
+
 - `switchport` CLI family: `mode access|trunk`, `access vlan`, `trunk native vlan`,
   `trunk allowed vlan`, plus `channel-group` and `vlan <id>` configuration.
+
 - `show vlan brief`, `show spanning-tree`, `show etherchannel summary`, and a
   VLAN-aware `show mac address-table`.
+
 - `test/l2.test.js` (28 assertions) proving the behaviour above end to end.
+
 - Physical-layer model: 32 media types (copper / fiber / DAC / console / wireless),
   9 cage types, per-port media + speed capabilities, and PoE source/sink budgets.
+
 - Live cabling feasibility engine — 11 blocking rules and 5 warnings. Impossible
   cables are refused with a stable error code, both at the API and in the UI.
+
 - Link-type picker: when several media are valid, the user chooses the physical
   medium (and can deliberately force a lower speed, e.g. 100BASE-TX).
+
 - 802.1Q VLAN membership: access/trunk, native VLAN, allowed-VLAN lists.
+
 - LACP / static link aggregation with deterministic hashing and member validation.
+
 - 802.1D spanning-tree election (root / designated / alternate roles, blocking ports).
+
 - `GET /api/media` and `POST /api/topologies/:id/validate-link` endpoints.
+
 - `docs/PHYSICAL_LAYER.md`.
+
 - 202 new test assertions (validation 22, VLAN 59, LAG 57, STP 64).
 
 ### Fixed
 
+- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
+  only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
+  omitted them and no check noticed.
+
+- **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
+  ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
+  115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer
+  widens a 9600-baud port to the whole five-rate ladder.
+
+- **Console ports were exempt from the cage-rate invariant**, which is how those 163 ports stayed
+  green. The exemption is gone; "slow is correct" (DSL, PON, console) still excuses a low rate, and
+  the overreach check now runs on console ports like any other.
+
+- `derivePortHardware` took a port's line rate from its `speed` label instead of its `speedCaps`.
+  Where the two disagree the caps are the truth, and on `qlogic/5800V` the disagreement was a real
+  one: 32G of FC claimed as 32000 Mbps on a 28050 Mbps port.
+
+- The `qlogic/5800V` notes said its ports were "modelled at the nearest step (10G) with the real
+  2/4/8G rates in speedCaps" — true when written, false once FC had cages. Its 4 ISL ports are now
+  10GFC and the note describes what the model actually does.
+
+- `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
+  check learned that `SFP56` is not `SFP`.
+
+- **OSPF refused to form an adjacency between interfaces addressed in different
+  subnets.** The adjacency was built from the cable alone, so two routers that
+  disagreed about the subnet installed routes via a next hop that was on no
+  connected subnet — traffic that never resolves is traffic that is black-holed.
+  Both ends of a broadcast link must now share the subnet **and** the mask, which
+  is the check that makes a misconfigured router a misconfigured router instead of
+  a silently-working one. `test/protocol-regression.test.js` proves the refusal,
+  and proves a matching subnet still forms the adjacency (#240).
+
+- **DNS reported three different failures as NXDOMAIN.** A name with no `A` record
+  (NODATA), a name the zone does not hold (NXDOMAIN), and a lab with no DNS server
+  configured at all (SERVFAIL) all came back as "no such domain". They are now
+  distinguished — NODATA is NOERROR with an empty answer — and a failed ping says
+  `dns-nodata`, `dns-nxdomain` or `dns-servfail` instead of always
+  `dns-nxdomain` (#241).
+
+- **`docs/SIMULATION.md` listed five defects as open that were already fixed**
+  (#41, #42, #43, #44, #54). The section now records what each one used to do and
+  what it does instead, so the page does not cry wolf about its own engine.
+
+- An 8-wide faceplate group no longer clips port names mid-glyph.
+
+- Palette search finds `MC220L` by `mc-220l`, `mc 220l` or `TL-MC220L`.
+
+- **SFP28 accepts 1G SFP and 10G SFP+ modules**, with the reaches widened to the whole module
+  class (1000BASE-EX/ZX, 10GBASE-ER). 100M stays out deliberately (#17).
+
+- **MikroTik ports read eth1 / SFP+1**, not the RouterOS CLI spelling, and the CLI keeps the
+  RouterOS names as aliases so existing commands still resolve (#27).
+
+- **The inspector no longer draws the cable label and the LLDP neighbour on top of each
+  other** — they have their own row and can wrap (#25).
+
+- **A cable passing behind a chassis is no longer erased**: devices are drawn first, cables
+  after (#34).
+
+- **Re-validating an existing cable** is no longer refused as `E_PORT_IN_USE`; the check
+  compares the actual endpoint rather than an interface name that is only unique per device.
+
+- **A server restart no longer discards the board**, and the browser notices when it is stale:
+  connection badge, backoff retry, and a re-fetch that reports when fewer devices come back
+  than the tab was showing (#24).
+
+- **A server restart no longer discards the board.** Topologies are saved to
+  `data/topologies/<id>.json` on every change and loaded at start-up, written
+  synchronously: a 120 ms debounce looked harmless but on Windows a kill calls
+  `TerminateProcess`, so no signal handler runs and the tail of your work vanished.
+  Saves are atomic (write then rename), a board that cannot be parsed is reported
+  and left in place rather than deleted, and device ids survive the round trip (#24).
+
+- **The browser notices when it is stale.** The socket had no `onclose`, no `onerror`
+  and no retry, so a tab kept drawing a board the server had never heard of. It now
+  shows a connection badge in the status bar, retries with backoff, and re-fetches the
+  server's copy on reconnect - reporting it when fewer devices come back than the tab
+  was showing (#24).
+
 - The multi-vendor campus example lab cabled a 25G SFP28-only switch to 1G RJ45
   ports — physically impossible. Rebuilt with valid copper and 1G-fiber uplinks;
   the new validator now catches this class of error in CI.
+
+### Devices
+
+- Acer Nitro 5 AN515-57 added from hardware request #23.
+
+### Known defects (filed, not fixed)
+
+Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
+longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
+
+- #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
+  **Still real.** Three routers in AS 65001, full mesh absent by construction: `R3` ends up with
+  `B 10.1.0.0/30  200  10.2.0.1  eth1` — the route `R2` learned over iBGP, re-advertised to a third
+  iBGP peer, with the next hop rewritten to the relayer.
+
+- #42 OSPF installs a route for its own connected network, at transit cost. **No longer reproduces** —
+  `show ip route` on an OSPF speaker shows `C` and only `C` for its own two subnets, no `O` row for
+  either, and the neighbour learns them instead.
+
+- #43 OSPF does not advertise a passive interface's network at all. **No longer reproduces** — with
+  `ip ospf passive` on the LAN port (`show ip ospf` reports its state as `passive`), the neighbour still
+  installs `O 172.16.1.0/24`, which is what a passive interface is supposed to do: no adjacency, stub
+  network still advertised.
+
+- #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
+  **Not exercised** — the tie needs two routers advertising the same shared network at different costs,
+  which no lab here builds; do not take this line as either confirmation or clearance.
+
+- #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
+  **No longer reproduces** — `flowKeyOf()` now keys on both `insideLocal` and `insideGlobal`, and two
+  hosts behind one overload pool get separate translations (`203.0.113.2:1024` for `10.0.0.10`,
+  `203.0.113.2:1025` for `10.0.0.11`), both pinging the far side `4/4`.
+
 
 ## 0.1.0 - 2026-11-07
 
