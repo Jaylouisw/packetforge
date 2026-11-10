@@ -346,7 +346,7 @@ Config mode:
 
 | Command | Effect |
 |---------|--------|
-| `ipv6 route <prefix>/<len> <next-hop>` | add a static IPv6 route |
+| `ipv6 route <prefix>/<len> <next-hop>` | add a static IPv6 route — **no** interface argument, unlike `ip route` ([details](#static-routes-and-the-gateway-of-last-resort)) |
 | `ipv6 gateway <addr>` | set the default IPv6 gateway |
 | `no ipv6` | clear the IPv6 gateway and static routes |
 | `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertise prefixes to the link (`l3-forward` only) |
@@ -985,6 +985,33 @@ R1(config)#ip route 10.7.0.0 255.255.255.0 Gi0/0
 
 That is one of the few refusals here that names the IOS behaviour being declined, which makes it the
 clearest place to learn the model's rule.
+
+**The IPv6 sibling is stricter, and the difference is one word.** `ipv6 route` takes no interface at all:
+
+```text
+R1(config)#ipv6 route 2001:db8:9::/64 2001:db8:1::2
+IPv6 route 2001:db8:9::/64 via 2001:db8:1::2
+R1(config)#ipv6 route 2001:db8:8::/64 2001:db8:1::2 Gi0/0
+% Unexpected argument "Gi0/0" - ipv6 route <prefix>/<len> <next-hop> takes no more
+% Usage: ipv6 route <prefix>/<len> <next-hop>
+R1#show ipv6 route
+Codes: C - connected, S - static
+  *  Prefix             AD  Gateway        Interface
+  *  C 2001:db8:1::/64  0   -              Gi0/0
+  *  S 2001:db8:9::/64  1   2001:db8:1::2  -
+```
+
+So every static IPv6 route prints `-` under `Interface` — the column can only ever be filled by a
+connected prefix — whereas a static IPv4 route can show a port if you spend the fourth word on it. A
+default route is written `::/0`, and the prefix-length spelling that IPv4 refuses here is the *only*
+spelling IPv6 accepts:
+
+```text
+R1(config)#ipv6 route ::/0 2001:db8:1::2
+IPv6 route ::/0 via 2001:db8:1::2
+R1(config)#ipv6 route 2001:db8:7::/64 not-an-address
+% Invalid IPv6 next hop "not-an-address"
+```
 
 **`ip default-gateway` is not host-only.** The table above says "hosts" because that is the IOS story,
 but the command is accepted on a router and installs a real route — a `0.0.0.0/0` entry at AD 254:
