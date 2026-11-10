@@ -46,7 +46,7 @@ Per-port keys, all optional except the first three: `name`, `type`, `speed`, `co
 accepts), `poeOut` / `poeOutClass`, `poeIn`, `comboWith` / `comboRole`, `bridgeGroup`, `role`.
 
 A port may also carry a **nested `hardware` block**, and it is the one place in the schema where
-writing a key that looks right does nothing at all. `derivePortHardware()` (`engine/media.js:987`)
+writing a key that looks right does nothing at all. `derivePortHardware()` (`engine/media.js:875` — this page said 987, which is inside a different function now)
 reads `spec.hardware` for four keys and derives the rest from `connector` and `speed`, so only these
 four are the spec's to decide:
 
