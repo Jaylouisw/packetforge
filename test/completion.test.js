@@ -258,7 +258,13 @@ console.log('\nThe `?` does not need a space in front of it:');
   // When everything that fits agrees on what comes after the completed word, that is said too - the
   // next question is already answered. `ip rou?` alone has several endings in config mode, so the
   // stable case is a command with one shape.
-  ok(/Then: <dest>/.test(env.text('no ip rou?')), 'and says what follows the word it completed');
+  // `no rou?` used to have one ending (`route`); with `no router bgp <as>` and `no bgp neighbor <ip>`
+  // now listed for the same console, `no rou?` completes `router` instead, and `no ip rou?` is
+  // ambiguous through abbreviation (the stem `ip` is a prefix of `ipv6`, whose route row ends
+  // differently). `no span?` has exactly one ending, and it still says what follows it.
+  ok(/Then: vlan/.test(env.text('no span?')), 'and says what follows the word it completed');
+  ok(!/Then:/.test(env.text('no ip route?')),
+    'a stem whose endings disagree says nothing after the word');
   env.run('exit');
   // An attached `?` after a value asks about the keywords that can follow the value.
   ok(/at/.test(env.text('show ip route 10.0.0.0?')), 'a ? after a value still offers what may follow it');

@@ -33,6 +33,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `write memory` | save the running configuration as the startup copy (privileged exec) |
 | `copy running-config startup-config` | the same save, spelled the other way |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
+| `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
@@ -1176,6 +1177,72 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The removal half of the command set is a command too
+
+Thirty `no` branches and nine help rows. The commands all worked; `?` could not see any of them, so
+an operator could set a thing and then had to already know the way back:
+
+```
+R1(config)#no vlan ?
+% No completions for "no vlan"
+R1(config)#no ip nat ?
+% No completions for "no ip nat"
+R1(config)#no spanning-tree ?
+% No completions for "no spanning-tree"
+R1(config-if)#no ip nat ?
+% No completions for "no ip nat"
+```
+
+Now every one of them is a row in its own right, in the mode that accepts it:
+
+```
+R1(config)#no vlan ?
+Completions for "no vlan" (1):
+  remove a VLAN no port is still in
+
+  Next: <id>
+
+R1(config)#no bgp neighbor ?
+Completions for "no bgp neighbor" (1):
+  stop peering with one address
+
+  Next: <ip>
+
+R1(config)#no span?
+Completions for "no span" (1, completing "span"):
+  Word           Meaning
+  spanning-tree  forget this VLAN's priority and go back to the default
+
+Then: vlan
+```
+
+Two defects came out of writing the rows:
+
+* **`no encapsulation dot1q` did not exist.** The tag could be set and never taken back. It now
+  reverts to the VLAN the subinterface's number infers, and says which tag it took off:
+
+  ```
+  R1(config-subif)#no encapsulation dot1q
+  Encapsulation removed from Gi0/0.20 (was VLAN 42) - back to the tag inferred from the interface number, VLAN 20
+  ```
+
+* **A refusal that knew the reason also claimed not to recognise the words.** `ipv6 nd suppress-ra`
+  on a switch answered `% Unrecognized interface command: …` and *then* the real reason. When the
+  global handler understood the words and refused for a reason, that reason is the answer; the
+  "unrecognized" line is now only for words nothing knows.
+
+And one table joins the ones you can empty — `clear ip nat translation [*|<inside-local>]`:
+
+```
+R1#clear ip nat translation *
+1 translation cleared on R1 (the rules are untouched - use "no ip nat inside source …" for those)
+R1#clear ip nat translation *
+Translation table on R1 was already empty
+```
+
+`test/no-forms.test.js` reads the mode dispatchers and requires a `no …` row for every `no` branch
+that exists, so the next command added cannot repeat the omission.
 
 ### NAT is configured from the console
 

@@ -203,7 +203,12 @@ console.log('\nA refused command does not change the operator\'s mode:');
   s.run('configure terminal', 'interface Gi0/0');
   eq(s.mode, 'iface', 'we are in an interface block');
   const refused = s.run('ipv6 nd suppress-ra extra').output;
-  ok(/% Unrecognized interface command/.test(refused[0]), 'the command is refused');
+  // The refusal now comes from the handler that understood the words, so it quotes the argument and
+  // the synopsis instead of opening with "Unrecognized interface command" - a claim that was false
+  // for a command the console plainly understood. It is still a refusal, and it still names the word.
+  ok(/^%/.test(refused[0]), 'the command is refused');
+  ok(/% Unexpected argument "extra"/.test(refused.join('\n')),
+    'and the refusal names the word that has no slot');
   eq(s.mode, 'iface', 'and the interface block is kept, not silently left');
   // A command that really is global still leaves the block - and the note names a form that exists.
   const global = s.run('ipv6 nd ra enable').output;

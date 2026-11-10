@@ -446,6 +446,11 @@ class CliSession {
               ' (' + (pick.port ? '1 port' : rows.length + ' port' + (rows.length === 1 ? '' : 's')) +
               ', ' + cleared + ' had traffic)');
           }
+        } else if (head === 'clear' && tokens[1] === 'ip' && tokens[2] === 'nat') {
+          // The translation table is the one table in the model with no way to empty it: it fills as
+          // traffic crosses the box and only `show ip nat translations` could read it, so an operator
+          // could watch translations appear but never start again from a clean table.
+          out.push.apply(out, this._clearNat(tokens.slice(3)));
         } else if (head === 'clear' && (tokens[1] === 'arp' ||
             (tokens[1] === 'ip' && tokens[2] === 'arp') ||
             (tokens[1] === 'mac' && tokens[2] === 'address-table'))) {
@@ -1093,6 +1098,33 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'no' && tokens[1] === 'encapsulation' &&
+               String(tokens[2] || '').toLowerCase().indexOf('dot1') === 0) {
+      // Every other verb in this block has a `no` form; `encapsulation dot1q` did not, so the tag
+      // could be set and never taken back.
+      if (!iface.parent) {
+        return ['% ' + iface.name + ' is not a subinterface - only a subinterface carries a tag',
+          '% (a physical port is untagged on the wire; a switch trunk does that with "switchport")'];
+      }
+      if (tokens.length > 3) {
+        return ['% Unexpected argument "' + tokens[3] + '" - no encapsulation dot1q takes no more'];
+      }
+      // The tag lives on `encapVid`, and a subinterface is *born* with one inferred from its number,
+      // so removing a tag means going back to that number - not to "no tag at all", which a
+      // subinterface cannot be.
+      const inferred = Number(String(iface.name).split('.')[1]);
+      const was = iface.encapVid;
+      if (!Number.isFinite(inferred)) {
+        delete iface.encapVid;
+        return ['Encapsulation removed from ' + iface.name];
+      }
+      if (was === inferred) {
+        return ['Encapsulation on ' + iface.name + ' is already the inferred VLAN ' + inferred,
+          '% It was tagged at creation from the interface number; nothing to remove'];
+      }
+      iface.encapVid = inferred;
+      return ['Encapsulation removed from ' + iface.name + (was === undefined ? '' : ' (was VLAN ' + was + ')') +
+        ' - back to the tag inferred from the interface number, VLAN ' + inferred];
     } else if (head === 'ip' && tokens[1] === 'nat') {
       // `show running-config` prints its rules after the interface blocks, so a paste delivers
       // `ip nat inside source …` while the session is still inside an interface. That is a global
@@ -1202,7 +1234,17 @@ class CliSession {
       // was treated as success, the interface block was left, and the operator's next three commands
       // were typed into the wrong mode. A line beginning with `%` is a refusal, whoever wrote it.
       const refused = asGlobal.some(function (l) { return /^%/.test(l); });
-      if (refused) return ['% Unrecognized interface command: ' + tokens.join(' ')].concat(asGlobal);
+      if (refused) {
+        // "Unrecognized" is only honest when nothing recognised the words. When the global handler
+        // knew what they meant and refused for a reason - `ipv6 nd suppress-ra` on a switch, which
+        // cannot route what a prefix would attract - that reason *is* the answer, and prefixing it
+        // with "Unrecognized interface command" buries it under a claim that is not true.
+        const generic = asGlobal.length === 1 &&
+          /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobal[0]);
+        return generic
+          ? ['% Unrecognized interface command: ' + tokens.join(' ')].concat(asGlobal)
+          : asGlobal;
+      }
       if (this.mode === MODE_IFACE) this.mode = MODE_CONFIG;
       out.push.apply(out, asGlobal);
       // Say so. `ospf area 0` inside an interface block is the *global* command: it configures the
@@ -2570,6 +2612,47 @@ class CliSession {
       if (real.length) out.push('% Warning: ' + real[0].message);
     }
     return out;
+  }
+
+  // `clear ip nat translation [*]` / `clear ip nat translation <inside-local>` - empty the entries,
+  // not the rules. IOS takes `*`, a bare local address, or a global/local pair; this model answers
+  // the first two and refuses a pair by naming the form it has.
+  _clearNat(rest) {
+    const dev = this.device;
+    if (this.mode !== MODE_ENABLE) {
+      return ['% clear ip nat translation needs enable mode' + NEEDS.enable];
+    }
+    const what = String(rest[0] || '').toLowerCase();
+    if (what !== 'translation' && what !== 'translations') {
+      return ['% Incomplete command: clear ip nat translation [*]',
+        '% (clear the entries with "*", or one host\'s entries with its inside-local address)'];
+    }
+    const table = dev.natTable;
+    const entries = (table && table.translations) ? table.translations : [];
+    if (rest.length > 1 && String(rest[1]) !== '*') {
+      const arg = String(rest[1]);
+      if (rest.length > 2) {
+        return ['% Unexpected argument "' + rest[2] + '" - clear ip nat translation takes one',
+          '% Usage: clear ip nat translation [*|<inside-local>]'];
+      }
+      const gone = entries.filter(function (e) { return String(e.insideLocal) === arg; });
+      if (!gone.length) {
+        const known = Array.from(new Set(entries.map(function (e) { return e.insideLocal; })));
+        return ['% No translations for ' + arg + ' on ' + (dev.name || dev.id),
+          '% Inside locals with entries: ' + (known.length ? known.join(', ') : '(none)')];
+      }
+      for (const e of gone) {
+        const at = entries.indexOf(e);
+        if (at >= 0) entries.splice(at, 1);
+      }
+      return [gone.length + ' translation' + (gone.length === 1 ? '' : 's') + ' for ' + arg +
+        ' cleared on ' + (dev.name || dev.id)];
+    }
+    const n = entries.length;
+    if (!n) return ['Translation table on ' + (dev.name || dev.id) + ' was already empty'];
+    entries.length = 0;
+    return [n + ' translation' + (n === 1 ? '' : 's') + ' cleared on ' + (dev.name || dev.id) +
+      ' (the rules are untouched - use "no ip nat inside source …" for those)'];
   }
 
   // ---------- NAT ----------
@@ -6988,38 +7071,56 @@ class CliSession {
       helpLine('interface <name> | int <name>', 'enter interface configuration'),
       helpLine('interface vlan <id>', 'the switch\'s own address in that VLAN (an SVI)'),
       helpLine('interface <parent>.<vlan>', 'creates a tagged subinterface'),
-      helpLine('no interface <parent>.<vlan>', 'remove a subinterface'),
-      helpLine('vlan <id> [name]', 'declare a VLAN  (no vlan <id>)'),
+      helpLine('vlan <id> [name]', 'declare a VLAN'),
+      // The `no` half of every verb is a command in its own right, and `?` could not see any of them:
+      // `no vlan ?` and `no ip nat ?` answered "No completions for …", so removal was the one part of
+      // the command set an operator had to already know. Each row is the form the parser accepts.
+      helpLine('no vlan <id>', 'remove a VLAN no port is still in'),
+      helpLine('no interface <name> | no interface <parent>.<vlan>', 'remove a subinterface'),
       helpLine('ip nat inside source static <local> <global>', 'one-to-one translation'),
       helpLine('ip nat inside source list <acl> interface <if> overload', 'PAT onto an interface address'),
+      helpLine('no ip nat inside source static <local> <global>', 'remove one static rule'),
+      helpLine('no ip nat inside source list <acl> interface <if> overload', 'remove one PAT rule'),
+      helpLine('no ip nat inside source', 'list the rules this device has'),
       helpLine('ip access-list standard|extended <name>', 'build a named access list, entry by entry'),
       helpLine('access-list <n> <permit|deny ...>', 'one line of a numbered list'),
       helpLine('no ip access-list <name>', 'remove a named list and its bindings'),
-      helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge  (no spanning-tree vlan <id>)'),
+      helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge'),
       helpLine('spanning-tree vlan <id> root primary|secondary', 'ask to be root, in words'),
+      helpLine('no spanning-tree vlan <id>', 'forget this VLAN\'s priority and go back to the default'),
       helpLine('ip route <dest> <mask> <gw> [iface]', 'add a static route'),
       helpLine('no ip route <dest> <mask> [gw]', 'remove one, or all with that prefix'),
       helpLine('ip default-gateway <gw>', 'default gateway for hosts'),
+      helpLine('no ip default-gateway [<gw>]', 'clear it'),
       helpLine('ip dhcp pool <name>', 'create/enter a DHCP pool'),
       helpLine('ip name-server <ip>', 'DNS resolver for this device'),
-      helpLine('router bgp <as>', 'enable BGP  (no router bgp)'),
-      helpLine('bgp router-id <ip> | bgp neighbor <ip> remote-as <as> | no bgp neighbor <ip>',
+      helpLine('no ip name-server [<ip>]', 'forget one resolver, or all of them'),
+      helpLine('router bgp <as>', 'enable BGP'),
+      helpLine('bgp router-id <ip> | bgp neighbor <ip> remote-as <as>',
         'BGP identity and peers'),
-      helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF  (no ospf)'),
+      helpLine('no bgp neighbor <ip> | no neighbor <ip>', 'stop peering with one address'),
+      helpLine('no router bgp [<as>]', 'turn BGP off and drop every peer'),
+      helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF'),
+      helpLine('no ospf', 'turn OSPF off'),
+      helpLine('no ospf router-id | no ospf area <id>', 'forget the id, or one area'),
       helpLine('dns zone <name> | dns add <name> <type> <value>',
         'serve a zone, or add a record to one'),
-      helpLine('scion <isd-as>', 'join a SCION ISD-AS  (no scion)'),
+      helpLine('scion <isd-as>', 'join a SCION ISD-AS'),
+      helpLine('no scion', 'leave it'),
       helpLine('ipv6 unicast-routing | no ipv6 unicast-routing',
         'whether this device forwards IPv6 it is not the destination of'),
       helpLine('ipv6 route <prefix>/<len> <next-hop> | ipv6 gateway <addr>',
         'static IPv6 route, or the default gateway'),
+      helpLine('no ipv6 route <prefix>/<len> [<next-hop>] | no ipv6 gateway [<addr>]',
+        'remove an IPv6 route or the gateway'),
+      helpLine('no ipv6 unicast-routing', 'stop forwarding IPv6 for other devices'),
       helpLine('ipv6 nd ra enable|disable|managed|other-config',
         'what this router advertises'),
       helpLine('ipv6 nd ra lifetime <s>', 'how often it advertises'),
       helpLine('ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]',
         'a prefix to advertise (SLAAC)'),
-      helpLine('ipv6 nd suppress-ra | no ipv6 nd ...',
-        'stop advertising on this port'),
+      helpLine('ipv6 nd suppress-ra', 'stop advertising on this port'),
+      helpLine('no ipv6 nd suppress-ra', 'start advertising again'),
       helpLine('access-list <1-2699> permit|deny ...', 'add an entry'),
       helpLine('no access-list <1-2699> [<entry>]', 'remove one entry, or the whole list'),
       helpLine('vrrp <vrid> ...', 'per-interface - enter an interface first'),
@@ -7031,11 +7132,13 @@ class CliSession {
     if (this.mode === MODE_IFACE) return helpRows([
       'Interface-mode commands (' + this.iface + '):',
       helpLine('ip address <ip> <mask>', 'assign an IP - "10.0.0.1 255.255.255.0" or "10.0.0.1/24"'),
-      helpLine('ip address dhcp | no ip address', 'DHCP client / clear'),
+      // The two-form rows stay as they were: a `|` in a help row already expands into two spellings,
+      // so `no ip address` and `no ip helper-address` are listed by `?` without a second row.
+      helpLine('ip address dhcp | no ip address [dhcp]', 'DHCP client / clear'),
       helpLine('ip helper-address <addr> | no ip helper-address [<addr>]',
         'relay DHCP requests on this port to a server'),
-      helpLine('shutdown | no shutdown', 'administratively down / up'),
-      helpLine('description <text>', '(no description)'),
+      helpLine('shutdown', 'administratively down'),
+      helpLine('description <text>', 'what this port is for'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),
@@ -7047,13 +7150,31 @@ class CliSession {
         'bind (or unbind) an ACL to this port'),
       helpLine('ip ospf cost <n> | ip ospf area <id> | ip ospf passive',
         'per-port OSPF cost, area, or make it passive'),
-      helpLine('ipv6 address <addr>/<len> | ipv6 address autoconfig | no ipv6 address [autoconfig]',
+      helpLine('no ip ospf cost | no ip ospf area | no ip ospf passive',
+        'forget one of those three'),
+      helpLine('ipv6 address <addr>/<len> | ipv6 address autoconfig',
         'a static IPv6 address, or one learned from a router'),
+      helpLine('no ipv6 address [<addr>/<len>]', 'clear a static address (or all of them)'),
+      helpLine('no ipv6 address autoconfig', 'stop autoconfiguring and drop the learned address'),
+      helpLine('ipv6 nd suppress-ra | no ipv6 nd suppress-ra', 'stop / start advertising'),
+      helpLine('no ipv6 nd prefix <prefix>/<len>', 'stop advertising one prefix'),
       helpLine('vrrp <vrid> ip <addr> [priority <p>] [preempt] [advertise <s>]',
         'join (or create) a VRRP group'),
       helpLine('no vrrp <vrid>', 'remove the group'),
       helpLine('ip nat inside|outside', 'which side of the NAT box this port is on'),
-      helpLine('spanning-tree cost <n>', 'this port\'s path cost  (no spanning-tree cost)'),
+      helpLine('spanning-tree cost <n>', 'this port\'s path cost'),
+      // The `no` half, as its own rows: `no ip nat ?` and `no spanning-tree ?` answered "No
+      // completions" while both commands worked, so the operator could set a thing and not find the
+      // way back.
+      helpLine('no ip nat inside|outside', 'this port is on neither side'),
+      helpLine('no spanning-tree cost', 'back to the cost from the cable speed'),
+      helpLine('no ip access-group [<acl>] [in|out]', 'unbind an access list from this port'),
+      helpLine('no switchport mode | no switchport access vlan | no switchport trunk ...',
+        'undo one switchport setting, not the whole port'),
+      helpLine('no channel-group', 'take this port out of its LAG'),
+      helpLine('no encapsulation dot1q', 'remove the tag from this subinterface'),
+      helpLine('no description', 'clear the description'),
+      helpLine('no shutdown', 'bring the port back up'),
       helpLine('interface <name>', 'switch to another port, stay in config-if'),
       helpLine('show <what>', 'any exec show, from here too'),
       helpLine('<any config-mode command>', 'applied globally, then back to config'),
@@ -7119,6 +7240,7 @@ class CliSession {
       helpLine('clear logging', 'truncate the event log'),
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),
       helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
+      helpLine('clear ip nat translation [*|<inside-local>]', 'empty the translation table, keeping the rules'),
       helpLine('clear mac address-table [interface <port>]', 'empty the MAC table (switches); routing tables are not flushable here'),
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
