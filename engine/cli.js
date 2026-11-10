@@ -5315,11 +5315,35 @@ class CliSession {
   }
 
   // show vrrp - the state after the last election, which is what an operator checks.
-  _showVrrp() {
+  _showVrrp(args) {
     const out = [];
     const dev = this.device;
-    const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
+    let groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
     if (!groups.length) { out.push('% VRRP is not configured' + NEEDS.vrrp); return out; }
+    // `show vrrp <group>` is the form an operator types to look at one group. It answered about a
+    // *time* - the trailing 1 was read as "t=1 ms" - so it reported an unconverged table with no
+    // master for a group that `show vrrp` listed as Master, a contradiction one word apart.
+    const want = Array.isArray(args) ? args.filter(function (x) {
+      return String(x).toLowerCase() !== 'brief';
+    }) : [];
+    if (want.length) {
+      if (want.length > 1) {
+        return ['% Unexpected argument "' + want[1] + '" - show vrrp [<group>]'];
+      }
+      if (!/^\d+$/.test(String(want[0]))) {
+        return ['% show vrrp takes a group id, not "' + want[0] + '"',
+          '% e.g. show vrrp | show vrrp ' + (groups[0] ? groups[0].vrid : 1) + ' | show vrrp at <ms>'];
+      }
+      const vrid = Number(want[0]);
+      const picked = groups.filter(function (g) { return Number(g.vrid) === vrid; });
+      if (!picked.length) {
+        return ['% No VRRP group ' + vrid + ' on ' + (dev.name || dev.id),
+          '% The groups here are: ' + groups.map(function (g) {
+            return g.vrid + ' on ' + g.interface;
+          }).join(', ')];
+      }
+      groups = picked;
+    }
     const claims = (dev.vrrpClaims || []);
     // Who actually holds each group, which is not the same question as "do I". The Master column
     // used to print this device's own name beside `State: Backup` - a table contradicting itself in
@@ -6357,9 +6381,23 @@ class CliSession {
     if (what === 'interface' || what === 'interfaces') {
       return this._showOspf([]);
     }
-    if (what && what !== 'neighbor' && what !== 'neighbors' && what !== 'neighbour') {
-      return ['% show ip ospf takes neighbor, database or interface, not "' + args[0] + '"',
-        '% e.g. show ip ospf | show ip ospf neighbor | show ip ospf database'];
+    // `show ip ospf <pid>` is the spelling used when a router runs more than one process. This model
+    // runs one, so the honest answer for the pid it does run is the process view, and for any other
+    // pid it is the pid it actually has - not "unexpected word".
+    let wantedPid = null;
+    if (what && /^\d+$/.test(what)) {
+      if (args.length > 1) {
+        return ['% Unexpected argument "' + args[1] + '" - show ip ospf <process-id>'];
+      }
+      if (Number(what) !== Number(cfg.pid)) {
+        return ['% No OSPF process ' + what + ' on ' + (dev.name || dev.id),
+          '% The process here is "ospf ' + (cfg.pid || 1) + '"'];
+      }
+      wantedPid = Number(what);
+    }
+    if (what && wantedPid === null && what !== 'neighbor' && what !== 'neighbors' && what !== 'neighbour') {
+      return ['% show ip ospf takes neighbor, database, interface or a process id, not "' + args[0] + '"',
+        '% e.g. show ip ospf | show ip ospf ' + (cfg.pid || 1) + ' | show ip ospf neighbor | show ip ospf database'];
     }
     if (args.length > 1 && (what === 'database' || what === 'db')) {
       return ['% Unexpected argument "' + args[1] + '" - show ip ospf database takes no more'];
@@ -6633,6 +6671,17 @@ class CliSession {
     if (!/^(converged|\d+)$/i.test(last)) return null;
     const prev = tokens[tokens.length - 2];
     if (prev !== undefined && INSTANT_VALUE_KEYWORDS.has(String(prev).toLowerCase())) return null;
+    // A trailing number is only an instant when the view has nothing else to do with a number.
+    // `show vrrp 1` and `show ip ospf 1` name a group and a process: reading the 1 as "t=1 ms"
+    // answered about the *whole* process or group at an instant before it converged, and said
+    // nothing about the number having been taken as a time. `converged` is a word, so it stays an
+    // instant everywhere - no view takes "converged" as an argument.
+    const a = String(tokens[0] || '').toLowerCase();
+    const b = String(tokens[1] || '').toLowerCase();
+    if (/^\d+$/.test(last)) {
+      if (a === 'vrrp' && tokens.length === 2) return null;
+      if (a === 'ip' && (b === 'ospf' || b === 'bgp' || b === 'dhcp') && tokens.length === 3) return null;
+    }
     return last;
   }
 
@@ -7505,7 +7554,7 @@ class CliSession {
         }
       }
     } else if (what === 'vrrp') {
-      out.push.apply(out, this._showVrrp());
+      out.push.apply(out, this._showVrrp(tokens.slice(1)));
     } else if (what === 'vlan') {
       // A router answered `show vlan` with a fabricated VLAN 1 containing every port, two lines after
       // `interface vlan 10` refuses to exist because "this device does not switch". A bridge domain is
@@ -10357,12 +10406,12 @@ class CliSession {
       helpLine('show lldp interface [<port>]', 'per-port transmit/receive decision and the neighbour'),
       helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
       helpLine('show access-lists', 'entries, and where they are bound'),
-      helpLine('show vrrp', 'groups, priorities and current state'),
+      helpLine('show vrrp [<group>]', 'groups, priorities and current state - one group if named'),
       helpLine('show ip protocols', 'the routing processes running here, and their distances'),
       helpLine('show ip bgp summary', 'peers and installed prefixes'),
       helpLine('show ip bgp neighbors [<addr>]', 'one peer in detail, with the reason it is down'),
-      helpLine('show ip ospf', 'process, interfaces, adjacencies'),
-      helpLine('show ip ospf neighbor', 'adjacencies, and why one is missing'),
+      helpLine('show ip ospf [<process-id>]', 'the process, its interfaces, areas and adjacencies'),
+      helpLine('show ip ospf neighbor', 'adjacencies, and why one failed to form'),
       helpLine('show ip ospf database', 'the links the SPF ran on, and the prefixes it produced'),
       helpLine('show flows [<id> | counters]', 'conversations in this lab, and per-device counters'),
       helpLine('show ip nat translations', 'NAT entries the data path wrote'),

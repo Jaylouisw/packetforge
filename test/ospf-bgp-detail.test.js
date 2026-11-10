@@ -136,7 +136,10 @@ console.log('\nSub-words are accepted or refused by name:');
   eq(env.a.run('show ip ospf interface').output[0],
     env.a.run('show ip ospf').output[0],
     '`show ip ospf interface` is the process view');
-  match(/% show ip ospf takes neighbor, database or interface, not "routes"/,
+  // The list now includes a process id, because `show ip ospf <pid>` is a real form (see
+  // test/instant-vs-argument.test.js) - the assertion follows the message, and still checks that an
+  // unknown sub-word is refused by naming what does exist.
+  match(/% show ip ospf takes neighbor, database, interface or a process id, not "routes"/,
     env.a.run('show ip ospf routes').output,
     'an unknown sub-word is refused, listing what exists');
 }

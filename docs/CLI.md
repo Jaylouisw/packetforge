@@ -1197,6 +1197,44 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A number that names something is not a time
+
+This console answers a control-plane question *at an instant* — `show vrrp at 500` — and, as a
+convenience, accepts a bare trailing number. Two views take a number as an **argument**, and there the
+convenience won:
+
+```
+R2#show vrrp 1
+VRRP at t=1 ms (control planes rebuilt for this answer)
+Gi0/0  1  100  Backup  -  10.0.0.254  -            <- the group R2 was MASTER of
+(no router holds the virtual address yet - the group has not converged)
+
+R2#show vrrp
+Gi0/0  1  100  Master  R2  10.0.0.254  00:00:5e:00:01:01
+```
+
+The `1` was read as one millisecond, the group id was dropped, and the answer was a *different
+question* — the state before the election — with nothing saying the argument had been ignored. Same
+shape in `show ip ospf 99`: a process id that does not exist answered as "at t=99 ms" about the
+process that does.
+
+The rule now: **a trailing number is an instant only where the view has no other use for a number.**
+`show vrrp <group>` and `show ip ospf <process-id>` read the number as what it names, filter to it, and
+refuse one that is not there while naming the ones that are:
+
+```
+R1#show vrrp 9
+% No VRRP group 9 on R1
+% The groups here are: 1 on Gi0/0, 2 on Gi0/0
+
+R1#show ip ospf 1
+% No OSPF process 1 on R1
+% The process here is "ospf 7"
+```
+
+Every `at <ms>` and every `converged` is still an instant everywhere — those are unambiguous, and they
+are the spellings the help advertises.
+
 ### Two views of one peer, and only one of them could see it
 
 One router, OSPF in area 0, one BGP peer. Three commands, three answers that could not all be right:
@@ -1635,7 +1673,7 @@ R1(config)#no span?
 The reason comes from the same table that hides the row (`_helpRefusal`), so the page, the completion
 list and the parser's own refusals cannot disagree about *why* a family is absent.
 
-**What guards it** (`test/help-truthful.test.js`, 32 assertions):
+**What guards it** (`test/help-truthful.test.js`, 33 assertions):
 
 * every row a device is shown is typed back at that device — placeholders instantiated, optional
   groups dropped — and must not answer `% Unrecognized`, across six generic kinds and two real
@@ -4559,7 +4597,7 @@ VLAN  Name   Status  Ports
 ```
 
 `show vlan <id>` and `no vlan <id>` read **one** membership walk (`_vlanMap()`), so the ports a
-refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (43
+refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (44
 assertions), which also proves the domain is real by pinging across it and then separating the hosts
 by moving one port.
 
@@ -5289,7 +5327,7 @@ SW1#show interfaces counters
 Before, that answered `% No interface named counters`, which is true and sends the operator looking for
 a port called `counters`.
 
-All of this is swept by `test/port-args.test.js` (83 assertions): every command is asked about a port it
+All of this is swept by `test/port-args.test.js` (85 assertions): every command is asked about a port it
 has and a port it does not, in two different labs, and the assertion is written against the *defect*
 rather than against today's output — the filtered answer must not equal the full one, must carry fewer
 of the full answer's lines, and must not mention any other port on the device.
