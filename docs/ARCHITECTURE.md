@@ -178,6 +178,16 @@ Every failure is JSON with a human-readable `error` string, and the HTTP status 
 `405` for the wrong method, `409` for something the engine refused, `422` for a body that parses but
 cannot be true (`state must be up or down`).
 
+**With one exception, and it is the one a client polls.** An unknown device id is `404` on the calls
+that act **on** a device — measured against a live server: `POST …/config/nope` →
+`404 { error: 'device not found' }`, `POST …/ping` with an unknown `src` →
+`404 { error: 'source device not found' }`, `POST …/interfaces/nope/Fa0/1` → `404 device not found` —
+but `DELETE …/devices/nope` answers **`200`** with `{ ok: true, state }` and the state unchanged,
+because deletion is defined as idempotent here (deleting the same id twice returns the same `200`, and
+the second call learns nothing). Deleting on a board id that does not exist *is* a `404`
+`topology not found`. So "delete returns ok" tells a client that the id is absent, never that it was
+present.
+
 **Several responses carry no `code` at all**, so do not parse `error` text and assume one is there.
 The table below was taken from a live server, one request per row:
 
@@ -313,6 +323,11 @@ Two of the board endpoints behave in a way a client author will not guess:
   `POST …/config/d1` with `{"commands":["configure terminal","hostname PC1"]}` renames it to `PC1`, while
   `{"commands":["hostname PC1"]}` answers `% Unrecognized command: hostname PC1` and renames nothing. The
   config endpoint answers `404` for a device id that is not on the board.
+
+  The two keys are `commands` (an array) and `command` (a string) — and **a body with neither is not
+  rejected for its shape**. Measured: `{"lines":["show version"]}` answers
+  `400 { error: 'CliSession.run expects a string, got undefined' }`, which names the engine's internal
+  call rather than the mistake the client made. If you get that message, your key is not `commands`.
 - **`name` is not a field.** Posting `{ "name": "lab2" }` returns `201` with an id of
   `topo-mw9ltb2h` and creates a board you did not name. Measured against a live server, because the
   body is not validated and the mistake is silent.
