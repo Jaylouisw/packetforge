@@ -133,5 +133,40 @@ console.log('\nAn empty VLAN left behind says so, and names the command that rem
   saw(/no vlan 20/, out, 'and the command that removes it is named');
 }
 
+console.log('\nThe VLAN table names the SVI as an SVI, not as a port:');
+{
+  const env = sviLab();
+  const table = env.s.run('show vlan').output.join('\n');
+  ok(/Vlan20 \(SVI\)/.test(table), 'the Ports column marks it "(SVI)"');
+  ok(new RegExp(env.port.replace('/', '\\/')).test(table), 'and the real port is listed beside it');
+}
+
+console.log('\nRemoving a VLAN names the dependency that actually blocks it:');
+{
+  const env = sviLab();
+  env.s.run('configure terminal');
+  // A port is in VLAN 20 as well, so both dependencies exist and both are named.
+  const both = env.s.run('no vlan 20');
+  saw(/carried by/.test(both.output.join('\n')) ? new RegExp(env.port.replace('/', '\\/')) : /$^/, both,
+    'the port that carries it is named');
+  saw(/no interface vlan 20/, both, 'and so is the SVI, with the command that removes it');
+
+  // Now only the SVI is left: the port moves out, and the port advice must stop.
+  env.s.run('interface ' + env.port);
+  env.s.run('switchport access vlan 1');
+  env.s.run('exit');
+  const sviOnly = env.s.run('no vlan 20');
+  saw(/is this device's own address: Vlan20/, sviOnly, 'an SVI-only VLAN says exactly that');
+  absent(/switchport access vlan/, sviOnly,
+    'and does NOT tell the operator to move an SVI with a switchport command');
+
+  // The instruction it does give works, and then the VLAN can go.
+  const gone = env.s.run('no interface vlan 20');
+  saw(/Interface Vlan20 removed/, gone, 'the SVI is removed by the command it named');
+  const vlan = env.s.run('no vlan 20');
+  saw(/VLAN 20 removed/, vlan, 'and then the VLAN itself comes out');
+  absent(/Vlan20/, env.s.run('show vlan').output.join('\n'), 'the VLAN is gone from the table');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

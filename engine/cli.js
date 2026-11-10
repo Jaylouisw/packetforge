@@ -809,10 +809,23 @@ class CliSession {
       if (extra) return extra;
       const deps = this._vlanDependents(this.device, id);
       const declared = this.device.config.vlans && this.device.config.vlans[id];
+      // Ports and SVIs are two different dependencies with two different remedies. Reporting both
+      // as "those ports" told the operator to move an SVI with `switchport access vlan`, which is
+      // advice that cannot be carried out: an SVI is the device's own address, not a port.
       if (deps.hard.length) {
-        return ['% VLAN ' + id + ' is carried by ' + deps.hard.join(', ') +
+        const notes = ['% VLAN ' + id + ' is carried by ' + deps.hard.join(', ') +
           ' - it cannot be removed while those ports are in it',
           '% Move them first, e.g. "switchport access vlan <other>" in each interface block'];
+        if (deps.svis.length) {
+          notes.push('% ' + deps.svis.join(', ') + ' also hold' + (deps.svis.length === 1 ? 's' : '') +
+            ' an address in it - "no interface vlan ' + id + '" removes that first');
+        }
+        return notes;
+      }
+      if (deps.svis.length) {
+        return ['% VLAN ' + id + ' is this device\'s own address: ' + deps.svis.join(', '),
+          '% Remove the interface first - "no interface vlan ' + id + '" - and the VLAN stays empty',
+          '% "show ip interface brief" lists the interfaces, "show vlan" the VLANs'];
       }
       if (!declared) {
         return ['% No VLAN ' + id + ' on ' + (this.device.name || this.device.id) +
@@ -1617,7 +1630,11 @@ class CliSession {
           add(id, i.name + (Number(id) === native ? '(n)' : '(t)'));
         }
       } else {
-        add(Number(v.accessVlan) || 1, i.name);
+        // An SVI is the device's own address in a VLAN, not a port that carries it. IOS does not
+        // list it in this column; the model shows it marked, because "which VLAN is my management
+        // address on" is a question the table can answer, and `Vlan20` sitting in a column headed
+        // Ports answered it as though a cable plugged into itself.
+        add(Number(v.accessVlan) || 1, i.svi ? i.name + ' (SVI)' : i.name);
       }
     }
     return by;
@@ -1630,9 +1647,15 @@ class CliSession {
   // that silently strands a port.
   _vlanDependents(dev, id) {
     const want = Number(id);
-    const hard = [], listed = [];
+    const hard = [], listed = [], svis = [];
     for (const i of dev.interfaces.values()) {
       const v = i.vlan || { mode: 'access', accessVlan: 1 };
+      // An SVI is not a port: it cannot be moved with `switchport access vlan`, so it is reported
+      // separately and removed with `no interface vlan <id>`.
+      if (i.svi) {
+        if ((Number(v.accessVlan) || 1) === want) svis.push(i.name);
+        continue;
+      }
       if (v.mode === 'trunk') {
         if ((Number(v.nativeVlan) || 1) === want) hard.push(i.name + ' (native)');
         else if (Array.isArray(v.allowedVlans) &&
@@ -1641,7 +1664,7 @@ class CliSession {
         hard.push(i.name);
       }
     }
-    return { hard: hard, listed: listed };
+    return { hard: hard, listed: listed, svis: svis };
   }
 
   // One spelling of a flow id, shared by every door: `flow-3` and `3` are the same flow, and

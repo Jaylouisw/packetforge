@@ -1196,6 +1196,40 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### `no vlan` blamed a port that was an SVI
+
+A switch with its own address in VLAN 20 could not lose VLAN 20:
+
+```
+SW1(config)#no vlan 20
+% VLAN 20 is carried by Vlan20 - it cannot be removed while those ports are in it
+% Move them first, e.g. "switchport access vlan <other>" in each interface block
+```
+
+`Vlan20` is an **SVI** — the device's own address — and there is no `switchport` to move it with, so the
+one instruction offered could not be carried out. The VLAN table made the same mistake, listing the SVI
+in a column headed *Ports*:
+
+```
+VLAN  Name      Status  Ports
+20    VLAN0020  active  Vlan20
+```
+
+Ports and SVIs are two dependencies with two remedies, so they are counted and reported separately now:
+
+```
+VLAN  Name      Status  Ports
+20    VLAN0020  active  Vlan20 (SVI), Fa0/1
+
+SW1(config)#no vlan 20
+% VLAN 20 is this device's own address: Vlan20
+% Remove the interface first - "no interface vlan 20" - and the VLAN stays empty
+% "show ip interface brief" lists the interfaces, "show vlan" the VLANs
+```
+
+When a port carries it too, both are named, each with its own remedy. The instruction it gives works, and
+the chain completes: `no interface vlan 20` → `no vlan 20` → gone from `show vlan`.
+
 ### A switch's own address could be created and never removed
 
 `interface vlan 20` + `ip address` addresses the switch on that VLAN: it appears in
