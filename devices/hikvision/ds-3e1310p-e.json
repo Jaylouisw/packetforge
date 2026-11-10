@@ -1,0 +1,157 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-3E1310P-E",
+  "label": "Hikvision web-managed 8-port 100 Mbps PoE switch (DS-3E1310P-E)",
+  "category": "switch",
+  "description": "Hikvision DS-3E1310P-E - all-metal web-managed surveillance switch with 8x 10/100 PoE ports (802.3af/at, 30 W per port, 120 W PoE output) and 2x gigabit combo ports that accept either RJ45 or SFP. 5.4 Gbps backplane, 4 K MAC table, VLAN, trunk, STP, QoS, SNMP and port mirroring; EXTEND mode reaching 250 m.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "ge1-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "ge1-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "ge1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "ge2-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "ge2-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "ge2",
+      "comboRole": "sfp"
+    }
+  ],
+  "poeBudget": 120,
+  "icon": "switch",
+  "color": "#0f766e",
+  "sourceUrl": "https://www.4gon.co.uk/hikvision-web-managed-8p-poe-switch-p-7813.html",
+  "notes": "The port table reads '**10/100M RJ45: 8**', '**10/100/1000M RJ45: 2**', '**1000M SFP: 2 (multiplex)**'. 'Multiplex' is the datasheet's word for a **combo** cage: each of the two gigabit positions takes an RJ45 plug *or* an SFP, never both, so they are modelled as four interfaces naming each other (`comboWith`/`comboRole`) and the engine refuses the second cable with `E_COMBO_OCCUPIED`. That is why this box has twelve interfaces for ten physical ports - correct, not a miscount. **A contradiction recorded rather than resolved:** the prose says 'The PoE maximum output power is 120W' while the PoE table row says 'Switch max. power: 123W' and consumption is '<=150W'. The 120 W is the figure attached to *PoE output*, so that is the `poeBudget`; the 123 W and 150 W are recorded in this note rather than silently chosen between. The 8 PoE ports are **Fast Ethernet** - 100 Mbps - with the gigabit ports reserved for the two combos, which is the same message as the DS-3E1309P-E in a different shape."
+}

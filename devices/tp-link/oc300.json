@@ -1,0 +1,44 @@
+{
+  "vendor": "tp-link",
+  "model": "OC300",
+  "label": "TP-Link Omada hardware controller (OC300)",
+  "category": "server",
+  "description": "TP-Link OC300 - on-premises Omada SDN hardware controller in a metal 1U-rackable chassis, with two Gigabit Ethernet ports and a USB 3.0 port for automatic backup. Centrally manages up to 500 Omada access points, 100 JetStream switches and 100 Omada routers, with captive portal, heatmap simulation, batch firmware upgrade and multi-site management.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "poeIn": 0
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.4gon.co.uk/tplink-omada-hardware-controller-oc300-p-10144.html",
+  "notes": "The page calls it a '**2-Port** On-Premises Controller' and says 'two Gigabit ports' - so two RJ45, and the vendor does not label either one WAN. Both are therefore declared **LAN**, because guessing a WAN role on a management appliance is exactly the kind of invention that makes a lab wrong about where the uplink goes. The USB 3.0 socket is for automatic backup, not networking, so it is described here and not modelled as a port. Mains powered with no PoE anywhere, hence `poeIn: 0`. It is a management appliance rather than a switch: it forwards nothing, it configures other devices (500 APs / 100 switches / 100 routers), so it carries `host` and `http-server` and no forwarding capability."
+}

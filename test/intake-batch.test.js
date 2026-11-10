@@ -624,5 +624,38 @@ console.log('\nEight fast ethernet PoE ports behind one gigabit uplink (#649, #6
     'RE23S: mains plug, so it declares poeIn 0 rather than letting the AP heuristic guess');
 }
 
+console.log('\nA combo cage counts twice, and a controller is not a switch (#646, #327):');
+{
+  const hik = find('DS-3E1310P-E');
+  const hp = effectiveInterfaces(hik);
+  eq(hp.length, 12, 'DS-3E1310P-E: twelve interfaces for ten physical ports - two of them are combo halves');
+  eq(hp.filter(function (p) { return p.speed === '100M' && p.poeOut > 0; }).length, 8,
+    'DS-3E1310P-E: eight 100M PoE ports');
+  eq(hp.filter(function (p) { return p.comboWith; }).length, 4,
+    'DS-3E1310P-E: two combo positions, each modelled as an RJ45 half and an SFP half');
+  eq(hik.poeBudget, 120, 'DS-3E1310P-E: 120 W of PoE output');
+
+  // The combo rule, both directions: one cage takes one cable, and unplugging frees the sibling.
+  const t19 = new Topology();
+  const sw3 = t19.addDevice(hik);
+  const peer = t19.addDevice(find('VSP2100-K'));
+  const l = t19.connect(sw3.id, 'ge1-sfp', peer.id, 'sfp1', {});
+  const blocked = t19.validateLink(sw3.id, 'ge1', peer.id, 'sfp2', {});
+  ok(!blocked.ok && (blocked.errors || []).some(function (e) { return e.code === 'E_COMBO_OCCUPIED'; }),
+    'DS-3E1310P-E: the RJ45 half of a combo is refused while the SFP half is cabled');
+  t19.disconnect(l.id);
+  const freed = t19.validateLink(sw3.id, 'ge1', peer.id, 'sfp2', {});
+  ok(!(freed.errors || []).some(function (e) { return e.code === 'E_COMBO_OCCUPIED'; }),
+    'DS-3E1310P-E: and unplugging the SFP half frees it again');
+
+  const oc = find('OC300');
+  const ocp = effectiveInterfaces(oc);
+  eq(ocp.length, 2, 'OC300: two Gigabit ports, which is what the page says');
+  ok(ocp.every(function (p) { return p.role === 'lan'; }),
+    'OC300: both declared LAN - the vendor labels neither one WAN, and inventing one would be a guess');
+  ok(!(oc.capabilities || []).some(function (c) { return /forward/.test(c); }),
+    'OC300: a management appliance forwards nothing');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
