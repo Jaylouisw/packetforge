@@ -1217,9 +1217,25 @@ class CliSession {
     return { lines: [], name: name };
   }
 
+  // `do show <…>` from inside a sub-mode is a read. It used to fall through to the global handler,
+  // which treats a line it accepts as "you have left the block" - so one look at the interfaces
+  // demoted the prompt from (config-if), (config-router) or (config-ext-nacl) to (config), and every
+  // line after it was applied at the wrong level. (In the DHCP pool it was refused instead, which is
+  // the other half of the same inconsistency.) Returns null when the line is not a `do show`.
+  _doShowInMode(tokens) {
+    if (String(tokens[0] || '').toLowerCase() !== 'do') return null;
+    if (String(tokens[1] || '').toLowerCase() !== 'show') {
+      return ['% do only supports "do show <...>" here',
+        '% The prompt stays where it is: "exit" leaves this block, "end" leaves configuration'];
+    }
+    return this._show(tokens.slice(2));
+  }
+
   _ifaceMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    const doShow = this._doShowInMode(tokens);
+    if (doShow) return doShow;
 
     // Switching ports from inside an interface block keeps a pasted
     // `show running-config` working; the current interface is replaced, so this
@@ -2707,6 +2723,12 @@ class CliSession {
     const head = String(tokens[0] || '').toLowerCase();
     if (head === 'help' || head === '?') return this._help();
     if (this.routerKind === 'bgp') return this._bgpRouterMode(tokens);
+    const doShow = this._doShowInMode(tokens);
+    if (doShow) return doShow;
+    // Without `do`, a `show` here used to fall through to the global handler, which - having accepted
+    // the line - leaves the block: one look at the routing table and the next `network` statement was
+    // read as global config. A read is a read in every other block; it is one here too.
+    if (head === 'show') return this._show(tokens.slice(1));
     const cfg = this.device.config.ospf;
     if (!cfg) { this.mode = MODE_CONFIG; this.routerKind = null; return ['% OSPF is no longer configured']; }
     if (head === 'exit') {
@@ -2761,6 +2783,9 @@ class CliSession {
   // on a real router it is the same mode; only the verbs differ.
   _bgpRouterMode(tokens) {
     const head = String(tokens[0] || '').toLowerCase();
+    const doShow = this._doShowInMode(tokens);
+    if (doShow) return doShow;
+    if (head === 'show') return this._show(tokens.slice(1));
     if (!this.device.config.bgp) { this.mode = MODE_CONFIG; this.routerKind = null; return ['% BGP is no longer configured']; }
     if (head === 'exit') {
       this.mode = MODE_CONFIG;
@@ -4868,6 +4893,8 @@ class CliSession {
       this.mode = MODE_CONFIG;
       return ['% Access list ' + key + ' no longer exists - back to config'];
     }
+    const doShow = this._doShowInMode(tokens);
+    if (doShow) return doShow;
     if (head === 'exit') { this.mode = MODE_CONFIG; this.aclName = null; return out; }
     if (head === 'end') { this.mode = this._modeAfterConfig(); this.aclName = null; return out; }
     // `show` works from inside a block, as it does in an interface block: the question "what does the
@@ -5324,6 +5351,10 @@ class CliSession {
     const dhcpLib = require('./dhcp');
     const head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
+    // The one sub-mode that refused `do show` instead of answering it - and refusing it without
+    // leaving the block, which was the only half of the behaviour that was right.
+    const doShow = this._doShowInMode(tokens);
+    if (doShow) return doShow;
     const pools = (this.device.config && this.device.config.dhcpPools) || [];
     const pool = pools.filter(function (p) {
       return p.name === this.pool;
@@ -10093,6 +10124,7 @@ class CliSession {
         helpLine('neighbor <ip> remote-as <as>', 'accept sessions from that address in that AS'),
         helpLine('no neighbor <ip>', 'remove the peer'),
         helpLine('bgp router-id <ip>', 'name this speaker by an address of its own choosing'),
+        helpLine('show <what> | do show <what>', 'any exec view, without leaving this process'),
         helpLine('exit', 'back to global configuration - the process stays running'),
         helpLine('end', 'leave configuration mode entirely')
       ], 'BGP mode - the process is this autonomous system, and its peers are the addresses below it');
@@ -10100,6 +10132,7 @@ class CliSession {
         helpLine('network <net> <wildcard> area <id>', 'put every interface the wildcard matches into an area'),
         helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
         helpLine('router-id <ip>', 'name this router in OSPF'),
+        helpLine('show <what> | do show <what>', 'any exec view, without leaving this process'),
         helpLine('exit', 'back to global configuration - the process stays running'),
         helpLine('end', 'leave configuration mode entirely')
       ], 'Router mode - the areas live on the interfaces, and "network" is the shorthand that writes them');

@@ -1196,6 +1196,37 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### `do show` demoted the prompt out of every block
+
+A read is the one thing an operator does *while* configuring. Inside an interface block:
+
+```
+R1(config)#interface Gi0/0
+R1(config-if)#do show ip interface brief
+Interface  IP-Address  OK?  Method  Status  Protocol
+Gi0/0      unassigned  YES  manual  down    down
+R1(config)#                        <- the block is gone
+```
+
+`do show …` fell through to the global handler, whose rule is *"a line I accept means you have left
+the block"* — right for `hostname`, wrong for a read. Every line after the look was applied at the
+wrong level: an `ip address` written next went to global config and was refused there.
+
+The ACL block and **both router modes** did the same, so one `do show ip route` in an OSPF process
+left it, and the next `network` statement was read as global configuration. The DHCP pool was the
+exception in the other direction: it **refused** `do show` as unrecognised. All five now share one
+helper:
+
+```
+R1(config-router)#do write memory
+% do only supports "do show <...>" here
+% The prompt stays where it is: "exit" leaves this block, "end" leaves configuration
+```
+
+Plain `show <what>` is a read in every block too, router mode included — it used to leave the process
+as well. The router-mode page now lists the read it accepts (`show <what> | do show <what>`), and the
+deliberate behaviour is unchanged: a **global** verb typed in a block still leaves the block.
+
 ### The tree could be configured per VLAN and not viewed that way
 
 `spanning-tree vlan 10 root primary` is accepted, and its own answer says *"Spanning tree for VLAN 10"*.
