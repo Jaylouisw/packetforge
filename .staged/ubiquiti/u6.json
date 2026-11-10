@@ -1,0 +1,37 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U6+",
+  "label": "U6+",
+  "category": "wireless",
+  "description": "U6+ (U6+) - 1x 1G RJ45. 802.3af PoE-in; WiFi 6; up to 2.4 Gbps PHY rate; 9 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-plus"
+}

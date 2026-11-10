@@ -7,9 +7,9 @@ pulled a cable and a lab where a cable was never installed.
 ```bash
 # from any device's CLI, because a cable is not owned by a box
 R1#links
-Link   Endpoints                                                  State
-l5     SW1:Fa0/1 <-> SW2:Fa0/1                                     up
-l6     SW1:Fa0/2 <-> PC1:eth0                                      up
+Link  Endpoints                State
+l5    SW1:Fa0/1 <-> SW2:Fa0/1  up
+l6    SW1:Fa0/2 <-> PC1:eth0   up
 
 R1#link down l5 at 10000
 Link l5 (SW1:Fa0/1 <-> SW2:Fa0/1) is now down.
@@ -30,7 +30,13 @@ POST /api/topologies/:topoId/links/:linkId/state
 ```
 
 The response carries `reconvergeAtMs` and the whole convergence schedule. In the editor, right-click
-a cable for **Take link down** / **Bring link up**; a down cable is drawn dashed and red.
+a cable for **Take link down** / **Bring link up**; a down cable is drawn dashed and red
+(`.link.link-down` in `web/style.css`).
+
+One detail if you are writing a client against it: the handler builds its reply object with `state`
+**twice** — the requested string, then the full topology state — and the last key wins. So the
+reply's `state` is the topology, not `"down"`. Read `linkId`, `atMs`, `changed` and `reconvergeAtMs`
+for what the change did, and `state.links[…]` for the result.
 
 ## What a state change actually does
 
@@ -40,12 +46,30 @@ Four things, and all four are what real gear does — the model would be a lie w
 |---|---|
 | **Frames die at the cable** | A frame crossing a down link is dropped with `reason: 'link down'` and the link id, so the timeline says where it died. Before this was enforced, `Link.state` was decorative: a cable marked down still carried every frame. |
 | **The spanning tree is rebuilt** | A down cable is not a bridge port, so a redundant topology finds the other way. This is the whole reason STP exists, and it cannot be demonstrated if the tree ignores link state. |
-| **Forwarding tables are flushed** | A topology change notification empties every bridge's MAC table. Keeping the entries is how a real network black-holes after a failure: traffic is unicast into the port that used to lead somewhere. |
+| **Forwarding tables are flushed** | Every bridge's MAC table is emptied, not just the one whose port went down. Measured on a three-switch chain with a host at each end (3, 4 and 3 learned entries): cutting the **far** cable, two hops from the first switch, left `0, 0, 0`. Keeping the entries is how a real network black-holes after a failure: traffic is unicast into the port that used to lead somewhere. |
 | **The convergence schedule re-bases** | Every control-plane timer runs again *from the instant of the change*. Without this, a lab that broke a cable reported the network as converged because it had converged once, hours earlier. |
 
 The change instant is stored on the topology (`lastChangeAtMs`) and on the link
 (`stateSinceMs`), not on a query object, so it survives save/load and every later question knows
 when it happened.
+
+**The flush stops at the bridges — a host's ARP cache is untouched.** After cutting a cable to a
+PC, the switch's table is empty and the other PC's `show arp` still lists the neighbour it learned
+before the cut (`Internet  10.0.0.11  -  02:00:00:00:02:00  -`). That is deliberate rather than
+forgotten: nothing ages an ARP entry in this model, and `POST …/reset` (or the UI's *Reset state*)
+is the operation that clears MAC tables **and** ARP caches together — measured end to end through
+the API: after a successful ping, `show arp` holds `10.9.0.20` and `show mac address-table` holds two
+`DYNAMIC` rows; after the reset both commands print their **header only**, with no rows and no
+refusal line. A stale entry therefore survives a cable change but not a reset — worth knowing
+before concluding the flush is broken.
+
+**Two things are called reset and they do different jobs.** `Simulator.reset()` rewinds a *run* —
+events, queue, step counter, DHCP lease state, the cached STP result — and deliberately leaves
+`dev.macTable` and `dev.arp` alone, because `ping()` calls it first and a ping must not erase the
+tables it is about to use. The forwarding state is cleared by the **server's** `/reset` handler,
+which loops over devices calling `d.macTable.clear()` and `d.arp.clear()` and then resets flow state.
+So scripting the engine directly and expecting tables to clear will not work; the endpoint is the
+one that means "forget what the network learned".
 
 ## The window where nothing works
 
@@ -53,26 +77,81 @@ when it happened.
 change at 10 s  →  converges at 40 s   (2 × forward delay, 15 s each)
 ```
 
-Ask a question inside that window and the answer is honest about it:
+Ask a question inside that window and the answer is honest about it. Two switches, a redundant
+link, one of the pair cut at 10 s, then a ping asked at 11 s:
 
 ```
-R1#ping 10.0.0.2
-....    ← nothing gets through: the tree is still listening and learning
+PC1#ping 10.0.0.11 at 11000
+Type escape sequence to abort.
+Sending 4, 100-byte ICMP Echos to 10.0.0.11, timeout is 2 seconds:  (at t=11000 ms)
+....
+Success rate is 0 percent (0/4)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
 ```
+
+One line per lost echo, each naming the processes that are not done and when they will be. The same
+question asked at 41 s is `!!!!` and `Success rate is 100 percent (4/4)`, because the tree has
+finished and the redundant link is forwarding.
+
+A *flow* asked in the same window refuses with a different code than the ping hints at:
+
+```
+PC1#flow open 10.0.0.11 port 80 at 11000
+% flow refused (E_STP): port in STP blocking state
+% yet: stp on SW1 still converging (ready at 40000 ms), stp on SW2 still converging (ready at 40000 ms)
+% try again after that, or ask at an instant with "at <ms>" (and "at converged" to go back)
+```
+
+`E_STP` is the honest code — the tree really is blocking — but a reader who saw `E_CONVERGING`
+elsewhere and expects it here will not find it. Both messages name the same switches and the same
+ready time, so the diagnosis is identical whichever one you get.
 
 `converge` shows the same thing as data:
 
 ```
-R1#converge 20000
-Process   Device                 Ready   Basis
-change    (change)               10000 ms the link state changed
-stp       SW1                    40000 ms forwarding delay after a topology change (after the change at 10000 ms)
-...
+SW1#converge 20000
+Process  Device    Ready     Basis
+change   (change)  10000 ms  the link state changed
+stp      SW1       40000 ms  listening + learning (15 s forward-delay each) (after the change at 10000 ms)  (pending)
+stp      SW2       40000 ms  listening + learning (15 s forward-delay each) (after the change at 10000 ms)  (pending)
+
 Fully converged at 40000 ms. (re-based at the link change at 10000 ms)
 ```
 
-A ping asked before the window closes fails with `reason: 'converging'` and names the processes that
-are not done — not "host unreachable", which would be a different and wrong diagnosis.
+Note what `Basis` says and what `(pending)` marks: the reason is *listening and learning*, named per
+switch, and the marker distinguishes a process that is merely waiting from one that never ran. A ping
+asked inside the window reports the same information per lost echo — `% Still converging at t=11000
+ms: stp on SW1, stp on SW2 (ready at 40000 ms)` — rather than "host unreachable", which would be a
+different and wrong diagnosis.
+
+### One rough edge: the figure `link down` quotes is always the STP one
+
+`link down` answers with `reconvergeAtMs`, and the simulator computes that as **the change instant
+plus two forward delays regardless of whether the topology contains a bridge**. In a lab with
+switches that is right and `converge` agrees. In a **router-only** lab it is not: the CLI promises
+40 s, then `converge` reports the network was already converged at the change instant, and nothing
+was ever listening or learning.
+
+Measured, lab2 (router + two PCs, no switches):
+
+```
+Router#link down l4 at 10000
+Link l4 (PC-d1:eth0 <-> Router-d3:Gi0/0) is now down.
+Network converges again at 40000 ms.          ← quoted unconditionally
+
+Router#converge 20000
+Process  Device    Ready     Basis
+change   (change)  10000 ms  the link state changed
+
+Fully converged at 10000 ms. (re-based at the link change at 10000 ms)
+```
+
+Nothing is wrong with the *model* — with no bridge there is no spanning tree, so the second answer is
+the correct one and the ping at 11 s still fails because the cable is down. It is the one-line
+summary that over-promises, and that is a bug in the seam, not a fidelity gap. Trust `converge`.
 
 ## Persistence
 

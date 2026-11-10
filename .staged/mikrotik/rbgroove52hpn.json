@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBGroove52HPn",
+  "label": "Groove 52",
+  "category": "ptp",
+  "description": "MikroTik Groove 52 (RBGroove52HPn) — 1x 100M RJ45, Wi-Fi 2.4/5 GHz. MIPSBE 1-core AR9342.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBGroove52HPnr2"
+}

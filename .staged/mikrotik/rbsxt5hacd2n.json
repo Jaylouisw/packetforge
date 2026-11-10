@@ -1,0 +1,38 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBSXT5HacD2n",
+  "label": "SXT Lite5 ac",
+  "category": "ptp",
+  "description": "MikroTik SXT Lite5 ac (RBSXT5HacD2n) \u2014 1x 100M RJ45, Wi-Fi 2.4 GHz + 5 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RBSXT5HacD2nr2"
+}

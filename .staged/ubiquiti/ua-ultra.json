@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UA-Ultra",
+  "label": "UniFi Access Ultra",
+  "category": "iot",
+  "description": "UniFi Access Ultra (UA-Ultra) - 1x 100M RJ45. 802.3at PoE-in; 18 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-ultra"
+}

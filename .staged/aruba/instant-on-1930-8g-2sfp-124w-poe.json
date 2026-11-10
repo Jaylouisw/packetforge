@@ -1,0 +1,83 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On 1930 8G Class4 PoE 2SFP 124W (JL681A)",
+  "label": "Aruba Instant On 1930 8G Class4 PoE 2SFP 124W Switch (JL681A)",
+  "category": "l3-switch",
+  "description": "Aruba Instant On 1930 8G Class 4 PoE 2SFP 124W (JL681A) - 8x 1G RJ45 PoE+ (802.3at Class 4, 124 W budget) plus 2x 1G SFP uplinks. Smart-managed Layer 2+ with IPv4 static routing.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.netxl.com/aruba/docs/jl684b-acc-datasheet.pdf",
+  "poe": {
+    "budgetW": 124,
+    "sourceUrl": "https://www.netxl.com/aruba/docs/jl684b-acc-datasheet.pdf",
+    "note": "JL681A: 124 W Class 4 PoE budget, all 8 copper ports."
+  }
+}

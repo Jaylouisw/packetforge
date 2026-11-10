@@ -1,0 +1,43 @@
+{
+  "vendor": "ubiquiti",
+  "model": "E7-Audience",
+  "label": "UniFi E7 Audience",
+  "category": "wireless",
+  "description": "UniFi E7 Audience (E7-Audience) - 1x 10G RJ45 + 1x 1G RJ45. 802.3bt PoE-in; WiFi 7; 12 spatial streams; up to 11.5 Gbps PHY rate; 51 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "8.6G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "11.5G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/e7-audience-us"
+}

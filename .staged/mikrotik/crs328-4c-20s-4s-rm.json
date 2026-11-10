@@ -1,0 +1,275 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS328-4C-20S-4S+RM",
+  "label": "CRS328-4C-20S-4S+RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS328-4C-20S-4S+RM (CRS328-4C-20S-4S+RM) — 20x SFP, 4x 10G SFP+, 4x combo RJ45/fibre. ARM 32bit 2-core 98DX3236.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "COMBO1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "COMBO2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "COMBO3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "COMBO4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP13",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP14",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP15",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP16",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP17",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP18",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP19",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP20",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs328_4c_20s_4s_rm",
+  "comboPorts": 4
+}

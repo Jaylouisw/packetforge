@@ -1,0 +1,41 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB1000U",
+  "label": "RB1000U",
+  "category": "router",
+  "description": "MikroTik RB1000U (RB1000U) — 4x 100M RJ45. PPC -core .",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB1000U"
+}

@@ -1,15 +1,53 @@
 # Triage: hardware requests
 
-Most of this repository's open issues are device requests — around 800 at the time of writing — and
-a steady fraction of them ask for hardware that is already modelled. Each one costs a human reading
-it. `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before
-anyone reads the body: **is this already in the catalogue?**
+Every open issue in this repository is a device request — **all 126 of them** when this was last
+measured, each carrying both the `device` and `device-request` labels — and a steady fraction ask for
+hardware that is already modelled. Each one costs a human reading it. `scripts/sweep-device-requests.js` answers,
+mechanically, the only question that matters before anyone reads the body: **is this already in the
+catalogue?**
+
+The count moves, so re-measure rather than trusting this page. The API is readable without a token:
+
+```bash
+curl -s -D - -o /dev/null \
+  'https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&type=issues&limit=1' \
+  | grep -i x-total-count
+```
 
 ```
 node scripts/sweep-device-requests.js                  # report only
 node scripts/sweep-device-requests.js --limit 900      # scan the whole backlog
 node scripts/sweep-device-requests.js --close 10       # comment and close 10 verified matches
 ```
+
+**Before the flags, the network.** `API` is hard-coded near the top of the script to
+`http://10.0.10.20:3000/api/v1` — a LAN address — and the token is scraped out of the `github` or
+`origin` git remote. Run off that network and every request fails before a flag is parsed. The
+public host answers the same API, so the read-only checks in this page work from anywhere; closing
+issues needs the address the script expects.
+
+The script's own header still says the repository "has ~830 open issues"; it has **126** (measured
+against the tracker while writing this page). Nothing reads that comment, and `--limit 200` still
+covers the whole queue — but do not quote the header as if it were a count.
+
+Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
+200** — with the backlog at 126 that default already covers everything, so the flag is only needed
+once the queue grows past it (`--limit 900` scans a large backlog in one pass). `--close` is a
+budget, not a switch: `--close 0` (the default) reports, and the report itself prints at most 40
+matches before saying "... and N more".
+
+## How the lookup works
+
+One pass, three attempts per title, each attempt subject to the same guards below:
+
+1. the whole remaining title, normalised, looked up as **vendor + model**, then as **model**;
+2. failing that, a **trailing run of tokens**, longest first, so `MikroTik Cloud Core Router
+   CCR2004-16G-2S+` finds `CCR2004-16G-2S+` without the script having to know that "Cloud Core
+   Router" is filler;
+3. failing that, nothing — the request stays open.
+
+Every hit is exact after normalisation. There is no edit distance and no similarity score anywhere
+in the file.
 
 ## What counts as a match
 
@@ -34,9 +72,12 @@ absence of confidently wrong ones.
 
 ### Normalisation keeps `+`
 
-Stripping punctuation made `WiFi Mesh 3+` and `WiFi Mesh 3` the same key, and they are different
-products. `+` becomes the word `plus` and everything else becomes a separator, so `RB5009UPr+S+IN`
-and `RB5009UPr+S+OUT` stay distinct — which matters, because the catalogue has both.
+Stripping punctuation made `WiFi Mesh 3+` and `WiFi Mesh 3` the same key — and a request for the
+`+` variant was matching the box that is not the `+` variant. `+` becomes the word `plus` and
+everything else becomes a separator, so `RB5009UPr+S+IN` and `RB5009UPr+S+OUT` stay distinct —
+which matters, because the catalogue has both. It is not a theoretical worry: **104 of the 1,584
+models carry a `+`**. `++` is folded to `plusplus` ahead of the single-`+` rule; no current model
+uses one, so that branch is defensive rather than exercised.
 
 ## What a close says
 
@@ -44,8 +85,11 @@ Each close posts a comment naming the vendor, the model, the file and the catego
 reporter to disagree about the ports:
 
 > This device is in the catalogue: **TP-Link TL-SG105E** (`devices/tp-link/tl-sg105e.json`).
+>
 > Filed under `switch`. If the port count, cage or rate is wrong for your hardware, say so and it
-> gets fixed — a spec that disagrees with the box is a bug here, not a preference.
+> gets fixed - a spec that disagrees with the box is a bug here, not a preference.
+>
+> Closed as already modelled.
 
 That last sentence is the point of the project, and it is also the honest position: a request being
 "satisfied" means a spec exists, not that the spec is right.

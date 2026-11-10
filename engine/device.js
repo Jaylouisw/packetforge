@@ -176,6 +176,9 @@ class Device {
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
+    // Adjacencies OSPF formed (derived, never persisted): { deviceId, name,
+    // routerId, ip, iface, area, state }. `show ip ospf neighbor` reads this.
+    this.ospfNeighbors = [];
     // Routes learned by BGP (derived, never persisted)
     this.bgpRoutes = [];
     // Per-interface ACL bindings: ifaceName -> { in: aclNumber, out: aclNumber }
@@ -196,6 +199,63 @@ class Device {
   }
 
   interface(name) { return this.interfaces.get(name); }
+
+  // A switch's own address lives on a VLAN, not on a socket. IOS calls that object an SVI and
+  // spells it `interface Vlan10`; without one a switch had no management address at all, which is
+  // why `show ip interface brief` on a 28-port switch listed 28 `unassigned` rows and `ping` from a
+  // switch could not be attempted. ownsIpOn() already knew the rule ("a switch's management address
+  // belongs to a VLAN"), but no object could carry it.
+  addSvi(vid) {
+    const name = 'Vlan' + vid;
+    const existing = this.interfaces.get(name);
+    if (existing) return existing;
+    const iface = new Interface({ name: name, type: 'svi', speed: 'virtual' }, 4096 + vid, {});
+    iface.svi = true;
+    iface.enabled = true;               // an SVI is up when the VLAN exists; it has no cable to fail
+    iface.mac = this._sviMac(vid);
+    const vlanLib = require('./vlan');
+    // An SVI is a member of exactly the VLAN it is named after, untagged - which is precisely the
+    // rule ownsIpOn() uses to decide that a frame arriving on any access port of that VLAN is
+    // addressed to this device.
+    iface.vlan = vlanLib.normalizePortConfig({ mode: 'access', accessVlan: vid });
+    this.interfaces.set(name, iface);
+    return iface;
+  }
+
+  // A stable MAC per SVI, taken from this device's own block so two switches' SVIs cannot collide.
+  // Uniqueness inside the device is enforced rather than assumed: a port index above 0x80 would
+  // otherwise land on the same number.
+  _sviMac(vid) {
+    const net = require('./net');
+    const all = Array.from(this.interfaces.values());
+    const used = new Set(all.filter(function (i) { return i.mac; }).map(function (i) { return i.mac; }));
+    const firstPort = all.filter(function (i) { return i.mac && !i.svi; })[0];
+    const baseInt = firstPort ? net.macToInt(firstPort.mac) : 0x020000000000;
+    // Arithmetic, not bitwise: a 48-bit MAC does not fit in the 32 bits `& ~0xff` silently truncates
+    // to, so the block came out as 0 and every SVI was handed 00:00:00:00:00:81.
+    const block = Math.floor(baseInt / 256) * 256;
+    for (let i = 0; i < 0x80; i++) {
+      const mac = net.intToMac(block + 0x80 + ((vid + i) % 0x80));
+      if (!used.has(mac)) return mac;
+    }
+    return net.intToMac(block + 0xff);
+  }
+
+  // Does this device own an address on a VLAN? A switch with a management SVI terminates traffic
+  // addressed to it even though it never routes: that is a host function on the switch chip, not a
+  // routing one, which is why it belongs beside isL2() and not inside isL3().
+  hasSvi() {
+    for (const iface of this.interfaces.values()) {
+      if (iface.svi && iface.enabled) return true;
+    }
+    return false;
+  }
+
+  // Ports that a frame can be bridged out of. An SVI is a logical port on the same chip: traffic
+  // addressed to it terminates locally, and it must never appear as an egress in _forwardL2().
+  bridgedInterfaces() {
+    return this.activeInterfaces().filter(function (i) { return !i.svi; });
+  }
 
   // Create (or return) a router subinterface, e.g. Gi0/0.10 for VLAN 10.
   // The physical parent automatically becomes an 802.1Q trunk.
@@ -263,6 +323,11 @@ class Device {
 
   ownsIpOn(incomingIface, ip) {
     const owner = this.interfaceWithIp(ip);
+    if (owner && owner.svi && owner.lineUp === false) {
+      // The address exists and the box is up; the VLAN is not carrying anything. Answering anyway
+      // would make a dead management address look reachable, which is the whole diagnosis.
+      return null;
+    }
     if (!owner) {
       // Not a configured address - but the group may hold it. A master that does not answer for
       // its own VIP is a router that forwards a packet addressed to itself.
@@ -425,84 +490,92 @@ class Device {
     return w;
   }
 
+  // Administrative distance, in one place. The numbers are the whole reason two rows for the
+  // same prefix are not equally good: a static route (1) beats an OSPF route (110) and an eBGP
+  // route (20) beats both. `routeTo()` breaks ties with this and `show ip route` explains them
+  // with this - two copies would diverge the moment one was tuned.
+  static get ADMIN_DISTANCE() {
+    return { connected: 0, static: 1, ebgp: 20, ospf: 110, ibgp: 200, default: 254 };
+  }
+
+  // Longest prefix wins; equal-length prefixes are broken by administrative distance. This is the
+  // one comparison both address families use. It lives here as a plain function because the IPv6
+  // path had its own copy: without the comparison in the connected loop, two matching prefixes
+  // routed by whichever interface came last, and a static route beat a connected subnet of the
+  // same length because it only compared lengths. Two implementations of "which route is better"
+  // is two answers to the question the console prints.
+  static betterRoute(candidate, best) {
+    if (!best) return true;
+    const prefix = candidate.prefix;
+    if (prefix !== best.prefix) return prefix > best.prefix;
+    const ad = candidate.ad === undefined ? 255 : candidate.ad;
+    const bestAd = best.ad === undefined ? 255 : best.ad;
+    return ad < bestAd;
+  }
+
   // Determine the egress interface + next-hop IP for a destination.
-  // Returns { iface, via, type, prefix } or null.
-  // Longest prefix wins; equal-length prefixes are broken by administrative
-  // distance (connected 0, static 1, eBGP 20, OSPF 110, iBGP 200, default 254).
+  // Returns { iface, via, type, prefix, ad } or null.
   routeTo(dstIp) {
     let best = null;
-
-    function better(prefix, ad) {
-      if (!best) return true;
-      if (prefix !== best.prefix) return prefix > best.prefix;
-      return ad < (best.ad === undefined ? 255 : best.ad);
-    }
+    const consider = function (candidate) {
+      if (Device.betterRoute(candidate, best)) best = candidate;
+    };
 
     // 1. connected subnets
     for (const iface of this.activeInterfaces()) {
+      if (iface.svi && iface.lineUp === false) continue;   // no line protocol, no connected route
       if (iface.ip && iface.mask && net.sameSubnet(dstIp, iface.ip, iface.mask)) {
-        const prefix = net.prefixOf(iface.mask);
-        if (better(prefix, 0)) {
-          best = { iface: iface.name, via: dstIp, type: 'connected', prefix: prefix, ad: 0 };
-        }
+        consider({ iface: iface.name, via: dstIp, type: 'connected',
+          prefix: net.prefixOf(iface.mask), ad: Device.ADMIN_DISTANCE.connected });
       }
     }
 
     // 2. static routes
     for (const r of (this.config.routes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
-        const prefix = net.prefixOf(r.mask);
-        if (better(prefix, 1)) {
-          best = {
-            iface: r.iface || null,
-            via: r.gw || dstIp, // on-link if no gateway given
-            type: 'static',
-            prefix: prefix,
-            ad: 1
-          };
-        }
+        consider({
+          iface: r.iface || null,
+          via: r.gw || dstIp, // on-link if no gateway given
+          type: 'static',
+          prefix: net.prefixOf(r.mask),
+          ad: Device.ADMIN_DISTANCE.static
+        });
       }
     }
 
     // 3. BGP-learned routes (eBGP 20, iBGP 200)
     for (const r of (this.bgpRoutes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
-        const prefix = net.prefixOf(r.mask);
-        const ad = r.ad || 200;
-        if (better(prefix, ad)) {
-          best = {
-            iface: r.iface || null,
-            via: r.nextHop || dstIp,
-            type: 'bgp',
-            prefix: prefix,
-            ad: ad,
-            asPath: r.asPath,
-            peerAs: r.peerAs
-          };
-        }
+        consider({
+          iface: r.iface || null,
+          via: r.nextHop || dstIp,
+          type: 'bgp',
+          prefix: net.prefixOf(r.mask),
+          ad: r.ad || Device.ADMIN_DISTANCE.ibgp,
+          asPath: r.asPath,
+          peerAs: r.peerAs
+        });
       }
     }
 
     // 4. OSPF-learned routes
     for (const r of (this.ospfRoutes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
-        const prefix = net.prefixOf(r.mask);
-        if (better(prefix, 110)) {
-          best = {
-            iface: r.iface || null,
-            via: r.nextHop || dstIp,
-            type: 'ospf',
-            prefix: prefix,
-            cost: r.cost,
-            ad: 110
-          };
-        }
+        consider({
+          iface: r.iface || null,
+          via: r.nextHop || dstIp,
+          type: 'ospf',
+          prefix: net.prefixOf(r.mask),
+          cost: r.cost,
+          ad: Device.ADMIN_DISTANCE.ospf
+        });
       }
     }
 
     // 5. default gateway (hosts / routers)
     if (!best && this.config.defaultGateway) {
-      best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0, ad: 254 };
+      best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0,
+        ad: Device.ADMIN_DISTANCE.default };
     }
 
     return best;
@@ -547,31 +620,71 @@ class Device {
   }
 
   // IPv6 routing: on-link prefixes, then static routes, then default gateway.
+  //
+  // The same comparison as IPv4 (`Device.betterRoute`) - this used to be a second, hand-written
+  // version that compared lengths only where it bothered: two matching on-link prefixes routed by
+  // whichever interface came last in iteration order, and a static route for a directly connected
+  // subnet won because equal lengths went to whichever ran second.
   route6To(dstIp6) {
     const v6 = require('./ipv6');
     let best = null;
+    const consider = function (candidate) {
+      if (Device.betterRoute(candidate, best)) best = candidate;
+    };
 
     for (const e of this.ip6Addrs()) {
       if (v6.prefixContains6(e.addr + '/' + e.prefix, dstIp6)) {
-        best = { iface: e.name, via: dstIp6, type: 'connected', prefix: e.prefix };
+        consider({ iface: e.name, via: dstIp6, type: 'connected', prefix: e.prefix,
+          ad: Device.ADMIN_DISTANCE.connected });
       }
     }
     for (const r of (this.config.routes6 || [])) {
       if (v6.prefixContains6(r.dest + '/' + r.prefix, dstIp6)) {
-        if (!best || r.prefix > best.prefix) {
-          best = { iface: r.iface || null, via: r.nextHop || dstIp6, type: 'static6', prefix: r.prefix };
-        }
+        consider({ iface: r.iface || null, via: r.nextHop || dstIp6, type: 'static6',
+          prefix: r.prefix, ad: Device.ADMIN_DISTANCE.static });
       }
     }
-    if (!best && this.config.gateway6) {
-      best = {
-        iface: this.config.gateway6Iface || null,
-        via: this.config.gateway6,
-        type: 'default6',
-        prefix: 0
-      };
+    if (this.config.gateway6) {
+      // A default route is a route: offered to the comparison rather than only taken when nothing
+      // else matched, so a static route and a gateway cannot disagree about who wins a /0.
+      consider({ iface: this.config.gateway6Iface || null, via: this.config.gateway6,
+        type: 'default6', prefix: 0, ad: Device.ADMIN_DISTANCE.default });
     }
     return best;
+  }
+
+  // Connected + static IPv6 routes as display rows, marked the same way as the IPv4 table: the
+  // route that forwards gets `installed`, so the table cannot present a shadowed row as a path.
+  routes6Table() {
+    const AD = Device.ADMIN_DISTANCE;
+    const v6 = require('./ipv6');
+    const rows = [];
+    for (const e of this.ip6Addrs()) {
+      const net6 = v6.networkAddress6(e.addr + '/' + e.prefix);
+      rows.push({
+        code: 'C', dest: net6, prefix: e.prefix, gw: '-', iface: e.name,
+        type: 'connected', ad: AD.connected, autoconfig: e.autoconfig
+      });
+    }
+    for (const r of (this.config.routes6 || [])) {
+      rows.push({
+        code: 'S', dest: r.dest, prefix: r.prefix, gw: r.nextHop || '-',
+        iface: r.iface || '-', type: 'static6', ad: AD.static
+      });
+    }
+    if (this.config.gateway6) {
+      rows.push({ code: 'S', dest: '::', prefix: 0, gw: this.config.gateway6,
+        iface: this.config.gateway6Iface || '-', type: 'default6', ad: AD.default });
+    }
+    const bestFor = new Map();
+    for (const row of rows) {
+      const key = row.dest + '/' + row.prefix;
+      const incumbent = bestFor.get(key);
+      if (!incumbent || row.ad < incumbent.ad) bestFor.set(key, row);
+      row.installed = false;
+    }
+    for (const row of bestFor.values()) row.installed = true;
+    return rows;
   }
 
   // Egress interface for a next-hop IPv6 address.
@@ -597,26 +710,35 @@ class Device {
   }
 
   // Connected + static routes as display rows.
+  //
+  // Each row carries the administrative distance that decides it, and `installed` marks the one
+  // route per prefix that would actually forward. Without the mark the table silently shows the
+  // candidates - two rows for one prefix with nothing saying which of them `routeTo()` picks.
   routesTable() {
+    const AD = Device.ADMIN_DISTANCE;
     const rows = [];
     for (const iface of this.activeInterfaces()) {
+      if (iface.svi && iface.lineUp === false) continue;   // the table and the data path agree
       if (iface.ip && iface.mask) {
         rows.push({
           code: 'C', dest: net.intToIp(net.networkOf(iface.ip, iface.mask)),
-          mask: iface.mask, gw: '-', iface: iface.name, type: 'connected'
+          mask: iface.mask, gw: '-', iface: iface.name, type: 'connected',
+          ad: AD.connected
         });
       }
     }
     for (const r of (this.config.routes || [])) {
       rows.push({
         code: 'S', dest: r.dest, mask: r.mask,
-        gw: r.gw || '-', iface: r.iface || '-', type: 'static'
+        gw: r.gw || '-', iface: r.iface || '-', type: 'static',
+        ad: AD.static
       });
     }
     for (const r of (this.ospfRoutes || [])) {
       rows.push({
         code: 'O', dest: r.dest, mask: r.mask,
-        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf'
+        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf',
+        ad: AD.ospf
       });
     }
     for (const r of (this.bgpRoutes || [])) {
@@ -627,8 +749,19 @@ class Device {
       });
     }
     if (this.config.defaultGateway) {
-      rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
+      rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway,
+        iface: '-', type: 'default', ad: AD.default });
     }
+    // Which row forwards. Same rule as `routeTo()`: for one prefix the lowest distance wins and a
+    // tie leaves the earlier row in place, so the mark cannot disagree with the data path.
+    const bestFor = new Map();
+    for (const row of rows) {
+      const key = row.dest + '/' + net.prefixOf(row.mask);
+      const incumbent = bestFor.get(key);
+      if (!incumbent || row.ad < incumbent.ad) bestFor.set(key, row);
+      row.installed = false;
+    }
+    for (const row of bestFor.values()) row.installed = true;
     return rows;
   }
 

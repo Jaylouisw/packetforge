@@ -5,8 +5,8 @@ the interval between *power on* and *working*, where the link lights are green a
 
 ```
 SW1#converge
-Process   Device                 Ready   Basis
-stp       SW1                    30000 ms  listening + learning (15 s forward-delay each)
+Process  Device  Ready     Basis
+stp      SW1     30000 ms  listening + learning (15 s forward-delay each)
 
 Fully converged at 30000 ms.
 ```
@@ -47,21 +47,76 @@ than in a special "simulation" state:
 
 ## The timers
 
-Each has its standard default and each is overridable in configuration, because a lab that
-demonstrates fast convergence has to be able to configure fast convergence.
+Each has its standard default. **How much of it you can actually change is worth stating plainly**,
+because "overridable in configuration" would otherwise read as "there is a command":
+
+| Timer | Can you change it? |
+|---|---|
+| VRRP advertisement | **Yes, from the CLI, per interface** — `vrrp <vrid> ip <addr> … advertise <seconds>` sets it when the group is created, and `vrrp <vrid> advertise <s>` changes an existing group (before one exists it is refused: `% No VRRP group 1 on Gi0/0`). Stored as `advertSec`; `show running-config` re-emits it only when it is not the 1 s default |
+| STP forward delay, max age | Only by writing the device config directly: `stpForwardDelaySec`, `stpMaxAgeSec` |
+| OSPF hello, exchange, SPF hold, dead | Only by writing the device config directly: `ospf.helloSec`, `ospf.exchangeSec`, `ospf.spfDelaySec`, `ospf.deadSec` |
+| DHCP exchange | Only by writing the device config directly: `dhcpExchangeSec` (default 1 s, which is what `leaseAtMs` is computed from) |
+
+There is no `spanning-tree forward-delay`, no `ospf hello` and no `dhcp timeout` command; those keys
+are read from `dev.config`, which is how `test/convergence-timing.test.js` drives fast-convergence
+cases. The defaults are the ones in `engine/convergence.js` — the table is `const C` inside that
+file, and `module.exports` publishes it as **`DEFAULTS: C`**, so `require('.../engine').convergence.DEFAULTS`
+is the object to read and `C` is the name you will see in a stack trace or a `grep`.
 
 | Process | Default | Source |
 |---|---|---|
 | STP forward delay | 15 s | 802.1D §17.14 — a forwarding port waits 2× this |
 | STP max age | 20 s | 802.1D |
 | OSPF hello | 10 s | RFC 2328 on a broadcast segment |
+| OSPF dead | 40 s | 4× the hello interval, the RFC 2328 relationship. Read into `ospfTimers()` and validated (`deadSec` must be at least `helloSec`), but it never reaches the schedule: `adjacentAtMs` and `routesAtMs` are built from hello + exchange + SPF only, so no adjacency ever expires on its own |
 | OSPF exchange | 1 s | modelled DBD/LSDB synchronisation |
 | OSPF SPF delay | 5 s | the hold before the first route lands |
 | VRRP advertisement | 1 s | RFC 5798 §6.1 |
 | DHCP exchange | 1 s | DISCOVER/OFFER/REQUEST/ACK |
 
+### How each readiness number is computed
+
+The `Ready` column is arithmetic, not a lookup, and every formula below was checked against a live
+`converge` on this tree:
+
+| Process | Formula | Measured |
+|---|---|---|
+| STP | `listing = forward delay`, then a second forward delay to learn, so `2 × 15 s` | `30000 ms  listening + learning (15 s forward-delay each)` |
+| OSPF | `hello + exchange` to form the adjacency, `+ SPF hold` for the first route | `16000 ms  hello 10 s + exchange, then SPF hold` (10 + 1 + 5) |
+| VRRP | `3 × advertisement + skew`, where `skew = (256 − priority) / 256` s and priority 255 skips it | `3609.375 ms  3 x advertise 1 s + skew` at priority 100 (3 + 156/256) |
+| DHCP | the exchange itself, with no queueing behind it | `1000 ms  DISCOVER/OFFER/REQUEST/ACK` |
+
+Two of these are worth reading twice. **VRRP is the only one whose number is not a round figure** —
+`3609.375 ms` at the default priority 100, because the RFC's skew time is a fraction of a second; a
+higher priority shrinks it — measured `3218.75 ms` at priority 200 (3 + 56/256) and a clean `3000 ms`
+at priority 255 (the address owner, whose skew is zero by the RFC). And
+**OSPF's dead interval does not appear in the formula at all**: `deadSec` is read and validated but
+never reaches the schedule, so an adjacency cannot expire on its own and the readiness number is
+always `hello + exchange + SPF`.
+
 `engine/convergence.js` is pure: it reads configuration and returns times. No clock, no state, no
 side effects. The simulator decides what to do with the answer.
+
+### BGP has no timer here, and that is deliberate
+
+The table above is the whole list. BGP is missing from it because `computeBgp()` runs
+synchronously — there is no ConnectRetry, no hold timer, no session that sits in `Active` for a
+while. Two routers configured as eBGP peers are `Established` **at t=0**:
+
+```
+R1#ping 10.0.12.2 at 0
+R1#show ip bgp
+Neighbor   V  AS     State        Reason
+10.0.12.2  4  65002  Established  eBGP
+1 of 1 neighbour(s) established
+```
+
+A *run* is still required — a fresh lab reports `(no neighbours have been evaluated yet - run a
+simulation)` — but the run needs no time. The tell is `converge` in a lab whose only protocol is
+BGP: `% Nothing in this lab runs a control plane that converges over time`. If a lab mixes BGP with
+OSPF or STP, the other process sets the finish time and BGP's routes are there from the first
+instant. A real BGP session's 30 s ConnectRetry and 180 s hold time are not modelled, so do not
+read this page's numbers as covering them.
 
 ## What this does not model
 
@@ -72,11 +127,15 @@ Honestly, and by design:
   finished or not.
 - **Timer jitter and retransmission.** A hello is heard, not lost. There is no dead-interval expiry,
   no 3-missed-hellos neighbour teardown, no exponential backoff.
-- **Topology-change driven convergence.** Changing a link after power-on and watching the network
-  re-converge is not modelled; the schedule is computed from the topology as it stands.
 - **STP port roles changing over time.** Roles come from the steady-state computation; only the
   transitional Listening/Learning state is timed.
-- **Link-down events during convergence.** A cable pulled mid-convergence is a separate feature.
+- **Several changes inside one window.** `markChange()` keeps the *latest* change instant, so a lab
+  where three cables are pulled in a second re-bases once from the last one rather than queueing
+  three overlapping windows. Flapping, half-broken links and a partially degraded link are not
+  modelled either ([LINK-STATE.md](LINK-STATE.md)).
+
+Note that **re-convergence after a topology change is** modelled — it has its own section below,
+because it is the half of the feature a lab actually exercises.
 
 Each of those is a real gap and each is a candidate for its own issue. What exists is the part a
 technician meets first: the honest *duration* of coming up.

@@ -1,0 +1,66 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-WAN-RJ45",
+  "label": "UniFi WAN Switch RJ45",
+  "category": "switch",
+  "description": "UniFi WAN Switch RJ45 (USW-WAN-RJ45) - 1x 1G RJ45 + 3x 10G RJ45. 20 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-wan-rj45"
+}

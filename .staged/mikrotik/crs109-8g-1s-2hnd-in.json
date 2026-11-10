@@ -1,0 +1,74 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS109-8G-1S-2HnD-IN",
+  "label": "CRS109-8G-1S-2HnD-IN",
+  "category": "switch",
+  "description": "MikroTik CRS109-8G-1S-2HnD-IN (CRS109-8G-1S-2HnD-IN) — 8x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/CRS109-8G-1S-2HnD-IN"
+}

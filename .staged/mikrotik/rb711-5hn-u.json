@@ -1,0 +1,27 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB711-5Hn-U",
+  "label": "RB711-5Hn-U",
+  "category": "router",
+  "description": "MikroTik RB711-5Hn-U (RB711-5Hn-U) \u2014 1x 100M RJ45. MIPS-BE -core .",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB711-5Hn-U"
+}

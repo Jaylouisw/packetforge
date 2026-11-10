@@ -1,0 +1,111 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS310-1G-5S-4S+IN",
+  "label": "CRS310-1G-5S-4S+IN",
+  "category": "l3-switch",
+  "description": "MikroTik CRS310-1G-5S-4S+IN (CRS310-1G-5S-4S+IN) — 1x 1G RJ45, 5x SFP, 4x 10G SFP+. ARM 32bit 2-core 98DX226S.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs310_1g_5s_4s_in"
+}

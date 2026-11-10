@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBDynaDishG-6HnD",
+  "label": "DynaDish 6",
+  "category": "ptp",
+  "description": "MikroTik DynaDish 6 (RBDynaDishG-6HnD) — 1x 1G RJ45, Wi-Fi 6 GHz. MIPSBE 1-core AR9344.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/dynadish_6"
+}

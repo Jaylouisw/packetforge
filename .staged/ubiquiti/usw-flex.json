@@ -1,0 +1,80 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Flex",
+  "label": "UniFi Flex",
+  "category": "switch",
+  "description": "UniFi Flex (USW-Flex) - 5x 1G RJ45 (4 PoE+ / 1 PoE++). 60 W PoE budget; 10 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3bt",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex"
+}

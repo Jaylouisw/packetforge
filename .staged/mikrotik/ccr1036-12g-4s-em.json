@@ -1,0 +1,117 @@
+{
+  "vendor": "mikrotik",
+  "model": "CCR1036-12G-4S-EM",
+  "label": "CCR1036-12G-4S-EM",
+  "category": "router",
+  "description": "MikroTik CCR1036-12G-4S-EM (CCR1036-12G-4S-EM) — 12x 1G RJ45, 4x SFP. TILE 36-core TLR4-03680.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "SFP4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/CCR1036-12G-4S-EM"
+}

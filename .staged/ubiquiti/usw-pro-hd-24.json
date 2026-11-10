@@ -1,0 +1,326 @@
+{
+  "vendor": "ubiquiti",
+  "model": "USW-Pro-HD-24",
+  "label": "UniFi Pro HD 24",
+  "category": "switch",
+  "description": "UniFi Pro HD 24 (USW-Pro-HD-24) - 22x 2.5G RJ45 + 2x 10G RJ45 + 4x 10G SFP+ (10G/1G). Layer 3; 230 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "eth23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-hd-24"
+}

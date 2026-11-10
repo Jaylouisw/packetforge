@@ -1,0 +1,67 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS504-4XQ-OUT",
+  "label": "CRS504-4XQ-OUT",
+  "category": "l3-switch",
+  "description": "MikroTik CRS504-4XQ-OUT (CRS504-4XQ-OUT) — 1x 100M RJ45, 4x 100G QSFP28. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3bt",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "QSFP28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "QSFP28-2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "QSFP28-3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "QSFP28-4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs504_4xq_out"
+}

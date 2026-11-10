@@ -749,13 +749,13 @@ function translateInbound(table, pkt, step) {
 // `show ip nat translations`
 // ---------------------------------------------------------------------------
 
-const TABLE_HEADER = 'Pro  Inside global          Inside local           ' +
-  'Outside local          Outside global';
-
-function pad(s, width) {
-  const text = String(s);
-  return text.length >= width ? text : text + ' '.repeat(width - text.length);
-}
+// The column names, and the one renderer. `nat.js` used to carry its own fixed-width
+// formatter (five 23-character columns, then the rule type), which meant the console had
+// to compute a header offset by hand and glue "Type" onto it. Widths are measured now, by
+// `engine/table.js`, for this table as for every other one.
+const TABLE_COLUMNS = ['Pro', 'Inside global', 'Inside local', 'Outside local', 'Outside global', 'Type'];
+const tableLib = require('./table');
+const TABLE_HEADER = tableLib.renderTable(TABLE_COLUMNS, [])[0];
 
 function fmtAddr(ip, port) {
   const i = str(ip);
@@ -775,27 +775,44 @@ function formatTable(table) {
   const t = isObject(table) ? table : {};
   const list = Array.isArray(t.translations) ? t.translations.slice() : [];
 
-  list.sort(function (a, b) {
-    const ai = ipIntOrZero(a.insideGlobal);
-    const bi = ipIntOrZero(b.insideGlobal);
-    if (ai !== bi) return ai - bi;
-    const ap = portOf(a.globalPort);
-    const bp = portOf(b.globalPort);
-    if (ap !== bp) return (ap === null ? -1 : ap) - (bp === null ? -1 : bp);
-    const ax = String(a.protocol) + '|' + String(a.insideLocal);
-    const bx = String(b.protocol) + '|' + String(b.insideLocal);
-    if (ax === bx) return 0;
-    return ax < bx ? -1 : 1;
-  });
+  list.sort(compareTranslations);
 
-  return list.map(function (e) {
-    return pad(e.protocol || 'any', 5) +
-      pad(fmtAddr(e.insideGlobal, e.globalPort), 23) +
-      pad(fmtAddr(e.insideLocal, e.localPort), 23) +
-      pad(fmtAddr(e.dstIp, e.dstPort), 23) +
-      pad(fmtAddr(e.dstIp, e.dstPort), 23) +
-      str(e.type);
-  });
+  return tableLib.renderTable(TABLE_COLUMNS, list.map(rowOf)).slice(1);
+}
+
+// The cells of one translation, in column order. Exported so the CLI can render the same
+// rows in its own context (indent, a different heading) without re-parsing formatted text.
+function translationRows(table) {
+  const t = isObject(table) ? table : {};
+  const list = Array.isArray(t.translations) ? t.translations.slice() : [];
+  list.sort(compareTranslations);
+  return list.map(rowOf);
+}
+
+function rowOf(e) {
+  return [
+    e.protocol || 'any',
+    fmtAddr(e.insideGlobal, e.globalPort),
+    fmtAddr(e.insideLocal, e.localPort),
+    // With source NAT only, the destination the inside host sees IS the real one, so
+    // these two columns agree - that is the model, not a copy-paste.
+    fmtAddr(e.dstIp, e.dstPort),
+    fmtAddr(e.dstIp, e.dstPort),
+    str(e.type)
+  ];
+}
+
+function compareTranslations(a, b) {
+  const ai = ipIntOrZero(a.insideGlobal);
+  const bi = ipIntOrZero(b.insideGlobal);
+  if (ai !== bi) return ai - bi;
+  const ap = portOf(a.globalPort);
+  const bp = portOf(b.globalPort);
+  if (ap !== bp) return (ap === null ? -1 : ap) - (bp === null ? -1 : bp);
+  const ax = String(a.protocol) + '|' + String(a.insideLocal);
+  const bx = String(b.protocol) + '|' + String(b.insideLocal);
+  if (ax === bx) return 0;
+  return ax < bx ? -1 : 1;
 }
 
 module.exports = {
@@ -808,6 +825,8 @@ module.exports = {
   lookupTranslation,
   expireTranslations,
   formatTable,
+  translationRows,
   DEFAULT_TIMEOUTS,
+  TABLE_COLUMNS,
   TABLE_HEADER
 };

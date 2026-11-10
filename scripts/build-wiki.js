@@ -30,7 +30,7 @@ Cisco Packet Tracer teaches Cisco. PacketForge aims at the thing a lab actually 
 on which port, which optic mates with which ferrule, what a cable that cannot exist would
 mean if it did.
 
-The catalogue holds **926 device models from 208 vendors**, from ONTs and OLTs to PTP radios,
+The catalogue holds **1,584 device models from 245 vendors**, from ONTs and OLTs to PTP radios,
 switches, servers, printers, cameras and phones. It is JSON: one file per model, no code
 changes to add one.
 
@@ -78,7 +78,9 @@ animation shows the path.
   refuses, and names the hybrid patch cord that resolves it, by part number.
 - **A slower optic than the port allows.** Put a 1G SFP in a 10G SFP+ cage: the link comes
   up at 1G, because that is what would happen.
-- **\`npm run smoke\`** - drives the HTTP API end to end, the way the UI does.
+- **\`npm run smoke\`** - drives the HTTP API end to end, the way the UI does. It spawns its own
+  server on a free port with a throwaway data directory, so it is safe to run while your own lab
+  is open, and it touches nothing on disk.
 
 ## Where things live
 
@@ -113,8 +115,9 @@ That is enough. You do not need to write JSON.
 2. A spec is written as \`devices/<vendor>/<model>.json\`. Tests check it: every port must
    resolve to a cage, no port may claim a line rate its cage cannot carry, and a device may
    not describe two identical ports differently.
-3. The spec lands with the documentation URL recorded inside it, so a later reader can check
-   the claim rather than trust it.
+3. The spec records the datasheet URL it was built from, so a later reader can check the claim
+   rather than trust it. It is **recommended, not enforced**: 1,234 of the 1,584 specs carry a
+   \`sourceUrl\` today, and the rest are tracked as missing rather than refused.
 
 ## What "accurate" means here
 
@@ -149,15 +152,20 @@ is right.
   cable length, speed negotiation, PoE.
 - **Layer 2**: MAC learning, VLANs (access/trunk/native), LAG, STP, LLDP.
 - **Layer 3**: IPv4 and IPv6, ARP/ND, ICMP, static routes, longest-prefix match.
-- **Services**: DHCP client and server, NAT (static and PAT), ACLs, VRRP.
+- **Services**: DHCP client and server, NAT (static, dynamic pool and PAT — all three translated in
+  the data path and visible in \`show ip nat translations\`, but configured in the topology JSON:
+  there is no \`nat\` CLI command yet), ACLs, VRRP.
 - **Routing**: OSPF (areas, SPF, passive interfaces), BGP (eBGP/iBGP, split horizon).
 - **Naming and overlay**: DNS, SCION.
 
 ## Approximated
 
 Documented in the matrix, with the reason. Two worth knowing before you build a lab around
-them: routing convergence is computed per event rather than by timer, and queueing is not
-modelled - a link is either passing traffic or it is not.
+them: convergence **is** timed - STP listening/learning, OSPF hello plus the SPF hold, VRRP
+master-down and the DHCP exchange all have durations, and the schedule re-bases from the instant
+a cable is pulled - but a question is answered *as of* an instant, so no hello is ever lost and
+no timer ever expires on its own. Queueing is not modelled: a link is either passing traffic or
+it is not.
 
 ## Not modelled
 

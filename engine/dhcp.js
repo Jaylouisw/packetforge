@@ -727,13 +727,21 @@ function expireLeases(state, step) {
 }
 
 // Current bindings, ordered by address so output is stable across runs.
-function leaseTable(state) {
+//
+// `nowStep` is optional and only affects `remainingSec`: a lease is a deadline, and a console that
+// prints the configured length instead of the time left is not describing the same thing (it said
+// "Expires in 60s" for a lease that had already been alive for two minutes).
+function leaseTable(state, nowStep) {
   const s = stateOf(state);
+  const now = nowStep === undefined || nowStep === null ? null : stepOf(nowStep);
   const rows = [];
   for (const mac of Array.from(s.leases.keys())) {
     const lease = s.leases.get(mac);
     if (!lease) continue;
-    rows.push({ mac: mac, ip: lease.ip, expiresStep: lease.expiresStep });
+    rows.push({
+      mac: mac, ip: lease.ip, expiresStep: lease.expiresStep,
+      remainingSec: now === null ? null : Math.max(0, lease.expiresStep - now)
+    });
   }
   rows.sort(function (a, b) {
     const ai = parseIp(a.ip);

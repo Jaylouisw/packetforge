@@ -1,0 +1,41 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AF60-XR",
+  "label": "airFiber 60 Xtreme-Range",
+  "category": "ptp",
+  "description": "airFiber 60 Xtreme-Range (AF60-XR) - 1x 1G RJ45 + 1x 10G SFP+ (10G/1G). Passive PoE-in; up to 5.4 Gbps PHY rate; 24 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "5.4G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/af60-xr"
+}

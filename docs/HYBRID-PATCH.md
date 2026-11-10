@@ -178,11 +178,11 @@ number honest.
 
 | Code | Condition | Should it ever be relaxed? |
 |------|-----------|----------------------------|
-| `E_POLISH_MISMATCH` | Same shape, different polish, **no cord declared** | No. This is the physical failure. The message now names the part that would fix it (`engine/validation.js:574-579`), which is the useful form of the refusal. |
+| `E_POLISH_MISMATCH` | Same shape, different polish, **no cord declared** | No. This is the physical failure. The message now names the part that would fix it — the `E_POLISH_MISMATCH` block in the main `engine/validation.js` path fills `verdict.suggestion` (`{field, value, lossDb, message}`) from `verdict.patchCordOptions`, which is the useful form of the refusal. |
 | `E_POLISH_MISMATCH` | Same shape, different polish, cord declared but `cordFits()` false | No. A wrong part bridges nothing; the code clears `cord` so the pair fails on physics, not on paperwork. |
 | `E_PATCH_CORD_ENDS` | Declared part's ends are not the two cages on the link | No. This is how "one part, two endfaces" stays true. |
 | `E_PATCH_CORD_UNKNOWN` | Part number not in the catalogue | No. Unknown hardware is not hardware. |
-| `E_CONNECTOR_MISMATCH` | Different shapes, **with or without a cord** | No. Only `E_POLISH_MISMATCH` is rescuable (`validation.js:550`); shape is not. |
+| `E_CONNECTOR_MISMATCH` | Different shapes, **with or without a cord** | No. Only `E_POLISH_MISMATCH` is rescuable (the `mate.code === 'E_POLISH_MISMATCH' && cord` branch in `engine/validation.js`); shape is not. |
 | `E_MEDIA_NOT_SUPPORTED` | Cord bridges, but the ports share no bridged medium | No. `commonMediaBridged()` returning empty means the two services were never the same service. |
 
 Deliberately **not** refused today, and worth a follow-up decision:
@@ -223,6 +223,29 @@ simple OLT↔ODN link. Charging 0.3 dB for the cord *and* 0.6 dB for two pairs
 counts the same two interfaces twice. It is only 0.3 dB, but on a 1:64 budget
 that is the difference between headroom and a red link — and it is the kind of
 number an engineer notices.
+
+The engine is explicit about it rather than hiding it in a total — `ponBudget()` returns the whole
+breakdown, so the double count is visible in the object before it is visible in the field:
+
+```js
+// 1 km of fibre, one 1:4 splitter, class B+, no cord declared
+ponBudget({ lengthM: 1000, wavelengthNm: 1490, splitters: ['1:4'], ponClass: 'B+' })
+// { ok: true, budgetDb: 28, lossDb: 8.42, headroomDb: 19.58,
+//   breakdown: { fibre: { lengthM: 1000, dbPerKm: 0.22, lossDb: 0.22 },
+//                splitters: [{ ratio: '1:4', lossDb: 7.6 }], splitterTotalDb: 7.6,
+//                splices: { count: 0, lossDb: 0 },
+//                connectors: { pairs: 2, lossDb: 0.6 },
+//                patchCord: { lossDb: 0 } } }
+
+// the same path with a 0.3 dB cord declared
+// lossDb: 8.72, headroomDb: 19.28, breakdown.patchCord.lossDb: 0.3
+```
+
+`8.42 → 8.72` is exactly `+0.3`, and `breakdown.connectors.pairs` still reads `2`: the cord is charged
+**as well as** the pairs, which is the double count this section is about. Nothing in the return value
+warns you; the arithmetic is the warning. If you are modelling a real OLT↔ODN link, either declare the
+cord and drop `connectorPairs` by the two it accounts for, or leave the cord out — §6.2 lists the three
+budgeting conventions and the `insertionLossBasis` behind each.
 
 ### 6.2 Three ways to charge it, and what this catalogue does
 

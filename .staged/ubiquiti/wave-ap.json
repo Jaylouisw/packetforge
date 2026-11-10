@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-AP",
+  "label": "UniFi Wave AP",
+  "category": "ptp",
+  "description": "UniFi Wave AP (Wave-AP) - 60 GHz PtMP access point with one 2.5G RJ45 uplink (1G fallback) and passive PoE in.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "passive-poe",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/wave-ap"
+}

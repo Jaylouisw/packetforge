@@ -1,0 +1,38 @@
+{
+  "vendor": "aruba",
+  "model": "Instant On AP17 (R2X16A)",
+  "label": "Aruba Instant On AP17 (RW) 2x2 11ac Wave2 Outdoor Access Point (R2X16A)",
+  "category": "wireless",
+  "description": "Aruba Instant On AP17 (R2X16A) - dual-radio 802.11ac Wave 2 outdoor AP (IP67), 2x2:2 on both bands (300 Mbps 2.4 GHz + 867 Mbps 5 GHz). Single 10/100/1000BASE-T RJ45 with 802.3af PoE-in (13.5 W max); supports Instant On mesh and gateway mode.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "1G",
+      "poeIn": 13.5
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#f59e0b",
+  "sourceUrl": "https://se.insight.com/content/dam/insight-web/emea/partner/hpe/hpe-aruba-ap17-data-sheet.pdf"
+}

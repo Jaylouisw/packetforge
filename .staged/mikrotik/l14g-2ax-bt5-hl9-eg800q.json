@@ -1,0 +1,40 @@
+{
+  "vendor": "mikrotik",
+  "model": "L14G-2ax-BT5-HL9&EG800Q",
+  "label": "KNOT Gateway HL9",
+  "category": "iot",
+  "description": "MikroTik KNOT Gateway HL9 (L14G-2ax-BT5-HL9&EG800Q) \u2014 1x 1G RJ45, Wi-Fi 2.4 GHz, LTE radio. ARM 64bit 2-core IPQ-5010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "287M"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "10M"
+    }
+  ],
+  "icon": "iot",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/knot_gateway_hl"
+}

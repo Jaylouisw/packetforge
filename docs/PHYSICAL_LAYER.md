@@ -27,7 +27,7 @@ Every interface has a derived **hardware descriptor** (`engine/media.js`):
 
 | Field | Meaning |
 |-------|---------|
-| `cage` | The physical connector/cage — 18 of them, from `rj45` and `sfp+` to `qsfpdd`, `sc-apc` and `antenna`. The full table is in [CONNECTORS.md](CONNECTORS.md) |
+| `cage` | The physical connector/cage — **26 of them**: Ethernet cages (`rj45`, `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `qsfp+`, `qsfp28`, `qsfp56`, `qsfpdd`), the Fibre Channel set (`fc-sfp`, `fc-sfp28`, `fc-sfpdd`, `fc-qsfp28`), `xfp`, fibre connectors (`sc-apc`, `sc-upc`, `lc-apc`, `lc-upc`) and the non-Ethernet families (`coax`, `dsl`, `powerline`, `console`, `usb`, `antenna`, `wwan`). The full table is in [CONNECTORS.md](CONNECTORS.md). Note `mpo` is **not** a cage — it is a media `connector` value, and using it as a cage is an error |
 | `media[]` | Media (optics / copper / DAC) the port can carry |
 | `speedCaps[]` | Line rates the port can negotiate (Mbps) |
 | `poeOut` | Watts this port can *source* (PSE) |
@@ -36,13 +36,24 @@ Every interface has a derived **hardware descriptor** (`engine/media.js`):
 ### Derivation
 
 Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" }`).
-The cage is inferred from the name and speed:
+`inferCage()` in `engine/media.js` walks these rules in order and the first one wins:
 
-- `type: "wireless"` → `antenna`
-- name contains `console`/`con0`/`tty` → `console`
-- name contains `sfp`/`qsfp`/`xfp`/`cfp`, **or** speed is 25G/40G/100G → an optical cage
-  (`sfp` < 10G ≤ `sfp+` < 25G ≤ `sfp28` < 40G ≤ `qsfp+` < 100G ≤ `qsfp28`)
-- otherwise → `rj45`
+| # | Signal | Cage |
+|---|---|---|
+| 1 | name starts `wwan*`, `wan5g`, `modem*`, `lte*`, `nr5g`, `nr*`, `5g*` | `wwan` — a cellular modem is neither copper nor Wi-Fi, and it is checked **before** `type` because specs rewrite these ports as `type: "wireless"` |
+| 2 | `type` is a radio type (`wireless`, `radio`, `wifi`, …) | `antenna` |
+| 3 | `type` is `console` / `usb` / `coax` / `dsl`, `adsl`, `vdsl` / `powerline`, `plc`, `mains` | that family (`console`, `usb`, `coax`, `dsl`, `powerline`) |
+| 4 | name starts `wlan*`, `wifi*`, `wi-fi*`, `radio*`, `wwan*`, `nr5g*` | `antenna` |
+| 5 | name contains `console`, `con<N>`, `tty`, `aux` → `console`; `usb` → `usb` | |
+| 6 | name names a fibre connector (`sc-apc`, `sc-upc`, `lc-apc`, `lc-upc`, `scapc`, `lcupc`, …) | that cage |
+| 7 | name says PON (`gpon`, `xg-pon`, `xgs-pon`, `pon<N>`) | `sc-apc` — the ISP convention, because a PON port's connector is a vendor choice; an explicit `connector` on the spec always wins |
+| 8 | name matches `sfp`/`qsfp`/`xfp`/`cfp`/`xe-`/`et-`/`fc<N>`, **or** speed is 25G/40G/100G | optical, by rule 9 |
+| 9 | optical: name says `qsfpdd` → `qsfpdd`; `qsfp56` → `qsfp56`; otherwise by max rate — ≥200G `qsfpdd`, ≥100G `qsfp28`, ≥40G `qsfp+`, ≥25G `sfp28`, ≥10G `sfp+`, else `sfp` | |
+| 10 | nothing matched | `rj45` |
+
+A port named for its cage beats its rate: `qsfpdd1/1` carrying 200G is a QSFP-DD cage, not a
+QSFP28 that happens to be fast. QSFP56 has to be named for the same reason — a bare 200G rate
+alone resolves to QSFP-DD, which is far more common.
 
 Anything can be overridden explicitly, either per field or via a `hardware` block:
 
@@ -70,15 +81,100 @@ Device-level PoE budget:
 { "poeBudget": 120 }
 ```
 
-If unset, a port is treated as a PSE when the model name contains `PoE` or the
-device declares the `poe-pse` capability.
+Resolution order — first match wins, and `Device.poeBudgetSource` records which one it was:
+
+| Source | Field | Note |
+|---|---|---|
+| `spec` | `poeBudget` | an explicit number of watts |
+| `research` | `poe: { "budgetW": 240 }` | a datasheet figure kept beside the spec |
+| `unknown` | `poe: { "budgetUnknown": true }` | an explicit "not published" → 0 W. It deliberately does **not** fall through to the next row |
+| `name` | a `NN–NNNN W` token in the model name | **a guess, and only kept if at least one port declares `poeOut`** |
+
+`show power inline` prints the resolved budget **and its source**, so a 0 W budget that came from
+an explicit "unknown" is distinguishable from one nobody ever declared:
+
+```
+SW1#show power inline
+Power inline on SW1:
+  Budget       : 20 W  (from spec)
+  Used         : 13 W
+  Available    : 7.1 W
+  Port          Powered device        Requested  Status
+  Gi0/1         CAM1                  12.95 W    on
+  Gi0/2         CAM2                  12.95 W    denied (budget exhausted)
+```
+
+Two details in that block are worth reading twice, because both have caught people out:
+
+- `Used` is the rounded total while the port column keeps the real figure, so a single 12.95 W port
+  prints `Used : 13 W` above a line that says `12.95 W`. Both are the same decision.
+- A `denied` port means the budget was already spent when `computePoe()` ran — which in a lab you
+  built normally **cannot happen**, because cabling an over-budget combination is refused at the
+  moment you draw the cable:
+
+  ```
+  Error: SW1 PoE budget exceeded: 2 powered ports draw 40 W of a 30 W budget (Gi0/1, Gi0/2).
+  code: E_POE_BUDGET
+  ```
+
+  The check sums the ports' advertised `poeOut` — not what the powered devices ask for — so two
+  20 W ports are refused on a 30 W budget even if the two cameras only want 12.95 W each. The
+  `denied` status becomes reachable when the budget is *corrected after* the lab is wired (a
+  datasheet figure revised by research), which is exactly when you want to see who lost power.
+
+The same decision is readable from the powered device's side (`12.95 W from SW1 port 1/1/1 -
+powered`, or `- denied (PSE budget exhausted)`), which is usually the faster answer to "why is
+this camera dead". A port with no cable is not listed: nothing is being negotiated on it.
+
+### A PSE with no budget answers as if it had no PoE at all
+
+The refusal is keyed on a **resolved budget and a port that can source power**, not on the
+`poe-pse` capability. So a device that declares itself a PSE and carries no budget anywhere in its
+spec prints the "not a PoE device" answer, and the access point on the other end of the cable says
+the PSE never replied. This is not a rare corner: **60 of the 102** PSE-capable devices in the
+catalogue are in it (57 MikroTik, 3 Ubiquiti) — routers whose datasheets give a port count and a
+`poe-pse` capability without a wattage.
+
+```
+SW1#show power inline
+% SW1 neither sources nor draws PoE
+
+AP1#show power inline
+Power inline on AP1:
+  eth0          12.9 W requested from SW1 port eth1 - no PSE answers
+```
+
+Both lines are correct and neither is helpful on its own: the switch is a PSE by capability and a
+non-PSE by data, and the AP's line is the only one that names a wattage. When a lab shows this,
+check the switch spec for `poeBudget` / `poe.budgetW` before assuming the model is broken — the same
+section's budget table is the list of ways to supply it. `poe.budgetUnknown: true` says "a PSE, but
+nobody published the figure" and yields 0 W explicitly rather than by omission; exactly one device in
+the catalogue uses it, so it is a supported escape hatch rather than a pattern to copy from.
+
+Fixing one of these is not a hand edit: `scripts/apply-research.js` takes a research file with a
+mandatory `sourceUrl`, refuses a budget outside 30–4000 W, and records `null` as "researched, not
+published" rather than as a blank ([DEVICE_REGISTRY.md](DEVICE_REGISTRY.md#correcting-an-existing-spec-with-researched-facts)).
+That is the path from "the datasheet says 65 W" to a switch that powers an AP.
+
+The name heuristic exists because most PoE switches put the budget in the model (`GS110TP-100W`),
+but it is discarded when nothing on the device can source power: `ES-24-500W` is a 500 W PSU, not a
+500 W PoE budget, and `AR651W-8P` parses to 651 W on a router with no PoE-out ports. A
+research-sourced figure is kept even when it looks odd — a contradiction there is a data bug for a
+human to see, not something to hide.
+
+There is no `poe-pse` capability check in the **budget** path: the budget comes from the fields above,
+and a port sources power because it declares `poeOut`. The capability still matters one step
+earlier, for the default: a device with `poe-pse` whose port declares no `poeOut` gets the 802.3af
+figure of **15.4 W** (measured), while the same port on a device without the capability gets `null`
+and can never source power. So `poe-pse` decides *whether a port defaults to sourcing*, and
+`poeOut` decides *how much it can actually give*.
 
 ---
 
 ## 2. Medium catalogue
 
-64 media across eight families (copper, fibre, DAC, coax, DSL, powerline,
-console, wireless), carried by 19 cages — see [CONNECTORS.md](CONNECTORS.md) for
+89 media across nine families (copper, fiber, fibre-channel, DAC, coax, DSL,
+powerline, console, wireless), carried by 26 cages — see [CONNECTORS.md](CONNECTORS.md) for
 the cage-by-cage table. Selected highlights:
 
 | Family | Medium | Speed | Connector | Reach |
@@ -137,6 +233,10 @@ physically correct, because the SFP+ cage accepts a 1G optic.
 | `E_MEDIA_NOT_SUPPORTED` | Requested medium is not supported by both ports |
 | `E_POE_BUDGET` | Powered ports exceed the PSE's PoE budget |
 | `E_LAG_SPEED_MISMATCH` | LAG members run at different line rates |
+| `E_POLISH_MISMATCH` | Same connector shape, different polish (SC/APC against SC/UPC). An 8° angled ferrule does not seat against a flat one; only a hybrid cord joins them |
+| `E_PATCH_CORD_UNKNOWN` | The patch-cord part number the link declares is not in the optics catalogue |
+| `E_PATCH_CORD_ENDS` | The declared patch cord is not terminated in the two connectors it is joining |
+| `E_OPTICAL_BUDGET` | The span's loss (fibre, splices, connectors) exceeds the optic's budget, per direction |
 
 ### Warnings (allow)
 
@@ -147,9 +247,35 @@ physically correct, because the SFP+ cage accepts a 1G optic.
 | `W_SPEED_DOWNGRADE` | Link runs below both ports' maximum |
 | `W_POE_DRAW` | PoE-powered device on a port that cannot supply power |
 | `W_COPPER_LONGRUN` | Copper run longer than the 90 m horizontal limit |
+| `W_HYBRID_CORD` | A UPC/APC hybrid lead joins two different polishes: legal, but it costs its insertion loss and cannot be swapped for a plain lead |
+| `W_OPTICAL_HEADROOM` | The link passes, but with only a few dB of the PON class budget left |
 
 Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus
 every valid medium, which is what the UI's media picker is built from.
+
+### A refusal that tells you what to buy
+
+`validateConnection()` returns the reason **and**, where the catalogue has a fix, the part that
+performs it. Mating an SC/APC PON port to an SC/UPC one (both derive from the port name — `pon1`
+and `scupc1`) produces:
+
+```
+E_POLISH_MISMATCH  olt-x/pon1 <-> ont-x/scupc1: SC/APC and SC/UPC take the same SC ferrule but not
+the same polish (APC angled 8 deg vs UPC flat). They are not intermateable - forcing it costs about
+3 dB and can chip the endface. A hybrid patch cord (SMSCSX, sc-upc to sc-apc, 0.3 dB insertion loss)
+joins these two polishes: declare it on the link (patchCord: "SMSCSX") and the run becomes buildable.
+```
+
+plus a machine-readable `suggestion`:
+
+```json
+{ "code": "S_PATCH_CORD_REQUIRED", "field": "patchCord", "value": "SMSCSX", "lossDb": 0.3,
+  "message": "Add SMSCSX (sc-upc → sc-apc) and this link is buildable." }
+```
+
+Declaring that cord turns the refusal into a `W_HYBRID_CORD` warning and the link builds at the
+cord's loss, which is the point: the answer to "why can't I cable this?" is a part number rather
+than a shrug. See [HYBRID-PATCH.md](HYBRID-PATCH.md).
 
 ---
 
@@ -204,10 +330,36 @@ LAG collapsing) and is run before every ping. Blocked ports **drop both ingress 
 egress traffic** (`stp-block` events), which is what turns a physical loop into a
 working topology instead of a broadcast storm.
 
-Check it from the console:
+Check it from the console. Two switches wired twice — a loop someone built by accident — settle
+into one forwarding path and one blocked port:
 
 ```
 switch# show spanning-tree
+Spanning tree enabled protocol ieee
+Port   Role        State
+Fa0/1  designated  forwarding
+Fa0/2  designated  forwarding
+Fa0/3  designated  forwarding
+
+switch2# show spanning-tree
+Spanning tree enabled protocol ieee
+Port   Role        State
+Fa0/1  root        forwarding
+Fa0/2  alternate   blocking   (traffic dropped)
+Fa0/3  designated  forwarding
+```
+
+The switch that is not the root blocks the second path — `alternate`/`blocking`, with
+`(traffic dropped)` spelled out, because a reader should not have to know what `BLK` implies. The root
+keeps both of its ports `designated`/`forwarding`; the loop is broken on one side, which is all STP
+needs.
+
+**STP state is computed on a run, so there is nothing to show before one.** In a freshly opened lab,
+even with the loop cabled, the command answers `No bridged ports: this device is not part of any L2
+loop.` — the same wiring, described honestly as not-yet-computed. Run anything (`ping`, a flow,
+`converge`) and the table appears:
+
+```
 switch# show etherchannel summary
 switch# show vlan brief
 ```

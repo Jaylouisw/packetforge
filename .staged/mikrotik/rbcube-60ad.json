@@ -1,0 +1,33 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBCube-60ad",
+  "label": "Cube Lite60",
+  "category": "ptp",
+  "description": "MikroTik Cube Lite60 (RBCube-60ad) \u2014 1x 100M RJ45, 60 GHz radio. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio60",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/cube_lite60"
+}

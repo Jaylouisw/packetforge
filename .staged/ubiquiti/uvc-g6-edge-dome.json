@@ -1,0 +1,29 @@
+{
+  "color": "#14b8a6",
+  "vendor": "ubiquiti",
+  "model": "UVC-G6-Edge-Dome",
+  "label": "UniFi G6 Edge Dome",
+  "category": "camera",
+  "description": "Ubiquiti UniFi G6 Edge Dome (UVC-G6-Edge-Dome) - 1x 1G RJ45 (PoE+ in, 15 W max). 4K 8MP IK10-rated dome camera with 2.36x optical zoom, face/license-plate recognition, 40 m IR, EdgeAI smart detections, and microSD storage.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ]
+    }
+  ],
+  "icon": "camera",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g6-edge-dome"
+}

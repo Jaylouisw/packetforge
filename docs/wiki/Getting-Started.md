@@ -29,7 +29,9 @@ animation shows the path.
   refuses, and names the hybrid patch cord that resolves it, by part number.
 - **A slower optic than the port allows.** Put a 1G SFP in a 10G SFP+ cage: the link comes
   up at 1G, because that is what would happen.
-- **`npm run smoke`** - drives the HTTP API end to end, the way the UI does.
+- **`npm run smoke`** - drives the HTTP API end to end, the way the UI does. It spawns its own
+  server on a free port with a throwaway data directory, so it is safe to run while your own lab
+  is open, and it touches nothing on disk.
 
 ## Where things live
 

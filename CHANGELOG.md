@@ -1,6 +1,36 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
 
 ### Added
+
+- **`traceroute` / `tracert`** — walks the path the routing tables select, hop by hop, with each
+  hop's address, device and cumulative one-way delay. It deliberately does **not** send
+  TTL-limited probes: ICMP errors are still unmodelled (no destination-unreachable, no
+  time-exceeded), so there is nothing for a probe to learn that the table cannot say.
+- **`show power inline`** — the PoE decision from both ends: the resolved budget and where it came
+  from (`spec` / `research` / `model name` / `unknown`), per-port draw and status (`on` vs
+  `denied (budget exhausted)`), and on the powered device what it requests and whether a PSE
+  answered. A green port is no longer the only evidence that power was delivered
+  (`docs/PHYSICAL_LAYER.md`).
+- **`show ip dhcp pool` / `show ip dhcp binding`** — pool summary with addresses actually in use,
+  and the lease as seen from the server *and* from the client (`docs/CLI.md`, "DHCP server").
+- **`show ip route` names every code it prints.** The legend is built from the table, so `O` (OSPF)
+  and `B` (BGP) appear when - and only when - a row uses them, instead of rows the header never
+  explained.
+- **`nslookup <name> [type]`** — the record type argument (`A`, `AAAA`, `CNAME`, `MX`, `NS`, `PTR`,
+  `SOA`, `TXT`, `SRV`). An unknown type is refused with the list rather than silently treated as
+  `A`, and a type the name does not carry answers **empty NOERROR**, not NXDOMAIN - the distinction
+  a resolver makes and the one worth showing in a lab.
+- **`show running-config` round-trips the IPv6 router-advertisement policy** - `ipv6 nd ra
+  enable|disable|managed|other-config|lifetime`, `suppress-ra` and advertised prefixes. A dump
+  taken from one router and pasted into a fresh one reproduces byte-identically, VRRP `advertise`,
+  DNS zones and SCION included.
 
 - **Link state is real, and a pulled cable re-converges** (#1057). `Link` has carried
   `state: 'up' | 'down' | 'blocked'` since the physical layer was built and **nothing in the engine
@@ -122,15 +152,6 @@
 - `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
   check learned that `SFP56` is not `SFP`.
 
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## Unreleased
-
 ### Fixed
 
 - **OSPF refused to form an adjacency between interfaces addressed in different
@@ -183,7 +204,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
 - #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
 
-
 ### Added
 
 - **Cables are drawn as what they are made of.** Every medium was one grey 2 px line and
@@ -217,7 +237,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Acer Nitro 5 AN515-57 added from hardware request #23.
 
-
 ### Fixed
 
 - **A server restart no longer discards the board.** Topologies are saved to
@@ -231,8 +250,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   shows a connection badge in the status bar, retries with backoff, and re-fetches the
   server's copy on reconnect - reporting it when fewer devices come back than the tab
   was showing (#24).
-
-## [Unreleased]
 
 ### Added
 
@@ -347,7 +364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ports — physically impossible. Rebuilt with valid copper and 1G-fiber uplinks;
   the new validator now catches this class of error in CI.
 
-## [0.1.0] - 2026-11-07
+## 0.1.0 - 2026-11-07
 
 ### Added
 
@@ -364,5 +381,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI/CD: test matrix (Node 18/20/22), server smoke test, Docker image published to
   GitHub Container Registry on tags, CodeQL analysis, Dependabot for Actions.
 
-[Unreleased]: https://github.com/Jaylouisw/packetforge/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Jaylouisw/packetforge/releases/tag/v0.1.0
+[Unreleased]: https://git.jayw.uk/jaylouisw/packetforge/compare/main...HEAD

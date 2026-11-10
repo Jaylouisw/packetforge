@@ -18,6 +18,26 @@ They were produced by running the real engine; nothing under `engine/`, `web/`,
 
 ---
 
+## 0. Status check before you read the design
+
+This page was written against `d399dff`, and the tree has moved under it — including on the very
+problem it describes. Measured on the current tree before touching anything else:
+
+| Claim in §1 | Then | Now |
+|---|---|---|
+| "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **122** ports across the catalogue |
+| "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **138** such ports: **104** on `wwan`, **33** still on `antenna`, **1** on `rj45` |
+| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**432**), `powerline` (**12**) and `usb` (0 in use) are all cages now |
+| `routeTo()` returns one route, so two defaults are not multihoming | true | **still true** — two `ip route 0.0.0.0 0.0.0.0` lines are both stored and `routeTo('8.8.8.8')` answers `{ via: '203.0.113.1', … }`, the first one, with `iface: null` because the next hop is resolved later |
+| a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws** `Cannot mate SC/APC to RJ45 (incompatible connectors)` while `validateLink()` returns it as `E_CONNECTOR_MISMATCH` |
+
+So the medium half of this design has largely landed, and the routing half — one default slot, no policy,
+no failover — has not. The sections below are kept as the specification they are, but read §1 as the
+state of the world at `d399dff`, not today. Any figure in this page that contradicts the table above is
+history; the table was measured, the prose was not re-run.
+
+---
+
 ## 1. The problem, measured
 
 The lab reaches "the internet" by cabling to `devices/generic/generic-cloud.json`.
@@ -94,13 +114,19 @@ A link is `{type, mediaId, speedMbps, duplex, lengthM, lagId, patchCord, state}`
 Five contracts, each already guarded by an existing test. Any patch that violates
 one is wrong even if it makes issue #30 work.
 
+> **Numbers in this table are the phase-0 baseline, not today's tree.** C4 and C5 quote
+> "878 models" and "the 61-suite chain" — the catalogue has since grown to **1,584 models across
+> 245 vendors** and `npm test` now runs well over a hundred suites. The criterion is the *mechanism*
+> each row names (the round-trip test, the cable matrix, the invariants suite), not the count beside
+> it.
+
 | # | Contract | Guard |
 |---|---|---|
 | C1 | A topology saved before this change loads and reloads identically | `test/topology-roundtrip.test.js`, `test/server-persistence.test.js` |
 | C2 | Every cable that mates today still mates, at the same medium and rate | `test/cable-matrix.test.js` (an explicit cageA×cageB verdict table — the specification, not a snapshot) |
-| C3 | `routeTo()` keeps its signature and single-route return | 6 call sites in `simulator.js` (`1417, 1447, 1904, 2029, 2047, 2159`) |
+| C3 | `routeTo()` keeps its signature and single-route return | 8 **call** sites in `simulator.js` today (`grep -n 'routeTo(' engine/simulator.js` lists ten matches — eight calls, one comment, one prose mention; recount rather than trusting this row). The criterion is the signature `routeTo(dstIp)` returning one route or `null`, which the ARP, next-hop and TTL paths all depend on |
 | C4 | A device with no upstream configuration behaves exactly as today | new `test/upstream-baseline.test.js` (phase 0) |
-| C5 | No device spec gains a required field; all 878 models load | `test/hardware-invariants.test.js`, the 61-suite chain in `npm test` |
+| C5 | No device spec gains a required field; all models load (1,584 today, 878 when this was written) | `test/hardware-invariants.test.js`, and the whole `npm test` chain (61 suites then, 112 now) |
 
 The design below is shaped by C3 and C4 more than anything else.
 

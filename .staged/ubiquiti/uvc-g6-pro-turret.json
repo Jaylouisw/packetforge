@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G6-Pro-Turret",
+  "label": "UniFi G6 Pro Turret",
+  "category": "camera",
+  "description": "UniFi G6 Pro Turret (UVC-G6-Pro-Turret) - 1x 1G RJ45. 802.3at PoE-in; 4K; 15 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g6-pro-turret"
+}

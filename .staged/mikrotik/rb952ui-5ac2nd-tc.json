@@ -1,0 +1,59 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB952Ui-5ac2nD-TC",
+  "label": "hAP ac lite TC",
+  "category": "wireless",
+  "description": "MikroTik hAP ac lite TC (RB952Ui-5ac2nD-TC) \u2014 5x 100M RJ45, Wi-Fi 2.4 GHz + 5 GHz. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "433M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB952Ui-5ac2nD-TC"
+}

@@ -23,21 +23,27 @@ If you already have the JSON, skip the form and open a PR — see
 
 ## What happens next
 
-1. **Automatic acknowledgement.** A workflow labels the issue `device-request` and
-   comments with what is present and what is missing. Nothing waits on a human to
-   tell you the datasheet link is blank.
-2. **Triage.** `node scripts/request-queue.js` lists every open request, checks
-   each against the catalog (so duplicates are caught), and separates "ready to
-   implement" from "waiting on the requester".
+1. **Acknowledgement — generated, not yet automatic.** `node scripts/request-queue.js` reads every
+   open request, checks it against the catalog (so duplicates are caught) and says exactly which
+   field is missing, so the reply you get names the blank datasheet link rather than asking you to
+   look again. What does **not** exist is the workflow that would post that reply on its own:
+   `.forgejo/workflows/` holds only `ci.yml` and `auto-rebase.yml`, and neither triggers on issues,
+   so the `device-request` label and the comment come from a maintainer running the script.
+2. **Triage.** The same report separates "ready to implement" from "waiting on the requester"; a
+   maintainer works the first list.
 3. **The device is written** as `devices/<vendor>/<model>.json`. No code changes
    are needed for a new model, ever.
-4. **CI checks it** — `test/hardware-invariants.test.js` runs over the whole
-   catalog and fails if:
+4. **CI checks it** — `test/hardware-invariants.test.js` runs **22** assertions over the whole
+   catalog (not just your file). Among them, it fails if:
    - the description promises optical ports that no interface provides
    - two ports share a name
    - an optical cage accepts plain copper cabling
-   - a device has a PoE budget but no port to source power from
-   - the device cannot be cabled to a copy of itself (an island, useless in a lab)
+   - **a port claims a line rate its cage cannot carry** (10G on a 2.5G SFP slot)
+   - a device has a PoE budget but no port to source power from, or the budget is not a plausible
+     wattage
+   - a device has zero interfaces, or cannot be cabled to a copy of itself (an island, useless in a
+     lab) — except the classes that legitimately have one uplink, which are named in the check
+   - the "known gaps" list has an entry that no longer refers to anything
 5. **It ships** in the next release, and the request is closed with a link to the
    file that was added.
 

@@ -58,6 +58,22 @@ function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp, opts) {
   };
 }
 
+// The on-wire size of a frame, for the per-port counters.
+//
+// Deliberately approximate and deliberately stated: the console prints "100-byte ICMP Echos", so a
+// ping contributes 100 bytes of payload plus a 20-byte IPv4 header and a 14-byte Ethernet header, and
+// a transport segment contributes its own byte count plus the same headers. A counter that reported
+// payload only would be a number every operator has to correct in their head, and a counter that
+// claimed exact framing (preamble, FCS, minimum frame size) would be lying about a model that does
+// not build them. ARP and LLDP are counted as the 64-byte minimum, which is what a real switch counts.
+const ICMP_PAYLOAD_BYTES = 100;
+function frameBytes(frame) {
+  if (!frame) return 0;
+  if (frame.l4 && frame.l4.bytes) return Number(frame.l4.bytes) + 34;
+  if (frame.icmp) return ICMP_PAYLOAD_BYTES + 20 + 14;
+  return 64;
+}
+
 function arpRequest(senderMac, senderIp, targetIp) {
   return ethFrame(
     net.BROADCAST_MAC, senderMac, net.ETH_ARP, null, null,
@@ -112,6 +128,11 @@ class Simulator {
 
   reset() {
     this.events = [];
+    // Per-port counters are NOT cleared here, for the reason DHCP leases are not: a console session
+    // starts every command with a reset, so clearing them would make `show interfaces counters` always
+    // report zero - the counters would be reset by the act of asking. They are cumulative from the
+    // laboratory's start, exactly as a real device counts from boot, and `clear counters` is how an
+    // operator zeroes them.
     this.queue = [];          // pending transmissions: {devId, iface, frame}
     this.step = 0;
     this.maxSteps = 8000;
@@ -125,18 +146,76 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
-    // Lease state per server device, rebuilt each run: a lease is a property of a run, not of the
-    // topology, and a stale one would make the second ping in a lab answer with an address nobody
-    // was offered.
-    this._dhcpStates = new Map();
-    this.dhcpLeases = [];
+    // Lease state per server device is *not* rebuilt: a binding is server state with a lifetime, so
+    // it belongs with the MAC tables and ARP caches that survive a run, and it ages on the lease
+    // timer rather than disappearing whenever something is asked. This used to be rebuilt on every
+    // reset, which had two consequences the old code could not see because nothing aged at all: a
+    // binding vanished the moment a ping was run (so `show ip dhcp binding` after a ping printed an
+    // empty table while the client still held its address), and every run restarted the timer.
+    //
+    // Rebuilding was there to stop a stale lease making the second ping answer with an address
+    // nobody was offered. That is now handled where it belongs: a client that holds a live lease
+    // asks to renew *that* address instead of starting a new DISCOVER.
+    if (!this._dhcpStates) this._dhcpStates = new Map();
+    if (!this.dhcpLeases) this.dhcpLeases = [];
+    if (this.dhcpExpired === undefined) this.dhcpExpired = null;
     // reset() rewinds a run, not the connection table: a ping must not tear down
     // somebody's TCP session.
     if (!this.flowState) this.flowState = flowLib.createFlowState();
   }
 
+  // Per-port counters.
+  //
+  // These exist because of a promise I made and did not keep: the refusal for `show interfaces
+  // counters` said "per-port counters and status are in `show interfaces <port>`", and that command
+  // printed a name, a status and a peer - no counters at all. A message that sends an operator to a
+  // command which cannot answer is worse than "not a command here", so the counters are now real, and
+  // the command that was refused now exists.
+  //
+  // Counted where they happen: a frame that is transmitted is counted on the port it left, a frame
+  // that arrives is counted on the port it arrived at, and a frame that is dropped is counted against
+  // the port named in the drop event with the reason kept. Nothing is estimated, and a frame denied by
+  // an ACL is never counted as output - it never left.
+  // Nested per device, not a "dev/iface" string key: a port name contains slashes (`Gi0/0`, `1/1/3`),
+  // so the flattened form could not be split back apart - the first version reported an empty table for
+  // every device while `show interfaces Gi0/0` happily showed its counters.
+  _portStat(devId, iface) {
+    if (!this.portCounters) this.portCounters = new Map();
+    let ports = this.portCounters.get(devId);
+    if (!ports) { ports = new Map(); this.portCounters.set(devId, ports); }
+    let rec = ports.get(iface);
+    if (!rec) {
+      rec = { rx: 0, tx: 0, rxBytes: 0, txBytes: 0, drops: 0, reasons: {} };
+      ports.set(iface, rec);
+    }
+    return rec;
+  }
+
+  // The counters for one port, or for every port of a device as a sorted list.
+  portStats(devId, iface) {
+    const ports = (this.portCounters && this.portCounters.get(devId)) || null;
+    if (iface) {
+      const rec = ports && ports.get(iface);
+      return rec || { rx: 0, tx: 0, rxBytes: 0, txBytes: 0, drops: 0, reasons: {} };
+    }
+    const out = [];
+    for (const [name, rec] of (ports || new Map()).entries()) {
+      out.push(Object.assign({ iface: name }, rec));
+    }
+    out.sort(function (a, b) { return String(a.iface).localeCompare(String(b.iface)); });
+    return out;
+  }
+
   _emit(ev) {
     ev.step = this.step;
+    // Dropped frames are counted here, at the one place every drop site goes through, so a new drop
+    // reason cannot be added without its port being charged for it.
+    if (ev && ev.iface && ev.dev && /drop|deny|block/.test(String(ev.type))) {
+      const rec = this._portStat(ev.dev, ev.iface);
+      rec.drops++;
+      const why = ev.reason || ev.type;
+      rec.reasons[why] = (rec.reasons[why] || 0) + 1;
+    }
     this.events.push(ev);
     return ev;
   }
@@ -191,6 +270,11 @@ class Simulator {
       for (const zone of c.zones) {
         const res = dnsLib.resolve(zone, qname, 'A');
         if (!res) continue;
+        // Only an *authoritative* answer says anything about this name. A zone asked
+        // about a name it does not own replies NXDOMAIN-without-authority, and counting
+        // that as "a zone was asked" made `nothing.example` come back as
+        // "NXDOMAIN from WEB" - accusing a server of denying a domain it never served.
+        if (!res.authoritative) continue;
         sawZone = true;
         // The name exists in this zone (whatever the type), there is just no A.
         if (res.rcode !== dnsLib.RCODE.NXDOMAIN) sawName = true;
@@ -287,6 +371,80 @@ class Simulator {
     this.runAtMs = Number.isFinite(n) && n >= 0 ? n : Infinity;
     return this.runAtMs;
   }
+
+    // Rebuild the control planes that decide forwarding, in dependency order.
+  //
+  // Any question about "what would forward right now" has to do this first, in this order:
+  // spanning tree blocks ports, PoE refuses to power a port, VRRP decides who owns a VIP, DHCP
+  // hands out leases, then OSPF and BGP install routes. `tracePath()`, `openFlow()` and
+  // `show ip route at <ms>` all ask that question, and a control plane missing from the list is
+  // not a missing feature - it is a wrong answer (a flow to a VIP failed on a fresh simulator
+  // because the election had not run).
+  //
+  // `atMs` re-bases the run at that instant first; without it the lab is taken as converged.
+  refreshControlPlanes(opts) {
+    const o = opts || {};
+    if (o.atMs !== undefined && o.atMs !== null) this.setRunTime(o.atMs);
+    if (o.reset) this.reset();
+    this.computeStp();
+    this.computePoe();
+    // After the spanning tree, because an SVI's line protocol depends on whether *any* port in its
+    // VLAN can carry traffic right now. A blocked port still counts, exactly as on a real switch.
+    this.computeSviState();
+    // LLDP and RA are not routing decisions, so a routing question can skip them - but a
+    // question about what was *heard* cannot: `show lldp neighbors at <ms>` would answer
+    // `none` forever if nothing announced. They run before VRRP because a group's virtual MAC
+    // has to exist before anything advertises it.
+    if (o.lldp) this.announceLldp();
+    if (o.ra) this.announceRa();
+    this.computeVrrp();
+    this.computeDhcp();
+    this.computeOspf();
+    this.computeBgp();
+  }
+
+  // An SVI is not up merely because it exists.
+  //
+  // A real switch brings `Vlan10`'s line protocol up only when at least one port in VLAN 10 can carry
+  // traffic, and drops it when the last such port goes away. Modelling the SVI as permanently up made
+  // a management address answer on a VLAN whose every port was shut, which is the one situation an
+  // operator is usually trying to diagnose. The state is stored on the interface as `lineUp` and read
+  // by ownsIpOn(), routeTo() and the two show commands, so there is one answer and not three.
+  computeSviState() {
+    const vlanLib = require('./vlan');
+    for (const dev of this.topo.devices.values()) {
+      for (const iface of dev.interfaces.values()) {
+        if (!iface.svi) continue;
+        const vid = Number(iface.vlan && iface.vlan.accessVlan) || 1;
+        let up = false;
+        for (const port of dev.bridgedInterfaces()) {
+          if (!port.peer) continue;                       // nothing plugged in
+          if (port.parent) continue;                      // a subinterface is not a port
+          const link = this._linkAt(dev.id, port.name);
+          if (link && !link.isUp()) continue;             // cable down
+          if (vlanLib.classifyEgress(port.vlan, vid).action === 'drop') continue; // not a member
+          up = true;
+          break;
+        }
+        iface.lineUp = up;
+        // The reason has to be computed from *all* ports, not from the active ones: a shut port is
+        // excluded from bridgedInterfaces(), so asking that list whether anything is cabled reported
+        // "no port is cabled" on a switch whose every port was merely shut - the exact case an
+        // operator is looking at when they read this line.
+        const cabled = Array.from(dev.interfaces.values()).filter(function (p) {
+          return !p.svi && !p.parent && p.peer;
+        });
+        iface.lineStateReason = up ? null
+          : (cabled.length
+            ? 'no active port in VLAN ' + vid
+            : 'no port is cabled');
+      }
+    }
+    return this;
+  }
+
+  // The routing subset, kept as a name because that is the common question.
+  refreshRoutes(opts) { this.refreshControlPlanes(opts); }
 
   // The schedule of when each process finishes, as data.
   getConvergence() {
@@ -736,8 +894,80 @@ class Simulator {
   // holds a pool covering its own interface subnet. The exchange runs before the first packet the
   // user asked for, which is when a real host would have done it too.
 
+  // The clock DHCP leases are measured against.
+  //
+  // Leases are counted in ticks (one tick = one second - `dhcp.js STEP_SECONDS`) while a question is
+  // asked in milliseconds. Before this existed, the exchange stamped leases with `this.step`, the
+  // *packet-loop* counter, which never moves when someone asks `at 120000` - so a 60-second lease
+  // still said "Expires in 60s" two minutes later, and the lease timer was decoration.
+  _nowStep() {
+    if (Number.isFinite(this.runAtMs)) return Math.floor(this.runAtMs / 1000);
+    // No instant asked means "the run at rest", which is t=0 - not `this.step`, which counts frame
+    // hops during a packet run. Using the hop counter as a clock made a fresh lab report a 62-second
+    // lease on a 60-second pool, and made the answer depend on how many pings had been sent.
+    return 0;
+  }
+
+  // Which router on this wire will forward the client's request, and to whom.
+  //
+  // `ip helper-address` is a per-port statement, so this looks at every other device on the shared
+  // segment for a port that (a) has helper addresses and (b) has an address of its own, because that
+  // address becomes giaddr - the field that tells the server which subnet to allocate from. The
+  // helper target has to be a device in the lab that actually owns the named address and has a pool
+  // covering the relay port's subnet; anything less and the request is not relayable, so the client
+  // keeps its honest `no-server` answer.
+  _dhcpRelayFor(client, clientIface, segment) {
+    for (const endpoint of segment) {
+      const router = endpoint.device;
+      if (!router || router === client) continue;
+      const port = endpoint.iface;
+      if (!port || !port.ip || !port.mask) continue;
+      const helpers = port.helperAddresses;
+      if (!Array.isArray(helpers) || !helpers.length) continue;
+      for (const target of helpers) {
+        for (const dev of this.topo.devices.values()) {
+          if (dev === router || !dev.config || !Array.isArray(dev.config.dhcpPools)) continue;
+          if (!dev.config.dhcpPools.length) continue;
+          if (!dev.interfaceWithIp(target)) continue;
+          // The server has to have a pool for the subnet the relay port sits in - that is what
+          // giaddr is for. A server with pools only for its own wire cannot serve this client.
+          const covering = dev.config.dhcpPools.filter(function (rawPool) {
+            try {
+              const pool = dhcpLib.normalizePool(rawPool);
+              if (!dhcpLib.validatePool(pool).ok) return false;
+              return net.ipInSubnet(port.ip, pool.network, pool.mask);
+            } catch (e) { return false; }
+          });
+          if (!covering.length) continue;
+          const srvPort = dev.interfaceWithIp(target);
+          return {
+            relay: { dev: router, iface: port },
+            giaddr: port.ip,
+            server: { device: dev, iface: srvPort },
+            helper: target
+          };
+        }
+      }
+    }
+    return null;
+  }
+
   computeDhcp() {
     const events = [];
+    const nowStep = this._nowStep();
+    let expired = 0;
+
+    // A server forgets a binding when its own lease timer runs out, whatever the client is doing -
+    // that is what makes the pool's free list grow again. `expireLeases()` has existed and been
+    // tested since the DHCP work and had no caller, so nothing in a live lab ever aged.
+    for (const state of this._dhcpStates.values()) {
+      expired += dhcpLib.expireLeases(state, nowStep);
+    }
+    // Recorded *with the step it happened at*, and never reset to zero: a second refresh at the same
+    // instant finds nothing left to expire, and forgetting that a lease had just died made the empty
+    // table claim "no client has completed an exchange" - the opposite of what had happened.
+    if (expired) this.dhcpExpired = { step: nowStep, count: expired };
+
     for (const dev of this.topo.devices.values()) {
       // Which interfaces are asking?
       const clients = [];
@@ -753,15 +983,78 @@ class Simulator {
 
       for (const clientIface of clients) {
         const segment = segmentLib.segmentOf(this.topo, dev, clientIface.name);
-        const servers = segment.filter(function (e) {
+        let servers = segment.filter(function (e) {
           return e.device && e.device !== dev && e.device.config &&
             Array.isArray(e.device.config.dhcpPools) && e.device.config.dhcpPools.length &&
             e.iface.ip;
         });
+        // Nothing on this wire to ask. A DISCOVER is a broadcast and dies at the first router, which
+        // is why `ip helper-address` exists: the router on this wire re-sends it as a unicast to a
+        // server somewhere else, stamping its own port address into giaddr so the server knows which
+        // subnet to allocate from. Without this a lab with a central server and a remote subnet
+        // simply never worked, and said `no-server`.
+        let relay = null;
+        if (!servers.length) relay = this._dhcpRelayFor(dev, clientIface, segment);
+        if (relay) servers = [relay.server];
 
-        const result = this._runDhcpExchange(dev, clientIface, servers);
+        // A host that already holds a live lease does not start over. Before this, every refresh ran
+        // a fresh DISCOVER, so asking the same question twice could hand the client a *different*
+        // address (10.0.1.100, then 10.0.1.101) and re-stamp the timer as if no time had passed.
+        const held = clientIface.dhcpLease;
+        if (held && held.expiresStep !== undefined && held.expiresStep > nowStep) {
+          // Renewal is due at T1 = half the lease; before that the lease is simply still valid, and
+          // nothing about it changes.
+          const t1 = held.expiresStep - Math.max(1, Math.floor(held.leaseSec || 0) / 2);
+          if (nowStep < t1) {
+            events.push({
+              type: 'dhcp', client: dev.id, clientName: dev.name, iface: clientIface.name,
+              mac: held.mac, phase: 'held', ok: true, ip: held.ip,
+              leaseSec: held.leaseSec, remainingSec: held.expiresStep - nowStep,
+              detail: 'lease still valid until step ' + held.expiresStep
+            });
+            continue;
+          }
+        }
+
+        // An expired lease is not held any more: the client drops the address before asking again,
+        // which is what leaves it honestly unaddressed when no server answers.
+        if (held && held.expiresStep !== undefined && held.expiresStep <= nowStep) {
+          events.push({
+            type: 'dhcp', client: dev.id, clientName: dev.name, iface: clientIface.name,
+            mac: held.mac, phase: 'expired', ok: false, ip: held.ip,
+            detail: 'lease expired at step ' + held.expiresStep + '; the client asks again'
+          });
+          clientIface.ip = null;
+          clientIface.mask = null;
+          clientIface.dhcpLease = null;
+        }
+
+        // A renewal asks for the address the client already holds; the first exchange asks for
+        // nothing in particular.
+        const result = this._runDhcpExchange(dev, clientIface, servers, {
+          requestedIp: clientIface.dhcpLease ? clientIface.dhcpLease.ip : null,
+          nowStep: nowStep,
+          relay: relay
+        });
         events.push(result.event);
         if (result.lease) {
+          if (result.lease.giaddr) {
+            // Remember which server handed this out and from which relay, so its binding table can
+            // say so. Replaced rather than appended when the same address is re-leased.
+            if (!this._dhcpRelayed) this._dhcpRelayed = [];
+            this._dhcpRelayed = this._dhcpRelayed.filter(function (r) {
+              return r.ip !== result.lease.ip;
+            });
+            const srv = this.topo.devices.values();
+            let serverId = null;
+            for (const d of srv) {
+              if (d.interfaceWithIp(result.lease.server)) { serverId = d.id; break; }
+            }
+            this._dhcpRelayed.push({
+              serverId: serverId, ip: result.lease.ip, giaddr: result.lease.giaddr,
+              relayDevice: result.lease.relayDevice, client: dev.id
+            });
+          }
           clientIface.ip = result.lease.ip;
           clientIface.mask = result.lease.mask;
           clientIface.dhcpLease = result.lease;
@@ -776,8 +1069,37 @@ class Simulator {
     return events;
   }
 
-  // One client, one interface, one DISCOVER -> OFFER -> REQUEST -> ACK.
-  _runDhcpExchange(client, clientIface, servers) {
+  // The leases a device holds as a DHCP server, ordered by address. Public: the CLI
+  // and an inspector panel should read the same numbers, and neither should reach
+  // into `_dhcpStates`.
+  dhcpBindings(devId) {
+    // Passed the clock the answer is about, so `Expires in` is a countdown rather than the
+    // configured lease length restated.
+    return dhcpLib.leaseTable(this._dhcpStates.get(devId), this._nowStep());
+  }
+
+  // Which of this server's live bindings arrived through a relay, and from where. Kept beside the
+  // lease state rather than inside it because giaddr is a property of the *exchange*, not of the
+  // lease (the library's lease record is address + deadline, deliberately).
+  dhcpRelayedBindings(devId) {
+    const out = [];
+    for (const rec of (this._dhcpRelayed || [])) {
+      if (rec.serverId !== devId) continue;
+      const state = this._dhcpStates.get(devId);
+      const stillThere = state && dhcpLib.leaseTable(state)
+        .some(function (row) { return row.ip === rec.ip; });
+      if (stillThere) out.push(rec);
+    }
+    return out;
+  }
+
+  // One client, one interface, one exchange. `opts.requestedIp` makes it a *renewal*: a client that
+  // already holds a lease sends REQUEST straight for its address (no DISCOVER), and a NAK sends it
+  // back to the beginning - which is what a real host does. `opts.nowStep` is the instant the
+  // question is being asked at, so a lease is stamped against the clock the answer is about.
+  _runDhcpExchange(client, clientIface, servers, opts) {
+    const o = opts || {};
+    const step = o.nowStep === undefined ? this.step : o.nowStep;
     const mac = clientIface.mac || (client.macAddress || '00:00:00:00:00:00');
     const base = {
       type: 'dhcp', client: client.id, clientName: client.name,
@@ -794,18 +1116,22 @@ class Simulator {
       };
     }
 
-    // A server answers only for a pool that covers the subnet its own interface is in. The first
-    // match wins, in device order, so a run is deterministic.
+    // A server answers only for a pool that covers the subnet the request came *from*. Without a
+    // relay that is the server's own interface; with one it is the giaddr the relay wrote - which is
+    // the whole reason the field exists, since the request arrived from somewhere the server has no
+    // interface on. The first match wins, in device order, so a run is deterministic.
+    const fromSubnet = o.relay && o.relay.giaddr ? o.relay.giaddr : null;
     let chosen = null;
     for (const s of servers) {
+      const pickFrom = fromSubnet || s.iface.ip;
       for (const rawPool of s.device.config.dhcpPools) {
         const pool = dhcpLib.normalizePool(rawPool);
         const check = dhcpLib.validatePool(pool);
         if (!check.ok) continue;
-        // The question is "is this server's interface inside the pool's subnet", not "could this
-        // address be handed out" - the gateway is deliberately not allocatable, and asking
-        // ipInPool() would reject every correctly configured router.
-        if (net.ipInSubnet(s.iface.ip, pool.network, pool.mask)) {
+        // The question is "is this address inside the pool's subnet", not "could this address be
+        // handed out" - the gateway is deliberately not allocatable, and asking ipInPool() would
+        // reject every correctly configured router.
+        if (net.ipInSubnet(pickFrom, pool.network, pool.mask)) {
           chosen = { server: s, pool: pool };
           break;
         }
@@ -830,8 +1156,38 @@ class Simulator {
     }
     const state = this._dhcpStates.get(serverDev.id);
 
-    const offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: this.step });
-    if (!offer) {
+    // A renewal skips DISCOVER: the client already knows which address it wants.
+    let offer = null;
+    if (o.requestedIp) {
+      const renewal = dhcpLib.handleRequest(chosen.pool, state, {
+        mac: mac, requestedIp: o.requestedIp, step: step
+      });
+      if (renewal && renewal.type === dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
+        const leaseSecRenew = Number(chosen.pool.leaseSec);
+        return {
+          lease: {
+            ip: renewal.ip, mask: chosen.pool.mask,
+            gateway: chosen.pool.gateway || null,
+            dns: (chosen.pool.dns || []).slice(),
+            server: chosen.server.iface.ip, pool: chosen.pool.name,
+            leaseSec: leaseSecRenew, expiresStep: renewal.expiresStep,
+            giaddr: fromSubnet, relayedVia: o.relay && o.relay.relay ? o.relay.relay.iface.name : null,
+            relayDevice: o.relay && o.relay.relay ? o.relay.relay.dev.id : null,
+            client: client.id, iface: clientIface.name, mac: mac, renewed: true
+          },
+          event: Object.assign({}, base, {
+            phase: 'renewed', ok: true, ip: renewal.ip, mask: chosen.pool.mask,
+            server: serverDev.id, serverName: serverDev.name,
+            serverIp: chosen.server.iface.ip, pool: chosen.pool.name,
+            gateway: chosen.pool.gateway || null, leaseSec: leaseSecRenew
+          })
+        };
+      }
+      // NAK (the server no longer holds that address for this client): start over, like a real host.
+    } else {
+      offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: step });
+    }
+    if (!offer && !o.requestedIp) {
       return {
         lease: null,
         event: Object.assign({}, base, {
@@ -841,9 +1197,22 @@ class Simulator {
         })
       };
     }
+    if (!offer) {
+      offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: step });
+      if (!offer) {
+        return {
+          lease: null,
+          event: Object.assign({}, base, {
+            phase: 'failed', reason: 'pool-exhausted',
+            server: serverDev.id, serverName: serverDev.name, pool: chosen.pool.name,
+            detail: 'pool ' + chosen.pool.name + ' has no address left to offer'
+          })
+        };
+      }
+    }
 
     const ack = dhcpLib.handleRequest(chosen.pool, state, {
-      mac: mac, requestedIp: offer.ip, step: this.step
+      mac: mac, requestedIp: offer.ip, step: step
     });
     if (!ack || ack.type !== dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
       return {
@@ -865,13 +1234,22 @@ class Simulator {
         gateway: chosen.pool.gateway || null,
         dns: (chosen.pool.dns || []).slice(),
         server: chosen.server.iface.ip, pool: chosen.pool.name,
-        leaseSec: leaseSec, client: client.id, iface: clientIface.name, mac: mac
+        // The expiry step is what lets a later question work out whether this lease is still
+        // alive; without it the client had no clock and every answer re-stamped the timer.
+        leaseSec: leaseSec, expiresStep: ack.expiresStep,
+        // A relayed lease remembers where it came from: the client's own address is useless to the
+        // server for routing, so giaddr is the only thing that explains how it was handed out.
+        giaddr: fromSubnet, relayedVia: o.relay && o.relay.relay ? o.relay.relay.iface.name : null,
+        relayDevice: o.relay && o.relay.relay ? o.relay.relay.dev.id : null,
+        client: client.id, iface: clientIface.name, mac: mac
       },
       event: Object.assign({}, base, {
         phase: 'ack', ok: true, ip: ack.ip, mask: chosen.pool.mask,
         server: serverDev.id, serverName: serverDev.name,
         serverIp: chosen.server.iface.ip, pool: chosen.pool.name,
-        gateway: chosen.pool.gateway || null, leaseSec: leaseSec
+        gateway: chosen.pool.gateway || null, leaseSec: leaseSec,
+        relayed: !!fromSubnet, giaddr: fromSubnet,
+        relayName: o.relay && o.relay.relay ? o.relay.relay.dev.name : null
       })
     };
   }
@@ -899,6 +1277,7 @@ class Simulator {
 
     for (const dev of this.topo.devices.values()) {
       dev.ospfRoutes = [];
+      dev.ospfNeighbors = [];
       const cfg = dev.config && dev.config.ospf;
       if (!cfg || !cfg.routerId) continue;
 
@@ -958,12 +1337,18 @@ class Simulator {
       // Directly connected peers, so a next hop can be turned into a real IP.
       const nbr = Object.create(null);
       for (const l of links) {
+        // The adjacency's area is the local interface's area, which is what an
+        // operator reads in `show ip ospf neighbor` (a per-interface area can
+        // differ from the process default).
+        const localName = (l.a.router === r.id) ? l.a.iface : l.b.iface;
+        const localIf = r.interfaces.filter(function (x) { return x.name === localName; })[0];
+        const area = localIf ? localIf.area : (r.areaId || 0);
         if (l.a.router === r.id) {
           const peer = byId[l.b.router].entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
-          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface };
+          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface, area: area };
         } else if (l.b.router === r.id) {
           const peer = byId[l.a.router].entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
-          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface };
+          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface, area: area };
         }
       }
 
@@ -1021,7 +1406,26 @@ class Simulator {
 
       // Routes land when the adjacency has finished and SPF has run, not with the cable.
       const ospfDev = byId[r.id].dev;
-      if (this._converged('ospf', ospfDev)) {
+      const converged = this._converged('ospf', ospfDev);
+      // Persist the adjacencies the SPF ran over, so `show ip ospf neighbor`
+      // reports the same set the routes were built from and cannot invent one:
+      // a passive port or a subnet mismatch never reaches `nbr`.
+      const neighbors = [];
+      for (const nid of Object.keys(nbr)) {
+        const peerEntry = byId[nid].entry;
+        neighbors.push({
+          deviceId: nid,
+          name: byId[nid].dev.name || nid,
+          routerId: peerEntry.routerId,
+          ip: nbr[nid].ip,
+          iface: nbr[nid].iface,
+          area: nbr[nid].area,
+          state: converged ? 'FULL' : 'INIT'
+        });
+      }
+      neighbors.sort(function (a, b) { return String(a.ip).localeCompare(String(b.ip)); });
+      ospfDev.ospfNeighbors = neighbors;
+      if (converged) {
         ospfDev.ospfRoutes = routes;
       } else {
         ospfDev.ospfRoutes = [];
@@ -2342,7 +2746,11 @@ class Simulator {
     // Interface counters. Counted here and not when the packet was built,
     // because a frame that never left the box -- denied by an ACL above, or
     // dropped for want of a VLAN -- is not throughput.
+    const bytesOut = (out.l4 && out.l4.bytes) || frameBytes(out);
     if (out.l4) flowLib.countPacket(this.flowState, dev.id, 'out', out.l4.bytes || 0);
+    const tx = this._portStat(dev.id, port.name);
+    tx.tx++;
+    tx.txBytes += bytesOut;
     this._enqueue(dev.id, port.name, out);
   }
 
@@ -2382,6 +2790,9 @@ class Simulator {
     }
     const peerDev = this.topo.getDevice(peer.deviceId);
     if (!peerDev) return;
+    const rx = this._portStat(peerDev.id, peer.iface);
+    rx.rx++;
+    rx.rxBytes += frameBytes(tx.frame);
     this._emit({
       type: 'frame', from: dev.id, fromIface: iface.name,
       to: peerDev.id, toIface: peer.iface, frame: tx.frame
@@ -2547,7 +2958,10 @@ class Simulator {
       // management IP. Requiring l3-forward for them meant such a device could
       // never answer ARP for the address printed on its own label, so the whole
       // PON branch was unreachable even though every cable was right.
-      const canTerminate = l3 || dev.isHost();
+      // ...and so does a switch with a management SVI: it owns an address on a VLAN, so a frame
+      // addressed to that address must reach its stack instead of being bridged past it. Without
+      // this the SVI existed, printed in `show ip interface brief`, and answered nothing.
+      const canTerminate = l3 || dev.isHost() || dev.hasSvi();
       const forOurIp = !!(f.ip && dev.ownsIpOn(inIface, f.ip.dst));
       if (canTerminate && mine && !flood) {
         if (this._tryProcessL3(dev, f, inIface)) return;
@@ -2601,7 +3015,10 @@ class Simulator {
     const candidates = [];
 
     if (bcast) {
-      for (const iface of dev.activeInterfaces()) {
+      // bridgedInterfaces(), not activeInterfaces(): an SVI is enabled and cabled to nothing, so
+      // listing it as an egress would have the switch try to send the frame out of its own
+      // management address.
+      for (const iface of dev.bridgedInterfaces()) {
         if (iface.parent) continue;               // subinterfaces are not bridged ports
         if (iface.name !== inIface) candidates.push(iface.name);
       }
@@ -2614,7 +3031,7 @@ class Simulator {
         return;
       } else {
         // unknown unicast -> flood within the VLAN
-        for (const iface of dev.activeInterfaces()) {
+        for (const iface of dev.bridgedInterfaces()) {
           if (iface.parent) continue;             // subinterfaces are not bridged ports
           if (iface.name !== inIface) candidates.push(iface.name);
         }
@@ -2723,6 +3140,11 @@ class Simulator {
         // the address: a router subinterface carries the VLAN tag, and sending the
         // reply out the raw trunk port would strip it.
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
+        // An SVI needs no rule here, and adding one was a mistake worth recording: _sendFromOwnIp()
+        // already treats an L2 device as *bridging* its own frames rather than transmitting them out a
+        // socket (`if (dev.isL2()) this._forwardL2(...)`), which is exactly what a switch's management
+        // stack does. Forcing the reply out of the ingress port replaced a bridge with a unicast and
+        // looked correct only because the two happen to reach the same host in a one-host lab.
         const replyIface = sameGroup ? inIf : owner;
         if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
         // A virtual address is answered with the group's virtual MAC, not the box's own: that is
@@ -2733,6 +3155,9 @@ class Simulator {
         // cached nothing usable for the gateway and every packet it sent died at that step.
         const claimed = (typeof dev.vrrpClaimFor === 'function') ? dev.vrrpClaimFor(arp.targetIp, replyIface.name) : null;
         const answerIp = claimed ? arp.targetIp : owner.ip;
+        // No special case for the SVI MAC: macForIp() resolves the address to its owner, so a reply
+        // for Vlan10's address carries Vlan10's MAC whichever port it leaves by. The only thing the
+        // SVI needed was a port to leave through.
         const replyMac = (typeof dev.macForIp === 'function' ? dev.macForIp(answerIp, replyIface.name) : null) || replyIface.mac;
         this._emit({ type: 'arp-reply', dev: dev.id, iface: replyIface.name, targetIp: arp.targetIp, mac: replyMac, vlan: vid });
         this._sendFromOwnIp(dev, replyIface, arpReply(frame, replyMac, answerIp), vid);
@@ -2856,6 +3281,81 @@ class Simulator {
     return mtu;
   }
 
+  // traceroute: the forwarding path a packet would walk, hop by hop.
+  //
+  // TTL expiry is not modelled - nothing here decrements a counter or waits for an
+  // ICMP error. It answers the question a traceroute is used to answer ("which way
+  // does the traffic go, and how far is each hop") by following the same routeTo()
+  // the forwarder uses. When a hop has no route, or the path loops, the reason is
+  // returned instead of a fabricated star-star-star.
+  tracePath(srcId, dstIp, opts) {
+    const o = opts || {};
+    const src = this.topo.getDevice(srcId);
+    const out = { ok: false, arrived: false, hops: [], reason: null, pending: [] };
+    if (!src) { out.reason = 'no such source device'; return out; }
+    if (!dstIp) { out.reason = 'no destination'; return out; }
+
+    // Refresh the control planes before walking. A trace is a question about the
+    // network, not a dump of whatever the last run left behind, so the routes are
+    // rebuilt here: at the named instant when one is given, otherwise fully
+    // converged. Without this a fresh lab traces only as far as its static routes.
+    this.refreshRoutes({ atMs: o.atMs });
+
+    const bits = latencyLib.pingFrameBits(64);
+    let dev = src;
+    let guard = 0;
+    const seen = new Set();
+    while (dev && guard++ < 32) {
+      if (seen.has(dev.id)) { out.reason = 'routing loop at ' + (dev.name || dev.id); break; }
+      seen.add(dev.id);
+      const route = dev.routeTo(dstIp);
+      if (!route) {
+        // "No route" and "the routing table is not built yet" look identical to a
+        // star, so name the process that would have produced the route.
+        const waiting = this._stillConverging().filter(function (e) { return e.device.id === dev.id; });
+        out.reason = 'no route to ' + dstIp + ' on ' + (dev.name || dev.id) +
+          (waiting.length ? ' yet: ' + waiting.map(function (e) {
+            return e.process + ' still converging (ready at ' + e.readyAtMs + ' ms)';
+          }).join(', ') : '');
+        out.pending = waiting.map(function (e) {
+          return { process: e.process, device: e.device.name, readyAtMs: e.readyAtMs };
+        });
+        break;
+      }
+      const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
+      const link = egress ? this._linkAt(dev.id, egress.name) : null;
+      const media = (link && link.mediaId) ? mediaModel.mediaById(link.mediaId) : null;
+      const last = route.via === dstIp;
+      const detail = latencyLib.linkDelayDetail({
+        mediaId: link ? link.mediaId : null,
+        lengthM: link ? link.lengthM : null,
+        speedMbps: (link && link.speedMbps) || (media && media.speedMbps) || null,
+        bits: bits,
+        // Every crossing but the last is entered by a device that must receive the
+        // whole frame, decide and retransmit it: one store-and-forward hop.
+        hops: last ? 0 : 1
+      });
+      const hopDev = this.ownerOfIp(route.via);
+      out.hops.push({
+        address: route.via,
+        device: hopDev ? (hopDev.name || hopDev.id) : null,
+        from: dev.name || dev.id,
+        iface: egress ? egress.name : null,
+        delayS: detail.totalS,
+        delayKnown: !!(detail.lengthKnown && detail.rateKnown),
+        last: last
+      });
+      if (last) { out.ok = true; out.arrived = true; break; }
+      if (!hopDev || hopDev.id === dev.id) {
+        out.reason = 'next hop ' + route.via + ' is not a device in this lab';
+        break;
+      }
+      dev = hopDev;
+    }
+    if (guard >= 32) out.reason = 'path did not end within 32 hops';
+    return out;
+  }
+
   // A refusal is a real answer, not a throw: the caller gets the same reason
   // string a ping would have logged, plus a stable code the API can switch on.
   _refuse(code, reason, info) {
@@ -2925,14 +3425,15 @@ class Simulator {
     };
 
     // Same setup a ping does, in the same order: spanning tree, PoE, LLDP, RA,
-    // then the routing protocols. A flow must see the network a ping sees.
-    this.reset();
-    this.computeStp();
-    this.computePoe();
-    this.announceLldp();
-    this.announceRa();
-    this.computeOspf();
-    this.computeBgp();
+    // first-hop redundancy, DHCP, then the routing protocols. A flow must see the
+    // network a ping sees.
+    //
+    // VRRP and DHCP used to be missing from this list, which made a flow to a
+    // virtual IP fail with "no response" on a fresh simulator while a ping to the
+    // same address succeeded: nothing had run the election, so no device owned the
+    // VIP and the SYN was never answered. A flow may end on a VIP, so the election
+    // has to happen here too.
+    this.refreshControlPlanes({ atMs: o.atMs, reset: true, lldp: true, ra: true });
 
     if (proto !== flowLib.PROTO.TCP && proto !== flowLib.PROTO.UDP) {
       return this._refuse('E_PROTO', 'proto must be tcp or udp (got ' + String(o.proto) + ')', info);

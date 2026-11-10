@@ -1,0 +1,62 @@
+{
+  "vendor": "mikrotik",
+  "model": "S53UG+5HaxD2HaxD-TC&RG650E-EU",
+  "label": "Chateau 5G R17 ax",
+  "category": "wireless",
+  "description": "MikroTik Chateau 5G R17 ax (S53UG+5HaxD2HaxD-TC&RG650E-EU) \u2014 4x 1G RJ45, 1x 2.5G RJ45, Wi-Fi 2.4 GHz + 5 GHz, LTE radio. ARM 64bit 4-core IPQ-6010.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "lte1",
+      "type": "wireless",
+      "speed": "2G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/chateau_5g_r17_ax"
+}

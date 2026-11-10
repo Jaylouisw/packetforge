@@ -1,0 +1,61 @@
+{
+  "vendor": "mikrotik",
+  "model": "E60iUGS",
+  "label": "hEX S (2025)",
+  "category": "router",
+  "description": "MikroTik hEX S (2025) (E60iUGS) — 5x 1G RJ45, 1x SFP. ARM 32bit 2-core EN7562CT.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "passive-poe",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hex_s_2025"
+}

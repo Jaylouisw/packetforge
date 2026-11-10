@@ -1,0 +1,152 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS812-8DS-2DQ-2DDQ-RM",
+  "label": "CRS812 DDQ",
+  "category": "l3-switch",
+  "description": "MikroTik CRS812 DDQ (CRS812-8DS-2DQ-2DDQ-RM) — 2x 10G RJ45, 8x 50G SFP56, 2x 200G QSFP56, 2x 400G QSFP56-DD. ARM 64bit 4-core AL52400.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "SFP28-1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "SFP28-8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        50000
+      ]
+    },
+    {
+      "name": "QSFP56-1",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        50000,
+        100000,
+        200000
+      ]
+    },
+    {
+      "name": "QSFP56-2",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        50000,
+        100000,
+        200000
+      ]
+    },
+    {
+      "name": "QSFPDD-1",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    },
+    {
+      "name": "QSFPDD-2",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs812_ddq"
+}

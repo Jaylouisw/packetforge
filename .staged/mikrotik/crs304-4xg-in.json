@@ -1,0 +1,46 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS304-4XG-IN",
+  "label": "CRS304-4XG-IN",
+  "category": "l3-switch",
+  "description": "MikroTik CRS304-4XG-IN (CRS304-4XG-IN) — 1x 1G RJ45, 4x 10G RJ45. ARM 64bit 2-core 98DX2528.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs304_4xg_in"
+}

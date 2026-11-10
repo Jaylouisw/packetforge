@@ -1,0 +1,135 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS510-8XS-2XQ-IN",
+  "label": "CRS510-8XS-2XQ-IN",
+  "category": "l3-switch",
+  "description": "MikroTik CRS510-8XS-2XQ-IN (CRS510-8XS-2XQ-IN) — 1x 100M RJ45, 8x 25G SFP28, 2x 100G QSFP28. MIPSBE 1-core QCA9531.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3bt",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "SFP28-1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "SFP28-8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "QSFP28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "QSFP28-2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs510_8xs_2xq_in"
+}

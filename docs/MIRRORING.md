@@ -70,9 +70,13 @@ minutes with a link to where the discussion is, and their commits are already th
 What they cannot do: press "Merge" on GitHub. That button is meaningless on a mirror — the mirror is
 a copy, and merging there creates a commit that the next mirror sync will not contain.
 
-> **Status: not built yet.** `docs/MIRRORING.md` describes the contract; the bridge script and the
-> Forgejo job that runs it are the next piece of work. Until it exists, a GitHub PR is invisible to
-> this project, which is exactly the problem it is meant to solve.
+> **Status: the bridge script exists, the job that runs it does not.** `scripts/gh-bridge.js` is
+> written and idempotent — `--issues` imports GitHub issues, `--prs` turns a GitHub pull request into
+> a `gh/<n>` branch plus a Forgejo PR, `--report` comments the merge back on GitHub, and every
+> imported object carries a `<!-- gh-issue: N -->` / `<!-- gh-pr: N -->` marker so re-running never
+> duplicates. What is missing is the scheduled Forgejo workflow that invokes it: `.forgejo/workflows/`
+> contains only `ci.yml` and `auto-rebase.yml`, so today the bridge is a command a human runs. Until
+> that job exists, a GitHub PR stays invisible to this project unless somebody notices it.
 
 ## 3. Issues: one tracker, not two
 
@@ -93,9 +97,11 @@ disable new ones (Settings → Features → uncheck Issues). Blunter, but it can
 
 ## 4. CI and CD: Forgejo only
 
-The workflows in `.github/workflows/` are currently gated with
-`if: github.server_url == 'https://github.com'`, which means they **do** run on GitHub — a second,
-competing CI whose results gate nothing. For a mirror that is backwards.
+`.github/workflows/` **no longer exists** — it was deleted in #1059. While it was there, its jobs
+were gated with `if: github.server_url == 'https://github.com'`, which meant they also ran on
+Forgejo, where they failed every time with `docker: command not found` because the runner has no
+Docker-in-Docker. Two pipelines, one of which could never pass. `.github/` now holds only the issue
+and pull-request templates, labels and dependabot.
 
 - `.forgejo/workflows/` is the authoritative pipeline: tests, syntax, examples, server smoke, the
   invariants.
@@ -107,14 +113,19 @@ competing CI whose results gate nothing. For a mirror that is backwards.
 
 ## 5. The public door
 
-None of this works while the canonical host is behind a login. `https://git.jayw.uk` currently
-redirects anonymous visitors to Cloudflare Access, so a contributor cannot read the repo, the
-issues, or a badge.
+None of this works while the canonical host is behind a login. `https://git.jayw.uk` used to
+redirect anonymous visitors to Cloudflare Access, which made the repository, the issues and the
+badges unreadable. That is **fixed**: an anonymous `GET` now returns `200`, and the arrangement that
+did it — a host-wide bypass application for `git.jayw.uk`, leaving Forgejo's own login as the write
+gate — is documented in [PUBLIC-ACCESS.md](PUBLIC-ACCESS.md), including how to re-apply it.
 
 Cloudflare Zero Trust → Access → Applications → the app covering `git.jayw.uk`:
 
-- Add a policy: **Bypass**, Include **Everyone**, scoped to path `jaylouisw/packetforge*`.
+- Add a policy: **Bypass**, Include **Everyone**, scoped to the whole host.
 - Leave **Allow** (your IdP rule) on everything else: `/admin`, `/api`, other repos.
+
+A path-scoped bypass (`jaylouisw/packetforge*`) was tried first and removed: it made browsing work
+but left `git clone` dead, because clones go through `/jaylouisw/packetforge.git`.
 
 Check it from outside your own network — a phone on mobile data, not this machine:
 
@@ -139,8 +150,11 @@ repository if the instance default is private (Settings → Advanced → *This r
 
 ## Order of operations
 
-1. Publish Forgejo (§5) — without this nothing else reaches a stranger.
+1. ~~Publish Forgejo (§5)~~ — **done**: the host is readable anonymously (verified `200`), see
+   [PUBLIC-ACCESS.md](PUBLIC-ACCESS.md).
 2. Add the push mirror (§1) and confirm `main` matches on both.
-3. Set up the PR bridge (§2) and watch the first GitHub PR land.
+3. Set up the PR bridge (§2) and watch the first GitHub PR land — the script is written, the job
+   that runs it is not.
 4. Migrate the issues, then close the GitHub tracker (§3).
-5. Reduce GitHub CI to the courtesy subset (§4).
+5. Reduce GitHub CI to the courtesy subset (§4) — already done the blunt way: `.github/workflows/`
+   is gone, and `.forgejo/workflows/` is the only pipeline.

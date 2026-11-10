@@ -1,0 +1,89 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB1100Dx4",
+  "label": "RB1100AHx4 Dude Edition",
+  "category": "router",
+  "description": "MikroTik RB1100AHx4 Dude Edition (RB1100Dx4) — 13x 1G RJ45. ARM 32bit 4-core AL21400.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "poe-pd",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB1100Dx4"
+}

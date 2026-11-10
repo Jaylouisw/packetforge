@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-G5-Dome-Ultra",
+  "label": "UniFi G5 Dome Ultra",
+  "category": "camera",
+  "description": "UniFi G5 Dome Ultra (UVC-G5-Dome-Ultra) - 1x 100M RJ45. 802.3af PoE-in; 2K; 4.2 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-g5-dome-ultra"
+}

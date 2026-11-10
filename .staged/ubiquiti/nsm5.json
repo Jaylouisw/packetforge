@@ -1,0 +1,38 @@
+{
+  "vendor": "ubiquiti",
+  "model": "NSM5",
+  "label": "airMAX NanoStation M5",
+  "category": "ptp",
+  "description": "5 GHz airMAX M-series NanoStation M5 (14.6-16.1 dBi integrated antenna), 8 W, 24 V 0.5 A passive PoE in. Ports: 2x 10/100 MbE RJ45 (primary PoE-in port plus secondary); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "100M"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/nsm5"
+}

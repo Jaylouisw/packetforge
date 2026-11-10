@@ -1,0 +1,68 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB962UiGS-5HacT2HnT",
+  "label": "hAP ac",
+  "category": "wireless",
+  "description": "MikroTik hAP ac (RB962UiGS-5HacT2HnT) — 5x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz + 5 GHz. MIPSBE 1-core QCA9558.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "450M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.3G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB962UiGS-5HacT2HnT"
+}

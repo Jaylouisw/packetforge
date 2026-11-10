@@ -1,0 +1,27 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBM11G",
+  "label": "RBM11G",
+  "category": "router",
+  "description": "MikroTik RBM11G (RBM11G) — 1x 1G RJ45. MMIPS 2-core MT7621A.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/m11g"
+}

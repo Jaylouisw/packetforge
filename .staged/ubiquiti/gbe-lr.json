@@ -1,0 +1,32 @@
+{
+  "vendor": "ubiquiti",
+  "model": "GBE-LR",
+  "label": "airMAX GigaBeam Long-Range",
+  "category": "ptp",
+  "description": "60 GHz airMAX ac long-range bridge with 5 GHz backup radio, 11 W, 24 V 0.5 A 2-pair passive PoE in; 1+ Gbps. Ports: 1x GbE RJ45 (PoE in); no SFP.",
+  "capabilities": [
+    "l3-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://techspecs.ui.com/uisp/wireless/gbe-lr"
+}

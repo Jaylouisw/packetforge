@@ -1,0 +1,69 @@
+{
+  "vendor": "mikrotik",
+  "model": "E62iUGS-2axD5axT",
+  "label": "hAP ax S",
+  "category": "wireless",
+  "description": "MikroTik hAP ax S (E62iUGS-2axD5axT) \u2014 5x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 2-core EN7562CT.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP1",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hap_ax_s"
+}

@@ -1,0 +1,79 @@
+{
+  "vendor": "mikrotik",
+  "model": "CSS610-1Gi-7R-2S+OUT",
+  "label": "netPower Lite 7R",
+  "category": "switch",
+  "description": "MikroTik netPower Lite 7R (CSS610-1Gi-7R-2S+OUT) — 8x 1G RJ45, 2x 10G SFP+.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/netpower_lite_7r"
+}

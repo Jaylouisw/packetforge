@@ -1,0 +1,87 @@
+{
+  "vendor": "ubiquiti",
+  "model": "US-XG-6POE",
+  "label": "UniFi XG 6 PoE (Gen1)",
+  "category": "switch",
+  "description": "UniFi XG 6 PoE (Gen1) (US-XG-6POE) - 4x 10G RJ45 + 2x 10G SFP+. 170 W PoE budget; 120 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "5G",
+        "2.5G",
+        "1G"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "10G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-xg-6poe"
+}

@@ -1,0 +1,35 @@
+{
+  "vendor": "ubiquiti",
+  "model": "Wave-AP-Gen2",
+  "label": "UniFi Wave AP Gen2",
+  "category": "ptp",
+  "description": "UniFi Wave AP Gen2 (Wave-AP-Gen2) - second-generation 60 GHz PtMP access point with one 2.5G RJ45 uplink and passive PoE in.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "passive-poe",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "bridge",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/60ghz-wireless/wave-ap-gen2"
+}

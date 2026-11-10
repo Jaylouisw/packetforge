@@ -27,8 +27,37 @@ catalog to the API and the UI palette.
 | `vendor` | yes | lowercase manufacturer slug |
 | `model` | yes | unique per vendor |
 | `label` | yes | human-friendly name shown in the palette |
-| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `tap`, `host`, `server`, `wireless`, `cloud`, `olt`, `ont`, `splitter`, `modem`, `powerline`, `nas`, `desktop`, `laptop`, `phone`, `tablet`, `printer`, `camera`, `nvr`, `iot` |
+| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `tap`, `host`, `server`, `wireless`, `ptp`, `cloud`, `olt`, `ont`, `splitter`, `modem`, `powerline`, `nas`, `desktop`, `laptop`, `phone`, `tablet`, `printer`, `camera`, `nvr`, `iot` |
+| `capabilities` | yes | drives the engine — see below |
+| `interfaces` | one of | explicit array; per-port keys below |
+| `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` plus any port key |
+| `description` | no | tooltip — and CI audits it against the ports the spec declares |
+| `sourceUrl` | recommended | the datasheet the numbers came from (1,234 of 1,584 specs carry one) |
+| `notes` | no | research note kept beside the spec, quoted rather than paraphrased |
+| `poeBudget` | no | PSE budget in watts; research-sourced specs use `poe: {"budgetW": 240}` instead |
+| `passive` | no | `true` for a passive tap or splitter — no capabilities, no software |
+| `role` | no | free-form hardware role, e.g. `["midspan","managed"]` |
+| `technology` | no | e.g. `"TFF"`, `"mechanical splice / adapter panel"` |
+| `icon` | no | one of the built-in icons (or any emoji) |
+| `color` | no | accent color (hex) |
 
+Per-port keys, all optional except the first three: `name`, `type`, `speed`, `connector`
+(the cage — see [CONNECTORS.md](CONNECTORS.md) for all 26), `speedCaps` (the rates the cage
+accepts), `poeOut` / `poeOutClass`, `poeIn`, `comboWith` / `comboRole`, `bridgeGroup`, `role`.
+
+`poeOut` on a port is the strongest statement in the file: it is read before any inference
+(`isPoePse` only fills in a value when the port declares nothing). `poeOutClass` beside it is
+**pure annotation** — `"PoE++"`, `"PoE+"`, `"PoE"` — and `grep -rn poeOutClass engine/ web/
+server/ scripts/` returns nothing: no code parses it, so it documents intent and changes no
+behaviour. Only the `rj45` and `combo` cages carry power at all, so a `poeOut` on a fibre cage is
+ignored rather than honoured.
+
+Because that key overrules the prose, the two can disagree, and four specs currently do: on
+`ubiquiti/UISP-FIBER-XG`, `UA-Hub-Door-Mini`, `UA-G2-SK-Pro` and `UA-Hub-Gate`, `eth0` declares
+`"poeOut": true` while the same file's `description` says the unit is *PoE-powered* ("802.3bt
+PoE-in; 22 W max" and so on). The engine believes the port, so those four models will supply
+power to whatever is plugged into `eth0`. `test/spec-vs-description.test.js` fails on exactly
+those four for that reason — see `docs/CI.md` — and the fix is a catalogue edit, not a rewording.
 
 ### Taps and passive hardware
 
@@ -50,19 +79,48 @@ Getting the category wrong is not cosmetic. Before this existed, the passive tap
 as `category: "firewall"` with an empty capability list, which the engine reads as "drops
 everything" - so inserting a tap into a lab cut the link it was inserted into, and no test
 noticed, because a link carrying nothing looks like a link with nothing to carry.
-| `capabilities` | yes | drives the engine — see below |
-| `interfaces` | one of | explicit array of `{name,type,speed}` |
-| `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` |
-| `description` | no | tooltip |
-| `icon` | no | one of the built-in icons (or any emoji) |
-| `color` | no | accent color (hex) |
+
+## Reading the catalogue in code
+
+`loadCatalog(dir)` walks `dir` recursively and returns an array of spec objects. Two things about it
+are worth knowing before you call it:
+
+- **Give it an absolute path.** `loadCatalog('devices')` returns **1,584 entries and every one of them
+  is an error**: the helper `require()`s `path.join(dir, …)`, and a relative path with no leading `./`
+  is read as a *module specifier*, so nothing resolves. The `catch` that exists to survive one
+  malformed spec then swallows the whole directory. `path.resolve('devices')` works; `__dirname` from
+  inside the module is what `engine/` and `scripts/` use.
+- **A file it cannot parse becomes a row, not an exception.** The shape is
+  `{ vendor: 'error', model: '<filename>', label: 'Broken spec', error: '<message>' }`, so a caller
+  that counts entries without filtering `d => !d.error` will report a model total one higher than the
+  catalogue actually has. There are no error rows on this tree.
 
 ## Capabilities
 
-`host`, `l2-forward`, `l3-forward`, `cli`, `dhcp-server`, `dhcp-client`,
-`nat`, `firewall`, `wireless`, `http-server`.
+Fifteen, as enumerated in `engine/device.js` (`CAPABILITIES`):
 
-The engine branches on capabilities only. So:
+`host`, `l2-forward`, `l3-forward`, `cli`, `dhcp-server`, `dhcp-client`, `nat`, `firewall`,
+`wireless`, `http-server`, `poe-pse`, `poe-pd`, `vlan`, `lacp`, `stp`.
+
+**Three gate forwarding, five more are read, and seven are pure labels.** The reads:
+
+| Capabilities | Read by | Effect |
+|---|---|---|
+| `host`, `l2-forward`, `l3-forward` | `Device.isHost()`, `isL2()`, `isL3()` | forwarding: terminate, bridge (MAC learning, VLAN tagging, STP), route |
+| `poe-pse`, `poe-pd` | `isPoePse()` / `isPoePd()` in `engine/media.js` | whether the device is treated as sourcing / drawing power when ports are derived |
+| `cli`, `dhcp-server`, `http-server` | `SERVICE_PORTS` in `engine/flow.js` | which ports a transport flow can terminate on — SSH/Telnet 22/23, DHCP 67, HTTP/HTTPS 80/443 |
+
+`nat`, `firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere**.
+The features they name work from configuration and port hardware instead:
+
+- DHCP server: `ip dhcp pool` in the running config; client: `ip address dhcp`,
+- NAT: `nat` rules, filtering: `access-list` + `ip access-group` bindings,
+- PoE: `poeOut` / `poeIn` on the port hardware,
+- VLANs: `switchport` on the interface, LAG: `channel-group`, STP: implied by `isL2()`.
+
+All fifteen are still worth setting: the device panel shows them as chips (`web/app.js`), several
+suites assert them on specific models, and a reviewer reads them as the spec's intent. Useful
+shapes:
 
 - a **PC** is `["host","cli","dhcp-client"]`,
 - an **L2 switch** is `["l2-forward","cli"]`,
@@ -85,11 +143,21 @@ The engine branches on capabilities only. So:
 The template expands to `Fa0/1 … Fa0/24`. Use `start: 0` for Cisco-style
 zero-based ports (`Gi0/0/0`).
 
+A spec decides what is **drawn**, not every spelling that will be accepted. RouterOS
+silkscreens `SFP+1` and calls it `sfp-sfpplus1`, so both are legal on the command line: the
+`PORT_NAME_RULES` in `engine/iface-name.js` fold the console spelling onto the panel spelling
+and every command that names a port resolves through them ([CLI.md § Port names](CLI.md)).
+Writing `sfp-sfpplus1` in a spec is therefore fine — it is a real name an operator will type —
+but the alias table is what makes the *other* spelling work.
+
 ### Optical cages
 
 A port is copper RJ45 unless you say otherwise. For an optical port set
-`connector` — `sfp`, `sfp+`, `sfp28`, `qsfp+` or `qsfp28` — and give the speeds
-the cage accepts in `speedCaps`:
+`connector` — `sfp`, `sfp+`, `sfp28`, `sfp56`, `xfp`, `qsfp+`, `qsfp28`, `qsfp56`, `qsfpdd`, or one
+of the Fibre Channel cages (`fc-sfp`, `fc-sfp28`, `fc-sfpdd`, `fc-qsfp28`) — and give the speeds
+the cage accepts in `speedCaps`. [CONNECTORS.md](CONNECTORS.md) holds the complete table of all 26
+cages, what each mates with and which media it carries; guessing at the list here is how the two
+drift apart.
 
 ```json
 { "name": "Gi1/1/1", "type": "ethernet", "speed": "10G",
@@ -120,8 +188,9 @@ Say `sc-upc` explicitly if the hardware really has the flat blue one.
 |---|---|---|---|---|
 | `sc-apc` | SC | APC, angled 8° | green | `sc-apc` only |
 | `sc-upc` | SC | UPC, flat | blue | `sc-upc` only |
-| `lc` | LC | UPC, flat | blue | `lc` |
-| `mpo` | MPO | UPC, flat | aqua | `mpo` |
+| `lc-upc` | LC | UPC, flat | blue | `lc-upc` only |
+| `lc-apc` | LC | APC, angled 8° | green | `lc-apc` only |
+| `mpo` | MPO | UPC, flat | aqua | `mpo` — ferrule only, no cage (ribbon optics ride in QSFP cages) |
 
 An SC/APC pushed into an SC/UPC socket is refused with `E_POLISH_MISMATCH`,
 naming both polishes: the angled endface does not seat, costs about 3 dB, and can
@@ -176,10 +245,84 @@ To add a "Northbound NFX-9000" router, create
 Restart the server (or hit the catalog endpoint) and the model appears in the
 palette, fully simulated — no other changes required.
 
+## Correcting an existing spec with researched facts
+
+Adding a device is one JSON file. **Fixing** one — a PoE budget nobody wrote down, a port layout
+that was inferred from the model name — goes through `scripts/apply-research.js`, which refuses to
+write anything it cannot check. It is the only supported path to those fields, and it is what the
+`poe.budgetUnknown` escape hatch above is for.
+
+```bash
+node scripts/apply-research.js research/incoming/aruba-poe.json --dry-run
+node scripts/apply-research.js research/incoming/aruba-poe.json
+```
+
+The input is a JSON document with a `poe` array and/or a `ports` array:
+
+```json
+{ "poe":   [ { "vendor": "aruba", "model": "CX 6100 48G", "poeBudgetW": 370, "sourceUrl": "https://…" } ],
+  "ports": [ { "vendor": "aruba", "model": "CX 6100 48G", "rj45Count": 48, "sfpCount": 4,
+               "sfpType": "sfp+", "sfpSpeedsMbps": [1000, 10000], "sourceUrl": "https://…" } ] }
+```
+
+`--dry-run` prints what it would do and writes nothing; without it every accepted entry is written
+into the device file. Five refusals were measured against a fixture catalogue, each naming the
+reason rather than failing quietly:
+
+```
+[dry run] Applied 2, recorded unknown 0, rejected 5
+  + acme/ACME-SW24  370 W
+  + acme/ACME-SW24  2x rj45 + 2x sfp+
+
+REJECTED acme/ACME-SW24: budget 5000 outside a plausible 30-4000 W
+REJECTED acme/ACME-SW24: no source URL - unverifiable
+REJECTED acme/ACME-NOPE: no matching device spec
+REJECTED acme/ACME-SW24: device has 4 ports (template + explicit, combo counted once) but research says 24 rj45 + 4 sfp = 28
+REJECTED acme/ACME-SW24: sfpType "rj45" is not a known cage
+```
+
+- **A `sourceUrl` is mandatory.** An unverifiable claim is rejected rather than written. The
+  catalogue is not uniformly there yet: **46** devices carry a numeric `poe.budgetW` and **4** of them
+  have no `poe.sourceUrl` (`antaira/LNP-0800G-24-T`, `axis/S3008`, `dahua/NVR5216-16P-4KS2E`,
+  `microchip/PD-9501G-SFP`) because they were written by hand before the applier existed. Those are
+  the entries a research pass can still improve, and re-running the applier with their datasheets is
+  what would close them.
+- **The budget must be plausible** — 30 to 4000 W — so a datasheet figure copied in the wrong unit is
+  caught instead of shipped.
+- **`poeBudgetW: null` is a fact, not a blank.** It means "researched, and the datasheet does not say",
+  and is recorded as `{ "budgetW": null, "budgetUnknown": true, "sourceUrl": …, "note": … }` with the
+  line `~ vendor/model  budget NOT FOUND (recorded as unknown)`.
+- **An existing different value is not overwritten without `--force`**:
+  `REJECTED acme/ACME-SW24: existing budget 300 W differs from researched 370 W (use --force to overwrite)`.
+  With `--force` the same run prints `+ acme/ACME-SW24  370 W (was 300)`.
+- **Port counts are checked against the expanded hardware, not the raw array** — a `portTemplate` that
+  generates 24 ports plus four explicit SFP entries is 28 positions, and a combo cage counts once.
+  When research says the *tail* of a template should be optical, the applier splits the template:
+  copper keeps the template, the optical tail is written out explicitly with `speedCaps` taken from
+  `sfpSpeedsMbps`, and the run prints `(template split)`.
+
+Exit status is `1` if anything was rejected, so a CI step or a research agent can tell "wrote
+everything" from "wrote some of it", and the output always ends with the
+`Applied N, recorded unknown M, rejected K` line. `PF_DEVICES` points the applier at a fixture
+catalogue instead of `devices/`, which is how `test/apply-research.test.js` covers it without
+touching the real tree.
+
 ## Included catalog
 
-22 models across 7 vendors: **Cisco** (ISR 4321, Catalyst 2960, Catalyst 9300,
-ASA 5506), **Juniper** (MX204, EX2300), **Arista** (7050SX3, 7280SR),
-**MikroTik** (CRS326, CCR1036), **Huawei** (S5735, AR6140), **Ubiquiti**
-(EdgeSwitch 16, EdgeRouter 4), plus 9 generic models (router, L2/L3 switch, PC,
-server, firewall, AP, cloud).
+**1,584 models across 245 vendors**, one JSON file each, in 25 distinct `category` values
+(24 palette buckets — every AP is filed `wireless`; a single spec still carries the legacy `ap`
+value, `huawei/WiFi Extender AX3000`). The last one has a visible cost worth knowing: the palette's
+type filter is built by walking `CAT_ORDER` in `web/app.js`, so a category outside that list gets no
+entry in the dropdown and the device is reachable only through palette **search**. Count them
+yourself:
+
+```bash
+node scripts/audit-devices.js          # models, vendors, ports, cablability
+node scripts/missing-devices.js        # what the catalogue is still missing
+```
+
+The catalogue spans routers, switches, L3 switches, firewalls, taps, hosts, servers, wireless
+APs, PTP radios, OLTs, ONTs, splitters, modems, powerline/MoCA adapters, NAS, desktops, laptops,
+phones, tablets, printers, cameras, NVRs, IoT and cloud. Vendor coverage runs from Cisco, Juniper,
+Arista, HPE/Aruba and Huawei to MikroTik, Ubiquiti, Zyxel, TP-Link, Calix, Nokia, Fiberhome,
+Raritan and Vertiv.

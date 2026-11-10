@@ -1,0 +1,183 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS317-1G-16S+RM",
+  "label": "CRS317-1G-16S+RM",
+  "category": "l3-switch",
+  "description": "MikroTik CRS317-1G-16S+RM (CRS317-1G-16S+RM) — 1x 1G RJ45, 16x 10G SFP+. ARM 32bit 2-core 98DX8216.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+11",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+12",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+13",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+14",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "SFP+16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs317_1g_16s_rm"
+}

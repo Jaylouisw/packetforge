@@ -1,0 +1,27 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB711GA-5HnD",
+  "label": "RB711GA-5HnD",
+  "category": "router",
+  "description": "MikroTik RB711GA-5HnD (RB711GA-5HnD) \u2014 1x 1G RJ45.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/RB711GA-5HnD"
+}

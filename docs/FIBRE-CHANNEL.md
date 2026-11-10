@@ -49,7 +49,7 @@ separate cages keep the two ladders apart while still mating physically — `cag
 An FC port cabled to an Ethernet port refuses with `E_PROTOCOL_MISMATCH`:
 
 ```
-fc-sfp28 is a Fibre Channel port and SFP+ is Ethernet. The connector is the same LC/SFP family
+SFP28 (FC) is a Fibre Channel port and SFP+ is Ethernet. The connector is the same LC/SFP family
 and the optic will even seat, but Fibre Channel carries FC frames at its own rate ladder
 (8/16/32/64G run at 8.5/14.025/28.05/57.8 Gbit/s) and an Ethernet port has no FC login, so no
 frame ever crosses. Put an FC HBA or switch on the other end.
@@ -61,8 +61,12 @@ Two details worth keeping:
   the more fundamental reason: a user who has plugged an FC optic into a switch port needs to hear
   about the protocol, not about the shape of the strand.
 - An FC optic in a **1G SFP** cage is refused on the *connector* instead, because it genuinely
-  does not seat. Only SFP+/SFP28/SFP-DD sockets take an FC module, and the test suite pins both
-  answers so they cannot drift into each other.
+  does not seat: `E_CONNECTOR_MISMATCH`, `Cannot mate SFP+ (FC) to SFP (incompatible connectors).`
+  Only SFP+/SFP28/SFP-DD sockets take an FC module. The test suite pins the protocol answer
+  against an SFP+ port and deliberately does not pin this one, because a connector refusal would
+  prove nothing about the protocol — so the raw `cagesMate('sfp', 'fc-sfp')` matrix says `true`
+  while the real pair refuses. `cagesMate` answers "could these sockets ever meet"; `canMate()` is
+  what a link is actually judged by.
 
 ## Two FC ports link and negotiate down
 

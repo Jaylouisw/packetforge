@@ -1,0 +1,94 @@
+{
+  "vendor": "mikrotik",
+  "model": "RB4011iGS+5HacQ2HnD-IN",
+  "label": "RB4011iGS+5HacQ2HnD-IN",
+  "category": "wireless",
+  "description": "MikroTik RB4011iGS+5HacQ2HnD-IN (RB4011iGS+5HacQ2HnD-IN) — 10x 1G RJ45, 1x 10G SFP+, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 4-core AL21400.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "poe-pse",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "SFP+1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1.7G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/rb4011igs_5hacq2hnd_in"
+}

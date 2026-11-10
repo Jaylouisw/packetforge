@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UCK-G2-SSD",
+  "label": "UniFi CloudKey+",
+  "category": "host",
+  "description": "UniFi CloudKey+ (UCK-G2-SSD) - 1x 1G RJ45. 802.3af PoE-in; 9.6 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "host",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uck-g2-ssd"
+}

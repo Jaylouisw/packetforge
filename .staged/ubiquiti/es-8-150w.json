@@ -1,0 +1,96 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ES-8-150W",
+  "label": "EdgeSwitch 8 PoE",
+  "category": "switch",
+  "description": "EdgeSwitch 8 PoE (ES-8-150W) - 8x 1G RJ45 + 2x 1G SFP. 150 W PoE budget; 20 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-8-150w"
+}

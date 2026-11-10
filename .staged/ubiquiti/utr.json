@@ -1,0 +1,41 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UTR",
+  "label": "UniFi Travel Router",
+  "category": "wireless",
+  "description": "UniFi Travel Router (UTR) - 2x 1G RJ45. 5 W max.",
+  "capabilities": [
+    "l2-forward",
+    "wireless",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/utr"
+}

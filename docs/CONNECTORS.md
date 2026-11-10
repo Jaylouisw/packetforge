@@ -23,8 +23,8 @@ All of it lives in two files:
 
 | Term | Meaning | Where it is defined |
 |------|---------|---------------------|
-| **Cage** | The physical socket fitted to the box: `rj45`, `sfp+`, `qsfpdd`, `sc-apc`, `coax`, `antenna`… A cage is hardware, not a protocol. | `CAGES` (18 entries) |
-| **Medium** | The cable, optic, DAC or radio band that goes *in* the cage: `10gbase-lr`, `dac-100g`, `gpon-sc-apc`, `wireless-5`. | `MEDIA` (53 entries) |
+| **Cage** | The physical socket fitted to the box: `rj45`, `sfp+`, `qsfpdd`, `sc-apc`, `coax`, `antenna`… A cage is hardware, not a protocol. | `CAGES` (26 entries) |
+| **Medium** | The cable, optic, DAC or radio band that goes *in* the cage: `10gbase-lr`, `dac-100g`, `gpon-sc-apc`, `wireless-5`. | `MEDIA` (89 entries, 9 families: copper, fiber, fibre-channel, coax, dsl, powerline, dac, console, wireless) |
 | **Mate** | Two cages are physically able to accept each other. | `CAGE_MATE` / `cagesMate()` |
 | **Ferrule** | The precision ceramic sleeve at the end of a fibre connector. Has a *shape* (SC, LC, MPO) and a *polish* (UPC flat, APC angled 8°). | `FERRULE` / `ferrule()` |
 | **Port hardware** | The derived descriptor hung on every interface: `{ cage, cageName, family, media[], speedCaps[], maxSpeedMbps, poeOut, poeIn }`. | `derivePortHardware()` |
@@ -36,12 +36,20 @@ connect" are different mistakes. See section 4.
 
 ---
 
-## 2. The nineteen cages
+## 2. The twenty-six cages
 
 Family is the value the engine reports in `port.hardware.family`. The
 `combo`, `coax`, `dsl`, `powerline` and `management` values are the
-subscriber/management families; the UI groups them as copper / combo / fibre /
-console / other.
+subscriber/management families, and `fibre-channel` marks the four FC cages;
+the UI groups them as copper / combo / fibre / console / other.
+
+**The Speeds column is what media in that cage can carry — not `CAGE_SPEEDS`.** The engine's
+`CAGE_SPEEDS` map is only the fallback for a port that declares neither `speedCaps` nor a rate
+label, and several cages have no entry on purpose (`sfp28` and `qsfpdd` among them): a port there
+should say what it trains at rather than inherit a number. An empty `CAGE_SPEEDS` entry is
+therefore not a bug and not a contradiction of this table — `sfp+` does supply a default
+(`[1000, 10000]`), `sfp28` does not.
+
 
 | Cage | Name | Family | Mates with | Media it can carry | Speed classes (Mbps) |
 |------|------|--------|-----------|--------------------|----------------------|
@@ -53,20 +61,55 @@ console / other.
 | `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
 | `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
 | `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
+| `sfp56` | SFP56 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo` | `50gbase-sr`, `50gbase-lr`, `25gbase-sr`, `25gbase-lr`, `dac-25g` | 25000, 50000 |
+| `qsfp56` | QSFP56 | optical | `qsfp56`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000 |
+| `xfp` | XFP | optical | `xfp` only | `10gbase-sr`, `10gbase-lr`, `10gbase-er` | 10000 |
 | `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 1244, 2488, 9953 |
 | `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc` | 1244, 2488, 9953 (filtered by rating) |
 | `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
 | `lc-apc` | LC/APC | optical | `lc-apc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
+| `fc-sfp` | SFP+ (FC) | fibre-channel | `fc-sfp`, `sfp+`, `sfp28`, `fc-sfp28`, `fc-sfpdd` | `2gfc-sw`, `2gfc-lw`, `4gfc-sw`, `4gfc-lw`, `8gfc-sw`, `8gfc-lw`, `10gfc-sw`, `10gfc-lw`, `16gfc-sw`, `16gfc-lw` | 2125, 4250, 8500, 10519, 14025 |
+| `fc-sfp28` | SFP28 (FC) | fibre-channel | `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+`, `fc-sfpdd` | `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw`, `8gfc-sw`, `8gfc-lw` | 8500, 14025, 28050 |
+| `fc-sfpdd` | SFP-DD (FC) | fibre-channel | `fc-sfpdd`, `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+` | `64gfc-sw`, `64gfc-lw`, `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw` | 14025, 28050, 57800 |
+| `fc-qsfp28` | QSFP28 (FC) | fibre-channel | `fc-qsfp28`, `qsfp28` | `128gfc-sw`, `128gfc-lw`, `32gfc-sw`, `32gfc-lw` | 28050, 112200 |
 | `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-31` | 175, 1000, and 2500 / 5000 / 10000 gated by rating |
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
-| `console` | Console | management | `console` only | `console-rs232` | 0.1152 (115200 baud) |
+| `console` | Console | management | `console` only | `console-rs232` (115200) plus the fixed-baud variants `console-rs232-9600`, `-19200`, `-38400`, `-57600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (9600 – 115200 baud) |
 | `usb` | USB | management | `usb`, `console` | `usb-console` | 12 |
 | `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
-That is **19 cages**. `CAGES` is the authority; if you add one, this table and
+That is **26 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
+
+### Checking this table against the engine
+
+There is no audit script for cages and media. Both catalogues are **functions of the port's rated
+speed**, which is why the table says "gated by rating" in places and why calling them with no
+argument gives nonsense (`rj45` looks empty, because every copper medium's rate is `> undefined`).
+Pass a rate:
+
+```bash
+# every cage at a 100G port rating: how many media it can take, and its speed classes
+node -e "const m=require('./engine/media');const v=x=>typeof x==='function'?x(100000):x;for(const c of Object.keys(m.CAGES))console.log(c.padEnd(12),(v(m.CAGE_MEDIA[c])||[]).length+' media',(v(m.CAGE_SPEEDS[c])||[]).join('/'))"
+
+# the full media list for one cage at that rating
+node -e "const m=require('./engine/media');console.log(m.CAGE_MEDIA['sfp+'](100000).join('\n'))"
+```
+
+The Media column above names what matters for a cabling decision; the commands give the computed
+sets, and where they disagree the engine wins.
+
+One disagreement is open on purpose — it needs a decision, not a silent edit: `xgspon-sc-apc`,
+`xgspon-sc-upc` and `xgspon-lc-upc` exist in `MEDIA` and are named in the rows above, but
+`CAGE_MEDIA` returns only the `gpon-*` entries for the `sc-*` and `lc-*` cages. If a PON port cannot
+be given an XGS-PON optic, that is an engine gap; if it can, the table is right and `CAGE_MEDIA` is
+the thing to fix.
+
+The four `fc-*` cages are the Fibre Channel ones: same shell widths as their Ethernet
+counterparts, different protocol, and they intermate with the Ethernet cages of the same width so a
+real FC HBA in an SFP+ port is representable. See [FIBRE-CHANNEL.md](FIBRE-CHANNEL.md).
 
 `wwan` is the odd one out: it mates with nothing at all, including itself. A cellular modem
 connects to a base station, not to a patch lead, so a lab with two 5G CPEs in it has two
@@ -77,7 +120,7 @@ radio (issue #129).
 
 ### Reading the table
 
-- **`rj45` is not a synonym for "ethernet".** It is one cage among nineteen. A
+- **`rj45` is not a synonym for "ethernet".** It is one cage among twenty-six. A
   10GBASE-T port is `rj45`; a 10GBASE-SR port is `sfp+`. Only the cage decides
   what plugs in.
 - **The SFP family intermates across rates.** `sfp`, `sfp+` and `sfp28` all mate
@@ -439,6 +482,22 @@ refused in one direction and accepted in the other.
 `fiber > dac > copper > console/wireless`, breaking ties on speed, and
 `negotiateSpeed` takes the maximum shared `speedCaps` entry.
 
+**`speedMbps` from `canMate`/`negotiateSpeed` is the port ceiling, not the cable's
+speed.** The two are equal whenever both ports are single-rate and matched, which is most of
+the catalogue — and then they diverge. Measured on a Catalyst 9300's `sfp+` uplink pair with a
+1G SFP part (`1000base-t-sfp`) between them:
+
+| Question | Answer |
+|---|---|
+| `canMate(A, B).speedMbps` | **10000** — the highest shared `speedCaps`, i.e. what these sockets could do |
+| `negotiateSpeed(A, B)` | **10000** |
+| `topo.validateLink(…, {mediaId: '1000base-t-sfp'})` | `ok: true`, no errors, one `W_SPEED_DOWNGRADE` ("runs at 1G, below the 10G of Gi1/1/1 …") |
+| the created link's `speedMbps` | **1000** — what the cable actually runs at |
+
+So a caller that reads `canMate().speedMbps` and calls it the link rate is wrong on exactly the
+downgrade case that warning exists to describe. The link record and the warning are the truth;
+`canMate` answers "could these two sockets run together at all, and if so how fast at best".
+
 ### Error and warning codes
 
 Everything the rules engine can emit, and where it comes from:
@@ -712,13 +771,14 @@ pair is refused from the QSFP side. Then add the name rule to `inferCage`
 | Test | What it protects |
 |------|------------------|
 | `node test/hardware-invariants.test.js` | Runs the whole catalogue: every spec's claimed optics must be deliverable by its ports, no unknown cages, no impossible media |
+| ↳ the line-rate assertion | No port may declare a rate its cage cannot carry — this is the check that caught seven devices claiming 10G on a 2.5G SFP cage. Read the trap in §8.4 before touching it. |
 | `node test/combo.test.js` | Combo cage mates both worlds and `E_COMBO_OCCUPIED` blocks the second cable |
 | `node test/fiber-connectors.test.js` | SC/APC vs SC/UPC refusal, ferrule geometry, PON ports are not copper |
 | `node test/pon-connectors.test.js` | LC/SC connectors on real OLT/ONT specs; unresolved cages are never painted copper |
 | `node test/qsfpdd.test.js` | QSFP-DD cage, 200G/400G optics, downshift to a QSFP28 module |
 | `node test/optics-catalogue.test.js` | Every optical medium is reachable from at least one cage |
 | `node test/validation.test.js` | Error codes and severities, rule ordering |
-| `npm test` | Everything, in the order CI runs it |
+| `npm test` | the port-type audit, the control-byte check, then every suite — CI runs those two as its own steps *and* again through this script ([CI.md](CI.md)) |
 
 Add a case to the closest of those rather than a new file: a new connector
 family belongs in `fiber-connectors.test.js` (or a sibling) with at least
@@ -726,6 +786,42 @@ family belongs in `fiber-connectors.test.js` (or a sibling) with at least
 medium its datasheet claims". `npm run syntax` catches the rest.
 
 ---
+
+### 8.4 The line-rate assertion, and the way it used to do nothing
+
+The assertion reads each port's declared `speedCaps`, takes the fastest, and requires that the cage
+under it can carry that rate. Console ports are exempt from the 100 Mbps floor (a USB console really
+does run at 12 Mbps) but **not** from the ceiling check — skipping them outright is how 163 console
+ports carried a gigabit on a 115.2 kbps cage through a green suite for a while.
+
+The part worth remembering is why the check was once a no-op. `speedCaps` is whatever the spec author
+wrote, and they write text:
+
+```json
+{ "connector": "sfp", "speedCaps": ["10G", "1G"] }
+```
+
+`Math.max.apply(null, ["10G", "1G"])` is `NaN`, and **every comparison against `NaN` is false**, so the
+`if (fastest > cageSpeed)` branch never ran for any port whose caps were written as strings — which is
+how an EdgePoint S16 carried a 10G claim on a 1G SFP cage. The current code parses the strings before comparing (`parseMbps()` on each cap, dropping the
+unparseable). Two lessons that generalise beyond this file:
+
+- **`NaN` is a silent pass.** Any assertion of the form `if (measured > limit)` is green when `measured`
+  is `NaN`. Prefer asserting the number is finite first, then comparing.
+- **A check that has never failed is a check you have not tested.** The same suspicion applies to the
+  documentation sweepers in [CI.md](CI.md), one of which turned out to be inspecting zero tables for the
+  same class of reason.
+
+Cages have ceilings that are easy to forget, and the assertion is really about the cage rather than the
+speed. Seven devices once declared `"connector": "sfp"` with a `10G` rate — every one of them genuinely
+has a 10G uplink, and their descriptions said so. The fault was the cage: **SFP tops out at 2.5G, and
+10G over SFP needs SFP+**, so the pair was undeliverable even though each half was defensible. Three
+were caught by this assertion and all seven by `test/spec-vs-description.test.js`, and the fix was
+data-only (`sfp` → `sfp+` on fourteen interface lines). If a spec you are importing claims more than
+the cage name allows, the cage is usually what is wrong, not the speed.
+
+Ports whose `media` array is empty are skipped here on purpose: a port with no medium can be cabled to
+nothing at any rate, and that question is owned by `test/wired-port-has-media.test.js`.
 
 ## 9. Model limits worth knowing
 

@@ -402,7 +402,9 @@ function listFlows(state) {
   return Array.from(state.flows.values());
 }
 
-// A one-line description for the timeline and for `show flows`.
+// A one-line description for the timeline and the flows API (`summary`).
+// `show flows` does not use it: the console resolves both ends to device names
+// and prints its own columns, which a single "src -> dst" string cannot carry.
 function describe(flowRec) {
   if (!flowRec) return '';
   const l4 = flowRec.proto === PROTO.UDP ? 'udp' : 'tcp';

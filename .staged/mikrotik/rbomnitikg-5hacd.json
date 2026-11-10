@@ -1,0 +1,53 @@
+{
+  "vendor": "mikrotik",
+  "model": "RBOmniTikG-5HacD",
+  "label": "OmniTIK 5 ac",
+  "category": "ptp",
+  "description": "MikroTik OmniTIK 5 ac (RBOmniTikG-5HacD) — 5x 1G RJ45, Wi-Fi 5 GHz. MIPSBE 1-core QCA9557.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "cli",
+    "http-server",
+    "wireless",
+    "passive-poe"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ptp",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/rbomnitikg_5hacd"
+}

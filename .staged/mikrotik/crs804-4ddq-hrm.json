@@ -1,0 +1,72 @@
+{
+  "vendor": "mikrotik",
+  "model": "CRS804-4DDQ-hRM",
+  "label": "CRS804 DDQ",
+  "category": "l3-switch",
+  "description": "MikroTik CRS804 DDQ (CRS804-4DDQ-hRM) — 2x 10G RJ45, 4x 400G QSFP56-DD. ARM 64bit 4-core AL52400.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "speed": "10G"
+    },
+    {
+      "name": "QSFPDD-1",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    },
+    {
+      "name": "QSFPDD-2",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    },
+    {
+      "name": "QSFPDD-3",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    },
+    {
+      "name": "QSFPDD-4",
+      "type": "ethernet",
+      "speed": "400G",
+      "connector": "qsfpdd",
+      "speedCaps": [
+        100000,
+        200000,
+        400000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs804_ddq"
+}

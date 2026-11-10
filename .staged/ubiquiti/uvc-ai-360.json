@@ -1,0 +1,25 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UVC-AI-360",
+  "label": "UniFi AI 360",
+  "category": "camera",
+  "description": "UniFi AI 360 (UVC-AI-360) - 1x 1G RJ45. 802.3af PoE-in; 2K; 8.64 W max.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "camera",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uvc-ai-360"
+}

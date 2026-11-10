@@ -1,0 +1,348 @@
+{
+  "vendor": "ubiquiti",
+  "model": "ECS-Core",
+  "label": "UniFi Enterprise Campus Switch Core",
+  "category": "switch",
+  "description": "UniFi Enterprise Campus Switch Core (ECS-Core) - 1x 1G RJ45 + 32x 100G QSFP28 (100G/40G). Layer 3; 6.4 Tbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M"
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp15",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp16",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp17",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp18",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp19",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp20",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp21",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp22",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp23",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp24",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp25",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp26",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp27",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp28",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp29",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp30",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp31",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    },
+    {
+      "name": "sfp32",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        "100G",
+        "40G"
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-core"
+}
