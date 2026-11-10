@@ -99,7 +99,10 @@ console.log('\nA value that is not an instant is refused, not guessed at:');
   const L = build();
   const cases = [
     ['ping 10.0.1.100 at soon', /^% Invalid instant: soon$/],
-    ['ping 10.0.1.100 at', /^% Invalid instant: \(none\)$/],
+    // `at` with nothing after it is a missing value, not an invalid one. The message used to read
+    // `% Invalid instant: (none)`, which quotes a placeholder at the operator instead of saying the
+    // command is incomplete.
+    ['ping 10.0.1.100 at', /^% Incomplete command: ping <dst> \[count <n>\] \[at <ms>\|converged\]$/],
     ['ping 10.0.1.100 at -5', /^% Invalid instant: -5$/],
     ['traceroute 10.0.1.100 at soon', /^% Invalid instant: soon$/],
     ['flow open 10.0.1.100 at soon', /^% Invalid instant: soon$/]

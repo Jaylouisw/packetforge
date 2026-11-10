@@ -2536,8 +2536,13 @@ class CliSession {
     let atMs = null;
     for (let i = 1; i < tokens.length; i++) {
       if (String(tokens[i]).toLowerCase() === 'at') {
+        // `at` with nothing after it is a missing value, not an invalid one: the message used to
+        // read `% Invalid instant: (none)`, which quotes a placeholder at the operator.
+        if (tokens[i + 1] === undefined) {
+          return ['% Incomplete command: ping <dst> [count <n>] [at <ms>|converged]'];
+        }
         const when = parseInstant(tokens[i + 1]);
-        if (!when.ok) return ['% Invalid instant: ' + (tokens[i + 1] === undefined ? '(none)' : tokens[i + 1])];
+        if (!when.ok) return ['% Invalid instant: ' + tokens[i + 1]];
         atMs = when.atMs;
         i++;
         continue;
@@ -2604,10 +2609,21 @@ class CliSession {
     if (!target.ok) return [target.message];
     const ip = target.ip;
     if (!this.sim) return ['% Simulator not attached'];
+    // Every word after the destination has to be one this command uses. It used to look only for
+    // `at` and ignore everything else, so `traceroute 10.0.0.5 source abc` and `traceroute 10.0.0.5
+    // ttl abc` traced the whole path and said nothing about the word they dropped - an answer that
+    // looks like it considered the option. `ping` already refused these; the sibling did not.
     let atMs = null;
+    let numeric = false;
     for (let i = 1; i < tokens.length; i++) {
-      if (String(tokens[i]).toLowerCase() !== 'at') continue;
-      if (tokens[i + 1] === undefined) return ['% Incomplete command: traceroute <dst> [at <ms>|converged]'];
+      const word = String(tokens[i]).toLowerCase();
+      if (word === 'numeric') { numeric = true; continue; }
+      if (word !== 'at') {
+        return ['% Unrecognised argument "' + tokens[i] + '" (expected at <ms>|converged or numeric)'];
+      }
+      if (tokens[i + 1] === undefined) {
+        return ['% Incomplete command: traceroute <dst> [at <ms>|converged] [numeric]'];
+      }
       const when = parseInstant(tokens[i + 1]);
       if (!when.ok) return ['% Invalid instant: ' + tokens[i + 1]];
       atMs = when.atMs;
@@ -2630,18 +2646,24 @@ class CliSession {
       const t = latencyLib.formatDelayS(cumulative) + (h.delayKnown ? '' : '*');
       // A hop with no matching device in the lab has no name to print; renderTable
       // trims the trailing padding rather than leaving it on the console line.
-      hopRows.push([i + 1, h.address, t,
-        (h.device || '') + (h.last ? '  (destination)' : '')]);
+      const named = (h.device || '') + (h.last ? '  (destination)' : '');
+      // `numeric` is IOS's "do not resolve names", and this traceroute resolves them into a Device
+      // column. Accepting the word and printing the column anyway would be the same silence the
+      // other options were refused for, so the column goes when the word is given.
+      hopRows.push(numeric ? [i + 1, h.address, t] : [i + 1, h.address, t, named]);
       if (h.device) chain.push(h.device);
     }
-    out.push.apply(out, renderTable(['Hop', 'Address', 'Cumulative', 'Device'], hopRows, 2));
+    out.push.apply(out, renderTable(numeric
+      ? ['Hop', 'Address', 'Cumulative']
+      : ['Hop', 'Address', 'Cumulative', 'Device'], hopRows, 2));
     if (!res.arrived) {
       out.push('  *  *  *  (no reply)');
       out.push('% ' + (res.reason || 'destination unreachable'));
       return out;
     }
     out.push('');
-    out.push('Path: ' + chain.join(' -> ') + '  (' + res.hops.length + ' hop' +
+    out.push('Path: ' + (numeric ? res.hops.map(function (h, i) { return h.address; }).join(' -> ')
+      : chain.join(' -> ')) + '  (' + res.hops.length + ' hop' +
       (res.hops.length === 1 ? '' : 's') + ')');
     if (defaulted) {
       out.push('* ' + (defaulted === 1 ? 'a link' : defaulted + ' links') +
@@ -3042,6 +3064,7 @@ class CliSession {
     const a = String(tokens[0] || '').toLowerCase();
     const b = String(tokens[1] || '').toLowerCase();
     if (a === 'spanning-tree' || a === 'vrrp' || a === 'arp' || a === 'lldp') return true;
+    if (a === 'ip' && b === 'arp') return true;
     if (a === 'mac' && b === 'address-table') return true;
     if (a === 'ip' && (b === 'bgp' || b === 'ospf' || b === 'route' || b === 'dhcp')) return true;
     // IPv6 routes come from addresses and configuration, but a SLAAC host has a route only after a
@@ -3726,7 +3749,10 @@ class CliSession {
         });
         out.push.apply(out, renderTable(['Group', 'Protocol', 'Ports'], lagRows));
       }
-    } else if (what === 'arp') {
+    } else if (what === 'arp' || (what === 'ip' && String(tokens[1] || '').toLowerCase() === 'arp')) {
+      // `show ip arp` is the spelling IOS prints in its own help, and it was the one refused
+      // (`% Invalid show command: ip arp`) while the shorthand `show arp` answered. Both doors,
+      // one answer.
       // The header promised an Interface column that no row ever filled. The ARP cache
       // is ip -> mac (nothing else is needed to answer), so the port is derived from the
       // topology at display time - the local port whose link leads to whoever owns the
@@ -3741,7 +3767,7 @@ class CliSession {
         }
         return '-';
       };
-      const pick = this._portArg(tokens.slice(1), dev, 'show arp');
+      const pick = this._portArg(tokens.slice(what === 'arp' ? 1 : 2), dev, 'show arp');
       if (!pick.ok) return out.concat(pick.output);
       const arpRows = [];
       for (const [ip, mac] of dev.arp.entries()) {
@@ -5418,7 +5444,7 @@ class CliSession {
       helpLine('flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>|converged]', 'start a conversation from here (dst = address or name)'),
       helpLine('flow close <id>', 'close one (TCP four-way, UDP retired)'),
       helpLine('ping <dst> [count <n>] [at <ms>|converged]', 'ICMP echo; dst = address or name, "at" = an instant'),
-      helpLine('traceroute <dst> [at <ms>|converged]', 'the forwarding path, hop by hop (tracert too)'),
+      helpLine('traceroute <dst> [at <ms>|converged] [numeric]', 'the forwarding path, hop by hop; numeric = addresses only (tracert too)'),
       helpLine('nslookup <name> [type]', 'resolve a name (own zones first, then the lab)'),
       helpLine('converge [<ms>|converged]', 'when each control plane finishes'),
       helpLine('link up|down <id> [at <ms>]', 'pull or replace a cable, re-converge from there'),
@@ -5440,7 +5466,7 @@ class CliSession {
       helpLine('show interfaces transceiver [<port>]', 'cage, optic, reach and cable-length verdict'),
       helpLine('show ip route [<dest>|connected|static|ospf|bgp|summary] [at <ms>|converged]',
         'the table, a lookup, a protocol filter, or an instant'),
-      helpLine('show arp [<port>]', 'IP-to-MAC cache'),
+      helpLine('show arp [<port>]', 'IP-to-MAC cache (show ip arp too)'),
       helpLine('show mac address-table [interface <port>]', 'addresses learned per port and VLAN'),
       helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
       helpLine('show spanning-tree [<port>]', 'root bridge, port roles and states'),

@@ -35,7 +35,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
-| `show arp [<port>]` | ARP cache; the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
+| `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
 | `show mac address-table [interface <port>]` | MAC table (switches); one port narrows it |
 | `show interfaces [<port>]` | per-interface detail incl. MAC, peer and counters; name a port and it answers for that port only ([Port names](#port-names)) |
 | `show interfaces counters [<port>]` | one row per port: packets, bytes and drops ([Interface counters](#interface-counters)) |
@@ -66,7 +66,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `flow open <dst> [port <n>] [bytes <n>] [proto tcp\|udp] [sport <n>]` | start a conversation from this device; `dst` is an address or a name ([Flows](#flows)) |
 | `flow close <id>` | close one: TCP runs a four-way close, UDP is retired |
 | `ping <dst> [count <n>] [at <ms>\|converged]` | ICMP echo; `dst` is an address **or a hostname** ([Destination names](#destination-names)) |
-| `traceroute <dst> [at <ms>\|converged]` | the forwarding path, hop by hop, with one-way delay (`tracert` too) |
+| `traceroute <dst> [at <ms>\|converged] [numeric]` | the forwarding path, hop by hop, with one-way delay (`tracert` too); `numeric` = addresses only |
 | `converge [<ms>]` | when every control plane finishes (a bare number — the `at` keyword is **not** accepted here) |
 | `links` / `link …` | cables and their state ([Cables](#cables)) |
 | `help` / `?` | the command set for the mode you are in |
@@ -1175,7 +1175,7 @@ serialisation at each port, store-and-forward at each device) rather than a hop 
 ### traceroute — which way, and how far
 
 ```
-traceroute <dst> [at <ms>|converged]       # tracert is accepted too
+traceroute <dst> [at <ms>|converged] [numeric]       # tracert is accepted too
 ```
 
 The forwarding path, hop by hop, read from the same `routeTo()` the forwarder uses. Each line
@@ -1195,6 +1195,39 @@ Tracing the route to 10.0.2.20
 Path: PC1 -> R1 -> R2 -> PC2  (3 hops)
 * 3 links had no cable length or line rate, so the documented default was used
 ```
+
+**`numeric` means what it says.** The Device column and the names in the path line are a resolution
+this tool does that IOS leaves to DNS; `numeric` suppresses both, and it is the only option besides
+`at` that the command takes:
+
+```
+PC1#traceroute 10.2.2.10 numeric
+Type escape sequence to abort.
+Tracing the route to 10.2.2.10
+
+  Hop  Address    Cumulative
+  1    10.1.1.1   50.9 us*
+  2    10.2.2.10  51.8 us*
+
+Path: 10.1.1.1 -> 10.2.2.10  (2 hops)
+* 2 links had no cable length or line rate, so the documented default was used
+```
+
+**Anything else is refused, not skipped.** The parser used to `continue` past every word that was not
+`at`, so `traceroute 10.0.0.5 source abc` and `traceroute 10.0.0.5 ttl abc` printed a full hop table
+and said nothing about the option they dropped — an answer that looks like it weighed the word.
+`ping` already refused its own unknown options, so the two commands disagreed about whose mistake a
+word they cannot use is:
+
+```
+R1#traceroute 10.0.0.5 source abc
+% Unrecognised argument "source" (expected at <ms>|converged or numeric)
+R1#traceroute 10.0.0.5 at
+% Incomplete command: traceroute <dst> [at <ms>|converged] [numeric]
+```
+
+and `ping … at` with nothing after it is now the same incomplete command instead of
+`% Invalid instant: (none)`, which quoted a placeholder at the operator.
 
 The command sends nothing, so there is no TTL to expire. What *is* modelled is the answer: the path
 the routing tables select right now, and the delay to each hop (propagation + serialisation +

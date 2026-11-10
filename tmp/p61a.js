@@ -1,0 +1,10 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router'),SW=c.find(s=>s.model==='generic-switch'),PC=c.find(s=>s.model==='generic-pc');
+const mk=(spec,name)=>{const t=new Topology();const d=t.addDevice(spec);d.name=name;const sim=new Simulator(t);const s=new CliSession(d,t,sim);s.run('enable');return {d,s,t,sim};};
+const p=(s,x)=>{let o;try{o=s.run(x).output;}catch(e){console.log('$ '+x+'\n    THREW: '+e.message);return;}console.log('$ '+x+(o.length?'\n    '+o.join('\n    '):'    (silent)'))};
+let a=mk(R,'R1');
+console.log('=== ping / traceroute options');
+for (const x of ['ping 10.0.0.5 size abc','ping 10.0.0.5 size -1','ping 10.0.0.5 size 99999','ping 10.0.0.5 repeat 0','ping 10.0.0.5 repeat abc','ping 10.0.0.5 timeout 0','ping 10.0.0.5 timeout abc','ping 10.0.0.5 source abc','ping 10.0.0.5 df-bit','ping 10.0.0.5 count abc','ping 10.0.0.5 count 0','traceroute 10.0.0.5 numeric','traceroute 10.0.0.5 source abc','traceroute 10.0.0.5 ttl abc','nslookup abc','nslookup 10.0.0.5 extra']) p(a.s,x);
+console.log('=== show on a router');
+for (const x of ['show mac address-table','show spanning-tree','show vlan','show power inline','show users','show clock','show logging','show processes','show version','show ip arp','show arp','show interfaces counters Gi9/9','show interfaces Gi9/9','show ip interface brief Gi9/9']) p(a.s,x);
