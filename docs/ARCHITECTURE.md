@@ -134,6 +134,22 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### What the tables say
+
+`show mac address-table`, `show arp` and `show lldp` each grew an honest note: the port an entry was learned on and
+whether that port can still carry a frame — `(administratively down)`, `(down: peer shut down)`, `(vlan mismatch)`,
+`(gone)`. That note is written once, in `Device.portCarrierNote()`, which reads `ifaceStatus()` (the same rule the
+front panel and the console use for a port's state).
+
+`Device.macRows(topo)`, `arpRows(topo)` and `lldpRows(topo)` return those rows as data, and both surfaces read them:
+the console prints them, and `fullState()` publishes them as `runtime[d].mac`, `runtime[d].arpRows` and
+`runtime[d].lldp`. The bare maps `runtime[d].macTable` and `runtime[d].arp` remain, and they are what they are — MAC
+to port, address to MAC — because a client that only needs "which port" should not have to read rows. A stale entry
+and a live one look identical in the bare map, which is why the rows exist.
+
+One consequence worth knowing: a link state change **flushes** what was learned on that port, so `(down: link down)`
+is unreachable in the MAC table by design — the entry is gone, not stale.
+
 ### Where the boxes are
 
 `layout` maps device id to `{x, y}`: where each box sits on the canvas. Three rules, all learned by breaking them:

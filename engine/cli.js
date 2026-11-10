@@ -1852,13 +1852,8 @@ class CliSession {
   // stale row. One helper so `show arp` and `show mac address-table` cannot describe the same port state
   // two different ways.
   _staleNote(port, extra) {
-    if (!port) return extra || '(gone)';
-    const link = this.device.ifaceStatus(port, this.topo);
-    if (link.status === 'up') return extra || '';
-    // `administratively down` already says who did it; "shut down" after it would be the same fact twice.
-    const why = (!link.reason || link.reason === 'shut down' || link.reason === link.status)
-      ? link.status : link.status + ': ' + link.reason;
-    return '(' + why + ')';
+    // One implementation, in the engine, because the state payload says the same thing to the browser (#1327).
+    return this.device.portCarrierNote(port, this.topo, extra);
   }
 
   // `show power inline [<port>]` - what the PSE is supplying, and why a powered device got nothing.
@@ -2045,7 +2040,7 @@ class CliSession {
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
       out.push('LLDP neighbours on ' + dev.name + ':');
-      const rows = Array.from(dev.lldp.entries());
+      const rows = dev.lldpRows(this.topo);
       if (!rows.length) {
         out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
         out.push('  (none - no LLDP has been heard on any port)');
@@ -2054,20 +2049,13 @@ class CliSession {
         // name into the Local port column, so the row could not be read field by field - and the one thing
         // this table is for is answering "what is on that port" (#1265).
         const cells = rows.map(function (r) {
-          const port = r[0];
-          const nb = r[1] || {};
-          const iface = dev.resolveIface(port);
-          // A neighbour is not "here" because we once heard it: an entry whose port can no longer carry a
-          // frame is stale, and the row has to say so. Reached for the same sentence `show arp` and
-          // `show mac address-table` use, because it is the same fact about the same port.
-          const note = iface ? this._staleNote(iface) : '(gone)';
           return {
-            name: nb.systemName || '?',
-            port: port + (note ? ' ' + note : ''),
-            portId: nb.portId || '?',
-            mgmt: nb.mgmtIp || '-'
+            name: r.systemName,
+            port: r.port + (r.note ? ' ' + r.note : ''),
+            portId: r.portId,
+            mgmt: r.mgmtIp
           };
-        }, this);
+        });
         const w = function (key) {
           return cells.reduce(function (max, c) { return Math.max(max, String(c[key]).length); }, 0) + 2;
         };
@@ -2243,20 +2231,11 @@ class CliSession {
       out.push(pad('Protocol', 10) + pad('Address', 17) + pad('Age (min)', 11) +
         pad('Hardware Addr', 18) + 'Interface');
       const rows = [];
-      for (const [ip, mac] of dev.arp.entries()) {
-        const portName = (dev.arpPorts && dev.arpPorts.get(ip)) || null;
-        let note = '-';
-        if (portName) {
-          const port = dev.resolveIface(portName);
-          if (!port) {
-            note = portName + ' (gone)';
-          } else {
-            // The reason travels with the status here too: "down" alone sends you looking for a cable
-            // when the cable is fine and the far port is shut (#1253).
-            const stale = this._staleNote(port);
-            note = port.name + (stale ? ' ' + stale : '');
-          }
-        }
+      for (const r of dev.arpRows(this.topo)) {
+        const ip = r.ip, mac = r.mac;
+        // The reason travels with the status here too: "down" alone sends you looking for a cable
+        // when the cable is fine and the far port is shut (#1253).
+        let note = r.port === '-' ? '-' : r.port + (r.note ? ' ' + r.note : '');
         // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a
         // minutes column would be a number with the wrong unit. '-' is what a device prints for an entry
         // it cannot age, and is honest here.
@@ -2268,24 +2247,13 @@ class CliSession {
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
       out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + 'Ports');
-      const rows = [];
-      for (const [mac, iface] of dev.macTable.entries()) rows.push([1, mac, iface]);
-      for (const [vid, table] of (dev.macTables || new Map()).entries()) {
-        for (const [mac, iface] of table.entries()) rows.push([vid, mac, iface]);
-      }
-      rows.sort(function (a, b) { return (a[0] - b[0]) || String(a[1]).localeCompare(String(b[1])); });
+      // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
+      const rows = dev.macRows(this.topo);
       for (const r of rows) {
         // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A
         // MAC learned before its port was shut or moved keeps its row - real switches age entries out,
         // this one does not - so the row has to say that it is stale rather than read as current (#1255).
-        const where = (r[2] && typeof r[2] === 'object') ? r[2] : dev.resolveIface(r[2]);
-        const name = where ? where.name : String(r[2]);
-        // A port that no longer carries this VLAN cannot be the way to a MAC in it, even while the port
-        // itself is up: moving a port between VLANs is exactly how that happens.
-        const mismatch = (where && vlanLib.classifyEgress(where.vlan, r[0]).action === 'drop')
-          ? '(vlan mismatch)' : '';
-        const note = this._staleNote(where, mismatch);
-        out.push(pad(r[0], 8) + pad(r[1], 20) + pad('DYNAMIC', 12) + name + (note ? ' ' + note : ''));
+        out.push(pad(r.vlan, 8) + pad(r.mac, 20) + pad('DYNAMIC', 12) + r.port + (r.note ? ' ' + r.note : ''));
       }
     } else if (what === 'interfaces' || what === 'interface') {
       // `show interfaces Fa0/1` printed every port on the box: the answer to a question about one socket was

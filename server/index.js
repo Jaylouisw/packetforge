@@ -232,6 +232,14 @@ function fullState(topo) {
     runtime[d.id] = {
       macTable: mapToObject(d.macTable),
       arp: mapToObject(d.arp),
+      // The same rows the console prints, from the same place (#1327). `macTable` and `arp` above are bare maps -
+      // MAC to port, address to MAC - which told a client that an entry existed and not whether the port it points
+      // at can still carry a frame, so a stale entry and a live one were the same two strings; and LLDP was not
+      // published at all. Each row carries the sentence `show mac address-table`, `show arp` and `show lldp`
+      // append, written once in Device, so the two surfaces cannot drift.
+      mac: d.macRows(topo),
+      arpRows: d.arpRows(topo),
+      lldp: d.lldpRows(topo),
       routes: d.routesTable(topo),
       // Throughput, so a table or a sparkline can be drawn without a second call.
       counters: counters[d.id] || {
