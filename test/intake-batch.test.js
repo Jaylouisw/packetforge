@@ -1148,5 +1148,22 @@ console.log('\nFive ruckus devices whose port rows are one line each (#442, #444
     'ZD1200: no PoE on either port - it runs from a 12V adapter');
 }
 
+console.log('\nA draytek whose ethernet wan is its own socket (#689):');
+{
+  const s = find('Vigor 2832');
+  const ports = effectiveInterfaces(s);
+  eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 5,
+    'Vigor 2832: five RJ45 sockets - four LAN plus a dedicated Ethernet WAN');
+  eq(ports.filter(function (p) { return p.role === 'wan' && p.connector === 'rj45'; }).length, 1,
+    'Vigor 2832: exactly one of them is the WAN');
+  eq(ports.filter(function (p) { return p.type === 'dsl'; }).length, 1,
+    'Vigor 2832: one ADSL line on RJ11');
+  eq(ports.filter(function (p) { return p.type === 'wireless'; }).length, 0,
+    'Vigor 2832: no radio - 802.11n is the 2832n, not this one');
+  // The contrast that matters: the 2765 puts its Ethernet WAN inside the four LAN sockets.
+  eq(effectiveInterfaces(find('V2765-K')).filter(function (p) { return p.connector === 'rj45'; }).length, 4,
+    'V2765-K: four RJ45 sockets in total, because its WAN2 is one of them');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

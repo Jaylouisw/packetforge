@@ -1,0 +1,100 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor 2832",
+  "label": "DrayTek Vigor 2832 ADSL router",
+  "category": "router",
+  "description": "DrayTek Vigor 2832 - ADSL2/2+ modem router with four load-balancing WAN options: a built-in ADSL line on RJ11, a dedicated Gigabit Ethernet WAN, and two USB ports for 3G/4G modems. 4x Gigabit Ethernet LAN ports with port-based and 802.1q VLANs, object-based firewall, 32 VPN tunnels (PPTP/L2TP/IPsec) plus 10 SSL VPNs, DHCP client/relay/server, QoS and content filtering. The base 2832 has no wireless - 802.11n is the 2832n.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "connector": "rj11",
+      "speed": "24M",
+      "role": "wan"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    }
+  ],
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.draytek.co.uk/products/business/vigor-2832",
+  "notes": "The DrayTek UK page publishes the interface block in a form that leaves nothing to infer: '**Physical Interfaces - 4 X Gigabit Ethernet (1000Mb/s) Ports ... WAN Ports: WAN1 : ADSL, RJ11; WAN2 : Gigabit Ethernet (1000Mb/s) Ethernet; WAN3 : USB Port for 3G/4G Cellular Modem; WAN4 : USB Port for 3G/4G Cellular Modem**'. **This is the DrayTek whose Ethernet WAN is NOT one of the LAN sockets** - the exact opposite of the Vigor 2765/2766 (#679, #692), where the datasheet's 'LAN Ports: 4x Gigabit Ethernet (3x with WAN2 enabled)' puts the Ethernet WAN inside the four. Here WAN2 is its own port and the 4-port LAN switch is untouched by it, so a 2832 has **five** RJ45 sockets and a 2765 has four. The prose backs it up: 'the four Gigabit LAN ports can be isolated from each other' and 'WAN2 is a Gigabit Ethernet port'. **The base 2832 has no radio.** The wireless rows on that page are all marked '(on Vigor 2832n)' - so no `wireless` interface here, and a lab that needs the wireless variant needs the 2832n. **ADSL only, at 24M:** WAN1 is 'ADSL, RJ11' on an ADSL2/2+ modem with no VDSL, so the DSL port carries the ADSL2+ 24 Mbit/s ceiling rather than the 100M the VDSL-capable 2765/2766 use. **Not modelled:** WAN3/WAN4, the two USB ports, because this catalogue has no USB interface type - they are WAN candidates only when a modem is plugged in, which is a cable a lab cannot draw anyway. 32 IPsec/L2TP/PPTP tunnels and 10 SSL VPNs are software capacity, not ports."
+}

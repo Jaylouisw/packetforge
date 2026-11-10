@@ -32,7 +32,7 @@ catalog to the API and the UI palette.
 | `interfaces` | one of | explicit array; per-port keys below |
 | `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` plus any port key |
 | `description` | no | tooltip — and CI audits it against the ports the spec declares |
-| `sourceUrl` | recommended | the datasheet the numbers came from (1,307 of 1,655 specs carry one). **20 more carry `source` instead** — the older spelling of the same idea, never both — so 1,327 of 1,655 point at a datasheet somewhere |
+| `sourceUrl` | recommended | the datasheet the numbers came from (1,308 of 1,656 specs carry one). **20 more carry `source` instead** — the older spelling of the same idea, never both — so 1,328 of 1,656 point at a datasheet somewhere |
 | `notes` | no | research note kept beside the spec, quoted rather than paraphrased |
 | `poeBudget` | no | PSE budget in watts; research-sourced specs use `poe: {"budgetW": 240}` instead |
 | `passive` | no | `true` for a passive tap or splitter — no capabilities, no software |
@@ -91,7 +91,7 @@ key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>"
 | `splitRatio` | 11 | `engine/validation.js` | **real** — a splitter's fan-out, and its loss |
 | `dualRole` | 3 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
 | `comboPorts` | 15 | nothing in `engine/`, `web/`, `server/` — written by `scripts/apply-research.js` | **annotation**: the pairing itself is expressed by per-port `comboWith`/`comboRole` |
-| `source` | 20 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,307 of 1,655" coverage count above uses, so a spec carrying only `source` counts as uncovered (20 do; none carry both) |
+| `source` | 20 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,308 of 1,656" coverage count above uses, so a spec carrying only `source` counts as uncovered (20 do; none carry both) |
 | `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote`, `powerMaxW` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators), plus `powerMaxW` (5 files) — a radio's transmit power, which nothing models |
 
 The annotation keys all sit on passive hardware under `devices/fs/` and similar: they record what the
@@ -422,7 +422,7 @@ result on today's tree is not the result it was written for. Prefer `apply-resea
 recursing the tree with `node --check` and no dependencies.
 ## Included catalog
 
-**1,655 models across 247 vendors**, one JSON file each, in 25 distinct `category` values
+**1,656 models across 247 vendors**, one JSON file each, in 25 distinct `category` values
 (24 palette buckets — every AP is filed `wireless`; a single spec still carries the legacy `ap`
 value, `huawei/WiFi Extender AX3000`). The last one has a visible cost worth knowing: the palette's
 type filter is built by walking `CAT_ORDER` in `web/app.js`, so a category outside that list gets no
