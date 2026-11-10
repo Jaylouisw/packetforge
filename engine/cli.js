@@ -480,13 +480,75 @@ class CliSession {
           const rest = isArp
             ? tokens.slice(tokens[1] === 'ip' ? 3 : 2)
             : tokens.slice(3);
-          const usage = isArp ? 'clear arp [<port>]' : 'clear mac address-table [interface <port>]';
-          const pick = this._portArg(isArp ? rest : (rest[0] === 'interface' ? rest.slice(1) : rest),
-            this.device, usage);
+          // The IOS forms carry keywords - `clear mac address-table dynamic`, `... vlan 20`,
+          // `... address <mac>`, `clear arp 10.0.0.5` - and every one of them was read as a *port*:
+          //   % No interface named dynamic on SW1
+          //   % No interface named 10.0.0.9 on R1
+          // The keyword forms are parsed here, and each one narrows what is emptied.
+          const usage = isArp
+            ? 'clear arp [interface <port> | <ip>]'
+            : 'clear mac address-table [dynamic | static | vlan <id> | interface <port> | address <mac>]';
+          let pick = { ok: true };
+          let wantVlan = null, wantMac = null, wantType = null;
+          {
+            const words = rest.map(function (x) { return String(x); });
+            const lower = words.map(function (x) { return x.toLowerCase(); });
+            const bad = [];
+            let i = 0;
+            while (i < words.length) {
+              const w = lower[i];
+              if (w === 'interface' || w === 'int') {
+                const got = this._portArg(words.slice(i + 1, i + 2), this.device, usage);
+                if (!got.ok) { bad.push(got.output); } else { pick = got; }
+                i += 2;
+              } else if ((w === 'dynamic' || w === 'static') && !isArp) {
+                wantType = w; i += 1;
+              } else if (w === 'vlan' && !isArp) {
+                if (!/^\d+$/.test(String(words[i + 1] || ''))) {
+                  bad.push(['% clear mac address-table vlan needs a VLAN id, not "' +
+                    (words[i + 1] === undefined ? 'nothing' : words[i + 1]) + '"']);
+                } else { wantVlan = Number(words[i + 1]); }
+                i += 2;
+              } else if (w === 'address' && !isArp) {
+                wantMac = String(words[i + 1] || '').toLowerCase();
+                i += 2;
+              } else if (isArp && net.isIp(words[i])) {
+                // `clear arp 10.0.0.5` - one entry, by the address the operator named.
+                pick = Object.assign({}, pick, { arpIp: words[i] });
+                i += 1;
+              } else if (!isArp && /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(words[i])) {
+                wantMac = words[i].toLowerCase(); i += 1;
+              } else {
+                // A bare word could be a port name (the old spelling) or a typo.
+                const got = this._portArg([words[i]], this.device, usage);
+                if (got.ok) { pick = got; i += 1; } else { bad.push(got.output); i += 1; }
+              }
+            }
+            if (bad.length) {
+              out.push.apply(out, bad[0]);
+              pick = { ok: false };
+            }
+          }
           if (this.mode !== MODE_ENABLE) {
             out.push('% clear ' + (isArp ? 'arp' : 'mac address-table') + ' needs enable mode' + NEEDS.enable);
           } else if (!pick.ok) {
-            out.push.apply(out, pick.output);
+            // The refusals were pushed while parsing; nothing is cleared.
+          } else if (pick.arpIp) {
+            // One entry by address: a learned one is forgotten, a pinned one is configuration and is
+            // refused with the verb that does remove it.
+            const ip = pick.arpIp;
+            if (this.device.arpStatic.has(ip)) {
+              out.push('% ' + ip + ' is a static entry on ' + (this.device.name || this.device.id) +
+                ' - it is configuration, not a cache');
+              out.push('% Remove it with "no arp ' + ip + '"');
+            } else if (this.device.arp.has(ip)) {
+              const mac = this.device.arp.get(ip);
+              this.device.arp.delete(ip);
+              out.push('ARP entry ' + ip + ' (' + mac + ') cleared on ' + (this.device.name || this.device.id));
+            } else {
+              out.push('% No ARP entry for ' + ip + ' on ' + (this.device.name || this.device.id) +
+                ' - nothing to clear');
+            }
           } else if (!isArp && (this.device.isL2 && !this.device.isL2())) {
             // A router has no MAC table to clear because it has no bridge. Say which table it does
             // have, rather than "cleared (0 entries)", which reads like an empty switch.
@@ -530,22 +592,51 @@ class CliSession {
               out.push('  ' + plural(kept, 'static entry') + ' kept - they are configured, not learned' +
                 ' (remove with "no arp <ip>")');
             }
+          } else if (wantType === 'static') {
+            // Everything in this table was learned. A static address on a switch lives in
+            // port-security (sticky or configured), so point there instead of reporting "0 cleared"
+            // as though there had been nothing to clear.
+            out.push('MAC address table on ' + (this.device.name || this.device.id) +
+              ': no static entries - every address in it was learned');
+            out.push('% A pinned address lives in port-security: "show port-security address",' +
+              ' "clear port-security sticky"');
           } else {
-            const tables = [this.device.macTable].concat(
-              Array.from((this.device.macTables || new Map()).values()));
+            // `vlan <id>` narrows to that bridge domain; without it every table is emptied.
+            const tableFor = function (vlan) {
+              if (vlan === null) {
+                return [this.device.macTable].concat(
+                  Array.from((this.device.macTables || new Map()).values()));
+              }
+              if (vlan === 1) return [this.device.macTable];
+              const t = (this.device.macTables || new Map()).get(vlan);
+              return t ? [t] : [];
+            }.bind(this);
+            const tables = tableFor(wantVlan);
+            const missingVlan = wantVlan !== null && !tables.length;
+            if (missingVlan) {
+              out.push('% No MAC address table for VLAN ' + wantVlan + ' on ' +
+                (this.device.name || this.device.id) + ' - nothing has been learned there');
+              out.push('% Nothing was cleared; "show vlan" lists the VLANs this switch has');
+            }
             let removed = 0;
             for (const table of tables) {
               for (const [mac, iface] of Array.from(table.entries())) {
                 if (pick.port && iface !== pick.port) continue;
+                if (wantMac && String(mac).toLowerCase() !== wantMac) continue;
                 table.delete(mac);
                 removed++;
               }
             }
-            const where = (this.device.name || this.device.id) + (pick.port ? ' for ' + pick.port : '');
-            out.push(removed
-              ? 'MAC address table cleared on ' + where + ' (' + removed + ' entr' +
-                (removed === 1 ? 'y' : 'ies') + ')'
-              : 'MAC address table on ' + where + ' was already empty - nothing to clear');
+            const what = [pick.port ? 'for ' + pick.port : null,
+              wantVlan !== null ? 'in VLAN ' + wantVlan : null,
+              wantMac ? 'for ' + wantMac : null].filter(Boolean).join(' ');
+            const where = (this.device.name || this.device.id) + (what ? ' ' + what : '');
+            if (!missingVlan) {
+              out.push(removed
+                ? 'MAC address table cleared on ' + where + ' (' + removed + ' entr' +
+                  (removed === 1 ? 'y' : 'ies') + ')'
+                : 'MAC address table on ' + where + ' was already empty - nothing to clear');
+            }
           }
         } else if (head === 'clear' && tokens[1] === 'ip' &&
             (tokens[2] === 'route' || tokens[2] === 'bgp')) {
@@ -8159,7 +8250,15 @@ class CliSession {
     if (type) rows = rows.filter(function (r) { return r.ev.type === type; });
     if (deviceName) rows = rows.filter(function (r) { return r.dev === deviceName; });
 
-    if (summary) return this._loggingSummary(events, rows, { type: type, deviceName: deviceName });
+    // `show logging summary last 3` printed "Event summary (67 of 67 events)" - the `last` was parsed
+    // and then dropped on this branch. A summary of the last three events is a real question (what has
+    // just happened, grouped), so it narrows here too and the header says which window it covers.
+    if (summary) {
+      const windowed = lastN !== null && lastN < rows.length ? rows.slice(-lastN) : rows;
+      return this._loggingSummary(events, windowed, {
+        type: type, deviceName: deviceName, lastN: lastN, ofTotal: rows.length
+      });
+    }
 
     const total = rows.length;
     if (lastN !== null) rows = rows.slice(-lastN);
@@ -8216,7 +8315,13 @@ class CliSession {
       else linkLevel++;
     }
     const out = [];
-    out.push('Event summary (' + rows.length + ' of ' + events.length + ' events):');
+    // Three numbers, and each answers a different question: how many the summary covers, how many the
+    // filters left, and how many the lab has recorded.
+    const windowed = filter.lastN !== null && filter.ofTotal !== undefined &&
+      filter.lastN < filter.ofTotal;
+    out.push(windowed
+      ? 'Event summary (last ' + filter.lastN + ' of ' + events.length + ' events):'
+      : 'Event summary (' + rows.length + ' of ' + events.length + ' events):');
     out.push.apply(out, renderTable(['Type', 'Events'],
       byType.map(function (e) { return [e[0], String(e[1])]; }), 2));
     out.push('');
@@ -9944,7 +10049,9 @@ class CliSession {
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),
       helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
       helpLine('clear ip nat translation [*|<inside-local>]', 'empty the translation table, keeping the rules'),
-      helpLine('clear mac address-table [interface <port>]', 'empty the MAC table (switches); routing tables are not flushable here'),
+      helpLine('clear mac address-table [dynamic | static | vlan <id> | interface <port> | address <mac>]',
+        'empty the MAC table, or the part of it that matches (switches)'),
+      helpLine('clear arp [interface <port> | <ip>]', 'forget the cache, or one port or one address of it'),
       helpLine('clear port-security counters [interface <port>]', 'reset the violation count, leave the ports as they are'),
       helpLine('clear port-security dynamic [interface <port>]', 'forget what was learned, keep what was configured or pinned'),
       helpLine('clear port-security sticky [interface <port>]', 'unpin the sticky addresses so they are learned again'),

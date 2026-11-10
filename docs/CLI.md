@@ -55,7 +55,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
 | `show vlan [<id>]` | VLAN table with trunk ports marked `(t)`, or one VLAN ([VLANs](#vlans)) |
-| `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLAN lifecycle](#vlan-lifecycle-creating-refusing-and-removing)) |
+| `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLANs](#vlans)) |
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
@@ -67,7 +67,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
 | `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
-| `show lldp neighbors [<port>]` | neighbours actually heard on the wire ([LLDP state](#l2-admin-state-the-switch-was-told-not-to-speak)) |
+| `show lldp neighbors [<port>]` | neighbours actually heard on the wire ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
 | `show lldp neighbors detail` | one block per neighbour: chassis id, port id, description, TTL, medium and speed |
 | `show lldp interface [<port>]` | the per-port decision: Tx enabled, Rx enabled, cabled, and its neighbour |
 | `show lldp traffic [<port>]` | DUs sent, received, discarded by `no lldp receive`, and failed |
@@ -1195,6 +1195,45 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The `clear` family read every argument as a port
+
+IOS spells these with keywords. This console had only the port spelling, and read anything else as a
+port name:
+
+```
+SW1#clear mac address-table dynamic
+% No interface named dynamic on SW1
+% Try "show ip interface brief" for the ports this device has
+
+R1#clear arp 10.0.0.9
+% No interface named 10.0.0.9 on R1
+```
+
+Both are the argument *misread*, not missing. Now each form narrows what is emptied, and the table is
+checked afterwards, because "cleared 2 entries" is only true if the rows are gone:
+
+```
+SW1#clear mac address-table
+MAC address table cleared on SW1 (2 entries)
+
+SW1#clear mac address-table vlan 99
+% No MAC address table for VLAN 99 on SW1 - nothing has been learned there
+% Nothing was cleared; "show vlan" lists the VLANs this switch has
+
+R1#clear arp 10.0.0.9
+% 10.0.0.9 is a static entry on R1 - it is configuration, not a cache
+% Remove it with "no arp 10.0.0.9"
+```
+
+`dynamic`, `static` (which says every address here was learned, and points at port-security where a
+pinned one lives), `vlan <id>`, `interface <port>` and `address <mac>` are all accepted; a non-switch
+answers with the table it does have. `clear arp` takes a port, an address, or `interface <port>` — and
+a pinned address is refused with the verb that removes it, rather than silently edited.
+
+`show logging summary last 3` printed **"Event summary (67 of 67 events)"**: the window was parsed and
+then dropped on the summary branch. It now reads *"Event summary (last 3 of 67 events)"* and summarises
+those three.
 
 ### Filters that answered everything, and a table that could not see a row
 
