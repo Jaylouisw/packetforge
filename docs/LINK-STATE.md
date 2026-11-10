@@ -233,6 +233,61 @@ state, `data-carries` reports the engine's answer, and `data-state-reason` carri
 the end at fault. A payload from before the field existed is drawn as it was and labelled `unknown`:
 nothing crosses is a claim, and nothing is known is not one.
 
+## Path cost, and how the blocked port is chosen
+
+`show spanning-tree` prints a `Cost` column per port, so the number that decides which port blocks is
+visible rather than implied. It is derived from the port's speed, with `spanning-tree cost <n>` as the
+per-port override — the same precedence as real gear:
+
+| Port speed | Cost |
+|---|---|
+| 100G and faster | 200 |
+| 40G | 400 |
+| 25G | 800 |
+| 10G | 2000 |
+| 1G | 20000 |
+| 100M and slower | 200000 |
+| speed unknown | 20000 (treated as 1G) |
+
+The ladder matches IEEE's long-method values at every rate except 40G, where the engine uses 400 and the
+standard table lists 500. Nothing depends on that being standard — the *relative* order is what picks the
+topology — but a lab built to make 40G and 50G links compete will not agree with a vendor datasheet.
+
+Cost is what makes a topology change visible. Three switches in a triangle, `SW1 -- SW2` direct and
+`SW1 -- SW3 -- SW2` as the detour, all 1G:
+
+```
+SW2#show spanning-tree
+  This bridge: SW2 priority 32768, 02:00:00:00:01:00   root path cost 20000
+Port   Role        State       Cost
+Fa0/1  root        forwarding  20000          (the direct link)
+Fa0/2  designated  forwarding  20000
+
+SW2(config)#interface Fa0/1
+SW2(config-if)#spanning-tree cost 200000      (on both ends of the direct link)
+
+SW2#show spanning-tree
+Port   Role       State                         Cost
+Fa0/1  alternate  blocking   (traffic dropped)  200000
+Fa0/2  root       forwarding                    20000
+  Fa0/1 is alternate: SW1 reaches the root for 0, this bridge for 40000
+```
+
+Two details worth keeping. The override applies to **the port it is typed on**, and a bridge measures its
+own path from its own port cost — so raising it on `SW1`'s side alone changes nothing at `SW2`, which
+still reads `root path cost 20000` and keeps forwarding:
+
+```
+SW1(config-if)#spanning-tree cost 200000      (SW1's end only)
+SW2#show spanning-tree
+  This bridge: SW2 priority 32768, 02:00:00:00:01:00   root path cost 20000
+Fa0/1  root        forwarding  20000
+```
+
+Second, the port that loses prints the arithmetic that decided against it —
+`Fa0/1 is alternate: SW1 reaches the root for 0, this bridge for 40000` — rather than just going quiet.
+
+
 ## What this does not model
 
 - **No physical-layer diagnosis.** A cable is up or down; it is never *degraded*. There is no CRC
