@@ -1,0 +1,59 @@
+[
+  {
+    "vendor": "genexis",
+    "model": "XGS2110-2.5G",
+    "label": "Genexis FiberTwist XGS2110-2.5G XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON ONT with 1× 2.5GE LAN and no Wi-Fi; one XGS-PON port on SC/APC, 12 Vdc external supply drawing 3.2 W.",
+    "capabilities": ["l2-forward", "host"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "2.5G" }
+    ],
+    "notes": "Vendor interface specification: 'WAN interface 1x XGS-PON' and 'LAN interface 1x 2.5GE'. Power supply 12 Vdc ± 5%; consumption 3.2 W idle and 3.2 W on (EU-CoC-BBE). No Wi-Fi, no voice port, no CATV. The XGS-PON line rate of 9953 Mbit/s is the ITU-T G.9807.1 convention rather than a vendor figure — the vendor quotes the 2.5 Gbit/s subscriber rate. Connector polish is not published; sc-apc is the XGS-PON subscriber interface this catalogue models.",
+    "sourceUrl": "https://genexis.eu/product/fibertwist-xgs2110-2-5g/"
+  },
+  {
+    "vendor": "comtrend",
+    "model": "GRG-4362",
+    "label": "Comtrend GRG-4362 XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON bridge/gateway with 1× 10GBase-T LAN and no Wi-Fi; ITU-T G.987 optical at 10 Gbit/s symmetric, TR-069 management, 12 Vdc/1 A adapter.",
+    "capabilities": ["l2-forward", "l3-forward", "host"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "10G", "speedCaps": [100, 1000, 2500, 5000, 10000] }
+    ],
+    "notes": "Vendor specifications: 'XGS-PON x1' (PHY US 10Gbps, DS 10Gbps, Standard ITU-T G.987, US 1270 nm, DS 1577 nm) and '10Giga Ethernet x1' (10G/5G/2.5G/1G/100M/10M bps, IEEE 802.3an/bz/ab/u/i, Auto-MDIX). The 10GBase-T port auto-negotiates 5G/2.5G/1G, so a slower host on it is not a misconfiguration. 'Routing software function integrated', hence l3-forward. Package includes a 12 Vdc/1.0 A adapter. No Wi-Fi and no voice port. Connector polish is not published; sc-apc is the XGS-PON subscriber interface this catalogue models.",
+    "sourceUrl": "https://comtrend.com/tw/Product/375$prod.html"
+  },
+  {
+    "vendor": "cig",
+    "model": "XG-99C1",
+    "label": "CIG XG-99C1 XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON SFU ONT with 1× 10GBase-T LAN and no Wi-Fi; SC/APC optical, Class N1 budget, OMCI management, 12 V DC external adapter drawing under 10 W.",
+    "capabilities": ["l2-forward", "host"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "10G", "speedCaps": [1000, 2500, 5000, 10000] }
+    ],
+    "notes": "One of two SKUs in the datasheet's model table: 'XG-99C1 — XGS-PON SFU ONT, 10 Gbps symmetric, 1× 10GBase-T LAN, SC/APC optical, OMCI, AES-128' and 'XG-99C2 — XGS-PON SFU ONT, 10 Gbps symmetric, 1× 10GBase-T LAN, 10GE + 1GE, SC/APC optical, OMCI, AES-128'. This entry is the 10GE-only SKU; the second Ethernet port makes the other a different device, because the interface list cannot tell them apart. Optical: ITU-T G.9807.1 Class N1, 10 Gbit/s symmetric, up to 20 km, +4 to +9 dBm TX, -28 dBm RX. The 10GE port is 10GBase-T RJ-45, compatible with 5G/2.5G/1GBase-T by auto-negotiation. Power: 12 V DC external adapter, under 10 W. No Wi-Fi.",
+    "sourceUrl": "https://amt.com/wp-content/uploads/2026/06/CIG-XG-99C-Datasheet.pdf"
+  },
+  {
+    "vendor": "cig",
+    "model": "XG-99C2",
+    "label": "CIG XG-99C2 XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON SFU ONT with 1× 10GBase-T and 1× 1GBase-T LAN and no Wi-Fi; SC/APC optical, Class N1 budget, OMCI management, 12 V DC external adapter drawing under 10 W.",
+    "capabilities": ["l2-forward", "host"],
+    "interfaces": [
+      { "name": "pon", "type": "pon", "speed": "10G", "connector": "sc-apc", "speedCaps": [9953] },
+      { "name": "lan1", "type": "ethernet", "speed": "10G", "speedCaps": [1000, 2500, 5000, 10000] },
+      { "name": "lan2", "type": "ethernet", "speed": "1G", "speedCaps": [10, 100, 1000] }
+    ],
+    "notes": "The second SKU in the datasheet's model table: 'XG-99C2 — XGS-PON SFU ONT, 10 Gbps symmetric, 1× 10GBase-T LAN, 10GE + 1GE, SC/APC optical, OMCI, AES-128', described as adding the 1GE port 'for legacy device connectivity or service separation'. Its own entry rather than a note on XG-99C1, because the port count differs. The 1GE port is 10/100/1000Base-T RJ-45 with MDI/MDIX auto-sensing. Optical: ITU-T G.9807.1 Class N1, 10 Gbit/s symmetric, up to 20 km, +4 to +9 dBm TX, -28 dBm RX. Power: 12 V DC external adapter, under 10 W. No Wi-Fi.",
+    "sourceUrl": "https://amt.com/wp-content/uploads/2026/06/CIG-XG-99C-Datasheet.pdf"
+  }
+]

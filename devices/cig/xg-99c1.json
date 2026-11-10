@@ -1,0 +1,35 @@
+{
+  "vendor": "cig",
+  "model": "XG-99C1",
+  "label": "CIG XG-99C1 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON SFU ONT with 1× 10GBase-T LAN and no Wi-Fi; SC/APC optical, Class N1 budget, OMCI management, 12 V DC external adapter drawing under 10 W.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        2500,
+        5000,
+        10000
+      ]
+    }
+  ],
+  "notes": "One of two SKUs in the datasheet's model table: 'XG-99C1 — XGS-PON SFU ONT, 10 Gbps symmetric, 1× 10GBase-T LAN, SC/APC optical, OMCI, AES-128' and 'XG-99C2 — XGS-PON SFU ONT, 10 Gbps symmetric, 1× 10GBase-T LAN, 10GE + 1GE, SC/APC optical, OMCI, AES-128'. This entry is the 10GE-only SKU; the second Ethernet port makes the other a different device, because the interface list cannot tell them apart. Optical: ITU-T G.9807.1 Class N1, 10 Gbit/s symmetric, up to 20 km, +4 to +9 dBm TX, -28 dBm RX. The 10GE port is 10GBase-T RJ-45, compatible with 5G/2.5G/1GBase-T by auto-negotiation. Power: 12 V DC external adapter, under 10 W. No Wi-Fi.",
+  "sourceUrl": "https://amt.com/wp-content/uploads/2026/06/CIG-XG-99C-Datasheet.pdf"
+}

@@ -1,0 +1,37 @@
+{
+  "vendor": "comtrend",
+  "model": "GRG-4362",
+  "label": "Comtrend GRG-4362 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON bridge/gateway with 1× 10GBase-T LAN and no Wi-Fi; ITU-T G.987 optical at 10 Gbit/s symmetric, TR-069 management, 12 Vdc/1 A adapter.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
+    }
+  ],
+  "notes": "Vendor specifications: 'XGS-PON x1' (PHY US 10Gbps, DS 10Gbps, Standard ITU-T G.987, US 1270 nm, DS 1577 nm) and '10Giga Ethernet x1' (10G/5G/2.5G/1G/100M/10M bps, IEEE 802.3an/bz/ab/u/i, Auto-MDIX). The 10GBase-T port auto-negotiates 5G/2.5G/1G, so a slower host on it is not a misconfiguration. 'Routing software function integrated', hence l3-forward. Package includes a 12 Vdc/1.0 A adapter. No Wi-Fi and no voice port. Connector polish is not published; sc-apc is the XGS-PON subscriber interface this catalogue models.",
+  "sourceUrl": "https://comtrend.com/tw/Product/375$prod.html"
+}
