@@ -5,6 +5,7 @@
 // share one consistent command set.
 const net = require('./net');
 const { renderTable } = require('./table');
+const psLib = require('./portsecurity');
 
 // A counter is prose as well as a number: "1 packets" is the kind of detail that makes an operator
 // distrust the figure beside it.
@@ -1119,7 +1120,18 @@ class CliSession {
       out.push(iface.name + ' administratively down');
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
+      // A port err-disabled by port security is administratively enabled and operationally down.
+      // Its recovery is this command (IOS: `shutdown` then `no shutdown`), so the answer says what
+      // recovered and what was kept - the violation count is evidence and deleting it would hide
+      // the reason the port went down.
+      const recovered = psLib.recover(this.device, iface.name);
       out.push(iface.name + ' up');
+      if (recovered) {
+        const st = psLib.peek(this.device, iface.name);
+        out.push('  err-disable cleared: ' + recovered);
+        out.push('  Security violation count kept at ' + (st ? st.violations : 0) +
+          ' - "clear port-security counters" resets it');
+      }
     } else if (head === 'mtu' || (head === 'no' && tokens[1] === 'mtu')) {
       out.push.apply(out, this._portMtu(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
     } else if (head === 'speed' || (head === 'no' && tokens[1] === 'speed')) {
@@ -1225,6 +1237,10 @@ class CliSession {
       out.push.apply(out, this._accessGroup(tokens.slice(2), iface));
     } else if (head === 'encapsulation') {
       out.push.apply(out, this._encap(tokens.slice(1), iface));
+    } else if (head === 'switchport' && tokens[1] === 'port-security') {
+      out.push.apply(out, this._portSecurity(tokens.slice(2), iface, false));
+    } else if (head === 'no' && tokens[1] === 'switchport' && tokens[2] === 'port-security') {
+      out.push.apply(out, this._portSecurity(tokens.slice(3), iface, true));
     } else if (head === 'switchport') {
       out.push.apply(out, this._switchport(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'switchport') {
@@ -2760,6 +2776,303 @@ class CliSession {
     return out;
   }
 
+  // `show port-security`, `show port-security interface <port>`, `show port-security address`.
+  //
+  // Three views because they answer three questions: which ports are secured and how many addresses
+  // they hold (the summary), why *this* port is refusing traffic (the detail), and which station is
+  // pinned where (the address table). A secured port that has err-disabled must be visible in the
+  // summary without reading the detail, or the first question after an incident has no answer.
+  _showPortSecurity(args) {
+    const dev = this.device;
+    if (!dev.isL2 || !dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no secured ports',
+        '% Port security is a bridge feature'];
+    }
+    const ports = psLib.securedPorts(dev);
+    const sub = String(args[0] || '').toLowerCase();
+    if (sub === 'address') {
+      if (args.length > 1) {
+        return ['% show port-security address takes no argument',
+          '% Usage: show port-security address'];
+      }
+      const rows = psLib.addressRows(dev);
+      const out = [];
+      if (!rows.length) {
+        out.push('% No secure addresses: no port has port security enabled, or none has learned a source');
+        if (ports.length) out.push('% Secured ports with no address yet: ' + ports.join(', '));
+        return out;
+      }
+      out.push.apply(out, renderTable(['Mac Address', 'Vlan', 'Port', 'Type', 'Age (min)'],
+        rows.map(function (r) { return [r.mac, '1', r.port, r.type, r.age]; })));
+      const configured = rows.filter(function (r) { return r.type === 'SecureConfigured'; }).length;
+      const sticky = rows.filter(function (r) { return r.type === 'SecureSticky'; }).length;
+      out.push('  ' + rows.length + ' secure address' + (rows.length === 1 ? '' : 'es') + ': ' +
+        configured + ' configured, ' + sticky + ' sticky, ' + (rows.length - configured - sticky) + ' learned');
+      return out;
+    }
+    if (sub === 'interface') {
+      if (args.length < 2) {
+        return ['% Incomplete command: show port-security interface <port>',
+          '% Name the port whose port security to describe'];
+      }
+      if (args.length > 2) {
+        return ['% show port-security interface takes one port, not "' + args.slice(1).join(' ') + '"'];
+      }
+      const pick = this._portArg(args.slice(1), dev, 'show port-security interface', null);
+      if (!pick.ok) return pick.output;
+      const st = psLib.peek(dev, pick.port);
+      if (!st || !st.enabled) {
+        return ['Port security is not enabled on ' + pick.port,
+          '  Enable it with "switchport port-security" in that interface'];
+      }
+      const status = st.errDisabled ? 'Secure-shutdown' : 'Secure-up';
+      return [
+        'Port Security              : Enabled',
+        'Port Status                : ' + status,
+        'Violation Mode             : ' + st.violation,
+        'Aging Time                 : 0 mins',
+        'Aging Type                 : Absolute',
+        'SecureStatic Address Aging : Disabled',
+        'Maximum MAC Addresses      : ' + st.maximum,
+        'Total MAC Addresses        : ' + psLib.macCount(st),
+        'Configured MAC Addresses   : ' + st.configured.length,
+        'Sticky MAC Addresses       : ' + st.stickyMacs.length,
+        'Last Source Address:Vlan   : ' + (st.lastSource ? st.lastSource + ':1' : '0000.0000.0000:0'),
+        'Security Violation Count   : ' + st.violations
+      ].concat(st.errDisabled
+        ? ['', '  err-disabled: ' + st.shutdownReason, '  "shutdown" then "no shutdown" recovers the port']
+        : []);
+    }
+    if (args.length) {
+      return ['% show port-security takes "interface <port>" or "address", not "' + args.join(' ') + '"',
+        '% Usage: show port-security [interface <port>|address]'];
+    }
+    if (!ports.length) {
+      return ['% No ports have port security enabled on ' + (dev.name || dev.id),
+        '% Configure one in interface mode: switchport port-security'];
+    }
+    const out = [];
+    out.push.apply(out, renderTable(
+      ['Secure Port', 'MaxSecureAddr', 'CurrentAddr', 'SecurityViolation', 'Security Action'],
+      ports.map(function (name) {
+        const st = psLib.peek(dev, name);
+        return [name + (st.errDisabled ? ' (err-disabled)' : ''), st.maximum,
+          psLib.macCount(st), st.violations, st.violation];
+      })));
+    out.push('  ' + ports.length + ' secured port' + (ports.length === 1 ? '' : 's') + ' of ' +
+      dev.bridgedInterfaces().length + ' bridged port' +
+      (dev.bridgedInterfaces().length === 1 ? '' : 's'));
+    const down = ports.filter(function (n) { const s = psLib.peek(dev, n); return s && s.errDisabled; });
+    if (down.length) {
+      out.push('  ' + down.length + ' err-disabled by a violation: ' + down.join(', ') +
+        ' - "shutdown" then "no shutdown" recovers');
+    }
+    return out;
+  }
+
+  // One MAC parser for every command that takes one: `0011.2233.4455` and `00:11:22:33:44:55` are the
+  // same address, and the tables print the colon form, so the console accepts both and stores one.
+  _parseMac(text) {
+    const word = String(text || '').trim().toLowerCase();
+    const dotted = /^([0-9a-f]{4})\.([0-9a-f]{4})\.([0-9a-f]{4})$/.exec(word);
+    if (dotted) return (dotted[1] + dotted[2] + dotted[3]).match(/../g).join(':');
+    if (/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/.test(word)) return word.replace(/-/g, ':');
+    return null;
+  }
+
+  // `switchport port-security …`: the switch's opinion about who may speak on a port.
+  //
+  // Before this, the model had no opinion at all: it learned whatever source arrived and forwarded to
+  // whatever it had learned. The verbs below are the four decisions IOS asks for - whether the port is
+  // secured, how many addresses it may hold, where the addresses come from, and what to do when a
+  // fifth one arrives - and each is validated where it is typed, because a port-security line that
+  // half-applies is worse than none.
+  _portSecurity(args, iface, isNo) {
+    const dev = this.device;
+    const usage = 'switchport port-security [maximum <n>|mac-address <mac>|mac-address sticky|violation <mode>]';
+    // Refused where it is typed: a device that does not bridge has no ports to secure, and a port
+    // that is not a bridged access port is not one this model secures.
+    if (!dev.isL2 || !dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no port to secure',
+        '% Port security is a bridge feature: it decides which sources a switch port may hear'];
+    }
+    if (iface.svi || iface.parent) {
+      return ['% ' + iface.name + ' is a logical interface: port security applies to a physical port',
+        '% Configure it on the port itself'];
+    }
+    if (iface.vlan && iface.vlan.mode === 'trunk') {
+      return ['% ' + iface.name + ' is a trunk port: this model secures access ports',
+        '% One address per port is what port security describes; put the port in access mode first'];
+    }
+    const st = psLib.peek(dev, iface.name);
+    // `no switchport port-security` is the whole feature off: one line, and the port goes back to
+    // learning whatever arrives. The narrower `no` forms below undo exactly what their positive form did.
+    if (isNo && !args.length) {
+      if (!st || !st.enabled) return ['Port security is not enabled on ' + iface.name];
+      psLib.clearDynamic(dev, iface.name);
+      psLib.clearSticky(dev, iface.name);
+      delete dev.portSecurity.ports[iface.name];
+      return ['Port security disabled on ' + iface.name,
+        '  The port accepts any source again - secure addresses, counters and err-disable state are gone'];
+    }
+    if (!args.length) {
+      if (st && st.enabled) {
+        return ['Port security is already enabled on ' + iface.name +
+          ' (maximum ' + st.maximum + ', violation ' + st.violation +
+          (st.sticky ? ', sticky' : '') + ')'];
+      }
+      const fresh = psLib.portState(dev, iface.name);
+      fresh.enabled = true;
+      return ['Port security enabled on ' + iface.name,
+        '  Maximum ' + fresh.maximum + ' secure address, violation mode ' + fresh.violation +
+          ' (IOS defaults)',
+        '  The first source to arrive is learned; a second one is a violation'];
+    }
+    const sub = String(args[0]).toLowerCase();
+    const rest = args.slice(1);
+    if (sub === 'maximum') {
+      if (isNo) {
+        const extra = this._noExtra(rest, 0, 'no switchport port-security maximum');
+        if (extra) return extra;
+        const cur = st || psLib.portState(dev, iface.name);
+        const had = cur.maximum;
+        cur.maximum = psLib.DEFAULT_MAXIMUM;
+        return ['Port security maximum on ' + iface.name + ' reset to ' + psLib.DEFAULT_MAXIMUM +
+          ' (was ' + had + ')'];
+      }
+      const extra = this._noExtra(rest, 1, 'switchport port-security maximum <1-' + psLib.MAXIMUM_LIMIT + '>');
+      if (extra) return extra;
+      const word = String(rest[0] || '');
+      if (!word) return ['% Incomplete command: switchport port-security maximum <1-' + psLib.MAXIMUM_LIMIT + '>',
+        '% The maximum is how many source addresses this port may hold'];
+      if (!/^[0-9]+$/.test(word)) {
+        return ['% "' + word + '" is not a number of addresses'];
+      }
+      const n = parseInt(word, 10);
+      if (n < 1 || n > psLib.MAXIMUM_LIMIT) {
+        return ['% Maximum ' + n + ' is outside 1-' + psLib.MAXIMUM_LIMIT +
+          ' (IOS tops out at ' + psLib.MAXIMUM_LIMIT + ' secure addresses on one port)'];
+      }
+      const cur = st || psLib.portState(dev, iface.name);
+      if (cur.maximum === n) return ['Port security maximum on ' + iface.name + ' is already ' + n];
+      const held = psLib.macCount(cur);
+      cur.maximum = n;
+      const out = ['Port security maximum on ' + iface.name + ' set to ' + n];
+      // Lowering the limit below what is already held is allowed by IOS and is worth saying out loud:
+      // the existing addresses stay, and the next new one is a violation.
+      if (held > n) {
+        out.push('  The port already holds ' + held + ' secure address' + (held === 1 ? '' : 'es') +
+          ' - they are kept, and the next new source is a violation');
+      }
+      return out;
+    }
+    if (sub === 'mac-address') {
+      const word = String(rest[0] || '').toLowerCase();
+      if (isNo && !word) {
+        return ['% Incomplete command: no switchport port-security mac-address <mac|sticky>',
+          '% Name the address to remove, or "sticky" to forget the sticky ones'];
+      }
+      if (word === 'sticky') {
+        const extra = this._noExtra(rest, 1, isNo
+          ? 'no switchport port-security mac-address sticky'
+          : 'switchport port-security mac-address sticky');
+        if (extra) return extra;
+        const cur = st || psLib.portState(dev, iface.name);
+        if (isNo) {
+          if (!cur.sticky) return ['Sticky learning is not enabled on ' + iface.name];
+          cur.sticky = false;
+          return ['Sticky learning disabled on ' + iface.name,
+            '  The addresses it learned stay secure, but a clear will not keep them'];
+        }
+        if (cur.sticky) return ['Sticky learning is already enabled on ' + iface.name];
+        cur.sticky = true;
+        return ['Sticky learning enabled on ' + iface.name,
+          '  Addresses learned from now on are kept across a reload and a clear'];
+      }
+      if (!word) {
+        return ['% Incomplete command: switchport port-security mac-address <mac|sticky>',
+          '% Write the address as 0011.2233.4455 or 00:11:22:33:44:55'];
+      }
+      const mac = this._parseMac(word);
+      if (!mac) return ['% "' + String(rest[0]) + '" is not a MAC address',
+        '% Write it as 0011.2233.4455 or 00:11:22:33:44:55'];
+      if (psLib.isGroupMac(mac)) {
+        return ['% ' + mac + ' is a multicast or broadcast MAC, so no single station owns it',
+          '% A secure address is one station, so it must be unicast'];
+      }
+      const cur = st || psLib.portState(dev, iface.name);
+      if (isNo) {
+        const at = cur.configured.indexOf(mac);
+        if (at === -1) return ['% ' + mac + ' is not a configured secure address on ' + iface.name];
+        cur.configured.splice(at, 1);
+        return ['Secure address ' + mac + ' removed from ' + iface.name,
+          '  The port now allows ' + psLib.macCount(cur) + ' of ' + cur.maximum];
+      }
+      const extra = this._noExtra(rest, 1, 'switchport port-security mac-address <mac>');
+      if (extra) return extra;
+      // IOS refuses the same address on two secured ports, because a station is in one place.
+      const elsewhere = this._securedMacElsewhere(mac, iface.name);
+      if (elsewhere) {
+        return ['% ' + mac + ' is already a secure address on ' + elsewhere,
+          '% One station is on one port: remove it there first'];
+      }
+      if (cur.configured.indexOf(mac) !== -1) {
+        return ['Secure address ' + mac + ' is already configured on ' + iface.name];
+      }
+      cur.configured.push(mac);
+      const out = ['Secure address ' + mac + ' configured on ' + iface.name,
+        '  The port now allows ' + psLib.macCount(cur) + ' of ' + cur.maximum];
+      if (psLib.macCount(cur) > cur.maximum) {
+        out.push('  That is more than the maximum: the address is kept, and every frame from it is a violation');
+      }
+      return out;
+    }
+    if (sub === 'violation') {
+      const extra = isNo ? this._noExtra(rest, 0, 'no switchport port-security violation') : this._noExtra(rest, 1, 'switchport port-security violation <protect|restrict|shutdown>');
+      if (extra) return extra;
+      const cur = st || psLib.portState(dev, iface.name);
+      if (isNo) {
+        const had = cur.violation;
+        cur.violation = psLib.DEFAULT_VIOLATION;
+        return ['Violation mode on ' + iface.name + ' reset to ' + psLib.DEFAULT_VIOLATION +
+          ' (was ' + had + ')'];
+      }
+      const mode = String(rest[0] || '').toLowerCase();
+      if (!mode) {
+        return ['% Incomplete command: switchport port-security violation <protect|restrict|shutdown>',
+          '% protect drops silently, restrict drops and counts, shutdown drops and err-disables the port'];
+      }
+      if (psLib.VIOLATIONS.indexOf(mode) === -1) {
+        return ['% "' + rest[0] + '" is not a violation mode',
+          '% Use protect, restrict or shutdown'];
+      }
+      if (cur.violation === mode) return ['Violation mode on ' + iface.name + ' is already ' + mode];
+      const had = cur.violation;
+      cur.violation = mode;
+      const what = {
+        protect: 'a violating frame is dropped silently - no counter, no log, the port keeps working',
+        restrict: 'a violating frame is dropped and counted, and the port keeps working',
+        shutdown: 'a violating frame is dropped and the port is err-disabled until "shutdown" then "no shutdown"'
+      }[mode];
+      return ['Violation mode on ' + iface.name + ' set to ' + mode + (had ? ' (was ' + had + ')' : ''),
+        '  ' + what];
+    }
+    return ['% Unrecognized port-security command: ' + String(args[0]),
+      '% Usage: ' + usage];
+  }
+
+  // One station is on one port: find the other secured port holding this address, if any.
+  _securedMacElsewhere(mac, portName) {
+    const table = this.device.portSecurity;
+    if (!table || !table.ports) return null;
+    for (const name of Object.keys(table.ports)) {
+      if (name === portName) continue;
+      const st = table.ports[name];
+      if (st.configured.indexOf(mac) !== -1 || st.stickyMacs.indexOf(mac) !== -1) return name;
+    }
+    return null;
+  }
+
   // `arp <ip> <mac> [arpa]` / `no arp <ip>`: a hand-written entry in the cache.
   //
   // The cache is real - it is what `_sendL3` reads before it decides whether to ask - and every entry
@@ -2804,13 +3117,7 @@ class CliSession {
     if (!net.isIp(ip)) return ['% "' + ip + '" is not an IPv4 address', '% Usage: ' + usage];
     // Both spellings a MAC is written in - `0011.2233.4455` (Cisco) and `00:11:22:33:44:55` - are
     // accepted and stored in the one form the tables print.
-    const mac = (function (text) {
-      const dotted = /^([0-9a-f]{4})\.([0-9a-f]{4})\.([0-9a-f]{4})$/.exec(text);
-      if (dotted) return (dotted[1] + dotted[2] + dotted[3]).match(/../g).join(':');
-      const colon = /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/.exec(text);
-      if (colon) return text.replace(/-/g, ':');
-      return null;
-    })(macText);
+    const mac = this._parseMac(macText);
     if (!mac) {
       return ['% "' + String(args[1]) + '" is not a MAC address',
         '% Write it as 0011.2233.4455 or 00:11:22:33:44:55'];
@@ -5319,6 +5626,22 @@ class CliSession {
     for (const i of dev.interfaces.values()) {
       out.push('interface ' + i.name);
       if (i.description) out.push('  description ' + i.description);
+      // Port security is configuration, and it decides what the port will refuse - a paste that
+      // dropped it would hand back a port that accepts every source.
+      const sec = psLib.peek(dev, i.name);
+      if (sec && sec.enabled) {
+        out.push('  switchport port-security');
+        if (sec.maximum !== psLib.DEFAULT_MAXIMUM) out.push('  switchport port-security maximum ' + sec.maximum);
+        for (const mac of sec.configured) {
+          // Dumped in the spelling the console takes, so a paste restores the same addresses.
+          out.push('  switchport port-security mac-address ' + mac.replace(/:/g, '')
+            .replace(/(.{4})(?!$)/g, '$1.'));
+        }
+        if (sec.sticky) out.push('  switchport port-security mac-address sticky');
+        if (sec.violation !== psLib.DEFAULT_VIOLATION) {
+          out.push('  switchport port-security violation ' + sec.violation);
+        }
+      }
       if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
       if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
       // `ip address dhcp` is accepted after a static address and does not clear
@@ -5769,6 +6092,8 @@ class CliSession {
             return [nb.systemName || '?', port, nb.portId || '?', nb.mgmtIp || '-'];
           }), 2));
       }
+    } else if (what === 'port-security') {
+      out.push.apply(out, this._showPortSecurity(tokens.slice(1)));
     } else if (what === 'access-lists' || what === 'access-list') {
       const aclLib = require('./acl');
       const acls = dev.config.acls || {};
@@ -6197,7 +6522,13 @@ class CliSession {
           // `lineUp` is derived in computePortState() from shutdown, cable and link state, so this
           // column says `notconnect` for a port with nothing plugged into it rather than claiming
           // `connected` because nothing is broken.
-          const link = !i.enabled ? 'disabled' : (i.lineUp === false ? 'notconnect' : 'connected');
+          // A port err-disabled by a port security violation is not `notconnect` - something *is*
+          // plugged in, and the port is refusing to use it. IOS has a word for that, and it is the
+          // word an operator scans the table for after an incident.
+          const sec = psLib.peek(dev, i.name);
+          const link = !i.enabled ? 'disabled'
+            : (sec && sec.errDisabled ? 'err-disabled'
+              : (i.lineUp === false ? 'notconnect' : 'connected'));
           // The VLAN a frame leaving this port is in: a trunk carries many and says so.
           const vlan = (function () {
             const v = i.vlan || {};
@@ -8043,6 +8374,12 @@ class CliSession {
       helpLine('switchport access vlan <id>', 'the access VLAN'),
       helpLine('switchport trunk native vlan <id>', 'the untagged VLAN on a trunk'),
       helpLine('switchport trunk allowed vlan <list|all>', 'which VLANs the trunk carries'),
+      helpLine('switchport port-security', 'secure the port: one source by default, and what to do about a second'),
+      helpLine('switchport port-security maximum <n>', 'how many source addresses the port may hold (default 1)'),
+      helpLine('switchport port-security mac-address <mac>', 'pin one station to this port'),
+      helpLine('switchport port-security mac-address sticky', 'keep what the port learns, across a clear and a reload'),
+      helpLine('switchport port-security violation <mode>', 'protect | restrict | shutdown - what a violation costs'),
+      helpLine('no switchport port-security', 'turn port security off on the port (and forget its addresses)'),
       helpLine('channel-group <id> mode active|passive|on|static',
         'add this port to a LAG'),
       helpLine('ip access-group <acl> in|out | no ip access-group [<acl>] [in|out]',
@@ -8086,6 +8423,9 @@ class CliSession {
       helpLine('permit|deny <entry>', 'one line, in the order shown by "show access-lists"'),
       helpLine('no <sequence>', 'remove the line with that number'),
       helpLine('no permit|deny <entry>', 'remove the line that matches, without its number'),
+      helpLine('show port-security', 'secured ports, addresses held, violations, violation mode'),
+      helpLine('show port-security interface <port>', 'why this port is refusing traffic'),
+      helpLine('show port-security address', 'which station is pinned to which port'),
       helpLine('show access-lists [<name>]', 'the list as it stands, with match counters'),
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'back to config / to enable')

@@ -1178,6 +1178,70 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### Port security: a bridge that finally has an opinion
+
+The model learns a source MAC per port and VLAN and forwards to what it has learned. That is a bridge
+doing its job with no opinion about who is allowed to speak — and there was no way to give it one:
+
+```
+SW1(config-if)#switchport port-security
+% Unrecognized interface command: switchport port-security
+SW1#show port-security
+% Invalid show command: port-security
+```
+
+Port security is the opinion, and the three violation modes are the point, because they differ in what
+they cost:
+
+```
+SW1(config-if)#switchport port-security
+Port security enabled on Fa0/1
+  Maximum 1 secure address, violation mode shutdown (IOS defaults)
+  The first source to arrive is learned; a second one is a violation
+
+SW1#show port-security
+Secure Port  MaxSecureAddr  CurrentAddr  SecurityViolation  Security Action
+Fa0/1 (err-disabled)  1       1            1                  shutdown
+  1 secured port of 8 bridged ports
+  1 err-disabled by a violation: Fa0/1 - "shutdown" then "no shutdown" recovers
+
+SW1#show interfaces status
+Port   Name  Status        Vlan  Duplex  Speed  Type
+Fa0/1        err-disabled  1     a-full  a-1G   ethernet
+```
+
+* **`protect`** drops the frame, counts nothing, logs nothing — the port keeps working for its own
+  station, and the incident leaves no trace, which is exactly why the mode is not the default.
+* **`restrict`** drops the frame and counts it. The port stays `Secure-up` and the counter is the
+  evidence: two intruding frames are two violations.
+* **`shutdown`** (the default) drops the frame, counts one violation and **err-disables the port**. One
+  incident is one violation, not one per frame: further frames are dropped without being counted again.
+
+The checks run **before the CAM learns anything**, so a refused source is never in the MAC table — the
+two tables cannot contradict each other. A violation sets the port's line state, so `show interfaces`,
+`show interfaces status` (`err-disabled`, not `notconnect` — something *is* plugged in) and
+`show port-security` all describe the same port. Recovery is the port's own word, `shutdown` then
+`no shutdown`, and the answer keeps the violation count:
+
+```
+SW1(config-if)#no shutdown
+Fa0/1 up
+  err-disable cleared: port security violation: 02:00:00:00:99:99 on a port that allows 1
+  Security violation count kept at 1 - "clear port-security counters" resets it
+```
+
+Three `show` views, because they answer three questions: `show port-security` (which ports are secured,
+how many addresses, how many violations), `show port-security interface <port>` (why *this* port is
+refusing traffic — `Secure-up`/`Secure-shutdown`, the mode, the counts, the last source seen), and
+`show port-security address` (which station is pinned where, as `SecureConfigured`, `SecureSticky` or
+`SecureDynamic`).
+
+Every word is validated where it is typed: a limit outside 1–3072, a mode that is not one of the three,
+a MAC that is malformed or multicast, a station that is already secure on another port ("one station is
+one port"), a trunk port (this model secures access ports), a logical interface, and a router ("does not
+switch, so it has no port to secure"). Lowering the limit below what a port already holds is allowed and
+says what it means: the addresses are kept and the next new source is a violation.
+
 ### An ARP cache that could only be learned into
 
 Every packet this model routes reads the ARP cache before it decides whether to ask, so the cache is

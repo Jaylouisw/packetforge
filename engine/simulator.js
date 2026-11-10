@@ -5,6 +5,7 @@
 // MAC learning per VLAN, flooding within a VLAN, LAG egress selection, 802.1D
 // spanning-tree blocking), and L3 (ARP, IPv4 longest-prefix routing, ICMP).
 const net = require('./net');
+const psLib = require('./portsecurity');
 const vlanLib = require('./vlan');
 const lagLib = require('./lag');
 const stpLib = require('./stp');
@@ -473,6 +474,16 @@ class Simulator {
         if (!iface.peer) {
           iface.lineUp = false;
           iface.lineStateReason = 'no cable attached';
+          continue;
+        }
+        // A port security violation err-disables the port: administratively enabled, operationally
+        // dead. It is checked with the cable and the link because it is the same kind of fact - the
+        // port cannot carry traffic - and `show interfaces` would otherwise report it up/up while
+        // every frame on it was being dropped.
+        const secState = psLib.peek(dev, iface.name);
+        if (secState && secState.errDisabled) {
+          iface.lineUp = false;
+          iface.lineStateReason = 'err-disabled (port security): ' + (secState.shutdownReason || 'violation');
           continue;
         }
         const link = this._linkAt(dev.id, iface.name);
@@ -3150,6 +3161,29 @@ class Simulator {
     // ways regardless of what it has seen before.
     // A passive coupler and a passive tap have no table to learn into: neither can
     // remember what it has seen, so neither may be credited with learning.
+    // 2c. Port security: whether this port may hear this source at all.
+    //
+    // It runs before learning, not after, because a frame from a violating source must not be
+    // remembered: the table would then contain the very address the port refused, and `show mac
+    // address-table` would contradict `show port-security`.
+    if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) {
+      const sec = psLib.checkIngress(dev, this._logicalPortName(dev, inIface) || inIface, f.srcMac, vid);
+      if (sec.action === 'drop') {
+        this._emit({ type: 'port-security-drop', dev: dev.id, iface: inIface, mac: f.srcMac,
+          mode: sec.mode, counted: !!sec.count, errDisabled: !!sec.errDisable, reason: sec.reason });
+        if (sec.errDisable) {
+          // The port stops carrying traffic the moment it err-disables, so the line state is derived
+          // again rather than waiting for something else to notice.
+          this.computePortState();
+        }
+        return;
+      }
+      if (sec.learned) {
+        this._emit({ type: 'port-security-learn', dev: dev.id, iface: inIface, mac: f.srcMac,
+          vlan: vid, sticky: !!sec.sticky });
+      }
+    }
+
     if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.macTableFor(vid).set(f.srcMac, inIface);
 
     // 3b. Inbound access list.
