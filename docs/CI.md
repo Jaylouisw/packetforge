@@ -199,13 +199,65 @@ The shape check matters more than it sounds: a `|` inside a backticked command �
 `` `show flows [<id> | counters]` `` — silently adds a column, and the table still *renders*, just with
 a cell pushed off the end. Escape it as `\|` inside the cell. The anchor check catches a link to a
 heading that was renamed, which is the usual casualty of rewording a section title. The suite check
-catches a document citing a `test/*.test.js` that does not exist — the five hits it reports today are
-the *proposed* suites in `BGP-POLICY.md` and `UPSTREAM-DESIGN.md`, which is why the check prints rather
-than fails: a design page naming a file it wants written is legitimate, and the only way to keep that
-distinction honest is to look at the list. The fourth check is the one this page learned the hard way:
+catches a document citing a `test/*.test.js` that does not exist — and it reports **thirteen** today, not
+five: the two suites `BGP-POLICY.md` proposes, the three `UPSTREAM-DESIGN.md` proposes, and eight §11 rows
+in `SIMULATION.md` that narrate those same names. That is why the check prints rather than fails — a
+design page naming a file it wants written is legitimate — and the only way to keep the distinction
+honest is to look at the list: recount with `node md-check.js … | grep 'cites test/'` before quoting a
+number from this paragraph, because this one was wrong for exactly that reason. The fourth check is the one this page learned the hard way:
 a **table row wrapped onto a second line** keeps its cell count, so the shape check passes, but GitHub
 renders the wrapped text as a paragraph and the table silently loses its last row on screen. Every
 table must be followed by a blank line — including the one above.
+
+### What the pages claim about the code
+
+`md-check` reads the *prose as prose* — tables, links, suite names. It cannot see the other thing a
+documentation page does: name a file, a script or a constant in backticks as though it exists. Two
+one-liners cover the two classes that go stale silently, and both were run on this tree to write the
+numbers below.
+
+**Every backticked path that looks like a file, must be one.** This catches a module that was renamed
+or deleted while three pages kept citing it:
+
+```bash
+node -e '
+const fs=require("fs");
+const docs=["README.md","CONTRIBUTING.md",...fs.readdirSync("docs").filter(f=>f.endsWith(".md")).map(f=>"docs/"+f),...fs.readdirSync("docs/wiki").map(f=>"docs/wiki/"+f)];
+const re=/`((?:engine|server|web|scripts|devices|examples|catalogue|research|test)\/[A-Za-z0-9_.-]+\.(?:js|css|html|json|md))`/g;
+let bad=0;
+for (const d of docs){ const L=fs.readFileSync(d,"utf8").split("\n");
+  L.forEach((l,i)=>{ let m; while((m=re.exec(l))) if(!fs.existsSync(m[1])) {console.log(d+":"+(i+1)+" -> "+m[1]); bad++;} }); }
+console.log(bad?bad+" missing file citation(s)":"every cited file exists");'
+```
+
+On this tree it prints **11** missing, and all eleven are the proposed design suites counted above (it
+omits `CHANGELOG.md`, which is why `md-check` reads 13 for the same fact). Anything else in that list is
+a renamed file and a broken page.
+
+**Every `npm run x` a page tells you to type, must be a script.** A renamed script is worse than a
+missing file because the reader believes they made the mistake:
+
+```bash
+node -e '
+const fs=require("fs");
+const scripts=new Set(Object.keys(require("./package.json").scripts));
+const docs=["README.md","CONTRIBUTING.md",...fs.readdirSync("docs").filter(f=>f.endsWith(".md")).map(f=>"docs/"+f),...fs.readdirSync("docs/wiki").map(f=>"docs/wiki/"+f)];
+let bad=0;
+for (const d of docs){ fs.readFileSync(d,"utf8").split("\n").forEach((l,i)=>{ let m;
+  const re=/npm run ([a-z0-9:_-]+)/g; while((m=re.exec(l))) if(!scripts.has(m[1])) {console.log(d+":"+(i+1)+" -> npm run "+m[1]); bad++;} }); }
+console.log(bad?bad+" cited npm script(s) do not exist":"every cited npm script exists");'
+```
+
+It prints `every cited npm script exists` today, against the **54** scripts `package.json` actually defines.
+
+Backticked **constants and error codes** are the third class, and the one where a raw existence check
+misleads: `BGP-POLICY.md` and `UPSTREAM-DESIGN.md` are design documents, so they name codes the engine
+does not raise yet (`W_SINGLE_HOMED`, `E_NAT_EGRESS_MISMATCH`, `MED_MAX`, `WELL_KNOWN_COMMUNITIES`)
+deliberately, in a column headed *this design changes it to*. Grep for each one, and treat an absence as
+a finding **only** on a page that describes what the engine does today — `CLI.md`, `LINK-STATE.md`,
+`DEVICE_REGISTRY.md`, `PHYSICAL_LAYER.md`. The same sweep over this tree finds every such code present in `engine/`
+except one: `LINK-STATE.md` mentions `E_CONVERGING` to say a reader will *not* find it here — the sentence
+is about an absence, which is the one place a bare existence check cannot tell diligence from drift.
 
 And a warning about the first check, because it cost this page a full pass of false confidence: as
 originally written the separator test was `/^\|[\s:-|]+\|$/`, whose character class `[:\-|]` is the
