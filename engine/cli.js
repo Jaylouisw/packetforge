@@ -624,6 +624,8 @@ class CliSession {
       this.mode = MODE_DHCP_POOL;
     } else if (head === 'scion') {
       const scionLib2 = require('./scion');
+      const scionExtra = this._noExtra(tokens, 2, 'scion <isd-as>');
+      if (scionExtra) return scionExtra;
       const parsed = scionLib2.parseIsdAs(tokens[1]);
       if (!parsed.valid) out.push('% Invalid SCION ISD-AS "' + (tokens[1] || '') + '" (expected e.g. 1-ff00:0:110)');
       else {
@@ -1710,14 +1712,24 @@ class CliSession {
 
     if (t[0] === 'router-id') {
       const ip = t[1] || '';
-      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return ['% Invalid router-id "' + ip + '"'];
+      const extra = this._noExtra(t, 2, 'ospf router-id <ip>');
+      if (extra) return extra;
+      // A shape check accepts `1.1.1.999`; the parser is what decides.
+      if (!net.isIp(ip)) return ['% "' + ip + '" is not an IPv4 address, so it cannot be a router-id'];
       cfg.routerId = ip;
       dev.config.ospf = cfg;
       return ['OSPF enabled, router-id ' + ip + ' area ' + (cfg.areaId || 0)];
     }
     if (t[0] === 'area') {
-      const id = parseInt(t[1], 10);
-      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id "' + (t[1] || '') + '"'];
+      const extra = this._noExtra(t, 2, 'ospf area <id>');
+      if (extra) return extra;
+      // `parseInt` read `ospf area 255.255.255.255` as area **255** and answered `OSPF area 255`:
+      // half the range the model allows (0-4294967295) was unreachable, and a dotted-quad area - the
+      // form RFC 2328 prints - was silently truncated at its first dot.
+      const id = require('./ospf').parseAreaId(t[1]);
+      if (id === null) {
+        return ['% "' + (t[1] || '') + '" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)'];
+      }
       cfg.areaId = id;
       dev.config.ospf = cfg;
       return ['OSPF area ' + id];
@@ -1741,15 +1753,26 @@ class CliSession {
 
     if (rest[0] === 'cost') {
       if (negate) { delete ov.cost; return ['OSPF cost reset on ' + iface.name]; }
+      // `% Cost must be 1..65535` answered `ip ospf cost abc` with a range, never with the word that
+      // was typed - and the same sentence for a missing value.
+      if (rest[1] === undefined) return ['% Incomplete command: ip ospf cost <n> (1..65535)'];
+      if (!/^\d+$/.test(String(rest[1]))) {
+        return ['% Cost must be a number 1..65535, not "' + rest[1] + '"'];
+      }
+      const extraCost = this._noExtra(rest, 2, 'ip ospf cost <n>');
+      if (extraCost) return extraCost;
       const c = parseInt(rest[1], 10);
-      if (!(c >= 1 && c <= 65535)) return ['% Cost must be 1..65535'];
+      if (!(c >= 1 && c <= 65535)) return ['% Cost ' + rest[1] + ' is outside 1..65535'];
       ov.cost = c;
       return ['OSPF cost ' + c + ' on ' + iface.name];
     }
     if (rest[0] === 'area') {
       if (negate) { delete ov.area; return ['OSPF area reset on ' + iface.name]; }
-      const id = parseInt(rest[1], 10);
-      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id'];
+      const id = require('./ospf').parseAreaId(rest[1]);
+      if (id === null) {
+        return ['% "' + (rest[1] || '') + '" is not an area id (0-4294967295, or a dotted quad)',
+          '% Usage: ip ospf area <id>'];
+      }
       ov.area = id;
       return ['OSPF area ' + id + ' on ' + iface.name];
     }
@@ -2021,7 +2044,13 @@ class CliSession {
     const kind = aclLib.aclKind(num);
     if (!kind) return ['% Invalid access list number: ' + tokens[0]];
     const entry = aclLib.parseEntry(tokens.slice(1).join(' '), num);
-    if (!entry || entry.error) return ['% ' + ((entry && entry.error) || 'invalid entry')];
+    if (!entry || entry.error) {
+      // `% ' + entry.error` printed **`% [object Object]`** - the parser returns
+      // `{ error: { code, message } }`, so the console showed the shape of the answer instead of the
+      // answer. The library's sentence is the useful part; the code is what the docs table lists.
+      const detail = entry && entry.error && (entry.error.message || entry.error.code);
+      return ['% access-list ' + num + ': ' + (detail || 'invalid entry')];
+    }
     const dev = this.device;
     if (!dev.config.acls) dev.config.acls = {};
     const key = String(num);
@@ -2779,15 +2808,23 @@ class CliSession {
     const what = String(args[0] || '').toLowerCase();
     const neighbors = dev.ospfNeighbors || [];
 
+    const mismatched = dev.ospfAreaMismatch || [];
     if (what === 'neighbor' || what === 'neighbors') {
       if (!neighbors.length) {
         out.push('Neighbor ID     Pri   State           Address         Interface');
-        out.push('(no adjacencies - no neighbour passed the passive and subnet checks)');
+        out.push('(no adjacencies - no neighbour passed the passive, subnet and area checks)');
       } else {
         const rows = neighbors.map(function (n) {
           return [n.routerId || '?', '1', n.state, n.ip, n.iface];
         });
         out.push.apply(out, renderTable(['Neighbor ID', 'Pri', 'State', 'Address', 'Interface'], rows));
+      }
+      // A cabled peer that is not a neighbour is the question this table raises, so answer it here:
+      // an area mismatch used to form a FULL adjacency, which is how the field went unnoticed.
+      for (const m of mismatched) {
+        out.push('% ' + m.peer + ' on ' + m.iface + ' is in area ' + m.peerArea +
+          ' and this interface is in area ' + m.area +
+          ' - no adjacency without a matching area');
       }
       return out;
     }

@@ -1,0 +1,18 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router'),SW=c.find(s=>s.model==='generic-switch');
+const p=(s,x)=>{let o;try{o=s.run(x).output;}catch(e){console.log('$ '+x+'\n    THREW: '+e.message);return;}console.log('$ '+x+(o.length?'\n    '+o.join('\n    '):'    (silent)'))};
+const mk=(spec,name)=>{const t=new Topology();const d=t.addDevice(spec);d.name=name;const s=new CliSession(d,t,new Simulator(t));s.run('enable');s.run('configure terminal');return {d,s};};
+console.log('=== OSPF on a router');
+let a=mk(R,'R1');
+for (const x of ['ospf router-id 0.0.0.0','ospf router-id 255.255.255.255','ospf area 0','ospf area 4294967296','ospf area 255.255.255.255','ospf router-id 1.1.1.1 extra']) p(a.s,x);
+console.log('=== interface ip ospf / vrrp extras');
+for (const x of ['interface Gi0/0','ip address 10.1.1.1 255.255.255.0','ip ospf cost abc','ip ospf priority abc','ip ospf hello-interval abc','vrrp 1 priority abc','vrrp 1 priority 300','vrrp 1 preempt','no vrrp 1 preempt','vrrp 1 priority 200']) p(a.s,x);
+console.log('=== ACL');
+a=mk(R,'R2');
+for (const x of ['access-list 110 permit tcp any any eq abc','access-list 110 permit ip any any','access-list abc permit ip any any','access-list 110 permit tcp 10.0.0.0 0.0.0.255 any eq 443','access-list 110 deny udp host 1.1.1.1 any eq 5000','access-list 110 permit icmp any any echo','access-list 1 permit 10.0.0.0 0.0.0.255','access-list 700 permit ip any any']) p(a.s,x);
+console.log('=== NAT / scion / misc');
+for (const x of ['ip nat inside source list 1 interface Gi0/0 overload','ip nat inside','ip nat outside','scion 1-ff00:0:110','scion abc','scion 1-ff00:0:110 extra','ntp server abc','clock set abc','banner motd hello']) p(a.s,x);
+console.log('=== switch: spanning-tree, port-security, power');
+let b=mk(SW,'SW1');
+for (const x of ['spanning-tree mode abc','spanning-tree vlan abc','spanning-tree vlan 10 priority abc','interface Fa0/1','switchport port-security maximum abc','switchport port-security violation abc','power inline limit abc','storm-control broadcast level abc','channel-group 1 mode active','exit','monitor session 1 source interface Fa0/1','monitor session abc source interface Fa0/1']) p(b.s,x);

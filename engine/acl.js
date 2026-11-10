@@ -224,8 +224,13 @@ function parseEntry(line, aclNumber) {
 
   const protocol = String(tokens[i] === undefined ? '' : tokens[i]).toLowerCase();
   if (PROTOCOLS.indexOf(protocol) === -1) {
-    return err('E_PROTOCOL', 'extended entry needs a protocol (ip, tcp, udp, icmp), got "' +
-      (tokens[i] || '') + '"');
+    // A bare `permit` is a prefix, not a mistake: say what the line is missing and show a full one.
+    // It used to answer `extended entry needs a protocol ... got ""` - an empty value quoted at the
+    // operator, and the "needs" wording read as a complaint about the help row itself.
+    if (tokens[i] === undefined) {
+      return err('E_PROTOCOL', 'a permit or deny with no protocol - e.g. "permit tcp any any eq 443"');
+    }
+    return err('E_PROTOCOL', 'unknown protocol "' + protocol + '" (use ip, tcp, udp or icmp)');
   }
   i++;
 
@@ -245,7 +250,12 @@ function parseEntry(line, aclNumber) {
     if (PORT_OPS.indexOf(t) !== -1) {
       if (port) return err('E_PORT', 'only one port operator is allowed per entry');
       const value = parsePort(tokens[i + 1]);
-      if (value === null) return err('E_PORT', 'bad port value "' + (tokens[i + 1] === undefined ? '' : tokens[i + 1]) + '"');
+      if (value === null) {
+        // A missing value used to be quoted as an empty string: `bad port value ""`.
+        return tokens[i + 1] === undefined
+          ? err('E_PORT', 'missing port after "' + tokens[i] + '"')
+          : err('E_PORT', 'bad port value "' + tokens[i + 1] + '"');
+      }
       port = { op: t, value: value };
       i++;
       continue;

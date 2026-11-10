@@ -350,6 +350,15 @@ class Device {
     // VLAN shortcut below.
     if (owner.role && inIface.role && owner.role !== inIface.role) return null;
 
+    // A router owns every address configured on it, whichever port the packet arrived by. A packet
+    // for Gi0/1's address that arrives on Gi0/0 is addressed to this box and must be answered here.
+    // It was not: R2 received an echo for its own 10.9.9.2 on Gi0/0, failed this test, and the
+    // simulator then took the L3 path - looked up a route to 10.9.9.2 and ARP'd for itself on Gi0/1
+    // until the ping timed out. Every address except the one on the ingress port was unreachable
+    // from a router that held it, and `ping` reported a silent timeout with no drop event at all.
+    // The role check above still wins: a LAN address is not reachable from a WAN port.
+    if (typeof this.isL3 === 'function' && this.isL3()) return owner;
+
     // A switch's management address belongs to a VLAN, not to a socket, so any port
     // in that same access VLAN can reach it. Scoped to access ports on both sides:
     // a router subinterface is a tagged logical interface, and answering a tagged

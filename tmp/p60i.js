@@ -1,0 +1,10 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r=t.addDevice(R);r.name='R2';
+for (const i of r.interfaces.values()) console.log(i.name, 'role=', i.role, 'bridgeGroup=', i.bridgeGroup, 'type=', i.type);
+console.log('isL3', r.isL3 && r.isL3(), 'isL2', r.isL2 && r.isL2());
+const s=new CliSession(r,t,new Simulator(t));s.run('enable');s.run('configure terminal');
+s.run('interface Gi0/0');s.run('ip address 10.0.0.2 255.255.255.0');s.run('exit');
+s.run('interface Gi0/1');s.run('ip address 10.9.9.2 255.255.255.0');s.run('exit');s.run('end');
+console.log('ownsIpOn(Gi0/0, 10.9.9.2) ->', r.ownsIpOn('Gi0/0','10.9.9.2') && r.ownsIpOn('Gi0/0','10.9.9.2').name);
+console.log('roles now:', [...r.interfaces.values()].map(i=>i.name+':'+i.role).join(' '));

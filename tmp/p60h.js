@@ -1,0 +1,13 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const r2=t.addDevice(R);r2.name='R2';
+t.connect(r1.id,'Gi0/0',r2.id,'Gi0/0');const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds)s.run(x);s.run('end');return s;};
+cfg(r1,['interface Gi0/0','ip address 10.0.0.1 255.255.255.0','exit','ospf router-id 1.1.1.1','ospf area 0']);
+cfg(r2,['interface Gi0/0','ip address 10.0.0.2 255.255.255.0','exit','interface Gi0/1','ip address 10.9.9.2 255.255.255.0','exit','ospf router-id 2.2.2.2','ospf area 0']);
+for (const i of r2.interfaces.values()) console.log('R2 iface', i.name, i.ip||'-', i.mask||'-', 'enabled', i.enabled);
+console.log('R2 routeTo 10.9.9.2:', JSON.stringify(r2.routeTo('10.9.9.2')));
+const s=new CliSession(r1,t,sim);s.run('enable');
+console.log('R1 ping 10.9.9.2 details:', JSON.stringify(sim.ping(r1.id,'10.9.9.2',{count:1}).replies[0]));
+const ev = sim.events.slice(-14).map(e=>JSON.stringify(e).slice(0,140));
+ev.forEach(e=>console.log(' ev', e));

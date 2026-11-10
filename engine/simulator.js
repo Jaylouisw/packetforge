@@ -1328,6 +1328,7 @@ class Simulator {
     for (const dev of this.topo.devices.values()) {
       dev.ospfRoutes = [];
       dev.ospfNeighbors = [];
+      dev.ospfAreaMismatch = [];
       const cfg = dev.config && dev.config.ospf;
       if (!cfg || !cfg.routerId) continue;
 
@@ -1358,6 +1359,7 @@ class Simulator {
 
     // Adjacencies: a link between two OSPF speakers that both address it.
     const links = [];
+    const areaMismatch = [];
     for (const l of this.topo.links.values()) {
       const a = byId[l.a.deviceId];
       const b = byId[l.b.deviceId];
@@ -1373,10 +1375,33 @@ class Simulator {
       // A misconfigured router is exactly what the subnet check exists to catch (#240).
       if (String(ai.mask) !== String(bi.mask)) continue;
       if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
+      // An adjacency requires both ends to sit in the same OSPF area - the first rule in RFC 2328,
+      // and the one engine/ospf.js's own header states ("a link is usable only when both endpoints
+      // sit in the same area"). The area was configurable, displayed, and never compared: two
+      // routers in areas 1 and 2 formed a FULL adjacency and exchanged routes. A mismatched link is
+      // recorded rather than silently dropped, so `show ip ospf neighbor` can say why.
+      if (ai.area !== bi.area) {
+        areaMismatch.push({
+          a: { dev: a.dev, iface: ai.name, area: ai.area },
+          b: { dev: b.dev, iface: bi.name, area: bi.area }
+        });
+        continue;
+      }
       links.push({
         a: { router: l.a.deviceId, iface: l.a.iface },
         b: { router: l.b.deviceId, iface: l.b.iface },
         cost: 10
+      });
+    }
+
+    // Each side sees the link that was excluded, and why: an operator with a cable in place and no
+    // neighbour in the table needs the reason, not an empty table.
+    for (const m of areaMismatch) {
+      m.a.dev.ospfAreaMismatch.push({
+        peer: m.b.dev.name || m.b.dev.id, peerArea: m.b.area, iface: m.a.iface, area: m.a.area
+      });
+      m.b.dev.ospfAreaMismatch.push({
+        peer: m.a.dev.name || m.a.dev.id, peerArea: m.a.area, iface: m.b.iface, area: m.b.area
       });
     }
 
@@ -3243,7 +3268,22 @@ class Simulator {
         return;
       }
       const sameGroup4 = owner.bridgeGroup && inIf4 && inIf4.bridgeGroup === owner.bridgeGroup;
-      const replyIface = sameGroup4 ? inIf4 : owner;
+      // Which port the reply leaves by. `owner` - the port that holds the address - is wrong when the
+      // echo arrived on a different port: R2 answered a ping for its own 10.9.9.2 (on Gi0/1) that
+      // arrived on Gi0/0, and the reply was then sent into Gi0/1's empty socket, so the ping timed out
+      // with no drop event anywhere. A router sources the reply from the address that was pinged and
+      // routes it back to the sender; the ingress port is the fallback when there is no route yet.
+      // (The L2 case below already had this comment; the echo path never got the fix.)
+      let replyIface = sameGroup4 ? inIf4 : owner;
+      if (!sameGroup4) {
+        let back = null;
+        if (typeof dev.routeTo === 'function') {
+          try { back = dev.routeTo(frame.ip.src); } catch (e) { back = null; }
+        }
+        const backIface = back && back.iface ? dev.interfaces.get(back.iface) : null;
+        if (backIface && backIface.enabled && backIface.ip) replyIface = backIface;
+        else if (inIf4 && inIf4.enabled && inIf4.ip) replyIface = inIf4;
+      }
       this._emit({ type: 'icmp-echo', dev: dev.id, iface: replyIface.name, from: frame.ip.src, seq: icmp.seq, vlan: vid });
       const replyIp = { src: frame.ip.dst, dst: frame.ip.src, ttl: 64, proto: 1, id: icmp.id };
       const replyIcmp = { type: net.ICMP_ECHO_REPLY, code: 0, id: icmp.id, seq: icmp.seq };

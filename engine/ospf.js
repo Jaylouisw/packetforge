@@ -657,6 +657,7 @@ function areasOf(routers) {
 module.exports = {
   OSPF_PROTOCOL,
   OSPF_ADMIN_DISTANCE,
+  parseAreaId,
   DEFAULT_COST,
   DEFAULT_HELLO_SEC,
   DEFAULT_DEAD_SEC,

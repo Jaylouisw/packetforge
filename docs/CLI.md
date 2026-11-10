@@ -917,6 +917,51 @@ range complaint).
 10.0.0.999` at the console. `isIp()` now keeps the regex as a first pass and lets the parser decide,
 which fixes that class of answer everywhere it is used, not only in `ip route`.
 
+### An area id, and the rule it was never used for
+
+`ospf area` read its id with `parseInt`, which meant two things were true at once: half the range the
+model allows (`0-4294967295`) was unreachable, and the dotted-quad form — the one RFC 2328 prints —
+was **truncated at its first dot**:
+
+```
+R1(config)#ospf area 255.255.255.255
+OSPF area 255
+```
+
+That is not a refusal and it is not the number that was typed. `engine/ospf.js` already had
+`parseAreaId()`, which accepts both spellings and returns the 32-bit value it compares; the console
+now uses it:
+
+```
+R1(config)#ospf area 255.255.255.255
+OSPF area 4294967295
+R1(config)#ospf area 0.0.0.1
+OSPF area 1
+R1(config)#ospf area 4294967296
+% "4294967296" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)
+```
+
+**The area was also never compared.** RFC 2328's first rule is that both ends of a link must sit in
+the same area, and `engine/ospf.js`'s own header says so — but two routers in areas 1 and 2 formed a
+FULL adjacency and exchanged routes, so the field was configurable, displayable and inert:
+
+```
+R1(config)#ospf area 1
+R1(config)#ospf router-id 1.1.1.1        # R2 is in area 2
+R1#show ip ospf neighbor
+Neighbor ID     Pri   State           Address         Interface
+(no adjacencies - no neighbour passed the passive, subnet and area checks)
+% R2 on Gi0/0 is in area 2 and this interface is in area 1 - no adjacency without a matching area
+R1#show ip route ospf
+% No OSPF routes in the table
+% Codes present: connected
+```
+
+A cabled peer that is not a neighbour is the question the table raises, so the table answers it: the
+mismatched link is recorded during the SPF and named afterwards, with both areas. A per-interface
+`ip ospf area` still overrides the process default, and `show ip ospf` reports the interface's own
+area — so an ABR with two areas is configured and read the same way it always was.
+
 ### show ip route — now, or at an instant
 
 The plain command prints the table **as it stands now**, and getting there means deriving the
