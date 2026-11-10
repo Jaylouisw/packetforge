@@ -718,5 +718,37 @@ console.log('\nG.fast on the same rj11 socket, and still four rj45 sockets (#692
   ok(t21.validateLink(r3.id, 'lan1', pc9.id, 'eth0', {}).ok, 'V2766-K: a LAN port takes a copper host');
 }
 
+console.log('\nA box OLT is a port count, and Flex-PON is not one rate (#786, #787):');
+{
+  const fam = { 'EA5801E-GP04-H2': 4, 'EA5801E-GP08-H3': 8, 'EA5801E-GP16-H2': 16 };
+  Object.keys(fam).forEach(function (model) {
+    const s = find(model);
+    const ports = effectiveInterfaces(s);
+    eq(ports.filter(function (p) { return p.type === 'pon'; }).length, fam[model],
+      model + ': ' + fam[model] + ' GPON service ports, as the model table states');
+    const ups = ports.filter(function (p) { return p.type === 'ethernet'; });
+    eq(ups.length, 4, model + ': four 10GE/GE upstream ports');
+    ok(ups.every(function (p) { return p.speedCaps.indexOf(1000) !== -1 && p.speedCaps.indexOf(10000) !== -1; }),
+      model + ': the uplink cages take GE or 10GE optics - both rates on the ladder');
+  });
+
+  // Flex-PON: the port rate follows the module, so the ladder must include XGS-PON.
+  const fl = find('EA5801S-FL16');
+  const flex = effectiveInterfaces(fl).filter(function (p) { return p.type === 'pon'; });
+  eq(flex.length, 16, 'EA5801S-FL16: sixteen Flex-PON ports');
+  ok(flex.every(function (p) { return p.speedCaps.indexOf(9953) !== -1; }),
+    'EA5801S-FL16: XGS-PON (9953) is on the ladder - Flex means the module sets the rate');
+  ok(flex.every(function (p) { return p.speedCaps.indexOf(1244) !== -1; }),
+    'EA5801S-FL16: and so is GPON, so the same port can be either');
+
+  // The link that matters: an OLT PON port to an ONT, at the GPON downstream rate.
+  const t22 = new Topology();
+  const olt = t22.addDevice(fl);
+  const ont = t22.addDevice(find('411'));
+  const pon = t22.validateLink(olt.id, 'pon1', ont.id, 'pon', {});
+  ok(pon.ok && pon.speedMbps === 2488,
+    'EA5801S-FL16: pon1 links to an ONT at 2488 Mbps (' + (pon.mediaName || (pon.media || [])[0]) + ')');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

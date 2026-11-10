@@ -1,0 +1,144 @@
+{
+  "vendor": "huawei",
+  "model": "EA5801E-GP08-H3",
+  "label": "Huawei OptiXaccess EA5801E-GP08-H3 box OLT",
+  "category": "olt",
+  "description": "Huawei OptiXaccess EA5801E (GP08-H3) - 1U box-shaped GPON OLT with 8 GPON service ports, 4x 10GE/GE SFP+ upstream ports, 110 Gbit/s switching capacity, up to 256 ONTs, dual DC or AC power supplies. -40 to +65 C.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    }
+  ],
+  "icon": "olt",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/optixaccess-ea5801e.html",
+  "notes": "From the model table: **8 GPON service ports** and **4x 10GE/GE upstream ports**, 110 Gbit/s switching capacity, 256 ONTs. The upstream ports are 10GE/GE cages, so `speedCaps` carries both 1000 and 10000 rather than a bare 10G - a GE optic in the cage must run at 1G. The GPON service ports are 2.5G downstream / 1.25G upstream, which is what `speedCaps: [1244, 2488]` records on every OLT in this catalogue. The datasheet publishes **no ferrule polish** for the PON connectors; `sc-apc` is this catalogue's PON default and matches every other OLT here, so it is an inherited convention rather than a quoted fact - recorded because a UPC/APC mismatch is a real, invisible loss. The eight-PON member; the only model in the family offered with both DC and AC supplies."
+}

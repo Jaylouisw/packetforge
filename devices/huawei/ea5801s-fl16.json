@@ -1,0 +1,240 @@
+{
+  "vendor": "huawei",
+  "model": "EA5801S-FL16",
+  "label": "Huawei OptiXaccess EA5801S-FL16 outdoor blade OLT",
+  "category": "olt",
+  "description": "Huawei OptiXaccess EA5801S-FL16 - compact IP65 outdoor blade OLT with 16 Flex-PON service ports and 4x 10GE/GE upstream ports, 460 Gbit/s switching capacity and up to 2048 ONTs. Pre-connected end to end so no fibre splicing is needed on site; DC or AC power; 132-135 W maximum.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon9",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon10",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon11",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon12",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon13",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon14",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon15",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon16",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    }
+  ],
+  "icon": "olt",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/optixaccess-ea5801s-fl16.html",
+  "notes": "**16 Flex-PON ports**, and 'Flex' is the load-bearing word: the port rate is set by the optical module fitted, so one port can be GPON (2.5G/1.25G), XGS-PON (10G/10G) or a GPON Combo module. `speedCaps: [1244, 2488, 9953]` records that range rather than pinning the port at one rate - a lab that assumes all sixteen are GPON would mis-price a 10G PON run. The four upstream ports are **10GE/GE** cages, so both rates are on the ladder. IP65 and -40 to +50 C with solar radiation: this is an outdoor cabinet device, not indoor kit, and the surge protection figures (20 kA AC) point the same way. Maximum power consumption is 132 W (DC) / 135 W (AC) with all sixteen ports at XGS COMBO and 4x 10GE uplinks running - the datasheet states the conditions, which is why the number is quoted with them rather than alone. No PoE in or out, and no ferrule polish is published for the PON connectors: `sc-apc` is the catalogue's PON convention."
+}
