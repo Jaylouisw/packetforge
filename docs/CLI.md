@@ -2921,6 +2921,27 @@ one: a declared VLAN is a record (`{ name }`), so reading it as a string printed
 `show vlan [<id>|brief]` while the operator had typed `show vlan name users`, so the synopsis now
 matches the form that was used.
 
+**The match is exact, not a prefix**, which surprises anyone used to IOS completing names for them.
+Measured on a switch with VLAN 20 named `GUEST`:
+
+```text
+SW1#show vlan name GUEST
+VLAN  Name   Status  Ports
+20    GUEST  active  (no ports)
+
+SW1#show vlan name guest
+VLAN  Name   Status  Ports
+20    GUEST  active  (no ports)
+
+SW1#show vlan name GUE
+% No VLAN named "GUE" on SW1
+% Names here: GUEST
+```
+
+Case does not matter; a shortened name is a miss like any other, and the miss is the useful half —
+the refusal prints the names that *are* configured, so `GUE` costs one extra command rather than a
+hunt through `show vlan`.
+
 ### Three settings the detail view printed and nothing could configure
 
 `show port-security interface` printed this from the day the feature landed:
