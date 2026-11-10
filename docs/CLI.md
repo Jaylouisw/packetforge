@@ -1178,6 +1178,66 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A port that can refuse power, and a console that could not
+
+PoE was one of the most completely modelled planes in this simulator: a budget per device, an
+allocation per port, a powered device marked unpowered, and its frames refused with `poe-deny`. The
+one decision an operator actually makes about it did not exist:
+
+```
+SW1(config-if)#power inline never
+% Unrecognized interface command: power inline never
+% Unrecognized config command: power inline never
+```
+
+Power was only ever withheld by a budget running out — a number the operator could watch but not
+spend. `power inline never` is how you free budget for a camera that needs it:
+
+```
+SW1#show power inline
+Power inline on SW1:
+  Budget       : 67 W  (from research)
+  Used         : 14 W
+  Available    : 53 W
+  Port    Admin   Powered device        Requested  Status
+  1       auto    AP1                   7 W        on
+  2       auto    AP2                   7 W        on
+
+SW1(config)#interface 1
+SW1(config-if)#power inline never
+Power inline on 1 set to never (was auto)
+  No device on this port will be powered, and its watts are freed for other ports.
+  AP1 is on this port and will lose power on the next run
+
+SW1#show power inline
+  Used         : 7 W
+  Available    : 60 W
+  Port    Admin   Powered device        Requested  Status
+  1       never   AP1                   7 W        off (administratively)
+  2       auto    AP2                   7 W        on
+```
+
+The refusal is a decision, so it is checked **before** the budget and recorded as its own event
+(`poe-admin-off`), not as a shortage: the port is refused and its watts stay available to the ports
+that do want them. `no power inline` returns the port to auto, and says what that does and does not
+promise (`a detected device will be powered` — whether it gets the watts is still the budget's
+answer).
+
+```
+SW1(config-if)#power inline static
+% "power inline static" (pre-allocated power) is not modelled
+% This PSE grants power when a device is detected and refuses it when the budget runs out;
+% pre-allocation would reserve budget for a port that may never use it, which changes
+% nothing this simulator measures. Use "power inline never" to withhold, or "auto".
+SW2(config-if)#power inline never
+% SW2 does not source PoE, so Fa0/1 has no power to give
+% PoE-out ports appear in "show power inline" on the devices that have them
+```
+
+A port that cannot source power names the ports that can; a device that cannot source power at all
+says so instead. The line appears in `show running-config` inside its interface block and pastes
+back, so a withheld port is not silently re-powered by a restore.
+
 ### The table a switch operator lives in, and the state column that lied
 
 Two commands an operator types before anything else did not exist, and the state column they read was

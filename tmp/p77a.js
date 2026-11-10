@@ -1,0 +1,12 @@
+const path=require('path');
+const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));
+const withPoe=c.filter(d=>d.poeBudget);
+console.log('devices with poeBudget:', withPoe.length);
+const ports=(withPoe[0]||{});
+console.log('sample:', ports.model, ports.label, 'budget=', ports.poeBudget);
+const pse=withPoe.find(d=>(d.interfaces||d.ports||[]).some?true:true);
+const pd=c.filter(d=>(d.interfaces||[]).some&&(d.interfaces||[]).some(i=>i.poeIn));
+console.log('PDs with poeIn:', pd.length, pd.slice(0,3).map(d=>d.model).join(','));
+const s=withPoe.slice(0,4).map(d=>d.model+': ports='+((d.interfaces||[]).length)+' poeOut='+((d.interfaces||[]).filter(i=>i.poeOut).length)).join(' | ');
+console.log(s);

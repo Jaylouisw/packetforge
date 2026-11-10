@@ -1,0 +1,21 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));
+const pse=c.find(d=>/2530-8-PoE/.test(d.model))||c.find(d=>d.poe&&d.poe.budgetW);
+const pd=c.find(d=>/EP-R6/.test(d.model));
+console.log('PSE:', pse.model, 'budgetW:', pse.poe&&pse.poe.budgetW);
+console.log('PSE ports:', (pse.interfaces||[]).map(i=>i.name+(i.poeOut?'(poe '+i.poeOut+'W)':'')).join(', '));
+const t=new Topology();const sw=t.addDevice(pse);const ap=t.addDevice(pd);const ap2=t.addDevice(pd);
+sw.name='SW1';ap.name='AP1';ap2.name='AP2';
+const poePorts=(sw.interfaces?Array.from(sw.interfaces.values()).filter(i=>i.hardware&&i.hardware.poeOut):[]).map(i=>i.name);
+console.log('runtime poe ports:', poePorts.join(','));
+t.connect(ap.id,'eth0',sw.id,poePorts[0]);
+if(poePorts[1])t.connect(ap2.id,'eth0',sw.id,poePorts[1]);
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const s=mk(sw);
+const show=x=>{const o=s.run(x).output;console.log('$ '+x);o.forEach(l=>console.log('  '+l));};
+show('show power inline');
+console.log('poe table after a ping-ish refresh:', JSON.stringify(sim.poe&&sim.poe.slice(0,4)));
+console.log('AP1 poeUnpowered:', ap.poeUnpowered, ' AP2:', ap2.poeUnpowered);
+s.run('configure terminal'); s.run('interface '+poePorts[0]);
+for(const cmd of ['power inline never','power inline auto','power inline static']){const r=s.run(cmd).output;console.log('cfg '+cmd+' => '+(r.join(' | ')||'(silent)'));}

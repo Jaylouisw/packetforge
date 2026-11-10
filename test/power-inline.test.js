@@ -42,9 +42,12 @@ function show(env, dev, cmd) {
   ok(/Budget\s+: 370 W\s+\(from research\)/.test(out), 'the budget and where it came from');
   ok(new RegExp('Used\\s+: ' + (draw * 2)).test(out), 'total draw is both devices');
   ok(/Available\s+: 344\.1 W/.test(out), 'the headroom is the remainder');
-  ok(/Port\s+Powered device\s+Requested\s+Status/.test(out), 'the per-port table has a header');
-  ok(/1\/1\/1\s+PD1\s+12\.95 W\s+on/.test(out), 'the first port powers PD1');
-  ok(/1\/1\/2\s+PD2\s+12\.95 W\s+on/.test(out), 'the second port powers PD2');
+  // The Admin column was added when `power inline never` was implemented: a port is now withheld by a
+  // decision as well as by the budget, so the table has to show which of the two withheld it.
+  ok(/Port\s+Admin\s+Powered device\s+Requested\s+Status/.test(out),
+    'the per-port table has a header, with the administrative state');
+  ok(/1\/1\/1\s+auto\s+PD1\s+12\.95 W\s+on/.test(out), 'the first port powers PD1');
+  ok(/1\/1\/2\s+auto\s+PD2\s+12\.95 W\s+on/.test(out), 'the second port powers PD2');
   ok(!/denied/.test(out), 'nothing is denied when the budget covers everything');
 
   const pdView = show(env, env.pd1, 'show power inline');

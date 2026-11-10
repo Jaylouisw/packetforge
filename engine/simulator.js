@@ -2556,11 +2556,25 @@ class Simulator {
         if (!peerIface || !peerIface.poeIn) continue;   // not a powered device
 
         const draw = peerIface.poeIn;
+        // `power inline never` is the administrator withholding power from this port. It is checked
+        // before the budget because it is a decision, not a shortage: the port is refused and its
+        // watts stay available to the ports that do want them.
+        const ifaceRec = dev.interfaces.get(name);
+        const admin = (ifaceRec && ifaceRec.poeAdmin) || 'auto';
+        if (admin === 'never') {
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: false, admin: 'never' });
+          peer.poeUnpowered = true;
+          this._emit({
+            type: 'poe-admin-off', dev: dev.id, iface: name, pd: other.id, draw: draw,
+            reason: 'power inline never on ' + name + ': the port is administratively without power'
+          });
+          continue;
+        }
         if (remaining >= draw) {
           remaining -= draw;
-          ports.push({ iface: name, pd: other.id, draw: draw, powered: true });
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: true, admin: admin });
         } else {
-          ports.push({ iface: name, pd: other.id, draw: draw, powered: false });
+          ports.push({ iface: name, pd: other.id, draw: draw, powered: false, admin: admin });
           peer.poeUnpowered = true;
           this._emit({
             // Not `poe-deny`: this is the budget being computed, not a frame being refused. The

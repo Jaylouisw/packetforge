@@ -1104,6 +1104,10 @@ class CliSession {
       out.push.apply(out, this._portSpeed(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
     } else if (head === 'duplex' || (head === 'no' && tokens[1] === 'duplex')) {
       out.push.apply(out, this._portDuplex(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
+    } else if (head === 'power' && tokens[1] === 'inline') {
+      out.push.apply(out, this._portPowerInline(tokens.slice(2), iface, false));
+    } else if (head === 'no' && tokens[1] === 'power' && tokens[2] === 'inline') {
+      out.push.apply(out, this._portPowerInline(tokens.slice(3), iface, true));
     } else if (head === 'no' && tokens[1] === 'encapsulation' &&
                String(tokens[2] || '').toLowerCase().indexOf('dot1') === 0) {
       // Every other verb in this block has a `no` form; `encapsulation dot1q` did not, so the tag
@@ -2725,6 +2729,72 @@ class CliSession {
     if (counts.blocking) {
       out.push('  ' + counts.blocking + ' port' + (counts.blocking === 1 ? ' is' : 's are') +
         ' blocking: the loop is cut, which is the tree working');
+    }
+    return out;
+  }
+
+  // Power inline: whether this port will feed a powered device.
+  //
+  // The PSE side of PoE was fully computed - a budget, an allocation per port, a PD marked
+  // `poeUnpowered`, frames refused with `poe-deny` - and the console could not refuse a port: the
+  // only way power was withheld was a budget the operator could not see running out. `power inline
+  // never` is how a real operator frees budget for a camera, and it did not exist.
+  _portPowerInline(args, iface, isNo) {
+    const usage = isNo ? 'no power inline' : 'power inline <auto|never>';
+    const dev = this.device;
+    // The first word is the value, so only the words after it can be extra.
+    const extra = this._noExtra(args, 1, usage);
+    if (extra) return extra;
+    if (isNo && args.length) {
+      return ['% no power inline takes no word - it returns the port to auto',
+        '% Usage: no power inline'];
+    }
+    // A port that cannot source power has nothing to be told; the refusal names the reason.
+    if (!iface.poeOut) {
+      const sourcing = Array.from(dev.interfaces.values()).filter(function (i) { return i.poeOut; });
+      if (!sourcing.length) {
+        return ['% ' + (dev.name || dev.id) + ' does not source PoE, so ' + iface.name +
+          ' has no power to give',
+          '% PoE-out ports appear in "show power inline" on the devices that have them'];
+      }
+      return ['% ' + iface.name + ' is not a PoE-out port on ' + (dev.name || dev.id),
+        '% The ports that can source power are: ' +
+        sourcing.slice(0, 8).map(function (i) { return i.name; }).join(', ') +
+        (sourcing.length > 8 ? ', ...' : '')];
+    }
+    const current = iface.poeAdmin || 'auto';
+    const want = isNo ? 'auto' : String(args[0] || '').toLowerCase();
+    if (!isNo && !want) return ['% Incomplete command: ' + usage,
+      '% "power inline never" withholds power from this port; "auto" feeds a detected device'];
+    if (want === 'static') {
+      return ['% "power inline static" (pre-allocated power) is not modelled',
+        '% This PSE grants power when a device is detected and refuses it when the budget runs out;',
+        '% pre-allocation would reserve budget for a port that may never use it, which changes',
+        '% nothing this simulator measures. Use "power inline never" to withhold, or "auto".'];
+    }
+    if (want !== 'auto' && want !== 'never') {
+      return ['% Power inline is auto or never, not "' + want + '"',
+        '% Usage: ' + usage];
+    }
+    if (want === 'auto') {
+      if (current === 'auto') {
+        return ['Power inline on ' + iface.name + ' is already auto (power is granted to a detected device)'];
+      }
+      iface.poeAdmin = 'auto';
+      return ['Power inline on ' + iface.name + ' is auto: a detected device will be powered',
+        '  (whether it gets the watts still depends on the port budget - see "show power inline")'];
+    }
+    // never
+    if (current === 'never') {
+      return ['Power inline on ' + iface.name + ' is already never - no device is being fed'];
+    }
+    iface.poeAdmin = 'never';
+    const out = ['Power inline on ' + iface.name + ' set to never (was ' + current + ')',
+      '  No device on this port will be powered, and its watts are freed for other ports.'];
+    const peer = iface.peer;
+    if (peer) {
+      const pd = this.sim && this.sim.topo.getDevice(peer.deviceId);
+      if (pd) out.push('  ' + (pd.name || pd.id) + ' is on this port and will lose power on the next run');
     }
     return out;
   }
@@ -4987,6 +5057,9 @@ class CliSession {
       if (i.mtuConfigured) out.push('  mtu ' + i.mtu);
       if (i.speedConfigured) out.push('  speed ' + (i.speedMbps || i.speed));
       if (i.duplexConfigured) out.push('  duplex ' + i.duplex);
+      // A port without power is a decision that has to survive a paste: the budget it frees is the
+      // reason the line was typed, and a dump that dropped it would silently re-power the device.
+      if (i.poeAdmin && i.poeAdmin !== 'auto') out.push('  power inline ' + i.poeAdmin);
       if (i.natRole) out.push('  ip nat ' + i.natRole);
       if (i.stpCost !== undefined) out.push('  spanning-tree cost ' + i.stpCost);
       const lag = dev.lagFor ? dev.lagFor(i.name) : null;
@@ -7173,13 +7246,22 @@ class CliSession {
       if (!rec.ports.length) {
         out.push('  (no powered device is attached)');
       } else if (!shown.length) {
-        out.push('  ' + only + ': no powered device on this port');
+        // A port can be administratively without power and still cabled to a device; the filter has
+        // to say which of those two it is, or `show power inline <port>` is silent about the port
+        // the operator just changed.
+        const ifaceRec = dev.interfaces.get(only);
+        out.push('  ' + only + ': no powered device on this port' +
+          (ifaceRec && ifaceRec.poeAdmin === 'never' ? ' (power inline never)' : ''));
       } else {
-        out.push('  ' + pad('Port', 14) + pad('Powered device', 22) + pad('Requested', 11) + 'Status');
+        out.push('  ' + pad('Port', 8) + pad('Admin', 8) + pad('Powered device', 22) +
+          pad('Requested', 11) + 'Status');
         for (const p of shown) {
           const pd = sim.topo.getDevice(p.pd);
-          out.push('  ' + pad(p.iface, 14) + pad(pd ? pd.name : p.pd, 22) + pad(p.draw + ' W', 11) +
-            (p.powered ? 'on' : 'denied (budget exhausted)'));
+          const status = p.powered
+            ? 'on'
+            : (p.admin === 'never' ? 'off (administratively)' : 'denied (budget exhausted)');
+          out.push('  ' + pad(p.iface, 8) + pad(p.admin || 'auto', 8) + pad(pd ? pd.name : p.pd, 22) +
+            pad(p.draw + ' W', 11) + status);
         }
       }
     } else if (sourcing.length) {
@@ -7202,6 +7284,9 @@ class CliSession {
         out.push('  ' + pad(i.name, 14) + i.poeIn + ' W requested from ' + where + ' - no PSE answers');
       } else if (port.powered) {
         out.push('  ' + pad(i.name, 14) + port.draw + ' W from ' + where + ' - powered');
+      } else if (port.admin === 'never') {
+        out.push('  ' + pad(i.name, 14) + port.draw + ' W from ' + where +
+          ' - refused (the PSE port is administratively without power)');
       } else {
         out.push('  ' + pad(i.name, 14) + port.draw + ' W from ' + where + ' - denied (PSE budget exhausted)');
       }
@@ -7603,7 +7688,9 @@ class CliSession {
       helpLine('mtu <68-9216>', 'largest frame this port carries; flows derive their MSS from it'),
       helpLine('speed <mbps>|auto', 'port speed; the spanning-tree path cost follows it'),
       helpLine('duplex full|auto', 'duplex (half is refused: no collisions are modelled)'),
-      helpLine('no mtu | no speed | no duplex', 'back to the default, negotiation, or auto'),
+      helpLine('power inline auto|never', 'whether this port feeds a PoE device (frees its watts)'),
+      helpLine('no mtu | no speed | no duplex | no power inline',
+        'back to the default, negotiation, auto, or powered'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),
