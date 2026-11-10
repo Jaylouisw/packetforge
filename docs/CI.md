@@ -440,6 +440,33 @@ services, and a job that has to swap makes the whole queue slower.
     that a quarantined file whose entire purpose is to record the stale URL is not a violation. The two
     assertions that depended on a clean tree followed the exemption.
 
+- **One suite is red on the current tree, and it is red on wording, not behaviour.**
+  `test/block-stray-words.test.js` reports **15 passed, 4 failed**. The four failures all match one
+  regex — `/is not an argument to "shutdown"/`, and the same shape for `no ip address`,
+  `no description` and `no lease`. The engine refuses the line, but with a different sentence:
+
+  ```text
+  D1(config-if)#shutdown zzzz
+  % Unexpected argument "zzzz" - shutdown takes no more
+
+  D1(config-if)#no ip address zzzz
+  % Unexpected argument "zzzz" - no ip address takes no more
+  ```
+
+  The refusal is real and the state is untouched — the suite's own `✓ the port was not taken down by
+  the refused line` and `✓ the lease is still configured after the refused line` both pass, and the
+  183-row sweep at the end passes too. So the fix is four regexes in the test, not a change in the
+  engine, and until somebody makes it the suite stays red. Count the damage rather than trusting this
+  paragraph:
+
+  ```bash
+  node test/block-stray-words.test.js    # 15 passed, 4 failed
+  ```
+
+  Worth knowing that the two suites this page used to carry here are **green** now
+  (`spec-vs-description` 3/0, `canonical-urls` 43/0), so "the known-red suites" is a set that moves in
+  both directions — re-run all three before repeating any of it.
+
 - **Nothing checks that the generated wiki is current.** `docs/wiki/` is written by
   `scripts/build-wiki.js` from text templates held in that script, and no job runs
   it — `grep -r wiki .forgejo/workflows/` returns nothing. So the pages drift, and
