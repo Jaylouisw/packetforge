@@ -6314,21 +6314,72 @@ path is the one `pingScion()` would carry.
 
 ## Refusal codes: the ones you will actually meet
 
-The engine defines **145** distinct `E_*` codes, and **whether the console shows you one depends on
+The engine defines **147** distinct `E_*` codes, and **whether the console shows you one depends on
 the family** — measured, not assumed. Count them yourself; the number is the distinct quoted `E_`
 strings across `engine/`, which is the only reading that ignores identifiers and comments:
 
 ```
-grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 145
+grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 147
+grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 145, **47** appear as rows in the tables below and **69** distinct `E_` tokens appear anywhere
+Of those 147, **47** appear as rows in the tables below and **70** distinct `E_` tokens appear anywhere
 in this document. The rest are reachable only through `validateTopology()`, the API, or a surface that
 prints prose instead of the code, which is what the next table is about — so a code missing from the
 tables is not necessarily a code that cannot happen, it is a code you cannot see from this console.
 
 Count them rather than trusting the numbers, and count **tokens**, not substrings: looking for each
 engine code with `in` finds `E_PORT` inside `E_PORT_PROTOCOL` and inflates the figure by a couple.
+
+### The other vocabulary: warnings
+
+`W_*` is a second set of eleven codes, and this appendix used to ignore it entirely — which is why a
+reader who greps for `W_` finds names no page explains. They are not refusals: nothing is rejected,
+the command succeeds and the warning rides back with it, so a rule that only looks for `% ` lines
+misses all of them.
+
+| Code | Raised by | What it means |
+|---|---|---|
+| `W_ACCESS_ON_TRUNK` | `vlan.js:440` | `switchport access vlan N` on a port currently in trunk mode — stored, but inert until the port goes access |
+| `W_DUP_VLAN_IN_LIST` | `vlan.js:417` | the same VLAN twice in an allowed list; the list is de-duplicated |
+| `W_VLAN1_AS_NATIVE` | `vlan.js:435` | VLAN 1 as the trunk native — legal, and the usual way to leak untagged frames between switches |
+| `W_LAG_DISABLED_MEMBER` | `lag.js:288` | a LAG member whose port is administratively down; the bundle keeps it but does not use it |
+| `W_SPEED_DOWNGRADE` | `validation.js:126` | the two ends negotiated a lower rate than the medium could carry |
+| `W_COPPER_LONGRUN` | `validation.js:134` | copper past the length its BASE-T standard allows |
+| `W_HYBRID_CORD` | `validation.js:138` | a patch cord whose polish matches neither end exactly — see `docs/HYBRID-PATCH.md` |
+| `W_OPTICAL_HEADROOM` | `validation.js:712` | within budget, but with less margin than the part is specified for |
+| `W_POE_DRAW` | `validation.js:130` | the load fits, but close to the PSE's limit |
+| `W_DUPLEX_MISMATCH` | `validation.js:122` | one end half duplex, the other full |
+| `W_DISTANCE` | `cli.js:9659` | an administrative distance outside the range the engine expects — a warning, not a refusal, so a lab can hold a route that will never be used |
+
+### The 22 codes no page names
+
+Of the 159 distinct quoted `[EW]_` strings in `engine/`, two are prefix literals (`'E_'`, `'W_'`) and
+the other **157 are real codes**; of those, **22 appear in no document at all**. They are not missing
+mistakes — every one is a parse-level guard whose message reaches you as prose (a malformed line, a
+`% [object Object]`, a topology-validation error drawn in the UI) rather than as a code to grep. The
+concentration is worth knowing, because it tells you where the console is least likely to hand you one:
+
+| File | Undocumented | Which |
+|---|---|---|
+| `ipv6.js` | 14 | `E_DOUBLE_COMPRESSION`-class syntax guards: `E_EMPTY_GROUP`, `E_GROUP_COUNT`, `E_IPV4_POSITION`, `E_PREFIX_LEN`, `E_PREFIX_TYPE`, `E_UNSPECIFIED`, `E_PARSE` … |
+| `acl.js` | 3 | `E_ADDRESS`, `E_ENTRY` — the per-entry guards behind the `% [object Object]` in [the appendix above](#refusal-codes-the-ones-you-will-actually-meet) |
+| `dns.js` | 3 | `E_DNS_BAD_PRIORITY`, `E_DNS_BAD_VALUE`, `E_DNS_MISSING_VALUE` |
+| `ra.js` | 3 | `E_ICMP_TYPE`, `E_SHORT`, `E_TYPE` — RA option parsing |
+| `optical.js` | 1 | `E_UNKNOWN_SPLITTER` |
+
+The other 135 are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
+`PHYSICAL_LAYER.md` carry the optical and validation codes, `ARCHITECTURE.md` the API ones.
+
+Recount both ways; the second number is the one that says whether this table is still true. Note it
+counts **quoted** strings only — matching bare tokens instead finds codes that are assembled rather
+than literal and inflates the answer to 58:
+
+```sh
+grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 159 quoted, 2 of them prefix literals
+grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
+  | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 22 never named
+```
 `grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 145;
 `grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 69;
 ``grep -c '^| `E_' docs/CLI.md`` is the 47.
