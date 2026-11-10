@@ -72,7 +72,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -156,7 +157,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -194,7 +196,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -232,7 +235,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -308,7 +312,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -346,7 +351,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -384,7 +390,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -422,7 +429,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -460,7 +468,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -498,7 +507,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -536,7 +546,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -574,7 +585,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -612,7 +624,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -650,7 +663,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -688,7 +702,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -726,7 +741,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -764,7 +780,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -802,7 +819,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -840,7 +858,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -878,7 +897,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -916,7 +936,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -954,7 +975,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -992,7 +1014,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1030,7 +1053,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1068,7 +1092,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1106,7 +1131,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1144,7 +1170,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1182,7 +1209,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1227,7 +1255,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1272,7 +1301,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1348,7 +1378,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1386,7 +1417,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1424,7 +1456,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1462,7 +1495,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1500,7 +1534,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1538,7 +1573,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1576,7 +1612,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1614,7 +1651,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1652,7 +1690,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1690,7 +1729,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1728,7 +1768,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1766,7 +1807,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1804,7 +1846,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1842,7 +1885,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1880,7 +1924,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1918,7 +1963,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1956,7 +2002,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -1994,7 +2041,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2032,7 +2080,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2070,7 +2119,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2108,7 +2158,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2146,7 +2197,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2184,7 +2236,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2222,7 +2275,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2263,7 +2317,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2304,7 +2359,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2345,7 +2401,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2386,7 +2443,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2461,7 +2519,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2499,7 +2558,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2537,7 +2597,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2575,7 +2636,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2613,7 +2675,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2651,7 +2714,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2689,7 +2753,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2727,7 +2792,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2765,7 +2831,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2803,7 +2870,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2841,7 +2909,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2879,7 +2948,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2917,7 +2987,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2955,7 +3026,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -2993,7 +3065,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3031,7 +3104,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3072,7 +3146,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3113,7 +3188,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3189,7 +3265,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3265,7 +3342,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,
@@ -3342,7 +3420,8 @@
             "mode": "access",
             "accessVlan": 1,
             "nativeVlan": 1,
-            "allowedVlans": "all"
+            "allowedVlans": "all",
+            "voiceVlan": null
           },
           "lagId": null,
           "role": null,

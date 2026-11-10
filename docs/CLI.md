@@ -206,6 +206,7 @@ Interface-mode commands (Gi0/0):
   switchport access vlan <id>
   switchport trunk native vlan <id>
   switchport trunk allowed vlan <list|all>
+  switchport voice vlan <id>
   channel-group <id> mode active|passive|on|static
   ip access-group <acl> in|out | no ip access-group [<acl>] [in|out]
   ip ospf cost <n> | area <id> | passive
@@ -4692,7 +4693,7 @@ SW1(config-if)#switchport access vlan 10 20
 % Usage: switchport access vlan <id>
 SW1(config-if)#switchport
 % Incomplete command: switchport mode access|trunk
-% Also: switchport access vlan <id> | switchport trunk native vlan <id> | switchport trunk allowed vlan <list|all>
+% Also: switchport access vlan <id> | switchport trunk native vlan <id> | switchport trunk allowed vlan <list|all> | switchport voice vlan <id>
 ```
 
 `switchport access vlan abc` used to answer **`Access VLAN NaN on Fa0/1`** — a confirmation for a
@@ -4727,6 +4728,83 @@ SW1(config-if)#no switchport trunk allowed vlan 5
 % Give it an explicit list first: "switchport trunk allowed vlan <list>"
 ```
 
+### `switchport voice vlan` — the field that was checked, stored, printed and read by nothing
+
+`voiceVlan` has been part of a port's VLAN shape since VLANs were modelled. `normalizePortConfig()`
+kept it, `validatePortConfig()` insisted the port be a trunk ("voice traffic is tagged"), the
+switchport reset listed it when it cleared — and **nothing wrote it and nothing read it**. There was
+no `switchport voice vlan`, so a phone port could not be configured at all; `classifyEgress` and
+`classifyIngress` consulted the allowed list only, so a phone's tagged frames were classified into
+the data VLAN; `show interfaces <port> switchport` printed `Voice VLAN: none` on every port in every
+lab; and `serialize()` dropped the field, so a saved lab came back without one.
+
+The command writes it, and the mode is **not** part of the setting: a voice VLAN is a parameter of
+the port, so it works on an access port (the phone-port pair) and on a trunk, and setting it never
+changes the mode. What it refuses is a real contradiction — naming the VLAN that already leaves the
+port untagged, or a VLAN the trunk does not carry:
+
+```
+SW1(config-if)#switchport voice vlan 20
+Voice VLAN 20 on Fa0/1 (tagged; the untagged traffic on this port stays in VLAN 1)
+SW1(config-if)#switchport voice vlan 1
+% VLAN 1 is the VLAN that leaves Fa0/1 untagged (the access VLAN)
+% Tagged voice traffic must land in a different VLAN - move the data VLAN first: "switchport access vlan <other>", or choose another voice VLAN
+SW1(config-if)#switchport mode trunk
+Switchport mode trunk on Fa0/1
+SW1(config-if)#switchport trunk allowed vlan 10,30
+Trunk on Fa0/1 allows VLANs 10,30
+SW1(config-if)#switchport voice vlan 20
+% VLAN 20 is not in the allowed list on Fa0/1 (it allows 10,30)
+% A voice VLAN the trunk drops is not a voice VLAN: "switchport trunk allowed vlan 10,20,30"
+SW1(config-if)#switchport trunk native vlan 99
+Trunk native VLAN 99 on Fa0/1
+SW1(config-if)#switchport trunk allowed vlan 10,20,30
+Trunk on Fa0/1 allows VLANs 10,20,30
+SW1(config-if)#switchport voice vlan 20
+Voice VLAN 20 on Fa0/1 (tagged; the untagged traffic on this port stays in VLAN 99)
+```
+
+The classifier carries it in both directions. A voice VLAN is the **one** tag an access port
+understands (a phone tags its own traffic, the PC behind it speaks untagged), it always leaves
+tagged — including on a port whose native VLAN happens to name the same number, which is why that
+pair is refused rather than resolved — and a tagged frame in it is accepted into that VLAN:
+
+```
+SW1#show interfaces Fa0/1 switchport
+Name: Fa0/1
+  Administrative Mode: trunk
+  Operational Mode: trunk
+  Trunking Native Mode VLAN: 99
+  Trunking VLANs Enabled: 10,20,30
+  Administrative private-vlan: none
+  Voice VLAN: 20 (tagged)
+```
+
+`show running-config` prints the line (before the mode, because it is a parameter and not a mode),
+so a paste restores it; `serialize()` carries it, so a reload does too, and a file written before the
+field existed restores with none rather than `NaN`:
+
+```
+SW1#show running-config
+! PacketForge running-config
+hostname SW1
+interface Fa0/1
+  switchport voice vlan 20
+  switchport mode trunk
+  switchport trunk native vlan 99
+  switchport trunk allowed vlan 10,20,30
+```
+
+Removing it is as narrow as setting it, and the inspector's one line about the port names it
+(`trunk · native 99 · allowed 10,20,30 · voice 20`):
+
+```
+SW1(config-if)#no switchport voice vlan
+Voice VLAN removed from Fa0/1 (was VLAN 20; tagged frames for it are now classified by the allowed list alone)
+SW1(config-if)#no switchport voice vlan
+Fa0/1 has no voice VLAN - nothing to remove
+```
+
 A port that cannot be a switchport says so instead of storing the setting:
 
 ```
@@ -4742,8 +4820,10 @@ A trunk with no explicit allowed list carries **everything**; `switchport trunk 
 says so again. A list is accepted as ids and ranges (`10,20,30-32` is echoed back as
 `10,20,30,31,32`), and an id outside 1–4094 is refused.
 
-`show vlan` marks trunk ports with `(t)`, and `show vlan brief` is accepted as a synonym — it
-prints the same table, because there is only one table.
+`show vlan` marks trunk ports with `(t)`, a trunk's untagged VLAN with `(n)` and a voice VLAN with
+`(v)` — the voice VLAN is a membership of the port that names it, so a table of memberships that
+omitted it would be answering a narrower question than it appears to. `show vlan brief` is accepted as
+a synonym; it prints the same table, because there is only one table.
 
 ```
 SW1#show vlan

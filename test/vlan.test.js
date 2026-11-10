@@ -327,11 +327,23 @@ check('duplicate VLAN in the allowed list warns (not an error)', function () {
   assert.strictEqual(r.errors.length, 0);
   assert.strictEqual(hasCode(r.warnings, 'W_DUP_VLAN_IN_LIST'), true);
 });
-check('voiceVlan on an access port warns', function () {
+// Issue #1369: a phone port is an access port plus a tagged voice VLAN, which is exactly what the
+// classifier now carries. This used to warn E_VOICE_VLAN_UNSUPPORTED ("needs a trunk") - a warning
+// that described the missing voice classifier rather than the hardware. The contradiction that *is*
+// real is naming one VLAN as both the untagged access VLAN and the tagged voice VLAN.
+check('voiceVlan on an access port is the phone-port pair, not a warning', function () {
   const r = vlan.validatePortConfig({ mode: 'access', accessVlan: 10, voiceVlan: 20 });
-  assert.strictEqual(r.ok, true);
-  assert.strictEqual(hasCode(r.warnings, 'E_VOICE_VLAN_UNSUPPORTED'), true);
+  assert.ok(r.ok, 'no error');
+  assert.strictEqual(r.warnings.filter(function (w) { return w.code === 'E_VOICE_VLAN_UNSUPPORTED'; }).length, 0,
+    'and the "needs a trunk" warning is gone');
 });
+
+check('voiceVlan equal to the access VLAN is refused', function () {
+  const r = vlan.validatePortConfig({ mode: 'access', accessVlan: 10, voiceVlan: 10 });
+  assert.ok(!r.ok, 'refused');
+  assert.strictEqual(r.errors[0].code, 'E_VOICE_VLAN_ACCESS', 'with a code that names why');
+});
+
 check('port name is quoted in messages', function () {
   const r = vlan.validatePortConfig({ mode: 'access', accessVlan: 0 }, { portName: 'Gi0/2' });
   assert.ok(r.errors[0].message.indexOf('Gi0/2') === 0);

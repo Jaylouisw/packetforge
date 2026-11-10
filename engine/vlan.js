@@ -282,10 +282,21 @@ function normalizePortConfig(cfg) {
 // ---------------------------------------------------------------------------
 
 // Egress: which 802.1Q treatment does a frame for vlanId get on this port?
+//
+// `voiceVlan` is a second membership, not decoration. It was stored, validated and printed by the
+// switchport reset - and read by nothing, so a phone's frames were classified into the data VLAN and
+// the VLAN an operator had configured for voice carried nothing. Voice traffic is *tagged by
+// definition* (that is what makes it distinguishable from the untagged data VLAN on the same port),
+// so it wins over the native-VLAN rule: a port whose native VLAN happens to equal the voice VLAN
+// still tags voice frames rather than stripping the tag that identifies them.
 function classifyEgress(portConfig, vlanId) {
   const cfg = normalizePortConfig(portConfig);
   const vid = typeof vlanId === 'number' ? vlanId : parseInt(vlanId, 10);
   if (!isValidVlan(vid)) return { action: 'drop', vid: Number.isInteger(vid) ? vid : null };
+
+  if (cfg.voiceVlan !== null && vid === cfg.voiceVlan) {
+    return { action: 'tagged', vid: vid, voice: true };
+  }
 
   if (cfg.mode === 'access') {
     if (vid !== cfg.accessVlan) return { action: 'drop', vid: vid };
@@ -308,7 +319,13 @@ function classifyIngress(portConfig, frame) {
 
   if (cfg.mode === 'access') {
     if (frame.tagged) {
-      // Strict 802.1Q: an access port has no tag awareness at all.
+      // A voice VLAN is the one tag an access port understands: the phone tags its own traffic and
+      // the PC behind it speaks untagged, which is the whole point of the pair. Anything else
+      // tagged is still refused, because an access port otherwise has no tag awareness at all.
+      const vtag = typeof frame.vid === 'number' ? frame.vid : parseInt(frame.vid, 10);
+      if (cfg.voiceVlan !== null && Number.isInteger(vtag) && vtag === cfg.voiceVlan) {
+        return { action: 'accept', vlanId: vtag, voice: true };
+      }
       return { action: 'drop', vlanId: null, reason: 'tagged-frame-on-access' };
     }
     return { action: 'accept', vlanId: cfg.accessVlan };
@@ -327,6 +344,12 @@ function classifyIngress(portConfig, frame) {
   }
   if (!vlanListIncludes(cfg.allowedVlans, vid)) {
     return { action: 'drop', vlanId: null, reason: 'vlan-not-allowed' };
+  }
+  // Tagged on the trunk and in the voice VLAN: accepted, and said out loud. The classification is
+  // the same VLAN either way - what differs is that a voice frame arrived tagged, which is the only
+  // shape it ever has.
+  if (cfg.voiceVlan !== null && vid === cfg.voiceVlan) {
+    return { action: 'accept', vlanId: vid, voice: true };
   }
   return { action: 'accept', vlanId: vid };
 }
@@ -420,9 +443,29 @@ function validatePortConfig(cfg, ctx) {
   }
 
   // ---- voice VLAN ----
-  if (norm.voiceVlan !== null && norm.mode === 'access') {
-    warn('E_VOICE_VLAN_UNSUPPORTED',
-      'voiceVlan ' + norm.voiceVlan + ' needs a trunk (voice traffic is tagged)');
+  //
+  // A phone port is an access port *plus* a tagged second VLAN: the phone tags its own traffic into
+  // the voice VLAN, the PC behind it speaks untagged in the access VLAN. This used to be reported as
+  // unsupported ("voiceVlan 20 needs a trunk"), which was true only while nothing classified voice
+  // traffic at all - the warning described the missing classifier, not the hardware (issue #1369).
+  if (norm.voiceVlan !== null && norm.mode === 'access' && norm.voiceVlan === norm.accessVlan) {
+    err('E_VOICE_VLAN_ACCESS',
+      'voice VLAN ' + norm.voiceVlan + ' is the access VLAN on this port, which is the VLAN that ' +
+      'leaves untagged - voice traffic is always tagged, so it needs a VLAN of its own');
+  }
+  // A voice VLAN *is* always tagged, so a port cannot use the same VLAN for both: an untagged
+  // native VLAN and a tagged voice VLAN are the two halves of what a phone port distinguishes.
+  // Setting both to one number used to be accepted and stored, and the classifier then had two
+  // rules for one VLAN and picked one silently.
+  if (norm.voiceVlan !== null && norm.mode === 'trunk' && norm.voiceVlan === norm.nativeVlan) {
+    err('E_VOICE_VLAN_NATIVE', 'voice VLAN ' + norm.voiceVlan + ' is also the native VLAN, ' +
+      'which is the VLAN that leaves untagged - voice traffic is always tagged, so pick another');
+  }
+  if (norm.voiceVlan !== null && norm.mode === 'trunk' && !allowedIsAll &&
+      norm.allowedVlans.length > 0 && !vlanListIncludes(norm.allowedVlans, norm.voiceVlan)) {
+    err('E_VOICE_NOT_ALLOWED', 'voice VLAN ' + norm.voiceVlan + ' is not in the allowed VLAN ' +
+      'list, so a phone\'s tagged frames would be dropped by the same port that was told to carry ' +
+      'them');
   }
 
   return { ok: errors.length === 0, errors: errors, warnings: warnings };

@@ -1285,12 +1285,16 @@
 
   function vlanSummary(i) {
     const v = i.vlan || {};
+    // The voice VLAN is part of what the port carries, so the one line that describes the port says
+    // it. Reading this panel used to be the only way to see a trunk and it never mentioned voice,
+    // which is the field an operator configures for a phone.
+    const voice = Number(v.voiceVlan) ? ' · voice ' + Number(v.voiceVlan) : '';
     if (v.mode === 'trunk') {
       const allowed = v.allowedVlans === 'all' ? 'all'
         : (Array.isArray(v.allowedVlans) ? v.allowedVlans.join(',') : v.allowedVlans);
-      return 'trunk · native ' + (v.nativeVlan || 1) + ' · allowed ' + allowed;
+      return 'trunk · native ' + (v.nativeVlan || 1) + ' · allowed ' + allowed + voice;
     }
-    return 'access ' + (v.accessVlan || 1);
+    return 'access ' + (v.accessVlan || 1) + voice;
   }
 
   // Display mirror of Simulator.computePoe(): a PSE serves powered devices in
@@ -2223,6 +2227,9 @@
   // Small surface for the UI render tests (also handy in the devtools console).
   window.__pf = {
     setTopology: function (t) { topo = t; },
+    // The one line that describes what a port carries. Exposed for the UI tests for the same reason
+    // `fmtSpeed` and `cageLabel` are: a stub DOM cannot read a row that the test did not render.
+    vlanSummary: vlanSummary,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,
