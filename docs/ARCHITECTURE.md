@@ -290,8 +290,10 @@ Two consequences worth knowing before you trust the file tree as a record of wha
 
 ### Board lifecycle
 
-Four board endpoints (plus two catalogue/build ones), and two of them behave in a way a client
-author will not guess:
+Four board endpoints, plus **three** outside `/api/topologies` — `GET /api/catalog`, `/api/version` and
+`/api/media`, counted from the `parts[1] === …` branches in `server/index.js` (this sentence said "two
+catalogue/build ones" and had been omitting `/api/catalog`, the one that returns `{ specs, categories }`).
+Two of the board endpoints behave in a way a client author will not guess:
 
 | Call | Answer |
 |---|---|

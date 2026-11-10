@@ -62,7 +62,9 @@ pick — matches nothing and falls all the way through to `rj45`. Measured:
 | `sc/apc1`, `scapc1` | `sc-apc` |
 | `lc-upc1`, `sc-upc1`, `lc-apc1`, `sc-apc1` | `rj45` |
 
-No catalogue device is affected — no port in the 1650 models is named after a connector at all, and a
+No catalogue device is affected — no port in the **1,661** models is named after a connector at all (this
+sentence said 1,650; recounted, and the claim itself re-measured: zero ports named `rj45`, `sfp`, `lc`, `sc`,
+`mpo`, `bnc`, `db9`, `usb` or `rj11` across the whole catalogue), and a
 spec that does want one can set `connector` explicitly, which overrides every rule here. The trap is for
 someone hand-writing a patch-panel port and expecting the name to do it.
 
