@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
+    "regen:registry-doc": "node scripts/regen-registry-doc.js",
     "test": "node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node scripts/run-tests.js",
     "test:engine": "node test/engine.test.js",
     "test:cli": "node test/cli.test.js",
