@@ -1,0 +1,215 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXaccess S0316",
+  "label": "Huawei OptiXaccess S0316 PoF active distribution unit",
+  "category": "splitter",
+  "description": "Huawei OptiXaccess S0316 - power-over-fibre active distribution unit that integrates an optical splitter and a power supply: 2x SC/UPC upstream (NNI) optical ports and 16x hybrid SC PoF downstream (UNI) ports that carry both the optical signal and PoE/PoE+ power to ONUs. Maximum 30 W per PoF port, 400 W total output, 400 W maximum consumption, IP20, 19-inch cabinet or network box, fan cooled.",
+  "capabilities": [
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "nni1",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "nni2",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "uni1",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni2",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni3",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni4",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni5",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni6",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni7",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni8",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni9",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni10",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni11",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni12",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni13",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni14",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni15",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uni16",
+      "type": "pon",
+      "connector": "sc-upc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ],
+      "poeOut": 30
+    }
+  ],
+  "poeBudget": 400,
+  "icon": "splitter",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/optixaccess-s0316.html",
+  "notes": "The spec table is unusually complete for this box: '**NNI: 2 x SC/UPC**', '**UNI: 16 x Hybrid SC(PoF)**', '**PoF output power: maximum output power of a single port: PoE/PoE+: 30W, total output power: 100V~240V: 400W**'. So the PoE side is **quoted, not inferred**: `poeOut: 30` on each of the sixteen UNI ports and `poeBudget: 400` for the unit - and unlike the standard-PSE cases in this catalogue, the 400 W here really is the PoF output budget the datasheet names, not a power-supply rating borrowed as one (compare #527, where the two were different numbers and only volts and amps were published). **`sc-upc`, not `sc-apc`:** this is the one PON-family device whose polish the vendor states, and it states **UPC** on the NNI. The sixteen UNI ports are 'Hybrid SC' - the same hybrid SC connector the catalogue already carries in `catalogue/optics/hybrid-patch-cords.json` for PoF runs - so they are declared with the same `sc-upc` end face rather than inheriting the OLT side's APC convention. **One assumption, flagged:** the datasheet publishes no optical rate. The ports carry GPON to ONUs over PoF, so they are given the GPON ladder `[1244, 2488]` that every OLT and ONU in this catalogue uses - but that is a family convention here, not a figure from this page. No `splitRatio` is declared: the page says the splitter is integrated but never states the ratio, and 2 NNI to 16 UNI could be 2x1:8 or one 1:16 with a protected feed. Guessing which would put a wrong loss figure in front of anyone budgeting a PoF run."
+}

@@ -879,5 +879,24 @@ console.log('\nA packet broker is not a passive tap, and its cages carry ladders
     'T5850-48S8C: an ACTIVE broker - it filters and aggregates, so it is not marked passive');
 }
 
+console.log('\nA pof unit quotes its output budget, and its polish (#785):');
+{
+  const s = find('OptiXaccess S0316');
+  const ports = effectiveInterfaces(s);
+  eq(ports.filter(function (p) { return p.name.indexOf('nni') === 0; }).length, 2,
+    'OptiXaccess S0316: two SC/UPC upstream optical ports');
+  eq(ports.filter(function (p) { return p.name.indexOf('uni') === 0; }).length, 16,
+    'OptiXaccess S0316: sixteen hybrid SC PoF downstream ports');
+  ok(ports.every(function (p) { return p.connector === 'sc-upc'; }),
+    'OptiXaccess S0316: sc-upc everywhere - the vendor states UPC on the NNI, so APC is not assumed');
+  eq(s.poeBudget, 400, 'OptiXaccess S0316: 400 W total PoF output, which IS the datasheet figure');
+  eq(ports.filter(function (p) { return p.poeOut === 30; }).length, 16,
+    'OptiXaccess S0316: 30 W PoE/PoE+ on every UNI port');
+  ok(s.splitRatio === undefined,
+    'OptiXaccess S0316: no splitRatio - the page never states the ratio, and 2 NNI to 16 UNI is ambiguous');
+  ok(ports.filter(function (p) { return p.type === 'pon'; }).length === 18,
+    'OptiXaccess S0316: every port is a PON-family port, not Ethernet');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
