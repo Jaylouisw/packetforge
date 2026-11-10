@@ -28,16 +28,25 @@ node scripts/sweep-device-requests.js --limit 900      # scan the whole backlog
 node scripts/sweep-device-requests.js --close 10       # comment and close 10 verified matches
 ```
 
-**Before the flags, the network.** `API` is hard-coded near the top of the script to
-`http://10.0.10.20:3000/api/v1` — a LAN address — and the token is scraped out of the `github` or
-`origin` git remote. Run off that network and every request fails before a flag is parsed. The
-public host answers the same API, so the read-only checks in this page work from anywhere; closing
-issues needs the address the script expects.
+**Before the flags, the network.** This paragraph used to say the script was pinned to a LAN address
+and scraped its token from a git remote, which was true of an older version and is now wrong in both
+halves. Measured against `scripts/forgejo-api.js`, which the sweep imports:
 
-The script's own header still says the repository "has ~830 open issues"; it has **127** (measured
-against the tracker: `x-total-count` on the `limit=1` request above). Nothing reads that comment — and
-`--limit 200` still covers the whole queue, as the default does — but do not quote the header as if it
-were a count.
+| What | Where it comes from today |
+|---|---|
+| Base URL | `const API = (process.env.PF_API \|\| canonical.WEB) + '/api/v1'` — the **public** host, not a LAN address; `PF_API` overrides it |
+| Token | `process.env.FORGEJO_TOKEN \|\| process.env.PF_TOKEN` — the environment only, nothing is read out of `git remote` |
+
+So the read-only sweep works from anywhere, and so does closing: set the token and go. Without one the
+script says *"the tracker is not readable without it (this is not the same as \"no open requests\")"*
+and exits **2** before parsing anything — the public API answers anonymous reads, but a write does not.
+Point `PF_API` at another instance if you are sweeping one.
+
+The script's own header still says the repository "has ~830 open issues"; it has **121** (measured
+against the tracker: `x-total-count` on the `limit=1` request above, which is the number this page
+should be re-measured rather than re-quoted — it moved from 127 in an afternoon). Nothing reads that
+comment, and `--limit 200` still covers the whole queue, as the default does — but do not quote the
+header as if it were a count.
 
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
 200** — with the backlog at 127 that default already covers everything, so the flag is only needed
