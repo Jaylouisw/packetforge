@@ -2168,28 +2168,33 @@ R1#show ip ospf 1
 % The process here is "ospf 7"
 ```
 
-**Known limitation, measured: the OSPF form cannot currently succeed.** `show vrrp <group>` filters
-correctly, but `show ip ospf <n>` refuses **every** `n`, including the process it names — because
-nothing ever sets `config.ospf.pid`: there is no command that takes a process id, so the key is
-`undefined`, and the comparison is `Number(what) !== Number(cfg.pid)`:
+**`show ip ospf <n>` works now, and the three answers are worth telling apart.** This page used to say
+the form could never succeed, because nothing set `config.ospf.pid` and the refusal printed
+`(cfg.pid || 1)` — inventing the `1` it had just refused. `router ospf <pid>` sets the key, so the
+filter matches. Measured on a router, in order:
 
 ```text
-R1#show ip ospf
-Routing Process "ospf 1" with ID 1.1.1.1
-  Area 0
-  ...
+R1#show ip ospf 2
+% OSPF is not enabled - "ospf router-id <ip>" in config mode turns OSPF on
+
+R1(config)#router ospf 1
+OSPF process 1 enabled, entering router configuration mode
+R1(config-router)#exit
+
+R1#show ip ospf 2
+% No OSPF process 2 on R1
+% The process here is "ospf 1"
 
 R1#show ip ospf 1
-% No OSPF process 1 on R1
-% The process here is "ospf 1"
+Routing Process "ospf 1" with ID 1.1.1.1
+  Area 0
 ```
 
-The second line is the misleading part: `cfg.pid` is `undefined`, and the message prints
-`(cfg.pid || 1)`, so it invents the `1` it has just refused. Until the engine sets a process id (or
-treats "no id configured" as id 1), use the bare `show ip ospf` — it answers the same question, and
-`show ip ospf neighbor` / `database` / `interface` are unaffected. Two smaller artefacts of the same
-path, both reproducible: `show ip ospf process 1` prints an unrelated `OSPF at t=1 ms` line before
-refusing, and any unknown word is echoed back as `not "process"`.
+All three states are distinguishable, which is the point: *not running*, *running under another id*
+(naming it), and *this one*. `ospf router-id <ip>` in config mode is the other way in — it enables the
+process and sets the id in one line. Two smaller artefacts of the same path, both reproducible:
+`show ip ospf process 1` prints an unrelated `OSPF at t=1 ms` line and *then* refuses the word `process` — `% show ip ospf takes neighbor, database, interface or a process id, not "process"` — and any unknown
+word is echoed back as `not "process"`.
 
 Every `at <ms>` and every `converged` is still an instant everywhere — those are unambiguous, and they
 are the spellings the help advertises.
@@ -7630,7 +7635,7 @@ grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
 | DHCP pool (`exit` from `ip dhcp pool`) | `% E_DHCP_GATEWAY_OUTSIDE: DHCP pool p1: gateway 10.9.9.9 is outside 10.1.1.0/24.` — the code, the pool, then the reason |
 | VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)`, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)` |
 | `access-list` | `% [object Object]` — the error object is stringified, so the reason is lost entirely (see [Access control lists](#access-control-lists)) |
-| NAT | *no CLI surface at all*: rules live in the topology JSON, and the codes arrive through `validateTopology()` and the API |
+| NAT | static and PAT are written from the console and answer in **prose** — `% eth0 has no address - "overload" translates onto that address…`, `% Access list 10 does not exist - the NAT list says which addresses are translated…`, and a pool is refused outright with `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`. A dynamic pool rule still lives in the topology JSON, and its codes arrive through `validateTopology()` |
 | `validateTopology()` / the validator | `{ code, message }` objects with a severity, which is where the tables below are transcribed from |
 
 So a code in these tables is not a promise that the console will print it. The tables are still worth
