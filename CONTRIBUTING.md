@@ -102,6 +102,21 @@ npm run examples                  # rebuild + verify the example labs
 npm test
 ```
 
+### What git will and will not see
+
+The ignore rules are short and worth knowing before `git status` puzzles you, because two of them are
+deliberate and one gap is not:
+
+| Path | Ignored? | Why |
+|---|---|---|
+| `node_modules/`, `npm-debug.log*` | yes | there are no dependencies, but a stray install should not be committed |
+| `/data/` | yes | boards saved by the server are **the user's work**, not the project's — a lab built from someone's own hardware must not land in the repository |
+| `*.log`, `*.pid`, `.tmp-*`, `*.swp`, `.DS_Store`, `Thumbs.db`, `.idea/`, `.vscode/` | yes | runtime and editor debris |
+| `tmp/` | **no** | there is no `tmp/` rule, so a probe script you leave behind shows up as untracked. Delete it before you commit — `git status --porcelain` is the checker, since nothing else looks |
+
+`docs/wiki/*.md` **is** tracked: the wiki pages are generated but committed, which is why changing a fact
+means regenerating them (see below).
+
 ### Running one area instead of everything
 
 `npm test` is three things in sequence — `scripts/audit-port-types.js`, `scripts/check-control-bytes.js`
