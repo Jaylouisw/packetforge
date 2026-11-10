@@ -631,9 +631,10 @@ addDevice(spec, id) {
       // the UI and every fixture receives, and adjusting it must not adjust the board (#1325).
       layout: copyLayout(this.layout)
     };
-    // Only when a change has happened: a lab built and never disturbed has nothing to say about it,
-    // and a field on every saved file is noise in every diff and every regenerated example.
-    if (this.lastChangeAtMs) out.lastChangeAtMs = this.lastChangeAtMs;
+    // `lastChangeAtMs` is deliberately NOT written. It is an instant in a run, and a run ends: a board reopened
+    // tomorrow inherited an instant from a session that no longer exists and built its convergence schedule from it
+    // (#1331). What survives is the thing that happened - a cable is down, and since when - and the clock is
+    // derived from that on the way back in.
     return out;
   }
 
@@ -643,6 +644,9 @@ addDevice(spec, id) {
     // it in silence: the link was skipped by a bare `catch`, so an imported lab came back one cable short and the
     // only way to find out was to count them (#1323).
     topo.loadIssues = [];
+    // The board last changed when its newest cable fault happened; a lab that has been saved and reopened has no
+    // other evidence, and an instant out of a dead run is not evidence. A document written before this rule can
+    // still carry `lastChangeAtMs`, which is used only when no cable says anything (#1331).
     topo.lastChangeAtMs = Number(data.lastChangeAtMs) || 0;
     const devices = data.devices || [];
     // Two passes: create devices, then restore config/links.
@@ -720,6 +724,13 @@ addDevice(spec, id) {
     for (const id of topo.links.keys()) note(id);
     topo._seq = high;
 
+    // The newest thing that happened to a cable is when this board last changed. A document that carried an
+    // instant from an old run cannot outrank a cable that says it went down at 9000 ms.
+    let newest = 0;
+    for (const l of topo.links.values()) {
+      if (typeof l.stateSinceMs === 'number' && isFinite(l.stateSinceMs) && l.stateSinceMs > newest) newest = l.stateSinceMs;
+    }
+    topo.lastChangeAtMs = newest || topo.lastChangeAtMs;
     return topo;
   }
 }

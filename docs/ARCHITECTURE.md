@@ -134,6 +134,32 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### The clock
+
+Time in PacketForge is logical, never `Date.now()`. Three fields carry it:
+
+| field | means | who moves it |
+|---|---|---|
+| `sim.runAtMs` | the instant a question is being asked at (`Infinity` = "once everything has settled") | `setRunTime()` |
+| `link.stateSinceMs` | when this cable changed state | `setLinkState()` / `linkDown` / `linkUp` |
+| `topo.lastChangeAtMs` | when the board last changed — the instant every convergence schedule is built from | `topo.markChange()` |
+
+`markChange()` was only ever called for a cable, so shutting a port, enabling it, or moving it between VLANs left the
+schedule built from an instant before the change. On a board that had already converged, `_stillConverging()`
+answered 0 and a packet crossed a port that should have been listening. Every console command that changes the
+forwarding decision now calls `_controlPlaneChanged()` → `Simulator.markTopologyChange()`, which records the instant
+the operator is standing at. There is **one** answer to "when did the board change"; a second field on the simulator
+(`reconvergeFromMs`) used to shadow it and nothing ever set it.
+
+`lastChangeAtMs` is not saved. It is an instant in a run and a run ends: a board reopened tomorrow would build its
+schedule from an instant belonging to a session that no longer exists. What is saved is the thing that happened — a
+cable is down, and `stateSinceMs` says since when — and the clock is **derived** from the newest cable fault on the
+way back in.
+
+In the console, an instant is printed as an instant: `state: down, changed at 1200 ms (3800 ms ago)`. The old wording
+(`since 1200 ms`) read as a duration and was wrong by the length of the run so far. With no run instant there is no
+age to give, and an instant later than the run instant is marked `(not this run)` rather than given a negative age.
+
 ### Throughput: two counts, one shape
 
 `runtime[d].counters` is `flow.counterSnapshot()`: always the same keys, always a copy, and `counted` says whether

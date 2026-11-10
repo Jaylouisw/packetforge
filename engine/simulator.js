@@ -327,10 +327,10 @@ class Simulator {
     // After a link change the same timers run again, from the instant of the change: that is what
     // re-convergence is. Without the offset, a lab that broke a cable would report the network as
     // converged because it converged once, hours ago, before the cable was pulled.
-    const from = this.reconvergeFromMs !== undefined && this.reconvergeFromMs !== null
-      ? this.reconvergeFromMs
-      : (this.topo.lastChangeAtMs || 0);
-    return convergenceLib.buildSchedule(this.topo, { fromMs: from });
+    // One truth, on the topology: `markChange()` is what records that the board changed and when. A second field
+    // on the simulator used to shadow it (`reconvergeFromMs`), nothing ever set it, and having two answers for one
+    // instant is how a schedule ends up built from the wrong one (#1331).
+    return convergenceLib.buildSchedule(this.topo, { fromMs: this.topo.lastChangeAtMs || 0 });
   }
 
   // ---------------------------------------------------------------------
@@ -350,6 +350,25 @@ class Simulator {
    *   - the convergence schedule is re-based at `atMs`, so the seconds after the change are the
    *     seconds during which nothing works.
    */
+  /**
+   * A configuration change is a topology change.
+   *
+   * The clock only moved when a cable changed state, so shutting a port - which makes STP run its timers again on
+   * every port behind it - left the schedule built from an instant before the change. On a board that had already
+   * converged, `_stillConverging()` then answered 0 and a ping crossed a port that should have been listening
+   * (#1331). Called by the console on shutdown / no shutdown / switchport, with the instant the operator is
+   * standing at.
+   */
+  markTopologyChange(atMs) {
+    const t = (atMs === undefined || atMs === null)
+      ? (Number.isFinite(this.runAtMs) ? this.runAtMs : 0)
+      : Number(atMs);
+    this.topo.markChange(Number.isFinite(t) && t >= 0 ? t : 0);
+    this._stpDirty = true;
+    this.stpResult = null;
+    return this.topo.lastChangeAtMs;
+  }
+
   setLinkState(linkId, state, opts) {
     const o = opts || {};
     const link = this.topo.getLink(linkId);
@@ -377,7 +396,6 @@ class Simulator {
     }
     this._stpDirty = true;
     this.recomputeStp();
-    this.reconvergeFromMs = atMs;
     link.stateSinceMs = atMs;
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
