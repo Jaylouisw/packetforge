@@ -1533,6 +1533,11 @@ class Simulator {
       const ifaces = [];
       for (const i of dev.interfaces.values()) {
         if (!i.enabled || !i.ip || !i.mask) continue;
+        // A subinterface cannot be up while its parent is down.
+        if (i.parent) {
+          const parent = dev.interfaces.get(i.parent);
+          if (!parent || parent.enabled === false) continue;
+        }
         let ov = null;
         for (const x of (cfg.interfaces || [])) { if (x.name === i.name) { ov = x; break; } }
         ifaces.push({
@@ -1611,15 +1616,32 @@ class Simulator {
       const dev = byId[r.id].dev;
       for (const ai of r.interfaces) {
         if (ai.passive) continue;
+        // A subinterface rides its parent's wire with a tag: it has no peer of its own, so the walk
+        // starts at the parent and asks for the tagged frame. Without this, router-on-a-stick - two
+        // routers with `interface Gi0/0.20` on one trunk - had no segment and no adjacency.
+        const localIf = dev.interfaces.get(ai.name);
+        const viaParent = localIf && localIf.parent ? localIf.parent : null;
+        const tag = (localIf && localIf.parent && localIf.encapVid !== undefined && localIf.encapVid !== null)
+          ? Number(localIf.encapVid) : null;
         let seg = [];
-        try { seg = segmentLib.segmentOf(this.topo, dev, ai.name); } catch (err) { seg = []; }
+        try {
+          seg = segmentLib.segmentOf(this.topo, dev, viaParent || ai.name,
+            tag === null ? undefined : { vid: tag });
+        } catch (err) { seg = []; }
         for (const hit of seg) {
           const other = byId[hit.device.id];
           // `byId` holds { dev, entry }: the id is on the entry, not on the wrapper.
           const otherId = other ? other.entry.id : null;
           if (!other || otherId === r.id) continue;
           let bi = null;
-          for (const x of other.entry.interfaces) { if (x.name === hit.iface.name) { bi = x; break; } }
+          for (const x of other.entry.interfaces) {
+            if (x.name === hit.iface.name) { bi = x; break; }
+            // The walk reaches the physical port; the peer's address sits on a subinterface of it
+            // carrying the same tag.
+            const peerIf = other.dev.interfaces.get(x.name);
+            if (tag !== null && peerIf && peerIf.parent === hit.iface.name &&
+                Number(peerIf.encapVid) === tag) { bi = x; break; }
+          }
           if (!bi || bi.passive) continue;
           if (String(ai.mask) !== String(bi.mask)) continue;
           if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;

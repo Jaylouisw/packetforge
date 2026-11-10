@@ -3095,7 +3095,11 @@ class CliSession {
     const wcInt = net.ipToInt(wcWord);
     const matches = [];
     for (const i of dev.interfaces.values()) {
-      if (!i.ip || i.svi || i.parent) continue;
+      // A routed interface is a routed interface: skipping `i.parent` meant a router-on-a-stick could
+      // not put its own subinterface in an area - "No interface of R1 matches 10.0.20.0 0.0.0.255"
+      // for an interface holding 10.0.20.1 - and skipping `i.svi` meant the same for an L3 switch's
+      // own address, which the engine happily uses once it is listed. The address is the test.
+      if (!i.ip) continue;
       const addr = net.ipToInt(i.ip);
       if (addr === null) continue;
       // The wildcard's zero bits are the ones that must match.

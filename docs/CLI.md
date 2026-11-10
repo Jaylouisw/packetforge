@@ -5095,11 +5095,28 @@ unexpectedly refused line tells you where a previous line left you.
 | global config | `% Unrecognized config command: bogus` |
 | DHCP pool | `% Unrecognized DHCP pool command: bogus` |
 | interface | `% Unrecognized interface command: bogus` and then `% Unrecognized config command: bogus` |
-| `router ospf` | `% "bogus" is not a router ospf command`, then `% In this mode: network <net> <wildcard> area <id` |
+| `router ospf` | `% "bogus" is not a router ospf command`, then `% In this mode: network <net> <wildcard> area <id>, router-id <ip>, exit, end` |
+| `router bgp` | `% "bogus" is not a router bgp command`, then `% In this mode: neighbor <ip> remote-as <as>, bgp router-id <ip>, exit, end` |
 
 Interface mode printing *two* lines is not a double failure: the interface parser falls through to the
-global-config one, so you see the same word rejected by both. Only `router ospf` names what it does want
-in the same breath — `In this mode: …` — which is the pattern the others do not follow.
+global-config one, so you see the same word rejected by both.
+
+Only the two **router** modes answer with what they do want — `In this mode: …` — and the lists differ
+in length because the modes do: `router ospf` adds a third line saying interface settings (cost,
+passive, area) belong on the interface, `router bgp` has nothing to add beyond its one line.
+
+**`vlan <id>` does not open a mode**, which is the one place this console departs from IOS in a way that
+changes what you type. There is no `(config-vlan)#`: the command creates or selects the VLAN and leaves
+you in global config, so the two-part IOS idiom is refused and the name has to be on the one line:
+
+```
+SW1(config)#vlan 10
+VLAN 10 created (name: VLAN0010)
+SW1(config)#name USERS
+% Unrecognized config command: name USERS
+SW1(config)#vlan 10 name USERS
+VLAN 10 name changed to USERS
+```
 
 Four rules, and each one is a decision:
 

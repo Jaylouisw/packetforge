@@ -77,9 +77,45 @@ function portLive(dev, iface, topo) {
  * included, so a client that is its own server (a lab misconfiguration worth being able to see) is
  * visible to the caller.
  */
-function segmentOf(topo, dev, ifaceName) {
+// Does this switch port carry a frame tagged with this VLAN id? An access port does not: a tagged
+// frame arriving on one is not delivered, which is the same rule `sameDomain` applies to untagged
+// frames from the other side.
+function portCarriesTag(iface, vid) {
+  const v = iface && iface.vlan;
+  if (!v || v.mode !== 'trunk') return false;
+  const allowed = String(v.allowedVlans === undefined ? 'all' : v.allowedVlans).trim();
+  if (allowed === 'all' || allowed === '') return true;
+  return allowed.split(',').some(function (part) {
+    const m = /^(\d+)(?:-(\d+))?$/.exec(part.trim());
+    if (!m) return false;
+    const lo = Number(m[1]), hi = m[2] === undefined ? lo : Number(m[2]);
+    return vid >= lo && vid <= hi;
+  });
+}
+
+function segmentOf(topo, dev, ifaceName, opts) {
   const start = dev.interfaces.get(ifaceName);
   if (!start) return [];
+  // A port that is administratively down sends nothing, and neither does a subinterface whose parent
+  // is down - the walk used to start from it anyway, which is how a shut port still produced an
+  // adjacency from the far end.
+  if (start.enabled === false) return [];
+  // `opts.vid` walks for a *tagged* frame - the one a router subinterface sends - instead of an
+  // untagged one. Without it a subinterface had no segment at all: it has no peer of its own, only a
+  // parent, so `segmentOf` returned nothing and two router-on-a-stick speakers never became
+  // neighbours however well the trunks were configured.
+  const vid = (opts && opts.vid !== undefined && opts.vid !== null) ? Number(opts.vid) : null;
+  const crosses = function (a, b) {
+    if (vid === null) return sameDomain(a, b);
+    // A tagged frame crosses when every switch port it touches carries the tag. A port with no VLAN
+    // config is an L3 endpoint (a router's own port, a host's NIC) and is the destination, not a
+    // check.
+    for (const port of [a, b]) {
+      if (!port || !port.vlan) continue;
+      if (!portCarriesTag(port, vid)) return false;
+    }
+    return true;
+  };
   const seen = new Set();
   const endpoints = [];
   const queue = [{ device: dev, iface: start }];
@@ -93,7 +129,7 @@ function segmentOf(topo, dev, ifaceName) {
     if (!peerDev) continue;
     const peerIface = peerDev.interfaces.get(next.iface);
     if (!peerIface || peerIface.enabled === false) continue;
-    if (!sameDomain(at.iface, peerIface)) continue;
+    if (!crosses(at.iface, peerIface)) continue;
 
     const id = peerDev.id + '/' + peerIface.name;
     if (seen.has(id)) continue;
@@ -113,7 +149,7 @@ function segmentOf(topo, dev, ifaceName) {
       for (const out of peerDev.interfaces.values()) {
         if (out.name === peerIface.name) continue;
         if (!out.peer) continue;
-        if (!sameDomain(peerIface, out)) continue;
+        if (!crosses(peerIface, out)) continue;
         if (!portLive(peerDev, out, topo)) continue;
         queue.push({ device: peerDev, iface: out });
       }
@@ -123,4 +159,5 @@ function segmentOf(topo, dev, ifaceName) {
   return endpoints;
 }
 
-module.exports = { segmentOf: segmentOf, sameDomain: sameDomain, portLive: portLive, vlanKey: vlanKey };
+module.exports = { segmentOf: segmentOf, sameDomain: sameDomain, portLive: portLive,
+  vlanKey: vlanKey, portCarriesTag: portCarriesTag };
