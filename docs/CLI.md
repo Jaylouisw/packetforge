@@ -1051,8 +1051,23 @@ so removing the winner promotes the next one in insertion order.
 
 ### `no ipv6` deletes more than the prefix you named
 
-The IPv4 side is precise — `no ip route 10.9.0.0 255.255.255.0` answers `Route removed: 10.9.0.0/24`
-and leaves every other static route alone. The IPv6 side is not, and its help line overstates what it
+The IPv4 side is precise, in two different ways depending on how much you name. Given two routes to
+the same prefix, `no ip route <dest> <mask>` removes **both** and says so once:
+
+```text
+R1(config)#no ip route 10.9.0.0 255.255.255.0
+Route removed: 10.9.0.0/24
+```
+
+Add the gateway and only that next hop goes, with the echo naming it:
+
+```text
+R1(config)#no ip route 10.9.0.0 255.255.255.0 10.0.0.3
+Route removed: 10.9.0.0/24 via 10.0.0.3
+```
+
+and asking for a gateway that is not configured is refused rather than ignored (`% No route to
+10.9.0.0/24 via 10.0.0.99 is configured`, followed by what *is* configured). The IPv6 side is not, and its help line overstates what it
 does. Help advertises `no ipv6 route <prefix>/<len> [<next-hop>] | no ipv6 gateway [<addr>]`, but the
 handler ignores the tail entirely: it clears the IPv6 default gateway *and* every static IPv6 route, and
 says so with a message that names nothing.
@@ -1072,9 +1087,11 @@ Codes: C - connected
 
 Both static routes are gone. A prefix that was never configured removes everything just as cheerfully
 (`no ipv6 route 2001:db8:77::/64` → `IPv6 routes cleared`, table emptied), so the echo is not a report
-of what matched — it is a report of what the command does unconditionally. Until the handler honours its
-own help line, treat any `no ipv6 …` as "clear all IPv6 routes and the IPv6 gateway", and re-add the ones
-you wanted to keep. (`no ipv6 unicast-routing` is carved out and does *not* clear the table — measured: both static
+of what matched — it is a report of what the command does unconditionally. The same arm swallows `no ipv6 gateway`
+as well — a reader removing a gateway should not lose a routing table — and repeating either command on
+an already-empty configuration still answers `IPv6 routes cleared`. Until the handler honours its own
+help line, treat any `no ipv6 …` as "clear all IPv6 routes and the IPv6 gateway", and re-add the ones you
+wanted to keep. (`no ipv6 unicast-routing` is carved out and does *not* clear the table — measured: both static
 routes survive and `show ipv6 route` grows a two-line `!` banner saying routing is disabled. The comment
 in `engine/cli.js` above the bare `no ipv6` arm says that carve-out exists precisely because the two
 commands once shared a handler that ate the configuration.)
