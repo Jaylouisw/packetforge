@@ -6460,7 +6460,11 @@ class CliSession {
       }
       const neighbours = dev.ospfNeighbors || [];
       out.push('Routing Protocol is "ospf ' + ospf.pid + '"');
-      out.push('  Router ID       ' + (ospf.routerId || '(not configured - the highest interface address)'));
+      // The id in use, not a description of the rule that produced it: this line said "not
+      // configured - the highest interface address" while `show ip ospf` named the address.
+      out.push('  Router ID       ' + (ospf.routerId || (dev.ospfRouterId
+        ? dev.ospfRouterId + ' (derived from the highest interface address)'
+        : '(none - no interface has an address to derive one from)')));
       out.push('  Administrative distance ' + AD.ospf + ' for OSPF routes' +
         ' (a static route is ' + AD.static + ', so it wins for the same prefix)');
       out.push('  Areas           ' + (Array.from(new Set(participating.map(function (p) {
@@ -6748,7 +6752,12 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config.ospf;
     const out = [];
-    out.push('OSPF link-state database for process 1 (ID ' + cfg.routerId + ')');
+    // `cfg.routerId` is null when no `router-id` was typed, and this printed the JavaScript value:
+    // "OSPF link-state database for process 1 (ID null)" and a link-state row with `null` in two
+    // columns. The process view already prints the elected identifier; this one reads it too.
+    const selfId = cfg.routerId || dev.ospfRouterId || null;
+    out.push('OSPF link-state database for process ' + (cfg.pid || 1) + ' (ID ' +
+      (selfId || '(no address to derive one from)') + ')');
     out.push('  This model computes the tree from the adjacency graph, so links carry no age or');
     out.push('  sequence number: what follows is exactly what the SPF ran on.');
     out.push('');
@@ -6778,10 +6787,9 @@ class CliSession {
     }
     for (const area of areaIds) {
       out.push('Router Link States (Area ' + area + ')');
-      const rows = [[cfg.routerId, cfg.routerId, '', '', '', '']];
-      rows.length = 0;
+      const rows = [];
       for (const l of areas.get(area)) {
-        rows.push([cfg.routerId, cfg.routerId, l.iface, String(l.cost),
+        rows.push([selfId || '-', selfId || '-', l.iface, String(l.cost),
           l.peer || '-', l.state]);
       }
       // A neighbour's own links are the other half of the database: without them a stub on this
@@ -6792,8 +6800,8 @@ class CliSession {
         if (Number(peerInArea) !== Number(area)) continue;
         // The peer's own interface cost belongs to the peer and is not in this database; a guessed
         // number would be worse than an honest dash.
-        rows.push([n.routerId, n.routerId, n.iface, n.cost === undefined ? '-' : String(n.cost),
-          cfg.routerId, n.state]);
+        rows.push([n.routerId || '-', n.routerId || '-', n.iface,
+          n.cost === undefined ? '-' : String(n.cost), selfId || '-', n.state]);
       }
       out.push.apply(out, renderTable(['Link ID', 'ADV Router', 'Interface', 'Cost', 'Neighbour', 'State'],
         rows, 2));
@@ -6820,11 +6828,35 @@ class CliSession {
     if (!fromDb.length) {
       out.push('  (none - no SPF result has been installed; see "show ip route ospf")');
     } else {
-      out.push.apply(out, renderTable(['Prefix', 'Next hop', 'Interface', 'Cost'],
+      // A prefix the SPF produced is not necessarily a prefix that forwards: a static route at
+      // distance 1 beats OSPF's 110 for the same length, and this table listed the OSPF route as if
+      // it were in use. The mark is the routing table's, so the two views cannot disagree.
+      const rtOspf = (typeof dev.routesTable === 'function')
+        ? dev.routesTable().filter(function (r) { return r.code === 'O'; }) : [];
+      const forwards = function (r) {
+        const want = r.dest + '/' + maslen(r.mask);
+        const match = rtOspf.filter(function (x) {
+          return x.dest + '/' + net.prefixOf(x.mask) === want;
+        })[0];
+        return !!(match && match.installed);
+      };
+      out.push.apply(out, renderTable(['', 'Prefix', 'Next hop', 'Interface', 'Cost'],
         fromDb.map(function (r) {
-          return [r.dest + '/' + maslen(r.mask), r.nextHop || '-', r.iface || '-',
-            r.cost === undefined ? '-' : String(r.cost)];
+          return [forwards(r) ? '*' : '-', r.dest + '/' + maslen(r.mask), r.nextHop || '-',
+            r.iface || '-', r.cost === undefined ? '-' : String(r.cost)];
         }), 2));
+      // The key is printed whether or not something lost: a mark with no legend is a guess.
+      out.push('  * this route forwards      - a closer route holds the same prefix');
+      const lost = fromDb.filter(function (r) { return !forwards(r); });
+      if (lost.length) {
+        for (const r of lost) {
+          const prefix = r.dest + '/' + maslen(r.mask);
+          const winner = dev.routeTo(r.dest) || {};
+          out.push('  ' + prefix + ' is held by a ' + (winner.type || 'closer') + ' route' +
+            (winner.ad === undefined ? '' : ' at distance ' + winner.ad) +
+            ', which beats OSPF at 110 - "show ip route" is what forwards');
+        }
+      }
     }
     return out;
   }
