@@ -40,7 +40,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
-| `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
+| `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. `clear arp interface <port>` is a third accepted spelling of the same thing — bare port, `interface <port>` and `clear ip arp` all reach one implementation, and `clear arp <address>` is the fourth form, which refuses by name when that host has no entry. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
@@ -63,7 +63,8 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
 | `show vrrp [<group>]` | group state after the last election; naming a group narrows the table ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip protocols` | the routing processes running here, their areas, peers and distances |
-| `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
+| `show ip bgp` | the BGP table: prefixes received, next hop, AS path, and which row forwards; `show ip bgp <prefix>` is one entry, with the reason it is or is not installed ([BGP](#bgp)) |
+| `show ip bgp summary` | one row per peer: state, and the reason when it is not Established |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
 | `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
@@ -796,11 +797,24 @@ Three consequences worth knowing:
   to have spoken. Those frames are real state, so `show mac address-table at 0` shows the entries
   they created.
 - **A protocol with no timer answers the same at both instants.** BGP establishes immediately in
-  this model, so `show ip bgp at 0` and `show ip bgp at converged` agree. The label reports the
-  question; identical answers are the honest reply to it.
+  this model, so `show ip bgp summary at 0` and `show ip bgp summary at converged` agree. The label
+  reports the question; identical answers are the honest reply to it.
 - **Shows that are not control-plane products refuse the instant** — `show interfaces transceiver at
   0` answers `% "interfaces transceiver at 0" does not take an instant`, and names the ones that
   do. A physical table cannot be asked what it will look like in five seconds.
+
+Ask it on hardware that has no module bays and the answer is about the hardware, not the table — a copper
+port name is refused for a different reason than a device with nothing to report:
+
+```
+R1#show interfaces transceiver
+% Every port on R1 is copper: there are no module bays
+R1#show interfaces transceiver Gi0/0
+% No transceiver port named Gi0/0 on R1
+```
+
+The first is a property of the box, so the bare command refuses rather than printing an empty table; the
+second is a property of the argument, and names what it could not place.
 
 ### show ip route <protocol> — one protocol's rows, and how much of the table forwards
 
@@ -1520,6 +1534,61 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### `show ip bgp` is the table, and the summary is the summary
+
+The console had one table for two questions. "Are my peers up" is `show ip bgp summary`; "what did
+they give me, and which row forwards" is the BGP table — and that second view did not exist, under any
+name:
+
+```
+R1#show ip bgp
+Neighbor  V  AS     State        Reason        <- the summary, again
+10.0.0.2  4  65002  Established  eBGP
+```
+
+It is the table now, and it prints only what the engine holds:
+
+```
+R1#show ip bgp
+BGP router identifier 10.0.0.1, local AS number 65001
+
+    Network         Next Hop  Path
+*   10.0.0.0/24     10.0.0.2  65002
+*>  192.168.5.0/24  10.0.0.2  65002
+
+  *> this row forwards   * a route to the same prefix wins ahead of it
+  Not modelled here: MED, local preference, weight and the origin attribute - every
+  figure above is what the peer sent, and "show ip route" is what forwards.
+  10.0.0.0/24 is also connected here, which is closer than BGP's distance 20 - see "show ip route"
+```
+
+IOS prints Metric, LocPrf, Weight and Origin in this table. Nothing in this engine has a MED, a local
+preference, a weight or an origin attribute, so `0  100  0  ?` on every row would be four invented
+numbers — the kind of figure this console has spent several passes removing. The header says what is
+not modelled instead, and every number that *is* printed came from the peer.
+
+The `*>` mark is the routing table's answer, not this view's: `routesTable()` decides which row
+forwards, so `show ip bgp` and `show ip route` cannot disagree about the same prefix. A prefix that
+lost says what beat it.
+
+`show ip bgp <prefix>` is one entry — peer, session type, AS path, distance, and whether it is
+installed:
+
+```
+R1#show ip bgp 10.0.0.0/24
+BGP routing table entry for 10.0.0.0/24
+  Received from  10.0.0.2 (AS 65002, eBGP)
+  Next hop       10.0.0.2 (Gi0/0)
+  AS path        65002
+  Distance       20
+  Status         not installed: a connected route to 10.0.0.0/24 is closer than distance 20
+```
+
+An address with no length is the longest match containing it, because that is the question an
+operator with a destination in hand is asking. A prefix that is not in the table is refused with the
+prefixes that are, and `at <ms>` / `converged` stay with the summary — the view whose state has a
+timeline to be mid-way through.
 
 ### A tag is an interface, and a segment with a tag is still a segment
 
@@ -5073,9 +5142,9 @@ The abbreviation that works is `sh ip int br`, the one in the example at the top
 ### Help is per mode, and modes are sticky
 
 `help` lists what the mode you are in accepts, so the list itself is a claim worth testing: every form
-under `help` was run in the mode it was listed under, in a session of its own — **57 at the exec prompt,
-46 in global config, 27 in interface config, 130 forms, none refused as unrecognised.** The rule holds:
-documented means typable.
+under `help` was run in the mode it was listed under, in a session of its own — **59 at the exec prompt,
+46 in global config, 27 in interface config, 132 forms as this was written, none refused as unrecognised.**
+The rule holds: documented means typable. Recount rather than trust the three numbers — the exec list gained two forms between two passes on the same evening.
 
 What does not hold is running the list as a batch. Modes are sticky, and several documented commands
 change the parser for every line after them — `ip dhcp pool <name>` puts you in pool mode, and from
