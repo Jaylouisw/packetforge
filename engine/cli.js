@@ -913,6 +913,15 @@ class CliSession {
         out.push('  "neighbor <ip> remote-as <as>" adds a peer, "bgp router-id <ip>" names this router',
           '  "exit" leaves the mode, and a pasted configuration does not need it');
       }
+    } else if (head === 'bgp' && (tokens[1] === 'router-id' || tokens[1] === 'neighbor')) {
+      // IOS sets the speaker's identifier from global config, and this console's own usage text said
+      // so ("router bgp <as> | bgp router-id <ip> | bgp neighbor <ip> remote-as <as>") while answering
+      // "% Unrecognized command" to it. The verb was reachable only inside the process.
+      if (typeof this.device.isL3 === 'function' && !this.device.isL3()) {
+        return ['% ' + (this.device.name || this.device.id) + ' is a layer 2 switch: it cannot run BGP',
+          '% BGP needs a device that routes - a router, or a layer 3 switch with "ip routing"'];
+      }
+      out.push.apply(out, this._bgp(tokens));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
@@ -948,6 +957,14 @@ class CliSession {
       this.device.config.dnsServers = [];
       out.push('Name servers cleared');
     } else if (head === 'ospf') {
+      // `ospf router-id 1.1.1.1` answered "OSPF enabled, router-id 1.1.1.1 area 0" on a **PC** and on
+      // a **switch** - the same defect `router ospf 1` had, in the other spelling. The gate belongs on
+      // the family, not on one entry point.
+      if (typeof this.device.isL3 === 'function' && !this.device.isL3()) {
+        return ['% ' + (this.device.name || this.device.id) +
+          ' is not a router: OSPF describes paths between interfaces it can forward between',
+          '% A host reaches other networks with "ip default-gateway <gw>"'];
+      }
       out.push.apply(out, this._ospfConfig(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'ospf') {
       this.device.config.ospf = null;
@@ -2343,8 +2360,12 @@ class CliSession {
     if (t[0] === 'router-id') {
       if (!isIp(t[1])) return ['% Invalid router-id "' + (t[1] || '') + '"'];
       if (!dev.config.bgp) return ['% BGP is not enabled' + NEEDS.bgp];
+      if (dev.config.bgp.routerId === t[1]) {
+        return ['BGP router-id ' + t[1] + ' is already configured', '  Nothing changed'];
+      }
+      const had = dev.config.bgp.routerId;
       dev.config.bgp.routerId = t[1];
-      return ['BGP router-id ' + t[1]];
+      return ['BGP router-id ' + t[1] + (had ? ' (was ' + had + ')' : '')];
     }
 
     // neighbor <ip> remote-as <as>
@@ -2355,8 +2376,19 @@ class CliSession {
       const list = dev.config.bgp.neighbors;
       let n = null;
       for (const x of list) { if (x.address === t[0]) { n = x; break; } }
-      if (n) n.remoteAs = asn;
-      else list.push({ address: t[0], remoteAs: asn });
+      if (n && n.remoteAs === asn) {
+        return ['BGP neighbor ' + t[0] + ' remote-as ' + asn + ' is already configured',
+          '  Nothing changed - "no neighbor ' + t[0] + '" removes it'];
+      }
+      if (n) {
+        // Changing a peer's AS under it tears the session down in the real thing; say so rather than
+        // reporting the new line as if it were an addition.
+        const was = n.remoteAs;
+        n.remoteAs = asn;
+        return ['BGP neighbor ' + t[0] + ' remote-as ' + asn + ' (was ' + was + ')',
+          '  The session restarts against the new AS'];
+      }
+      list.push({ address: t[0], remoteAs: asn });
       return ['BGP neighbor ' + t[0] + ' remote-as ' + asn];
     }
 
@@ -2546,6 +2578,17 @@ class CliSession {
       const had = cfg.routerId;
       cfg.routerId = null;
       return [had ? 'Router-id cleared (was ' + had + ')' : 'No router-id was configured'];
+    }
+    // BGP verbs are not "the next block of a paste": `neighbor 10.10.0.2 remote-as 65002` typed while
+    // editing an OSPF process fell through to global config and configured BGP from inside it. The
+    // fall-through stays (a paste that omits `exit` must keep working), but not for the other
+    // process's verbs - and `router bgp <as>` still switches processes, as it does on a real router.
+    const bgpVerb = head === 'neighbor' || head === 'bgp' ||
+      (head === 'no' && ['neighbor', 'bgp'].indexOf(String(tokens[1] || '').toLowerCase()) !== -1);
+    if (bgpVerb) {
+      return ['% "' + tokens.join(' ') + '" is not a router ospf command',
+        '% That is a BGP verb - "exit" first, then "router bgp <as>"',
+        '% In this mode: network <net> <wildcard> area <id>, router-id <ip>, exit, end'];
     }
     // A pasted configuration does not say `exit` before `interface Gi0/1`, and a real router accepts
     // it. Leaving the mode and re-dispatching is what makes a dump pasteable; a refusal that loses the
@@ -9456,6 +9499,15 @@ class CliSession {
       return sources ? null : 'no port on it sources PoE, so there is no power to switch on or off';
     }
     if (first === 'ip' && second === 'ospf') return l3 ? null : 'no routing protocol runs on its interfaces';
+    if (first === 'ospf' || (first === 'no' && second === 'ospf')) {
+      return l3 ? null : 'it is not a router, so no routing protocol can run on it';
+    }
+    // BGP verbs, and the removals that pair with them: a switch was shown `no bgp neighbor <ip>` and
+    // `no neighbor <ip>` while `router bgp` itself was filtered out - the removal of a process it
+    // cannot start.
+    if (words.indexOf('bgp') !== -1 || (first === 'no' && second === 'neighbor')) {
+      return l3 ? null : 'it is a layer 2 switch, so it cannot run BGP';
+    }
     if (first === 'no' && second === 'ip' && words[2] === 'ospf') {
       return l3 ? null : 'no routing protocol runs on its interfaces';
     }
@@ -9684,13 +9736,25 @@ class CliSession {
       helpLine('exit / end', 'config / exec')
     ]);
 
-    if (this.mode === MODE_OSPF) return helpRows([
-      helpLine('network <net> <wildcard> area <id>', 'put every interface the wildcard matches into an area'),
-      helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
-      helpLine('router-id <ip>', 'name this router in OSPF'),
-      helpLine('exit', 'leave router configuration mode'),
-      helpLine('end', 'leave configuration mode entirely')
-    ], 'Router mode - the areas live on the interfaces, and "network" is the shorthand that writes them');
+    // Router mode is two processes behind one prompt: `router ospf` and `router bgp` both say
+    // (config-router)#. The page was OSPF's for both, so a BGP process was shown `network … area 0`
+    // (refused there) and was not shown `neighbor … remote-as` (the only verb it has).
+    if (this.mode === MODE_OSPF) {
+      if (this.routerKind === 'bgp') return helpRows([
+        helpLine('neighbor <ip> remote-as <as>', 'accept sessions from that address in that AS'),
+        helpLine('no neighbor <ip>', 'remove the peer'),
+        helpLine('bgp router-id <ip>', 'name this speaker by an address of its own choosing'),
+        helpLine('exit', 'back to global configuration - the process stays running'),
+        helpLine('end', 'leave configuration mode entirely')
+      ], 'BGP mode - the process is this autonomous system, and its peers are the addresses below it');
+      return helpRows([
+        helpLine('network <net> <wildcard> area <id>', 'put every interface the wildcard matches into an area'),
+        helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
+        helpLine('router-id <ip>', 'name this router in OSPF'),
+        helpLine('exit', 'back to global configuration - the process stays running'),
+        helpLine('end', 'leave configuration mode entirely')
+      ], 'Router mode - the areas live on the interfaces, and "network" is the shorthand that writes them');
+    }
     if (this.mode === MODE_ACL) return helpRows([
       'Access-list ' + this.aclName + ' (' + (this.aclKindWord === 'ext' ? 'extended' : 'standard') + '):',
       helpLine('permit|deny <entry>', 'one line, in the order shown by "show access-lists"'),

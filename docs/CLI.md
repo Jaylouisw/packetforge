@@ -1196,6 +1196,49 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### Two processes, one prompt, and a page that belonged to one of them
+
+`router ospf 1` and `router bgp 65001` both say `(config-router)#` — deliberately, because on a real
+router it is the same mode. The help page, though, was OSPF's for both:
+
+```
+R1(config-router)#?                       <- after "router bgp 65001"
+  network <net> <wildcard> area <id>      <- OSPF's verb, refused in a BGP process
+  no network <net> <wildcard> area <id>
+  router-id <ip>                          <- refused here too
+```
+
+`neighbor <ip> remote-as <as>` — the one verb a BGP process has — was not on the page at all. Now the
+page follows the process:
+
+```
+R1(config-router)#?
+  neighbor <ip> remote-as <as>   accept sessions from that address in that AS
+  no neighbor <ip>               remove the peer
+  bgp router-id <ip>             name this speaker by an address of its own choosing
+  exit                           back to global configuration - the process stays running
+  end                            leave configuration mode entirely
+```
+
+The suite asserts the property rather than the rows: **every row a mode shows is accepted in that
+mode.** That is how the rest of this pass came out:
+
+- `bgp router-id <ip>` was `% Unrecognized command` in **global config**, while this console's own
+  usage text named it as a config-mode verb — and while the BGP-mode refusal said *"In this mode:
+  neighbor <ip> remote-as <as>, bgp router-id <ip>, exit, end"*, pointing at a mode where it worked.
+  Both spellings work now, from either mode, and the dump is unchanged.
+- `neighbor 10.10.0.2 remote-as 65002` typed **inside an OSPF process** was accepted: it fell through
+  to global config, which is what makes a paste without `exit` work, and configured BGP from inside
+  the OSPF mode. The fall-through stays; the other process's verbs are now refused there
+  (*"That is a BGP verb - "exit" first, then "router bgp <as>""*), while `router bgp <as>` still
+  switches processes the way it does on a router.
+- `ospf router-id 1.1.1.1` answered **"OSPF enabled, router-id 1.1.1.1 area 0" on a PC** — the same
+  defect `router ospf 1` had, in the other spelling. The gate is on the family now, and a device that
+  cannot route is shown no `ospf`, `bgp` or `neighbor` row at all.
+- Repeating a `neighbor` line said nothing and looked like a second peer; it now answers
+  *"BGP neighbor 10.10.0.2 remote-as 65002 is already configured"*, and changing a peer's AS reports
+  the change (*"was 65002 … the session restarts against the new AS"*).
+
 ### Interface mode had the same defect, one prompt deeper
 
 `?` inside an interface block was not filtered, and two of its rows were **accepted** on devices
