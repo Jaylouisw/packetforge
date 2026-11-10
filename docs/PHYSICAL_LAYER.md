@@ -279,6 +279,45 @@ than a shrug. See [HYBRID-PATCH.md](HYBRID-PATCH.md).
 
 ---
 
+### The check runs when a cable is drawn, and again whenever state is served
+
+`connect()` asks the rule once, at the moment of building, and then forgot the answer: nothing asked
+again. A topology that arrived from a file — hand-edited, written against an older catalogue, or
+produced by anything that was not this UI — could therefore hold a run that could never have been
+built, and the link inspector answered for every cable with one hardcoded sentence:
+
+> this cable passed the physical-layer check when it was created
+
+which is a claim about a check that, for a loaded cable, nobody had run. A copper pair joined by
+`1000base-lx` in the file was described that way, while the engine's own rule said:
+
+```
+E_MEDIA_NOT_SUPPORTED: 1000BASE-LX (1000base-lx) is not supported by both PC/eth0 and Switch (L2)/Fa0/1;
+possible media: 10BASE-T, 100BASE-TX, 1000BASE-T.
+```
+
+`Topology.linkVerdict(link)` runs that same rule over the hardware as it is now, in the `revalidate`
+form so a pair that is cabled to each other is not refused for being cabled, and returns the verdict.
+Every state payload the server builds carries one per link. It is attached in `fullState()` and not in
+`serialize()`, deliberately: a saved file records what was built, while a verdict is a derived answer
+about the hardware as it is now, and one written into a file would be read back as fact long after the
+hardware it describes had changed.
+
+The inspector renders what it is handed rather than asserting anything of its own:
+
+| verdict | what the panel says |
+| --- | --- |
+| `ok` | the cages mate and the media is supported at both ends, checked against the hardware as it is now |
+| `ok` with a warning | the same, plus the warning — an over-length run still carries `W_DISTANCE` |
+| refused | this cable cannot exist as drawn, with the engine's own message, and that drawing it now would be refused |
+| absent | this cable has not been checked in this session — never a claim that it passed |
+
+**What this does not do:** the data path does not consult the physical rule. Frames still cross a
+cable that could never have been built, exactly as they still cross an over-length run — the verdict
+is a report, not a door. Making it a door is a different change with a sharp edge: a lab restored from
+a hand-edited file would fall silent the moment it loaded, so the refusal stays at the panel and says
+what it would do.
+
 ## 5. VLANs (802.1Q) — enforced in the data path
 
 `engine/vlan.js` implements per-port configuration:

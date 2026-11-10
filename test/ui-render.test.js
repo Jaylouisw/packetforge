@@ -28,6 +28,9 @@ const l2 = t.connect(sw.id, 'Fa0/2', rt.id, 'Gi0/0');
 runCommands(sw, t, null, ['enable', 'configure terminal',
   'interface Fa0/1', 'switchport mode access', 'switchport access vlan 20']);
 const topo = JSON.parse(JSON.stringify(t.serialize()));
+// The server puts a verdict on every cable (server/index.js fullState); the inspector renders that
+// verdict instead of asserting the check happened, so the fixture has to carry what a browser gets.
+for (const l of topo.links) l.verdict = t.linkVerdict(t.links.get(l.id));
 
 // --- load the real frontend in a stub environment -------------------------
 // Permissive node stub: any unknown property is a no-op function, so the

@@ -1611,9 +1611,27 @@
     html += endpointHTML(da, link.a.iface, ia);
     html += endpointHTML(db, link.b.iface, ib);
 
-    html += '<div class="verdict">Cages mate and the media is supported at both ends — ' +
-      'this cable passed the physical-layer check when it was created. An impossible ' +
-      'combination is refused at that moment, not silently accepted.</div>';
+    // What the physical layer says about this cable *now*. This block used to be a sentence in the
+    // source - "this cable passed the physical-layer check when it was created" - printed for every
+    // link, including one that arrived in a hand-edited file pairing two ports that cannot mate. The
+    // engine had refused that combination when it was drawn; nothing asked the question again, so a
+    // cable that could never be built was described as one that had been checked.
+    const verdict = link.verdict;
+    if (!verdict) {
+      html += '<div class="verdict">This cable has not been checked against the hardware in this ' +
+        'session. The physical check runs when a cable is drawn and whenever the topology is served, ' +
+        'so a link with no verdict came from something that did neither.</div>';
+    } else if (verdict.ok === false) {
+      const err = (verdict.errors && verdict.errors[0]) || null;
+      html += '<div class="verdict" style="color:#e5484d">This cable cannot exist as drawn' +
+        (err ? ': ' + esc(err.message) : '.') + ' It is in the topology because it was loaded with ' +
+        'it, not because it was built here, and drawing it now would be refused.</div>';
+    } else {
+      html += '<div class="verdict">Cages mate and the media is supported at both ends — checked ' +
+        'against the hardware as it is now, not remembered from when the cable was drawn.</div>';
+      const warn = (verdict.warnings || [])[0];
+      if (warn) html += '<div class="verdict">' + esc(warn.message) + '</div>';
+    }
 
     // A cable could not be removed from the UI at all before this (issue #86): the engine
     // had disconnect() and the server had DELETE /links/:id, and nothing reached either.

@@ -167,6 +167,14 @@ function fullState(topo) {
     };
   }
   s.runtime = runtime;
+  // Every cable's verdict, from the same rule that let it be built. Computed here rather than in
+  // Topology.serialize() on purpose: a saved file records what was built, while a verdict is a
+  // derived answer about the hardware as it is now, and one written into a file would be read back
+  // as fact long after the hardware it describes had changed.
+  s.links.forEach(function (l) {
+    const live = topo.links.get(l.id);
+    l.verdict = live ? topo.linkVerdict(live) : null;
+  });
   return s;
 }
 

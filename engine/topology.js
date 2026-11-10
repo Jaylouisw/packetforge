@@ -432,6 +432,49 @@ class Topology {
     return { ok: true, link: link, warnings: verdict.warnings || [], errors: [] };
   }
 
+  // What the physical rule says about a cable that already exists.
+  //
+  // validateLink() answers "may I build this", and connect() asks it once, at the moment of
+  // building. Nothing asked again afterwards - so a topology that came from a file (hand-edited,
+  // written against an older catalogue, or produced by anything that was not this UI) could hold a
+  // run that could never have been built, and every view went on describing it. This runs the same
+  // rule over the hardware as it is now, in the `revalidate` form, so the pair is allowed to be
+  // cabled to each other and only the physical question is asked.
+  linkVerdict(link) {
+    if (!link) return null;
+    const a = this.devices.get(link.a && link.a.deviceId);
+    const b = this.devices.get(link.b && link.b.deviceId);
+    const ia = a && a.interfaces.get(link.a.iface);
+    const ib = b && b.interfaces.get(link.b.iface);
+    const gone = [];
+    if (!a) gone.push(String(link.a && link.a.deviceId));
+    else if (!ia) gone.push((a.name || a.id) + ' ' + link.a.iface);
+    if (!b) gone.push(String(link.b && link.b.deviceId));
+    else if (!ib) gone.push((b.name || b.id) + ' ' + link.b.iface);
+    if (gone.length) {
+      return {
+        ok: false,
+        errors: [{ code: 'E_NO_PORT', message: 'This cable names ' + gone.join(' and ') + ', which no longer exists.' }],
+        warnings: []
+      };
+    }
+    const opts = {
+      mediaId: link.mediaId,
+      revalidate: {
+        a: { deviceId: link.b.deviceId, iface: link.b.iface },
+        b: { deviceId: link.a.deviceId, iface: link.a.iface }
+      }
+    };
+    // Only when a length was recorded: passing undefined would ask a question about the lead that
+    // nobody has answered, and the reach warning belongs to a length that is actually claimed.
+    if (link.lengthM !== null && link.lengthM !== undefined) opts.lengthM = link.lengthM;
+    const v = this.validateLink(link.a.deviceId, link.a.iface, link.b.deviceId, link.b.iface, opts);
+    return {
+      ok: v.ok, errors: v.errors || [], warnings: v.warnings || [],
+      mediaId: v.mediaId, speedMbps: v.speedMbps
+    };
+  }
+
   disconnect(linkId) {
     const link = this.links.get(linkId);
     if (!link) return false;
