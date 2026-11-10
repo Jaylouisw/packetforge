@@ -137,6 +137,32 @@ as `category: "firewall"` with an empty capability list, which the engine reads 
 everything" - so inserting a tap into a lab cut the link it was inserted into, and no test
 noticed, because a link carrying nothing looks like a link with nothing to carry.
 
+### What is left open, and why
+
+Every remaining request in this project's issue tracker is blocked on one of four things.
+None of them is a missing search: each is information that neither the vendor nor this
+repository can supply, which is why they stay open rather than being guessed into the schema.
+
+- **A chassis needs a stated configuration.** NetEngine 8000 (M4…M14, X4…X16, F1A/F8),
+  OptiXtrans E6600/E9600, OptiXaccess MA5800 and the FS NC8200/NC8400 are frames with
+  **slots**: Huawei publishes *maximum ports per subrack* (MA5800-X17: 272 GPON, 816 GE/FE)
+  and *per-control-board* upstream ports, and FS publishes slot counts, but neither publishes
+  a port census for an unconfigured frame. Modelling the maximum lets a lab cable 272 PONs
+  into a chassis that might hold sixteen; modelling a representative board set means inventing
+  the customer's order. The fix is one line from the requester - "MA5800-X7 with one MPLB and
+  three GPHF boards" - and the ports then follow from the vendor's board tables.
+- **A storage array publishes port *types*, not counts.** OceanProtect X8000/X8100/X9000/X9100
+  and E8000 give front-end port *kinds* (16/32/64G FC, 10/25/40/100GE) and a controller count,
+  because the port count is a function of the configuration ordered.
+- **A modular router is a bay, not a port.** The Peplink EPX datasheet gives ranges - "4-28x
+  10G SFP+ Ports, 8-56x GE Ports" - with a base model of "EPX Base Model, 1x OLED Module", i.e.
+  seven module slots and no fixed ports at all. The SDX, by contrast, could be modelled (#458)
+  because its ordering row named the base chassis's ports exactly.
+- **The source genuinely says nothing usable.** The UniFi Dream Wall **Pro** has no tech-spec
+  page and the published Dream Wall datasheet describes the non-Pro unit; the AmpliFi HD
+  MeshPoint's three public sources disagree on whether it has zero, one or two Ethernet ports.
+  A contradiction is recorded on the issue rather than resolved by preference (#282).
+
 ### What the catalogue cannot represent
 
 Some hardware requests describe something with no interface at all, and those are declined
