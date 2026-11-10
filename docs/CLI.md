@@ -1535,6 +1535,43 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A view may not print a JavaScript value, and a produced route is not an installed one
+
+Two views of the OSPF database, both reading the wrong thing.
+
+**The identifier was printed as `null`.**
+
+```
+R1#show ip ospf database
+OSPF link-state database for process 1 (ID null)
+Router Link States (Area 0)
+  Link ID     ADV Router  Interface  Cost  Neighbour   State
+  null        null        Gi0/0      10    172.16.0.1  FULL
+```
+
+`cfg.routerId` is null when nobody typed `router-id`, and the view printed the JavaScript value. The
+identifier is derived from the highest interface address — `show ip ospf` has named it since that was
+fixed — and every view reads it now: header, link-state rows, and `show ip protocols`, which had been
+describing the rule ("not configured - the highest interface address") instead of naming the address.
+
+**And a prefix the SPF produced is not necessarily a prefix that forwards.** A static route at
+distance 1 holds the same prefix as an OSPF route at 110, and the database listed the OSPF route as
+though it were in use. The mark is the routing table's:
+
+```
+Prefixes this database produced:
+     Prefix         Next hop  Interface  Cost
+  -  172.16.0.0/24  10.0.0.2  Gi0/0      20
+  * this route forwards      - a closer route holds the same prefix
+  172.16.0.0/24 is held by a static route at distance 1, which beats OSPF at 110
+```
+
+The key prints whether or not something lost, because a mark with no legend is a guess.
+
+The general form of the first defect is now a guard: the suite walks every `show` row on the exec page
+of a switch, a router and a host and fails on `null`, `undefined`, `NaN` or `[object Object]` in the
+output — so the next view that prints an unfilled field fails loudly instead of shipping.
+
 ### A count called "installed" has to be the routing table's count
 
 The BGP summary ended with a number that readers take at face value, and it was counting the wrong

@@ -45,11 +45,31 @@ Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" 
 | 3 | `type` is `console` / `usb` / `coax` / `dsl`, `adsl`, `vdsl` / `powerline`, `plc`, `mains` | that family (`console`, `usb`, `coax`, `dsl`, `powerline`) |
 | 4 | name starts `wlan*`, `wifi*`, `wi-fi*`, `radio*`, `wwan*`, `nr5g*` | `antenna` |
 | 5 | name contains `console`, `con<N>`, `tty`, `aux` → `console`; `usb` → `usb` | |
-| 6 | name names a fibre connector (`sc-apc`, `sc-upc`, `lc-apc`, `lc-upc`, `scapc`, `lcupc`, …) | that cage |
+| 6 | name names a fibre connector — `sc/apc`, `scapc`, `sc/upc`, `scupc`, `lc/apc`, `lcapc`, `lc/upc`, `lcupc` (see the spelling trap below) | that cage |
 | 7 | name says PON (`gpon`, `xg-pon`, `xgs-pon`, `pon<N>`) | `sc-apc` — the ISP convention, because a PON port's connector is a vendor choice; an explicit `connector` on the spec always wins |
 | 8 | name matches `sfp`/`qsfp`/`xfp`/`cfp`/`xe-`/`et-`/`fc<N>`, **or** speed is 25G/40G/100G | optical, by rule 9 |
 | 9 | optical: name says `qsfpdd` → `qsfpdd`; `qsfp56` → `qsfp56`; otherwise by max rate — ≥200G `qsfpdd`, ≥100G `qsfp28`, ≥40G `qsfp+`, ≥25G `sfp28`, ≥10G `sfp+`, else `sfp` | |
 | 10 | nothing matched | `rj45` |
+
+**Rule 6 is narrower than it looks: the separator has to be a slash or nothing, never a hyphen.**
+The regexes are `lc\/?upc`, `sc\/?apc` and so on, so `lc/upc1` and `lcupc1` resolve to `lc-upc`, while
+`lc-upc1` — the spelling this table used to list, and the one a hand-written spec is most likely to
+pick — matches nothing and falls all the way through to `rj45`. Measured:
+
+| name | `inferCage()` |
+|---|---|
+| `lc/upc1`, `lcupc1` | `lc-upc` |
+| `sc/apc1`, `scapc1` | `sc-apc` |
+| `lc-upc1`, `sc-upc1`, `lc-apc1`, `sc-apc1` | `rj45` |
+
+No catalogue device is affected — no port in the 1650 models is named after a connector at all, and a
+spec that does want one can set `connector` explicitly, which overrides every rule here. The trap is for
+someone hand-writing a patch-panel port and expecting the name to do it.
+
+One more thing the signature hides: the rate ladder in rules 8–9 reads the **second argument** — the
+port's max rate in Mbps — not `spec.speed`. `speed` only feeds the "is this optical at all" test, so
+`inferCage({ name: 'et-0/0/0', speed: '100G' })` answers `sfp`, and the same call with `100000` answers
+`qsfp28`. Pass the rate or the port gets the slowest optical cage that matches its name.
 
 A port named for its cage beats its rate: `qsfpdd1/1` carrying 200G is a QSFP-DD cage, not a
 QSFP28 that happens to be fast. QSFP56 has to be named for the same reason — a bare 200G rate

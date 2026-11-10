@@ -32,7 +32,7 @@ catalog to the API and the UI palette.
 | `interfaces` | one of | explicit array; per-port keys below |
 | `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` plus any port key |
 | `description` | no | tooltip — and CI audits it against the ports the spec declares |
-| `sourceUrl` | recommended | the datasheet the numbers came from (1,302 of 1,650 specs carry one). **22 more carry `source` instead** — the older spelling of the same idea, never both — so 1,322 of 1,650 point at a datasheet somewhere |
+| `sourceUrl` | recommended | the datasheet the numbers came from (1,302 of 1,650 specs carry one). **20 more carry `source` instead** — the older spelling of the same idea, never both — so 1,322 of 1,650 point at a datasheet somewhere |
 | `notes` | no | research note kept beside the spec, quoted rather than paraphrased |
 | `poeBudget` | no | PSE budget in watts; research-sourced specs use `poe: {"budgetW": 240}` instead |
 | `passive` | no | `true` for a passive tap or splitter — no capabilities, no software |
@@ -80,7 +80,7 @@ catalogue's other 1,534 files state none at all, and the engine infers from the 
 
 ### Keys the catalogue carries that this table does not gate on
 
-A survey of all 1,650 files finds **fourteen** top-level keys the schema table above never mentions — thirty-two exist in total, eighteen are in that table, and `poe` counts as documented because the `poeBudget` row names it. They matter
+A survey of all 1,650 files finds **sixteen** top-level keys the schema table above never mentions — thirty-three exist in total, sixteen are in that table, and `poe` counts as documented because the `poeBudget` row names it (seventeen documented, sixteen not). They matter
 because a contributor copying an existing spec will meet them, and because **whether any code reads a
 key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>" engine/ web/ server/`:
 
@@ -89,10 +89,10 @@ key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>"
 | `insertionLossDb` | 13 | `engine/optical.js` | **real** — the loss a passive part adds to a PON budget |
 | `formFactor` | 7 | `engine/optical.js`, `web/app.js` | **real** — which cage a transceiver fits, and its label |
 | `splitRatio` | 11 | `engine/validation.js` | **real** — a splitter's fan-out, and its loss |
-| `dualRole` | 2 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
+| `dualRole` | 3 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
 | `comboPorts` | 15 | nothing in `engine/`, `web/`, `server/` — written by `scripts/apply-research.js` | **annotation**: the pairing itself is expressed by per-port `comboWith`/`comboRole` |
-| `source` | 22 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,302 of 1,650" coverage count above uses, so a spec carrying only `source` counts as uncovered (22 do; none carry both) |
-| `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators) |
+| `source` | 20 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,302 of 1,650" coverage count above uses, so a spec carrying only `source` counts as uncovered (20 do; none carry both) |
+| `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote`, `powerMaxW` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators), plus `powerMaxW` (5 files) — a radio's transmit power, which nothing models |
 
 The annotation keys all sit on passive hardware under `devices/fs/` and similar: they record what the
 part *is* without claiming the model simulates it. Adding one is harmless; expecting it to change a
