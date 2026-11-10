@@ -444,6 +444,57 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### Pinging a name, and reading DNS
+
+`ping` takes an address or a name. A name is resolved through the lab's DNS servers before a packet is sent, and
+the console prints the resolution the way a box does:
+
+```
+h1> ping r1.lab
+Type escape sequence to abort.
+Translating "r1.lab"...domain server (10.0.0.1) [OK]
+  r1.lab -> 10.0.0.1
+Sending 4, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (4/4)
+Reply from 10.0.0.1: bytes=100 time=0.002 ms
+```
+
+A name that does not resolve is refused **before** anything is sent, and the three ways it can fail are kept apart,
+because they have different causes and different fixes:
+
+```
+h1> ping nope.lab
+% Could not resolve "nope.lab": NXDOMAIN - no zone any server here hosts contains that name
+% Nothing was sent. Check the zone on 10.0.0.1, or the name servers this device asks.
+h1> ping only-txt.lab
+% Could not resolve "only-txt.lab": NODATA - the name exists on 10.0.0.1 but has no A record
+% Nothing was sent. Add an A record: dns add only-txt.lab A <address>
+```
+
+and `SERVFAIL` when no device in the lab hosts a zone at all, or when no listed server answers. Digits and dots
+that are not a valid address (`ping 10.0.0.999`) are refused as an address rather than looked up as a name.
+
+`show ip dns` reads the zones back — the records that are actually answered, in zone-file shape:
+
+```
+r1> show ip dns
+Zone lab (default TTL 3600) - 4 record(s)
+  r1.lab                             3600    IN A        10.0.0.1
+  www.lab                            3600    IN A        10.0.0.50
+  alias.lab                          3600    IN CNAME    www.lab
+  only-txt.lab                       3600    IN TXT      hello
+
+% No name servers configured (use "ip name-server <address>" in config mode)
+```
+
+`show ip dns zone <name>` narrows to one zone; an unknown name lists the zones that do exist. A zone the server
+would refuse to answer for is printed with `NOT answered: <reason>` and the offending record, rather than shown as
+if it were live. A device with no zones says it is not a DNS server, and names the command that would make it one.
+
+A resolver list is optional, and the report says what happens without one: a lookup asks *any* server in the lab,
+which is what `Simulator.resolveName()` does for a small lab.
+
 ### Reading DHCP
 
 DHCP has been modelled end to end since it was: pools, ranges, exclusions, reservations, lease times, renewals

@@ -1727,16 +1727,59 @@ class CliSession {
       const n = parseInt(tokens[i], 10);
       if (Number.isFinite(n) && n > 0) count = n;
     }
-    if (!ip || !net.isIp(ip)) return ['% Invalid ping target: ' + (ip || '(none)')];
+    // A hostname is a target. `Simulator.ping()` has resolved names through the lab's DNS servers since
+    // #241 - it emits a dns event and distinguishes NXDOMAIN from NODATA from SERVFAIL - and this guard
+    // refused the name before the engine ever saw it, so the one command everybody reaches for first could
+    // not use the resolver the product already has (#1375).
+    const target = String(ip === undefined || ip === null ? '' : ip);
+    if (!target) return ['% Invalid ping target: (none)'];
+    // `net.isIp()` is a shape check (three dots, one to three digits), so 10.0.0.999 passes it and the engine
+    // throws "Invalid IPv4 address" at the first packet. Ask the question properly here: is every octet in range?
+    const strictIp = function (x) {
+      try { net.ipToInt(x); return true; } catch (e) { return false; }
+    };
+    const namedTarget = !strictIp(target);
+    // Digits and dots that are not an address are a typo, not a hostname: resolving 10.0.0.999 as a name would
+    // answer NXDOMAIN and send the operator looking in the wrong place.
+    if (namedTarget && /^[0-9.]+$/.test(target)) {
+      return ['% Invalid ping target: ' + target + ' (not an IPv4 address, and not a name that could resolve)'];
+    }
     if (!this.sim) return ['% Simulator not attached'];
     if (atMs !== null) {
       if (!Number.isFinite(atMs) || atMs < 0) return ['% Invalid instant: ' + tokens[tokens.indexOf('at') + 1]];
       this.sim.setRunTime(atMs);
     }
     out.push('Type escape sequence to abort.');
-    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + ip + ', timeout is 2 seconds:' +
+    let shownTarget = target;
+    if (namedTarget) {
+      // Resolve first, the way a box prints it: Translating "server.lab"...domain server (10.0.0.53) [OK]
+      const probe = this.sim.resolveName ? this.sim.resolveName(this.device, target) : null;
+      const serverLabel = function (pr) {
+        if (!pr) return 'none';
+        if (pr.serverIp) return pr.serverIp;
+        return pr.serverId || pr.server || 'none';
+      };
+      if (probe && probe.ok) {
+        out.push('Translating "' + target + '"...domain server (' +
+          serverLabel(probe) + ') [OK]');
+        out.push('  ' + target + ' -> ' + probe.address);
+        shownTarget = probe.address;
+      } else if (probe) {
+        const status = String(probe.status || 'unknown').toUpperCase();
+        const why = {
+          NXDOMAIN: 'no zone any server here hosts contains that name',
+          NODATA: 'the name exists on ' + serverLabel(probe) + ' but has no A record',
+          SERVFAIL: 'no device in this lab hosts a DNS zone, or no listed server answered'
+        }[status] || 'the resolver did not answer';
+        return ['% Could not resolve "' + target + '": ' + status + ' - ' + why,
+          '% Nothing was sent. ' + (status === 'NODATA'
+            ? 'Add an A record: dns add ' + target + ' A <address>'
+            : 'Check the zone on ' + serverLabel(probe) + ', or the name servers this device asks.')];
+      }
+    }
+    out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shownTarget + ', timeout is 2 seconds:' +
       (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
-    const res = this.sim.ping(this.device.id, ip, { count: count });
+    const res = this.sim.ping(this.device.id, namedTarget ? target : ip, { count: count });
     const marks = res.replies.map(function (r) { return r.success ? '!' : '.'; }).join('');
     out.push(marks);
     const ok = res.replies.filter(function (r) { return r.success; }).length;
@@ -1746,7 +1789,7 @@ class CliSession {
         const t = (r.rtt === null || r.rtt === undefined)
           ? (r.hops + ' hops')
           : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
-        out.push('Reply from ' + ip + ': bytes=100 time=' + t);
+        out.push('Reply from ' + shownTarget + ': bytes=100 time=' + t);
       } else if (r.reason === 'converging') {
         // Not "request timed out": nothing was lost, the network is not up yet.
         const who = (r.pending || []).map(function (p) { return p.process + ' on ' + p.device; }).join(', ');
@@ -1864,6 +1907,74 @@ class CliSession {
   // other than Established. Before the session walk existed, every configured neighbour was
   // Established by definition - which is the one thing a lab must not teach, because the
   // whole skill is reading Active or OpenSent and knowing what it means.
+  // `show ip dns [zone [<name>]]`.
+  //
+  // `dns zone` and `dns add` have been writable since DNS was modelled, and `Simulator.resolveName()` answers
+  // queries from those zones - but nothing could show a zone back. So an operator could add a record and had no way
+  // to see what the server would actually answer, which is the same defect `show ip dhcp pool` closed for pools
+  // (#1375). The rows come from `dns.normalizeZone()` and the honesty comes from `dns.validateZone()`: a zone the
+  // server would refuse to answer for says so, with the reason, instead of being printed as if it were live.
+  _showDns(args) {
+    const dev = this.device;
+    const dnsLib = require('./dns');
+    const out = [];
+    const zones = (dev.config && Array.isArray(dev.config.dnsZones)) ? dev.config.dnsZones : [];
+    const servers = (dev.config && Array.isArray(dev.config.dnsServers)) ? dev.config.dnsServers : [];
+    const sub = String(args[0] === undefined ? '' : args[0]).toLowerCase();
+    const want = args.slice(1).join(' ').trim();
+
+    const fmtRecord = function (rec) {
+      const ttl = String(rec.ttl === null || rec.ttl === undefined ? '-' : rec.ttl);
+      const prio = (rec.priority === null || rec.priority === undefined) ? '' : ' (priority ' + rec.priority + ')';
+      return '  ' + pad(rec.name || '@', 34) + pad(ttl, 8) + pad('IN ' + rec.type, 10) + (rec.value || '-') + prio;
+    };
+
+    if (sub === '' || sub === 'zone' || sub === 'zones') {
+      if (sub === 'zone' && want) {
+        const key = dnsLib.normalizeName(want);
+        const raw = zones.filter(function (z) { return dnsLib.normalizeName(z.name) === key; })[0];
+        if (!raw) {
+          out.push('% No DNS zone ' + want + ' on this device' +
+            (zones.length ? ' (zones here: ' + zones.map(function (z) { return z.name; }).join(', ') + ')' : ''));
+          return out;
+        }
+        const z = dnsLib.normalizeZone(raw);
+        const check = dnsLib.validateZone(raw);
+        out.push('Zone ' + z.name + ' (default TTL ' + z.defaultTtl + ')' +
+          (check.ok ? '' : ' - NOT answered: ' + check.errors[0].message));
+        if (!z.records.length) out.push('  (no records: every query is NXDOMAIN)');
+        for (const rec of z.records) out.push(fmtRecord(rec));
+        return out;
+      }
+
+      if (!zones.length) {
+        out.push('% This device is not a DNS server (no "dns zone" configured)');
+      } else {
+        for (const raw of zones) {
+          const z = dnsLib.normalizeZone(raw);
+          const check = dnsLib.validateZone(raw);
+          out.push('Zone ' + z.name + ' (default TTL ' + z.defaultTtl + ') - ' + z.records.length + ' record(s)' +
+            (check.ok ? '' : ' - NOT answered: ' + check.errors[0].message));
+          for (const rec of z.records) out.push(fmtRecord(rec));
+        }
+      }
+      if (servers.length) {
+        out.push('');
+        out.push('Name servers this device asks: ' + servers.join(', '));
+      } else if (zones.length) {
+        out.push('');
+        out.push('Name servers this device asks: none configured - a lookup falls back to any server in the lab');
+      } else {
+        out.push('');
+        out.push('% No name servers configured (use "ip name-server <address>" in config mode)');
+      }
+      return out;
+    }
+
+    out.push('% Usage: show ip dns [zone [<name>]]');
+    return out;
+  }
+
   // `show ip dhcp binding` and `show ip dhcp pool`.
   //
   // DHCP has been modelled end to end since it was: pools, ranges, exclusions, reservations, lease times, renewals
@@ -2623,6 +2734,8 @@ class CliSession {
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : ''));
       }
+    } else if (what === 'ip' && tokens[1] === 'dns') {
+      out.push.apply(out, this._showDns(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'dhcp') {
       out.push.apply(out, this._showDhcp(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'ospf') {
@@ -3306,6 +3419,8 @@ class CliSession {
       '  ip ospf cost <n> | area <id> | passive                 (interface mode)',
       '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
       '  show ip dhcp [binding | pool] [<address|mac|name>]  who holds which address, and pool utilisation',
+      '  show ip dns [zone [<name>]]                   the zones this device answers for, and its resolvers',
+      '  ping <address|name> [<count>] [at <ms>]       a name is resolved through the lab\'s DNS servers',
       '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
       '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];
