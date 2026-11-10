@@ -3402,6 +3402,12 @@ class CliSession {
         '% A channel-group makes several switch ports act as one link ("show etherchannel")',
         '% Routed interfaces are a routing problem: see "ip route" and "show ip route"'];
     }
+    // A LAG groups physical ports. An SVI is not a port at all, and it accepted the command and
+    // joined the group - so `show etherchannel` listed a member with no wire behind it.
+    const logical = this._logicalPortRefusal(iface, 'it cannot join a link aggregation group',
+      'A LAG bundles physical switch ports into one link ("show etherchannel"); an SVI is the ' +
+      'address its VLAN answers on and has no members to bundle');
+    if (logical) return logical;
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (!dev.config.lags) dev.config.lags = {};
 
@@ -4732,11 +4738,33 @@ class CliSession {
     return out;
   }
 
+  // A logical interface has no wire, so the verbs that describe a wire have nothing to describe.
+  // `switchport` and `port-security` already refused an SVI by name; `speed`, `duplex` and
+  // `channel-group` had never been asked the question, and answered anyway:
+  //
+  //   SW1(config-if)#speed 1000     Speed on Vlan20 set to 1G (was virtual)
+  //   SW1(config-if)#duplex full    Duplex on Vlan20 set to full (was full (default))
+  //   SW1(config-if)#channel-group 1 mode active
+  //   Interface Vlan20 added to channel group 1 (LACP active)
+  //
+  // The first two even printed the model's own placeholder ("virtual") and an unanswered lookup
+  // ("was ?") as if they were speeds and states. One sentence, used by all three, so they cannot
+  // drift apart the way `switchport` and `show etherchannel` once did.
+  _logicalPortRefusal(iface, what, remedy) {
+    if (!iface || !(iface.svi || iface.parent)) return null;
+    return ['% ' + iface.name + ' is a logical interface - ' + what,
+      '% ' + remedy];
+  }
+
   // Speed: what this port is running at. `speedToCost()` turns it into a spanning-tree path cost, so
   // the effect of setting it is visible in `show spanning-tree` rather than only in this message.
   _portSpeed(args, iface, isNo) {
     const usage = 'speed <10-100000>';
     const port = iface.name;
+    const logical = this._logicalPortRefusal(iface, 'nothing is transmitted at a rate here',
+      'Speed is a property of the wire: an SVI is the address its VLAN answers on, ' +
+      'so set the speed on the member ports ("show interfaces <port>")');
+    if (logical) return logical;
     const caps = (iface.hardware && iface.hardware.speedCaps) || null;
     if (isNo) {
       if (args.length) return ['% Unexpected argument "' + args[0] + '" - no speed takes no more'];
@@ -4801,6 +4829,9 @@ class CliSession {
   _portDuplex(args, iface, isNo) {
     const usage = 'duplex full|auto';
     const port = iface.name;
+    const logical = this._logicalPortRefusal(iface, 'it has no duplex',
+      'Duplex is a property of the wire: an SVI is the address its VLAN answers on');
+    if (logical) return logical;
     if (isNo) {
       if (args.length) return ['% Unexpected argument "' + args[0] + '" - no duplex takes no more'];
       if (!iface.duplexConfigured) {
@@ -10331,6 +10362,39 @@ class CliSession {
   // the parser's own refusals quote the same facts.
   _helpRefusal(cmd) {
     const dev = this.device;
+    // The interface page speaks for one interface, and a logical one (an SVI, a subinterface) has no
+    // wire and no port: `speed`, `duplex`, `channel-group`, the `switchport` family, `port-security`
+    // and `encapsulation dot1q` were all on the page for an SVI and all refused by the parser. A page
+    // that offers a verb the parser refuses is the defect this filter exists to remove, so the page
+    // follows the interface it is describing.
+    if (this.mode === MODE_IFACE && this.iface && this.device.interfaces) {
+      const cur = this.device.interfaces.get(this.iface);
+      if (cur && (cur.svi || cur.parent)) {
+        const w = String(cmd).toLowerCase().replace(/\|/g, ' ').trim().split(/\s+/);
+        const logical = cur.svi
+          ? 'it is an SVI - the VLAN\'s own address, not a member of it, and it has no wire'
+          : 'it is a subinterface - a tag on a parent port, with no wire of its own';
+        if (w.indexOf('port-security') !== -1) {
+          return 'port security applies to a physical port, and ' + logical;
+        }
+        if (w.indexOf('switchport') !== -1) {
+          return 'it is not a switchport (' + logical + ') - configure the member ports';
+        }
+        // The removal half is the same verb one word later, and it was left on the page after the
+        // positive form was hidden - `no speed` and `no channel-group` are refused by the same gate
+        // as `speed` and `channel-group`, so they leave with them.
+        const verb = w[0] === 'no' ? (w[1] || '') : w[0];
+        if (verb === 'speed' || verb === 'duplex') {
+          return 'speed and duplex are properties of a wire, and ' + logical;
+        }
+        if (verb === 'channel-group') {
+          return 'a LAG bundles physical ports, and ' + logical;
+        }
+        if (verb === 'encapsulation' && cur.svi) {
+          return 'encapsulation dot1q belongs to a subinterface, and this is the VLAN address itself';
+        }
+      }
+    }
     const words = String(cmd).toLowerCase().replace(/\|/g, ' ').trim().split(/\s+/);
     const l2 = typeof dev.isL2 === 'function' && dev.isL2();
     const l3 = typeof dev.isL3 === 'function' && dev.isL3();
@@ -10582,7 +10646,10 @@ class CliSession {
       helpLine('no power inline', 'back to auto: the port feeds a device again'),
       helpLine('lldp transmit | no lldp transmit', 'whether this port announces itself'),
       helpLine('lldp receive | no lldp receive', 'whether this port listens for a neighbour'),
-      helpLine('no mtu | no speed | no duplex', 'back to the default, negotiation, or auto'),
+      // Split, not bundled: a row is filtered whole, so `no speed`/`no duplex` could not leave the
+      // page of an interface that has no wire while `no mtu` (which an SVI does have) stayed.
+      helpLine('no mtu', 'back to the default 1500'),
+      helpLine('no speed | no duplex', 'back to negotiation, or to auto'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),

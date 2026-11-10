@@ -1200,6 +1200,40 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A logical interface has no wire
+
+The `switchport` family and `port-security` had refused an SVI by name for several passes. The three
+verbs that had never been asked the question answered anyway — and two of them printed the model's own
+placeholders as if they were hardware:
+
+```
+SW1(config-if)#speed 1000          Speed on Vlan20 set to 1G (was virtual)
+SW1(config-if)#duplex full         Duplex on Vlan20 set to full (was full (default))
+SW1(config-if)#channel-group 1 mode active
+Interface Vlan20 added to channel group 1 (LACP active)
+```
+
+An SVI is the VLAN's own address: nothing is transmitted at a rate on it, it has no duplex, and it is
+not a port to bundle. All three now answer with one sentence that says what the interface is and where
+the setting belongs:
+
+```
+SW1(config-if)#channel-group 1 mode active
+% Vlan20 is a logical interface - it cannot join a link aggregation group
+% A LAG bundles physical switch ports into one link ("show etherchannel"); an SVI is the address
+% its VLAN answers on and has no members to bundle
+```
+
+The interface page follows the interface it describes: inside an SVI block it no longer offers any of
+them — nor the fifteen `switchport`/`port-security` rows the parser had been refusing, nor
+`encapsulation dot1q`. A physical port keeps every row, unchanged.
+
+One row had to be split to make that possible. `no mtu | no speed | no duplex` is filtered whole, so
+the removal halves could not leave an SVI's page while `no mtu` (which an SVI does have) stayed; the
+row is now `no mtu` and `no speed | no duplex`. This is the second time a bundled row has blocked a
+filter — the first was `no power inline` sharing a row with `no mtu`/`no speed`/`no duplex` — and the
+rule it keeps teaching is that a row is the smallest thing a page can hide.
+
 ### A page that lists what the mode cannot run
 
 Exec and enable share one command set here, so the page cannot hide the privileged half without lying
