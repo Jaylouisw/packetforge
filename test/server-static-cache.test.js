@@ -144,9 +144,16 @@ function waitReady(port) {
         return i.headers.etag;
       })() });
       ok(deep.status === 304, 'an unknown path falls back to index.html and revalidates', String(deep.status));
+      // This used to assert the opposite - that a missing asset fell back to index.html - which pinned the defect
+      // rather than the intent (#1311). A file-shaped miss is a 404: answering it with the document made the
+      // browser report "Unexpected token '<'" in a file nobody could identify.
       const missing = await get(port, '/does-not-exist.js', {});
-      ok(missing.status === 200, 'a missing asset falls back to the app rather than 404', String(missing.status));
-      ok(String(missing.headers['content-type'] || '').indexOf('text/html') === 0, 'and is served as HTML', String(missing.headers['content-type']));
+      ok(missing.status === 404, 'a missing asset is a 404, not the app', String(missing.status));
+      ok(String(missing.headers['content-type'] || '').indexOf('text/plain') === 0,
+        'and says so in plain text', String(missing.headers['content-type']));
+      const docMiss = await get(port, '/does-not-exist', {});
+      ok(docMiss.status === 200 && String(docMiss.headers['content-type'] || '').indexOf('text/html') === 0,
+        'while a path with no extension still opens the app', docMiss.status + ' ' + docMiss.headers['content-type']);
     }
 
     console.log('');

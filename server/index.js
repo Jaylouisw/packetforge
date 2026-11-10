@@ -430,21 +430,41 @@ function sendAsset(req, res, filePath, data, mtimeMs) {
       headers['Content-Encoding'] = 'gzip';
       headers['Content-Length'] = gz.length;
       res.writeHead(200, headers);
+      if (String((req && req.method) || 'GET').toUpperCase() === 'HEAD') return res.end();
       return res.end(gz);
     }
   }
   headers['Content-Length'] = data.length;
   res.writeHead(200, headers);
+  // HEAD asks for the headers a GET would produce, and no body.
+  if (String((req && req.method) || 'GET').toUpperCase() === 'HEAD') return res.end();
   res.end(data);
 }
 
 function serveStatic(req, res, urlPath) {
+  // Only a read serves a file. Anything else used to be served too: `POST /index.html` answered 200 with the
+  // document, which tells a client its write worked (#1311).
+  const method = String((req && req.method) || 'GET').toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD') {
+    res.writeHead(405, { 'Allow': 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Method not allowed');
+    return;
+  }
+
   let rel = urlPath === '/' ? '/index.html' : urlPath;
   const filePath = path.normalize(path.join(WEB_DIR, rel));
-  if (filePath.indexOf(WEB_DIR) !== 0) { res.writeHead(403); res.end('Forbidden'); return; }
+  // The check is a path boundary, not a string prefix. `indexOf(WEB_DIR) === 0` also accepts `web-backup/...`,
+  // so a directory that merely shares the first characters would have been served. Nothing relies on the URL
+  // parser for correctness here, because that is one place the answer must not depend on (#1311).
+  const inside = filePath === WEB_DIR || filePath.slice(0, WEB_DIR.length + 1) === WEB_DIR + path.sep;
+  if (!inside) { res.writeHead(403); res.end('Forbidden'); return; }
   fs.readFile(filePath, function (err, data) {
     if (err) {
-      // SPA fallback: unknown paths serve index.html
+      // A path that names a file gets a 404. The fallback below is for documents - this app has no client-side
+      // routes, so answering `/nope.js` with index.html only ever hid a wrong filename: the browser then reports
+      // "Unexpected token '<'" in a file the reader can no longer identify (#1311).
+      if (path.extname(urlPath)) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Not found'); return; }
+      // SPA fallback: unknown document paths serve index.html
       const indexPath = path.join(WEB_DIR, 'index.html');
       fs.readFile(indexPath, function (e2, html) {
         if (e2) { res.writeHead(404); res.end('Not found'); return; }
