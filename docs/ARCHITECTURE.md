@@ -488,6 +488,27 @@ Adding a tenth family means touching three files, which is why the fall-through 
 silently patched: the rule list and `mediumClass()` in `canvas.js`, the `.link-*` rules in `style.css`, and
 the legend in `app.js`.
 
+### What the UI remembers, and what it forgets
+
+The browser keeps **exactly one** thing across a reload, and it is a preference rather than lab state:
+whether the cable-colour legend is collapsed, under the `localStorage` key `pf.cableLegend.collapsed`
+(`'1'` means collapsed). The read is wrapped because a private-mode browser throws on `localStorage`
+access — a UI preference is not worth a crash — and everything else is rebuilt from the topology on load:
+zoom, pan, selection, palette filters and the console scrollback all reset.
+
+Device positions look like an exception and are not one. They are saved **server-side**, one `POST` per
+drop to `/topologies/<id>/layout`, so the coordinates live in the topology JSON and come back with it; a
+second browser sees the same layout, which a `localStorage` position could never give you. That request is
+allowed to fail silently — the handler is an empty `catch (e) {}` — so a move still applies locally and
+simply will not survive a reload. (The faceplate's own `catch` carries the comment
+`/* a layout failure must not cost you the port list */`; it is about the panel render, not this POST,
+which has no comment at all.)
+
+The legend itself is generated from `CABLE_FAMILIES` in `app.js`, and each swatch carries the **same class**
+the canvas puts on the drawn cable (`link-copper`, `link-pon`, …), so the key and the drawing cannot drift
+apart without the legend drifting with it.
+
+
 ## Adding a feature
 
 The seams are deliberate. To add a new **protocol**, extend the simulator's `_tryProcessL3` and the
