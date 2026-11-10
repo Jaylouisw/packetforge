@@ -40,6 +40,12 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
 | `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
 | `show mac address-table [interface <port>]` | MAC table (switches); one port narrows it |
+| `show port-security` | secured ports: address limit, addresses held, violations, violation mode, and any port err-disabled by a violation |
+| `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
+| `show port-security address` | which station is pinned to which port: `SecureConfigured`, `SecureSticky` or `SecureDynamic` |
+| `clear port-security counters [interface <port>]` | reset the violation count and nothing else — the port stays err-disabled until `no shutdown` |
+| `clear port-security dynamic [interface <port>]` | forget learned secure addresses, keeping configured and sticky ones |
+| `clear port-security sticky [interface <port>]` | unpin the sticky addresses, so the next station to arrive may be a different one |
 | `show interfaces [<port>]` | per-interface detail incl. MAC, peer and counters; name a port and it answers for that port only ([Port names](#port-names)) |
 | `show interfaces counters [<port>]` | one row per port: packets, bytes and drops ([Interface counters](#interface-counters)) |
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
@@ -1177,6 +1183,59 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The command the console recommended did not exist
+
+Recovering an err-disabled port printed this:
+
+```
+SW1(config-if)#no shutdown
+Fa0/1 up
+  err-disable cleared: port security violation: 02:00:00:00:99:99 on a port that allows 1
+  Security violation count kept at 1 - "clear port-security counters" resets it
+```
+
+…and `clear port-security counters` was `% Unrecognized command`. The console was pointing at a command
+it did not have — which is worse than a missing feature, because it sends the operator somewhere that
+does not exist. Three words now exist, and they clear three different things:
+
+```
+SW1#clear port-security counters
+Security violation counters cleared on SW1 (1)
+  The ports stay as they are: a count of what happened, not the state it left behind - was Fa0/1 (1)
+
+SW1#clear port-security dynamic
+Learned secure addresses cleared on SW1 (1)
+  Configured and sticky addresses are kept: they were not learned
+
+SW1#clear port-security sticky
+Sticky secure addresses cleared on SW1 (1)
+  The stations must be learned again, and the next one may be a different station
+```
+
+* **`counters`** resets the violation count and nothing else: the port stays err-disabled (that is a
+  separate decision, made with `no shutdown`), and the addresses it holds stay held.
+* **`dynamic`** forgets what was learned and keeps what was written or pinned — a clear that unsecured
+  a configured station would be a clear that edited the configuration.
+* **`sticky`** unpins the pinned addresses, which is the only one of the three where the *next* station
+  to arrive may be a different station, and the answer says so.
+
+All three take an optional `interface <port>`, report what they cleared and what they left, and say
+"nothing to clear" the second time. From exec they ask for enable mode with the same sentence as
+`clear arp`; in config mode both are `% Unrecognized config command`, because a clear is not
+configuration.
+
+### Two smaller lies found in the same sweep
+
+* `show port-security address` printed a **constant VLAN of 1** for every row, so a station secured on a
+  port in VLAN 20 was reported as being in VLAN 1. The column now reads the port's own VLAN (`trunk`
+  for a trunk).
+* `vlan 20 name users` created a VLAN called **"name users"**: the console takes `vlan <id> [name]` on
+  one line, and the IOS keyword `name` was swallowed as part of the name. It is now consumed as the
+  keyword, so both spellings name the VLAN `users`.
+* And the table that followed: `vlan 20` then `show vlan` printed **VLAN 1 and nothing else**, because
+  the table was built from membership only — while `show vlan 20` answered for the VLAN the table had
+  just denied. A declared VLAN with no ports is now a row with `(no ports)`.
 
 ### Port security: a bridge that finally has an opinion
 

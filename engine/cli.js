@@ -452,6 +452,8 @@ class CliSession {
           // traffic crosses the box and only `show ip nat translations` could read it, so an operator
           // could watch translations appear but never start again from a clean table.
           out.push.apply(out, this._clearNat(tokens.slice(3)));
+        } else if (head === 'clear' && tokens[1] === 'port-security') {
+          out.push.apply(out, this._clearPortSecurity(tokens.slice(2)));
         } else if (head === 'clear' && (tokens[1] === 'arp' ||
             (tokens[1] === 'ip' && tokens[2] === 'arp') ||
             (tokens[1] === 'mac' && tokens[2] === 'address-table'))) {
@@ -655,7 +657,13 @@ class CliSession {
       if (!(id >= 1 && id <= 4094)) return ['% VLAN ' + typed + ' is outside 1-4094'];
       if (!this.device.config.vlans) this.device.config.vlans = {};
       const existing = this.device.config.vlans[id];
-      const typedName = tokens.slice(2).join(' ');
+      // Two spellings, one meaning. This console takes `vlan <id> [name]` on one line, but an
+      // operator coming from IOS types `vlan 20 name users` - and the word `name` was swallowed as
+      // part of the name, so the VLAN came out called "name users". A keyword that is only a keyword
+      // in IOS is still a keyword here: it is consumed, and the rest of the line is the name.
+      const nameWords = tokens.slice(2);
+      const typedName = (String(nameWords[0] || '').toLowerCase() === 'name'
+        ? nameWords.slice(1) : nameWords).join(' ');
       if (existing) {
         if (typedName) {
           existing.name = typedName;
@@ -2776,6 +2784,76 @@ class CliSession {
     return out;
   }
 
+  // `clear port-security {counters|dynamic|sticky} [interface <port>]`.
+  //
+  // The recovery message on an err-disabled port tells the operator this command resets the violation
+  // count - and it did not exist, so the console was pointing at itself. Three things can be cleared
+  // and they are three different things: the evidence (counters), what was learned (dynamic), and what
+  // was pinned (sticky). Clearing one must not clear another, or "clear the counters" would silently
+  // unsecure the port.
+  _clearPortSecurity(args) {
+    const dev = this.device;
+    if (this.mode !== MODE_ENABLE) {
+      return ['% clear port-security needs enable mode' + NEEDS.enable];
+    }
+    if (!dev.isL2 || !dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no port security to clear'];
+    }
+    const what = String(args[0] || '').toLowerCase();
+    const usage = 'clear port-security {counters|dynamic|sticky} [interface <port>]';
+    if (!what) {
+      return ['% Incomplete command: ' + usage,
+        '% counters reset the violation evidence, dynamic forgets what was learned, sticky unpins what was pinned'];
+    }
+    if (['counters', 'dynamic', 'sticky'].indexOf(what) === -1) {
+      return ['% "' + args[0] + '" is not something clear port-security can clear',
+        '% Usage: ' + usage];
+    }
+    let rest = args.slice(1);
+    if (rest.length && String(rest[0]).toLowerCase() === 'interface') rest = rest.slice(1);
+    let only = null;
+    if (rest.length) {
+      const pick = this._portArg(rest, dev, 'clear port-security ' + what, null);
+      if (!pick.ok) return pick.output;
+      only = pick.port;
+    }
+    const ports = psLib.securedPorts(dev).filter(function (n) { return !only || n === only; });
+    if (only && !ports.length) {
+      return ['Port security is not enabled on ' + only,
+        '% Secured ports: ' + (psLib.securedPorts(dev).join(', ') || 'none')];
+    }
+    if (!ports.length) {
+      return ['% No ports have port security enabled on ' + (dev.name || dev.id)];
+    }
+    const where = only || (dev.name || dev.id);
+    if (what === 'counters') {
+      let total = 0;
+      const had = [];
+      for (const name of ports) {
+        const st = psLib.peek(dev, name);
+        if (st.violations) { had.push(name + ' (' + st.violations + ')'); total += st.violations; }
+        st.violations = 0;
+      }
+      if (!total) return ['Security violation counters on ' + where + ' were already zero - nothing to clear'];
+      return ['Security violation counters cleared on ' + where + ' (' + total + ')',
+        '  The ports stay as they are: a count of what happened, not the state it left behind' +
+          (had.length ? ' - was ' + had.join(', ') : '')];
+    }
+    if (what === 'dynamic') {
+      const n = psLib.clearDynamic(dev, only || undefined);
+      if (!n) {
+        return ['No learned secure addresses on ' + where + ' - nothing to clear',
+          '  Configured and sticky addresses are kept by definition'];
+      }
+      return ['Learned secure addresses cleared on ' + where + ' (' + n + ')',
+        '  Configured and sticky addresses are kept: they were not learned'];
+    }
+    const n = psLib.clearSticky(dev, only || undefined);
+    if (!n) return ['No sticky secure addresses on ' + where + ' - nothing to clear'];
+    return ['Sticky secure addresses cleared on ' + where + ' (' + n + ')',
+      '  The stations must be learned again, and the next one may be a different station'];
+  }
+
   // `show port-security`, `show port-security interface <port>`, `show port-security address`.
   //
   // Three views because they answer three questions: which ports are secured and how many addresses
@@ -2802,8 +2880,18 @@ class CliSession {
         if (ports.length) out.push('% Secured ports with no address yet: ' + ports.join(', '));
         return out;
       }
+      // The VLAN column is the port's own VLAN, not a constant: a header that always said 1 made
+      // every secured port on a switch with VLANs a lie about which broadcast domain the station is in.
+      const vlanOf = (function (dev) {
+        return function (portName) {
+          const p = dev.interfaces.get(portName);
+          const v = (p && p.vlan) || {};
+          if (v.mode === 'trunk') return 'trunk';
+          return String(v.accessVlan || 1);
+        };
+      })(dev);
       out.push.apply(out, renderTable(['Mac Address', 'Vlan', 'Port', 'Type', 'Age (min)'],
-        rows.map(function (r) { return [r.mac, '1', r.port, r.type, r.age]; })));
+        rows.map(function (r) { return [r.mac, vlanOf(r.port), r.port, r.type, r.age]; })));
       const configured = rows.filter(function (r) { return r.type === 'SecureConfigured'; }).length;
       const sticky = rows.filter(function (r) { return r.type === 'SecureSticky'; }).length;
       out.push('  ' + rows.length + ' secure address' + (rows.length === 1 ? '' : 'es') + ': ' +
@@ -6180,7 +6268,13 @@ class CliSession {
       const byVlan = this._vlanMap(dev);
       const declaredIds = Object.keys(dev.config.vlans || {}).map(Number);
       // A device that does not bridge has no membership to report: its VLANs are names it declared.
-      let keys = bridged ? Array.from(byVlan.keys()) : Array.from(new Set([1].concat(declaredIds)));
+      // A VLAN that was declared and carries nothing is still a VLAN this device has. The table was
+      // built from membership only, so `vlan 20` then `show vlan` printed VLAN 1 and nothing else -
+      // while `show vlan 20` answered for the VLAN the table had just denied. A switch lists what it
+      // holds, and a VLAN with no ports is a row with `-` in the Ports column.
+      let keys = bridged
+        ? Array.from(new Set(Array.from(byVlan.keys()).concat(declaredIds)))
+        : Array.from(new Set([1].concat(declaredIds)));
       keys = keys.sort(function (a, b) {
         if (a === 'all') return 1;
         if (b === 'all') return -1;
@@ -6189,7 +6283,13 @@ class CliSession {
       if (wantVlan !== null) {
         const configured = dev.config.vlans && dev.config.vlans[wantVlan];
         if (keys.indexOf(wantVlan) === -1 && !configured) {
-          const carried = keys.filter(function (k) { return k !== 'all'; });
+          // "Carried" means a port carries it, which is membership - not the union this table now
+          // lists. Reading it off `keys` made a declared-but-empty VLAN appear in both halves of the
+          // sentence at once, so the refusal contradicted itself.
+          // Sorted, not in the order the ports happen to be walked: this sentence is read as a list.
+          const carried = Array.from(byVlan.keys())
+            .filter(function (k) { return k !== 'all'; })
+            .sort(function (a, b) { return a - b; });
           // A VLAN that is configured but carries nothing is neither carried nor absent, and an
           // operator who declared it should not be told it does not exist. Naming the two sets
           // separately is the difference between "you have not made it" and "you made it empty".
@@ -8423,9 +8523,6 @@ class CliSession {
       helpLine('permit|deny <entry>', 'one line, in the order shown by "show access-lists"'),
       helpLine('no <sequence>', 'remove the line with that number'),
       helpLine('no permit|deny <entry>', 'remove the line that matches, without its number'),
-      helpLine('show port-security', 'secured ports, addresses held, violations, violation mode'),
-      helpLine('show port-security interface <port>', 'why this port is refusing traffic'),
-      helpLine('show port-security address', 'which station is pinned to which port'),
       helpLine('show access-lists [<name>]', 'the list as it stands, with match counters'),
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'back to config / to enable')
@@ -8481,6 +8578,12 @@ class CliSession {
       helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
       helpLine('clear ip nat translation [*|<inside-local>]', 'empty the translation table, keeping the rules'),
       helpLine('clear mac address-table [interface <port>]', 'empty the MAC table (switches); routing tables are not flushable here'),
+      helpLine('clear port-security counters [interface <port>]', 'reset the violation count, leave the ports as they are'),
+      helpLine('clear port-security dynamic [interface <port>]', 'forget what was learned, keep what was configured or pinned'),
+      helpLine('clear port-security sticky [interface <port>]', 'unpin the sticky addresses so they are learned again'),
+      helpLine('show port-security', 'secured ports, addresses held, violations, violation mode'),
+      helpLine('show port-security interface <port>', 'why this port is refusing traffic'),
+      helpLine('show port-security address', 'which station is pinned to which port'),
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
       helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
