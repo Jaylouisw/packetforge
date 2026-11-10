@@ -4842,8 +4842,14 @@ Event summary (13 of 13 events):
 ```
 
 The counts add up: the per-type column sums to the total, and the per-device column plus the
-link-level line does too. A summary that does not reconcile is worse than no summary, and
-`test/logging.test.js` asserts both sums.
+link-level line does too — measured on a 72-event run, types summed to 72 and devices 41 + 31
+link-level to the same 72. A summary that does not reconcile is worse than no summary.
+
+**Only one of those two sums is actually tested.** `node test/logging.test.js` (53 checks) adds the
+`Type` column and requires it to equal the total, and for the by-device side it only matches
+`by device:` — so a regression that dropped frames out of the device column, or miscounted the
+link-level line, would pass the suite. The per-type sum is guarded; the per-device one is a property of
+this build rather than a promise.
 
 ### `show clock` — when is "now"?
 
@@ -4865,7 +4871,29 @@ pinned to — the thing that used to be silent and therefore sticky:
 PC1#ping 10.0.9.9 count 1 at 5000
 PC1#show clock
 t=5000 ms  (5 s) - the instant this lab was asked about
+
+This lab has no wall clock. A question may name an instant - `ping <dst> at 5000` -
+and it sticks until `at converged` resets it. Events are ordered, not timestamped:
+`show logging` reports the frame step each one happened at.
 ```
+
+The explanatory paragraph prints on **every** `show clock`, pinned or not — it is not a one-off hint, so
+do not read its presence as "the lab is at rest". What changes is the first line, and it reports the
+instant exactly as it was given, fraction included:
+
+```
+PC1#ping 10.0.9.9 count 1 at 3218.75
+PC1#show clock
+t=3218.75 ms  (3.21875 s) - the instant this lab was asked about
+PC1#ping 10.0.9.9 count 1 at converged
+PC1#show clock
+t=0 ms - the lab is at rest (no instant asked)
+```
+
+`at` takes a bare millisecond count: a negative number and a unit suffix are both refused by name
+(`% Invalid instant: -5`, `% Invalid instant: 5s`), which is worth knowing because `traceroute` and the
+delay column prints its unit — `traceroute` shows `50.9 us`, ASCII on purpose so the column aligns —
+and `at` is the one place that will not accept one.
 
 ### Two ways the log can be empty, and only one is a problem
 
