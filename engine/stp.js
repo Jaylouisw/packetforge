@@ -134,8 +134,13 @@ function runStp(input) {
   for (const key of order) portsOut[key] = {};
 
   if (order.length === 0) {
+    // No bridges, no election, and so no root. This used to answer `{ priority: 32768, mac: null }` - a root
+    // object with no identity, which is the root of nothing wearing a default's clothes. Every caller that asked
+    // "who is the root?" then printed it: `show spanning-tree` on a router - a box that is not a bridge and never
+    // took part - read "root bridge undefined priority 32768" on 1,026 models of the catalogue (#1399).
+    // `null` is the honest answer, and it is the same answer the console already gives when no election has run.
     return {
-      root: { priority: STP_DEFAULT_PRIORITY, mac: null },
+      root: null,
       ports: portsOut,
       blocked: []
     };

@@ -470,8 +470,11 @@ class Simulator {
   // The tree is a function of the link states, so it is thrown away and rebuilt rather than
   // patched. Anything that reads stp right after a change sees the network as it is now.
   recomputeStp() {
+    // `dev.isBridge` does not exist on any Device: this test was `!undefined`, so the loop below skipped every
+    // device and the clear never ran. It was harmless - `computeStp()` replaces each bridge's `stp` object outright
+    // - but a reset that cannot run is not a reset (#1399). `isL2()` is the predicate the rebuild itself uses.
     for (const dev of this.topo.devices.values()) {
-      if (!dev.isBridge || !dev.isBridge()) continue;
+      if (typeof dev.isL2 === 'function' && !dev.isL2()) continue;
       if (dev.stp) dev.stp.blocked = new Set();
       if (dev.portStates) dev.portStates = new Map();
     }

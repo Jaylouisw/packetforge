@@ -210,7 +210,11 @@ console.log('\nadministratively disabled port');
 console.log('\nedge cases');
 {
   const empty = runStp({ bridges: [] });
-  ok(empty.root.priority === 32768 && empty.root.mac === null, 'empty input returns the default root id');
+  // No bridges, no election, no root. This used to answer a root object with the default priority and a null MAC:
+  // an identity for a tree that does not exist, which is what `show spanning-tree` printed as `root bridge
+  // undefined` on every router in the catalogue (#1399). The absence is the fact, so the absence is what is
+  // returned - `null`, the same answer the console gives when nothing has been measured.
+  ok(empty.root === null, 'empty input has no root at all');
   ok(Array.isArray(empty.blocked) && empty.blocked.length === 0, 'empty input blocks nothing');
 
   const missingPriority = runStp({ bridges: [bridge('sw1', undefined, '00:00:00:00:00:07', [edge('Gi0/1')])] });
