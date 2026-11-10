@@ -968,16 +968,37 @@ server.on('upgrade', function (req, socket) {
   try {
     const client = wss.handleUpgrade(req, socket);
     if (client) {
+      // Every message gets an answer. Until this, a `subscribe` naming a topology that does not exist was a silent
+      // no-op: the client waited for a board that was never coming and could not tell that from an empty one, and a
+      // message of an unknown type vanished the same way (#1313).
       client.onMessage = function (msg) {
+        let m;
         try {
-          const m = JSON.parse(msg);
-          if (m && m.type === 'subscribe' && topologies.has(m.topologyId)) {
-            wss.send(client, { type: 'topology', topologyId: m.topologyId, state: fullState(topologies.get(m.topologyId)) });
+          m = JSON.parse(msg);
+        } catch (e) {
+          return wss.send(client, { type: 'error', code: 'E_BAD_MESSAGE', error: 'expected a JSON object' });
+        }
+        if (!m || typeof m !== 'object' || typeof m.type !== 'string') {
+          return wss.send(client, { type: 'error', code: 'E_BAD_MESSAGE', error: 'expected { type: "subscribe", topologyId }' });
+        }
+        if (m.type === 'subscribe') {
+          if (!topologies.has(m.topologyId)) {
+            return wss.send(client, {
+              type: 'error', code: 'E_NO_TOPOLOGY', topologyId: m.topologyId,
+              error: 'no topology called ' + JSON.stringify(m.topologyId)
+            });
           }
-        } catch (e) { /* ignore */ }
+          return wss.send(client, { type: 'topology', topologyId: m.topologyId, state: fullState(topologies.get(m.topologyId)) });
+        }
+        return wss.send(client, {
+          type: 'error', code: 'E_UNKNOWN_TYPE', error: 'unknown message type ' + JSON.stringify(m.type) +
+            '; the only one is "subscribe"'
+        });
       };
-      // send default topology on connect
-      wss.send(client, { type: 'topology', topologyId: 'default', state: fullState(topologies.get('default')) });
+      // The board it is looking at, so a fresh tab draws something without asking.
+      if (topologies.has('default')) {
+        wss.send(client, { type: 'topology', topologyId: 'default', state: fullState(topologies.get('default')) });
+      }
     }
   } catch (e) {
     console.error('upgrade error:', e && e.stack || e);
