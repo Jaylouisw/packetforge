@@ -1,0 +1,45 @@
+{
+  "vendor": "peplink",
+  "model": "APO-AX",
+  "label": "Peplink AP One AX Wi-Fi 6 access point (APO-AX)",
+  "category": "wireless",
+  "description": "Peplink AP One AX - ceiling-mount dual-band Wi-Fi 6 access point with a single 2.5 Gigabit Ethernet port, 4x4 MU-MIMO on both radios (2.4 GHz to 1148 Mbps, 5 GHz to 2400 Mbps), built-in omni antennas, plenum-rated enclosure. Powered by 12 V DC jack or 802.3at PoE, 23 W maximum.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "http-server",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeIn": 23
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1148M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6",
+  "sourceUrl": "https://www.peplink.com/products/ap-one-ax/",
+  "notes": "The port table is explicit: **'1x 2.5 Multigigabit Ethernet'** - one port, not four, and 2.5G rather than 1G - so this AP needs a 2.5G switch port or it runs at 1G, which is exactly the kind of one-line fact a spec sheet invents wrongly. The 802.3at PoE input is a footnote on the vendor page ('PoE Injector is available separately') and the draw is 23 W max, so `poeIn` is 23: a switch rated 802.3af (15.4 W) cannot power this AP, while 802.3at (25.5 W at the PSE) can - the engine will say so. Radio rates are quoted per band (4x4 2.4 GHz to 1148 Mbps, 5 GHz to 2400 Mbps) rather than inferred from the Wi-Fi class. Bridge and NAT router modes are both supported, which is why `l2-forward` and `nat` are both declared; management is web admin, InControl and SNMP - no console, so no `cli`."
+}

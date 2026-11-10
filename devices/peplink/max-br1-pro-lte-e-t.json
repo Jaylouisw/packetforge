@@ -1,0 +1,103 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-PRO-LTE-E-T",
+  "label": "Pepwave MAX BR1 Pro LTE CAT-4 (MAX-BR1-PRO-LTE-E-T)",
+  "category": "router",
+  "description": "Peplink Pepwave MAX BR1 Pro - rugged DIN-mount single-cellular router: 1x GE WAN, 4x GE LAN, an embedded LTE (CAT-4) modem with redundant SIM slots, 802.11n Wi-Fi (300 Mbps) and GPS. 120 Mbps router throughput, 24 W maximum from 12-28 V DC terminal block or AC adapter, -40 to 65 C.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://download.peplink.com/resources/pepwave_max_br1_pro_datasheet.pdf",
+  "notes": "This is the CAT-4 / LTE member of the family (product code MAX-BR1-PRO-LTE-E-T, Europe/International): LTE modem 150 Mbps down / 50 Mbps up, so `wwan0` is 150M - a quoted datarate rather than a guess. The datasheet gives the copper plainly - 'WAN Interface 1x GE', 'LAN Interface 4x GE' - so the 4+1 split is quoted, and the 300 Mbps Wi-Fi is 802.11a/n or b/g/n, one 2.4/5 GHz radio rather than two. One embedded modem with **redundant SIM slots**: a single cellular bearer with a standby SIM, not two modems, so a failover lab should expect one `wwan0` and a SIM switch inside it. That is why `wwan0` is a `wireless` port here - this catalogue's name for a cellular bearer, as on Balance 20X and UBR-LTE - and it cannot be cabled, which the engine enforces with `E_CONNECTOR_MISMATCH`. The ports declare `poeIn: 0`: the BR1 Pro takes 12-28 V DC on a terminal block or an AC adapter and powers nothing over Ethernet, so the access-point heuristic must not invent a draw. No CLI - management is the web UI and InControl - so no `cli` capability."
+}

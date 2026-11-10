@@ -503,5 +503,40 @@ console.log('\nThe 25G sibling of a TAP already in the catalogue (#659):');
   ok(fibre.ok, 'OM4501: an LC port links to an LC port, so the tap can be placed inline');
 }
 
+console.log('\nTwo modems, one chassis, and a quote that decides the PoE class (#449, #450, #520):');
+{
+  // Same box, two modems. The datasheet separates them by product code and by datarate, so the
+  // specs must differ in exactly one number - the cellular bearer.
+  const lte = find('MAX-BR1-PRO-LTE-E-T');
+  const ltea = find('MAX-BR1-PRO-LTEA-W-T');
+  eq(effectiveInterfaces(lte).filter(function (p) { return p.type === 'ethernet'; }).length, 5,
+    'MAX BR1 Pro: one GE WAN and four GE LAN');
+  const lteWwan = effectiveInterfaces(lte).filter(function (p) { return p.name === 'wwan0'; })[0];
+  const lteaWwan = effectiveInterfaces(ltea).filter(function (p) { return p.name === 'wwan0'; })[0];
+  eq(lteWwan.speed, '150M', 'MAX BR1 Pro LTE: the CAT-4 modem datarate, quoted at 150 Mbps down');
+  eq(lteaWwan.speed, '300M', 'MAX BR1 Pro LTE-A: the CAT-6 modem datarate, quoted at 300 Mbps down');
+  eq(effectiveInterfaces(lte).filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 1,
+    'MAX BR1 Pro: ONE cellular bearer with redundant SIM slots - a SIM switch, not two modems');
+
+  const t16 = new Topology();
+  const br1 = t16.addDevice(ltea);
+  const pc6 = t16.addDevice(find('generic-pc'));
+  const noCell = t16.validateLink(br1.id, 'wwan0', pc6.id, 'eth0', {});
+  ok(!noCell.ok, 'MAX BR1 Pro: the LTE bearer cannot be cabled (' +
+    ((noCell.errors[0] || {}).code || 'no code') + ')');
+  const copper2 = t16.validateLink(br1.id, 'lan1', pc6.id, 'eth0', {});
+  ok(copper2.ok && copper2.speedMbps === 1000, 'MAX BR1 Pro: a LAN port links to a PC at 1G');
+
+  // The AP is the interesting one: one 2.5G port and an 802.3at draw of 23 W.
+  const apo = find('APO-AX');
+  const apoPorts = effectiveInterfaces(apo);
+  eq(apoPorts.filter(function (p) { return p.type === 'ethernet'; }).length, 1,
+    'APO-AX: exactly one Ethernet port');
+  const apoEth = apoPorts[0];
+  eq(apoEth.speed, '2.5G', 'APO-AX: and it is 2.5 Gigabit, so a 1G switch port costs it speed');
+  eq(apoEth.poeIn, 23, 'APO-AX: 23 W draw, which is 802.3at and not 802.3af');
+  ok((apo.capabilities || []).indexOf('802.3at') !== -1, 'APO-AX: the PoE class it needs is declared');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
