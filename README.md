@@ -56,7 +56,7 @@ docker run --rm -p 8000:8000 packetforge
 ```
 
 Then open **http://localhost:8000**. Verified from a clean checkout: the build succeeds, the
-container answers `GET /api/version` on Node 20, and the whole catalogue (1,627 models) is inside.
+container answers `GET /api/version` on Node 20, and the whole catalogue (1,628 models) is inside.
 
 ### If it will not start
 

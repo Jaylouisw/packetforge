@@ -769,5 +769,25 @@ console.log('\nA passive poe switch publishes volts and amps, not a budget (#527
     'WS-26-400-AC: no 802.3af/at capability - this is passive PoE on pins 4,5/7,8');
 }
 
+console.log('\nThe same name, a different chassis and a different port count (#451):');
+{
+  const cat20 = find('MAX-BR1-PRO-GLTE-S-T-PRM');
+  const old = find('MAX-BR1-PRO-LTEA-W-T');
+  const c20 = effectiveInterfaces(cat20).filter(function (p) { return p.type === 'ethernet'; });
+  const ol = effectiveInterfaces(old).filter(function (p) { return p.type === 'ethernet'; });
+  eq(c20.filter(function (p) { return p.role === 'lan'; }).length, 2,
+    'CAT-20: TWO LAN ports - the LTE/LTE-A codes have four');
+  eq(ol.filter(function (p) { return p.role === 'lan'; }).length, 4,
+    'and the older code still has four, so the catalogue carries both shapes');
+  eq(c20.filter(function (p) { return p.role === 'wan'; })[0].speed, '2.5G',
+    'CAT-20: the Ethernet WAN is 2.5G, against 1G on the older chassis');
+  ok(c20.filter(function (p) { return p.role === 'wan'; })[0].speedCaps.indexOf(100) !== -1,
+    'CAT-20: and it falls back through 10/100/1000 - the ladder is quoted, not assumed');
+  eq(effectiveInterfaces(cat20).filter(function (p) { return p.name === 'wwan0'; })[0].speed, '2G',
+    'CAT-20: the cellular bearer is 2 Gbps, which is what the CAT-20 modem adds');
+  eq(effectiveInterfaces(cat20).filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 1,
+    'CAT-20: still ONE modem with redundant SIM slots');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

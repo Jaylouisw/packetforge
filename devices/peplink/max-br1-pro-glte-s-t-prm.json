@@ -1,0 +1,81 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-PRO-GLTE-S-T-PRM",
+  "label": "Pepwave MAX BR1 Pro CAT-20 (MAX-BR1-PRO-GLTE-S-T-PRM)",
+  "category": "router",
+  "description": "Peplink Pepwave MAX BR1 Pro CAT-20 - mobile router in the newer BR1 Pro chassis: one 10/100/1000/2500M Ethernet WAN port, two 10/100/1000M Ethernet LAN ports, one LTE-A Pro CAT-20 modem with redundant nano-SIM slots, and dual-band Wi-Fi 6 (2x2 MU-MIMO) usable as AP and/or Wi-Fi WAN. 1 Gbps router throughput, SpeedFusion hot failover, smoothing and bonding.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "1.2G"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "2G",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/pepwave-max-br1-pro-cat20-enterprise-grade-router-with-lte-failover-p-9983.html",
+  "notes": "**This is not the same chassis as the BR1 Pro LTE/LTE-A parts already in this catalogue** (MAX-BR1-PRO-LTE-E-T and -LTEA-W-T), and the datasheet says so plainly: 'WAN Interface: 1x 10/100/1000/2500M Ethernet', 'LAN Interface: **2x** 10/100/1000M Ethernet'. The older codes have four LAN ports and a 1G WAN; the CAT-20 has **two** LAN ports and a **2.5G** WAN. A lab that reuses the four-port shape for this SKU is one cable and one speed grade wrong. The modem is CAT-20 - the page describes it as a '2GB max download throughput' upgrade, which is 2 Gbps with a stray unit - so `wwan0` carries 2G and the router itself moves 1 Gbps. Wi-Fi is 6th-gen 2x2 (574 Mbps on 2.4 GHz, 1201 on 5 GHz) and can act as an AP, a Wi-Fi WAN, or both, which is why the radio ports are declared without a WAN role: which one is upstream is a configuration, not a socket. Redundant **nano**-SIM slots again: one modem, a standby SIM, one `wwan0`. 12 V supply, no PoE in or out."
+}
