@@ -8350,6 +8350,16 @@ class CliSession {
         for (const i of dev.interfaces.values()) {
           if (i.peer && i.peer.deviceId === owner.id) return i.name;
         }
+        // Two hops away: no port on this device is peered to the owner, so the answer used to be
+        // `-` - and `show arp Gi0/0` then answered "no cached address resolves to this port" for an
+        // address that had just been learned across a ping through that very port. The port that
+        // would carry the address is still decided by the subnet, whether the owner was typed in or
+        // reached.
+        for (const i of dev.interfaces.values()) {
+          if (!i.ip || i.parent || i.svi) continue;
+          if (!i.mask) continue;
+          if (net.ipInSubnet(ip, i.ip, i.mask)) return i.name;
+        }
         return '-';
       };
       // `show ip arp 10.0.0.1` is *the* way an operator asks for one address's MAC, and it answered
@@ -8382,9 +8392,12 @@ class CliSession {
         }
         // A static entry is the one row that never ages, so the row has to say which it is: the
         // operator asking about one address is usually asking exactly that.
-        return ['Protocol  Address       Age (min)  Hardware Addr     Interface' + (entry.source === 'static' ? '  Type' : ''),
-          'Internet  ' + want + '  -          ' + entry.mac + '  ' + ifaceFor(want) +
-            (entry.source === 'static' ? '  STATIC' : '')];
+        // One row, built by the same renderer as the table: the hand-padded version here put the
+        // address in a column that changed width with the address, so a single-address answer did
+        // not line up with the table it was a slice of.
+        return renderTable(['Protocol', 'Address', 'Age (min)', 'Hardware Addr', 'Interface', 'Type'],
+          [['Internet', want, '-', entry.mac, ifaceFor(want),
+            entry.source === 'static' ? 'STATIC' : 'DYNAMIC']]);
       }
       if (arpArgs.length > 1) {
         return ['% show arp takes one port or one address, not "' + arpArgs.join(' ') + '"',
@@ -8411,10 +8424,22 @@ class CliSession {
         // shows `-`, and folding it into another port's answer would invent a fact.
         if (pick.port && onPort !== pick.port) continue;
         if (row.static) statics += 1;
-        arpRows.push(['Internet', row.ip, '-', row.mac, onPort + (row.static ? '  STATIC' : '')]);
+        // The word STATIC used to be smuggled into the Interface column, which pushed that column out
+        // of line with its own header on every static row. It is a type, so it gets a column - the
+        // same column the single-address view already prints.
+        arpRows.push(['Internet', row.ip, '-', row.mac, onPort, row.static ? 'STATIC' : 'DYNAMIC']);
       }
       if (pick.port) out.push('ARP entries on ' + pick.port + ' at ' + dev.name + ':');
-      out.push.apply(out, renderTable(['Protocol', 'Address', 'Age (min)', 'Hardware Addr', 'Interface'], arpRows));
+      out.push.apply(out, renderTable(
+        ['Protocol', 'Address', 'Age (min)', 'Hardware Addr', 'Interface', 'Type'], arpRows));
+      // The Age column can only ever hold `-` here: this model does not age its cache, and a figure
+      // would be invented. Saying so beats a dash that reads like "static" in IOS.
+      // Only when a row is actually shown: a port filter that matched nothing is answered by the
+      // "(none ...)" line, and a note about ages under an empty table explains nothing.
+      if (arpRows.length) {
+        out.push('  Age is not tracked in this model: a learned entry stays until "clear arp" ' +
+          'removes it, or a reply from the same address replaces the MAC');
+      }
       if (statics) {
         // The Interface column carries the word because the table's shape is IOS's; the line below
         // says what the word means and which command removes it.

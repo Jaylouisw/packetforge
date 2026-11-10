@@ -125,17 +125,21 @@ console.log('\nThe convergence table measures its own columns:');
 console.log('\nshow arp fills the Interface column it advertises:');
 {
   const lines = show(r1, 'show arp');
-  ok(/Interface$/.test(lines[0]), 'the header still ends with Interface');
+  // The header gained a Type column: STATIC used to be appended inside the Interface cell, which
+  // pushed that column out of line with its own header. The rule this block is about is unchanged -
+  // the Interface column is filled, with a port - so the shape it checks moved by one column.
+  ok(/\bInterface\b\s+Type$/.test(lines[0]), 'the header ends with Interface and Type');
   const rows = lines.slice(1).filter(function (l) { return /^Internet/.test(l); });
   ok(rows.length > 0, 'there are ARP entries after a ping');
   for (const row of rows) {
     const cells = row.trim().split(/\s+/);
-    eq(cells.length, 5, 'every row carries five cells: ' + JSON.stringify(cells));
-    ok(/^(Gi\d\/\d|eth\d|-|\(self\))$/.test(cells[4]), 'and the last one is a port, not nothing: ' + cells[4]);
+    eq(cells.length, 6, 'every row carries six cells: ' + JSON.stringify(cells));
+    ok(/^(Gi\d\/\d|eth\d|-|\(self\))$/.test(cells[4]), 'the Interface cell is a port, not nothing: ' + cells[4]);
+    ok(/^(STATIC|DYNAMIC)$/.test(cells[5]), 'and the Type cell says which kind: ' + cells[5]);
   }
   // The entry for the host must name the port the host is actually on.
   const host = rows.filter(function (l) { return l.indexOf('10.0.1.10') !== -1; })[0];
-  ok(/Gi0\/0$/.test(host), 'the host 10.0.1.10 is reached through Gi0/0: ' + host.trim());
+  ok(/\bGi0\/0\s+DYNAMIC$/.test(host), 'the host 10.0.1.10 is reached through Gi0/0: ' + host.trim());
 }
 
 console.log('\nInternal ids never reach the operator:');
