@@ -22,7 +22,7 @@ Modes and their prompts:
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
-| `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
+| `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
@@ -997,8 +997,8 @@ The table is filled from LLDPDUs that actually crossed a link, not from the topo
 means nothing has announced itself. Column widths come from the data — a fixed 20-character Neighbour column
 ran a 55-character router name into the Local port column, which made the row unreadable field by field.
 
-A neighbour is **not** deleted when its link goes down: real switches hold the entry until its TTL expires,
-and this model has no clock to age it with. Instead the Local port is marked with the reason, in the same
+A neighbour is **not** deleted when its link goes down: real switches hold the entry until its hold time
+expires, and LLDP expiry is not modelled. Instead the Local port is marked with the reason, in the same
 sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(down: peer shut down)`,
 `(administratively down)` — and the mark clears when the link comes back.
 
@@ -1007,19 +1007,27 @@ sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(
 ```
 R1#show arp
 Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.0.0.9         -          02:00:00:00:02:00 Gi0
+Internet  10.0.0.9         20         02:00:00:00:02:00 Gi0
 Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0 (down: link down)
 ```
 
 * **Interface** is the port the neighbour was heard on — where to look next.
-* **Age** is `-`, always: the simulator counts steps, not minutes, and printing a step count in a minutes
-  column would be a number with the wrong unit. ARP entries are not aged out here, so `-` is the honest
-  answer rather than a zero that suggests they expire.
+* **Age** is the minutes since this neighbour was last **heard**, and it ages out: past four hours of silence
+  (`ARP_AGE_MS`, the IOS default `arp timeout 14400`) the entry is gone and the router ARPs again for that
+  next hop. Minutes, not steps — the model has had an instant in milliseconds since convergence was modelled.
+* Using an entry does **not** reset its age. A cache hit is not hearing from the neighbour, so a host that
+  replies only when spoken to still ages out; the age resets when a reply is heard.
+* **`-`** is an entry nothing dated — a neighbour written by a fixture or carried in from an imported lab. The
+  engine will not invent an age for it, and does not age it out either.
 * A port that can no longer carry a frame is named **with its reason** — `(administratively down)`,
   `(down: no cable)`, `(down: link down)`, `(down: peer shut down)`. The entry is *not* deleted: a real ARP
   cache does not empty the moment a cable is pulled, and the state is what tells you the neighbour is stale.
 * An entry with no recorded port — a topology restored from an older file — prints `-` rather than a guess,
   and one whose port no longer exists prints the name and `(gone)`.
+* The rows are the rows **at the instant the session is at**, so a lab can be inspected mid-run: an entry that
+  has aged by that instant is not in the table, and one that has not is printed with its age as of then. There
+  is no `show arp at <ms>` — the instant is the session's, set by the run (`setRunTime`) or left over from a
+  `ping … at` in a script that does not restore it.
 
 Beyond ~30 entries the table is not the place to look for a neighbour; use the inspector's search.
 

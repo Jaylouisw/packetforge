@@ -122,7 +122,9 @@ function cli(t, dev, cmd) {
     ok(mac.vlan === 1 && mac.port === '1/1/2' && mac.note === '(administratively down)',
       'a MAC row carries its VLAN, its port and its reason', JSON.stringify(mac));
     const arp = x.sw.arpRows(x.t)[0];
-    ok(arp.ip === IP2 && arp.mac === MAC2 && arp.port === '1/1/2' && arp.age === '-',
+    // The age is a number of minutes once the engine has heard the neighbour (#1397); this lab wrote the entry
+    // by hand, so nothing dated it and the row says so with null - the console prints that as '-'.
+    ok(arp.ip === IP2 && arp.mac === MAC2 && arp.port === '1/1/2' && arp.age === null,
       'an ARP row carries the neighbour, the port it was learned on, and an honest age', JSON.stringify(arp));
     const nb = x.sw.lldpRows(x.t)[0];
     ok(nb.systemName === 'h2' && nb.portId === 'eth0' && nb.mgmtIp === IP2 && nb.note,

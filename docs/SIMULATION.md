@@ -65,9 +65,11 @@ first.
 
 - Device state (MAC tables, ARP cache, ND cache, PoE power state) lives on the
   `Device`, inside the `Topology`, so it persists across runs — which is what a
-  real box does. But nothing ages it: no MAC ageing timer, no ARP timeout, no ND
-  reachable-time, no DHCP lease expiry. A table learned in run 1 is still there
-  in run 1 000 with the same entries (`engine/device.js:331`).
+  real box does. Two of those tables age against the instant a question is asked:
+  a MAC entry after 300 s of silence (`MAC_AGE_MS`) and an ARP entry after 4 h
+  (`ARP_AGE_MS`). The rest do not: no ND reachable-time, no DHCP lease expiry by
+  wall clock. An entry that nothing dated — written by a fixture — never ages.
+  See §3.2 and [CLI.md](CLI.md#what-the-mac-table-remembers-and-for-how-long).
 - The capability list at `engine/device.js:85-98` advertises more than the
   engine consumes: `vlan`, `lacp`, `stp`, `poe-pse`, `poe-pd`, `firewall`,
   `wireless`, `dhcp-server`, `dhcp-client` are never read by the forwarding
@@ -105,7 +107,7 @@ first.
 | **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:303` |
 | **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:285`, `engine/vlan.js:303` |
 | **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:1666-1680` |
-| **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. | `engine/device.js:331-337`, `engine/simulator.js:1895` |
+| **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. A dynamically learned entry ages out after `MAC_AGE_MS` (300 s) of silence, and the same aged lookup decides forwarding: an entry the table only remembers is not a port a frame may be sent to. | `engine/device.js` `learnMac()`, `macLookup()`, `macRows()`; `engine/simulator.js` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-26` |
 | **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` falls back to the parent's VLAN when no tag is present. | `engine/simulator.js:72-78`, `engine/cli.js:187-199` |
 | **Modelled** | The voice VLAN. `switchport voice vlan <id>` stores it, `classifyEgress`/`classifyIngress` carry
@@ -181,7 +183,8 @@ Two different questions, and the forwarding path has to ask the first one first:
 | **Modelled** | ARP request floods the VLAN; only the owner replies, out of the port that asked (or the subinterface that owns the address). | `engine/simulator.js:2003-2029` |
 | **Modelled** | Replies populate the cache, and pending packets for that next hop are flushed in order. | `engine/simulator.js:2027` |
 | **Modelled** | A request for an address nobody owns is simply unanswered, so the ping times out — the correct symptom, arrived at honestly. | — |
-| **Absent** | ARP cache ageing, gratuitous ARP, proxy ARP, ARP inspection (DAI), static ARP entries, duplicate-address detection. | — |
+| **Modelled** | A reply stamps the entry with the instant it was heard. Past `ARP_AGE_MS` (4 h, the IOS default `arp timeout`) the lookup answers nothing, so the frame is ARP'd for instead of being sent to a neighbour that has moved, and the entry is swept from the cache and from the port it was learned on. Using an entry does not reset its age: a cache hit is not hearing from the neighbour. | `engine/device.js` `arpLookup()`, `ageArps()`, `learnArp()` |
+| **Absent** | Gratuitous ARP, proxy ARP, ARP inspection (DAI), static ARP entries, duplicate-address detection. | — |
 
 ### 3.3 ICMP
 

@@ -3126,20 +3126,25 @@ class CliSession {
       // are in when you run this command.
       out.push(pad('Protocol', 10) + pad('Address', 17) + pad('Age (min)', 11) +
         pad('Hardware Addr', 18) + 'Interface');
+      // Rows are the rows at the instant this session is asking about: a neighbour silent for longer than
+      // ARP_AGE_MS is gone, and the Age column counts the minutes since it was heard. Until this the column was a
+      // header over a hard-coded '-' on every row, on the grounds that the simulator had steps and not minutes -
+      // which stopped being true when convergence gave the model an instant in milliseconds (#1397).
+      const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
       const rows = [];
-      for (const r of dev.arpRows(this.topo)) {
+      for (const r of dev.arpRows(this.topo, nowMs)) {
         const ip = r.ip, mac = r.mac;
         // The reason travels with the status here too: "down" alone sends you looking for a cable
         // when the cable is fine and the far port is shut (#1253).
         let note = r.port === '-' ? '-' : r.port + (r.note ? ' ' + r.note : '');
-        // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a
-        // minutes column would be a number with the wrong unit. '-' is what a device prints for an entry
-        // it cannot age, and is honest here.
-        rows.push([ip, mac, note]);
+        // Minutes, or '-' for an entry nothing dated: a device prints '-' for what it cannot age, and so does
+        // this one (#1397).
+        const age = (r.age === null || r.age === undefined) ? '-' : String(r.age);
+        rows.push([ip, mac, age, note]);
       }
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
-        out.push(pad('Internet', 10) + pad(r[0], 17) + pad('-', 11) + pad(r[1], 18) + r[2]);
+        out.push(pad('Internet', 10) + pad(r[0], 17) + pad(r[2], 11) + pad(r[1], 18) + r[3]);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
       // Rows are the rows at the instant this session is asking about: a dynamic entry that has been silent for

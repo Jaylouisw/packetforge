@@ -2563,7 +2563,9 @@ class Simulator {
   _sendL3(dev, egress, nextHopIp, ip, icmp, vid, opts) {
     const v = (vid === undefined || vid === null) ? portPvid(egress) : vid;
     const o = opts || {};
-    const mac = dev.arp.get(nextHopIp);
+    // The next hop's hardware address at this instant: an entry the cache only remembers sends you nowhere, so a
+    // stale one resolves to nothing and the frame is ARPed for instead (#1397).
+    const mac = dev.arpLookup(nextHopIp, this._nowMs());
     if (mac) {
       this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache', vlan: v });
       this._sendFromOwnIp(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null, o), v);
@@ -3125,7 +3127,7 @@ class Simulator {
       // RFC 826: a station updates its table from any ARP it receives, not only from replies.
       // This is what makes a gratuitous ARP work - it is a request, and the whole point is that
       // the hosts who did not ask for it still believe it.
-      if (arp.senderIp && arp.senderMac) dev.learnArp(arp.senderIp, arp.senderMac, inIface);
+      if (arp.senderIp && arp.senderMac) dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
       const owner = dev.ownsIpOn(inIf, arp.targetIp);
       if (owner) {
         // Reply out of the port that asked: inside a bridge group every port reaches
@@ -3137,7 +3139,7 @@ class Simulator {
         // reply out the raw trunk port would strip it.
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
         const replyIface = sameGroup ? inIf : owner;
-        if (arp.senderIp) dev.learnArp(arp.senderIp, arp.senderMac, inIface);
+        if (arp.senderIp) dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
         // A virtual address is answered with the group's virtual MAC, not the box's own: that is
         // what lets a host keep its cache entry when mastership moves to the other router.
         // The address being defended is the one that was asked for. owner.ip is the interface's own
@@ -3152,7 +3154,7 @@ class Simulator {
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
-      dev.learnArp(arp.senderIp, arp.senderMac, inIface);
+      dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
       this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac, vlan: vid });
       this._flushPending(dev, arp.senderIp, arp.senderMac, vid);
     }
