@@ -178,6 +178,53 @@ console.log('What the console prints, the console reads back');
 }
 
 console.log('');
+console.log('The other direction: switching commands on a box that does not switch');
+{
+  // The printer already knew this - `_switchportLine()` refuses to describe switchport state on a device without
+  // l2-forward, because "the capability is what makes a port a switchport". The console did not, so a router
+  // answered "Switchport mode trunk on Gi0" and then `show interfaces` printed nothing about it.
+  for (const [label, spec] of [['a router', ROUTER], ['a host', HOST]]) {
+    const s = session(spec);
+    // The port starts with the engine's default `vlan` object; nothing below may change it.
+    const before = JSON.stringify(s.dev.interfaces.get(s.port).vlan);
+    for (const cmd of ['switchport mode trunk', 'switchport access vlan 10',
+      'switchport trunk allowed vlan 10,20', 'no switchport', 'channel-group 1 mode active']) {
+      const out = inIface(s, cmd);
+      ok(REFUSAL.test(out), label + ' is refused `' + cmd + '`', out);
+      ok(/l2-forward/.test(out), '  naming l2-forward', out);
+    }
+    const after = JSON.stringify(s.dev.interfaces.get(s.port).vlan);
+    ok(after === before, 'and the port is exactly as it was', before + ' -> ' + after);
+  }
+
+  // A router is told what to do instead. A host is not: "this port routes" would be a second wrong statement.
+  const r = session(ROUTER);
+  ok(/this port routes: use `ip address/.test(inIface(r, 'switchport mode trunk')),
+    'a router is pointed at `ip address`');
+  const h = session(HOST);
+  ok(!/this port routes/.test(inIface(h, 'switchport mode trunk')),
+    'a host is given no routing advice it cannot use');
+
+  // A switch keeps all of it, and so does a switch that also routes: l2-forward is the whole test.
+  for (const [label, spec] of [['a switch', SWITCH], ['an L3 switch', L3SWITCH]]) {
+    const s = session(spec);
+    ok(/Switchport mode trunk/.test(inIface(s, 'switchport mode trunk')), label + ' still takes a trunk');
+    ok(/allows VLANs/.test(inIface(s, 'switchport trunk allowed vlan 10,20')),
+      label + ' still takes an allowed list');
+    const vlan = s.dev.interfaces.get(s.port).vlan || {};
+    ok(vlan.mode === 'trunk' && (vlan.allowedVlans || []).join(',') === '10,20',
+      'and the configuration is stored', JSON.stringify(vlan));
+  }
+
+  // The command and the printer now say the same thing about the same port.
+  const rr = session(ROUTER);
+  inIface(rr, 'switchport mode trunk');
+  rr.cli.run('end'); rr.cli.run('enable');
+  const shown = ((rr.cli.run('show interfaces ' + rr.port) || {}).output || []).join('\n');
+  ok(!/switchport:/.test(shown), 'a router prints no switchport line, as it never did', shown.slice(0, 120));
+}
+
+console.log('');
 console.log('Every capability the gates name is a capability the catalogue actually declares');
 {
   const declared = new Set();
