@@ -96,7 +96,7 @@ Two ways to write them. Both end up as the same list.
 
 | field | rule |
 |---|---|
-| `name` | required, unique in the spec. Two ports called `ge1` are an error, not a typo to fix silently. |
+| `name` | required, unique in the spec. Two ports called `ge1` are an error, not a typo to fix silently — `loadCatalog()` refuses the whole spec and says which name clashed (see *What the loader refuses* below). |
 | `type` | `ethernet` `wireless` `console` `coax` `dsl` `adsl` `vdsl` `powerline` `plc` `mains` `pon` |
 | `speed` | `8M` `24M` `50M` `100M` `200M` `300M` `1G` `2.5G` `5G` `8G` `10G` `16G` `25G` `32G` `40G` `64G` `100G` `200G` `400G`. Wireless speeds are the same vocabulary plus the `600M`-style form. |
 | `connector` | free-form and preserved: `rj45`, `sfp`, `sfp+`, `qsfp+`, `qsfp28`, `qsfp56`, `qsfpdd`, `lc`, `sc`, `usb`, … |
@@ -125,6 +125,33 @@ it has a port the simulator will never light up.
 
 This is why `notes` and `description` are worth writing carefully: the check is cheap, and the
 alternative is a catalogue that reads well and lies.
+
+## What the loader refuses
+
+`loadCatalog()` reads every `.json` under `devices/`. A spec that **cannot describe a device** becomes a
+catalogue entry carrying `error`, naming the file and the reason. It is not dropped silently — a missing device is
+harder to notice than a red one — and it cannot be mistaken for a working device, because the palette shows it as
+broken.
+
+| the spec… | the message says |
+|---|---|
+| does not parse | the JSON error |
+| is not an object, or has no `model` | it cannot be identified |
+| has `interfaces` that is not an array | what it got instead |
+| has no ports, or expands to zero | nothing to cable to |
+| has `portTemplate.count` of `0`, `-5`, `"8"` | must be a positive whole number |
+| has `portTemplate.prefix` that is not a string | what it got instead |
+| has `portTemplate.start` that is not a whole number ≥ 0 | what it got instead |
+| gives **two ports the same name** | which name, and how many ports the device would really keep — `port name "Gi2" is used 2 times - a device would keep 4 of the 5 ports the spec describes` |
+| declares a model **another file already declares** | the file that already has it — comparison ignores punctuation, so `ASR1001-X` and `ASR 1001-X` are one box |
+
+The last two are the ones that used to pass. Ports are kept in a map keyed by name, so a duplicate did not error:
+it *disappeared*, and a spec describing five ports produced a device with four. And a second file for the same box
+put two entries in the palette for one machine, where `POST /api/topologies/default/devices {model}` silently took
+whichever sorted first.
+
+Both are checked at **load**, not only at import: the importer's duplicate gate only ever saw files that came
+through the importer, and a spec can arrive by a rebase, a copy or a hand edit.
 
 ## Duplicate spellings are refused
 

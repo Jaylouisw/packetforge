@@ -30,6 +30,10 @@ function brokenSpec(file, reason) {
 function loadCatalog(dir) {
   dir = dir || __dirname;
   const specs = [];
+  // Which file already took a model key. Two specs describing the same box make the catalogue ambiguous: the
+  // palette lists it twice, `POST /devices {model}` silently picks whichever sorted first, and the one you cab
+  // may not be the one you read about (#1317).
+  const seenModel = new Map();
   function walk(d) {
     for (const entry of fs.readdirSync(d)) {
       const full = path.join(d, entry);
@@ -89,6 +93,46 @@ function loadCatalog(dir) {
         if (effectiveInterfaces(spec).length === 0) {
           specs.push(brokenSpec(full, 'resolves to zero ports - a device with nothing to cable to'));
           continue;
+        }
+        // A template expands to names `prefix + (start + i)`, so a non-string prefix or a non-integer start invents
+        // names nobody meant: prefix 5 with start "1" yields Gi10, Gi11 ... as if the port numbering began at ten.
+        if (spec.portTemplate) {
+          const t = spec.portTemplate;
+          if (t.prefix != null && typeof t.prefix !== 'string') {
+            specs.push(brokenSpec(full, '"portTemplate.prefix" must be a string, got ' + JSON.stringify(t.prefix)));
+            continue;
+          }
+          if (t.start != null && !(typeof t.start === 'number' && Math.floor(t.start) === t.start && t.start >= 0)) {
+            specs.push(brokenSpec(full, '"portTemplate.start" must be a whole number, got ' + JSON.stringify(t.start)));
+            continue;
+          }
+        }
+        // Two ports with one name. The engine keeps ports in a map keyed by name, so the later one silently
+        // replaces the earlier: a spec that describes five ports becomes a device with four, and nothing anywhere
+        // says so. The count on the box is then not the count in the file (#1317).
+        {
+          const ports = effectiveInterfaces(spec);
+          const byName = new Map();
+          for (const p of ports) byName.set(p.name, (byName.get(p.name) || 0) + 1);
+          const clash = Array.from(byName).filter(function (e) { return e[1] > 1; })[0];
+          if (clash) {
+            specs.push(brokenSpec(full, 'port name ' + JSON.stringify(clash[0]) + ' is used ' + clash[1] +
+              ' times - a device would keep ' + byName.size + ' of the ' + ports.length +
+              ' ports the spec describes'));
+            continue;
+          }
+        }
+        // The same box twice. `modelKey()` squashes punctuation, so "ASR1001-X" and "ASR 1001-X" are one model -
+        // which is the invariant the importer already gates on, and it has to hold for files that arrive any
+        // other way too (issue #60).
+        {
+          const key = modelKey(spec);
+          if (seenModel.has(key)) {
+            specs.push(brokenSpec(full, 'declares ' + spec.vendor + ' ' + spec.model + ', which ' +
+              path.basename(seenModel.get(key)) + ' already declares'));
+            continue;
+          }
+          seenModel.set(key, full);
         }
         specs.push(spec);
       }
