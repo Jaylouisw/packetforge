@@ -2346,6 +2346,8 @@ class CliSession {
 
       let valid = raLib.DEFAULTS.validLifetime;
       let preferred = raLib.DEFAULTS.preferredLifetime;
+      let gaveValid = false;
+      let gavePreferred = false;
       const rest = t.slice(2);
       for (let i = 0; i < rest.length; i += 2) {
         const key = rest[i];
@@ -2357,10 +2359,18 @@ class CliSession {
         if (!/^\d{1,10}$/.test(val)) return ['% Invalid lifetime "' + val + '" (whole seconds)'];
         const n = parseInt(val, 10);
         if (n > raLib.INFINITE) return ['% Lifetime out of range: ' + val + ' (0..' + raLib.INFINITE + ')'];
-        if (key === 'valid') valid = n; else preferred = n;
+        if (key === 'valid') { valid = n; gaveValid = true; } else { preferred = n; gavePreferred = true; }
       }
-      // A preferred lifetime past the valid one is a contradiction on the wire;
-      // refusing it here means the router never advertises nonsense.
+      // A preferred lifetime past the valid one is a contradiction on the wire, and refusing it here
+      // means the router never advertises nonsense - but only a *typed* one: citing the default
+      // preferred lifetime back at an operator who asked for `valid 60` answered "% Preferred
+      // lifetime (604800s) cannot exceed the valid lifetime (60s)" about a number they never typed
+      // and could not see. When only the valid lifetime is given, the preferred one follows it down.
+      let clamped = false;
+      if (preferred > valid && gaveValid && !gavePreferred) {
+        preferred = valid;
+        clamped = true;
+      }
       if (preferred > valid) {
         return ['% Preferred lifetime (' + preferred + 's) cannot exceed the valid lifetime (' + valid + 's)'];
       }
@@ -2376,6 +2386,13 @@ class CliSession {
 
       const lines = ['IPv6 ND prefix ' + network + '/' + parsed.prefixLen +
         ' advertised (L=1 A=1, valid ' + valid + 's, preferred ' + preferred + 's)'];
+      if (clamped) {
+        // Say which number was not the operator's: printing "preferred 60s" without a word would
+        // look like a value they chose, and the dump now carries it.
+        lines.push('  the preferred lifetime followed the valid one down to ' + preferred +
+          's (it is the default ' + raLib.DEFAULTS.preferredLifetime +
+          's, which would outlast a valid lifetime of ' + valid + 's)');
+      }
       if (parsed.prefixLen !== 64) {
         lines.push('% note: only a /64 leaves room for a 64-bit interface identifier, ' +
           'so hosts will not form a SLAAC address from this prefix');
