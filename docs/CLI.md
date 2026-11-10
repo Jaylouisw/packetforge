@@ -1013,6 +1013,72 @@ R1(config)#ipv6 route 2001:db8:7::/64 not-an-address
 % Invalid IPv6 next hop "not-an-address"
 ```
 
+### A next hop nobody can reach is still a route
+
+`ip route` does not check that the next hop is reachable, on-link, or even sane — it installs whatever
+you type:
+
+```text
+R1(config)#ip route 10.9.0.0 255.255.255.0 192.0.2.1
+Route added: 10.9.0.0/24 via 192.0.2.1
+R1(config)#ip route 10.9.0.0 255.255.255.0 10.0.0.2
+Route added: 10.9.0.0/24 via 10.0.0.2
+R1#show ip route
+Codes: C - connected, S - static
+* = installed (this row is what forwards); an unmarked row loses on administrative distance
+  *  Prefix         AD  Gateway    Interface
+  *  C 10.0.0.0/24  0   -          Gi0/0
+  *  S 10.9.0.0/24  1   192.0.2.1  -
+     S 10.9.0.0/24  1   10.0.0.2   -
+```
+
+`192.0.2.1` sits on no connected subnet, but it is the row with the `*` — so **the typo forwards and the
+correct route is the shadowed one.** Equal prefix length and equal AD leave the tie to insertion order,
+which is why the bad route wins by being typed first. `show ip route <dest>` is the command that says so
+out loud:
+
+```text
+R1#show ip route 10.9.0.5
+  Destination  10.9.0.5
+  Matched      10.9.0.0/24  (static, AD 1)
+  Next hop     192.0.2.1
+  Interface    -
+  Shadowed     S 10.9.0.0/24  (static, AD 1)
+```
+
+Add a third route for the same prefix and it appears as a second `Shadowed` line; nothing is replaced,
+so removing the winner promotes the next one in insertion order.
+
+### `no ipv6` deletes more than the prefix you named
+
+The IPv4 side is precise — `no ip route 10.9.0.0 255.255.255.0` answers `Route removed: 10.9.0.0/24`
+and leaves every other static route alone. The IPv6 side is not, and its help line overstates what it
+does. Help advertises `no ipv6 route <prefix>/<len> [<next-hop>] | no ipv6 gateway [<addr>]`, but the
+handler ignores the tail entirely: it clears the IPv6 default gateway *and* every static IPv6 route, and
+says so with a message that names nothing.
+
+```text
+R1#show ipv6 route
+  *  C 2001:db8:1::/64  0   -              Gi0/0
+  *  S 2001:db8:9::/64  1   2001:db8:1::2  -
+  *  S 2001:db8:8::/64  1   2001:db8:1::2  -
+R1(config)#no ipv6 route 2001:db8:9::/64
+IPv6 routes cleared
+R1#show ipv6 route
+Codes: C - connected
+  *  Prefix             AD  Gateway  Interface
+  *  C 2001:db8:1::/64  0   -        Gi0/0
+```
+
+Both static routes are gone. A prefix that was never configured removes everything just as cheerfully
+(`no ipv6 route 2001:db8:77::/64` → `IPv6 routes cleared`, table emptied), so the echo is not a report
+of what matched — it is a report of what the command does unconditionally. Until the handler honours its
+own help line, treat any `no ipv6 …` as "clear all IPv6 routes and the IPv6 gateway", and re-add the ones
+you wanted to keep. (`no ipv6 unicast-routing` is carved out and does *not* clear the table — measured: both static
+routes survive and `show ipv6 route` grows a two-line `!` banner saying routing is disabled. The comment
+in `engine/cli.js` above the bare `no ipv6` arm says that carve-out exists precisely because the two
+commands once shared a handler that ate the configuration.)
+
 **`ip default-gateway` is not host-only.** The table above says "hosts" because that is the IOS story,
 but the command is accepted on a router and installs a real route — a `0.0.0.0/0` entry at AD 254:
 
