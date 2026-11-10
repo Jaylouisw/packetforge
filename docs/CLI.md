@@ -1546,6 +1546,51 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### The pipe, and the values behind a placeholder
+
+```
+R1#show running-config | include route
+% show running-config takes one port, not "| include route"
+% Try "show ip interface brief" for the ports this device has
+```
+
+The filter an operator types on every third command was read as a **port name**, so the console blamed the
+port table for a filter it did not have. Five filters are supported, matched as plain case-insensitive text
+(not as regular expressions — this console says so rather than pretending to be grep):
+
+| Pipe | What it keeps |
+|---|---|
+| `\| include <text>` | the lines containing the text |
+| `\| exclude <text>` | everything except those lines |
+| `\| begin <text>` | from the first matching line to the end |
+| `\| section <text>` | each matching line and the lines indented under it (a config stanza) |
+| `\| count` | one line: how many lines the view printed |
+
+Pipes chain (`| include interface | count`), work after `do` inside a block, and are checked: an unknown
+filter is refused by name and the five that exist are listed.
+
+Two rules keep the pipe from lying:
+
+* **A refusal is never filtered.** If the view answered with `% …`, the pipe passes it through untouched — a
+  filter that swallowed the reason a command failed would be the most expensive filter in the console.
+* **Silence is not an answer.** When nothing matches, the answer says so and reports how many lines the view
+  did print, because "printed twelve lines, none matched" and "printed nothing" look identical on a blank
+  screen and are different problems.
+
+```
+SW1(config)#interface Fa?
+Completions for "interface Fa" (8, completing "Fa" from this device):
+  Value  What it is
+  Fa0/1  access VLAN 10, up, 1G
+  Fa0/2  trunk, up, 1G
+  Fa0/3  switchport, VLAN 1, up, 1G
+```
+
+`?` at a value slot used to answer *"Nothing after `interface` starts with `Fa`"* while the device held eight
+such ports. A placeholder that names a port is now completed **from the device**, with a second column saying
+what each one is; `interface vlan <id>` is completed from the SVIs the device has, and a fragment that fits
+nothing is still refused.
+
 ### A number in a message is a number
 
 ```

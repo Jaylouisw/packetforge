@@ -366,6 +366,40 @@ class CliSession {
         (Array.isArray(line) ? 'an array (pass the lines as separate arguments: run(a, b))'
           : typeof line));
     }
+    // An output pipe: `show running-config | include route`. The filters IOS operators live by were
+    // not supported at all, and worse than unsupported - the pipe was read as a port argument, so
+    // `show running-config | include route` answered "takes one port, not \"| include route\"".
+    // Split here, before anything else looks at the words, run the left side normally, and filter
+    // what it printed.
+    if (line.indexOf('|') !== -1) {
+      const cut = line.indexOf('|');
+      const main = line.slice(0, cut).trim();
+      const pipes = line.slice(cut).split('|').slice(1).map(function (x) { return x.trim(); });
+      if (!main) {
+        return { output: ['% A filter needs a command before it - "show running-config | include route"'],
+          actions: [] };
+      }
+      const inner = this.run(main);          // the view, unfiltered
+      const lines = (inner && inner.output) || [];
+      // A refusal is never filtered: a `| include` that swallowed the reason a command failed would
+      // be the most expensive filter in the console.
+      if (lines.some(function (l) { return /^\s*%/.test(l); })) {
+        return { output: lines, actions: (inner && inner.actions) || [] };
+      }
+      let shown = lines;
+      for (const pipe of pipes) {
+        const r = this._applyPipe(shown, pipe);
+        if (r.error) return { output: [r.error], actions: (inner && inner.actions) || [] };
+        shown = r.lines;
+      }
+      // Silence is not an answer: "the view printed twelve lines and none of them matched" and "the
+      // view printed nothing" look the same on a blank screen, and they are different problems.
+      if (!shown.length) {
+        shown = ['(nothing in this answer matches "| ' + pipes.join(' | ') + '" - the command printed ' +
+          lines.length + ' line' + (lines.length === 1 ? '' : 's') + ')'];
+      }
+      return { output: shown, actions: (inner && inner.actions) || [] };
+    }
     let tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
     // `show history` is a view of this session, so the console has to keep one. Bounded, because a
@@ -10267,6 +10301,19 @@ class CliSession {
         if (d && meanings.get(spelling).indexOf(d) === -1) meanings.get(spelling).push(d);
       }
       if (!meanings.size) {
+        // A value slot has values, and this device's are knowable: `interface Gi?` is the question
+        // "which ports start with Gi", and answering "nothing starts with Gi" while the device is
+        // holding three of them is the answer of a console that has not looked.
+        const values = this._valueCompletions(wide, at, partial);
+        if (values.length) {
+          const outv = ['Completions for "' + typedStem + ' ' + partial + '" (' + values.length +
+            ', completing "' + partial + '" from this device):'];
+          const vlanStem = /\bvlan$/i.test(typedStem);
+          outv.push.apply(outv, renderTable(['Value', 'What it is'], values.map(function (v) {
+            return [v, vlanStem ? this._vlanMeaning(v) : this._portMeaning(v)];
+          }.bind(this)), 2));
+          return outv;
+        }
         const why = this._explainMissingHelp(prefix, partial);
         const out = ['% Nothing after "' + typedStem + '" starts with "' + partial + '"' +
           (why ? ' on ' + (this.device.name || this.device.id) : '')];
@@ -10429,6 +10476,125 @@ class CliSession {
     const parsed = require('./abbrev').parseFormsWithDesc(rows);
     this._helpRowCache.set(mode, parsed);
     return parsed;
+  }
+
+  // What a VLAN id means as a choice: whether it has an SVI (and its address) or exists as a VLAN only.
+  _vlanMeaning(id) {
+    const dev = this.device || {};
+    const svi = dev.interfaces ? dev.interfaces.get('Vlan' + id) : null;
+    const exists = dev.vlans && (dev.vlans.get ? dev.vlans.get(Number(id)) : dev.vlans[Number(id)]);
+    if (svi && svi.ip) {
+      const len = String(svi.mask || '').split('.').reduce(function (n, o) {
+        let v = parseInt(o, 10) || 0, c = 0;
+        while (v) { c += v & 1; v >>= 1; }
+        return n + c;
+      }, 0);
+      return 'SVI ' + svi.ip + (svi.mask ? '/' + len : '');
+    }
+    if (svi) return 'an SVI with no address';
+    if (exists || svi) return 'a VLAN here, no SVI yet';
+    return 'a VLAN with no name yet - "interface vlan ' + id + '" creates it';
+  }
+
+  // One line saying what a port is, for the value list. The list is a choice, so the second column has
+  // to help make it: a name repeated back is a table with one column.
+  _portMeaning(name) {
+    const i = this.device && this.device.interfaces ? this.device.interfaces.get(name) : null;
+    if (!i) return '';
+    const bits = [];
+    if (i.svi) bits.push('the switch address for VLAN ' + (i.vlanId || i.svi));
+    else if (i.parent) bits.push('tag ' + (i.encapVid || '?') + ' on ' + i.parent);
+    else if (i.vlan && i.vlan.mode === 'trunk') bits.push('trunk');
+    else if (i.vlan && Number(i.vlan.accessVlan) > 1) bits.push('access VLAN ' + i.vlan.accessVlan);
+    else if (i.ip) {
+      const len = String(i.mask || '').split('.').reduce(function (n, octet) {
+        let v = parseInt(octet, 10) || 0, c = 0;
+        while (v) { c += v & 1; v >>= 1; }
+        return n + c;
+      }, 0);
+      bits.push('routed ' + i.ip + (i.mask ? '/' + len : ''));
+    }
+    else if (this.device.isL2 && this.device.isL2()) bits.push('switchport, VLAN ' + Number((i.vlan && i.vlan.accessVlan) || 1));
+    else bits.push('port');
+    const down = (i.enabled === false || i.adminUp === false);
+    const line = (i.lineUp === false || down);
+    bits.push((down ? 'shut' : (line ? 'down' : 'up')));
+    if (i.speed) bits.push(String(i.speed));
+    return bits.join(', ');
+  }
+
+  // The values a device can put in a value slot, for the one slot whose values this console knows:
+  // an interface name. `interface Gi?` lists the ports that start with Gi; any other placeholder
+  // (`<dest>`, `<mac>`, `<id>`) is answered as before, because there is no list to read.
+  _valueCompletions(rows, at, partial) {
+    const portish = function (row) {
+      const tok = row.tokens[at];
+      return tok && typeof tok === 'object' && /^(name|port|interface|iface)$/i.test(String(tok.placeholder || ''));
+    };
+    // `interface vlan <id>` takes a VLAN id, and the values it can take are the SVIs this device has.
+    const vlanish = function (row) {
+      const tok = row.tokens[at];
+      return tok && typeof tok === 'object' && /^id$/i.test(String(tok.placeholder || '')) &&
+        String(row.tokens[at - 1] || '').toLowerCase() === 'vlan';
+    };
+    if ((rows || []).some(vlanish)) {
+      const want = String(partial || '').toLowerCase();
+      const out = [];
+      for (const name of (this.device && this.device.interfaces ? this.device.interfaces.keys() : [])) {
+        const m = /^[Vv]lan(\d+)$/.exec(name);
+        if (!m) continue;
+        const value = m[1];
+        if (want && (value.indexOf(want) !== 0 && name.toLowerCase().indexOf(want) !== 0)) continue;
+        out.push(value);
+      }
+      if (out.length) return Array.from(new Set(out)).sort(function (a, b) { return a - b; });
+    }
+    if (!(rows || []).some(portish)) return [];
+    const dev = this.device;
+    if (!dev || !dev.interfaces) return [];
+    const want = String(partial || '').toLowerCase();
+    const out = [];
+    for (const name of dev.interfaces.keys()) {
+      if (want && String(name).toLowerCase().indexOf(want) !== 0) continue;
+      out.push(name);
+      if (out.length >= 24) break;
+    }
+    return out;
+  }
+
+  // The output filters, and only these: the words IOS has, matched as plain case-insensitive text
+  // rather than as a regular expression (this console says so rather than pretending to be grep).
+  _applyPipe(lines, pipe) {
+    const m = /^(\w+)\s*(.*)$/.exec(String(pipe || '').trim());
+    if (!m) return { error: '% A filter needs a word: "| include <text>", "| exclude <text>", "| begin <text>", "| section <text>" or "| count"' };
+    const verb = m[1].toLowerCase();
+    const term = m[2].trim();
+    const has = function (l) { return String(l).toLowerCase().indexOf(term.toLowerCase()) !== -1; };
+    if (verb === 'count') {
+      return { lines: [String(lines.length) + ' line' + (lines.length === 1 ? '' : 's')] };
+    }
+    if (verb !== 'include' && verb !== 'exclude' && verb !== 'begin' && verb !== 'section') {
+      return { error: '% There is no "| ' + m[1] + '" here - this console filters with include, exclude, begin, section and count' };
+    }
+    if (!term) {
+      return { error: '% "| ' + verb + '" needs a word to look for' };
+    }
+    if (verb === 'include') return { lines: lines.filter(has) };
+    if (verb === 'exclude') return { lines: lines.filter(function (l) { return !has(l); }) };
+    if (verb === 'begin') {
+      const at = lines.findIndex(has);
+      return { lines: at === -1 ? [] : lines.slice(at) };
+    }
+    // section: the matching line and everything indented under it, which is how a running-config is
+    // laid out - `| section interface` is the stanza, not the one line.
+    const kept = [];
+    let inBlock = false;
+    for (const l of lines) {
+      if (has(l)) { kept.push(l); inBlock = true; continue; }
+      if (inBlock && /^\s+\S/.test(l)) { kept.push(l); continue; }
+      inBlock = false;
+    }
+    return { lines: kept };
   }
 
   // Which mode's help a typed line should be expanded against. `do show …` inside configuration is
