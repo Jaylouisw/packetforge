@@ -269,10 +269,14 @@ t('A lab saved with a cable down comes back with it down');
   L.sim.linkDown(L.L13.id, { atMs: 10000 });
   const json = JSON.parse(JSON.stringify(L.topo.serialize()));
 
-  eq(json.lastChangeAtMs, 10000, 'the change instant is in the file');
+  // The board's clock is not in the file. It is an instant in a run, and a run ends: a board reopened tomorrow
+  // would build its schedule from an instant belonging to a session that no longer exists (#1331). What is saved
+  // is the thing that happened, and the clock is derived from it on the way in.
+  eq(json.lastChangeAtMs, undefined, 'no run instant is written to the file');
   const saved = json.links.filter(function (l) { return l.id === L.L13.id; })[0];
-  eq(saved.state, 'down', 'so is the state');
+  eq(saved.state, 'down', 'the cable that went down is saved as down');
   eq(saved.stateSinceMs, 10000, 'and when it changed');
+  eq(Topology.fromJSON(json).lastChangeAtMs, 10000, 'a reloaded board derives its clock from the newest fault');
 
   // Links that never moved must not carry the field, or every diff grows noise.
   const untouched = json.links.filter(function (l) { return l.id !== L.L13.id; });
@@ -328,8 +332,12 @@ t('The CLI can pull a cable, list cables, and refuses nonsense');
   eq(L.mid.stateSinceMs, 10000, 'at the instant it was cut');
 
   const state = L.cli(L.h1, ['enable', 'link state ' + L.mid.id]);
-  ok(state.some(function (l) { return /state: down since 10000 ms/.test(l); }),
-    'link state shows the state and since when');
+  // The instant is named as an instant. It used to read `since 10000 ms`, which reads as a duration - and it is not
+  // one: at run time 5000 the cable did not go down 10000 ms ago, it went down at 10000 ms (#1331).
+  ok(state.some(function (l) { return /state: down, changed at 10000 ms/.test(l); }),
+    'link state shows the state and the instant it changed');
+  ok(!state.some(function (l) { return /since 10000 ms/.test(l); }),
+    'without presenting the instant as a duration');
 
   const again = L.cli(L.h1, ['enable', 'link down ' + L.mid.id]);
   ok(again.some(function (l) { return /already down/.test(l); }), 'cutting it twice is a no-op');

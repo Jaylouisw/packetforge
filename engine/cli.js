@@ -482,9 +482,13 @@ class CliSession {
       else out.push('IP address ' + hadIp + ' removed from ' + iface.name);
     } else if (head === 'shutdown') {
       iface.enabled = false;
+      // A port coming up or going down makes STP, OSPF and VRRP do their timers again. The clock only moved for a
+      // cable before this, so a board that had already converged said it still was (#1331).
+      this._controlPlaneChanged();
       out.push(iface.name + ' administratively down');
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
+      this._controlPlaneChanged();
       out.push(iface.name + ' up');
     } else if (head === 'ipv6' && tokens[1] === 'address') {
       out.push.apply(out, this._ipv6Iface(tokens.slice(2), iface));
@@ -507,7 +511,10 @@ class CliSession {
     } else if (head === 'encapsulation') {
       out.push.apply(out, this._encap(tokens.slice(1), iface));
     } else if (head === 'switchport') {
-      out.push.apply(out, this._switchport(tokens.slice(1), iface));
+      const changed = this._switchport(tokens.slice(1), iface);
+      // A VLAN parameter changes which ports forward for which VLAN, which is exactly what STP's timers are about.
+      this._controlPlaneChanged();
+      out.push.apply(out, changed);
     } else if (head === 'no' && tokens[1] === 'switchport') {
       // `no switchport access vlan` has to remove the access VLAN, not the whole switchport configuration.
       // Every `no switchport ...` form used to fall through to the blanket reset, so removing one leaf
@@ -1679,7 +1686,16 @@ class CliSession {
       const l = this.topo.links.get(id);
       if (!l) return ['% No such link: ' + (id || '(none)')];
       out.push('Link ' + l.id + '  ' + this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b));
-      out.push('  state: ' + l.state + (l.stateSinceMs ? ' since ' + l.stateSinceMs + ' ms' : ''));
+      // "since 1200 ms" is an instant wearing a duration's clothes: it reads as "1200 ms ago", and at run time 5000
+      // it is 3800 ms ago. Say both, and say plainly when the instant belongs to a run that is not this one.
+      const now = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+      let when = '';
+      if (l.stateSinceMs) {
+        if (now === null) when = ', changed at ' + l.stateSinceMs + ' ms';
+        else if (l.stateSinceMs > now) when = ', changed at ' + l.stateSinceMs + ' ms (not this run)';
+        else when = ', changed at ' + l.stateSinceMs + ' ms (' + (now - l.stateSinceMs) + ' ms ago)';
+      }
+      out.push('  state: ' + l.state + when);
       return out;
     }
     if (what !== 'up' && what !== 'down') {
@@ -1851,6 +1867,13 @@ class CliSession {
   // "Is this port still somewhere a frame can go, and if not why" - the sentence both tables append to a
   // stale row. One helper so `show arp` and `show mac address-table` cannot describe the same port state
   // two different ways.
+  // "The control plane has to run its timers again, from now." One place, so a command added later either calls it
+  // or is caught by the test that walks the commands that change the forwarding decision (#1331).
+  _controlPlaneChanged() {
+    if (this.sim && typeof this.sim.markTopologyChange === 'function') this.sim.markTopologyChange();
+    else if (this.topo && typeof this.topo.markChange === 'function') this.topo.markChange(0);
+  }
+
   _staleNote(port, extra) {
     // One implementation, in the engine, because the state payload says the same thing to the browser (#1327).
     return this.device.portCarrierNote(port, this.topo, extra);
