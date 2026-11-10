@@ -69,6 +69,13 @@ function dropReasons(reasons) {
 }
 const natLib = require('./nat');
 
+// Keywords in a show command whose *next* token is their value, so a trailing number after one of
+// them is an argument and never a bare instant. `show mac address-table interface 22` names a port;
+// `show spanning-tree 5000` names a moment. The distinction is the word before the number.
+const INSTANT_VALUE_KEYWORDS = new Set([
+  'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone'
+]);
+
 const MODE_EXEC = 'exec';
 const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
@@ -2318,10 +2325,23 @@ class CliSession {
   // A trailing `converged` or bare number on a show that can take an instant. Needed because the
   // caller has to know whether to call `_splitInstant()` at all: without this, a row advertising
   // `[at <ms>|converged]` would still only be checked for the literal word `at`.
+  // A bare trailing instant (`converged`, a number) - but only when it is the *question*, not the
+  // value of the keyword before it. `show mac address-table interface 22` asks about a port named 22,
+  // and answering it with a table rebuilt at t=22 ms answered a question nobody asked while dropping
+  // the port. One predicate, because `_looksLikeBareInstant` and `_splitInstant` have to agree: when
+  // they disagreed, the first said "an instant is present" and the second refused the line.
+  _bareInstantToken(tokens) {
+    if (!tokens.length) return null;
+    const last = String(tokens[tokens.length - 1] === undefined ? '' : tokens[tokens.length - 1]);
+    if (!/^(converged|\d+)$/i.test(last)) return null;
+    const prev = tokens[tokens.length - 2];
+    if (prev !== undefined && INSTANT_VALUE_KEYWORDS.has(String(prev).toLowerCase())) return null;
+    return last;
+  }
+
   _looksLikeBareInstant(tokens) {
     if (!tokens.length || !this._instantCapable(tokens)) return false;
-    const last = String(tokens[tokens.length - 1] === undefined ? '' : tokens[tokens.length - 1]);
-    return /^(converged|\d+)$/i.test(last);
+    return this._bareInstantToken(tokens) !== null;
   }
 
   // Split a trailing `at <ms>|converged` off a show command, refusing anything after it so a
@@ -2333,8 +2353,8 @@ class CliSession {
     // So a trailing `converged` or a bare number is an instant too.
     let at = tokens.indexOf('at');
     if (at === -1) {
-      const last = String(tokens[tokens.length - 1] === undefined ? '' : tokens[tokens.length - 1]);
-      if (/^(converged|\d+)$/i.test(last)) {
+      const last = this._bareInstantToken(tokens);
+      if (last !== null) {
         const when = parseInstant(last);
         if (when.ok) return { ok: true, atMs: when.atMs, tokens: tokens.slice(0, -1) };
         return { ok: false, lines: ['% Invalid instant: ' + last] };
@@ -2394,19 +2414,57 @@ class CliSession {
     return [head + ' (' + describeDelta(d) + ')'];
   }
 
+  // The `interface <name>` block of a rendered configuration: the header line and the indented lines
+  // under it, stopping at the first line that is not indented. A block is what a person pastes and
+  // what a diff about one port has to compare, so it is extracted once and used by both shows.
+  _configBlock(lines, port) {
+    const out = [];
+    let inside = false;
+    for (const line of lines) {
+      const header = /^interface\s+(.+)$/i.exec(line);
+      if (header) {
+        inside = resolvePortName(this.device, header[1].trim()) === port ||
+          header[1].trim() === port;
+        if (inside) out.push(line);
+        continue;
+      }
+      if (!inside) continue;
+      if (line === '' || !/^ /.test(line)) { inside = false; continue; }
+      out.push(line);
+    }
+    return out;
+  }
+
   // `show startup-config` - the saved copy, then what the running config has done to it since.
   //
   // The delta is printed as `!` comments so the whole answer stays pasteable: a config dump that
   // cannot be pasted is a config dump an operator has to edit before using.
-  _showStartupConfig(dev) {
+  _showStartupConfig(dev, only) {
     const saved = dev.savedConfig;
     if (!saved) {
       return ['% No startup-config on ' + (dev.name || dev.id) +
         ' - nothing has been written in this lab',
       '% "write memory" saves the running configuration (privileged, as on a real device)'];
     }
-    const out = ['! PacketForge startup-config (saved copy)'].concat(saved.lines);
     const current = this._runningConfigLines(dev).slice(1);
+    if (only) {
+      // One interface: the saved block, then whether *this* block was saved. An operator asking about
+      // one port wants to know whether the change they just made to it is in the copy - a whole-config
+      // delta makes them search for the answer.
+      const savedBlock = this._configBlock(saved.lines, only);
+      const runningBlock = this._configBlock(current, only);
+      const out = ['! PacketForge startup-config (saved copy), interface ' + only].concat(savedBlock);
+      const bd = diffLines(savedBlock, runningBlock);
+      if (bd.added.length || bd.removed.length) {
+        out.push('!');
+        out.push('! running-config differs for ' + only + ': ' + describeDelta(bd));
+        for (const l of bd.added) out.push('! + ' + l);
+        for (const l of bd.removed) out.push('! - ' + l);
+        out.push('! "write memory" replaces this copy with the running configuration');
+      }
+      return out;
+    }
+    const out = ['! PacketForge startup-config (saved copy)'].concat(saved.lines);
     const d = diffLines(saved.lines, current);
     if (d.added.length || d.removed.length) {
       out.push('!');
@@ -2973,9 +3031,21 @@ class CliSession {
           : 'disconnected'));
       }
     } else if (what === 'startup-config' || what === 'start') {
-      out.push.apply(out, this._showStartupConfig(dev));
+      const pick = this._portArg(tokens.slice(1), dev, 'show startup-config');
+      if (!pick.ok) return out.concat(pick.output);
+      out.push.apply(out, this._showStartupConfig(dev, pick.port));
     } else if (what === 'running-config' || what === 'run') {
-      out.push.apply(out, this._runningConfigLines(dev));
+      // The argument used to be dropped on the floor: `show running-config interface Gi0/0` printed
+      // the whole configuration, and so did `show running-config bogus` - an answer that looks like an
+      // answer to the question asked. One port narrows it; anything else is refused by name.
+      const pick = this._portArg(tokens.slice(1), dev, 'show running-config');
+      if (!pick.ok) return out.concat(pick.output);
+      if (!pick.port) {
+        out.push.apply(out, this._runningConfigLines(dev));
+      } else {
+        out.push('! PacketForge running-config, interface ' + pick.port);
+        out.push.apply(out, this._configBlock(this._runningConfigLines(dev), pick.port));
+      }
     } else {
       out.push('% Invalid show command: ' + (tokens.join(' ') || '(empty)'));
     }
@@ -3772,10 +3842,24 @@ class CliSession {
   // original `show interfaces <port>` fix had the same defect that fix was for - they took the port,
   // dropped it, and printed the whole table, which reads as an answer about one port and is not.
   _portArg(args, dev, what) {
+    const hadKeyword = (args || []).some(function (a) {
+      return String(a).toLowerCase() === 'interface';
+    });
     const rest = (args || []).filter(Boolean).filter(function (a) {
       return String(a).toLowerCase() !== 'interface';
     });
-    if (!rest.length) return { ok: true, port: null };
+    if (!rest.length) {
+      // `interface` on its own is a truncated command, not an absent argument: answering it with the
+      // whole table is the same silent-ignore this helper exists to prevent, one keystroke earlier.
+      if (hadKeyword) {
+        return {
+          ok: false,
+          output: ['% ' + what + ' needs a port after "interface"',
+            '% Try "show ip interface brief" for the ports this device has']
+        };
+      }
+      return { ok: true, port: null };
+    }
     if (rest.length > 1) {
       return {
         ok: false,
@@ -4449,7 +4533,8 @@ class CliSession {
       helpLine('show power inline [<port>]', 'PoE budget and which ports are powered'),
       helpLine('show running-config', 'the whole configuration, pasteable'),
       helpLine('show startup-config', 'the saved copy, then what the running config changed'),
-      helpLine('write memory / copy running-config startup-config', 'save the running configuration'),
+      helpLine('write memory', 'save the running configuration (privileged)'),
+      helpLine('copy running-config startup-config', 'the same save, spelled the other way'),
       '',
       '',
       'A show that reports control-plane state also answers "at <ms>" or "at converged":',

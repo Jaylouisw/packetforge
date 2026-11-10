@@ -30,7 +30,8 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show clock` | the instant the lab is being asked about, and a plain statement that there is no wall clock ([Event log](#event-log)) |
 | `clear logging` | truncate the event log (privileged exec) |
 | `show startup-config` | the saved copy, then what the running config has changed ([Saving the configuration](#saving-the-configuration)) |
-| `write memory` / `copy running-config startup-config` | save the running configuration as the startup copy (privileged exec) |
+| `write memory` | save the running configuration as the startup copy (privileged exec) |
+| `copy running-config startup-config` | the same save, spelled the other way |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
@@ -1005,6 +1006,18 @@ SW1#converge abc
 % Invalid instant: abc
 SW1#converge at 1000
 % converge takes a bare instant: converge <ms>|converged (not "at <ms>")
+```
+
+A trailing number is a bare instant only when it is the *question*. After a keyword that takes a value
+it is that keyword's value, so a port named by number stays a port:
+
+```
+SW1#show mac address-table 5000
+MAC table at t=5000 ms (control planes rebuilt for this answer)
+...
+SW1#show mac address-table interface 22
+% No interface named 22 on SW1
+% Try "show ip interface brief" for the ports this device has
 ```
 
 Lists every process on every device with the instant it finishes, and the lab's fully-converged
@@ -2425,6 +2438,49 @@ whenever the configuration did would answer no question at all.
 
 What it is **not**: there is no `reload` in this lab, so a saved copy does not boot a device. It exists
 to answer "what was on this box" and "what have I changed since".
+
+### One interface at a time
+
+Both configuration views take an optional interface, and the answer is that interface's block — the
+`interface <name>` line and the lines indented under it, nothing else:
+
+```
+R1#show running-config interface Gi0/0
+! PacketForge running-config, interface Gi0/0
+interface Gi0/0
+  description to-core
+  ip address 10.0.1.1 255.255.255.0
+
+R1#show startup-config interface Gi0/1
+! PacketForge startup-config (saved copy), interface Gi0/1
+interface Gi0/1
+  description uplink
+!
+! running-config differs for Gi0/1: 1 line removed
+! -   description uplink
+! "write memory" replaces this copy with the running configuration
+```
+
+The second answer is the reason to have the filter at all. Asking about one port is usually the
+question "is my change to **this** port saved?", and a whole-configuration delta makes the operator
+search for the answer among changes to ports they never touched. So the filtered saved view carries its
+own delta, and a port nobody touched reports none — which is also a check that the filter is really
+filtering, since a filter that printed the whole configuration would report every change on every port.
+
+Three rules hold the shape together:
+
+- **The keyword is optional.** `show running-config Gi0/0` and `show running-config interface Gi0/0`
+  are the same question, because both spellings are typed in practice.
+- **`interface` with no port is refused as truncated** (`% show running-config needs a port after
+  "interface"`), not answered with the whole configuration. That distinction is the whole point: the
+  command used to drop its argument on the floor, so `show running-config bogus` printed everything and
+  a typo read as success.
+- **A filtered dump is still a dump.** The heading is a `!` comment, so a filtered block pastes onto a
+  bare device and configures that port and nothing else.
+
+What the filter does **not** do is match text: a port named inside a description (`description see Gi0/0
+for the core`) or inside a static route (`ip route 10.9.9.0 255.255.255.0 Gi0/0`) is not part of
+Gi0/0's block. Only an `interface` line starts a block.
 
 ## Switch management address — an SVI
 
