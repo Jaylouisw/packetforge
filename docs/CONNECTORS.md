@@ -231,13 +231,23 @@ Two consequences worth knowing:
 
 ## 4. What will not mate, and why
 
-`canMate` answers in a fixed order and returns the **first** verdict:
+`canMate` answers in a fixed order and returns the **first** verdict. Seven gates, in this order:
 
-1. `antenna` against anything that is not `antenna` → `E_WIRELESS_TO_WIRED`
-2. `cagesMate()` fails and the polishes differ → `E_POLISH_MISMATCH`
-3. `cagesMate()` fails → `E_CONNECTOR_MISMATCH`
-4. no shared medium → `E_NO_COMMON_MEDIA`
-5. no common speed → `E_NO_COMMON_SPEED`
+1. either port is missing → `E_NO_PORT`
+2. `antenna` against anything that is not `antenna` → `E_WIRELESS_TO_WIRED`; two `antenna` ports pass
+   this gate and mate on whatever bands they share
+3. a console/USB-only port against a data port → `E_PROTOCOL_MISMATCH` — the message names both sides
+   ("`Console is an out-of-band management console and RJ45 is a data port`"), so read it before assuming
+   a connector problem
+4. `cagesMate()` fails and the polishes differ → `E_POLISH_MISMATCH`
+5. `cagesMate()` fails → `E_CONNECTOR_MISMATCH`
+6. no shared medium → `E_NO_COMMON_MEDIA`
+7. no common speed → `E_NO_COMMON_SPEED`
+
+Gates 1–3 are not about connectors at all, which is why they come before `cagesMate()`: asking the
+connector question about two radios, or about a console port, would answer the wrong thing. Measured:
+a console port against `rj45` is `E_PROTOCOL_MISMATCH`, `rj45` against a missing port is `E_NO_PORT`, and
+`antenna` against `antenna` is `ok: true` with `media: ["wireless-2.4","wireless-5"]`.
 
 | Refused pair | Code | Reason |
 |--------------|------|--------|
@@ -248,8 +258,20 @@ Two consequences worth knowing:
 | SFP28 into QSFP-DD, QSFP28 into SFP+ | `E_CONNECTOR_MISMATCH` | Different shell size |
 | Antenna into anything wired | `E_WIRELESS_TO_WIRED` | A radio has no cable |
 | Two radios on different bands | `E_NO_COMMON_MEDIA` | They mate, but share no radio band |
-| Console into a data port | `E_CONSOLE_TO_DATA` | Management only |
-| Combo RJ45 half while the SFP half is cabled | `E_COMBO_OCCUPIED` | One physical position, two logical ports |
+| Console into a data port | `E_PROTOCOL_MISMATCH` | Management only — but see the note below about the *other* console code |
+| Combo RJ45 half while the SFP half is cabled | not `canMate`'s answer — see below | One physical position, two logical ports |
+
+Two of these refusals come from somewhere else, and the distinction matters when you are reading a
+transcript:
+
+| Code | Produced by | When you meet it |
+|---|---|---|
+| `E_PROTOCOL_MISMATCH` | `canMate()`, `engine/media.js` | Trying to build the cable at all |
+| `E_CONSOLE_TO_DATA` | `validateTopology()`, `engine/validation.js` | The link exists; the lab itself is being checked |
+| `E_COMBO_OCCUPIED` | `connect()`, `engine/topology.js` | The second half of a combo port is being cabled |
+
+So a console cable can fail with two different codes depending on whether you asked `canMate` first or
+loaded a board that already contains the link. Neither is wrong; they answer different questions.
 
 ### 4.1 Copper into an optical cage, and fibre into RJ45
 
