@@ -45,6 +45,39 @@ Per-port keys, all optional except the first three: `name`, `type`, `speed`, `co
 (the cage — see [CONNECTORS.md](CONNECTORS.md) for all 26), `speedCaps` (the rates the cage
 accepts), `poeOut` / `poeOutClass`, `poeIn`, `comboWith` / `comboRole`, `bridgeGroup`, `role`.
 
+A port may also carry a **nested `hardware` block**, and it is the one place in the schema where
+writing a key that looks right does nothing at all. `derivePortHardware()` (`engine/media.js:987`)
+reads `spec.hardware` for four keys and derives the rest from `connector` and `speed`, so only these
+four are the spec's to decide:
+
+| Inside `hardware` | Honoured? | Evidence (measured) |
+|---|---|---|
+| `poeOut` | **yes** | a probe port declaring `poeOut: 30` derives `hardware.poeOut === 30` |
+| `poeIn` | **yes** | same path, `media.js:1002` |
+| `speedCaps` | **yes** | a probe declaring `speedCaps: [42]` keeps `[42]` while its cage offers 11 media |
+| `maxRangeM` | **yes** | `media.js:1010` |
+| `cage` | **no** — overwritten | a probe declaring `cage: 'qsfp28'` with `connector: 'sfp+'` derives `cage === 'sfp+'` |
+| `media` | **no** — overwritten | the same probe's `media: ['made-up']` becomes the sfp+ list |
+| `maxSpeedMbps` | **no** — overwritten | the same probe's `1234` becomes `10000`, from `speed` |
+
+The cage is the authority on what fits and what the port can carry, which is the whole point of
+[CONNECTORS.md](CONNECTORS.md); a spec that contradicts its own `connector` is not believed. If the
+cage is wrong, fix `connector`.
+
+Exactly one file uses the nested form today — `devices/microchip/pd-9501g-sfp.json`, whose `poe-out`
+port says `"hardware": { "poeOut": 60 }` — and both spellings are read, because the flat `poeOut` was
+the original one:
+
+```js
+// engine/media.js:1001 — nested first, then flat, then silence
+poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null),
+```
+
+`engine/cli.js` accepts either when it decides whether a port can source power, so a contributor may
+use whichever the surrounding file already uses; prefer the flat key in a new spec, because it is the
+form every example in this page shows and the one 51 of the 52 files that state a PoE rate use (the
+catalogue's other 1,534 files state none at all, and the engine infers from the device class).
+
 ### Keys the catalogue carries that this table does not gate on
 
 A survey of all 1,586 files finds thirteen keys the schema table above never mentions. They matter
