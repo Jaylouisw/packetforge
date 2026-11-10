@@ -25,8 +25,10 @@ changes to add one.
 media, speed negotiation, ferrule polish, optical budget, cable length. A cable that cannot
 exist is refused with a reason, not silently allowed.
 
-**"What happens then?"** ARP, IPv4/IPv6, ICMP, VLANs, LAG, STP, DHCP, NAT, ACLs, VRRP, OSPF,
-BGP, DNS and SCION in the data path, with per-hop latency.
+**"What happens then?"** ARP, IPv4/IPv6 (including SLAAC), ICMP, VLANs, LAG, STP, LLDP, port
+security, DHCP, NAT, ACLs, VRRP, OSPF, BGP, DNS and SCION in the data path, with per-hop latency --
+and transport flows, which let you aim a specific TCP or UDP flow at a destination and read back
+which rule or missing route stopped it.
 
 If the documentation ever disagrees with the code, [Simulation-Fidelity](Simulation-Fidelity)
 is the one that is right.
