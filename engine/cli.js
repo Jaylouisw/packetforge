@@ -788,6 +788,14 @@ class CliSession {
       }
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
+    } else if (head === 'ip' && tokens[1] === 'domain-lookup') {
+      out.push.apply(out, this._ipDomainLookup(true, tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'domain-lookup') {
+      out.push.apply(out, this._ipDomainLookup(false, tokens.slice(3)));
+    } else if (head === 'ip' && tokens[1] === 'domain-name') {
+      out.push.apply(out, this._ipDomainName(tokens.slice(2), false));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'domain-name') {
+      out.push.apply(out, this._ipDomainName(tokens.slice(3), true));
     } else if (head === 'lldp' && tokens[1] === 'run') {
       out.push.apply(out, this._lldpRun(false, tokens.slice(2)));
     } else if (head === 'no' && tokens[1] === 'lldp' && tokens[2] === 'run') {
@@ -2742,6 +2750,71 @@ class CliSession {
     return out;
   }
 
+  // Name resolution: whether this device asks, and what suffix an unqualified name gets.
+  //
+  // Both knobs change what `ping <name>` does, and neither existed - resolution was always on, and a
+  // name was always asked exactly as typed. A lab about DNS is mostly about those two facts.
+  _ipDomainLookup(on, rest) {
+    const dev = this.device;
+    const usage = on ? 'ip domain-lookup' : 'no ip domain-lookup';
+    const extra = this._noExtra(rest, 0, usage);
+    if (extra) return extra;
+    const enabled = dev.config.domainLookup !== false;
+    if (on) {
+      if (enabled) return ['Name lookup is already enabled on ' + (dev.name || dev.id)];
+      dev.config.domainLookup = true;
+      return ['Name lookup enabled on ' + (dev.name || dev.id) +
+        ': ping and traceroute resolve a name through the zones here, then the lab\'s resolvers'];
+    }
+    if (!enabled) return ['Name lookup is already disabled on ' + (dev.name || dev.id), '% Usage: ip domain-lookup'];
+    dev.config.domainLookup = false;
+    return ['Name lookup disabled on ' + (dev.name || dev.id) +
+      ': a name is refused instead of resolved, and an address still works',
+      '  "ip domain-lookup" puts it back'];
+  }
+
+  _ipDomainName(args, isNo) {
+    const dev = this.device;
+    const usage = isNo ? 'no ip domain-name' : 'ip domain-name <name>';
+    const extra = isNo ? this._noExtra(args, 0, usage) : this._noExtra(args, 1, usage);
+    if (extra) return extra;
+    if (isNo) {
+      if (!dev.config.domainName) {
+        return ['No domain name is set on ' + (dev.name || dev.id) + ' - unqualified names are asked as typed'];
+      }
+      const had = dev.config.domainName;
+      dev.config.domainName = null;
+      return ['Domain name cleared on ' + (dev.name || dev.id) + ' (was ' + had + ')',
+        '  An unqualified name is now asked exactly as typed'];
+    }
+    const name = String(args[0] || '').trim().toLowerCase();
+    if (!name) return ['% Incomplete command: ' + usage,
+      '% An unqualified name gets this suffix before it is looked up'];
+    // One rule for a DNS name: dotted labels of letters, digits and hyphens, no leading or trailing
+    // hyphen, nothing over 253 characters. A suffix that cannot be a name would silently turn every
+    // `ping www` into a lookup that cannot succeed.
+    const bad = (function (n) {
+      if (n.length > 253) return 'it is longer than 253 characters';
+      const labels = n.split('.');
+      if (labels.some(function (l) { return !l.length; })) return 'it has an empty label (a doubled or trailing dot)';
+      for (const l of labels) {
+        if (!/^[a-z0-9-]+$/.test(l)) return 'the label "' + l + '" has a character a name cannot carry';
+        if (/^-|-$/.test(l)) return 'the label "' + l + '" starts or ends with a hyphen';
+        if (l.length > 63) return 'the label "' + l + '" is longer than 63 characters';
+      }
+      return null;
+    })(name);
+    if (bad) return ['% "' + String(args[0]) + '" is not a domain name: ' + bad,
+      '% Usage: ' + usage];
+    if (dev.config.domainName === name) {
+      return ['Domain name on ' + (dev.name || dev.id) + ' is already ' + name];
+    }
+    const had = dev.config.domainName;
+    dev.config.domainName = name;
+    return ['Domain name on ' + (dev.name || dev.id) + ' set to ' + name + (had ? ' (was ' + had + ')' : ''),
+      '  An unqualified name is now asked as name.' + name + ' first'];
+  }
+
   // `lldp run` / `no lldp run`: whether this device speaks LLDP at all.
   //
   // Turning it off is the whole point of the command: a lab in which discovery must not work (a
@@ -3996,8 +4069,32 @@ class CliSession {
       return a ? (a.value || a.address || a.data || null) : null;
     };
 
+    // `no ip domain-lookup` is the device being told not to ask, and `ip domain-name` is the suffix
+    // an unqualified name gets before it is asked. Neither existed: name resolution was always on,
+    // and a name was only ever looked up exactly as typed, so the two questions a lab asks about DNS
+    // ("show me that resolution can be switched off" and "why does `ping www` work here") had no
+    // answer at the console.
+    if (dev.config.domainLookup === false) {
+      return {
+        ok: false,
+        message: '% Cannot resolve ' + raw + ': name lookup is disabled on ' + (dev.name || dev.id) +
+          ' (no ip domain-lookup)',
+        hint: '% Use the address, or put resolution back with "ip domain-lookup"'
+      };
+    }
+    // An unqualified name gets this device's domain appended, which is what makes `ping www` an
+    // answer rather than a different question. The name actually asked for is reported, so the
+    // operator can see the suffix that was applied instead of guessing at it.
+    let asked = raw;
+    let suffixed = false;
+    const domain = String(dev.config.domainName || '').trim();
+    if (domain && raw.indexOf('.') === -1 && raw.toLowerCase() !== domain.toLowerCase()) {
+      asked = raw + '.' + domain;
+      suffixed = true;
+    }
+
     for (const zone of (dev.config.dnsZones || [])) {
-      const res = dnsLib.resolve(zone, raw, 'A');
+      const res = dnsLib.resolve(zone, asked, 'A');
       if (!res.authoritative) continue;
       const address = firstA(res);
       if (address) {
@@ -4006,28 +4103,30 @@ class CliSession {
         // straight to the data path, so `ping www.example.test` printed `Echos to abc` and reported
         // timeouts against a value no packet can be addressed to.
         if (!net.isIp(address)) {
-          return { ok: false, message: '% The A record for ' + raw + ' is "' + address +
+          return { ok: false, message: '% The A record for ' + asked + ' is "' + address +
             '", which is not an address - fix the record on ' + (dev.name || dev.id) };
         }
-        return { ok: true, ip: address,
+        return { ok: true, ip: address, asked: asked, suffixed: suffixed,
           server: (dev.name || dev.id) + ' (authoritative for ' + zone.name + ')' };
       }
       // An authoritative NXDOMAIN is a statement about the name, not a failure to ask.
-      return { ok: false, message: '% Unknown host ' + raw + ': ' + (res.rcodeName || 'no A record') +
+      return { ok: false, message: '% Unknown host ' + asked + ': ' + (res.rcodeName || 'no A record') +
         ' from ' + (dev.name || dev.id) + ', which is authoritative for ' + zone.name };
     }
 
     if (this.sim && typeof this.sim.resolveName === 'function') {
-      const res = this.sim.resolveName(dev, raw);
-      if (res.ok && res.address) return { ok: true, ip: res.address, server: res.server };
+      const res = this.sim.resolveName(dev, asked);
+      if (res.ok && res.address) {
+        return { ok: true, ip: res.address, asked: asked, suffixed: suffixed, server: res.server };
+      }
       if (res.status === 'NXDOMAIN') {
-        return { ok: false, message: '% Unknown host ' + raw + ': NXDOMAIN from ' + (res.server || '(no server)') };
+        return { ok: false, message: '% Unknown host ' + asked + ': NXDOMAIN from ' + (res.server || '(no server)') };
       }
       if (res.status === 'NODATA') {
-        return { ok: false, message: '% Unknown host ' + raw + ': the name exists at ' +
+        return { ok: false, message: '% Unknown host ' + asked + ': the name exists at ' +
           (res.server || '(no server)') + ' but has no A record' };
       }
-      return { ok: false, message: '% Unknown host ' + raw + ': no DNS server in this lab hosts a zone for it' };
+      return { ok: false, message: '% Unknown host ' + asked + ': no DNS server in this lab hosts a zone for it' };
     }
     return { ok: false, message: '% Unknown host ' + raw + ': no DNS server and no local zone contains it' };
   }
@@ -4105,9 +4204,12 @@ class CliSession {
       if (isKeyword) i++;
     }
     const target = this._resolveHost(dest.value, 'ping target');
-    if (!target.ok) return [target.message];
+    if (!target.ok) return target.hint ? [target.message, target.hint] : [target.message];
     const ip = target.ip;
     const out = target.literal ? [] : ['Translating "' + dest.value + '"...domain server (' + target.server + ')'];
+    // The suffix a domain name put on the question is shown, not left for the operator to work out
+    // from the answer: `ping www` reaching www.lab.test is only useful if you can see why.
+    if (target.suffixed) out.push('  (as ' + target.asked + ' - "ip domain-name" appended the suffix)');
     if (!this.sim) return ['% Simulator not attached'];
     if (atMs !== null) this.sim.setRunTime(atMs);
     out.push('Type escape sequence to abort.');
@@ -4228,8 +4330,12 @@ class CliSession {
     const dest = this._requireDest(tokens, 'traceroute <dst> [at <ms>|converged]');
     if (!dest.ok) return [dest.message];
     const target = this._resolveHost(dest.value, 'traceroute target');
-    if (!target.ok) return [target.message];
+    if (!target.ok) return target.hint ? [target.message, target.hint] : [target.message];
     const ip = target.ip;
+    // The same note `ping` prints when a domain name appended the suffix: two commands that resolve
+    // the same name must not describe the resolution differently.
+    const resolvedNote = target.literal ? []
+      : (target.suffixed ? ['  (as ' + target.asked + ' - "ip domain-name" appended the suffix)'] : []);
     if (!this.sim) return ['% Simulator not attached'];
     // Every word after the destination has to be one this command uses. It used to look only for
     // `at` and ignore everything else, so `traceroute 10.0.0.5 source abc` and `traceroute 10.0.0.5
@@ -4254,6 +4360,7 @@ class CliSession {
     const latencyLib = require('./latency');
     const res = this.sim.tracePath(this.device.id, ip, atMs === null ? {} : { atMs: atMs });
     const out = target.literal ? [] : ['Translating "' + dest.value + '"...domain server (' + target.server + ')'];
+    out.push.apply(out, resolvedNote);
     out.push('Type escape sequence to abort.');
     out.push('Tracing the route to ' + ip + (atMs !== null ? '  (at ' + instantLabel(atMs) + ')' : ''));
     out.push('');
@@ -4711,6 +4818,11 @@ class CliSession {
     }
     out.push('  Name servers: ' +
       (servers.length ? servers.join(', ') : 'none (queries go to any server in the lab)'));
+    // The two settings that decide what a name query even means, beside the zones they govern.
+    out.push('  Lookup      : ' + (dev.config.domainLookup === false
+      ? 'disabled (no ip domain-lookup) - a name is refused, an address still works'
+      : 'enabled'));
+    out.push('  Domain name : ' + (dev.config.domainName || 'none (an unqualified name is asked as typed)'));
     return out;
   }
 
@@ -5050,6 +5162,10 @@ class CliSession {
     out.push('hostname ' + (dev.config.hostname || dev.name));
     // LLDP is on unless it was turned off, so the off state is what the dump has to carry.
     if (dev.config.lldp && dev.config.lldp.run === false) out.push('no lldp run');
+    // Name resolution is on unless it was turned off, and a domain name changes what every
+    // unqualified lookup asks - both survive a paste or the lab stops being the lab.
+    if (dev.config.domainLookup === false) out.push('no ip domain-lookup');
+    if (dev.config.domainName) out.push('ip domain-name ' + dev.config.domainName);
 
     // VLAN declarations, not just the switchport membership that points at them.
     const vlans = dev.config.vlans || {};
@@ -6205,7 +6321,7 @@ class CliSession {
     if (!dest.ok) return [dest.message];
     const typedDst = dest.value;
     const resolved = this._resolveHost(typedDst, 'destination');
-    if (!resolved.ok) return [resolved.message];
+    if (!resolved.ok) return resolved.hint ? [resolved.message, resolved.hint] : [resolved.message];
     const dst = resolved.ip;
 
     let port = 80;
@@ -7716,6 +7832,10 @@ class CliSession {
     if (this.mode === MODE_CONFIG) return helpRows([
       'Config-mode commands (exit / end to leave):',
       helpLine('hostname <name>', 'set device hostname (spaces kept)'),
+      helpLine('ip domain-name <name>', 'suffix an unqualified name gets before it is looked up'),
+      helpLine('no ip domain-name', 'ask an unqualified name exactly as typed'),
+      helpLine('ip domain-lookup', 'resolve names again (on by default)'),
+      helpLine('no ip domain-lookup', 'refuse names; an address still works'),
       helpLine('lldp run', 'enable LLDP on this device (it is on by default)'),
       helpLine('no lldp run', 'stop announcing and listening; the neighbour table is forgotten'),
       helpLine('interface <name> | int <name>', 'enter interface configuration'),

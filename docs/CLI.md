@@ -1178,6 +1178,60 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The two settings that decide what a name query even means
+
+Name resolution worked and could not be configured. It was always on, and a name was always asked
+exactly as typed:
+
+```
+PC1(config)#ip domain-name lab.test
+% Unrecognized config command: ip domain-name lab.test
+PC1(config)#no ip domain-lookup
+% Unrecognized config command: no ip domain-lookup
+```
+
+A lab about DNS is mostly about those two facts — *show me that resolution can be switched off*, and
+*why does `ping www` answer here* — and neither had a command.
+
+```
+PC1(config)#ip domain-name lab.test
+Domain name on PC1 set to lab.test
+  An unqualified name is now asked as name.lab.test first
+
+PC1#ping www count 1
+Translating "www"...domain server (R1)
+  (as www.lab.test - "ip domain-name" appended the suffix)
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.0.0.50, timeout is 2 seconds:
+!
+Success rate is 100 percent (1/1)
+
+PC1(config)#no ip domain-lookup
+Name lookup disabled on PC1: a name is refused instead of resolved, and an address still works
+  "ip domain-lookup" puts it back
+
+PC1#ping www.lab.test count 1
+% Cannot resolve www.lab.test: name lookup is disabled on PC1 (no ip domain-lookup)
+% Use the address, or put resolution back with "ip domain-lookup"
+
+PC1#ping 10.0.0.50 count 1
+Success rate is 100 percent (1/1)
+```
+
+Three details matter more than the commands:
+
+* The **suffix applied is shown** (`as www.lab.test`), so an answer that arrived from a name you did not
+  type is explained rather than guessed at — and `traceroute` says the same thing, because two commands
+  resolving one name must not describe it differently.
+* A disabled lookup is **not blamed on a missing zone**. `% Cannot resolve … name lookup is disabled`
+  names the switch and the way back, because `% Unknown host` would send the operator to look at DNS.
+* An **address still works** with lookup off — which is the diagnostic value of the switch, and is what
+  the test asserts, rather than only that names fail.
+
+`show dns` prints both settings beside the zones they govern, a suffix that cannot be a DNS name is
+refused where it is typed (empty label, leading or trailing hyphen, a character a name cannot carry, a
+label over 63 characters), and both lines ride in `show running-config` and paste back.
+
 ### A neighbour table that could only ever fill
 
 The LLDP neighbour table is trustworthy for one reason: it is filled from LLDPDUs that really crossed
