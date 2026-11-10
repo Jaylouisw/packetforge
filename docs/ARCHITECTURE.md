@@ -301,6 +301,16 @@ author will not guess:
 | `DELETE /api/topologies/:id` | `{ ok: true }` — **always**, even for an id that never existed |
 | `GET /api/version`, `GET /api/media` | build info (`name`, `version`, `commit`, `node`, `platform`, `devices`) and the raw media/cage catalogues |
 
+- **Adding a device wants `vendor` + `model`, ignores `name`, and says neither.** `POST
+  /api/topologies/:id/devices` with `{ "kind": "pc", "name": "PC1" }` answers
+  `{"error":"unknown device model: undefined/undefined"}` — no 400, no field list, the two words
+  `undefined/undefined` being the missing pair. With the right pair
+  (`{"vendor":"generic","model":"generic-pc","name":"PC1"}`) the device arrives as **`PC-d1`**: `name` is
+  dropped, the label comes from the catalogue and the id from the board, exactly as `name` is dropped on a
+  board. To actually name it you have to *configure* it, and `hostname` only works inside config mode —
+  `POST …/config/d1` with `{"commands":["configure terminal","hostname PC1"]}` renames it to `PC1`, while
+  `{"commands":["hostname PC1"]}` answers `% Unrecognized command: hostname PC1` and renames nothing. The
+  config endpoint answers `404` for a device id that is not on the board.
 - **`name` is not a field.** Posting `{ "name": "lab2" }` returns `201` with an id of
   `topo-mw9ltb2h` and creates a board you did not name. Measured against a live server, because the
   body is not validated and the mistake is silent.
