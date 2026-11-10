@@ -6806,7 +6806,9 @@ class CliSession {
     // The process id is what `router ospf <pid>` created; it printed the constant `ospf 1` before,
     // which was right only for the one id nobody had been able to configure.
     out.push('Routing Process "ospf ' + (cfg.pid || 1) + '" with ID ' +
-      (cfg.routerId || '(not configured - the model uses the highest interface address)'));
+      (cfg.routerId || (dev.ospfRouterId
+        ? dev.ospfRouterId + ' (derived: no router-id is configured, so the highest interface address is used)'
+        : '(no address to derive one from - give an interface an address or configure router-id)')));
     out.push('  Area ' + (cfg.areaId || 0));
 
     const overrides = cfg.interfaces || [];

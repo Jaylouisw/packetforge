@@ -561,7 +561,10 @@ class Device {
     for (const r of (this.config.routes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
         consider({
-          iface: r.iface || null,
+          // The egress for a gatewayed static route is the port that gateway is on - the same
+          // resolution `egressFor()` does for the data path. Leaving it null made `show ip route`
+          // say `Interface -` for a route that forwarded perfectly well.
+          iface: r.iface || (this.egressFor(r.gw) || {}).name || null,
           via: r.gw || dstIp, // on-link if no gateway given
           type: 'static',
           prefix: net.prefixOf(r.mask),
@@ -574,7 +577,7 @@ class Device {
     for (const r of (this.bgpRoutes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
         consider({
-          iface: r.iface || null,
+          iface: r.iface || (this.egressFor(r.nextHop) || {}).name || null,
           via: r.nextHop || dstIp,
           type: 'bgp',
           prefix: net.prefixOf(r.mask),
@@ -601,7 +604,12 @@ class Device {
 
     // 5. default gateway (hosts / routers)
     if (!best && this.config.defaultGateway) {
-      best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0,
+      // Same resolution as a gatewayed static route: the default gateway is on a subnet this device
+      // holds, so the port it is on is the port the frames leave by. `iface: null` here made
+      // `show ip route 8.8.8.8` answer `Interface -` on a host whose default route printed `eth0`
+      // one line above it.
+      best = { iface: (this.egressFor(this.config.defaultGateway) || {}).name || null,
+        via: this.config.defaultGateway, type: 'default', prefix: 0,
         ad: Device.ADMIN_DISTANCE.default };
     }
 
@@ -754,30 +762,44 @@ class Device {
         });
       }
     }
+    // A static route's egress is decided by its gateway: the interface whose subnet contains it is
+    // the one the frame leaves by, and that is what the data path does when it resolves the next
+    // hop's MAC. The table printed `-` for every `ip route <net> <mask> <gw>` - so a route that
+    // forwarded perfectly well (and whose next hop was in the ARP cache on Gi0/0) claimed no
+    // interface at all. An unreachable gateway still earns `-`, because there is nothing to name.
+    // `egressFor()` is the helper the data path uses to pick the port for a next hop, so the table
+    // reads the same decision rather than re-deriving it.
+    const egressFor = (gw) => {
+      if (!gw || gw === '-') return '-';
+      const iface = this.egressFor(gw);
+      return iface ? iface.name : '-';
+    };
     for (const r of (this.config.routes || [])) {
       rows.push({
         code: 'S', dest: r.dest, mask: r.mask,
-        gw: r.gw || '-', iface: r.iface || '-', type: 'static',
+        gw: r.gw || '-', iface: r.iface || egressFor(r.gw), type: 'static',
         ad: AD.static
       });
     }
     for (const r of (this.ospfRoutes || [])) {
       rows.push({
         code: 'O', dest: r.dest, mask: r.mask,
-        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf',
+        gw: r.nextHop || '-', iface: r.iface || egressFor(r.nextHop), type: 'ospf',
         ad: AD.ospf
       });
     }
     for (const r of (this.bgpRoutes || [])) {
       rows.push({
         code: 'B', dest: r.dest, mask: r.mask,
-        gw: r.nextHop || '-', iface: r.iface || '-', type: 'bgp',
+        gw: r.nextHop || '-', iface: r.iface || egressFor(r.nextHop), type: 'bgp',
         ad: r.ad, asPath: r.asPath
       });
     }
     if (this.config.defaultGateway) {
+      // The default gateway is the same question: `ip default-gateway 10.0.0.1` sends a host's
+      // off-subnet frames out of the port that gateway is on, and said `-` for it.
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway,
-        iface: '-', type: 'default', ad: AD.default });
+        iface: egressFor(this.config.defaultGateway), type: 'default', ad: AD.default });
     }
     // Which row forwards. Same rule as `routeTo()`: for one prefix the lowest distance wins and a
     // tie leaves the earlier row in place, so the mark cannot disagree with the data path.

@@ -1507,7 +1507,28 @@ class Simulator {
       dev.ospfNeighbors = [];
       dev.ospfAreaMismatch = [];
       const cfg = dev.config && dev.config.ospf;
-      if (!cfg || !cfg.routerId) continue;
+      if (!cfg) continue;
+      // IOS derives the router-id from the highest interface address when none is configured - which
+      // is exactly what `show ip ospf` has been promising ("not configured - the model uses the
+      // highest interface address"). The engine required the configured id, so a lab that never typed
+      // `router-id` had no speakers, no adjacencies, and no explanation; the view described a rule
+      // the code did not implement.
+      let routerId = cfg.routerId || null;
+      if (!routerId) {
+        let best = null;
+        for (const i of dev.interfaces.values()) {
+          if (!i.enabled || !i.ip || !i.mask) continue;
+          if (i.ip === '0.0.0.0') continue;
+          const asNum = net.ipToInt(i.ip);
+          if (best === null || asNum > best.asNum) best = { ip: i.ip, asNum: asNum };
+        }
+        routerId = best ? best.ip : null;
+        if (routerId) dev.ospfDerivedRouterId = true;
+      }
+      if (!routerId) continue;
+      // What the process is actually running with, so `show ip ospf` can print the id in use rather
+      // than describing a rule.
+      dev.ospfRouterId = routerId;
 
       const ifaces = [];
       for (const i of dev.interfaces.values()) {
@@ -1527,7 +1548,8 @@ class Simulator {
       }
       if (!ifaces.length) continue;
 
-      const entry = { id: dev.id, routerId: cfg.routerId, areaId: cfg.areaId || 0, interfaces: ifaces };
+      const entry = { id: dev.id, routerId: routerId, areaId: cfg.areaId || 0, interfaces: ifaces,
+        derivedRouterId: !cfg.routerId };
       routers.push(entry);
       byId[dev.id] = { dev: dev, entry: entry };
     }
@@ -1569,6 +1591,54 @@ class Simulator {
         b: { router: l.b.deviceId, iface: l.b.iface },
         cost: 10
       });
+    }
+
+
+    // A switch is transparent, so two speakers on one broadcast segment are neighbours even with no
+    // cable between them. Adjacency used to require a direct `topology.links` entry, which meant
+    // R1--SW1--R2 - the ordinary lab shape - formed none at all, and `show ip ospf neighbor` blamed
+    // "the passive, subnet and area checks" that all of them passed. The segment walk is the same one
+    // DHCP uses to find its server, so a VLAN boundary, a blocked STP port or a down link stops the
+    // adjacency exactly as it stops a frame.
+    const edgeKey = function (one, two) {
+      const a = one.router + '/' + one.iface;
+      const b = two.router + '/' + two.iface;
+      return (a < b) ? a + '|' + b : b + '|' + a;
+    };
+    const seenEdge = new Set();
+    for (const l of links) seenEdge.add(edgeKey(l.a, l.b));
+    for (const r of routers) {
+      const dev = byId[r.id].dev;
+      for (const ai of r.interfaces) {
+        if (ai.passive) continue;
+        let seg = [];
+        try { seg = segmentLib.segmentOf(this.topo, dev, ai.name); } catch (err) { seg = []; }
+        for (const hit of seg) {
+          const other = byId[hit.device.id];
+          // `byId` holds { dev, entry }: the id is on the entry, not on the wrapper.
+          const otherId = other ? other.entry.id : null;
+          if (!other || otherId === r.id) continue;
+          let bi = null;
+          for (const x of other.entry.interfaces) { if (x.name === hit.iface.name) { bi = x; break; } }
+          if (!bi || bi.passive) continue;
+          if (String(ai.mask) !== String(bi.mask)) continue;
+          if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
+          const key = edgeKey({ router: r.id, iface: ai.name }, { router: otherId, iface: bi.name });
+          if (seenEdge.has(key)) continue;
+          seenEdge.add(key);
+          if (ai.area !== bi.area) {
+            // Same segment, same subnet, different area: the one rule an operator can fix, and the
+            // one they would otherwise have to guess at.
+            areaMismatch.push({
+              a: { dev: dev, iface: ai.name, area: ai.area },
+              b: { dev: other.dev, iface: bi.name, area: bi.area }
+            });
+            continue;
+          }
+          links.push({ a: { router: r.id, iface: ai.name }, b: { router: otherId, iface: bi.name },
+            cost: ai.cost });
+        }
+      }
     }
 
     // Each side sees the link that was excluded, and why: an operator with a cable in place and no

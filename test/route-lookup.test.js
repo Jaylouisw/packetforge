@@ -68,7 +68,10 @@ console.log('A lookup names the covering prefix, the next hop, and the reason:')
   eq(field(out, 'Matched'), '10.0.99.0/24  (static, AD ' + Device.ADMIN_DISTANCE.static + ')',
     'the longest match is named, with its source and distance');
   eq(field(out, 'Next hop'), '10.0.12.2', 'the next hop is named');
-  eq(field(out, 'Interface'), '-', 'and the egress interface (none, for a gateway-only static route)');
+  // This pinned `-`, which was the defect rather than the contract: the gateway is in a subnet this
+  // device holds, so it is on a port, and the data path has always sent the frames out of it.
+  eq(field(out, 'Interface'), 'Gi0/0',
+    'and the egress interface, resolved from the gateway it forwards to');
   match(/^ {2}Shadowed +O 10\.0\.99\.0\/24 {2}\(OSPF, AD 110\)$/m, out,
     'the OSPF candidate is listed as shadowed, so the reader knows it exists and does not forward');
 }
