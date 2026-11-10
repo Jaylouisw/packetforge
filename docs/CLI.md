@@ -72,30 +72,65 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `help` / `?` | the command set for the mode you are in |
 | `exit` / `logout` | leave the session |
 
-### Which shows need a run first
+### What a show derives, and what needs traffic
 
-Half of what a `show` reports is **computed by a run**, not by configuration, so a freshly configured
-lab answers some of these with a placeholder and some with the truth. Measured by asking all of them
-on one configured lab, then asking again after a single `ping`:
+A `show` reports one of two kinds of fact, and the difference decides whether asking it is enough.
 
-| Changes only after a run | Before | After |
+**A table the control plane produces is derived before it is printed.** Ask any of these on a lab that
+has been configured and never simulated, and you get the answer, not a placeholder — measured on one
+lab: two routers with OSPF and BGP, a host, and a switch loop, with no `ping` sent:
+
+```
+R1#show ip route
+Codes: C - connected, S - static, O - OSPF, B - BGP
+* = installed (this row is what forwards); an unmarked row loses on administrative distance
+  *  Prefix          AD   Gateway    Interface
+  *  C 10.0.12.0/24  0    -          Gi0/0
+  *  C 10.0.1.0/24   0    -          Gi0/1
+     O 10.0.99.0/24  110  10.0.12.2  Gi0/0
+     B 10.0.12.0/24  20   10.0.12.2  Gi0/0
+  *  B 10.0.99.0/24  20   10.0.12.2  Gi0/0
+R1#show ip bgp
+BGP router identifier 1.1.1.1, local AS number 65001
+Neighbor   V  AS     State        Reason
+10.0.12.2  4  65002  Established  eBGP
+1 of 1 neighbour(s) established
+2 prefix(es) installed from BGP
+R1#show vrrp
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+Gi0/0      10     120  Master  R1      10.0.1.254  00:00:5e:00:01:0a
+```
+
+That covers `show ip route`, `show ipv6 route`, `show ip ospf`, `show ip ospf neighbor`, `show ip bgp`,
+`show vrrp`, `show ip dhcp binding` / `show ip dhcp pool`, `show spanning-tree`, `show lldp neighbors`,
+and `show ipv6 interface`. A reader derives the planes it displays; a *non*-reader (a configuration
+verb, a link change) bumps a revision so the next reader does the work. The upshot is the rule you
+want from a console: **the same question gives the same answer regardless of what you typed before
+it.** There was a period when it did not — `show ip bgp` said `(no neighbours have been evaluated yet
+- run a simulation)` on a lab whose BGP session was configured and would establish, and `show ip route`
+printed `C` rows only until something else happened to run OSPF.
+
+Two consequences worth knowing:
+
+- `show ip bgp` no longer answers `0 of 0 neighbour(s)` for a configured neighbour. It says `1 of 1
+  neighbour(s) established`, because it evaluated the session before answering.
+- A *bridge* is still a bridge: `show lldp neighbors` on the router shows the switch because LLDP
+  frames are delivered, and the switch's MAC table already holds `DYNAMIC` rows even though nobody
+  pinged — LLDP announcements alone are enough to populate the data path.
+
+**A table the data path writes needs frames.** These are empty (header only, or a sentence saying so)
+until traffic crosses, and no amount of asking fills them:
+
+| Needs traffic | On an unpinged lab | After a ping |
 |---|---|---|
 | `show arp [<port>]` | header only, no entries | the peer's IP and MAC; a port filter keeps only entries whose port is known, because an entry behind a switch shows `-` and folding it into another port would invent a fact |
-| `show mac address-table` | `Vlan  Mac Address` / `Type` / `Ports`, and nothing else | one `DYNAMIC` row per learned address; an **empty** table prints the header only — no rows, no `% No …` refusal, which reads like a broken command until you remember nothing has run yet |
-| `show lldp neighbors [<port>]` | `(none - no LLDP has been heard on any port)` | one row per neighbour, with the local port; naming a port narrows it, and a port with no neighbour says so by name |
-| `show vrrp` | `Backup`, virtual MAC `-`, `(no group holds its address yet - run a simulation)` | `Master`, `00:00:5e:00:01:01` |
-| `show ip bgp` | `(no neighbours have been evaluated yet - run a simulation)` and `0 of 0 neighbour(s) established` | `10.0.12.2  4  65002  Established  eBGP` and `1 of 1 neighbour(s) established` |
-| `show spanning-tree` (on a switch in a loop) | `No bridged ports: this device is not part of any L2 loop.` | the port table, with the blocked port marked |
+| `show interfaces counters [<port>]` | `(no port has carried a frame since this lab started)` | per-port rx/tx and bytes; `clear counters` resets |
+| `show ip nat translations` | empty — no frame was translated | one row per translation, with hits |
+| `show flows` | no conversations | one row per flow, open or closed |
+| `show mac address-table` | header only | one `DYNAMIC` row per learned address (LLDP is enough to fill it) |
 
-`show ip ospf` and `show ip ospf neighbor` are the exception that proves the rule: they call
-`computeOspf()` themselves, so a configured pair is `FULL` before any ping has been sent.
-
-Everything else reports from configuration or from the last computed state and does not need a run:
 `show running-config`, `show interfaces`, `show ip interface brief`, `show vlan`, `show access-lists`,
-`show dns`, `show power inline`, `show ip route` (see the caveat below — it prints the table as last
-computed), `show ip nat translations` (empty until traffic was *translated*, which is its own kind of
-run), and `show flows`. The pattern is not arbitrary: a table the **data path** writes is empty until
-frames cross it, and a table the **control plane** elects is empty until the election runs.
+`show dns` and `show power inline` report from configuration and need neither a run nor traffic.
 
 `help` and `?` answer in **every** mode — exec, config, interface and the DHCP pool sub-mode — and
 each list is the set of commands that mode's parser actually accepts, not one wall of text. The
@@ -162,12 +197,15 @@ OSPF and BGP state surface through `show ip route` (codes `O` and `B`), `show ip
 `show ip ospf neighbor` and `show running-config`, and the route legend names every code the table
 actually uses (`C`, `S`, `O`, `B`), so no row is left unexplained by the header.
 
-**`show ip route` prints the table as last computed — it does not recompute it.** Configure OSPF on
-two routers, bring the adjacency to FULL, and ask for the table: you get only `C` rows, because
-nothing has run the control plane yet. Ask again after `show ip ospf` (which calls `computeOspf()`
-first), after any `ping`, or after a `traceroute` (which rebuilds the control planes before it
-walks), and the `O` row and the `O - OSPF` legend entry appear. A lab that has never simulated
-anything legitimately has no learned routes to show.
+**`show ip route` derives the control planes before it prints.** Configure OSPF on two routers and
+ask for the table: the `O` row and the `O - OSPF` legend entry are there, with no `ping` in between.
+Which is the point — a table that only fills after some *other* command happens to run the control
+plane answers a question about your history of typing, not about the lab. The legend names the codes
+the table uses, so no row is unexplained.
+
+`at <ms>` is a different question from "now": it rebuilds the planes **as they would stand at that
+instant** and labels the answer, so `show ip route at 0` genuinely shows the table before the
+election has run while a plain show shows today's.
 
 The command tables below are the documented syntax, and they are checked in both directions:
 `test/docs-syntax.test.js` compares them with the console's `help` (a row naming a command help
@@ -417,8 +455,10 @@ address.
 
 **A host that has not heard an advertisement yet says so, and says what to do.** The
 router-advertisement pass runs at the start of a run and whenever a question is asked at an instant,
-so a plain show is the state *as last computed* — everywhere else in this console that is the rule,
-and here it would otherwise look like SLAAC is broken:
+so a plain show is the state *as last computed* — here that is not a shortcut but the truth: the
+address arrives in a frame that has to be delivered, and until that pass runs there is nothing to
+report. It is the one place where "ask again with `at converged`" is the answer rather than a
+workaround:
 
 ```
 PC1#show ipv6 interface
@@ -476,7 +516,7 @@ Its help row is `show ipv6 route [<dest>] [at <ms>|converged]`, which is three t
 
 | Form | Answers |
 |---|---|
-| `show ipv6 route` | the whole table, as last computed |
+| `show ipv6 route` | the whole table, derived before printing |
 | `show ipv6 route <dest>` | the longest match for that address or prefix, from `route6To()` |
 | `show ipv6 route [<dest>] [at <ms>\|converged]` | the whole table, one destination's longest match, or the table at an instant — the latter labelled `IPv6 routes at t=0 ms (control planes rebuilt for this answer)` |
 
@@ -763,15 +803,15 @@ length`, `% Invalid mask: … (not a contiguous netmask)`), never by letting the
 throw: `net.isIp()` is a shape check that accepts `10.0.0.999`, and the parse behind it raises
 `Invalid IPv4 address`, which reached the console as `% Error: …` and looked like a crash.
 
-### show ip route — as computed, or at an instant
+### show ip route — now, or at an instant
 
-`show ip route` prints the table **as last computed**. That is a fact about the run, not a
-prediction: an OSPF row appears only after something has computed OSPF, which is why an empty or
-static-only table on a converged lab means "nothing has asked yet", not "the adjacency failed".
+The plain command prints the table **as it stands now**, and getting there means deriving the
+control planes first. So a plain `show ip route` and `show ip route at converged` give the same
+table, and that is the honest answer: both are asking about the lab in its converged state.
 
-`show ip route at <ms>|converged` is the other question — *what would the table be at 5 s?* — and it
-rebuilds the control planes at that instant before printing, so it does not depend on what ran
-before. It labels the answer, because otherwise the two forms are indistinguishable:
+`show ip route at <ms>` asks something else — *what would the table be at 5 s?* — and rebuilds the
+planes at that instant, so it does not depend on what ran before. Each `at` answer is labelled,
+because otherwise the forms are indistinguishable:
 
 ```
 R1#show ip route at 0
@@ -790,7 +830,20 @@ Codes: C - connected, S - static, O - OSPF
   *  S 10.0.99.0/24  1    10.0.12.2  -
      O 10.0.99.0/24  110  10.0.12.2  Gi0/0
   *  O 10.0.77.0/24  110  10.0.12.2  Gi0/0
+
+R1#show ip route
+Codes: C - connected, S - static, O - OSPF
+* = installed (this row is what forwards); an unmarked row loses on administrative distance
+  *  Prefix          AD   Gateway    Interface
+  *  C 10.0.12.0/24  0    -          Gi0/0
+  *  S 10.0.99.0/24  1    10.0.12.2  -
+     O 10.0.99.0/24  110  10.0.12.2  Gi0/0
+  *  O 10.0.77.0/24  110  10.0.12.2  Gi0/0
 ```
+
+The last two are the same table, which is what "same question, same answer" means here. If you want
+to see the lab *before* the routing protocol has run, ask for that instant: `at 0` is the only form
+that shows `C` and `S` alone.
 
 Three things that transcript shows honestly:
 
@@ -2222,24 +2275,36 @@ summary whatever you asked for.
 ```
 router bgp 65001                 # local AS, 1-4294967295
 bgp router-id 1.1.1.1
-neighbor 10.0.0.2 remote-as 65002
-no neighbor 10.0.0.2             # drop one peer
+bgp neighbor 10.0.12.2 remote-as 65002
+no bgp neighbor 10.0.12.2        # drop one peer
 no router bgp                    # disable BGP entirely
 ```
 
-Sessions are evaluated when a run happens, so a freshly configured router is honest about having
-done nothing yet:
+**Two spellings, one neighbour.** `bgp neighbor <ip> remote-as <as>` and `neighbor <ip> remote-as
+<as>` do the same thing: the first is what `help` offers, the second is what `show running-config`
+emits. That was not always true — the parser accepted only the second, so the documented spelling was
+answered with `% Usage: router bgp <as> | bgp router-id <ip> | neighbor <ip> remote-as <as>` while
+`bgp router-id` in the same row worked, which is exactly how a row of alternatives hides a broken
+one. `test/running-config.test.js` now pins both spellings, the removal form, and the paste of the
+dump, in a session where BGP is enabled — the only place the difference is visible.
+
+`show ip bgp` derives the sessions before it answers, so a configured peer is not reported as
+"unknown":
 
 ```
 R1#show ip bgp
 BGP router identifier 1.1.1.1, local AS number 65001
 
-Neighbor         V  AS      State           Reason
-(no neighbours have been evaluated yet - run a simulation)
+Neighbor   V  AS     State        Reason
+10.0.12.2  4  65002  Established  eBGP
 
-0 of 0 neighbour(s) established
-0 prefix(es) installed from BGP
+1 of 1 neighbour(s) established
+2 prefix(es) installed from BGP
 ```
+
+The `Reason` column is where a session that did *not* come up says why (wrong AS, no route to the
+peer); an established one names the relationship instead. The counts at the bottom reconcile with the
+rows above them, and `2 prefix(es) installed` is the number of `B` rows `show ip route` carries.
 
 Learned routes appear in `show ip route` as `B`. Policy (local-pref, MED, communities, route-maps)
 is designed in [BGP-POLICY.md](BGP-POLICY.md) but only the decision-order subset in

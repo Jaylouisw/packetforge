@@ -111,9 +111,11 @@ Neighbor   V  AS     State        Reason
 1 of 1 neighbour(s) established
 ```
 
-A *run* is still required — a fresh lab reports `(no neighbours have been evaluated yet - run a
-simulation)` — but the run needs no time. The tell is `converge` in a lab whose only protocol is
-BGP: `% Nothing in this lab runs a control plane that converges over time`. If a lab mixes BGP with
+BGP *converges* in no time, and it no longer needs a run either: `show ip bgp` derives the sessions
+before it answers, so the same table appears with or without the `at 0` above. (Until recently a
+plain show said `(no neighbours have been evaluated yet - run a simulation)` and only a `ping` or an
+`at` question filled it in.) The tell is `converge` in a lab whose only protocol is BGP: `% Nothing in
+this lab runs a control plane that converges over time`. If a lab mixes BGP with
 OSPF or STP, the other process sets the finish time and BGP's routes are there from the first
 instant. A real BGP session's 30 s ConnectRetry and 180 s hold time are not modelled, so do not
 read this page's numbers as covering them.

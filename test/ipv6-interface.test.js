@@ -97,17 +97,17 @@ console.log('\nThe link-local address is shown, and it is derived rather than co
     'and none of them is labelled as configured, because nobody typed it');
 }
 
-console.log('\nA host that has not heard an advertisement yet says so, and says what to do:');
+console.log('\nThe host has heard the advertisement by the time the table is printed:');
 {
-  // The router-advertisement pass runs at the start of a run and when a question is asked at an
-  // instant; a plain show reports the state as last computed. That is the console's rule everywhere,
-  // and here it would otherwise look like SLAAC is broken.
+  // This used to need `at converged`: a plain show reported the state as last computed, so SLAAC
+  // looked broken until something else had run. A reader now derives the planes it displays, so the
+  // first question gets the same answer as the tenth - the address the router actually advertised.
   const plain = cli(pc1, ['show ipv6 interface']);
-  match(/no global address/, plain, 'the un-announced host reports no global address');
-  match(/ask again with `at converged` to run the/, plain,
-    'and names the escape hatch rather than leaving a dead end');
-  const refreshed = cli(pc1, ['show ipv6 interface at converged']);
-  ok(/2001:db8:12::/.test(refreshed), 'asking at an instant runs the pass and the address appears');
+  ok(/2001:db8:12::/.test(plain), 'the first ask already shows the autoconfigured address');
+  ok(!/no global address/.test(plain), 'and does not claim the host has none');
+  ok(/autoconfig from/.test(plain), 'the provenance column names the router it heard');
+  const atInstant = cli(pc1, ['show ipv6 interface at converged']);
+  ok(/2001:db8:12::/.test(atInstant), 'and asking at an instant agrees with the plain ask');
 }
 
 console.log('\nProvenance is the column that matters:');

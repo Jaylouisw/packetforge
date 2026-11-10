@@ -87,5 +87,43 @@ ok(/lease 0 12 0/.test(text), 'running-config carries the lease as days/hours/mi
 const v6 = (r.config.ip6 && r.config.ip6['Gi0/0'] && r.config.ip6['Gi0/0'].addr) || '';
 ok(!!v6 && text.indexOf('ipv6 address ' + v6 + '/64') !== -1, 'running-config carries the IPv6 address');
 
+console.log('\nA row that advertises several complete commands owes every one of them:');
+{
+  // The help row is `bgp router-id <ip> | bgp neighbor <ip> remote-as <as> | no bgp neighbor <ip>`.
+  // The console accepted the first and refused the second with a usage line, and the help sweep could
+  // not see it: `bgp neighbor …` in a session with no BGP enabled answers `% BGP is not enabled`, which
+  // reads as "recognised" to a sweep that only knows shape complaints. So the spelling is pinned here,
+  // where BGP is actually on - and the paste of the dump is pinned with it, because a spelling that
+  // only exists in help is a spelling that comes back as a refusal when the dump is replayed.
+  const t = new Topology();
+  const r = t.addDevice(spec);
+  r.name = 'R1';
+  const sim = new Simulator(t);
+  const c = (function () {
+    const s = new CliSession(r, t, sim);
+    return { run: function () {
+      const o = [];
+      for (const cmd of Array.prototype.slice.call(arguments)) o.push.apply(o, s.run(cmd).output);
+      return o;
+    } };
+  })();
+  c.run('enable', 'configure terminal', 'router bgp 65001', 'bgp router-id 1.1.1.1');
+  const documented = c.run('bgp neighbor 10.0.12.2 remote-as 65002').join('\n');
+  ok(/BGP neighbor 10\.0\.12\.2 remote-as 65002/.test(documented), 'bgp neighbor … remote-as … is accepted');
+  ok(!/% Usage/.test(documented), 'and not answered with a usage line');
+  c.run('exit');
+  const dump = c.run('show running-config').filter(function (l) { return !/^[^\s#>]+[#>]\s?/.test(l); });
+  ok(dump.some(function (l) { return /^neighbor 10\.0\.12\.2 remote-as 65002$/.test(l); }),
+    'the dump prints the neighbour in the form that needs no prefix');
+  // Both spellings mean the same thing, so the dump's form must be accepted as well.
+  const other = c.run('configure terminal', 'neighbor 10.0.12.3 remote-as 65003', 'exit').join('\n');
+  ok(/BGP neighbor 10\.0\.12\.3 remote-as 65003/.test(other), 'the dump spelling is accepted too');
+  // And `no bgp neighbor`, the third alternative in the row.
+  const removed = c.run('configure terminal', 'no bgp neighbor 10.0.12.2', 'exit').join('\n');
+  ok(/Removed neighbor 10\.0\.12\.2/.test(removed), 'no bgp neighbor … removes it');
+  const gone = c.run('show running-config').join('\n');
+  ok(!/10\.0\.12\.2 remote-as/.test(gone), 'and the dump no longer lists it');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

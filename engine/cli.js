@@ -72,6 +72,10 @@ const natLib = require('./nat');
 // Keywords in a show command whose *next* token is their value, so a trailing number after one of
 // them is an argument and never a bare instant. `show mac address-table interface 22` names a port;
 // `show spanning-tree 5000` names a moment. The distinction is the word before the number.
+// Commands that only read: they cannot change the lab, so asking one does not make the derived
+// control planes stale. Everything else - configuration, enable/exit, ping, flow, clear, write - may.
+const READER_HEADS = new Set(['show', 'help', '?', 'sh', 'do', 'exit', 'end']);
+
 const INSTANT_VALUE_KEYWORDS = new Set([
   'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone'
 ]);
@@ -282,6 +286,12 @@ class CliSession {
       line = line.replace(/(\\\?)$/, '?');
       tokens = line.trim().split(/\s+/).filter(Boolean);
     }
+
+    // Anything that is not a question may change the lab, and the control planes derived from it are
+    // then stale. Bumped here, at the one door every command comes through, rather than in each of the
+    // ~200 configuration verbs: a verb added tomorrow would otherwise answer from the state before its
+    // own effect. Readers do not bump, so a second show of the same thing does no work at all.
+    if (this.sim && !READER_HEADS.has(String(tokens[0]).toLowerCase())) this.sim.markChanged();
 
     // Unambiguous keyword abbreviation, the IOS rule (`sh ip int br`). Done before dispatch so every
     // mode gets it from one place, and skipped for `?`/`help` so the help itself can never be
@@ -517,8 +527,10 @@ class CliSession {
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
       out.push('BGP disabled');
-    } else if (head === 'no' && tokens[1] === 'neighbor') {
-      const addr = tokens[2];
+    } else if (head === 'no' && (tokens[1] === 'neighbor' || (tokens[1] === 'bgp' && tokens[2] === 'neighbor'))) {
+      // `no bgp neighbor <ip>` is the spelling help documents; `no neighbor <ip>` is the one the rest
+      // of the grammar suggests. Both remove the same neighbour.
+      const addr = tokens[1] === 'bgp' ? tokens[3] : tokens[2];
       if (!this.device.config.bgp) out.push('% BGP is not enabled');
       else {
         const list = this.device.config.bgp.neighbors || [];
@@ -1182,7 +1194,13 @@ class CliSession {
   // ---------- BGP ----------
   _bgp(tokens) {
     const dev = this.device;
-    const t = tokens.map(function (x) { return String(x); });
+    // Two spellings, both documented by someone: the help row offers `bgp neighbor <ip> remote-as <as>`
+    // and `show running-config` emits `neighbor <ip> remote-as <as>`. The console accepted only the
+    // second, so the command help advertised was refused with a usage line and the dump could not be
+    // pasted back - the same class of defect the paste test exists to catch, this time at the parser.
+    let t = tokens.map(function (x) { return String(x); });
+    if (String(t[0] || '').toLowerCase() === 'bgp') t = t.slice(1);
+    if (String(t[0] || '').toLowerCase() === 'neighbor') t = t.slice(1);
     const isIp = function (s) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(s || '')); };
 
     function ensure(asn) {
@@ -1221,7 +1239,8 @@ class CliSession {
       return ['BGP neighbor ' + t[0] + ' remote-as ' + asn];
     }
 
-    return ['% Usage: router bgp <as> | bgp router-id <ip> | neighbor <ip> remote-as <as>'];
+    return ['% Usage: router bgp <as> | bgp router-id <ip> | bgp neighbor <ip> remote-as <as>',
+      '% ("neighbor <ip> remote-as <as>" works too - it is what "show running-config" emits)'];
   }
 
   // ---------- DNS ----------
@@ -2683,6 +2702,19 @@ class CliSession {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
     const out = [];
+    if (atMs === null && this.sim && this._instantCapable(tokens)) {
+      // The same question must get the same answer on a fresh simulator as after a ping. Without this,
+      // `show spanning-tree` answered "No bridged ports: this device is not part of any L2 loop" until
+      // something else had run - a confident conclusion drawn from an empty table. Cheap: the planes
+      // are derived once per change of the lab, so a second show does no work.
+      const first = String(tokens[0] || '').toLowerCase();
+      const second = String(tokens[1] || '').toLowerCase();
+      const wantsIpv6 = first === 'ipv6';
+      this.sim.refreshControlPlanes({
+        lldp: first === 'lldp' || wantsIpv6,
+        ra: wantsIpv6
+      });
+    }
     if (atMs !== null) {
       if (!this.sim) return ['% Simulator not attached'];
       // LLDP and RA are announced as well: a question about what was *heard* needs something to

@@ -179,17 +179,30 @@ console.log('\nThe distances are one table, not two opinions:');
   // The data path itself obeys the ordering: a BGP-learned route beats OSPF for the same prefix.
   // No static here on purpose: static (1) outranks eBGP (20), so with one present the static route
   // would win and the BGP ordering would go untested.
+  //
+  // This used to *inject* a route into `r1.bgpRoutes` and read it back out of the table, which worked
+  // only because a plain `show ip route` printed the table as it stood. A plain show now derives the
+  // planes it displays, so the injected route is replaced by what BGP actually computes - which is the
+  // better test anyway: the session is established and the prefix is learned, end to end.
   const bgp = build(false);
-  bgp.r1.bgpRoutes = [{ dest: '10.0.99.0', mask: '255.255.255.0', nextHop: '10.0.12.2',
-    iface: 'Gi0/0', ad: Device.ADMIN_DISTANCE.ebgp, asPath: [65002], peerAs: 65002 }];
+  runCommands(bgp.r1, bgp.t, bgp.sim, ['enable', 'configure terminal', 'router bgp 65001',
+    'bgp router-id 1.1.1.1', 'bgp neighbor 10.0.12.2 remote-as 65002', 'exit', 'exit']);
+  runCommands(bgp.r2, bgp.t, bgp.sim, ['enable', 'configure terminal', 'router bgp 65002',
+    'bgp router-id 2.2.2.2', 'bgp neighbor 10.0.12.1 remote-as 65001', 'exit', 'exit']);
+  // The data path reads the planes, so derive them before asking it directly: a console command would
+  // have done this for us, and asking routeTo() with nothing computed is asking about an empty table.
+  bgp.sim.refreshControlPlanes();
   const route = bgp.r1.routeTo('10.0.99.5');
   eq(route.type, 'bgp', 'with an OSPF route for the same prefix, the eBGP route wins');
-  // `show ip route` without an instant prints the table as it stands - which is what lets this
-  // injected BGP route be visible; the `at` form recomputes BGP and would replace it.
   const rows = rowsOf(bgp.cli(bgp.r1, ['show ip route']));
-  const b = rows.filter(function (r) { return r.code === 'B'; })[0];
+  const b = rows.filter(function (r) { return r.code === 'B' && /10\.0\.99\.0/.test(r.prefix); })[0];
+  ok(!!b, 'the learned prefix appears as a B row');
   eq(b.ad, '20', 'and the table reports its distance as 20');
   eq(b.star, true, 'marking it installed');
+  // The OSPF row for the same prefix is there and unmarked: the shadow is stated, not hidden.
+  const o = rows.filter(function (r) { return r.code === 'O' && /10\.0\.99\.0/.test(r.prefix); })[0];
+  ok(!!o, 'the OSPF candidate for the same prefix is listed');
+  eq(o.star, false, 'and it is not the installed route');
 }
 
 console.log('\nNothing about the data path changed:');

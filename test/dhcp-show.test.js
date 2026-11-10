@@ -39,13 +39,28 @@ cfg(srv, ['interface Gi0/0', 'ip address 192.168.10.1 255.255.255.0', 'exit',
   'exit']);
 cfg(pc, ['interface eth0', 'ip address dhcp']);
 
-// Nothing has asked yet: the pool exists, the table is empty.
+// Asking is the exchange. The command itself converges the lab - a client configured for DHCP asks at
+// run start, so by the time the table is printed the lease exists. This used to say "(none) - no client
+// has completed an exchange" because the console only answered from state a previous command happened
+// to leave behind; the table told you what had run, not what the lab is.
 const before = runCommands(srv, t, sim, ['enable', 'show ip dhcp binding']).lines.join('\n');
 ok(/DHCP bindings on SRV/.test(before), 'the server names itself');
-// The reason matters: "nothing has asked yet" and "the lease ran out" are different situations, so
-// the empty table names which one it is instead of printing one message for both.
-ok(/DHCP bindings on SRV: \(none\)/.test(before), 'and says the table is empty before the first run');
-ok(/no client has completed an exchange/.test(before), 'with the reason, not just the absence');
+ok(/192\.168\.10\.100/.test(before), 'and lists the lease the configured client holds without a ping first');
+ok(!/\(none\)/.test(before), 'so the table is not empty in a lab that has a DHCP client');
+// An empty table still has to say why it is empty. The distinction that matters is "nothing asked"
+// versus "the lease ran out", so with no client configured the reason is named rather than implied.
+const noClient = (function () {
+  const t2 = new Topology();
+  const s2 = t2.addDevice(spec('generic', 'generic-router'));
+  s2.name = 'SRV2';
+  const sim2 = new Simulator(t2);
+  const cfg2 = (dev, lines) => runCommands(dev, t2, sim2, ['enable', 'configure terminal'].concat(lines));
+  cfg2(s2, ['ip dhcp pool p', 'network 192.168.20.0 255.255.255.0',
+    'default-router 192.168.20.1', 'range 192.168.20.100 192.168.20.110', 'exit']);
+  return runCommands(s2, t2, sim2, ['enable', 'show ip dhcp binding']).lines.join('\n');
+})();
+ok(/DHCP bindings on SRV2: \(none\)/.test(noClient), 'a lab with no client still reports an empty table');
+ok(/no client has completed an exchange/.test(noClient), 'with the reason, not just the absence');
 
 // One packet makes the DORA exchange happen.
 sim.ping(pc.id, '192.168.10.1', { count: 1 });

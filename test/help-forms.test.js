@@ -92,7 +92,10 @@ function fill(row) {
 // "leave it out", plus each of its arms.
 function variants(row) {
   const groups = row.match(/\[[^\]]*\]/g) || [];
-  let texts = [row];
+  // `filled` counts how many optional groups the reading actually spells out. The fullest readings
+  // are the ones the row promises; a reading that leaves a group out works whether or not the group
+  // is real, so it must not be what decides the row is honest.
+  let texts = [{ text: row, filled: 0 }];
   for (const g of groups) {
     const arms = [];
     let depth = 0, cur = '';
@@ -103,17 +106,37 @@ function variants(row) {
       cur += ch;
     }
     arms.push(cur);
-    const options = [' '].concat(arms.map((a) => ' ' + a.trim() + ' '));
+    // A bar inside a group can hide a shared prefix, and the help output gives no signal that
+    // separates the two readings:
+    //   `[proto tcp|udp]`      -> the second arm is `proto udp`; taking it literally offered a bare
+    //                             `udp`, which the parser rightly called an unknown keyword, and the
+    //                             sweep then reported the row as broken for a reading nobody would type
+    //   `[at <ms>|converged]`  -> the second arm really is the bare word `converged`
+    // So both readings are offered, which is the same rule the top-level alternatives already use:
+    // the row is honest if *some* way of reading it is a command.
+    const firstWords = String(arms[0] || '').trim().split(/\s+/).filter(Boolean);
+    const shared = firstWords.slice(0, Math.max(0, firstWords.length - 1)).join(' ');
+    const expanded = [];
+    for (let a = 0; a < arms.length; a++) {
+      const arm = arms[a].trim();
+      if (a === 0 || !shared || !arm) { expanded.push(arm); continue; }
+      if (!expanded.includes(arm)) expanded.push(arm);
+      if (!expanded.includes(shared + ' ' + arm)) expanded.push(shared + ' ' + arm);
+    }
+    const options = [{ text: ' ', filled: 0 }].concat(expanded.map((a) => ({ text: ' ' + a + ' ', filled: 1 })));
     const next = [];
     for (const t of texts) {
       for (const o of options) {
         // replace this one occurrence of the group
-        const at = t.indexOf(g);
-        next.push((t.slice(0, at) + o + t.slice(at + g.length)).replace(/\s+/g, ' ').trim());
+        const at = t.text.indexOf(g);
+        next.push({
+          text: (t.text.slice(0, at) + o.text + t.text.slice(at + g.length)).replace(/\s+/g, ' ').trim(),
+          filled: t.filled + o.filled
+        });
       }
     }
     texts = next;
-    if (texts.length > 24) texts = texts.slice(0, 24);   // keeps the sweep bounded
+    if (texts.length > 48) texts = texts.slice(0, 48);   // keeps the sweep bounded
   }
   return texts;
 }
@@ -149,15 +172,27 @@ function helpRowsFor(mode) {
 function alternatives(row) {
   const chunks = [];
   let depth = 0, cur = '';
+  let spacedBefore = false;
   for (const ch of row) {
     if (ch === '<' || ch === '[') depth++;
     else if (ch === '>' || ch === ']') depth--;
-    if (depth === 0 && ch === '|') { chunks.push(cur); cur = ''; continue; }
+    if (depth === 0 && ch === '|') {
+      // A spaced bar separates two *complete commands* (`interface <name> | int <name>`,
+      // `bgp router-id <ip> | bgp neighbor <ip> remote-as <as>`); a tight bar joins alternatives
+      // sharing everything before them (`link up|down <id>`). The difference decides whether an
+      // alternative has to stand on its own - and a row of complete commands where one of them is
+      // refused is a broken row even though the others work, which is exactly how the documented
+      // `bgp neighbor <ip> remote-as <as>` spelling rotted while `bgp router-id` kept the row green.
+      chunks.push({ text: cur, spacedBefore: spacedBefore });
+      spacedBefore = /\s/.test(String(cur).slice(-1) || ' ') && /\s/.test(ch);
+      cur = '';
+      continue;
+    }
     cur += ch;
   }
-  chunks.push(cur);
+  chunks.push({ text: cur, spacedBefore: spacedBefore });
 
-  const first = chunks[0].trim().split(/\s+/).filter(Boolean);
+  const first = String(chunks[0].text).trim().split(/\s+/).filter(Boolean);
   const noTrailingPlaceholders = first.slice();
   while (noTrailingPlaceholders.length && /^<.*>$/.test(noTrailingPlaceholders[noTrailingPlaceholders.length - 1])) {
     noTrailingPlaceholders.pop();
@@ -167,7 +202,7 @@ function alternatives(row) {
 
   const out = [];
   for (let i = 0; i < chunks.length; i++) {
-    for (const piece of chunks[i].split(' / ')) {
+    for (const piece of String(chunks[i].text).split(' / ')) {
       const raw = piece.trim().split(/\s+/).filter(Boolean);
       if (!raw.length) continue;
       // Whether this alternative is a bare keyword: no placeholders, no optional groups,
@@ -181,7 +216,12 @@ function alternatives(row) {
         candidates.push(prefixLong.concat(raw).join(' '));
         candidates.push(prefixShort.concat(raw).join(' '));
       }
-      out.push(candidates);
+      // A piece that is a complete command on its own, in a row of spaced alternatives, has to be
+      // typable by itself: no inherited prefix, no other alternative standing in for it.
+      const keywords = piece.replace(/\[[^\]]*\]/g, ' ').trim().split(/\s+/)
+        .filter((t) => t && !/^<.*>$/.test(t) && !/^(\.\.\.|…)$/.test(t));
+      const standalone = (i > 0 ? chunks[i].spacedBefore : false) && keywords.length >= 2;
+      out.push({ candidates: candidates, standalone: standalone });
     }
   }
   return out;
@@ -189,7 +229,10 @@ function alternatives(row) {
 
 // A complaint about the shape of the command, as opposed to a refusal on state.
 function isShapeComplaint(line) {
-  return /Unrecognized|^% Invalid|^% Incomplete|expects a|needs a|out of range|takes a bare/i.test(line);
+  // `% Usage:` belongs here. A help row whose documented spelling is answered with a usage line -
+  // `bgp neighbor <ip> remote-as <as>` was - is exactly the broken form this sweep exists to find, and
+  // the usage wording slipped past the earlier list.
+  return /Unrecognized|^% Invalid|^% Incomplete|^% Usage|expects a|needs a|out of range|takes a bare/i.test(line);
 }
 
 function tryRun(dev, pre, cmd) {
@@ -224,7 +267,8 @@ console.log('\nEvery help form is a command the parser recognises:');
     let anyOk = false;
     let filled = false;
     const rejected = [];
-    for (const readings of r.forms) {
+    for (const alt of r.forms) {
+      const readings = alt.candidates;
       let formOk = false;
       let formTested = false;
       for (const reading of readings) {
@@ -233,11 +277,26 @@ console.log('\nEvery help form is a command the parser recognises:');
         // bare `converge` that works whether or not the group is real. This is the reading
         // that catches a help row advertising a keyword the parser rejects.
         const all = variants(reading);
-        const fullest = all[all.length - 1];
-        const f = fill(fullest);
-        if (!f.ok) { untested.push({ mode: r.mode, row: reading, unknown: f.unknown }); continue; }
+        // Every group spelled out, and then whichever arm of each group - a bar inside a group can
+        // hide a shared prefix (`[proto tcp|udp]` means `proto udp`, not a bare `udp`), so both
+        // readings of every arm are offered and the row is honest if *one* of them is a command.
+        const maxFilled = all.reduce((m, v) => Math.max(m, v.filled), -1);
+        const fullest = all.filter((v) => v.filled === maxFilled).map((v) => v.text);
+        let testedAny = false;
+        let out = [];
+        for (const candidate of fullest) {
+          const f = fill(candidate);
+          if (!f.ok) continue;
+          testedAny = true;
+          out = tryRun(dev, pre, f.text);
+          if (!out.some(isShapeComplaint)) { formOk = true; break; }
+        }
+        if (!testedAny) {
+          const f = fill(fullest[0]);
+          untested.push({ mode: r.mode, row: reading, unknown: f.unknown });
+          continue;
+        }
         formTested = true;
-        const out = tryRun(dev, pre, f.text);
         if (!out.some(isShapeComplaint)) { formOk = true; break; }
         // Nothing to learn from trying the shorter readings: they are covered by the longest
         // one being accepted, and a row that fails only when shortened is not a lie.
@@ -249,6 +308,11 @@ console.log('\nEvery help form is a command the parser recognises:');
       else if (formTested) {
         rejected.push(readings[0]);
       }
+      // Whether an alternative stands on its own is recorded but not asserted here: a refusal on
+      // *state* (`% BGP is not enabled`) is indistinguishable from success for this sweep, so a
+      // spelling that only works with the feature enabled cannot be judged from the help text alone.
+      // The documented BGP spelling is therefore pinned by test/running-config.test.js instead.
+      void alt.standalone;
     }
     if (filled) tested++;
     if (filled && !anyOk) broken.push({ mode: r.mode, row: rejected[0], source: r.source });

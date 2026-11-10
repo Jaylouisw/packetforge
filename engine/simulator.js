@@ -157,6 +157,10 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
+    // Everything derived from the lab is now stale: a rewound run has no routes learned, no
+    // adjacencies and no tree computed. Bumping the revision is what tells the next question to
+    // re-derive the planes instead of answering from the state an earlier run left behind.
+    this.markChanged();
     // Lease state per server device is *not* rebuilt: a binding is server state with a lifetime, so
     // it belongs with the MAC tables and ARP caches that survive a run, and it ages on the lease
     // timer rather than disappearing whenever something is asked. This used to be rebuilt on every
@@ -403,6 +407,15 @@ class Simulator {
     const o = opts || {};
     if (o.atMs !== undefined && o.atMs !== null) this.setRunTime(o.atMs);
     if (o.reset) this.reset();
+    // Derived once per change, not once per question. A console command asks the same question on a
+    // fresh simulator as it does after a ping - `show spanning-tree` answered "no bridged ports" until
+    // something else had run - so a reader derives the planes itself. Deriving them again on every
+    // keystroke would re-run the DHCP exchange and re-announce LLDP, which are events, not answers.
+    const asked = o.atMs !== undefined && o.atMs !== null;
+    if (!asked && !o.force && this._planesDone === this._planesRev &&
+      this._planesAtMs === this.runAtMs && (!o.lldp || this._planesLldp) && (!o.ra || this._planesRa)) {
+      return;
+    }
     this.computeStp();
     this.computePoe();
     // After the spanning tree, because an SVI's line protocol depends on whether *any* port in its
@@ -418,6 +431,14 @@ class Simulator {
     this.computeDhcp();
     this.computeOspf();
     this.computeBgp();
+    // Announcing is not hearing. `announceLldp()` puts frames in the queue, and a queue that is never
+    // run leaves every neighbour table empty - which is why `show lldp neighbors` said "none" on a
+    // fresh lab however often it was asked, and only filled in after a ping had delivered the frames.
+    if (o.lldp || o.ra) this._run();
+    this._planesDone = this._planesRev;
+    this._planesAtMs = this.runAtMs;
+    if (o.lldp) this._planesLldp = true;
+    if (o.ra) this._planesRa = true;
   }
 
   // An SVI is not up merely because it exists.
@@ -519,6 +540,9 @@ class Simulator {
         dev.macTables.forEach(function (m) { if (m && typeof m.clear === 'function') m.clear(); });
       }
     }
+    // A cable moved: the tree, every SVI's line protocol and every relay path derived from the links
+    // are stale, so the next question re-derives them instead of answering about a cable that is gone.
+    this.markChanged();
     this._stpDirty = true;
     this.recomputeStp();
     this.reconvergeFromMs = atMs;
@@ -555,6 +579,15 @@ class Simulator {
 
   linkDown(linkId, opts) { return this.setLinkState(linkId, 'down', opts); }
   linkUp(linkId, opts) { return this.setLinkState(linkId, 'up', opts); }
+
+  // The lab changed: configuration, cabling, or the run itself. The control planes derived from it are
+  // stale until something re-derives them, and a reader must never answer from the previous state.
+  // A counter, not a set of dirty flags: the planes depend on each other (an SVI's line protocol reads
+  // the tree, OSPF reads the addresses), so the whole set is derived together or not at all.
+  markChanged() {
+    this._planesRev = (this._planesRev || 0) + 1;
+    return this._planesRev;
+  }
 
   // Has this process on this device finished by the run instant?
   _converged(process, dev) {
