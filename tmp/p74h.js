@@ -1,0 +1,14 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));const R=c.find(s=>s.model==='generic-router'),PC=c.find(s=>s.model==='generic-pc'),SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const r1=t.addDevice(R),r2=t.addDevice(R),sw=t.addDevice(SW),pc=t.addDevice(PC);
+r1.name='R1';r2.name='R2';sw.name='SW1';pc.name='PC1';
+t.connect(pc.id,'eth0',sw.id,'Fa0/1');t.connect(sw.id,'Fa0/2',r1.id,'Gi0/0');t.connect(r1.id,'Gi0/1',r2.id,'Gi0/0');
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const a=mk(r1),b=mk(r2),sp=mk(pc);
+const cfg=(s,cmds)=>{s.run('configure terminal');cmds.forEach(x=>s.run(x));s.run('end');};
+cfg(a,['hostname R1','interface Gi0/0','ip address 10.0.0.1 255.255.255.0','exit','interface Gi0/1','ip address 10.9.0.1 255.255.255.0','exit','ip route 198.51.100.0 255.255.255.0 10.9.0.2']);
+cfg(b,['hostname R2','interface Gi0/0','ip address 10.9.0.2 255.255.255.0','exit','interface Gi0/1','ip address 198.51.100.9 255.255.255.0','exit','ip route 10.0.0.0 255.255.255.0 10.9.0.1']);
+cfg(sp,['hostname PC1','interface eth0','ip address 10.0.0.50 255.255.255.0','ip default-gateway 10.0.0.1','exit']);
+const doMtu=(v)=>{cfg(a,['interface Gi0/0','no mtu','mtu '+v,'exit']);const p=sp.run('ping 198.51.100.9 count 1').output.filter(l=>/Success/.test(l))[0];console.log('mtu '+v+': '+p+'  reasons='+JSON.stringify(sim._portStat(r1.id,'Gi0/0').reasons));};
+doMtu(100);doMtu(200);doMtu(9000);

@@ -781,7 +781,11 @@ class Simulator {
         const first = members[0];
         const peerDev = this.topo.getDevice(first.peer.deviceId);
         const link = this._linkAt(dev.id, first.name);
-        let cost = speedToCost(link ? link.speedMbps : null);
+        // A configured speed beats the cable's negotiated speed, exactly as `spanning-tree cost` beats
+        // both: `speed 100` on a 1G port is a fact about the port, and the tree should see it.
+        const configuredMbps = members.filter(function (m) { return m.speedConfigured && m.speedMbps; })[0];
+        let cost = speedToCost(configuredMbps ? Number(configuredMbps.speedMbps)
+          : (link ? link.speedMbps : null));
         // `spanning-tree cost <n>` beats the speed-derived cost, exactly as on real gear: the whole
         // point of the command is to make the tree choose a path the speeds would not.
         for (const m of members) {
@@ -3365,6 +3369,18 @@ class Simulator {
     if (!egress || !egress.enabled || !egress.ip) {
       this._emit({ type: 'drop', reason: 'no usable egress interface', dev: dev.id,
         iface: egress ? egress.name : undefined });
+      return;
+    }
+    // `mtu <n>` on a port is a promise about what that port will carry, and `pathMtu()` only feeds
+    // the number a flow *derives* its segments from - a packet built elsewhere and routed through a
+    // smaller port still has to be refused by that port, or the MTU would only ever be advice.
+    const onWire = frameBytes(frame);
+    if (egress.mtu && onWire > egress.mtu) {
+      this._emit({
+        type: 'drop', reason: 'frame of ' + onWire + ' bytes exceeds the ' + egress.mtu +
+          '-byte MTU on ' + egress.name, dev: dev.id, iface: egress.name,
+        size: onWire, mtu: egress.mtu
+      });
       return;
     }
     const nextHopIp = route.via;

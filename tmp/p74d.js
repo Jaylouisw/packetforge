@@ -1,0 +1,12 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));
+const SW=c.find(s=>s.model==='generic-switch'),R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const sw=t.addDevice(SW);const r=t.addDevice(R);
+t.connect(sw.id,'Fa0/1',r.id,'Gi0/0');
+const s=new CliSession(sw,t,new Simulator(t));s.run('enable');
+console.log('--- show interfaces Fa0/1:');s.run('show interfaces Fa0/1').output.forEach(l=>console.log('  '+l));
+console.log('--- show interfaces counters Fa0/1:');s.run('show interfaces counters Fa0/1').output.slice(0,6).forEach(l=>console.log('  '+l));
+console.log('--- iface fields:', JSON.stringify(Object.keys(sw.interfaces.get('Fa0/1'))));
+console.log('--- speed/mtu values:', sw.interfaces.get('Fa0/1').speed, sw.interfaces.get('Fa0/1').mtu);
+console.log('--- hardware caps:', JSON.stringify(sw.interfaces.get('Fa0/1').hardware && sw.interfaces.get('Fa0/1').hardware.speedCaps));

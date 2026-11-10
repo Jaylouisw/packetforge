@@ -1098,6 +1098,12 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'mtu' || (head === 'no' && tokens[1] === 'mtu')) {
+      out.push.apply(out, this._portMtu(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
+    } else if (head === 'speed' || (head === 'no' && tokens[1] === 'speed')) {
+      out.push.apply(out, this._portSpeed(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
+    } else if (head === 'duplex' || (head === 'no' && tokens[1] === 'duplex')) {
+      out.push.apply(out, this._portDuplex(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
     } else if (head === 'no' && tokens[1] === 'encapsulation' &&
                String(tokens[2] || '').toLowerCase().indexOf('dot1') === 0) {
       // Every other verb in this block has a `no` form; `encapsulation dot1q` did not, so the tag
@@ -2653,6 +2659,163 @@ class CliSession {
     entries.length = 0;
     return [n + ' translation' + (n === 1 ? '' : 's') + ' cleared on ' + (dev.name || dev.id) +
       ' (the rules are untouched - use "no ip nat inside source …" for those)'];
+  }
+
+  // ---------- per-port physical settings ----------
+  //
+  // `mtu`, `speed` and `duplex` are what an operator reaches for first when a link misbehaves, and
+  // none of them existed: `mtu 1400` answered `% Unrecognized interface command: mtu 1400` on a
+  // router port *and* on a switch port, while the model already carried `iface.mtu`, `iface.speed`
+  // and `iface.duplex` and already used the MTU (path MTU) and the speed (STP path cost).
+  //
+  // Each one is stored where the model reads it, so a command that changes nothing is not offered.
+
+  // MTU: the largest frame this port will put on the wire, and the number flows derive their MSS
+  // from. `pathMtu()` takes the minimum over the path's egress ports, so this is observable.
+  _portMtu(args, iface, isNo) {
+    const usage = 'mtu <68-9216>';
+    const port = iface.name;
+    if (isNo) {
+      if (args.length) return ['% Unexpected argument "' + args[0] + '" - no mtu takes no more'];
+      const was = iface.mtu;
+      iface.mtu = 1500;
+      iface.mtuConfigured = false;
+      return [was === 1500
+        ? 'MTU on ' + port + ' is already the default 1500'
+        : 'MTU on ' + port + ' back to 1500 (was ' + was + ')'];
+    }
+    if (!args.length) {
+      return ['% Incomplete command: ' + usage,
+        '% This port\'s MTU is ' + iface.mtu + '; "no mtu" restores 1500'];
+    }
+    const word = String(args[0]);
+    if (!/^\d+$/.test(word)) {
+      return ['% MTU must be a number of bytes, not "' + word + '"', '% Usage: ' + usage];
+    }
+    const extra = this._noExtra(args, 1, usage);
+    if (extra) return extra;
+    const n = parseInt(word, 10);
+    if (n < 68) {
+      return ['% MTU ' + n + ' is below the smallest IPv4 datagram (68 bytes)',
+        '% Usage: ' + usage];
+    }
+    if (n > 9216) {
+      return ['% MTU ' + n + ' is above this model\'s largest frame (9216 bytes)',
+        '% Usage: ' + usage + ' (jumbo frames are allowed up to 9216 here)'];
+    }
+    if (n === iface.mtu) return ['MTU on ' + port + ' is already ' + n];
+    const was = iface.mtu;
+    iface.mtu = n;
+    iface.mtuConfigured = true;
+    const out = ['MTU on ' + port + ' set to ' + n + (was ? ' (was ' + was + ')' : '')];
+    if (n < 1500) out.push('  Frames larger than ' + n + ' bytes on this port will be dropped, and flows');
+    if (n < 1500) out.push('  routed through it derive their MSS from ' + n + ' (see "show flow <id>")');
+    if (n > 1500) out.push('  Jumbo frames are accepted here; a path is only as large as its smallest MTU');
+    return out;
+  }
+
+  // Speed: what this port is running at. `speedToCost()` turns it into a spanning-tree path cost, so
+  // the effect of setting it is visible in `show spanning-tree` rather than only in this message.
+  _portSpeed(args, iface, isNo) {
+    const usage = 'speed <10-100000>';
+    const port = iface.name;
+    const caps = (iface.hardware && iface.hardware.speedCaps) || null;
+    if (isNo) {
+      if (args.length) return ['% Unexpected argument "' + args[0] + '" - no speed takes no more'];
+      if (!iface.speedConfigured) return ['Speed on ' + port + ' is already negotiated (not configured)'];
+      const was = iface.speed;
+      iface.speed = iface.speedNegotiated || was;
+      iface.speedMbps = iface.speedNegotiatedMbps || iface.speedMbps;
+      iface.speedConfigured = false;
+      return ['Speed on ' + port + ' back to negotiation (was ' + was + ')'];
+    }
+    if (!args.length) {
+      return ['% Incomplete command: ' + usage,
+        '% This port is at ' + iface.speed + (caps ? '; it supports ' + caps.join(', ') + ' Mbps' : '')];
+    }
+    const word = String(args[0]).toLowerCase();
+    const extra = this._noExtra(args, 1, usage);
+    if (extra) return extra;
+    if (word === 'auto') {
+      if (!iface.speedConfigured) return ['Speed on ' + port + ' is already negotiating'];
+      const was = iface.speed;
+      iface.speed = iface.speedNegotiated || was;
+      iface.speedMbps = iface.speedNegotiatedMbps || iface.speedMbps;
+      iface.speedConfigured = false;
+      return ['Speed on ' + port + ' set to auto (was ' + was + ')'];
+    }
+    if (!/^\d+$/.test(word)) {
+      return ['% Speed must be a number of Mbps or "auto", not "' + word + '"', '% Usage: ' + usage];
+    }
+    const mbps = parseInt(word, 10);
+    if (caps && caps.indexOf(mbps) === -1) {
+      return ['% ' + port + ' cannot run at ' + mbps + ' Mbps - it supports ' + caps.join(', ') + ' Mbps',
+        '% Usage: ' + usage];
+    }
+    if (!caps && !(mbps >= 10 && mbps <= 100000)) {
+      return ['% Speed ' + mbps + ' is outside 10-100000 Mbps', '% Usage: ' + usage];
+    }
+    const stpLib = require('./stp');
+    const sim = require('./simulator');
+    const cost = (sim.speedToCost ? sim.speedToCost(mbps) : null) ||
+      (stpLib.pathCost ? stpLib.pathCost(mbps) : null);
+    if (iface.speedConfigured && iface.speedMbps === mbps) {
+      return ['Speed on ' + port + ' is already ' + mbps + ' Mbps'];
+    }
+    if (!iface.speedNegotiated) {
+      iface.speedNegotiated = iface.speed;
+      iface.speedNegotiatedMbps = iface.speedMbps;
+    }
+    const was = iface.speed;
+    iface.speedMbps = mbps;
+    // `iface.speed` is the display string the rest of the model prints (`1G`, `100M`).
+    iface.speed = mbps >= 1000 ? (mbps % 1000 === 0 ? (mbps / 1000) + 'G' : mbps + 'M') : mbps + 'M';
+    iface.speedConfigured = true;
+    const out = ['Speed on ' + port + ' set to ' + iface.speed + ' (was ' + was + ')'];
+    if (cost) out.push('  Spanning-tree path cost from this port is now ' + cost +
+      ' (was ' + ((sim.speedToCost && iface.speedNegotiatedMbps) ? sim.speedToCost(iface.speedNegotiatedMbps) : '?') + ')');
+    return out;
+  }
+
+  // Duplex: stored and printed, and `half` refused by naming what the model cannot honour. A
+  // half-duplex link's behaviour is collisions, backoff and a shared medium - none of which this
+  // model simulates - so accepting the word would be a promise it cannot keep.
+  _portDuplex(args, iface, isNo) {
+    const usage = 'duplex full|auto';
+    const port = iface.name;
+    if (isNo) {
+      if (args.length) return ['% Unexpected argument "' + args[0] + '" - no duplex takes no more'];
+      if (!iface.duplexConfigured) {
+        return ['Duplex on ' + port + ' is already ' + (iface.duplex || 'auto') + ' (nothing was configured)'];
+      }
+      const was = iface.duplex;
+      iface.duplex = iface.duplexDefault || 'full';
+      iface.duplexConfigured = false;
+      return ['Duplex on ' + port + ' back to ' + iface.duplex + ' (was ' + was + ')'];
+    }
+    if (!args.length) {
+      return ['% Incomplete command: ' + usage,
+        '% This port is ' + (iface.duplex || 'auto')];
+    }
+    const word = String(args[0]).toLowerCase();
+    const extra = this._noExtra(args, 1, usage);
+    if (extra) return extra;
+    if (word === 'half') {
+      return ['% Half duplex is not modelled: this simulator has no collision domain, no backoff and',
+        '% no shared medium, so a "half" port would behave exactly like a full one while claiming',
+        '% otherwise. Use "duplex full", or leave it at "auto".'];
+    }
+    if (word !== 'full' && word !== 'auto') {
+      return ['% Duplex is full or auto, not "' + word + '"', '% Usage: ' + usage];
+    }
+    if (iface.duplexConfigured && iface.duplex === word) {
+      return ['Duplex on ' + port + ' is already ' + word];
+    }
+    if (!iface.duplexConfigured) iface.duplexDefault = iface.duplex || 'full';
+    const was = iface.duplexConfigured ? iface.duplex : (iface.duplexDefault || 'full') + ' (default)';
+    iface.duplex = word;
+    iface.duplexConfigured = true;
+    return ['Duplex on ' + port + ' set to ' + word + ' (was ' + was + ')'];
   }
 
   // ---------- NAT ----------
@@ -4753,6 +4916,9 @@ class CliSession {
           }
         }
       }
+      if (i.mtuConfigured) out.push('  mtu ' + i.mtu);
+      if (i.speedConfigured) out.push('  speed ' + (i.speedMbps || i.speed));
+      if (i.duplexConfigured) out.push('  duplex ' + i.duplex);
       if (i.natRole) out.push('  ip nat ' + i.natRole);
       if (i.stpCost !== undefined) out.push('  spanning-tree cost ' + i.stpCost);
       const lag = dev.lagFor ? dev.lagFor(i.name) : null;
@@ -5435,6 +5601,14 @@ class CliSession {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
         out.push('  status: ' + this._ifaceState(i).status + (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
+        // The physical settings an operator asks about when a link is suspect. Each one is a value the
+        // model actually uses (MTU for the data path, speed for the spanning-tree cost), and the
+        // `(default)` marker separates what was configured from what was inherited.
+        if (!i.parent && !i.svi) {
+          out.push('  MTU ' + (i.mtu || 1500) + ' bytes' + (i.mtuConfigured ? ' (configured)' : ' (default)') +
+            ', duplex ' + (i.duplex || 'auto') + (i.duplexConfigured ? ' (configured)' : ' (default)') +
+            ', speed ' + i.speed + (i.speedConfigured ? ' (configured)' : ' (negotiated)'));
+        }
         if (i.parent) {
           // A subinterface has no socket either: the facts worth printing are which parent carries
           // it, which tag it stamps, and whether that parent can carry anything at all.
@@ -7139,6 +7313,10 @@ class CliSession {
         'relay DHCP requests on this port to a server'),
       helpLine('shutdown', 'administratively down'),
       helpLine('description <text>', 'what this port is for'),
+      helpLine('mtu <68-9216>', 'largest frame this port carries; flows derive their MSS from it'),
+      helpLine('speed <mbps>|auto', 'port speed; the spanning-tree path cost follows it'),
+      helpLine('duplex full|auto', 'duplex (half is refused: no collisions are modelled)'),
+      helpLine('no mtu | no speed | no duplex', 'back to the default, negotiation, or auto'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),

@@ -55,11 +55,14 @@ console.log('\nshow interfaces <port> answers for that port, not the whole box:'
 {
   const one = show('show interfaces ether1');
   ok(one.length > 0, 'the command answers');
-  // Seven lines: the port header, its status, its address, three counter lines (input, output, drops)
-  // and its peer. The counters were added after this suite was written, which is why the count is
-  // spelled out rather than left as ">0": a line appearing unannounced in this block is a change to a
-  // command's shape and should be a decision, not a surprise.
-  eq(one.length, 7, 'seven lines: port, status, address, input, output, drops, peer');
+  // Eight lines: the port header, its status, its address, the physical line (MTU / duplex / speed),
+  // three counter lines (input, output, drops) and its peer. The counters and the physical line were
+  // added after this suite was written, which is why the count is spelled out rather than left as
+  // ">0": a line appearing unannounced in this block is a change to a command's shape and should be a
+  // decision, not a surprise.
+  eq(one.length, 8, 'eight lines: port, status, address, MTU/duplex/speed, input, output, drops, peer');
+  ok(one.some(function (l) { return /^  MTU \d+ bytes/.test(l); }),
+    'the physical line carries the MTU, duplex and speed');
   ok(one.some((l) => /^  input : /.test(l)) && one.some((l) => /^  output: /.test(l)),
     'the counter lines are among them');
   ok(one[0].indexOf('eth1 ') === 0, 'and they are eth1\'s lines: ' + one[0]);
@@ -72,7 +75,7 @@ console.log('\nshow interfaces <port> answers for that port, not the whole box:'
   // No argument still means every port - that is the regression guard.
   const all = show('show interfaces');
   ok(all.length > 4, 'without a port it still lists everything (' + all.length + ' lines)');
-  eq(all.length, r1.interfaces.size * 7, 'seven lines per port');
+  eq(all.length, r1.interfaces.size * 8, 'eight lines per port');
 }
 
 console.log('\nAn unknown port is refused by name, not silently ignored:');

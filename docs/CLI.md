@@ -1178,6 +1178,71 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The three settings every operator reaches for first
+
+`mtu`, `speed` and `duplex` are what you type when a link misbehaves, and none of them existed:
+
+```
+R1(config-if)#mtu 1400
+% Unrecognized interface command: mtu 1400
+% Unrecognized config command: mtu 1400
+R1(config-if)#speed 100        -> the same two lines
+R1(config-if)#duplex full      -> the same two lines
+```
+
+On a switch port too. Meanwhile the model already carried `iface.mtu`, `iface.speed` and
+`iface.duplex`, already derived a **path MTU** from the MTU (the minimum over the path) and already
+derived a **spanning-tree path cost** from the speed. The settings were used by the engine and
+unreachable from the console.
+
+```
+R1(config-if)#mtu 100
+MTU on Gi0/0 set to 100 (was 1500)
+  Frames larger than 100 bytes on this port will be dropped, and flows
+  routed through it derive their MSS from 100 (see "show flow <id>")
+```
+
+and the drop is real, named, and counted:
+
+```
+PC1>ping 198.51.100.9 count 1
+Success rate is 0 percent (0/1)
+R1#show interfaces Gi0/0
+  MTU 100 bytes (configured), duplex full (default), speed 1G (negotiated)
+  drops : 1  (1 frame of 134 bytes exceeds the 100-byte MTU on Gi0/0)
+```
+
+`speed` is not a label either — the spanning-tree cost follows it:
+
+```
+SW1(config-if)#speed 100
+Speed on Fa0/2 set to 100M (was 1G)
+  Spanning-tree path cost from this port is now 200000 (was 20000)
+```
+
+The hardware decides what can be asked for, and the refusal lists the caps:
+
+```
+R1(config-if)#speed 10000
+% Gi0/0 cannot run at 10000 Mbps - it supports 10, 100, 1000 Mbps
+% Usage: speed <10-100000>
+```
+
+`duplex half` is **refused rather than faked**, because this simulator has no collision domain, no
+backoff and no shared medium — a "half" port would behave exactly like a full one while claiming
+otherwise:
+
+```
+R1(config-if)#duplex half
+% Half duplex is not modelled: this simulator has no collision domain, no backoff and
+% no shared medium, so a "half" port would behave exactly like a full one while claiming
+% otherwise. Use "duplex full", or leave it at "auto".
+```
+
+`show interfaces` separates what was configured from what was inherited (`(configured)` /
+`(default)` / `(negotiated)`), `show running-config` carries only the three lines an operator
+actually typed, and `no mtu` / `no speed` / `no duplex` each report what they restored.
+
 ### The removal half of the command set is a command too
 
 Thirty `no` branches and nine help rows. The commands all worked; `?` could not see any of them, so
