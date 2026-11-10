@@ -379,16 +379,20 @@ services, and a job that has to swap makes the whole queue slower.
   edit took it from 2114 to 2200 without touching a URL — so read it as a snapshot and re-run the script
   rather than quoting it.
 
-  The tree is **not** always green, and when it is not, the failures are worth reading before they are
-  touched. At one measured point during the `show`-argument work this paragraph was written over,
-  `node scripts/run-tests.js` printed **232 suite(s) … 9980 assertions passed, 62 failed**, with fourteen
-  suites red in one family — `absent-commands`, `arg-keyword-abbrev`, `config-do-show`, `config-filters`,
-  `extra-arguments`, `l2`, `link-parts`, `lldp-stale`, `logging-filter`, `ma5801`, `ospf-bgp-detail`,
-  `protocol-views`, `server-console-instant`, `show-keywords`. They share one cause rather than fourteen:
-  `_showExtraArgRefusal()` in `engine/cli.js` reads the **enable-mode help table as the contract**, so any
-  handler that accepts an argument its help row does not declare is refused with
-  `% "<word>" is not an argument to "<command>"` before it ever runs. That is a deliberate rule with an
-  unfortunate blast radius: the handler is right, the row is stale, and the test is the thing telling you.
+  The tree is **not** always green, and it moved twice in one evening while this paragraph was being
+  written. Two full runs with `node scripts/run-tests.js`, minutes apart:
+
+  | Run | Reading | Red suites |
+  |---|---|---|
+  | while the `show`-argument work was in flight | 232 suites, **9,980 passed, 62 failed** | 14 |
+  | after the help rows caught up | 232 suites, **10,037 passed, 4 failed** | 3 (`config-do-show`, `link-parts`, `ma5801`) |
+
+  The fourteen-suite failure had one cause rather than fourteen: `_showExtraArgRefusal()` in
+  `engine/cli.js` reads the **enable-mode help table as the contract**, so a handler that accepts an
+  argument its row does not declare is refused with `% "<word>" is not an argument to "<command>"`
+  before it runs. The handler was right, the rows were stale, and the tests were the thing saying so.
+  That is exactly why a sentence of the form "no suite is red" does not belong in a page: it is a
+  reading, and readings go stale between two runs of the same command.
 
   So quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
   `ls test/*.test.js | wc -l` prints the size. If the two disagree with the sentence you are reading,

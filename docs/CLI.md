@@ -2426,22 +2426,19 @@ R1#show access-lists NOSUCH
 % The lists here are: 101, VOICE
 ```
 
-> **That second transcript is currently unreachable.** A later rule made the *enable-mode help table* the
-> contract: `_showExtraArgRefusal()` (`engine/cli.js`) refuses any word a help row does not declare, and
-> the enable-mode row for this command reads `show access-lists` with no `[<name>]` — the bracketed form
-> lives only in the ACL config-mode help. So a name is rejected before the handler is consulted, and the
-> operator sees:
+> **Two caveats the transcript above does not show, both measured.** First, the name match is
+> **case-sensitive**, unlike `show vlan name`: `show access-lists VOICE` filters, `show access-lists voice`
+> answers `% No access list voice on R1` and lists `101, VOICE`. Second, an argument can be refused by the
+> *help-table gate* before the handler sees it — `_showExtraArgRefusal()` treats the enable-mode row as the
+> contract, and the row for this command declares no `[<name>]`, so the same word is sometimes answered by
+> the filter and sometimes with `% "VOICE" is not an argument to "show access-lists"` depending on which
+> form the gate matched. When you are reading a transcript of this command, check which of the two
+> refusals you are looking at: `% No access list …` means the filter ran, `% "…" is not an argument`
+> means it never did.
 >
-> ```
-> R1#show access-lists NOSUCH
-> % "NOSUCH" is not an argument to "show access-lists"
-> % "show access-lists" takes no argument - type it on its own, or "?" for the commands here
-> ```
->
-> `test/show-filter.test.js` pins the filtering behaviour, so this is a red suite rather than a silent
-> gap — six of its assertions fail. Read the note as the state of the tree, not as advice: when the help
-> row gains `[<name>]`, the transcript above becomes live again and the six assertions go green without a
-> byte changing in the handler.
+> `test/show-filter.test.js` asserts the case-insensitivity with `ok(/VOICE/.test(output))`, and the
+> *refusal* text ends `% The lists here are: 101, VOICE` — so that assertion passes on a refusal. Four
+> green assertions here do not mean four behaviours work; read what the regex is pointed at.
 
 The same probe found the ARP table's port filter blind to a hand-written entry. `show arp Gi0/0`
 answered *"(none)"* while `arp 10.10.0.5 00:11:22:33:44:55` sat in Gi0/0's subnet:
