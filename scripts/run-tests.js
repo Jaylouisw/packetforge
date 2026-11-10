@@ -59,9 +59,24 @@ function tally(suite, stdout, status) {
   const re = /(\d+)\s+passed,\s+(\d+)\s+failed/g;
   let m, last = null;
   while ((m = re.exec(text)) !== null) last = m;
-  const passed = last ? Number(last[1]) : 0;
-  const failed = last ? Number(last[2]) : 0;
-  return { passed, failed: status === 0 ? failed : Math.max(failed, 1), reported: !!last };
+  let passed = last ? Number(last[1]) : 0;
+  let failed = last ? Number(last[2]) : 0;
+  let reported = !!last;
+  // A suite built on `node:test` prints TAP, not our summary line: `# pass 7`, `# fail 0`. Ignoring that counted
+  // a whole suite as zero assertions - its checks passed, its exit code was 0, and the total quietly understated
+  // what the repository verifies. Both shapes are read, our own first.
+  if (!reported) {
+    // `node --test` prints TAP (`# pass 6`) or, on current Node, the spec reporter's `i pass 6` - the same
+    // number behind a different glyph.
+    const tapPass = /^\s*(?:#|ℹ)\s*pass\s+(\d+)/m.exec(text);
+    const tapFail = /^\s*(?:#|ℹ)\s*fail\s+(\d+)/m.exec(text);
+    if (tapPass) {
+      passed = Number(tapPass[1]);
+      failed = tapFail ? Number(tapFail[1]) : 0;
+      reported = true;
+    }
+  }
+  return { passed, failed: status === 0 ? failed : Math.max(failed, 1), reported };
 }
 
 const suites = discover();

@@ -3764,6 +3764,14 @@ class Simulator {
     return !!(dev && dev.config && dev.config.natRules && dev.config.natRules.length);
   }
 
+  // NAT timeouts are seconds (`natLib.DEFAULT_TIMEOUTS`), and entries are stamped with whatever `now` they are
+  // handed. `this.step` is a packet count, so passing it here said a translation had been idle for twelve
+  // "seconds" when twelve packets had crossed. The instant is the only unit a timeout can be measured in; it is
+  // null on a settled lab, which is 0 seconds into the run.
+  _natNowSec() {
+    return Math.floor((Number.isFinite(this.runAtMs) ? this.runAtMs : 0) / 1000);
+  }
+
   // The table is per device and lives with the device, so translations survive
   // from the SYN to the FIN exactly as they do on real hardware.
   _natTableOf(dev) {
@@ -3774,6 +3782,13 @@ class Simulator {
       for (const fwd of (cfg.portForwards || [])) table.rules.push(fwd);
       dev.natTable = table;
     }
+    // Age the table at the instant being asked about. `natLib.expireTranslations()` has existed since the model
+    // was written and nothing ever called it, so a dynamic or PAT translation was in force for the life of the
+    // run: a two-address pool stayed exhausted by connections that ended minutes ago, and `show ip nat
+    // translations` listed entries past their timeout (#1393).
+    const cfg = dev.config.nat || {};
+    const removed = natLib.expireTranslations(dev.natTable, cfg.timeouts, this._natNowSec());
+    if (removed) this._natExpired = (this._natExpired || 0) + removed;
     return dev.natTable;
   }
 
@@ -3839,7 +3854,7 @@ class Simulator {
     const pkt = this._natPacket(frame);
     if (!pkt || !this._isNat(dev)) return 'pass';
     const table = this._natTableOf(dev);
-    const res = natLib.translateOutbound(table, pkt, this.step);
+    const res = natLib.translateOutbound(table, pkt, this._natNowSec());
     if (res.action === 'drop') {
       this._emit({
         type: 'nat-drop', dev: dev.id, code: res.reason || 'E_NAT',
@@ -3873,7 +3888,7 @@ class Simulator {
     const pkt = this._natPacket(frame);
     if (!pkt || !this._isNat(dev)) return false;
     const table = this._natTableOf(dev);
-    const res = natLib.translateInbound(table, pkt, this.step);
+    const res = natLib.translateInbound(table, pkt, this._natNowSec());
     if (!res || res.action !== 'translate') return false;
     const globalIp = frame.ip.dst;
     const globalPort = frame.l4 ? frame.l4.dstPort : null;
