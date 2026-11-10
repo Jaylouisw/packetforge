@@ -66,6 +66,17 @@ function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp, opts) {
 // payload only would be a number every operator has to correct in their head, and a counter that
 // claimed exact framing (preamble, FCS, minimum frame size) would be lying about a model that does
 // not build them. ARP and LLDP are counted as the 64-byte minimum, which is what a real switch counts.
+// The event types that mean "a frame was discarded on *this port*", and therefore belong in its drop
+// counter. Everything else is deliberately absent:
+//   - `poe-budget` announces that a PSE could not fund a port. Nothing was transmitted, so nothing was
+//     dropped; charging the port would report a lost frame that never existed.
+//   - `no route`, `TTL expired`, `echo for unknown local IP` and friends are `drop` events with no
+//     port, because the frame was discarded before an egress was chosen. They are real drops that no
+//     port counter can honestly own, and `show logging` is where they are read.
+//   - `scion-drop` is a path-policy rejection in the SCION overlay, not a frame on a cable.
+//   - `slaac-refused` and `tap-inject-refused` are configuration and test-instrument refusals.
+const FRAME_DROP_TYPES = new Set(['drop', 'acl-deny', 'vlan-drop', 'stp-block', 'nat-drop', 'poe-deny']);
+
 const ICMP_PAYLOAD_BYTES = 100;
 function frameBytes(frame) {
   if (!frame) return 0;
@@ -210,7 +221,13 @@ class Simulator {
     ev.step = this.step;
     // Dropped frames are counted here, at the one place every drop site goes through, so a new drop
     // reason cannot be added without its port being charged for it.
-    if (ev && ev.iface && ev.dev && /drop|deny|block/.test(String(ev.type))) {
+    //
+    // The types are named rather than matched by a regex, because the regex this replaced was wrong in
+    // both directions: it charged a port for `poe-budget` - an announcement that a PSE could not fund
+    // a port, where no frame ever existed - and it read "deny" inside that word, so the power
+    // computation inflated the frame-drop count of whichever port lost the budget. A regex over
+    // English type names is a guess about meaning; a set is a statement about it.
+    if (ev && ev.iface && ev.dev && FRAME_DROP_TYPES.has(ev.type)) {
       const rec = this._portStat(ev.dev, ev.iface);
       rec.drops++;
       const why = ev.reason || ev.type;
@@ -2335,7 +2352,9 @@ class Simulator {
           ports.push({ iface: name, pd: other.id, draw: draw, powered: false });
           peer.poeUnpowered = true;
           this._emit({
-            type: 'poe-deny', dev: dev.id, iface: name, pd: other.id,
+            // Not `poe-deny`: this is the budget being computed, not a frame being refused. The
+            // frame-level refusals keep that name (and are counted as drops on the port).
+            type: 'poe-budget', dev: dev.id, iface: name, pd: other.id,
             draw: draw, remaining: remaining,
             reason: 'PSE budget exhausted: ' + draw + ' W requested, ' + remaining + ' W left'
           });
@@ -2595,11 +2614,15 @@ class Simulator {
     }
     const egress = route.iface ? src.interfaces.get(route.iface) : src.egressFor(route.via);
     if (!egress || !egress.enabled) {
-      this._emit({ type: 'drop', reason: 'egress interface down', dev: src.id });
+      // `iface` when the port is known: the reason already names it, and an operator reading that
+      // port's counters should see the discards it accumulated. With no egress at all there is no
+      // port to charge, and the drop is device-level.
+      this._emit({ type: 'drop', reason: 'egress interface down', dev: src.id,
+        iface: egress ? egress.name : undefined });
       return;
     }
     if (!egress.ip) {
-      this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: src.id });
+      this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: src.id, iface: egress.name });
       return;
     }
     const ip = { src: egress.ip, dst: dstIp, ttl: 64, proto: 1, id: icmp.id };
@@ -2630,12 +2653,13 @@ class Simulator {
     const own = o.srcIp ? dev.interfaceWithIp(o.srcIp) : null;
     if (own && own.enabled) egress = own;
     if (!egress || !egress.enabled) {
-      this._emit({ type: 'drop', reason: 'egress interface down', dev: dev.id });
+      this._emit({ type: 'drop', reason: 'egress interface down', dev: dev.id,
+        iface: egress ? egress.name : undefined });
       return null;
     }
     const srcIp = o.srcIp || egress.ip;
     if (!srcIp) {
-      this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: dev.id });
+      this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: dev.id, iface: egress.name });
       return null;
     }
     const ip = {
@@ -3109,7 +3133,8 @@ class Simulator {
     }
     const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
     if (!egress || !egress.enabled || !egress.ip) {
-      this._emit({ type: 'drop', reason: 'no usable egress interface', dev: dev.id });
+      this._emit({ type: 'drop', reason: 'no usable egress interface', dev: dev.id,
+        iface: egress ? egress.name : undefined });
       return;
     }
     const nextHopIp = route.via;
@@ -3395,7 +3420,11 @@ class Simulator {
       return e.type === 'drop' && /^no route to /.test(String(e.reason || ''));
     })[0];
     if (noRoute) return { code: 'E_NO_ROUTE', reason: noRoute.reason };
-    const poe = evs.filter(function (e) { return e.type === 'poe-deny'; })[0];
+    // Either power event answers "was it power?": `poe-budget` is the PSE's computation, `poe-deny`
+    // is the frame-level refusal, and a flow that never opened may have recorded either.
+    const poe = evs.filter(function (e) {
+      return e.type === 'poe-deny' || e.type === 'poe-budget';
+    })[0];
     if (poe) return { code: 'E_POE', reason: poe.reason || 'no PoE power available' };
     const vlan = evs.filter(function (e) { return e.type === 'vlan-drop'; })[0];
     if (vlan) return { code: 'E_VLAN', reason: vlan.reason || 'VLAN not allowed' };

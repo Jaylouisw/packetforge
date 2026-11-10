@@ -2547,8 +2547,41 @@ arithmetic is exact:
 64 + 64 + 402 = 530. A byte counter nobody can reproduce is a byte counter nobody can trust, so the
 frame sizes are stated rather than round numbers.
 
-**Drops are counted with their reasons.** A frame an ACL refuses arrives and is discarded, which is
-exactly what an input counter should show:
+**Drops are counted with their reasons — but only frames count.** Which events may charge a port is a
+named list, not a guess about English:
+
+| event | charges the port | why |
+| --- | --- | --- |
+| `drop` (with a port) | yes | the frame died on that port: link down, not addressed to this device, no egress in the VLAN, loop |
+| `acl-deny` | yes | the frame arrived and the list refused it |
+| `vlan-drop` | yes | the port does not carry that VLAN |
+| `stp-block` | yes | the port is discarding in the spanning tree |
+| `nat-drop` | yes | the translation refused it |
+| `poe-deny` | yes | a **frame** refused because the device had no power |
+| `poe-budget` | **no** | the PSE deciding who gets funded — no frame exists at that moment |
+| `drop` with no port | **no** | it died before an egress was chosen (`no route`, `TTL expired`); no port can honestly own it, and `show logging` is where it is read |
+
+The distinction between the last three is the difference between a number and a guess. A PoE budget
+denial and a frame refused for want of power are both power problems, and only one of them involves a
+frame:
+
+```
+SW1#show interfaces counters
+  (no port has carried a frame since this lab started)
+
+PD2#show interfaces port1
+  input : 2 packets, 128 bytes
+  output: 0 packets, 0 bytes
+  drops : 3
+          2  device is PoE-powered but the PSE budget is exhausted
+          1  no PoE power available - budget exhausted at the PSE
+```
+
+The switch's port lost the budget and dropped **nothing**; the device that could not transmit is
+charged for the frames it could not handle. Long reasons are listed underneath rather than run off the
+right edge — `2 acl-deny` stays on the line, a sentence gets its own.
+
+A frame an ACL refuses arrives and is discarded, which is exactly what an input counter should show:
 
 ```
 R1#show interfaces Gi0/0

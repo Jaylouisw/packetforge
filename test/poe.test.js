@@ -46,9 +46,14 @@ const denied = sim.poe[0].ports.filter(function (p) { return !p.powered; });
 ok(powered.length === 1, 'exactly one port is powered');
 ok(denied.length === 1, 'and exactly one is refused');
 ok(denied[0].pd === pd2.id, 'the second port in order is the one that loses out');
-const denyEv = sim.events.filter(function (e) { return e.type === 'poe-deny'; })[0];
-ok(!!denyEv, 'a poe-deny event is logged');
-ok(denyEv && /budget exhausted/i.test(denyEv.reason), 'with the reason: "' + (denyEv && denyEv.reason) + '"');
+// The budget decision is logged as `poe-budget`, not `poe-deny`: nothing was transmitted at this point,
+// so nothing was dropped, and the frame-drop counter must not charge the port for it. `poe-deny` is
+// reserved for a *frame* refused for want of power, which is a different event and is counted.
+const budgetEv = sim.events.filter(function (e) { return e.type === 'poe-budget'; })[0];
+ok(!!budgetEv, 'a poe-budget event is logged');
+ok(budgetEv && /budget exhausted/i.test(budgetEv.reason), 'with the reason: "' + (budgetEv && budgetEv.reason) + '"');
+ok(!sim.events.some(function (e) { return e.type === 'poe-deny'; }),
+  'and it is not a poe-deny - no frame was refused, so no frame-drop was counted');
 
 console.log('\nThe unpowered device is genuinely dead on the wire:');
 runCommands(pd1, t, null, ['enable', 'configure terminal', 'interface ' + 'port1',

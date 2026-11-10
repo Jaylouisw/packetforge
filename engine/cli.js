@@ -17,8 +17,19 @@ function plural(n, one, many) {
 function dropReasons(reasons) {
   const keys = Object.keys(reasons || {});
   if (!keys.length) return '';
-  const parts = keys.sort().map(function (k) { return reasons[k] + ' ' + k; });
-  return '  (' + parts.join(', ') + ')';
+  // Short reasons ride on the same line (`drops : 2  (2 acl-deny)`), the way a glance expects. A
+  // reason that is a sentence - "2 device is PoE-powered but the PSE budget is exhausted" - would run
+  // off the right edge and take the number with it, so those are listed underneath, one per line,
+  // commonest first. The count is never dropped: it is the part the reader came for.
+  const parts = keys.slice().sort(function (a, b) {
+    return (reasons[b] - reasons[a]) || a.localeCompare(b);
+  }).map(function (k) { return { n: reasons[k], why: k }; });
+  const inline = '  (' + parts.map(function (p) { return p.n + ' ' + p.why; }).join(', ') + ')';
+  if (inline.length <= 60) return inline;
+  const width = parts.reduce(function (w, p) { return Math.max(w, String(p.n).length); }, 1);
+  return parts.map(function (p) {
+    return '\n          ' + String(p.n).padStart(width) + '  ' + p.why;
+  }).join('');
 }
 const natLib = require('./nat');
 
@@ -3810,7 +3821,7 @@ class CliSession {
   //
   // PoE is enforced inside computePoe(): a port that asks for more than the budget
   // has left is denied and the PD is marked unpowered. Until now the only trace of
-  // that decision was a poe-deny event on the timeline, so the console could not
+  // that decision was a poe-budget/poe-deny event on the timeline, so the console could not
   // answer "why is this camera dead". This prints the same decision from both ends.
   _showPowerInline(only) {
     const dev = this.device;
