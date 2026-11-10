@@ -1,0 +1,11 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r=t.addDevice(R);r.name='R1';
+const s=new CliSession(r,t,new Simulator(t));s.run('enable');s.run('configure terminal');s.run('router ospf 1');
+const origRouter=s._ospfRouterMode.bind(s), origOspf=s._ospfConfig.bind(s), origCfg=s._configMode.bind(s);
+s._ospfRouterMode=(tk)=>{console.log('  -> _ospfRouterMode('+JSON.stringify(tk)+')');return origRouter(tk);};
+s._ospfConfig=(tk)=>{console.log('  -> _ospfConfig('+JSON.stringify(tk)+')');return origOspf(tk);};
+s._configMode=(tk)=>{console.log('  -> _configMode('+JSON.stringify(tk)+')');return origCfg(tk);};
+console.log('run:');
+console.log(JSON.stringify(s.run('router ospf 1').output));

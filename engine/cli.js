@@ -107,6 +107,7 @@ const MODE_CONFIG = 'config';
 const MODE_IFACE = 'iface';
 const MODE_DHCP_POOL = 'dhcp-pool';
 const MODE_ACL = 'acl';
+const MODE_OSPF = 'ospf';
 
 // One line per logged event. Rather than a switch per type - which would drift the moment a protocol
 // adds a field - this prefers the fields that carry the *reason*, then the well-known addresses, then
@@ -297,6 +298,7 @@ class CliSession {
     if (this.mode === MODE_IFACE) return host + '(config-if)#';
     if (this.mode === MODE_DHCP_POOL) return host + '(config-dhcp)#';
     if (this.mode === MODE_ACL) return host + '(config-' + (this.aclKindWord || 'std') + '-nacl)#';
+    if (this.mode === MODE_OSPF) return host + '(config-router)#';
     if (this.mode === MODE_ENABLE) return host + '#';
     return host + '>';
   }
@@ -394,6 +396,8 @@ class CliSession {
         out.push.apply(out, this._ifaceMode(tokens));
       } else if (this.mode === MODE_DHCP_POOL) {
         out.push.apply(out, this._dhcpPoolMode(tokens));
+      } else if (this.mode === MODE_OSPF) {
+        out.push.apply(out, this._ospfRouterMode(tokens));
       } else if (this.mode === MODE_ACL) {
         out.push.apply(out, this._aclMode(tokens));
       } else if (this.mode === MODE_CONFIG) {
@@ -848,6 +852,12 @@ class CliSession {
       this.device.config.gateway6 = null;
       this.device.config.routes6 = [];
       out.push('IPv6 routes cleared');
+    } else if (head === 'router' && tokens[1] === 'ospf') {
+      out.push.apply(out, this._routerOspf(tokens));
+    } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'ospf') {
+      this.device.config.ospf = null;
+      this.device.ospfRoutes = [];
+      out.push('OSPF disabled');
     } else if (head === 'router' && tokens[1] === 'bgp') {
       out.push.apply(out, this._bgp(['as', tokens[2]]));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
@@ -2352,6 +2362,159 @@ class CliSession {
   }
 
   // ---------- OSPF ----------
+  // `router ospf <pid>` - the way OSPF is configured on every real router, and the one spelling this
+  // console did not have: it answered `% Unrecognized config command: router ospf 1` while `router
+  // bgp` was implemented, so an operator following any lab guide could not start OSPF at all.
+  _routerOspf(tokens) {
+    const t = tokens.map(function (x) { return String(x); });
+    // tokens are ['router', 'ospf', <pid>], so anything from index 3 on has no slot.
+    const extra = this._noExtra(t, 3, 'router ospf <process-id>');
+    if (extra) return extra;
+    const word = String(t[2] === undefined ? '' : t[2]);
+    if (!word) {
+      return ['% Incomplete command: router ospf <process-id> (1-65535)',
+        '% The process id is local to this router; it does not have to match the neighbour\'s'];
+    }
+    if (!/^\d+$/.test(word)) {
+      return ['% "' + word + '" is not a process id', '% A process id is a number 1-65535'];
+    }
+    const pid = parseInt(word, 10);
+    if (!(pid >= 1 && pid <= 65535)) {
+      return ['% Process id ' + pid + ' is outside 1-65535'];
+    }
+    const cfg = this.device.config.ospf || { routerId: null, areaId: 0, interfaces: [] };
+    if (!cfg.interfaces) cfg.interfaces = [];
+    const already = cfg.pid === pid;
+    cfg.pid = pid;
+    // `router ospf 1` is what turns OSPF on: IOS creates the process here, and so must this model, or
+    // `network` inside the mode would have nothing to attach to.
+    this.device.config.ospf = cfg;
+    this.modeBeforeOspf = this.mode;
+    this.mode = MODE_OSPF;
+    const out = [already ? 'Entering router configuration mode (process ' + pid + ' was already there)'
+      : 'OSPF process ' + pid + ' enabled, entering router configuration mode'];
+    if (!already) {
+      // Say what the mode is for, because it is the one thing an operator needs to know: the areas
+      // live on the interfaces here, and `network` is the shorthand that writes them.
+      out.push('  "network <net> <wildcard> area <id>" sets the area on every interface it matches');
+      out.push('  "router-id <ip>" names this router; "exit" leaves the mode');
+    }
+    return out;
+  }
+
+  // Inside `router ospf`: the two verbs that matter, and nothing that pretends to be something else.
+  _ospfRouterMode(tokens) {
+    const head = String(tokens[0] || '').toLowerCase();
+    const cfg = this.device.config.ospf;
+    if (!cfg) { this.mode = MODE_CONFIG; return ['% OSPF is no longer configured']; }
+    if (head === 'help' || head === '?') return this._help();
+    if (head === 'exit') {
+      this.mode = MODE_CONFIG;
+      return ['Leaving router configuration mode'];
+    }
+    if (head === 'end') {
+      this.mode = MODE_ENABLE;
+      return [];
+    }
+    if (head === 'network') return this._ospfNetwork(tokens, false);
+    if (head === 'no' && String(tokens[1] || '').toLowerCase() === 'network') {
+      return this._ospfNetwork(tokens.slice(1), true);
+    }
+    if (head === 'router-id') {
+      return this._ospfConfig(['router-id'].concat(tokens.slice(1)));
+    }
+    if (head === 'no' && String(tokens[1] || '').toLowerCase() === 'router-id') {
+      const had = cfg.routerId;
+      cfg.routerId = null;
+      return [had ? 'Router-id cleared (was ' + had + ')' : 'No router-id was configured'];
+    }
+    // A pasted configuration does not say `exit` before `interface Gi0/1`, and a real router accepts
+    // it. Leaving the mode and re-dispatching is what makes a dump pasteable; a refusal that loses the
+    // line is worse, because the paste then continues with a configuration that is subtly wrong.
+    const saved = this.mode;
+    this.mode = MODE_CONFIG;
+    const asGlobal = this._configMode(tokens);
+    const refused = asGlobal.length && /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobal[0]);
+    if (!refused) return asGlobal;
+    // Nothing anywhere: report it in the vocabulary of the mode the operator is actually in.
+    this.mode = saved;
+    return ['% "' + tokens.join(' ') + '" is not a router ospf command',
+      '% In this mode: network <net> <wildcard> area <id>, router-id <ip>, exit, end',
+      '% Interface settings (cost, passive, area) are configured on the interface'];
+  }
+
+  // `network <net> <wildcard> area <id>` - the area is a property of the interface here, so this
+  // writes it on every interface the wildcard selects, and says which ones those were. IOS accepts a
+  // network statement that matches nothing in silence, which is the one time an operator most needs
+  // to be told: the adjacency will never come up and nothing in the config looks wrong.
+  _ospfNetwork(tokens, negate) {
+    const dev = this.device;
+    const cfg = dev.config.ospf;
+    const usage = (negate ? 'no ' : '') + 'network <net> <wildcard> area <id>';
+    const extra = this._noExtra(tokens, 5, usage);
+    if (extra) return extra;
+    const netWord = String(tokens[1] === undefined ? '' : tokens[1]);
+    const wcWord = String(tokens[2] === undefined ? '' : tokens[2]);
+    if (!netWord || !wcWord) {
+      return ['% Incomplete command: ' + usage,
+        '% Example: network 10.0.0.0 0.0.0.255 area 0'];
+    }
+    if (!net.isIp(netWord)) return ['% "' + netWord + '" is not a network address'];
+    if (!net.isIp(wcWord)) {
+      return ['% "' + wcWord + '" is not a wildcard mask',
+        '% A wildcard is the mask inverted: 255.255.255.0 becomes 0.0.0.255'];
+    }
+    if (String(tokens[3] || '').toLowerCase() !== 'area') {
+      return ['% Expected "area" after the wildcard, not "' + (tokens[3] === undefined ? 'nothing' : tokens[3]) + '"',
+        '% Example: network 10.0.0.0 0.0.0.255 area 0'];
+    }
+    if (tokens[4] === undefined) {
+      return ['% Incomplete command: ' + usage + ' - an area id is missing',
+        '% Area 0 is the backbone'];
+    }
+    const area = require('./ospf').parseAreaId(String(tokens[4]));
+    if (area === null) {
+      return ['% "' + tokens[4] + '" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)'];
+    }
+    const netInt = net.ipToInt(netWord);
+    const wcInt = net.ipToInt(wcWord);
+    const matches = [];
+    for (const i of dev.interfaces.values()) {
+      if (!i.ip || i.svi || i.parent) continue;
+      const addr = net.ipToInt(i.ip);
+      if (addr === null) continue;
+      // The wildcard's zero bits are the ones that must match.
+      if (((addr ^ netInt) & (~wcInt >>> 0)) !== 0) continue;
+      matches.push(i);
+    }
+    if (!matches.length) {
+      return ['% No interface of ' + (dev.name || dev.id) + ' matches ' + netWord + ' ' + wcWord +
+        ' - nothing was changed',
+        '% The interfaces and their addresses are in "show ip interface brief"',
+        '% IOS would accept this in silence, and the adjacency would never form'];
+    }
+    const out = [];
+    for (const i of matches) {
+      let ov = null;
+      for (const x of cfg.interfaces) { if (x.name === i.name) { ov = x; break; } }
+      if (!ov) { ov = { name: i.name }; cfg.interfaces.push(ov); }
+      if (negate) {
+        if (ov.area === undefined) { out.push('  ' + i.name + ': no area was set here'); continue; }
+        delete ov.area;
+        out.push('  ' + i.name + ': area removed (was ' + (ov.area === undefined ? '' : String(area)) + ')');
+      } else {
+        const had = ov.area;
+        ov.area = area;
+        out.push('  ' + i.name + ' (' + i.ip + '): area ' + area +
+          (had !== undefined && had !== area ? ' (was ' + had + ')' : ''));
+      }
+    }
+    dev.config.ospf = cfg;
+    return [(negate ? 'Removed' : 'Network ' + netWord + ' ' + wcWord + ' area ' + area + ' put') +
+      ' ' + matches.length + ' interface' + (matches.length === 1 ? '' : 's') + ' in area ' + area]
+      .concat(out);
+  }
+
   _ospfConfig(tokens) {
     const dev = this.device;
     const t = tokens.map(function (x) { return String(x); });
@@ -2957,6 +3120,12 @@ class CliSession {
         '% Every drop is an event with the reason (mtu, acl, port-security, no-cable), so:',
         '%   show interfaces counters            packets, bytes and drops per port',
         '%   show interfaces <port>              the drops on one port, in words'];
+    }
+    if (first === 'ip' && (has('eigrp') || has('rip'))) {
+      return ['% This model runs OSPF and BGP; EIGRP and RIP are not modelled',
+        '%   router ospf <pid>       "network <net> <wildcard> area <id>" sets the areas',
+        '%   router bgp <as>         neighbours, then "show ip bgp" for what was installed',
+        '%   show ip route           what any of them installed, with the protocol beside each row'];
     }
     // `show clock` is implemented and answers in its own words, so it is not in this table; `ntp` is
     // the one that has nowhere else to go.
@@ -5546,7 +5715,9 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config && dev.config.ospf;
     const out = [];
-    if (!cfg || !cfg.routerId) { out.push('% OSPF is not enabled' + NEEDS.ospf); return out; }
+    // `router ospf 1` creates a process with no router-id yet: IOS elects one from the interface
+    // addresses, and refusing the show here would hide the process the command had just created.
+    if (!cfg || (!cfg.routerId && !cfg.pid)) { out.push('% OSPF is not enabled' + NEEDS.ospf); return out; }
 
     // Refresh from the current topology, so the table reflects the SPF that just
     // ran over it rather than whatever the last ping happened to leave behind.
@@ -5595,7 +5766,10 @@ class CliSession {
       return out;
     }
 
-    out.push('Routing Process "ospf 1" with ID ' + cfg.routerId);
+    // The process id is what `router ospf <pid>` created; it printed the constant `ospf 1` before,
+    // which was right only for the one id nobody had been able to configure.
+    out.push('Routing Process "ospf ' + (cfg.pid || 1) + '" with ID ' +
+      (cfg.routerId || '(not configured - the model uses the highest interface address)'));
     out.push('  Area ' + (cfg.areaId || 0));
 
     const overrides = cfg.interfaces || [];
@@ -6032,8 +6206,32 @@ class CliSession {
     if (ospf && ospf.routerId) {
       out.push('ospf router-id ' + ospf.routerId);
       if (ospf.areaId) out.push('ospf area ' + ospf.areaId);
+      if (ospf.pid) {
+        // `router ospf <pid>` with the network statements that recreate the per-interface areas.
+        out.push('router ospf ' + ospf.pid);
+        for (const ov of (ospf.interfaces || [])) {
+          if (ov.area === undefined) continue;
+          const iface = dev.interfaces.get(ov.name);
+          if (!iface || !iface.ip) continue;
+          out.push(' network ' + iface.ip + ' 0.0.0.0 area ' + ov.area);
+        }
+      }
     }
     const ospfIfaces = (ospf && ospf.interfaces) || [];
+    // The process id is configuration: `router ospf 1` created it, and a dump without it rebuilds a
+    // router whose OSPF has no process. The network statements are derived from the interfaces that
+    // carry an area, one host-wildcard statement each, so the paste lands exactly the areas that were
+    // there rather than a wildcard that happens to cover them.
+    const ospfBlock = (ospf && ospf.pid) ? (function () {
+      const lines = ['router ospf ' + ospf.pid];
+      for (const ov of ospfIfaces) {
+        if (ov.area === undefined) continue;
+        const iface = dev.interfaces.get(ov.name);
+        if (!iface || !iface.ip) continue;
+        lines.push(' network ' + iface.ip + ' 0.0.0.0 area ' + ov.area);
+      }
+      return lines;
+    })() : null;
     const vrrp = Array.isArray(dev.config.vrrp) ? dev.config.vrrp : [];
 
     // Access lists are emitted before the interface blocks. A dump is pasted from the top, so an
@@ -8199,6 +8397,15 @@ class CliSession {
       // `show <what>` defers to the exec tree for everything after `show`.
       forms = this._helpForms(MODE_ENABLE);
     }
+    // A word that is already a complete command of the enclosing configuration is never abbreviated
+    // into something else. `router ospf 1` typed inside `router ospf` mode was expanded to
+    // `router-id ospf 1` - because `router` is a prefix of `router-id` *in that mode* - and then
+    // refused with a message about `router-id`, which named a command the operator had not typed.
+    if (!exec && this.mode !== MODE_CONFIG && tokens.length > 1) {
+      // Only when the *whole line* reads as a configuration command: `ip add …` in interface mode
+      // must still become `ip address …`, and that is the same first word.
+      if (abbrev.readsAs(tokens, this._helpForms(MODE_CONFIG))) return null;
+    }
     return abbrev.expand(tokens, forms);
   }
 
@@ -8883,6 +9090,8 @@ class CliSession {
         'BGP identity and peers'),
       helpLine('no bgp neighbor <ip> | no neighbor <ip>', 'stop peering with one address'),
       helpLine('no router bgp [<as>]', 'turn BGP off and drop every peer'),
+      helpLine('router ospf <process-id>', 'start OSPF and enter router mode, where "network … area …" lives'),
+      helpLine('no router ospf', 'remove the OSPF process and its routes'),
       helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF'),
       helpLine('no ospf', 'turn OSPF off'),
       helpLine('no ospf router-id | no ospf area <id>', 'forget the id, or one area'),
@@ -8982,6 +9191,13 @@ class CliSession {
       helpLine('exit / end', 'config / exec')
     ]);
 
+    if (this.mode === MODE_OSPF) return helpRows([
+      helpLine('network <net> <wildcard> area <id>', 'put every interface the wildcard matches into an area'),
+      helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
+      helpLine('router-id <ip>', 'name this router in OSPF'),
+      helpLine('exit', 'leave router configuration mode'),
+      helpLine('end', 'leave configuration mode entirely')
+    ], 'Router mode - the areas live on the interfaces, and "network" is the shorthand that writes them');
     if (this.mode === MODE_ACL) return helpRows([
       'Access-list ' + this.aclName + ' (' + (this.aclKindWord === 'ext' ? 'extended' : 'standard') + '):',
       helpLine('permit|deny <entry>', 'one line, in the order shown by "show access-lists"'),

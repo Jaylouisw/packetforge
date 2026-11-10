@@ -336,4 +336,21 @@ function expand(typed, forms) {
   return { tokens: out };
 }
 
-module.exports = { parseForms, parseFormsWithDesc, expand, expandSynopsis };
+// Would this line be accepted as typed by one of these forms? Keywords match as iOS matches them
+// (an unambiguous prefix), placeholders accept anything. Used to keep the abbreviation pass from
+// rewriting a line that is already a command somewhere: `router ospf 1` typed inside router mode was
+// expanded to `router-id ospf 1`, because `router` is a prefix of `router-id` in that mode alone.
+function readsAs(typed, forms) {
+  if (!typed.length || !forms || !forms.length) return false;
+  return forms.some(function (f) {
+    for (let i = 0; i < typed.length; i++) {
+      const tok = f[i];
+      if (tok === undefined) return false;
+      if (typeof tok === 'object') continue;
+      if (!accepts(tok, String(typed[i]))) return false;
+    }
+    return true;
+  });
+}
+
+module.exports = { parseForms, parseFormsWithDesc, expand, expandSynopsis, readsAs };

@@ -1,0 +1,10 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';
+const p=Array.from(r1.interfaces.keys()).filter(n=>!r1.interfaces.get(n).svi&&!r1.interfaces.get(n).parent);
+const sim=new Simulator(t);const a=new CliSession(r1,t,sim);a.run('enable');
+a.run('configure terminal');a.run('interface '+p[0]);a.run('ip address 10.0.0.1 255.255.255.0');a.run('exit');
+a.run('router ospf 1');a.run('network 10.0.0.0 0.0.0.255 area 0');a.run('router-id 1.1.1.1');a.run('end');
+console.log('config.ospf =',JSON.stringify(r1.config.ospf));
+a.run('show running-config').output.forEach(l=>console.log('|'+l));

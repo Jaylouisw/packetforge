@@ -58,6 +58,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
 | `show vrrp` | group state after the last election ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
+| `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
 | `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
@@ -1189,6 +1190,64 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The two commands every OSPF lab starts with, and this console did not have
+
+Found by writing a **dump-and-paste round trip** over a broad reference configuration: applying that
+config produced a list of refusals, and in it was
+
+```
+R1(config)#router ospf 1
+% Unrecognized config command: router ospf 1
+R1(config)#network 10.10.0.0 0.0.0.255 area 0
+% Unrecognized config command: network 10.10.0.0 0.0.0.255 area 0
+```
+
+`router bgp <as>` was implemented, so this was not a simplification anyone had decided on — it was an
+asymmetry, and the OSPF half is the one every lab guide types. The model keeps the area on the
+*interface* (`ip ospf area`), which is why `network` had no home: it is the shorthand that writes that
+per-interface property.
+
+```
+R1(config)#router ospf 1
+OSPF process 1 enabled, entering router configuration mode
+  "network <net> <wildcard> area <id>" sets the area on every interface it matches
+  "router-id <ip>" names this router; "exit" leaves the mode
+R1(config-router)#network 10.0.0.0 0.0.0.255 area 0
+Network 10.0.0.0 0.0.0.255 area 0 put 1 interface in area 0
+  Gi0/0 (10.0.0.1): area 0
+```
+
+`network` says **which interfaces it matched**, and that is the whole point of the command here. IOS
+accepts a statement that matches nothing in silence — the adjacency then never forms and nothing in
+the configuration looks wrong. This console refuses it and says why:
+
+```
+R1(config-router)#network 10.9.9.0 0.0.0.255 area 0
+% No interface of R1 matches 10.9.9.0 0.0.0.255 - nothing was changed
+% The interfaces and their addresses are in "show ip interface brief"
+% IOS would accept this in silence, and the adjacency would never form
+```
+
+The areas it writes are the ones the adjacency check already read, so a mismatch is explained rather
+than mysterious (`R2 on Gi0/0 is in area 1 and this interface is in area 0 - no adjacency without a
+matching area`), and agreeing makes the adjacency `FULL`.
+
+**A pasted configuration does not say `exit` before `interface Gi0/1`.** A line that is not a
+router-mode verb leaves the mode and is re-dispatched as global configuration, because refusing it
+would lose the line and the paste would continue with a configuration that is subtly wrong.
+
+The process id survives the dump as `router ospf <pid>` with one host-wildcard statement per
+interface that carries an area — so a paste lands exactly the areas that were there, not a wildcard
+that happens to cover them.
+
+**Two defects this turned up in code that was already passing tests.** `show ip ospf` printed the
+constant `Routing Process "ospf 1"` — right only for the one id nobody had been able to configure —
+and now prints the real id (or says it is not configured yet). And the abbreviation pass rewrote
+`router ospf 1` typed inside router mode into **`router-id ospf 1`**, because `router` is a prefix of
+`router-id` *in that mode*, then refused it with a message about `router-id` — a refusal naming a
+command the operator never typed. A word that is already a complete command of the enclosing
+configuration is now never abbreviated into something else.
 
 ### Commands from a lab guide, and the word this console answers with
 

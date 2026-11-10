@@ -1,0 +1,11 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r=t.addDevice(R);r.name='R1';
+const s=new CliSession(r,t,new Simulator(t));s.run('enable');s.run('configure terminal');
+const show=(cmd)=>{const o=s.run(cmd).output;console.log('$ '+cmd+'  ['+s.prompt()+']');o.forEach(l=>console.log('   '+l));};
+show('router ospf 1');
+show('router ospf 1');
+show('exit');
+show('router ospf 7');
+show('show ip ospf');
