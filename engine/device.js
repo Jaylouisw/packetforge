@@ -4,6 +4,12 @@
 // number `show mac address-table` implies when it prints an age. Named here because the table's writer, its
 // reader and its reporter all have to agree on it (#1395).
 const MAC_AGE_MS = 300000;
+
+// How long a dynamic ARP entry survives silence, in milliseconds: 4 hours, which is the IOS default
+// (`arp timeout 14400`) and the number the `Age (min)` column is a count of. The comment on `arpRows()` used to
+// say the age could not be modelled because "the simulator has steps, not minutes" - that stopped being true
+// when convergence gave the model an instant in milliseconds (#1397).
+const ARP_AGE_MS = 14400000;
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
 const { resolvePortName } = require('./iface-name');
@@ -151,6 +157,9 @@ class Device {
     this.macTable = new Map();   // mac -> { port, atMs } (VLAN 1)
     this.macTables = new Map();  // vid -> Map(mac -> { port, atMs })
     this.arp = new Map();        // ip -> mac
+    // ip -> when the box last heard this neighbour. Kept beside the map rather than inside it so `arp` stays
+    // ip -> mac for every reader and fixture that has ever written one (#1397).
+    this.arpSeenAt = new Map();
     // Which port a neighbour was learned on (#1253). `show arp` prints an Interface column, and without
     // this the column was a header over nothing: the one field that tells you where to look when a
     // neighbour answers but traffic still dies.
@@ -253,7 +262,7 @@ class Device {
 
   // Learn a neighbour, remembering the port it was heard on. Kept as one entry point so the port cannot be
   // forgotten at one call site and remembered at another.
-  learnArp(ip, mac, portName) {
+  learnArp(ip, mac, portName, atMs) {
     if (!ip || !mac) return null;
     this.arp.set(ip, mac);
     let name = null;
@@ -263,7 +272,39 @@ class Device {
     }
     if (!this.arpPorts) this.arpPorts = new Map();
     this.arpPorts.set(ip, name);
+    // When the box last heard from this neighbour, so the entry can age. A caller that does not know the instant
+    // writes nothing here, and an entry nothing dated is never aged (#1397).
+    if (!this.arpSeenAt) this.arpSeenAt = new Map();
+    if (Number.isFinite(atMs)) this.arpSeenAt.set(ip, atMs); else this.arpSeenAt.delete(ip);
     return name;
+  }
+
+  // The neighbour's hardware address, at an instant. An entry older than ARP_AGE_MS is not there at all: a host
+  // that moved would otherwise be sent frames at an address it no longer answers to. Real behaviour is to ARP
+  // again, which is what a null answer causes (#1397).
+  arpLookup(ip, nowMs) {
+    if (!this.arp) return null;
+    const mac = this.arp.get(ip);
+    if (mac === undefined || mac === null) return null;
+    const at = this.arpSeenAt ? this.arpSeenAt.get(ip) : undefined;
+    if (Number.isFinite(at) && Number.isFinite(nowMs) && (nowMs - at) > ARP_AGE_MS) return null;
+    return mac;
+  }
+
+  // Every neighbour older than the age is gone, from the address and from where and when it was heard.
+  ageArps(nowMs) {
+    if (!Number.isFinite(nowMs) || !this.arp) return 0;
+    let dropped = 0;
+    for (const ip of [...this.arp.keys()]) {
+      const at = this.arpSeenAt ? this.arpSeenAt.get(ip) : undefined;
+      if (Number.isFinite(at) && (nowMs - at) > ARP_AGE_MS) {
+        this.arp.delete(ip);
+        this.arpSeenAt.delete(ip);
+        if (this.arpPorts) this.arpPorts.delete(ip);
+        dropped++;
+      }
+    }
+    return dropped;
   }
 
   activeInterfaces() {
@@ -557,7 +598,10 @@ class Device {
   }
 
   // `show arp`, as data: the neighbour, the port it was learned on, and whether that port still carries.
-  arpRows(topo) {
+  arpRows(topo, nowMs) {
+    // The rows are the rows at the instant asked. No instant means no ageing, which is what every caller got
+    // before the table carried timestamps (#1397).
+    if (Number.isFinite(nowMs)) this.ageArps(nowMs);
     const rows = [];
     for (const [ip, mac] of this.arp.entries()) {
       const portName = (this.arpPorts && this.arpPorts.get(ip)) || null;
@@ -573,9 +617,11 @@ class Device {
           note = this.portCarrierNote(iface, topo);
         }
       }
-      // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a minutes column
-      // would be a number with the wrong unit.
-      rows.push({ ip: ip, mac: mac, port: port, age: '-', note: note });
+      // Minutes since this neighbour was last heard, or null when nothing recorded when it was: a fixture's entry
+      // has no age, and inventing one would be worse than saying nothing (#1397).
+      const at = this.arpSeenAt ? this.arpSeenAt.get(ip) : undefined;
+      const age = (Number.isFinite(at) && Number.isFinite(nowMs)) ? Math.max(0, Math.floor((nowMs - at) / 60000)) : null;
+      rows.push({ ip: ip, mac: mac, port: port, age: age, note: note });
     }
     rows.sort(function (a, b) { return String(a.ip).localeCompare(String(b.ip)); });
     return rows;
@@ -1197,4 +1243,4 @@ class Device {
   }
 }
 
-module.exports = { Device, Interface, CAPABILITIES, MAC_AGE_MS };
+module.exports = { Device, Interface, CAPABILITIES, MAC_AGE_MS, ARP_AGE_MS };
