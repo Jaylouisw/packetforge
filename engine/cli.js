@@ -3030,9 +3030,22 @@ class CliSession {
       const stpLib = require('./stp');
       const mine = (dev.config && dev.config.stpPriority !== null && dev.config.stpPriority !== undefined)
         ? dev.config.stpPriority : stpLib.STP_DEFAULT_PRIORITY;
+      // A box that is not a bridge does not run spanning tree, and saying "no election has run" about it implies it
+      // would be in one: a router answered `show spanning-tree` with a root it had never looked for (#1399).
+      // `isL2()` is the predicate `computeStp()` uses to decide what may be a bridge at all, so it is the one this
+      // report must ask. A router answers false: it never joins an election, so no sentence here may imply it did.
+      const bridgesAtAll = (typeof dev.isL2 !== 'function') || dev.isL2();
+      if (!bridgesAtAll) {
+        out.push('Spanning tree is not running on this device: it is not a bridge (no L2 forwarding).');
+        return out;
+      }
       out.push('Spanning tree enabled protocol ieee');
       // The bridge priority decides the election, so a tree report that omits it cannot explain itself.
-      const rootRes = this.sim && this.sim.stpResult && this.sim.stpResult.root;
+      // A root with no identity is not a root: `runStp()` used to answer one for a topology with no bridges, and
+      // `String(undefined)` is what came out (#1399). Two things are checked, so neither can print it again.
+      const rootRes = (this.sim && this.sim.stpResult && this.sim.stpResult.root &&
+        this.sim.stpResult.root.key !== undefined && this.sim.stpResult.root.key !== null)
+        ? this.sim.stpResult.root : null;
       if (rootRes) {
         const rootDev = this.topo ? this.topo.getDevice(rootRes.key) : null;
         // A device's `name` is its catalogue label ("Aruba CX 6000 24G 4SFP+"), which names the model

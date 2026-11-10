@@ -801,6 +801,19 @@ switches with the same ports and the same cables can produce different trees and
 one you were looking at. The priority in force is this device's; the root is named by hostname, else by the id
 the lab uses — not by the model label, which is the same string on every switch of one kind.
 
+There are three states, and the header says which one you are in:
+
+* **a bridge in a tree** — `root bridge core-sw1 priority 4096`, with `(this bridge is the root)` after the
+  priority when you are reading the root itself;
+* **a lone bridge** — the election still runs, and answers with the only candidate: itself;
+* **a box that is not a bridge** — a router. It prints `Spanning tree is not running on this device: it is not a
+  bridge (no L2 forwarding)`, because a router never joins an election, and a report that describes one in terms
+  of roots and bridge priorities implies it did.
+
+A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
+object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached
+the console on 1,026 of the 2,038 models in the catalogue — the report was naming a hole.
+
 ### Setting the root
 
 ```
