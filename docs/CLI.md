@@ -36,6 +36,8 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show startup-config` | the saved copy, then what the running config has changed ([Saving the configuration](#saving-the-configuration)) |
 | `write memory` | save the running configuration as the startup copy (privileged exec) |
 | `copy running-config startup-config` | the same save, spelled the other way |
+| `copy startup-config running-config` | put the saved copy back, **merging** it into the running config — exec-only, and the way back from an unsaved change ([Saving the configuration](#saving-the-configuration)) |
+| `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
@@ -1197,6 +1199,45 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### A saved copy you can never return to is a copy nobody needed
+
+`write memory`, `copy running-config startup-config` and `show startup-config` all existed. Nothing
+ever loaded the saved copy back, so the save was write-only:
+
+```
+R1#copy startup-config running-config   % copy takes running-config startup-config - the source must be running-config
+R1#reload                               % Unrecognized command: reload
+```
+
+`copy startup-config running-config` now does what IOS does with it — **merge**, not replace: the
+saved copy is replayed line by line through the same parser a paste uses, so every line is validated
+as it would be by hand, and a saved line the parser refuses today is reported rather than swallowed.
+Nothing is cleared first, and the answer says so:
+
+```
+R1#copy startup-config running-config
+Copied startup-config into the running configuration on R1: 6 lines applied
+  1 line added (this is a merge: lines the saved copy does not mention are kept)
+```
+
+`reload` gets the absent-family treatment rather than a typo message: nothing here boots, so there is
+no restart to schedule — and with a saved copy it names the command that loads it and the one that
+shows what is saved. Every pointer in that answer is run by the suite, so it cannot name a command the
+device does not have.
+
+### An exec verb in configuration mode is not a typo
+
+The same pass found the neighbouring defect, in the mode that refuses most often:
+
+```
+R1(config)#write memory   % Unrecognized config command: write memory
+R1(config)#reload         % Unrecognized config command: reload
+```
+
+Both are real commands, one prompt away. Configuration mode now names that: the verb is an exec verb,
+`end` returns to privileged exec, and `do` is *not* offered for it, because `do` carries reads only
+(`do show <...>`) — advice that cannot be followed is the defect being fixed, not the fix.
 
 ### A bracketed part is optional, and a default is not the operator's
 
@@ -5747,6 +5788,67 @@ types one of them without thinking about which the box happens to prefer:
 R1#write memory
 Saved startup-config on R1: 7 lines
 (this is the first save in this lab - "show startup-config" now answers)
+```
+
+`copy startup-config running-config` is the other direction, and it is the only way back from a change
+you did not save. It **merges**: the saved copy is replayed into the running configuration, and lines the
+running config has that the saved copy never mentions are **kept** — IOS's behaviour, not a restore:
+
+```text
+R1#configure terminal
+R1(config)#hostname CHANGED
+R1(config)#end
+CHANGED#copy startup-config running-config
+Copied startup-config into the running configuration on CHANGED: 4 lines applied
+  1 line added, 1 line removed (this is a merge: lines the saved copy does not mention are kept)
+CHANGED#show running-config
+! PacketForge running-config
+hostname EDGE
+```
+
+Measured, and the second half is the part people get wrong: with `description LATER` added to a port the
+saved copy does not mention at all, a merge leaves it in place and says so rather than reporting a
+silent success —
+
+```text
+R1#copy startup-config running-config
+Copied startup-config into the running configuration on R1: 5 lines applied
+  the running configuration did not change - the saved copy was already in force
+```
+
+`reload` is answered rather than obeyed, and the answer changes with the lab. On a device with nothing
+saved it points at `write memory`; on one whose saved copy is real it prints the two commands that
+actually do the job, because a reboot is the one thing this console cannot do:
+
+```text
+R1#reload
+% There is no reload on this console - nothing here boots, so there is no restart
+%   to schedule and no saved image to load on the way up
+% The saved copy is real, and so is the way back to it:
+%   copy startup-config running-config   merge the saved copy into the running one
+%   show startup-config                the saved copy, plus what has changed since
+% To discard unsaved changes, build the device again - that is what a reboot would do here
+```
+
+It is refused whether or not you are privileged — `reload` needs no enable mode, which is why it is the
+one exec verb that answers a user-mode prompt with the full explanation rather than `% Invalid input`.
+
+Two refusals worth knowing. It is an exec command, so configuring mode rejects it with a message that
+names the way out rather than just refusing:
+
+```text
+R1(config)#copy startup-config running-config
+% "copy startup-config running-config" is an exec command, not a configuration command
+% "end" leaves the configuration and puts you back at privileged exec
+% ("do" carries reads only - "do show <...>" - so this one needs "end" first)
+```
+
+and anything else after `copy` is answered by naming both directions, because the verb takes exactly
+two argument pairs:
+
+```text
+R1#copy running-config nvram:
+% copy takes running-config startup-config, or startup-config running-config
 ```
 
 The saved copy is the **rendered** configuration — the text `show running-config` prints, minus its

@@ -395,6 +395,29 @@ services, and a job that has to swap makes the whole queue slower.
   pipes only (`/(?<!\\)\|/`), take the header row after a `|---|` separator as the expected count,
   and escape the pipe in the source rather than the count in the test.
 
+- **The "cited-but-absent suite" count is a warning, and it should not be zero.** The
+  local markdown checker (`md-check`, the script reproduced [above](#running-the-same-checks-locally) —
+  it lives outside the repository by design) resolves every `test/*.test.js` a page names against
+  the directory and prints 13 misses on this tree. All 13 are legitimate, in three
+  categories, and the count is stable because the pages are stable:
+
+  | Where | Count | Why it is legitimate |
+  |---|---|---|
+  | `docs/BGP-POLICY.md` | 2 | `bgp-policy.test.js`, `bgp-policy-wire.test.js` — the page is a **design**, and these are the suites it proposes ("New file:") |
+  | `docs/UPSTREAM-DESIGN.md` | 3 | `upstream-baseline.test.js` ×2, `upstream-service.test.js` — phase-0 and phase-2 gates, not yet written |
+  | `docs/SIMULATION.md` | 8 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and one recording a pass that "fixed" it |
+
+  ```bash
+  node md-check.js docs/*.md README.md CONTRIBUTING.md CHANGELOG.md docs/wiki/*.md | grep 'cites test/'
+  ```
+
+  Do not clear this by inventing a file to match a citation. That has already happened once:
+  a pass needing to make the count go away cited a suite (`poe-derived.test.js`) with an assertion
+  count beside it, and **no such file has ever existed in `git log --all`** — the citation
+  survived because nothing compares prose to a run, and it is now recorded in
+  `docs/SIMULATION.md` §11 as a defect rather than deleted quietly. If a real suite is
+  renamed, rename the citation; if a page is proposing a suite, leave the name alone.
+
 ## Reporting a problem with CI itself
 
 Open an issue with the workflow run URL, and include:
