@@ -153,6 +153,9 @@ rather than padded into the schema:
   no enclosure of its own and no ports until it is seated, so the device that hosts it is the
   catalogue entry and the component is a fact about that device (which modem, which line card),
   not a node in a topology.
+- **software** - a backup, controller or management *application*. There is no box and no port to
+  cable; the hardware it runs on is the device, and if that hardware is already in the catalogue
+  the request is answered.
 
 The distinction that matters when closing a request: an accessory or component is **structurally**
 unrepresentable (nothing to simulate on its own), while a device that merely lacks a published
