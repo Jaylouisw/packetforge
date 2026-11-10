@@ -131,8 +131,10 @@ console.log('\nFiltering by type, and refusing a type that is not there:');
   ok(body.every((r) => /acl-deny/.test(r)), 'and every row is that type');
   match(/1 acl-deny events/, drops.join('\n'), 'the heading names the filter and the count');
   const bad = l.text(l.t.getDevice('d1'), 'show logging nonsense');
-  match(/% No events of type "nonsense" in this lab/, bad, 'an unknown type is refused');
-  match(/% Types seen: .*acl-deny/, bad, 'and the refusal lists the types that do exist');
+  // The wording moved: a type is named after what happened, so a word that matches none says it has
+  // not happened here - and lists the types that *do* have events (see test/logging-filter.test.js).
+  match(/% No event of type "nonsense" has happened here/, bad, 'an unknown type is refused');
+  match(/% Types with events so far: .*acl-deny/, bad, 'and the refusal lists the types that do exist');
 }
 
 console.log('\nlast <n> trims from the end and validates its argument:');

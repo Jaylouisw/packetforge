@@ -59,13 +59,13 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
-| `show vrrp` | group state after the last election ([VRRP](#vrrp-first-hop-redundancy)) |
+| `show vrrp [<group>]` | group state after the last election; naming a group narrows the table ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip protocols` | the routing processes running here, their areas, peers and distances |
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
 | `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
-| `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
+| `show ip ospf [<process-id>]` | process, interfaces and adjacency count; naming one narrows the answer ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
 | `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
 | `show lldp neighbors [<port>]` | neighbours actually heard on the wire ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
@@ -1196,6 +1196,30 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### A keyword the page lists as a placeholder is not abbreviatable
+
+This console abbreviates keywords to any prefix that identifies exactly one continuation, and the tree
+it expands against is built from the **help rows** — one source, so an abbreviation can never reach a
+command that does not exist. That means a help row written with a placeholder silently opts its values
+out of the rule:
+
+```
+SW1(config-if)#switchport mode acc
+Switchport mode access on Fa0/1                    <- abbreviation works
+SW1(config-if)#switchport port-security violation rest
+% "rest" is not a violation mode                   <- ...but not here
+% Use protect, restrict or shutdown
+```
+
+The row read `violation <mode>`, so `rest` was an opaque value passed straight to a parser that
+compares exactly. Spelling the modes out (`violation protect|restrict|shutdown`) puts them in the tree,
+and the same operator's `rest`, `prot`, `shut` all work — while `b` and `zz`, which identify nothing,
+are still refused with the mode list.
+
+The lesson is the one the docs already state for the help page: **the row is the command surface**. A
+placeholder is right for a value with no vocabulary (`<name>`, `<ip>`); it is wrong for a set of
+keywords the parser will accept, because it hides them from both abbreviation and completion.
 
 ### A number that names something is not a time
 
@@ -4231,6 +4255,59 @@ the same time, because a blank `Meaning` column is a hole in the help, not a for
 
 ## VRRP (first-hop redundancy)
 
+### A group id is an id, not a timestamp
+
+`show vrrp <n>` asks about group `n`, and `show ip ospf <n>` about process `n`. Both used to be parsed as
+the trailing `at <ms>` argument, so the number was read as a *time*: `show vrrp 1` answered "VRRP at
+t=1 ms" and then reported an unconverged table with no master for a group that plain `show vrrp` listed as
+Master — a contradiction one word apart. The number in each of these commands is now an identifier, and
+the time form has to say so:
+
+```text
+R1#show vrrp 1
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+eth1       1      120  Master  R1      10.0.0.254  00:00:5e:00:01:01
+R1#show vrrp 9
+% No VRRP group 9 on R1
+% The groups here are: 1 on eth1
+R1#show vrrp at 5000
+VRRP at t=5000 ms (control planes rebuilt for this answer)
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+eth1       1      120  Master  R1      10.0.0.254  00:00:5e:00:01:01
+R1#show vrrp abc
+% show vrrp takes a group id, not "abc"
+% e.g. show vrrp | show vrrp 1 | show vrrp at <ms>
+R1#show ip ospf 9
+% No OSPF process 9 on R1
+% The process here is "ospf 1"
+```
+
+Three things to take from it: the id narrows the answer rather than changing the clock; an id that does
+not exist names the ones that do; and a word where an id belongs is refused with the three accepted forms
+rather than being silently treated as a filter that matches nothing.
+
+The two arguments compose, but **only in one order**, and the failure the other way is quiet:
+
+```text
+R1#show vrrp 1 at 5000
+VRRP at t=5000 ms (control planes rebuilt for this answer)
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+eth1       1      120  Master  R1      10.0.0.254  00:00:5e:00:01:01
+R1#show vrrp 1 2
+VRRP at t=2 ms (control planes rebuilt for this answer)
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+eth1       1      120  Backup  -       10.0.0.254  -
+(no router holds the virtual address yet - the group has not converged)
+R1#show vrrp at 5000 1
+% Unexpected argument after the instant: 1
+% Usage: show vrrp at <ms>|converged
+```
+
+`show vrrp 1 2` is **not** a refusal: the first number is the group and the second is read as the instant,
+so the answer is "group 1 at t=2 ms" — and because the control planes are rebuilt for that answer, a group
+that is Master at `t=0` comes back `Backup` with the "has not converged" note. A second id after `at` is
+the case that is refused. `show vrrp brief` is accepted as a synonym for the summary view.
+
 A group belongs to an interface, so the commands live inside `interface`:
 
 ```
@@ -5061,6 +5138,19 @@ Only the word `neighbor` (or `neighbors`) changes the output. Any other second w
 there is no per-interface view and no link-state database to show. It does not error, so a typo or a
 `database` habit reads as success; if the output has `Routing Process` at the top, you got the
 summary whatever you asked for.
+
+The summary's `State` column is the one place `ip ospf passive` becomes visible, as `passive` beside the
+interface. Two things about it are worth knowing before you trust it:
+
+- **`ip ospf passive` is silently dropped if the OSPF process does not exist yet.** Typed into an
+  interface before `router ospf <id>` has been configured, it echoes `OSPF passive on eth1` like any
+  other accepted command, writes nothing to `show running-config`, and leaves the adjacency up — the
+  interface's state still reads `active`. Configure the process first, then the interface override.
+- Once it *is* applied, the effect is real and the state word says so: the adjacency goes away
+  (`show ip ospf neighbor` → `(no adjacencies - no neighbour passed the passive, subnet and area
+  checks)` on **both** ends), `show running-config` carries `ip ospf passive` in the interface block,
+  and the interface's own network is still advertised — which is what a passive interface means: no
+  adjacency, stub network still in the router LSA.
 
 ## BGP
 

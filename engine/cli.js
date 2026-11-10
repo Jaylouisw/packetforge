@@ -8539,9 +8539,33 @@ class CliSession {
         return ['% Unknown option "' + a + '"'];
       } else if (type === null) {
         // A bare word is an event type: `show logging drop` is the common case.
+        // `all` means no filter - it is what the bare command already does, and an operator who
+        // types it is asking for the whole log, not for a type called "all".
+        if (a === 'all') { type = null; continue; }
+        // The type vocabulary is the log itself: a type exists here when an event of it has
+        // happened. That is honest, and it means an empty log must not be dressed up as a filter:
+        // "% No events of type "zzz"" with "Types seen: (none)" read like a type that exists and
+        // is empty, so a typo and a quiet lab were indistinguishable.
+        if (!events.length) {
+          return ['% The log is empty: nothing has run in this lab, so there is nothing of any type',
+            '% Run something ("ping <addr>", a simulation step) and this fills up'];
+        }
         if (seenTypes.indexOf(a) === -1) {
-          return ['% No events of type "' + a + '" in this lab',
-            '% Types seen: ' + (seenTypes.join(', ') || '(none)')];
+          // An unambiguous prefix of a type that has events is that type, as keywords are
+          // everywhere else in this console: `show logging dro` is `show logging drop`.
+          const byPrefix = seenTypes.filter(function (t) { return t.indexOf(a) === 0; });
+          if (byPrefix.length === 1) {
+            type = byPrefix[0];
+            continue;
+          }
+          if (byPrefix.length > 1) {
+            return ['% Ambiguous event type "' + a + '": ' + byPrefix.join(', '),
+              '% Types with events so far: ' + seenTypes.join(', ')];
+          }
+          return ['% No event of type "' + a + '" has happened here',
+            '% Types with events so far: ' + seenTypes.join(', '),
+            '% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is',
+            '%   either a type that has not happened yet or a typo - "show logging" lists them all'];
         }
         type = a;
       } else {
@@ -10247,7 +10271,13 @@ class CliSession {
       helpLine('switchport port-security maximum <n>', 'how many source addresses the port may hold (default 1)'),
       helpLine('switchport port-security mac-address <mac>', 'pin one station to this port'),
       helpLine('switchport port-security mac-address sticky', 'keep what the port learns, across a clear and a reload'),
-      helpLine('switchport port-security violation <mode>', 'protect | restrict | shutdown - what a violation costs'),
+      // The three modes are spelled out rather than held in a `<mode>` placeholder: the abbreviation
+      // tree is built from these rows, so `<mode>` made the value opaque and `violation rest` was
+      // refused while every other keyword on the page - `mode acc`, `root prim`, `summ` - was
+      // accepted. One source for the surface, so a value the page names can be abbreviated to a
+      // prefix that identifies it.
+      helpLine('switchport port-security violation protect|restrict|shutdown',
+        'what a violation costs: drop silently, drop and count, or err-disable the port'),
       helpLine('switchport port-security aging time <1-1440>', 'minutes an address lives before it leaves (0 = never)'),
       helpLine('switchport port-security aging type absolute|inactivity', 'count from the first sighting, or the last'),
       helpLine('switchport port-security aging static', 'let configured addresses age out too'),
