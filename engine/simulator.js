@@ -26,6 +26,28 @@ const dhcpLib = require('./dhcp');
 // ceiling is what keeps a single call bounded; `PING_COUNT_DEFAULT` and `PING_COUNT_MAX` are the whole rule.
 const PING_COUNT_DEFAULT = 4;
 const PING_COUNT_MAX = 50;
+
+// "The path is not up yet" is not packet loss, and three surfaces had three ways of saying it: the console printed
+// the sentence, the browser drew `Success rate 0%` as if every echo had been lost, and the instant printed with it
+// came from the command rather than from the answer. One sentence, written here, used by the console and mirrored
+// in the browser (#1383).
+function pingConvergenceSentence(replies) {
+  const conv = (replies || []).filter(function (r) { return r && r.reason === 'converging'; });
+  if (!conv.length) return null;
+  const who = [];
+  for (const r of conv) {
+    for (const p of (r.pending || [])) {
+      const label = String(p.process || 'a process') + ' on ' + String(p.device || 'a device');
+      if (who.indexOf(label) < 0) who.push(label);
+    }
+  }
+  const until = conv
+    .map(function (r) { return r.convergingUntilMs; })
+    .filter(function (x) { return typeof x === 'number' && isFinite(x); });
+  const ready = until.length ? Math.max.apply(null, until) : null;
+  return 'Still converging' + (who.length ? ': ' + who.join(', ') : '') +
+    (ready !== null ? ' (ready at ' + ready + ' ms)' : '');
+}
 const vrrpLib = require('./vrrp');
 const segmentLib = require('./segment');
 const mediaModel = require('./media');
@@ -575,7 +597,10 @@ class Simulator {
       events: this.events, replies: replies, step: this.step,
       success: replies.some(function (r) { return r.success; }),
       resolved: target, dns: dnsResult,
-      count: count, requestedCount: usable ? Math.floor(requested) : null
+      count: count, requestedCount: usable ? Math.floor(requested) : null,
+      // The instant this answer is about, from the simulator that produced it - not from the command that asked.
+      // `null` means no particular instant (the lab is settled), which is a different statement from t=0.
+      runAtMs: Number.isFinite(this.runAtMs) ? this.runAtMs : null
     };
   }
 
@@ -3817,4 +3842,5 @@ class Simulator {
   }
 }
 
-module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost };
+module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost,
+  pingConvergenceSentence, PING_COUNT_DEFAULT, PING_COUNT_MAX };

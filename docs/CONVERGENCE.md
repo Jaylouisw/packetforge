@@ -17,11 +17,20 @@ Type escape sequence to abort.
 Sending 1, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at t=5000 ms)
 .
 Success rate is 0 percent (0/1)
-% Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+% Still converging: stp on SW1 (ready at 30000 ms) at t=5000 ms
 ```
 
 Note what that last line is not: it is not `Request timed out`. Nothing was lost. The network was
-not up yet, and the engine says which process is not finished and when it will be.
+not up yet, and the engine says which process is not finished and when it will be. The sentence is written once
+(`pingConvergenceSentence()` in `engine/simulator.js`), printed once however many echoes were held up, and mirrored
+by the browser's Simulate dialog so the two surfaces cannot describe the same answer differently.
+
+The instant printed at the end is the one the **answer** belongs to (`res.runAtMs`), not the one you typed: a ping
+with no `at` is asked at `Infinity`, and says nothing about convergence at all.
+
+`at <ms>` applies to that one command. `setRunTime()` persists on the simulator, so the console used to leave the
+whole session answering at the instant you last named — the next plain `ping`, a later `show ip route`, anything.
+The console now restores the instant it arrived with, whatever the ping did.
 
 ## The rule
 

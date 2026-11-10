@@ -246,8 +246,11 @@ t('The CLI can ask the question, and says "converging" rather than "timed out"')
   ok(convOut.some(function (l) { return /Fully converged at 30000 ms/.test(l); }), 'and the lab total');
 
   const early = runCommands(a, topo, sim, ['enable', 'ping 10.0.0.2 1 at 5000']).lines;
-  ok(early.some(function (l) { return /Still converging at t=5000 ms: stp on SW1/.test(l); }),
+  ok(early.some(function (l) { return /Still converging: stp on SW1/.test(l); }),
     'an early ping names the process, not a timeout');
+  // ...and says when it will be ready, and which instant the answer is about (#1383).
+  ok(early.some(function (l) { return /ready at 30000 ms/.test(l); }), 'and when the path will be up');
+  ok(early.some(function (l) { return /at t=5000 ms$/.test(l); }), 'and the instant the answer belongs to');
   ok(!early.some(function (l) { return /Request timed out/.test(l); }),
     'and does not pretend the packet was lost');
 
