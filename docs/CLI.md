@@ -900,6 +900,24 @@ in that slot used to be stored as an interface name (so the route pointed at a p
 exist), and the numerical hint is printed only when the word is a number, so a genuine misspelling of
 `Gi0/0` is not answered with a lecture about distances.
 
+**The prefix-length spelling is refused, and then printed back at you.** `ip route` takes a dotted
+mask, not CIDR — which is the one form half the world types first:
+
+```text
+R1(config)#ip route 0.0.0.0/0 10.0.0.254
+% "0.0.0.0/0" is not an IPv4 address, so it cannot be a destination network
+% Usage: ip route <network> <mask> <next-hop> [<interface>]
+R1(config)#ip route 0.0.0.0 0.0.0.0 10.0.0.254
+Route added: 0.0.0.0/0 via 10.0.0.254
+```
+
+The refusal names the whole `0.0.0.0/0` as "not an IPv4 address", so the mistake reads as a bad
+address rather than a bad *notation*; the successful line one keystroke later then prints the route in
+exactly the spelling it just rejected. The same applies to a host route (`192.168.2.0/24` is refused,
+`192.168.2.0 255.255.255.0` is not) and to a **host/PC**, which accepts the same command: `ip route 0.0.0.0
+0.0.0.0 10.1.1.1` succeeds and `show ip route` then shows `S 0.0.0.0/0  1  10.1.1.1  -` — note the empty
+`Interface` column, because a default route installed this way records the next hop and no port.
+
 **A route that names nothing is refused, and so is one that names a dead end.** Both of these used to
 be accepted, listed in `show ip route` as if they forwarded, and answered 0/4 pings:
 
