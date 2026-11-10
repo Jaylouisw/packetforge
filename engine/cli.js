@@ -2718,7 +2718,17 @@ class CliSession {
 
   _ipOspf(tokens, iface) {
     const dev = this.device;
-    if (!dev.config.ospf) return ['% OSPF is not enabled' + NEEDS.ospf];
+    if (!dev.config.ospf) {
+      // "% OSPF is not enabled" is right for a router that has not started it, and wrong for a host
+      // or a switch, which cannot start it: those answer with what they are, the way `router ospf`
+      // itself does.
+      if (typeof dev.isL3 === 'function' && !dev.isL3()) {
+        return ['% ' + (dev.name || dev.id) +
+          ' is not a router: no routing protocol runs on its interfaces',
+          '% A host sends everything to "ip default-gateway <gw>" instead'];
+      }
+      return ['% OSPF is not enabled' + NEEDS.ospf];
+    }
     const cfg = dev.config.ospf;
     if (!cfg.interfaces) cfg.interfaces = [];
 
@@ -2923,6 +2933,15 @@ class CliSession {
   _channelGroup(tokens, iface) {
     const lagLib = require('./lag');
     const dev = this.device;
+    // A channel-group bundles switch ports into one logical link. A PC with one Ethernet port and a
+    // router bundling its routed interfaces both accepted the command and answered "Interface eth0
+    // added to channel group 1 (LACP active)" - while `show etherchannel` had just been taught to
+    // refuse a device that does not switch, so the two disagreed about the same hardware.
+    if (typeof dev.isL2 === 'function' && !dev.isL2()) {
+      return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no switch ports to bundle',
+        '% A channel-group makes several switch ports act as one link ("show etherchannel")',
+        '% Routed interfaces are a routing problem: see "ip route" and "show ip route"'];
+    }
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (!dev.config.lags) dev.config.lags = {};
 
@@ -9421,6 +9440,25 @@ class CliSession {
     if (first === 'router' && (second === 'ospf' || second === 'bgp')) return l3 ? null : routes;
     if (first === 'no' && second === 'router') return l3 ? null : routes;
     if (first === 'neighbor' || first === 'bgp') return l3 ? null : routes;
+    // Per-interface verbs follow the interface-mode dispatcher, not the config one: a channel-group
+    // bundles switch ports, a PoE verb needs a port that sources power, and the OSPF verbs need a
+    // device that runs OSPF at all.
+    if (first === 'channel-group' || (first === 'no' && second === 'channel-group')) {
+      return l2 ? null : 'it does not switch, so it has no switch ports to bundle';
+    }
+    // Any row that names a switchport is a switch row, including the `no` forms: a PC was offered
+    // `no switchport port-security` while the positive form was filtered, so the page listed a
+    // removal for a setting the device could never have had.
+    if (words.indexOf('switchport') !== -1) return l2 ? null : switches;
+    if ((first === 'power' && second === 'inline') || (first === 'no' && second === 'power' && words[2] === 'inline')) {
+      let sources = false;
+      for (const i of dev.interfaces.values()) if (i.poeOut || (i.hardware && i.hardware.poeOut)) { sources = true; break; }
+      return sources ? null : 'no port on it sources PoE, so there is no power to switch on or off';
+    }
+    if (first === 'ip' && second === 'ospf') return l3 ? null : 'no routing protocol runs on its interfaces';
+    if (first === 'no' && second === 'ip' && words[2] === 'ospf') {
+      return l3 ? null : 'no routing protocol runs on its interfaces';
+    }
     // Address translation and address service.
     if (first === 'ip' && second === 'nat') return has('nat') ? null : 'it does not translate addresses';
     if (first === 'no' && second === 'ip' && words[2] === 'nat') {
@@ -9587,10 +9625,13 @@ class CliSession {
       helpLine('speed <mbps>|auto', 'port speed; the spanning-tree path cost follows it'),
       helpLine('duplex full|auto', 'duplex (half is refused: no collisions are modelled)'),
       helpLine('power inline auto|never', 'whether this port feeds a PoE device (frees its watts)'),
+      // The four removals were one row, so a device with no PoE ports was shown `no power inline`
+      // inside the bundle even after its positive form had been filtered out - the page offered a
+      // removal for something it had just stopped offering.
+      helpLine('no power inline', 'back to auto: the port feeds a device again'),
       helpLine('lldp transmit | no lldp transmit', 'whether this port announces itself'),
       helpLine('lldp receive | no lldp receive', 'whether this port listens for a neighbour'),
-      helpLine('no mtu | no speed | no duplex | no power inline',
-        'back to the default, negotiation, auto, or powered'),
+      helpLine('no mtu | no speed | no duplex', 'back to the default, negotiation, or auto'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),

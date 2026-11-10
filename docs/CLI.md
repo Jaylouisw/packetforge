@@ -27,6 +27,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show history` | the commands typed into this session, last 10 ([Commands from a lab guide](#commands-from-a-lab-guide-and-the-word-this-console-answers-with)) |
 | `configure terminal` | enter config mode |
 | `?` in any mode | only the commands this device can use ([help](#the-help-page-was-the-same-page-on-every-device)) |
+| `channel-group`, `power inline`, `ip ospf …`, `no power inline` | per-interface verbs, gated the same way ([interface mode](#interface-mode-had-the-same-defect-one-prompt-deeper)) |
 | `show vlan / spanning-tree / mac address-table / etherchannel` | the bridge's tables - and what the device is, on one that has none ([show](#the-show-views-a-device-could-not-have-and-answered-anyway)) |
 | `show version` | vendor, model, category, capabilities |
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
@@ -1194,6 +1195,49 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Interface mode had the same defect, one prompt deeper
+
+`?` inside an interface block was not filtered, and two of its rows were **accepted** on devices
+that have no use for them:
+
+```
+PC1(config-if)#channel-group 1 mode active
+Interface eth0 added to channel group 1 (LACP active)     <- a LAG on a one-port host
+
+R1(config-if)#channel-group 1 mode active
+Interface Gi0/0 added to channel group 1 (LACP active)    <- a bundle of routed interfaces
+```
+
+`show etherchannel` had just been taught to refuse a device that does not switch, so the command and
+the view disagreed about the same hardware. Now:
+
+```
+R1(config-if)#channel-group 1 mode active
+% R1 does not switch, so it has no switch ports to bundle
+% A channel-group makes several switch ports act as one link ("show etherchannel")
+% Routed interfaces are a routing problem: see "ip route" and "show ip route"
+```
+
+Two more, in the same block:
+
+- **`ip ospf cost 10` on a switch** answered *"% OSPF is not enabled - "ospf router-id <ip>" turns
+  OSPF on"* — describing a missing *configuration* where the truth is a missing *capability*. A
+  device that is not a router now says so: *"% SW1 is not a router: no routing protocol runs on its
+  interfaces"*. A router that simply has not started OSPF keeps the configuration answer, because
+  there it is the right one.
+- **`no power inline` was offered to devices with no PoE ports**, because it shared a row with
+  `no mtu`, `no speed` and `no duplex`. A row that bundles four verbs cannot be filtered per verb, so
+  the removals were split apart and each one is now gated with its positive form.
+
+`no switchport port-security` was being shown to a PC while the positive form was filtered out — the
+page offered the removal of a setting the device could never have had. Any row naming a switchport is
+now a switch row, `no` forms included.
+
+**The test found a defect in itself.** The first version of `test/iface-capability.test.js` wrote its
+row filter with a doubled backslash, so `rows()` always returned an empty list — and every "is not
+offered X" assertion passed, for the wrong reason, on nothing. The suite now starts by asserting that
+each page renders more than twenty rows, so a broken filter fails loudly instead of quietly agreeing.
 
 ### The `show` views a device could not have, and answered anyway
 

@@ -54,7 +54,9 @@ ok(helpCfg.indexOf('dns zone') !== -1, 'config-mode ? lists DNS');
 
 cfg.run('interface Gi0/0');
 const helpIf = cfg.run('help').output.join('\n');
-ok(helpIf.indexOf('switchport') !== -1, 'interface-mode help lists switchport');
+// A router is not offered switchport: it is a switch verb, and the page is filtered by capability
+// (test/iface-capability.test.js). This used to assert the opposite, which was the defect.
+ok(helpIf.indexOf('switchport') === -1, 'interface-mode help on a router does not list switchport');
 ok(helpIf.indexOf('vrrp') !== -1, 'interface-mode help lists vrrp');
 ok(helpIf.indexOf('Gi0/0') !== -1, 'interface-mode help names the port it is on');
 
