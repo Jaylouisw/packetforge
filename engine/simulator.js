@@ -477,6 +477,32 @@ class Simulator {
             ? 'no active port in VLAN ' + vid
             : 'no port is cabled');
       }
+      // A subinterface is a tag on its parent, so it has no line of its own: if the parent is
+      // administratively down, or has no cable, the tagged interface is down too. It said `up` in
+      // `show ip interface brief` while a ping to its address answered 0% - the data path knew and
+      // the table did not, which is the one thing a state column must not do.
+      for (const iface of dev.interfaces.values()) {
+        if (!iface.parent) continue;
+        const parent = dev.interfaces.get(iface.parent);
+        if (!parent) {
+          iface.lineUp = false;
+          iface.lineStateReason = 'parent interface ' + iface.parent + ' is gone';
+          continue;
+        }
+        if (!parent.enabled) {
+          iface.lineUp = false;
+          iface.lineStateReason = 'parent ' + parent.name + ' is administratively down';
+          continue;
+        }
+        const plink = this._linkAt(dev.id, parent.name);
+        if (parent.peer && plink && !plink.isUp()) {
+          iface.lineUp = false;
+          iface.lineStateReason = 'parent ' + parent.name + ' has no link';
+          continue;
+        }
+        iface.lineUp = true;
+        iface.lineStateReason = null;
+      }
     }
     return this;
   }
@@ -2833,6 +2859,14 @@ class Simulator {
     const tx = this._portStat(dev.id, port.name);
     tx.tx++;
     tx.txBytes += bytesOut;
+    // A subinterface's traffic is its own too. Counting only the parent left
+    // `show interfaces Gi0/0.10` reporting 0 packets after pings that answered 100 percent - the
+    // one place an operator looks to confirm a tagged interface is carrying anything.
+    if (port !== iface) {
+      const sub = this._portStat(dev.id, iface.name);
+      sub.tx++;
+      sub.txBytes += bytesOut;
+    }
     this._enqueue(dev.id, port.name, out);
   }
 
@@ -2875,6 +2909,22 @@ class Simulator {
     const rx = this._portStat(peerDev.id, peer.iface);
     rx.rx++;
     rx.rxBytes += frameBytes(tx.frame);
+    // The same accounting on the way in: a tagged frame that a subinterface will answer belongs to
+    // that subinterface as well as to the parent that carried it.
+    {
+      const tag = tx.frame.wireVid === null || tx.frame.wireVid === undefined
+        ? tx.frame.vid : tx.frame.wireVid;
+      if (tag) {
+        const subs = typeof peerDev.subinterfacesOf === 'function'
+          ? peerDev.subinterfacesOf(peer.iface) : [];
+        for (const sub of subs) {
+          if (Number(sub.encapVid) !== Number(tag)) continue;
+          const rec = this._portStat(peerDev.id, sub.name);
+          rec.rx++;
+          rec.rxBytes += frameBytes(tx.frame);
+        }
+      }
+    }
     this._emit({
       type: 'frame', from: dev.id, fromIface: iface.name,
       to: peerDev.id, toIface: peer.iface, frame: tx.frame

@@ -1,0 +1,16 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router'),SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const sw=t.addDevice(SW);sw.name='SW1';const r2=t.addDevice(R);r2.name='R2';
+t.connect(r1.id,'Gi0/0',sw.id,'Fa0/1');t.connect(sw.id,'Fa0/2',r2.id,'Gi0/0');const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds)s.run(x);s.run('end');return s;};
+cfg(sw,['vlan 10','interface Fa0/1','switchport mode trunk','switchport trunk allowed vlan 10','exit','interface Fa0/2','switchport mode trunk','switchport trunk allowed vlan 10','exit']);
+const s=cfg(r1,['interface Gi0/0.10','ip address 10.10.0.1 255.255.255.0','exit']);
+cfg(r2,['interface Gi0/0.10','ip address 10.10.0.2 255.255.255.0','exit']);
+s.run('ping 10.10.0.2 count 2');
+const p=(x)=>{console.log('R1#'+x);s.run(x).output.forEach(l=>console.log(l));};
+p('show interfaces Gi0/0.10');
+s.run('configure terminal','interface Gi0/0','shutdown','exit','end');
+p('show ip interface brief');
+console.log('R1#ping 10.10.0.2 count 2'); s.run('ping 10.10.0.2 count 2').output.slice(-1).forEach(l=>console.log(l));
+p('show interfaces Gi0/0.10');

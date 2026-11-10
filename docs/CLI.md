@@ -1174,6 +1174,52 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A logical interface's state is the state of what carries it
+
+`show ip interface brief` answered from `i.enabled` alone, so a subinterface whose parent was shut
+reported `up/up` while a ping to its own address answered **0 percent**:
+
+```
+R1(config-if)#interface Gi0/0
+R1(config-if)#shutdown
+Gi0/0 administratively down
+R1#show ip interface brief
+Interface  IP-Address    OK?  Method  Status                 Protocol
+Gi0/0      unassigned    YES  manual  administratively down  down
+Gi0/0.10   10.10.0.1/24  YES  manual  up                     up
+R1#ping 10.10.0.2 count 2
+Success rate is 0 percent (0/2)
+```
+
+Two answers to one question, and the panel was the wrong one. A subinterface has no line of its own —
+it borrows its parent's — so `computeSviState()` now sets `lineUp`/`lineStateReason` for it in the same
+pass that already did the SVIs, and **one** helper (`_ifaceState()`) feeds every state column:
+`show ip interface brief`, `show interfaces`, and `show ipv6 interface`.
+
+```
+R1#show ip interface brief
+Interface  IP-Address    OK?  Method  Status                 Protocol
+Gi0/0.10   10.10.0.1/24  YES  manual  administratively down  down
+R1#show interfaces Gi0/0.10
+Gi0/0.10 (subinterface, 1G), MAC 02:00:00:00:00:00
+  status: administratively down
+  ip: 10.10.0.1/24
+  parent: Gi0/0, dot1q 10
+  line protocol: down (parent Gi0/0 is administratively down)
+  input : 3 packets, 332 bytes
+  output: 3 packets, 332 bytes
+  drops : 2
+```
+
+A **pulled cable** is a different fact from a shut port, and the columns say which one happened:
+`Status: up` with `Protocol: down` and `line protocol: down (parent Gi0/0 has no link)`.
+
+**And the counters counted nothing.** `show interfaces Gi0/0.10` reported `input : 0 packets` after
+pings that answered 100 percent, because every frame was attributed to the physical port only. A frame
+that a subinterface stamps and a subinterface answers now belongs to both, so the tagged interface shows
+the traffic it carried — and a sibling subinterface whose VLAN the trunk does not allow stays at zero,
+which is what makes the number mean something.
+
 ### A help placeholder must not become part of the command line
 
 `switchport trunk allowed vlan all` is what the help row documents, and it was refused:

@@ -3590,6 +3590,32 @@ class CliSession {
     return out;
   }
 
+  // One answer to "is this interface up", used by every table that has a state column.
+  //
+  // Status is the administrator's state and Protocol is what the line is doing. A logical interface
+  // has no cable of its own, so its line is borrowed: an SVI is up by VLAN membership, a subinterface
+  // by its parent. `show ip interface brief` used to answer from `i.enabled` alone, so a subinterface
+  // whose parent was shut reported `up/up` while a ping to its own address answered 0 percent.
+  _ifaceState(i) {
+    const parent = i.parent ? this.device.interfaces.get(i.parent) : null;
+    if (!i.enabled) {
+      return { status: 'administratively down', protocol: 'down', reason: 'administratively down' };
+    }
+    if (parent && !parent.enabled) {
+      return {
+        status: 'administratively down', protocol: 'down',
+        reason: 'parent ' + parent.name + ' is administratively down'
+      };
+    }
+    if (i.lineUp === false) {
+      return {
+        status: 'up', protocol: 'down',
+        reason: i.lineStateReason || (i.svi ? 'no active port in its VLAN' : 'no carrier')
+      };
+    }
+    return { status: 'up', protocol: 'up', reason: null };
+  }
+
   _show(tokens) {
     // An SVI's line protocol depends on the current link state, so it is recomputed before every
     // `show` rather than trusted from the last run: configuration can change between two questions,
@@ -3650,11 +3676,12 @@ class CliSession {
       for (const i of dev.interfaces.values()) {
         if (pick.port && i.name !== pick.port) continue;
         const ip = i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned';
-        const status = i.enabled ? 'up' : 'administratively down';
         // Status is the administrator's state, Protocol is what the line is doing - the distinction
-        // the two columns exist for, and the one an SVI makes because it has a line without a cable.
-        const line = !i.enabled ? 'down' : (i.svi && i.lineUp === false ? 'down' : 'up');
-        rows.push([i.name, ip, 'YES', i.dhcp ? 'DHCP' : 'manual', status, line]);
+        // the two columns exist for. A logical interface (SVI, subinterface) has a line without a
+        // cable of its own, and both used to report `up` from `i.enabled` alone while the data path
+        // refused to use them.
+        const st = this._ifaceState(i);
+        rows.push([i.name, ip, 'YES', i.dhcp ? 'DHCP' : 'manual', st.status, st.protocol]);
       }
       if (pick.port) out.push('Interface ' + pick.port + ' on ' + dev.name + ':');
       out.push.apply(out, renderTable(['Interface', 'IP-Address', 'OK?', 'Method', 'Status', 'Protocol'], rows));
@@ -4029,8 +4056,22 @@ class CliSession {
       for (const i of dev.interfaces.values()) {
         if (only && i.name !== only) continue;
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
-        out.push('  status: ' + (i.enabled ? 'up' : 'administratively down') + (i.description ? ', desc: ' + i.description : ''));
+        out.push('  status: ' + this._ifaceState(i).status + (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
+        if (i.parent) {
+          // A subinterface has no socket either: the facts worth printing are which parent carries
+          // it, which tag it stamps, and whether that parent can carry anything at all.
+          const st = this._ifaceState(i);
+          out.push('  parent: ' + i.parent + ', dot1q ' + (i.encapVid === null ? '(none)' : i.encapVid));
+          out.push('  line protocol: ' + (st.protocol === 'up' ? 'up' : 'down (' + st.reason + ')'));
+          if (this.sim) {
+            const st2 = this.sim.portStats(dev.id, i.name);
+            out.push('  input : ' + plural(st2.rx, 'packet') + ', ' + plural(st2.rxBytes, 'byte'));
+            out.push('  output: ' + plural(st2.tx, 'packet') + ', ' + plural(st2.txBytes, 'byte'));
+            out.push('  drops : ' + st2.drops);
+          }
+          continue;
+        }
         if (i.svi) {
           // "peer: disconnected" is true of a logical port and means nothing: an SVI has no socket to
           // be plugged into. The facts worth printing are which VLAN it holds the address in, and
@@ -5395,7 +5436,7 @@ class CliSession {
     let withGlobal = 0;
     let selfConfigured = 0;
     for (const i of ports) {
-      const state = i.enabled ? 'up' : 'administratively down';
+      const state = this._ifaceState(i).status;
       if (i.enabled) rows.push([i.name, state, dev.linkLocal6(i), '-', 'link-local']);
       const mine = addrs.filter(function (a) { return a.name === i.name; });
       if (!mine.length) {
