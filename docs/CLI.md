@@ -51,6 +51,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
 | `show vlan [<id>]` | VLAN table with trunk ports marked `(t)`, or one VLAN ([VLANs](#vlans)) |
+| `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLAN lifecycle](#vlan-lifecycle-creating-refusing-and-removing)) |
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
@@ -58,7 +59,11 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
 | `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
-| `show lldp` | neighbours actually heard on the wire |
+| `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
+| `show lldp neighbors [<port>]` | neighbours actually heard on the wire ([LLDP state](#l2-admin-state-the-switch-was-told-not-to-speak)) |
+| `show lldp neighbors detail` | one block per neighbour: chassis id, port id, description, TTL, medium and speed |
+| `show lldp interface [<port>]` | the per-port decision: Tx enabled, Rx enabled, cabled, and its neighbour |
+| `show lldp traffic [<port>]` | DUs sent, received, discarded by `no lldp receive`, and failed |
 | `show ipv6 nd` | what this device would advertise ([IPv6 commands](#ipv6-commands)) |
 | `show ipv6 interface [<port>] [at <ms>\|converged]` | which ports hold a v6 address, and where each came from |
 | `show ipv6 route [<dest>] [at <ms>\|converged]` | the IPv6 table, or the longest match for one destination |
@@ -1183,6 +1188,72 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### One LLDP view, and three questions it could not answer
+
+`show lldp neighbors` was the only LLDP view the console had, so the three things that decide what
+that table can possibly contain had no question:
+
+```
+SW1#show lldp neighbors detail
+% No interface named detail on SW1
+SW1#show lldp traffic
+LLDP neighbours on SW1:        <- the neighbour table, answering a different question
+SW1#show lldp interface
+LLDP neighbours on SW1:        <- the same table again
+```
+
+The first is the familiar defect (a keyword read as a port name). The other two are worse: a **wrong
+answer**, which nothing in the output marks as wrong. `show lldp interface` and `show lldp traffic` now
+answer their own questions, from state the model already had:
+
+```
+SW1#show lldp
+Global LLDP Information:
+    Status: ACTIVE
+    LLDP advertisements are sent every 30 seconds
+    LLDP hold time (before discarding): 120 seconds
+    Announcements on: Fa0/1, Fa0/2
+    Neighbours learned: 2
+
+SW1#show lldp interface
+LLDP interface state on SW1:
+  Device state: ACTIVE
+  Port   Tx       Rx       Cabled  Neighbour
+  Fa0/1  disabled  enabled  yes     SW2
+  Fa0/8  enabled   enabled  no      -
+```
+
+`no lldp transmit` moves one column on one port and leaves the neighbour in place — SW2 keeps
+announcing, we simply stopped answering — which is the distinction the per-port view exists to show.
+`show lldp neighbors detail` prints one block per neighbour from the LLDPDU that arrived (chassis id,
+port id, description, TTL, medium and speed, and whether our own port is passing frames).
+
+**The counters are port state, not a walk of the event log.** `show lldp traffic` reads
+`lldpTxFrames` / `lldpRxframes` / `lldpDiscarded` off the interface, written where a DU is sent or
+heard, so `clear logging` cannot empty them:
+
+```
+SW1#show lldp traffic
+LLDP traffic on SW1:
+  Port   Tx frames  Rx frames  Discarded  Errors
+  Fa0/1  1          0          1          0
+  Totals: 2 sent, 1 received, 1 discarded by "no lldp receive"
+```
+
+A DU that arrives while the port is told not to listen is **discarded, not unheard** — a counter that
+did not move would suggest the frames never arrived, which is a different fault.
+
+`show lldp interface detail` is answered by name rather than read as a port: the word belongs to the
+neighbour table, and the refusal says so.
+
+The same sweep turned up one more word read as a value: `show vlan name users` answered
+`% Invalid VLAN id "name"`. VLANs have names here, so `show vlan name <name>` now resolves one
+(case-insensitively), narrows the table, and on a miss lists the names that do exist. Two bugs in that
+one: a declared VLAN is a record (`{ name }`), so reading it as a string printed
+`% Names here: [object Object], [object Object]`; and the trailing-word refusal quoted
+`show vlan [<id>|brief]` while the operator had typed `show vlan name users`, so the synopsis now
+matches the form that was used.
 
 ### Three settings the detail view printed and nothing could configure
 

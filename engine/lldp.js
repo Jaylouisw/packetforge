@@ -13,6 +13,9 @@
 const LLDP_MULTICAST = '01:80:c2:00:00:0e';
 const ETH_LLDP = 0x88cc;
 const DEFAULT_TTL_S = 120;
+// How often an announcement is sent. The model announces on demand rather than on a timer, but the
+// interval is what the DUs claim and what `show lldp` should report, so it is stated once here.
+const DEFAULT_INTERVAL_S = 30;
 
 // Build the Ethernet frame a device sends out of one port.
 function buildFrame(dev, iface, opts) {
@@ -78,6 +81,7 @@ module.exports = {
   LLDP_MULTICAST: LLDP_MULTICAST,
   ETH_LLDP: ETH_LLDP,
   DEFAULT_TTL_S: DEFAULT_TTL_S,
+  DEFAULT_INTERVAL_S: DEFAULT_INTERVAL_S,
   buildFrame: buildFrame,
   describePort: describePort,
   isLldp: isLldp,

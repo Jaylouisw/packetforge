@@ -139,7 +139,10 @@ console.log('\nThe learned tables can be asked too:');
   match(/^MAC table at t=0 ms/m, mac, 'the MAC table is labelled');
   const lldp = cli(r1, ['show lldp at 0']);
   match(/^LLDP at t=0 ms/m, lldp, 'LLDP is labelled');
-  match(/R2/, lldp, 'and the neighbour is there, because the rebuild announces LLDP like a boot does');
+  // `show lldp` is the device's own LLDP state (IOS's global view), so the neighbour shows up as a
+  // count here and in the table one word further in - both rebuilt at the instant asked about.
+  match(/Neighbours learned: 1/, lldp, 'and the rebuild announces LLDP like a boot does, so it learned one');
+  match(/R2/, cli(r1, ['show lldp neighbors at 0']), 'and the neighbour is there in the table');
   const dhcp = cli(r1, ['show ip dhcp binding at 0']);
   match(/^DHCP at t=0 ms/m, dhcp, 'DHCP is labelled');
   const ospf = cli(r1, ['show ip ospf at converged']);

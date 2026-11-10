@@ -6,6 +6,7 @@
 const net = require('./net');
 const { renderTable } = require('./table');
 const psLib = require('./portsecurity');
+const lldpLib = require('./lldp');
 
 // A counter is prose as well as a number: "1 packets" is the kind of detail that makes an operator
 // distrust the figure beside it.
@@ -2852,6 +2853,118 @@ class CliSession {
     if (!n) return ['No sticky secure addresses on ' + where + ' - nothing to clear'];
     return ['Sticky secure addresses cleared on ' + where + ' (' + n + ')',
       '  The stations must be learned again, and the next one may be a different station'];
+  }
+
+  // `show lldp` - the device's own LLDP state, which nothing printed: the console had exactly one
+  // LLDP view (the neighbour table), so "is it on, on which ports, and has anything crossed them" had
+  // no answer even though all three are modelled.
+  _showLldpGlobal(dev) {
+    const off = dev.config.lldp && dev.config.lldp.run === false;
+    const ports = Array.from(dev.interfaces.values()).filter(function (i) { return !i.svi && !i.parent; });
+    const txOn = off ? [] : ports.filter(function (i) { return i.lldpTx !== false && i.peer; });
+    const out = [
+      'Global LLDP Information:',
+      '    Status: ' + (off ? 'DISABLED (no lldp run)' : 'ACTIVE'),
+      '    LLDP advertisements are sent every ' + (lldpLib.DEFAULT_INTERVAL_S || 30) + ' seconds',
+      '    LLDP hold time (before discarding): ' + (lldpLib.DEFAULT_TTL_S || 120) + ' seconds',
+      '    LLDP snooping: disabled',
+      '    Announcements on: ' + (txOn.length
+        ? txOn.map(function (i) { return i.name; }).join(', ')
+        : '(no port - nothing is cabled, or every port is told not to transmit)'),
+      '    Neighbours learned: ' + (dev.lldp ? dev.lldp.size : 0),
+      '',
+      '  "show lldp neighbors" lists them, "show lldp neighbors detail" describes each one,',
+      '  "show lldp interface" prints the per-port decision, "show lldp traffic" the counters'
+    ];
+    return out;
+  }
+
+  // `show lldp neighbors detail` - one block per neighbour, from the LLDPDUs that were actually heard.
+  _showLldpDetail(dev) {
+    if (dev.config.lldp && dev.config.lldp.run === false) {
+      return ['% LLDP is disabled on ' + (dev.name || dev.id) + ' (no lldp run)',
+        '% No port listens, so nothing can be described'];
+    }
+    const entries = dev.lldp ? Array.from(dev.lldp.entries()) : [];
+    if (!entries.length) {
+      return ['% No neighbours: no LLDPDU has been heard on any port of ' + (dev.name || dev.id),
+        '% A neighbour appears once its announcement has crossed the link'];
+    }
+    const out = [];
+    for (const [port, nb] of entries) {
+      out.push('--------------------------------------------------');
+      out.push('Local Intf: ' + port);
+      out.push('Chassis id: ' + (nb.chassisId || '?'));
+      out.push('Port id: ' + (nb.portId || '?'));
+      out.push('Port Description: ' + (nb.portDesc || '-'));
+      out.push('System Name: ' + (nb.systemName || '-'));
+      out.push('System Description:');
+      out.push('  ' + (nb.systemDesc || '-'));
+      out.push('Management Addresses:');
+      out.push('  ' + (nb.mgmtIp || 'none advertised'));
+      out.push('Time To Live: ' + nb.ttl + ' seconds');
+      const p = dev.interfaces.get(port);
+      out.push('Cage/medium: ' + (nb.cage ? nb.cage + (nb.speedMbps ? ' (' + nb.speedMbps + ' Mbps)' : '') : '-'));
+      out.push('Local port state: ' + (p && p.lineUp === false ? 'down' : 'up') +
+        ' (the announcement is what proves the link is passing frames)');
+    }
+    out.push('--------------------------------------------------');
+    out.push('  ' + entries.length + ' neighbour' + (entries.length === 1 ? '' : 's') + ' learned by LLDPDUs that crossed the link');
+    return out;
+  }
+
+  // `show lldp interface [<port>]` and `show lldp traffic` - the per-port decision and the counters.
+  _showLldpInterface(dev, args, trafficOnly) {
+    // `show lldp interface` takes a port and nothing else. `detail` is the natural next word to try,
+    // and it belongs to the neighbour table - so it gets said, rather than being read as a port name.
+    const first = String(args[0] || '').toLowerCase();
+    if (first === 'detail' || first === 'summary') {
+      return ['% "show lldp ' + (trafficOnly ? 'traffic' : 'interface') + '" takes a port, not "' + args[0] + '"',
+        '% The per-neighbour detail is "show lldp neighbors detail"',
+        '% The per-port decision is "show lldp interface" with no argument'];
+    }
+    const pick = this._portArg(args, dev, trafficOnly ? 'show lldp traffic' : 'show lldp interface');
+    if (!pick.ok) return pick.output;
+    const off = dev.config.lldp && dev.config.lldp.run === false;
+    const ports = Array.from(dev.interfaces.values())
+      .filter(function (i) { return !i.svi && !i.parent && (!pick.port || i.name === pick.port); });
+    if (!ports.length) return ['% No port named ' + pick.port + ' on ' + (dev.name || dev.id)];
+    const out = [];
+    if (trafficOnly) {
+      // Counters, not a neighbour list: `show lldp traffic` answering with the neighbour table was
+      // an answer to a question nobody asked.
+      let tx = 0, rx = 0, disc = 0, err = 0;
+      const rows = [];
+      for (const i of ports) {
+        const t = i.lldpTxFrames || 0, r = i.lldpRxFrames || 0;
+        const d = i.lldpDiscarded || 0, e = i.lldpTxErrors || 0;
+        tx += t; rx += r; disc += d; err += e;
+        rows.push([i.name, t, r, d, e]);
+      }
+      out.push('LLDP traffic on ' + (dev.name || dev.id) + (pick.port ? ' for ' + pick.port : '') + ':');
+      out.push.apply(out, renderTable(['Port', 'Tx frames', 'Rx frames', 'Discarded', 'Errors'], rows, 2));
+      out.push('  Totals: ' + tx + ' sent, ' + rx + ' received' +
+        (disc ? ', ' + disc + ' discarded by "no lldp receive"' : '') +
+        (err ? ', ' + err + ' could not be sent' : ''));
+      if (!tx && !rx) {
+        out.push('  (nothing yet - an announcement is sent when the lab runs, and heard when it arrives)');
+      }
+      return out;
+    }
+    out.push('LLDP interface state on ' + (dev.name || dev.id) + ':');
+    out.push('  Device state: ' + (off ? 'DISABLED (no lldp run) - neither transmits nor receives' : 'ACTIVE'));
+    out.push.apply(out, renderTable(['Port', 'Tx', 'Rx', 'Cabled', 'Neighbour'],
+      ports.map(function (i) {
+        const nb = dev.lldp ? dev.lldp.get(i.name) : null;
+        return [i.name,
+          off || i.lldpTx === false ? 'disabled' : 'enabled',
+          off || i.lldpRx === false ? 'disabled' : 'enabled',
+          i.peer ? 'yes' : 'no',
+          nb ? (nb.systemName || '?') : '-'];
+      }), 2));
+    out.push('  "no lldp transmit" stops this port announcing, "no lldp receive" stops it hearing,');
+    out.push('  and "no lldp run" stops the whole device - the three are independent');
+    return out;
   }
 
   // `show port-security`, `show port-security interface <port>`, `show port-security address`.
@@ -6261,7 +6374,33 @@ class CliSession {
       // The table that answers "what is plugged into this port" - and it is honest,
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
-      const pick = this._portArg(tokens.slice(2), dev, 'show lldp neighbors');
+      // `detail`, `interface` and `traffic` are words of this command, not port names. Reading them
+      // as ports produced `% No interface named detail` for the most-typed of the three, and - worse -
+      // `show lldp traffic` and `show lldp interface` silently printed the neighbour table, which is
+      // an answer to a different question.
+      // `tokens` here is `['lldp', <sub>, ...]`: the word after `show` is tokens[0].
+      const lldpSub = String(tokens[1] || '').toLowerCase();
+      if (tokens[1] === undefined || lldpSub === 'detail') {
+        if (tokens.length > 2) {
+          return ['% show lldp ' + (lldpSub === 'detail' ? 'detail takes' : 'takes') +
+            ' no argument, not "' + tokens.slice(2).join(' ') + '"'];
+        }
+        return out.concat(this._showLldpGlobal(dev));
+      }
+      if (lldpSub === 'neighbors' && String(tokens[2] || '').toLowerCase() === 'detail') {
+        if (tokens.length > 3) {
+          return ['% show lldp neighbors detail takes no argument, not "' + tokens.slice(3).join(' ') + '"'];
+        }
+        return out.concat(this._showLldpDetail(dev));
+      }
+      if (lldpSub === 'interface' || lldpSub === 'traffic') {
+        return out.concat(this._showLldpInterface(dev, tokens.slice(2), lldpSub === 'traffic'));
+      }
+      if (lldpSub === 'neighbors') {
+        // `show lldp neighbors [<port>]` is the table below; the literal word is a keyword.
+        tokens = [tokens[0]].concat(tokens.slice(2));
+      }
+      const pick = this._portArg(tokens.slice(1), dev, 'show lldp neighbors');
       if (!pick.ok) return out.concat(pick.output);
       // A device told to stop speaking has no neighbour table, and saying "none" invites the reader
       // to look for a cabling fault. The state is the answer.
@@ -6345,6 +6484,8 @@ class CliSession {
       // because it never claimed a port. A VLAN id either narrows the answer or is refused by name;
       // a word that is not an id at all is refused as a word, not silently dropped.
       let wantVlan = null;
+      // The synopsis quoted back on a trailing word has to be the form that was used.
+      let vlanUsage = null;
       let typedVlan = null;      // what was typed, so a refusal quotes the operator's spelling
       {
         const rest = tokens.slice(1).map(function (t) { return String(t); });
@@ -6360,6 +6501,33 @@ class CliSession {
           }
           wantVlan = Number(value);
           typedVlan = String(value);
+          i += 2;
+        } else if (String(rest[i] || '').toLowerCase() === 'name') {
+          // `show vlan name <name>` - the VLANs have names, so asking by one is a reasonable question;
+          // the console read `name` as a VLAN id and refused with `% Invalid VLAN id "name"`.
+          const wanted = rest[i + 1];
+          if (wanted === undefined) {
+            return out.concat(['% Incomplete command: show vlan name <name>',
+              '% Try "show vlan" to see the names this device carries']);
+          }
+          // A declared VLAN is a record (`{ name }`), not the name itself: reading it as a string
+          // printed `% Names here: [object Object], [object Object]`.
+          const names = dev.config.vlans || {};
+          const nameOf = function (k) {
+            const v = names[k];
+            return typeof v === 'string' ? v : (v && v.name ? String(v.name) : '');
+          };
+          const hit = Object.keys(names).filter(function (k) {
+            return nameOf(k).toLowerCase() === String(wanted).toLowerCase();
+          });
+          if (!hit.length) {
+            const known = Object.keys(names).map(nameOf).filter(Boolean);
+            return out.concat(['% No VLAN named "' + wanted + '" on ' + (dev.name || dev.id),
+              known.length ? '% Names here: ' + known.join(', ') : '% No VLAN has a name yet: vlan <id> name <name>']);
+          }
+          wantVlan = Number(hit[0]);
+          typedVlan = nameOf(hit[0]);
+          vlanUsage = 'show vlan name <name>';
           i += 2;
         } else if (String(rest[i] || '').toLowerCase() === 'brief') {
           i += 1;
@@ -6379,7 +6547,7 @@ class CliSession {
           i += 1;
         }
         if (String(rest[i] || '').toLowerCase() === 'brief') i += 1;
-        const extra = this._noExtra(rest, i, 'show vlan [<id>|brief]');
+        const extra = this._noExtra(rest, i, vlanUsage || 'show vlan [<id>|brief]');
         if (extra) return out.concat(extra);
       }
       // One walk for the whole console: `_vlanMap()` is what `no vlan` and `show vlan <id>` read too.
@@ -8718,10 +8886,15 @@ class CliSession {
       helpLine('show mac address-table [interface <port>|vlan <id>|dynamic|static|count]',
         'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
+      helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
       helpLine('show spanning-tree [<port>|summary|root]',
         'root bridge, port roles and states; or the counts, or the path to the root'),
       helpLine('show etherchannel', 'LAGs and their members'),
+      helpLine('show lldp', 'LLDP state: whether it runs, which ports announce, neighbours count'),
       helpLine('show lldp neighbors [<port>]', 'what announced itself on each port'),
+      helpLine('show lldp neighbors detail', 'one block per neighbour: chassis, port, TTL, medium'),
+      helpLine('show lldp interface [<port>]', 'per-port transmit/receive decision and the neighbour'),
+      helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
       helpLine('show access-lists', 'entries, and where they are bound'),
       helpLine('show vrrp', 'groups, priorities and current state'),
       helpLine('show ip bgp summary', 'peers and installed prefixes'),

@@ -2539,8 +2539,12 @@ class Simulator {
         if (iface.lldpTx === false) continue;      // `no lldp transmit` on this port
         try {
           this._emitFrame(dev, iface, lldp.buildFrame(dev, iface));
+          // A counter is state, so it lives on the port: `show lldp traffic` reads it rather than
+          // counting the event log, which `clear logging` would empty.
+          iface.lldpTxFrames = (iface.lldpTxFrames || 0) + 1;
         } catch (e) {
           // A port that cannot transmit right now simply does not announce.
+          iface.lldpTxErrors = (iface.lldpTxErrors || 0) + 1;
         }
       }
     }
@@ -3238,7 +3242,15 @@ class Simulator {
       // listen, and the neighbour table must not record what the port refused to hear.
       const listening = !(dev.config && dev.config.lldp && dev.config.lldp.run === false) &&
         (function (port) { return !(port && port.lldpRx === false); })(inIface ? dev.interfaces.get(inIface) : null);
+      if (dev.lldp && inIface && !listening) {
+        // Discarded, not unheard: `no lldp receive` is a decision, and a counter that does not move
+        // would suggest the frames never arrived.
+        const port = dev.interfaces.get(inIface);
+        if (port) port.lldpDiscarded = (port.lldpDiscarded || 0) + 1;
+      }
       if (dev.lldp && inIface && listening) {
+        const port = dev.interfaces.get(inIface);
+        if (port) port.lldpRxFrames = (port.lldpRxFrames || 0) + 1;
         const nb = lldp.neighbourFrom(f, inIface);
         dev.lldp.set(inIface, nb);
         this._emit({
