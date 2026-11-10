@@ -44,7 +44,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
-| `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
+| `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port whose subnet contains the address, whether the owner is directly cabled or reachable through a switch — a port is only withheld when the address is on no subnet here — and prints `(self)` for the device's own address |
 | `show mac address-table [interface <port>]` | MAC table (switches); one port narrows it |
 | `show port-security` | secured ports: address limit, addresses held, violations, violation mode, and any port err-disabled by a violation |
 | `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source, and the three aging settings ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
@@ -1471,6 +1471,55 @@ Two smaller things came with it:
 - **The Age column** can only ever hold `-` here: this model does not age its cache. A dash that means
   "static" in IOS has to be explained rather than left to read as one, so a populated table says so and
   names what empties it. An empty table says nothing, because there is nothing to explain.
+
+### A route names the port it leaves by, and a switch is not a cable
+
+Two views of one decision, and a lab shape the model could not run.
+
+**The route table said `-` for a route that used a port.** `ip route 172.16.0.0 255.255.0.0 10.0.0.2`
+installed and forwarded, and its own next hop was in the ARP cache on that port, but the table and the
+lookup view both answered `Interface -`:
+
+```
+R1#show ip route
+  *  S 172.16.0.0/16   1   10.0.0.2  -          <- the port the frames leave by
+R1#show ip route 172.16.0.0
+  Next hop  10.0.0.2
+  Interface -                                  <- and again
+R1#show arp
+  Internet  10.0.0.2  ...  Gi0/0  DYNAMIC      <- learned on it, one ping ago
+```
+
+The data path had the answer: `egressFor(nextHop)` picks the port whose subnet holds the next hop, and
+that is what both the table and the lookup view read now — along with the default gateway, which had
+the same hole (`show ip route 8.8.8.8` on a host answered `-` under a default route that printed
+`eth0` one line above it). A gateway on no subnet here still earns `-`: there is nothing to name.
+
+**Two routers on one segment formed no adjacency.** The ordinary lab is `R1 -- SW1 -- R2`: one
+broadcast segment, both interfaces in `10.0.0.0/24`, both in area 0, neither passive. Adjacency was
+built only from a direct `topology.links` entry, so a switch between two speakers broke it — and the
+view blamed the checks that had all passed:
+
+```
+R1#show ip ospf neighbor
+(no adjacencies - no neighbour passed the passive, subnet and area checks)
+```
+
+Adjacency now also comes from the segment walk `segmentOf()` — the same walk DHCP uses to find its
+server — so a VLAN boundary, a blocked STP port or a down link stops an adjacency exactly as it stops
+a frame, and two speakers on one segment form one through the switch that sits between them.
+
+The second cause was silent: the engine required a configured `router-id`, so a lab that never typed
+one had no speakers at all, while `show ip ospf` promised *"the model uses the highest interface
+address"*. It now does, and the view prints the id it is running with and says it was derived:
+
+```
+R1#show ip ospf
+Routing Process "ospf 1" with ID 10.0.0.1 (derived: no router-id is configured, so the highest
+interface address is used)
+```
+
+A configured id still wins, and the neighbour sees it.
 
 ### A refusal that names a command is a promise
 
@@ -4811,13 +4860,44 @@ happened.
 
 `show logging` is lab-wide, like `links` and `show flows`: the event stream is the simulator's, so any
 console sees the same timeline. A filter that matches nothing names what *is* there rather than
-returning a blank table:
+returning a blank table, and says plainly that the vocabulary is what has happened rather than a fixed
+list of legal types:
 
 ```
-PC1#show logging nonsense
-% No events of type "nonsense" in this lab
-% Types seen: acl-deny, arp-cache, arp-reply, arp-request, forward, frame, lldp, ping
+R1#show logging notatype
+% No event of type "notatype" has happened here
+% Types with events so far: arp-cache, arp-reply, arp-request, forward, frame, icmp-echo,
+%   icmp-received, icmp-reply, lldp, ping, switch
+% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is
+%   either a type that has not happened yet or a typo - "show logging" lists them all
 ```
+
+That is the third different answer this command gives about an empty result, and the three are worth
+telling apart — a type that exists with no events, a lab where nothing has happened, and a word that is
+not a type at all:
+
+```
+R1#show logging frame                 (fresh lab, before anything ran)
+% The log is empty: nothing has run in this lab, so there is nothing of any type
+% Run something ("ping <addr>", a simulation step) and this fills up
+```
+
+**The type is matched like every other keyword here: an unambiguous prefix is accepted, an ambiguous one
+is refused with the candidates.** `show logging fra` is `show logging frame`, and the header counts what
+was filtered as well as what is there — `Event log (24 frame events, from 67 in the lab)` — while a
+prefix shared by two seen types lists them:
+
+```
+R1#show logging f
+% Ambiguous event type "f": forward, frame
+% Types with events so far: arp-cache, arp-reply, arp-request, forward, frame, icmp-echo,
+%   icmp-received, icmp-reply, lldp, ping, switch
+```
+
+`show logging all` is the whole log — `all` means no filter, since the bare command already does that,
+and it is not a type. Note the prefix rules apply to *seen* types only, so `show logging pat` in a lab
+where NAT has not run reports "has not happened here" even though `pat` is a real type in the
+[vocabulary below](#event-log).
 
 ## Abbreviations
 
