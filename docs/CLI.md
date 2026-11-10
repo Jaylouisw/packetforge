@@ -6589,8 +6589,10 @@ grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 147
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 147, **47** appear as rows in the tables below and **70** distinct `E_` tokens appear anywhere
-in this document. The rest are reachable only through `validateTopology()`, the API, or a surface that
+Of those 147, **47** appear as rows in the tables below and **103** distinct `E_` tokens appear anywhere
+in this document. That second number is the least stable figure on the page, and only partly because the
+engine grows: every code this page *documents* also joins the count, so the code inventory further down
+added fifteen by itself. It read 70 when this sentence was written. The rest are reachable only through `validateTopology()`, the API, or a surface that
 prints prose instead of the code, which is what the next table is about — so a code missing from the
 tables is not necessarily a code that cannot happen, it is a code you cannot see from this console.
 
