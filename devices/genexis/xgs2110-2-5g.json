@@ -24,5 +24,6 @@
       "speed": "2.5G"
     }
   ],
-  "sourceUrl": "https://hack-gpon.org/xgs/ont-genexis-ft-xgs2110-2.5g/"
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-genexis-ft-xgs2110-2.5g/",
+  "notes": "Vendor interface specification: 'WAN interface 1x XGS-PON' and 'LAN interface 1x 2.5GE'. Power supply 12 Vdc ± 5%; consumption 3.2 W idle and 3.2 W on (EU-CoC-BBE). No Wi-Fi, no voice port, no CATV. The 9953 Mbit/s line rate is the ITU-T G.9807.1 convention rather than a vendor figure - the vendor quotes the 2.5 Gbit/s subscriber rate."
 }

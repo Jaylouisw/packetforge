@@ -1,0 +1,47 @@
+[
+  {
+    "vendor": "cig",
+    "model": "XG-99C2",
+    "label": "CIG XG-99C2 XGS-PON ONT",
+    "category": "ont",
+    "description": "XGS-PON SFU ONT with 1× 10GBase-T and 1× 1GBase-T LAN and no Wi-Fi; SC/APC optical, Class N1 budget, OMCI management, 12 V DC external adapter drawing under 10 W.",
+    "capabilities": [
+      "l2-forward",
+      "host"
+    ],
+    "interfaces": [
+      {
+        "name": "pon",
+        "type": "pon",
+        "speed": "10G",
+        "connector": "sc-apc",
+        "speedCaps": [
+          9953
+        ]
+      },
+      {
+        "name": "lan1",
+        "type": "ethernet",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ]
+      },
+      {
+        "name": "lan2",
+        "type": "ethernet",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "notes": "The datasheet's model table lists two SKUs: 'XG-99C1 - XGS-PON SFU ONT, 10 Gbps symmetric, 1x 10GBase-T LAN, SC/APC optical, OMCI, AES-128' and 'XG-99C2 - ... 10GE + 1GE, SC/APC optical, OMCI, AES-128', the second adding the 1GE port 'for legacy device connectivity or service separation'. This is the second SKU as its own entry rather than a note on the existing XG-99C (which models the 10GBase-T-only configuration), because the port count differs and one spec cannot describe both. The 1GE port is 10/100/1000Base-T RJ-45 with MDI/MDIX auto-sensing; the 10GE port is 10GBase-T RJ-45, compatible with 5G/2.5G/1GBase-T by auto-negotiation. Optical: ITU-T G.9807.1 Class N1, 10 Gbit/s symmetric, up to 20 km, +4 to +9 dBm TX, -28 dBm RX. Power: 12 V DC external adapter, under 10 W. No Wi-Fi.",
+    "sourceUrl": "https://amt.com/wp-content/uploads/2026/06/CIG-XG-99C-Datasheet.pdf"
+  }
+]
