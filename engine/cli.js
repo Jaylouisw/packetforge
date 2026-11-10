@@ -415,6 +415,86 @@ class CliSession {
               ' (' + (pick.port ? '1 port' : rows.length + ' port' + (rows.length === 1 ? '' : 's')) +
               ', ' + cleared + ' had traffic)');
           }
+        } else if (head === 'clear' && (tokens[1] === 'arp' ||
+            (tokens[1] === 'ip' && tokens[2] === 'arp') ||
+            (tokens[1] === 'mac' && tokens[2] === 'address-table'))) {
+          // The two tables a lab learns for itself: ARP (address -> MAC) and the MAC table
+          // (MAC -> port). Both fill up as traffic crosses the lab and neither could be emptied,
+          // so an operator who wanted to watch learning happen again had to rebuild the topology.
+          // `clear counters` and `clear logging` already existed; these are the same action on the
+          // state those two tables are.
+          const isArp = tokens[1] !== 'mac';
+          const rest = isArp
+            ? tokens.slice(tokens[1] === 'ip' ? 3 : 2)
+            : tokens.slice(3);
+          const usage = isArp ? 'clear arp [<port>]' : 'clear mac address-table [interface <port>]';
+          const pick = this._portArg(isArp ? rest : (rest[0] === 'interface' ? rest.slice(1) : rest),
+            this.device, usage);
+          if (this.mode !== MODE_ENABLE) {
+            out.push('% clear ' + (isArp ? 'arp' : 'mac address-table') + ' needs enable mode' + NEEDS.enable);
+          } else if (!pick.ok) {
+            out.push.apply(out, pick.output);
+          } else if (!isArp && (this.device.isL2 && !this.device.isL2())) {
+            // A router has no MAC table to clear because it has no bridge. Say which table it does
+            // have, rather than "cleared (0 entries)", which reads like an empty switch.
+            out.push('% ' + (this.device.name || this.device.id) +
+              ' does not bridge, so it has no MAC address table');
+            out.push('% Try "show arp" for the addresses it has learned');
+          } else if (isArp) {
+            const before = this.device.arp.size;
+            let removed = 0;
+            if (pick.port) {
+              // A port filter clears the entries that resolve to that port and nothing else: the
+              // cache holds no port, so the port is derived the same way `show arp` derives it.
+              for (const [ip, mac] of Array.from(this.device.arp.entries())) {
+                const owner = this.sim && this.sim.ownerOfIp ? this.sim.ownerOfIp(ip) : null;
+                let onPort = null;
+                if (owner) {
+                  if (owner.id === this.device.id) onPort = '(self)';
+                  else {
+                    for (const i of this.device.interfaces.values()) {
+                      if (i.peer && i.peer.deviceId === owner.id) onPort = i.name;
+                    }
+                  }
+                }
+                if (onPort !== pick.port) continue;
+                this.device.arp.delete(ip);
+                removed++;
+              }
+            } else {
+              this.device.arp.clear();
+              removed = before;
+            }
+            const where = (this.device.name || this.device.id) + (pick.port ? ' for ' + pick.port : '');
+            out.push(removed
+              ? 'ARP cache cleared on ' + where + ' (' + removed + ' entr' + (removed === 1 ? 'y' : 'ies') + ')'
+              : 'ARP cache on ' + where + ' was already empty - nothing to clear');
+          } else {
+            const tables = [this.device.macTable].concat(
+              Array.from((this.device.macTables || new Map()).values()));
+            let removed = 0;
+            for (const table of tables) {
+              for (const [mac, iface] of Array.from(table.entries())) {
+                if (pick.port && iface !== pick.port) continue;
+                table.delete(mac);
+                removed++;
+              }
+            }
+            const where = (this.device.name || this.device.id) + (pick.port ? ' for ' + pick.port : '');
+            out.push(removed
+              ? 'MAC address table cleared on ' + where + ' (' + removed + ' entr' +
+                (removed === 1 ? 'y' : 'ies') + ')'
+              : 'MAC address table on ' + where + ' was already empty - nothing to clear');
+          }
+        } else if (head === 'clear' && tokens[1] === 'ip' &&
+            (tokens[2] === 'route' || tokens[2] === 'bgp')) {
+          // Not modelled, and "Unrecognized command" is the wrong answer: the command exists in IOS
+          // and an operator will try it. What they need to know is why there is nothing to flush.
+          out.push('% There is no ' + (tokens[2] === 'route' ? 'routing table' : 'BGP session') +
+            ' to clear: this model derives ' +
+            (tokens[2] === 'route' ? 'routes from configuration and protocol state' : 'sessions from configuration') +
+            ', so the next answer would be the same one');
+          out.push('% Ask "show ip ' + tokens[2] + ' at <ms>|converged" for the state at an instant instead');
         } else if (head === 'clear' && tokens[1] === 'logging') {
           // Truncating the log is how you ask "what has happened *since*" without re-reading a
           // screenful. It is a privileged action, as in IOS, and it refuses to guess at a target.
@@ -5460,6 +5540,8 @@ class CliSession {
         'why something happened - drops, forwards, protocol events'),
       helpLine('clear logging', 'truncate the event log'),
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),
+      helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
+      helpLine('clear mac address-table [interface <port>]', 'empty the MAC table (switches); routing tables are not flushable here'),
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
       helpLine('show interfaces counters [<port>]', 'one row per port: packets, bytes, drops'),

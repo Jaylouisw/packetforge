@@ -33,6 +33,8 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `write memory` | save the running configuration as the startup copy (privileged exec) |
 | `copy running-config startup-config` | the same save, spelled the other way |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
+| `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
+| `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
 | `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
@@ -1171,6 +1173,64 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Clearing a learnt table — and the two that cannot be cleared
+
+`clear counters` and `clear logging` zero state, but the two tables a lab fills by itself could not be
+emptied at all, so the only way to watch ARP or MAC learning happen a second time was to rebuild the
+topology:
+
+```
+R1#show arp
+Protocol  Address    Age (min)  Hardware Addr      Interface
+Internet  10.0.0.10  -          02:00:00:00:02:00  -
+R1#clear arp
+ARP cache cleared on R1 (1 entry)
+R1#show arp
+Protocol  Address  Age (min)  Hardware Addr  Interface
+R1#clear arp
+ARP cache on R1 was already empty - nothing to clear
+```
+
+The next packet re-learns the entry — the clear resets *learning*, it does not break the cache:
+
+```
+SW1#show mac address-table
+Vlan  Mac Address        Type     Ports
+1     02:00:00:00:00:00  DYNAMIC  Fa0/1
+1     02:00:00:00:02:00  DYNAMIC  Fa0/2
+SW1#clear mac address-table
+MAC address table cleared on SW1 (2 entries)
+```
+
+**A port-scoped clear is as honest as the table it reads.** `show arp` derives the port from the
+topology and prints `-` for a host behind a switch, because the cache holds only address → MAC. So
+`clear arp Gi0/0` clears the entries it can attribute to that port and says when there were none —
+it does not silently clear the whole cache to look useful:
+
+```
+R1#clear arp Gi0/0
+ARP cache on R1 for Gi0/0 was already empty - nothing to clear
+```
+
+**Only a bridge has a MAC table.** A router answers by naming the table it does have:
+
+```
+R1#clear mac address-table
+% R1 does not bridge, so it has no MAC address table
+% Try "show arp" for the addresses it has learned
+```
+
+**`clear ip route *` and `clear ip bgp *` are refused with a reason, not with "Unrecognized command".**
+There is nothing to flush: this model derives those tables from configuration and protocol state, so
+the next answer would be the same one. An operator who knows IOS reads `% Unrecognized command` as
+"this tool is missing a command" and goes looking:
+
+```
+R1#clear ip route *
+% There is no routing table to clear: this model derives routes from configuration and protocol state, so the next answer would be the same one
+% Ask "show ip route at <ms>|converged" for the state at an instant instead
+```
 
 ### traceroute — which way, and how far
 
