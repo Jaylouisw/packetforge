@@ -1196,6 +1196,41 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### Filters that answered everything, and a table that could not see a row
+
+`show access-lists [<name>]` was on the page and the name was never read:
+
+```
+R1#show access-lists TEST
+Extended IP access list 101      <- not the list that was asked for
+R1#show access-lists NOSUCH
+Extended IP access list 101      <- the same table, for a name that does not exist
+```
+
+That is worse than having no filter: the operator reads the output as *"yes, that list is here"*.
+It filters now, refuses a name that is not there and lists the ones that are:
+
+```
+R1#show access-lists NOSUCH
+% No access list NOSUCH on R1
+% The lists here are: 101, VOICE
+```
+
+The same probe found the ARP table's port filter blind to a hand-written entry. `show arp Gi0/0`
+answered *"(none)"* while `arp 10.10.0.5 00:11:22:33:44:55` sat in Gi0/0's subnet:
+
+```
+R1#show arp Gi0/0
+ARP entries on Gi0/0 at R1:
+Protocol  Address    Age (min)  Hardware Addr      Interface
+Internet  10.10.0.5  -          00:11:22:33:44:55  Gi0/0  STATIC
+  1 static entry is hand-written: they never age out, a reply cannot overwrite them
+```
+
+A pinned entry has no owner in the topology, so its port came from nowhere; it now comes from the
+subnet it sits in. An address outside every local subnet keeps `-` — guessing a port for it would
+invent a fact.
+
 ### Two processes, one prompt, and a page that belonged to one of them
 
 `router ospf 1` and `router bgp 65001` both say `(config-router)#` — deliberately, because on a real

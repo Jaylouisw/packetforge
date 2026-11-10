@@ -7067,7 +7067,33 @@ class CliSession {
     } else if (what === 'access-lists' || what === 'access-list') {
       const aclLib = require('./acl');
       const acls = dev.config.acls || {};
-      const ids = Object.keys(acls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+      // `show access-lists <name>` was in the help and ignored: every name, including one that did
+      // not exist, printed the whole table. A filter that answers everything looks like a filter and
+      // is worse than no filter, because the operator reads the output as "yes, that list is here".
+      const wanted = tokens[1] === undefined ? null : String(tokens[1]);
+      if (wanted !== null) {
+        const hit = acls[wanted] || acls[String(wanted).toLowerCase()];
+        if (!hit) {
+          const have = Object.keys(acls);
+          return ['% No access list ' + wanted + ' on ' + (dev.name || dev.id),
+            have.length ? '% The lists here are: ' + have.join(', ')
+              : '% There are no access lists at all - "access-list <number> permit …" creates one'];
+        }
+      }
+      // Numeric lists first, by number; named lists after, alphabetically, rather than all of them
+      // through parseInt (which made every name a NaN and the order arbitrary).
+      const ids = Object.keys(acls).filter(function (id) {
+        return wanted === null || String(id).toLowerCase() === wanted.toLowerCase();
+      }).sort(function (a, b) {
+        const na = parseInt(a, 10);
+        const nb = parseInt(b, 10);
+        const aNum = !isNaN(na) && String(na) === String(a);
+        const bNum = !isNaN(nb) && String(nb) === String(b);
+        if (aNum && bNum) return na - nb;
+        if (aNum) return -1;
+        if (bNum) return 1;
+        return String(a).localeCompare(String(b));
+      });
       if (!ids.length) out.push('% No access lists configured');
       const binds = dev.aclBindings || {};
       for (const id of ids) {
@@ -7390,7 +7416,18 @@ class CliSession {
       const simRef = this.sim;
       const ifaceFor = function (ip) {
         const owner = (simRef && simRef.ownerOfIp) ? simRef.ownerOfIp(ip) : null;
-        if (!owner) return '-';
+        if (!owner) {
+          // A hand-written (`arp <ip> <mac>`) entry has no owner in the topology, so its port was
+          // `-` and `show arp Gi0/0` answered "(none)" while the address sat in that port's subnet -
+          // a view that cannot see a row the operator typed one command earlier. The port a pinned
+          // address belongs to is the one whose subnet contains it.
+          for (const i of dev.interfaces.values()) {
+            if (!i.ip || i.parent || i.svi) continue;
+            if (!i.mask) continue;
+            if (net.ipInSubnet(ip, i.ip, i.mask)) return i.name;
+          }
+          return '-';
+        }
         if (owner.id === dev.id) return '(self)';
         for (const i of dev.interfaces.values()) {
           if (i.peer && i.peer.deviceId === owner.id) return i.name;
