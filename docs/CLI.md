@@ -2279,17 +2279,76 @@ there whether the member's cable is up or not: pull one of two members and the t
 exactly the same. `links` is where a dead member shows up, as `down` on its own row; `show
 etherchannel` answers "what is bundled", never "what is passing".
 
-**One sharp edge, stated rather than hidden:** the CLI accepts `active`, `passive`, `on` and
-`static`, but the LAG validator's vocabulary is `lacp-active`, `lacp-passive`, `static`. So
-`mode active` is accepted *and* warns `unknown mode "active" (expected one of lacp-active,
-lacp-passive, static)`; the validator then raises `E_LAG_BAD_MODE`. And the two keywords that would
-satisfy the validator are rejected by the parser — `channel-group 1 mode lacp-active` answers
-`% Invalid mode: lacp-active (use active|passive|on)`.
+### One vocabulary, translated once
 
-The practical upshot: **`static` is the only mode that parses and validates, so an LACP bundle
-cannot be built from the CLI today.** That is a bug in the seam between `engine/cli.js` and
-`engine/lag.js`, not a feature; a static LAG is fully usable in the meantime. See
-[docs/ARCHITECTURE.md](ARCHITECTURE.md) and `engine/lag.js`.
+The console says `active|passive|on`; the LAG validator in `engine/lag.js` says
+`lacp-active|lacp-passive|static`. Those used to be two vocabularies with nothing between them, and
+the seam showed on **every single use** of the command:
+
+```
+SW1(config-if)#channel-group 1 mode active
+Interface Fa0/1 added to channel group 1 (mode active)
+% Warning: LAG lag1: unknown mode "active" (expected one of lacp-active, lacp-passive, static).
+```
+
+The word went into the configuration verbatim, and the validator then rejected the bundle with
+`E_LAG_BAD_MODE` — while `mode lacp-active`, the spelling that *would* validate, was refused by the
+parser. So the console could not build a valid LACP bundle at all, and said so in a warning about its
+own vocabulary on the way. One table now translates, and both the command and the table read it:
+
+```
+SW1(config-if)#channel-group 1 mode active
+Interface Fa0/1 added to channel group 1 (LACP active)
+SW1(config-if)#channel-group 2 mode on
+Interface Fa0/6 added to channel group 2 (static)
+SW1#show etherchannel
+Group  Protocol     Ports
+1      LACP active  Fa0/3(P) Fa0/4(P) Fa0/5(P)
+2      static       Fa0/6(P)
+```
+
+`active` → `lacp-active`, `passive` → `lacp-passive`, `on` → `static`, and the library spellings are
+accepted too, so a configuration written by the API and one written at the console mean the same
+thing. The `Protocol` column prints `LACP active`, `LACP passive` or `static` — never the stored
+identifier, and never a word the bundle was not configured with.
+
+A bundle is **one logical link**, and the spanning tree proves it: with a bundle over `Fa0/7` and
+`Fa0/8`, `show spanning-tree` lists a single port named `lag-1`; without one, the same lab lists
+`Fa0/7` and `Fa0/8` separately. Both members carry frames (check `show interfaces counters`).
+
+```
+SW1(config-if)#channel-group abc
+% Channel group id must be a number, not "abc"
+% Usage: channel-group <id> mode active|passive|on
+SW1(config-if)#channel-group 2 mode
+% Incomplete command: channel-group 2 mode active|passive|on
+SW1(config-if)#no channel-group 9
+% Fa0/6 is not in channel group 9
+% "show etherchannel" lists the groups and their member ports
+```
+
+`no channel-group <id>` removes the port from **that** group and says what is left
+(`Removed Fa0/1 from channel group 1 (1 port left)`, or `- the group is gone` when it was the last
+member); a bare `no channel-group` removes the port from whatever group holds it and names it, or
+says `Fa0/1 is not in any channel group - nothing to remove`. It used to answer "Removed … from any
+channel group" even for a group the port had never joined.
+
+### `description` writes what it says
+
+```
+SW1(config-if)#description
+% Incomplete command: description <text>
+% To clear a description: "no description"
+SW1(config-if)#description uplink to core
+Description set on Fa0/6: "uplink to core"
+SW1(config-if)#no description
+Description cleared on Fa0/6 (was "uplink to core")
+```
+
+`description` with nothing after it used to answer **`Description set`** — a confirmation that wrote
+an empty string, i.e. cleared the description it claimed to have set — and `no description` printed
+nothing at all, so a clear and a typo looked the same. The echo also names the port, because "set"
+alone did not say which one on a device full of blocks.
 
 ## Access control lists
 
@@ -3280,7 +3339,7 @@ not necessarily a code that cannot happen: it is a code you cannot see from this
 |---|---|
 | `flow open` / `openFlow()` | `% flow refused (E_NO_ROUTE): …` — always a code |
 | DHCP pool (`exit` from `ip dhcp pool`) | `% E_DHCP_GATEWAY_OUTSIDE: DHCP pool p1: gateway 10.9.9.9 is outside 10.1.1.0/24.` — the code, the pool, then the reason |
-| VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)`, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: lacp-active (use active\|passive\|on)` |
+| VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)`, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)` |
 | `access-list` | `% [object Object]` — the error object is stringified, so the reason is lost entirely (see [Access control lists](#access-control-lists)) |
 | NAT | *no CLI surface at all*: rules live in the topology JSON, and the codes arrive through `validateTopology()` and the API |
 | `validateTopology()` / the validator | `{ code, message }` objects with a severity, which is where the tables below are transcribed from |
@@ -3346,7 +3405,7 @@ IPv6, DNS, SCION, BGP — is reachable with `grep -rn "E_" engine/*.js`.
 | `E_LAG_DUPLICATE_MEMBER` | the same port is listed twice |
 | `E_LAG_SPEED_MISMATCH` / `E_LAG_DUPLEX_MISMATCH` | members disagree on rate or duplex |
 | `E_LAG_VLAN_MISMATCH` | members are not in the same VLAN set |
-| `E_LAG_BAD_MODE` | unknown mode — and note `mode active` is *accepted with a warning* while `lacp-active`, the spelling the validator wants, is rejected; see [Link aggregation](#link-aggregation) |
+| `E_LAG_BAD_MODE` | unknown mode. The console now translates its own vocabulary (`active`, `passive`, `on`) into the validator's (`lacp-active`, `lacp-passive`, `static`) before storing it, so this code is only reachable from a hand-written configuration; see [Link aggregation](#link-aggregation) |
 
 ### NAT rules (`engine/nat.js`)
 

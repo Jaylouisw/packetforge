@@ -253,6 +253,26 @@ const LOAD_ROUTE_FILTERS = {
 // acronym and the console uses the proper spelling everywhere else.
 const LOAD_ROUTE_LABELS = { connected: 'connected', static: 'static', ospf: 'OSPF', bgp: 'BGP' };
 
+// The console says `active|passive|on`; `lag.js` says `lacp-active|lacp-passive|static`. One table,
+// read by both the command that stores the mode and the table that prints it, so a bundle cannot be
+// shown in a vocabulary it was not configured with.
+const LAG_CLI_MODES = {
+  active: 'lacp-active',
+  passive: 'lacp-passive',
+  on: 'static',
+  static: 'static',
+  'lacp-active': 'lacp-active',
+  'lacp-passive': 'lacp-passive'
+};
+function lagModeWord(libMode) {
+  const text = String(libMode === undefined || libMode === null ? '' : libMode).trim().toLowerCase();
+  const lib = LAG_CLI_MODES[text] || text;
+  if (lib === 'lacp-active') return 'LACP active';
+  if (lib === 'lacp-passive') return 'LACP passive';
+  if (lib === 'static') return 'static';
+  return text || '?';
+}
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -867,12 +887,24 @@ class CliSession {
     } else if (head === 'channel-group') {
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
-      out.push.apply(out, this._channelGroup(['remove'], iface));
+      out.push.apply(out, this._channelGroup(['no'].concat(tokens.slice(2)), iface));
     } else if (head === 'description') {
-      iface.description = tokens.slice(1).join(' ');
-      out.push('Description set');
+      // `description` with nothing after it answered "Description set" - a confirmation that set an
+      // empty description, i.e. cleared one while reporting that it had been written.
+      const text = tokens.slice(1).join(' ').trim();
+      if (!text) {
+        return out.concat(['% Incomplete command: description <text>',
+          '% To clear a description: "no description"']);
+      }
+      iface.description = text;
+      out.push('Description set on ' + iface.name + ': "' + text + '"');
     } else if (head === 'no' && tokens[1] === 'description') {
+      // Silence here was the other half of the same problem: a clear and a typo looked identical.
+      const had = String(iface.description || '').trim();
       iface.description = '';
+      out.push(had
+        ? 'Description cleared on ' + iface.name + ' (was "' + had + '")'
+        : 'No description on ' + iface.name + ' - nothing to clear');
     } else if (head === 'exit') {
       this.mode = MODE_CONFIG;
     } else if (head === 'end') {
@@ -1673,32 +1705,91 @@ class CliSession {
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (!dev.config.lags) dev.config.lags = {};
 
-    if (t[0] === 'remove') {
-      for (const id of Object.keys(dev.config.lags)) {
-        const l = dev.config.lags[id];
-        l.members = (l.members || []).filter(function (m) { return m !== iface.name; });
-        if (!l.members.length) delete dev.config.lags[id];
+    // The console's words and the library's words are not the same words. `channel-group 1 mode
+    // active` was stored verbatim as `mode: 'active'`, while `lag.js` knows only `lacp-active`,
+    // `lacp-passive` and `static` - so every single use of the command answered
+    //
+    //   % Warning: LAG lag1: unknown mode "active" (expected one of lacp-active, lacp-passive, static)
+    //
+    // a warning about the console's own vocabulary, and `mode on` - which means *static*, no LACP - was
+    // rejected the same way, so the one mode that is not LACP could not be configured at all.
+    const MODES = LAG_CLI_MODES;
+    const modeWord = lagModeWord;
+
+    if (t[0] === 'no') {
+      const rest = t.slice(1);
+      if (!rest.length) {
+        const was = [];
+        for (const id of Object.keys(dev.config.lags)) {
+          const l = dev.config.lags[id];
+          if ((l.members || []).indexOf(iface.name) === -1) continue;
+          l.members = l.members.filter(function (m) { return m !== iface.name; });
+          was.push(id);
+          if (!l.members.length) delete dev.config.lags[id];
+        }
+        return [was.length
+          ? 'Removed ' + iface.name + ' from channel group ' + was.join(', ')
+          : iface.name + ' is not in any channel group - nothing to remove'];
       }
-      return ['Removed ' + iface.name + ' from any channel group'];
+      const idText = rest[0];
+      const extra = this._noExtra(rest, 1, 'no channel-group [<id>]');
+      if (extra) return extra;
+      if (!/^\d+$/.test(idText)) {
+        return ['% Channel group id must be a number, not "' + idText + '"',
+          '% Usage: no channel-group [<id>]'];
+      }
+      const lag = dev.config.lags[idText];
+      if (!lag || (lag.members || []).indexOf(iface.name) === -1) {
+        return ['% ' + iface.name + ' is not in channel group ' + idText,
+          '% "show etherchannel" lists the groups and their member ports'];
+      }
+      lag.members = lag.members.filter(function (m) { return m !== iface.name; });
+      const left = lag.members.length;
+      if (!left) delete dev.config.lags[idText];
+      return ['Removed ' + iface.name + ' from channel group ' + idText +
+        (left ? ' (' + left + ' port' + (left === 1 ? '' : 's') + ' left)' : ' - the group is gone')];
     }
 
-    const id = t[0];
-    if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
+    const idText = t[0];
+    if (!idText) return ['% Usage: channel-group <id> mode active|passive|on'];
+    if (!/^\d+$/.test(idText)) {
+      return ['% Channel group id must be a number, not "' + idText + '"',
+        '% Usage: channel-group <id> mode active|passive|on'];
+    }
+    const groupNum = parseInt(idText, 10);
+    if (!(groupNum >= 1 && groupNum <= 4096)) {
+      return ['% Channel group ' + idText + ' is outside 1-4096'];
+    }
     let mode = 'active';
     const mi = t.indexOf('mode');
-    if (mi !== -1 && t[mi + 1]) mode = t[mi + 1];
-    if (['active', 'passive', 'on', 'static'].indexOf(mode) === -1) {
-      return ['% Invalid mode: ' + mode + ' (use active|passive|on)'];
+    if (mi !== -1) {
+      if (!t[mi + 1]) return ['% Incomplete command: channel-group ' + idText + ' mode active|passive|on'];
+      mode = t[mi + 1];
+      // Anything after the mode is a word the command has no slot for.
+      const after = t.slice(mi + 2).filter(function (x) { return String(x).length; });
+      if (after.length) {
+        return ['% Unexpected argument "' + after.join(' ') + '" - channel-group <id> mode ' +
+          'active|passive|on takes no more'];
+      }
+    } else if (t.length > 1) {
+      return ['% Unexpected argument "' + t.slice(1).join(' ') + '" - channel-group <id> ' +
+        'mode active|passive|on takes no more'];
     }
-    const g = dev.config.lags[id] || { mode: mode, hashPolicy: 'l2', members: [] };
-    g.mode = mode;
+    const libMode = MODES[mode];
+    if (!libMode) return ['% Invalid mode: ' + mode + ' (use active|passive|on)'];
+    const g = dev.config.lags[idText] || { mode: libMode, hashPolicy: 'l2', members: [] };
+    g.mode = libMode;
     if (g.members.indexOf(iface.name) === -1) g.members.push(iface.name);
-    dev.config.lags[id] = g;
+    dev.config.lags[idText] = g;
 
-    const out = ['Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + mode + ')'];
+    const out = ['Interface ' + iface.name + ' added to channel group ' + idText +
+      ' (' + modeWord(libMode) + ')'];
     const chk = lagLib.validateLag ? lagLib.validateLag(g) : null;
-    if (chk && chk.ok === false && chk.errors && chk.errors.length) {
-      out.push('% Warning: ' + chk.errors[0].message);
+    if (chk && chk.errors && chk.errors.length) {
+      // "needs at least 2 member ports" is true of every bundle the moment its first port is added,
+      // so saying it now would train the reader to ignore this line. Everything else is worth saying.
+      const real = chk.errors.filter(function (e) { return e.code !== 'E_LAG_TOO_FEW'; });
+      if (real.length) out.push('% Warning: ' + real[0].message);
     }
     return out;
   }
@@ -3307,7 +3398,10 @@ class CliSession {
             const blocked = dev.stp && dev.stp.blocked && dev.stp.blocked.has(m);
             return m + '(' + (blocked ? 'D' : 'P') + ')';
           });
-          return [id, l.mode || 'static', members.join(' ')];
+          // The Protocol column used to print the raw stored word, which after the mapping bug was
+          // `active` - ambiguous between an LACP bundle and a static one, and for a bundle the library
+          // had rejected, simply wrong.
+          return [id, lagModeWord(l.mode || 'static'), members.join(' ')];
         });
         out.push.apply(out, renderTable(['Group', 'Protocol', 'Ports'], lagRows));
       }

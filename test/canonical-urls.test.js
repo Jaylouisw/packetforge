@@ -51,12 +51,28 @@ console.log('\nThe repository is clean right now');
   ok(res.scanned > 100, 'and the scan actually looked at files (' + res.scanned + ')');
 }
 
+// Every probe below plants drift in a throwaway directory and points `check()` at it. The earlier
+// version wrote into `docs/__drift_probe.md` and into `README.md` itself, restoring each in a
+// `finally` - which is fine unless something else reads the tree while the test runs, and something
+// did: `git add -A` during a suite captured the mutated README into a commit, leaving the project's
+// clone instructions pointing at `https://example.invalid/repo`.
+const os = require('os');
+function sandbox(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-canonical-'));
+  for (const name of Object.keys(files)) {
+    const full = path.join(dir, name);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, files[name]);
+  }
+  return dir;
+}
+
 console.log('\nIt catches a stale repository URL');
 {
-  const probe = path.join(ROOT, 'docs', '__drift_probe.md');
+  const probe = sandbox({ 'docs/__drift_probe.md':
+    'Clone from https://github.com/Jaylouisw/packetforge.git and be happy.\n' });
   try {
-    fs.writeFileSync(probe, 'Clone from https://github.com/Jaylouisw/packetforge.git and be happy.\n');
-    const res = check();
+    const res = check(probe);
     ok(!res.ok, 'the check fails on a planted GitHub URL');
     const hit = res.problems.filter(function (p) {
       return p.file === 'docs/__drift_probe.md' && p.code === 'E_STALE_REPO_URL';
@@ -64,43 +80,45 @@ console.log('\nIt catches a stale repository URL');
     ok(hit.length === 1, 'and names the file and the code');
     ok(hit.length === 1 && hit[0].line === 1, 'with the line number');
   } finally {
-    try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
+    fs.rmSync(probe, { recursive: true, force: true });
   }
-  ok(check().ok, 'and the tree is clean again once the probe is removed');
+  ok(!fs.existsSync(path.join(ROOT, 'docs', '__drift_probe.md')),
+    'and the project tree never held the probe: it was planted in a temporary directory');
 }
 
 console.log('\nIt catches GitHub-only tooling instructions');
 {
-  const probe = path.join(ROOT, 'docs', '__tooling_probe.md');
+  const dir = sandbox({ 'docs/__tooling_probe.md': 'If this fails: gh auth status\n' });
   try {
-    fs.writeFileSync(probe, 'If this fails: gh auth status\n');
-    const res = check();
+    const res = check(dir);
     ok(!res.ok, 'the check fails on a `gh` instruction');
     const hit = res.problems.filter(function (p) {
       return p.file === 'docs/__tooling_probe.md' && p.code === 'E_GITHUB_ONLY_TOOLING';
     });
     ok(hit.length === 1, 'naming the GitHub-only tooling');
   } finally {
-    try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 
 console.log('\nIt catches a README that lost the canonical clone URL');
 {
-  const readme = path.join(ROOT, 'README.md');
-  const original = fs.readFileSync(readme, 'utf8');
+  // The most-followed line in the project: remove it and the guard must notice, even though nothing
+  // else about the file is wrong. Planted in a copy, because the real README is a tracked file and a
+  // guard that mutates one can be committed mid-run - which is how `https://example.invalid/repo`
+  // reached the project once.
+  const original = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  const dir = sandbox({ 'README.md': original.split(canonical.clone()).join('https://example.invalid/repo') });
   try {
-    // The most-followed line in the project: remove it and the guard must notice, even though
-    // nothing else about the file is wrong.
-    fs.writeFileSync(readme, original.split(canonical.clone()).join('https://example.invalid/repo'));
-    const res = check();
+    const res = check(dir);
     ok(!res.ok, 'the check fails when README cannot be cloned from');
     ok(res.problems.some(function (p) { return p.code === 'E_NO_CANONICAL_CLONE'; }),
       'with E_NO_CANONICAL_CLONE');
   } finally {
-    fs.writeFileSync(readme, original);
+    fs.rmSync(dir, { recursive: true, force: true });
   }
-  ok(check().ok, 'and the README is restored');
+  ok(fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8') === original,
+    'and the real README was never written to');
 }
 
 console.log('\nEvery exception says why');

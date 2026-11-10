@@ -36,12 +36,18 @@ function walk(dir, out) {
   return out;
 }
 
-function check() {
-  const files = walk(ROOT, []).sort();
+// `root` exists so the guard's own test can plant drift in a throwaway directory. It used to plant
+// it in README.md and restore it in a `finally` - correct while the test is the only writer, but a
+// `git add -A` taken while the suite was running captured the mutated README into a commit (a clone
+// URL of `https://example.invalid/repo`), which is a worse defect than the one the guard protects.
+// A test that cannot touch a tracked file cannot be captured mid-flight.
+function check(root) {
+  const base = root || ROOT;
+  const files = walk(base, []).sort();
   const problems = [];
 
   for (const file of files) {
-    const rel = path.relative(ROOT, file).split(path.sep).join('/');
+    const rel = path.relative(base, file).split(path.sep).join('/');
     if (canonical.EXEMPT_FILES.has(rel)) continue;
     // Reasoned exceptions: each entry in canonical.ALLOW says why that file must name the old
     // location. A file cannot be quietly added here without a reason a reader can judge.
@@ -87,7 +93,7 @@ function check() {
 
   // 3. The clone instructions and badges, which are the two most-followed URLs in the project,
   //    must match the canonical base exactly rather than merely not being GitHub.
-  const readme = path.join(ROOT, 'README.md');
+  const readme = path.join(base, 'README.md');
   if (fs.existsSync(readme)) {
     const text = fs.readFileSync(readme, 'utf8');
     if (text.indexOf(canonical.clone()) === -1) {

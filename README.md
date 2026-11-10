@@ -36,7 +36,7 @@ and they all run the same simulation engine and the same command set.
 ### From source
 
 ```bash
-git clone https://example.invalid/repo
+git clone https://git.jayw.uk/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js
 ```
@@ -164,7 +164,7 @@ rather than `SW1`.
 | Protocols | ARP, IPv4, ICMP echo/reply, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static, dynamic pool and PAT — all three translated in the data path, configured in the topology JSON; there is **no `nat` config command**, but [`show ip nat translations` / `statistics`](docs/CLI.md#nat--configured-in-the-topology-not-the-cli) read back what the data path wrote), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
 | Transport flows | A conversation, not a probe: the three-way handshake as three real frames, an MSS derived from the path MTU, cumulative ACKs, four-way close, per-flow state (`engine/flow.js`). Every segment is a frame an ACL can deny, NAT can rewrite or an under-budget PSE can refuse |
 | Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
-| L2 features | 802.1Q VLANs (access/trunk/native), LAG aggregation (static via the CLI, `lacp-active`/`lacp-passive` via topology config — see the note in [CLI.md](docs/CLI.md#link-aggregation)), 802.1D spanning tree |
+| L2 features | 802.1Q VLANs (access/trunk/native), LAG aggregation (`active`/`passive`/`on`/`static` from the CLI, translated to the validator's vocabulary — see [CLI.md](docs/CLI.md#link-aggregation)), 802.1D spanning tree |
 | CLI | Cisco-like vendor-agnostic console: `show` (incl. `ip ospf` / `ip ospf neighbor`, `dns`, `scion`, `ip bgp`, `vrrp`, `lldp neighbors`, `access-lists`, `spanning-tree`, `ipv6 nd`), `interface`, `ip address`, `ip dhcp pool`, `ip route`, `ipv6 route` / `ipv6 address`, `access-list`, `vlan`, `switchport`, `channel-group`, `vrrp`, `ospf`, `router bgp`, `dns zone`, `scion`, `ping [count] [at <ms>]`, `traceroute`, `nslookup`, `converge`, `link up\|down\|state`, `help`/`?` per mode ([full reference](docs/CLI.md)) |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
 | Convergence | Control planes take time: STP Listening/Learning, OSPF hello + SPF hold, DHCP exchange, VRRP master-down. Ask any question at an instant with `setRunTime(ms)` / `ping ... at 5000`; an unfinished process reports `converging`, not "timed out" ([docs](docs/CONVERGENCE.md)) |
