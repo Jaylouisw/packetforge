@@ -1380,6 +1380,42 @@ class CliSession {
   // `show running-config` dump can be pasted without exiting every block first.
   _enterInterface(tokens) {
     if (!tokens[0]) return { lines: ['% Incomplete command'], name: null };
+    // `interface range Fa0/1-4` and `interface Fa0/1-4` name several ports at once, and this model
+    // keeps one block per port. Answering "% Unrecognized command" hid both halves: that the form
+    // exists on a real device, and what the model keeps instead.
+    {
+      const first = String(tokens[0]).toLowerCase();
+      const text = first === 'range' ? tokens.slice(1).join(',') : tokens.join(',');
+      const listy = first === 'range' || /^[A-Za-z][A-Za-z-]*\d[\d/]*\s*[-,]/.test(tokens.join(' '));
+      if (listy) {
+        // The ports are read from the device, not expanded from the text: a name that is not on this
+        // device is not offered as an example to type.
+        const wanted = [];
+        const re = /([A-Za-z][A-Za-z-]*)(\d+(?:\/\d+)*)(?:\s*-\s*(\d+))?/g;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+          const parts = m[2].split('/');
+          const last = parseInt(parts[parts.length - 1], 10);
+          const stop = m[3] === undefined ? last : parseInt(m[3], 10);
+          for (let i = last; i <= stop && wanted.length < 64; i++) {
+            const path = parts.slice(0, -1).concat([String(i)]).join('/');
+            const resolved = resolvePortName(this.device, m[1] + path);
+            if (resolved && wanted.indexOf(resolved) === -1) wanted.push(resolved);
+          }
+        }
+        const sample = wanted.slice(0, 4).map(function (x) { return '"interface ' + x + '"'; }).join(', ');
+        return {
+          lines: ['% There is no "interface range" here - this console has one block per port',
+            wanted.length
+              ? '% The ports that form names are: ' + wanted.join(', ')
+              : '% Name a port on this device: "show ip interface brief" lists them',
+            sample
+              ? '% Enter them one after another - ' + sample + (wanted.length > 4 ? ', ...' : '')
+              : '% Enter them one after another, and "exit" between them'],
+          name: null
+        };
+      }
+    }
     // `interface vlan <id>` - the switch's own address, on a VLAN rather than on a socket. This is the
     // object ownsIpOn() had a rule for and nothing could create, so a switch could not hold a
     // management address at all.
@@ -10392,9 +10428,14 @@ class CliSession {
       if (!res) return null;
       return res.tokens ? { tokens: ['do'].concat(res.tokens) } : res;
     }
-    if (tokens[0] === 'show' || (tokens[0] && tokens[0].toLowerCase().indexOf('sh') === 0)) {
-      // `show <what>` defers to the exec tree for everything after `show`.
-      forms = this._helpForms(MODE_ENABLE);
+    // `show <what>` defers to the exec tree for everything after `show`. The test is what `sh` can
+    // stand for - a prefix of `show` - not "starts with sh", which also caught `shutdown` and
+    // `switchport` and read them against the exec page, where neither exists.
+    {
+      const w0 = String(tokens[0] || '').toLowerCase();
+      if (w0 === 'show' || (w0.length >= 2 && w0.length < 4 && 'show'.indexOf(w0) === 0)) {
+        forms = this._helpForms(MODE_ENABLE);
+      }
     }
     // A word that is already a complete command of the enclosing configuration is never abbreviated
     // into something else. `router ospf 1` typed inside `router ospf` mode was expanded to
@@ -10403,9 +10444,34 @@ class CliSession {
     if (!exec && this.mode !== MODE_CONFIG && tokens.length > 1) {
       // Only when the *whole line* reads as a configuration command: `ip add …` in interface mode
       // must still become `ip address …`, and that is the same first word.
-      if (abbrev.readsAs(tokens, this._helpForms(MODE_CONFIG))) return null;
+      if (abbrev.readsAs(tokens, this._helpForms(MODE_CONFIG))) {
+        // Leave the wording alone but not the spelling: `NO IP NAT INSIDE` typed in a block reached
+        // the block's own handler as `IP`/`NAT`/`INSIDE` and was refused as unrecognized.
+        // This block's own page first: it is the page the handler below reads, and a config form with
+        // a placeholder in the same position would otherwise "match" and leave the block's keyword
+        // un-respelled (`switchport PORT-SECURITY`).
+        const respelt = abbrev.canonical(tokens, forms) ||
+          abbrev.canonical(tokens, this._helpForms(MODE_CONFIG));
+        return respelt ? { tokens: respelt } : null;
+      }
     }
-    return abbrev.expand(tokens, forms);
+    // Before expanding: a line already spelled as one of the forms is respelled to match it exactly.
+    // `expand` respells only the words it had to *expand*, so `SWITCHPORT PORT-SECURITY` came back as
+    // ['switchport','PORT-SECURITY'] and the block's own handler - which compares with `===` - refused
+    // it as an unrecognized switchport command.
+    // Expand first - that is the abbreviation (`sh ip int br`), and it must keep working - then
+    // respell what expansion left behind. `expand` rewrites only the words it had to expand, so
+    // `SHOW LOGGING SUMMARY` came back as ['show','logging','SUMMARY'] and the handler read
+    // `SUMMARY` as an event type.
+    const res = abbrev.expand(tokens, forms);
+    const arrived = res && res.tokens ? res.tokens : tokens;
+    // The unfiltered page is consulted too: a verb the handler answers but this device's page filters
+    // out (a switch has no NAT, yet `no ip nat inside` is answered with the reason) still has a
+    // documented spelling, and `NO IP NAT INSIDE` must reach that handler as the words it knows.
+    const respelt = abbrev.canonical(arrived, forms) ||
+      abbrev.canonical(arrived, this._helpFormRowsAll(this.mode).map(function (r) { return r.tokens || r; }));
+    if (respelt) return { tokens: respelt };
+    return res;
   }
 
   // Parsed help forms per mode, cached: the help text is the command surface, so a command is

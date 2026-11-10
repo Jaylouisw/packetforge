@@ -320,7 +320,12 @@ function expand(typed, forms) {
     if (keywords.length) cands = keywords;
     // An exact match beats a longer keyword that merely starts with it, so the alias `int` stays
     // `int` instead of being read as a prefix of `interface`.
-    const exact = cands.filter(function (f) { return f[i] === want; });
+    // Case-insensitively: IOS keywords are case-insensitive, and `SHOW IP ROUTE` typed in capitals was
+    // refused as ambiguous because `IP` matched both `ip` and `ipv6` and the exact-match rule - which
+    // settles it - was comparing the spellings with `===`.
+    const exact = cands.filter(function (f) {
+      return String(f[i]).toLowerCase() === want.toLowerCase();
+    });
     if (exact.length) cands = exact;
     const values = [];
     for (const f of cands) {
@@ -375,4 +380,34 @@ function readsAs(typed, forms) {
   });
 }
 
-module.exports = { parseForms, parseFormsWithDesc, expand, expandSynopsis, readsAs };
+// The same line, spelled the way the forms spell it.
+//
+// Keywords are case-insensitive, so `NO IP NAT INSIDE` is the command `no ip nat inside` - but the
+// dispatch below the abbreviation pass compares tokens with `===`, and `IP` is not `ip`. Expansion
+// already respells what it expands; this covers the lines expansion deliberately leaves alone (a line
+// that is already a complete command, and a line whose first word matches nothing to expand).
+function canonical(typed, forms) {
+  if (!typed || !typed.length || !forms || !forms.length) return null;
+  // Two passes. A form spelled only in keywords wins: `show logging summary` and
+  // `show logging <type>` are both three words, and the wildcard row - listed first - would "match"
+  // and respell only the two words it shares, leaving SUMMARY as an argument and the command
+  // refused as a stray word.
+  for (const literalOnly of [true, false]) {
+    for (const f of forms) {
+      if (!f || f.length !== typed.length) continue;
+      if (literalOnly && f.some(function (t) { return t && typeof t === 'object'; })) continue;
+      const out = [];
+      let ok = true;
+      for (let i = 0; i < typed.length; i++) {
+        const tok = f[i];
+        if (tok && typeof tok === 'object') { out.push(typed[i]); continue; }
+        if (String(tok).toLowerCase() !== String(typed[i]).toLowerCase()) { ok = false; break; }
+        out.push(String(tok));
+      }
+      if (ok) return out;
+    }
+  }
+  return null;
+}
+
+module.exports = { parseForms, parseFormsWithDesc, expand, expandSynopsis, readsAs, canonical };

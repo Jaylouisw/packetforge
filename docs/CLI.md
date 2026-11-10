@@ -1546,6 +1546,40 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### Keywords are case-insensitive, and the exact spelling wins
+
+```
+R1#SHOW IP ROUTE
+% Ambiguous command: "SHOW IP ROUTE"
+% Candidates: ip, ipv6
+```
+
+`SHOW VERSION` answered and `INTERFACE Gi0/0` entered its block, so the surface looked fine; three seams
+were not.
+
+* **`ip` vs `ipv6`.** `IP` is a prefix of both, and the rule that settles that — an exact match beats a
+  longer keyword — compared the two spellings with `===`. It now compares case-insensitively.
+* **A partial respell.** Abbreviation rewrites only the words it had to *expand*, so `SWITCHPORT
+  PORT-SECURITY` reached the block's handler as `['switchport','PORT-SECURITY']` and was refused as an
+  unrecognized switchport command. A line is now respelled to the documented form it already matches,
+  after expansion, and a form spelled only in keywords beats one with a wildcard in the same position —
+  otherwise `show logging <type>` would "match" `SHOW LOGGING SUMMARY` and leave `SUMMARY` as an argument.
+  The unfiltered page is consulted as well, because a verb a device refuses by name (`no ip nat inside` on
+  a switch) still has a documented spelling.
+* **`sh` caught more than `show`.** The "defer to the exec tree" test was *starts with `sh`*, which also
+  caught `shutdown` and `switchport` and read them against the exec page, where neither exists. The test
+  is now what `sh` can stand for: a prefix of `show`.
+
+```
+SW1(config)#interface range Fa0/1-4
+% There is no "interface range" here - this console has one block per port
+% The ports that form names are: Fa0/1, Fa0/2, Fa0/3, Fa0/4
+% Enter them one after another - "interface Fa0/1", "interface Fa0/2", ...
+```
+
+A range is a form that exists on a real device and cannot work here, so it is answered as an absent
+command rather than as a typo — with the ports read from the device, not expanded from the text.
+
 ### A port has the name IOS gives it
 
 ```
