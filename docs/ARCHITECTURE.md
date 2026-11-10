@@ -90,6 +90,30 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### The live-sync socket
+
+`server/ws.js` is a hand-written RFC 6455 server (about 140 lines, no dependencies) used for live multi-client
+sync. It speaks one client message, `{"type":"subscribe","topologyId":"default"}`, and answers every message it
+receives:
+
+| message | answer |
+|---|---|
+| a new connection | `{"type":"topology", topologyId:"default", state:{…}}` |
+| `subscribe` to a board that exists | that board, with its `verdicts` |
+| `subscribe` to a board that does not | `{"type":"error", code:"E_NO_TOPOLOGY", topologyId}` |
+| any other `type` | `{"type":"error", code:"E_UNKNOWN_TYPE"}` naming the one that exists |
+| anything that is not JSON | `{"type":"error", code:"E_BAD_MESSAGE"}` |
+
+Frames that are not allowed are refused with the code that says which rule broke: an **unmasked** client frame
+(RFC 6455 §5.1) or a 64-bit length whose high word is not zero → `1002`; a frame over **1 MiB** → `1009`. A message
+from this app is a JSON object naming a board, so the ceiling costs nothing and stops one client from asking the
+process to buffer as much as it likes.
+
+**A closed client is a closed client.** An upgraded socket has `allowHalfOpen = true`, so when the peer goes away it
+emits `end` and *stops there* — `close` never fires. Removing the client only on `close` would leave a half-open
+socket holding the entry for the life of the process; `end` and `error` count as gone too. `broadcast()` then only
+ever reaches the living.
+
 ### What the static server answers
 
 `web/` is four files served by `serveStatic()`, with three rules:
