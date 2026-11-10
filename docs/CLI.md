@@ -153,7 +153,7 @@ until traffic crosses, and no amount of asking fills them:
 | `show arp [<port>]` | header only, no entries | the peer's IP and MAC; a port filter keeps only entries whose port is known, because an entry behind a switch shows `-` and folding it into another port would invent a fact |
 | `show interfaces counters [<port>]` | `(no port has carried a frame since this lab started)` | per-port rx/tx and bytes; `clear counters` resets |
 | `show ip nat translations` | empty — no frame was translated | one row per translation, with hits |
-| `show flows` | no conversations | one row per flow, open or closed |
+| `show flows` | no conversations | still none from a ping: a flow is one conversation, and a ping is a probe. `flow open <dst>` fills this table |
 | `show mac address-table` | header only | one `DYNAMIC` row per learned address (LLDP is enough to fill it) |
 
 `show running-config`, `show interfaces`, `show ip interface brief`, `show vlan`, `show access-lists`,
@@ -622,6 +622,36 @@ R1#show ipv6 route 2001:db8:77::9
 % No IPv6 default gateway is configured on this device
 ```
 
+**A missing default is only a refusal when there is genuinely no default.** As soon as one exists,
+the same address resolves through it, and the `Matched` line says which kind of default answered:
+
+```text
+R1(config)#ipv6 gateway 2001:db8:1::2
+R1#show ipv6 route 2001:db8:77::1
+  Destination  2001:db8:77::1
+  Matched      ::/0  (default, AD 254)
+  Next hop     2001:db8:1::2
+  Interface    -
+```
+
+`(default, AD 254)` is the `ipv6 gateway` you configured, dressed as a `::/0` route — the same 254 the
+IPv4 `ip default-gateway` gets. Add a static `::/0` and the static one wins, with the gateway demoted to
+the `Shadowed` line:
+
+```text
+R1(config)#ipv6 route ::/0 2001:db8:1::2
+R1#show ipv6 route 2001:db8:77::1
+  Destination  2001:db8:77::1
+  Matched      ::/0  (default, AD 1)
+  Next hop     2001:db8:1::2
+  Interface    -
+  Shadowed     S ::/0  (default, AD 254)
+```
+
+So the two-line refusal above is precisely the case where neither a `::/0` row nor an `ipv6 gateway`
+exists — and `Shadowed` is the command's way of showing that a configuration you can still see elsewhere
+is no longer the one forwarding.
+
 A malformed destination is a parse error, not a lookup that quietly answers nothing:
 
 ```
@@ -854,6 +884,35 @@ No route is a refusal that says so, and names the usual reason:
 R1#show ip route 172.16.0.1
 % No route to 172.16.0.1
 % No default route is configured on this device
+
+That refusal only fires when there is no default of any kind. Configure `ip default-gateway` and the same
+address resolves through it, labelled as a default rather than as a static route:
+
+```
+R1(config)#ip default-gateway 10.0.0.254
+R1#show ip route 192.0.2.55
+  Destination  192.0.2.55
+  Matched      0.0.0.0/0  (default, AD 254)
+  Next hop     10.0.0.254
+  Interface    -
+```
+
+Add a static `0.0.0.0/0` and it wins on distance, with the gateway demoted to a `Shadowed` line — which
+then labels the same gateway **`(static, AD 254)`**:
+
+```
+R1(config)#ip route 0.0.0.0 0.0.0.0 10.0.0.2
+R1#show ip route 192.0.2.55
+  Destination  192.0.2.55
+  Matched      0.0.0.0/0  (static, AD 1)
+  Next hop     10.0.0.2
+  Interface    -
+  Shadowed     S 0.0.0.0/0  (static, AD 254)
+```
+
+The IPv6 lookup calls the very same object `(default, AD 254)` on its `Shadowed` line
+([above](#show-ipv6-route--the-table-route6to-reads)), so the two commands disagree about what to call a
+gateway that lost. Read `S … AD 254` in an IPv4 `Shadowed` row as "this was the `ip default-gateway`".
 ```
 
 The answer comes from `routeTo()` — the same call the data path makes — and the candidates from
@@ -1383,6 +1442,35 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### An address learned two hops away still has a port
+
+Three successful pings from a PC through a switch to a router left the router's ARP table saying where
+the address was *not*:
+
+```
+R1#show arp
+Protocol  Address    Age (min)  Hardware Addr      Interface
+Internet  10.0.0.10  -          02:00:00:00:02:00  -            <- learned one ping ago
+R1#show arp Gi0/0
+  (none - no cached address resolves to this port)               <- and it is in Gi0/0's subnet
+```
+
+The port was derived from the topology only when the address's owner was **directly peered**. A learner
+two hops away is the ordinary case — behind a switch — and there the answer was `-`, which made the
+port filter blind to a row the same table had just printed. The subnet now decides whenever no peer
+does, exactly as it already did for a hand-written entry, and the off-subnet case still keeps `-`,
+because a port there would be a guess.
+
+Two smaller things came with it:
+
+- **The Type column.** `STATIC` was being appended into the Interface cell, which pushed that column
+  out of line with its own header on every static row. It is a type, so it has a column — the same one
+  the single-address view already printed, and that view now renders through the same table function
+  instead of hand-padding its header.
+- **The Age column** can only ever hold `-` here: this model does not age its cache. A dash that means
+  "static" in IOS has to be explained rather than left to read as one, so a populated table says so and
+  names what empties it. An empty table says nothing, because there is nothing to explain.
 
 ### A refusal that names a command is a promise
 
