@@ -200,8 +200,15 @@ console.log('\nIt composes with the instant, and says which instant it answered:
 
 console.log('\nThe command is discoverable:');
 {
-  match(/show ipv6 interface \[<port>\] \[at <ms>\|converged\]/, cli(r1, ['?']),
-    'help lists the port and the instant');
+  // `[brief]` joined the row when the one-line table was added; the port and the instant it already
+  // documented must still be there, and `brief` must be advertised rather than guessed.
+  const helpText = cli(r1, ['?']);
+  match(/show ipv6 interface \[brief\] \[<port>\] \[at <ms>\|converged\]/, helpText,
+    'help lists brief, the port and the instant');
+  match(/IPv6 addresses per port/, helpText, 'and says what the command answers');
+  // The row advertises a form that must also work: help is a promise about the parser.
+  const brief = cli(r1, ['show ipv6 interface brief']);
+  ok(!/^%/.test(brief.split('\n')[0]), 'and the advertised brief form answers a table, not a refusal');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

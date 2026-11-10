@@ -718,6 +718,8 @@ class CliSession {
       out.push('SCION membership removed');
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
+    } else if (head === 'ipv6' && tokens[1] === 'unicast-routing') {
+      out.push.apply(out, this._ipv6UnicastRouting(true, tokens.slice(2)));
     } else if (head === 'ipv6' && tokens[1] === 'gateway') {
       const v6 = require('./ipv6');
       if (!v6.validateAddress6(tokens[2]).ok) out.push('% Invalid IPv6 gateway "' + (tokens[2] || '') + '"');
@@ -726,6 +728,11 @@ class CliSession {
       out.push.apply(out, this._ipv6Nd(tokens.slice(2)));
     } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'nd') {
       out.push.apply(out, this._ipv6Nd(['no'].concat(tokens.slice(3))));
+    } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'unicast-routing') {
+      // Before the bare `no ipv6` arm below, which clears every IPv6 route: turning forwarding off
+      // must not also delete the routing table, because turning it back on would then restore
+      // nothing and the operator would reasonably conclude the command ate their configuration.
+      out.push.apply(out, this._ipv6UnicastRouting(false, tokens.slice(3)));
     } else if (head === 'no' && tokens[1] === 'ipv6') {
       this.device.config.gateway6 = null;
       this.device.config.routes6 = [];
@@ -1079,16 +1086,27 @@ class CliSession {
       // what lets a pasted `show running-config` run start to finish, since the
       // dump does not print `exit` between an interface block and the globals.
       const asGlobal = this._configMode(tokens);
-      const refused = asGlobal.some(function (l) { return /^% Unrecognized config command/.test(l); });
-      if (refused) return ['% Unrecognized interface command: ' + tokens.join(' ')];
+      // Any refusal counts, not just the one wording. `ipv6 nd ra suppress extra` fell through,
+      // was refused by the global handler with its *own* sentence ("% Unknown IPv6 RA command"),
+      // and the check below only knew to look for "% Unrecognized config command" - so the refusal
+      // was treated as success, the interface block was left, and the operator's next three commands
+      // were typed into the wrong mode. A line beginning with `%` is a refusal, whoever wrote it.
+      const refused = asGlobal.some(function (l) { return /^%/.test(l); });
+      if (refused) return ['% Unrecognized interface command: ' + tokens.join(' ')].concat(asGlobal);
       if (this.mode === MODE_IFACE) this.mode = MODE_CONFIG;
       out.push.apply(out, asGlobal);
       // Say so. `ospf area 0` inside an interface block is the *global* command: it configures the
       // process, not the port, and the block is left behind. Applying it silently is how an operator
       // concludes the interface is in area 0 when it is not - the fall-through exists so a pasted
       // running-config runs start to finish, not to make a meaning change invisible.
+      //
+      // The note used to end "(the per-port form is "ip <first word> ...")" whatever the command
+      // was, which for `ipv6 nd suppress-ra` suggested `ip ipv6 ...` - a form that does not exist.
+      // A note that invents a command is worse than no note.
+      const perPort = this._perPortForm(tokens);
       out.push('  note: "' + tokens.join(' ') + '" is a global command - applied at global scope and the ' +
-        'interface block was left (the per-port form is "ip ' + tokens[0] + ' ...")');
+        'interface block was left' +
+        (perPort ? ' (the per-port form is "' + perPort + '")' : ''));
     }
     return out;
   }
@@ -1365,31 +1383,89 @@ class CliSession {
   // ---------- IPv6 ----------
   _ipv6Iface(tokens, iface) {
     const v6 = require('./ipv6');
-    const spec = String(tokens[0] || '');
+    const dev = this.device;
+    const usage = 'ipv6 address <addr>/<len> | autoconfig';
+    // `ipv6 address` with nothing after it used to answer % Invalid IPv6 address "" - an empty
+    // string quoted back at the operator, which reads as though a word was sent and rejected.
+    if (!tokens.length) return ['% Incomplete command: ' + usage];
+    const spec = String(tokens[0]);
 
     // 'ipv6 address autoconfig': the address comes from a router advertisement.
     // Any address typed in by hand is removed, because two sources of truth for
     // one address is how a lab ends up "not working" with nothing to look at.
     if (spec.toLowerCase() === 'autoconfig') {
-      if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
+      const extra = this._noExtra(tokens, 1, 'ipv6 address autoconfig');
+      if (extra) return extra;
+      if (dev.config.ip6) delete dev.config.ip6[iface.name];
       iface.autoconfig = true;
       return ['IPv6 address autoconfig on ' + iface.name +
         ' (no address until a router advertisement arrives)'];
     }
 
+    // Every word after the address is refused rather than dropped: `ipv6 address 2001:db8:1::2/64
+    // extra` answered "IPv6 address 2001:db8:1::2/64 on Gi0/0" and threw `extra` away, which is
+    // the same defect the `switchport` verbs had one layer down.
+    const extra = this._noExtra(tokens, 1, usage);
+    if (extra) return extra;
     const parts = spec.split('/');
+    if (parts.length !== 2) {
+      return ['% Incomplete command: ' + usage,
+        '% an IPv6 interface address is written <addr>/<len>, e.g. 2001:db8:1::1/64'];
+    }
     const parsed = v6.parseIpv6(parts[0]);
     if (!parsed.valid) return ['% Invalid IPv6 address "' + parts[0] + '"'];
-    const len = parts.length > 1 ? parseInt(parts[1], 10) : 64;
+    const len = /^\d+$/.test(parts[1]) ? parseInt(parts[1], 10) : NaN;
     if (!(len >= 0 && len <= 128)) return ['% Invalid prefix length "' + parts[1] + '"'];
-    if (!this.device.config.ip6) this.device.config.ip6 = {};
     const addr = v6.formatIpv6(parsed.groups);
+    // What a port may hold. `ipv6 address ff02::1/64` was accepted and then produced a *connected
+    // route* for `ff02::/64` in `show ipv6 route` - a multicast group worn as a subnet, derived by
+    // the same code that derives real ones. The address is refused by name instead.
+    if (v6.isLoopback6(addr)) {
+      return ['% ' + addr + ' is the loopback address - it cannot be assigned to ' + iface.name];
+    }
+    if (v6.isMulticast(addr)) {
+      return ['% ' + addr + ' is a multicast address - a port cannot hold one'];
+    }
+    if (/^0(:0)*$/.test(addr) || addr === '::') {
+      return ['% ' + addr + ' is the unspecified address - a port cannot hold it'];
+    }
+    if (v6.isLinkLocal(addr)) {
+      return ['% ' + addr + ' is link-local - ' + iface.name +
+        ' already has one derived from its MAC address'];
+    }
+    if (!dev.config.ip6) dev.config.ip6 = {};
+    // The same address twice, or the same address on two ports, is not a configuration.
+    for (const other of dev.interfaces.values()) {
+      const e = dev.config.ip6[other.name];
+      if (!e || e.addr !== addr) continue;
+      if (other.name === iface.name) {
+        return ['IPv6 address ' + addr + '/' + len + ' on ' + iface.name + ' (already configured)'];
+      }
+      return ['% ' + addr + ' is already configured on ' + other.name];
+    }
+    // One subnet on two ports is the ambiguity every ping has to resolve.
+    const network = v6.networkAddress6(addr + '/' + len);
+    for (const other of dev.interfaces.values()) {
+      const e = dev.config.ip6[other.name];
+      if (!e || other.name === iface.name || Number(e.prefix) !== len) continue;
+      if (v6.networkAddress6(e.addr + '/' + e.prefix) !== network) continue;
+      return ['% ' + network + '/' + len + ' is already on ' + other.name +
+        ' - two ports in one IPv6 subnet is ambiguous'];
+    }
+    const prev = dev.config.ip6[iface.name];
     // A static address cancels autoconfiguration: the operator has just said
     // what the address is, so waiting for a router to say otherwise would only
     // produce a second address nobody asked for.
     iface.autoconfig = false;
-    this.device.config.ip6[iface.name] = { addr: addr, prefix: len };
-    return ['IPv6 address ' + addr + '/' + len + ' on ' + iface.name];
+    dev.config.ip6[iface.name] = { addr: addr, prefix: len };
+    const said = ['IPv6 address ' + addr + '/' + len + ' on ' + iface.name];
+    // One global address per port is this model's limit, and a second one used to replace the first
+    // in silence - the address an operator typed a minute ago simply gone, with no line saying so.
+    if (prev && prev.addr !== addr && !prev.autoconfig) {
+      said.push('  note: replaced ' + prev.addr + '/' + prev.prefix +
+        ' - this model keeps one global IPv6 address per port');
+    }
+    return said;
   }
 
   // Withdrawing autoconfiguration has to take the learned address with it.
@@ -1414,6 +1490,46 @@ class CliSession {
     }
     out.push('IPv6 autoconfiguration disabled on ' + iface.name);
     return out;
+  }
+
+  // 'ipv6 unicast-routing': whether this box forwards an IPv6 packet that is not addressed to it.
+  //
+  // This lab has always forwarded IPv6 between configured interfaces the moment they had addresses,
+  // so the switch starts **on** here rather than off as IOS does - documented, and the reason a
+  // missing line in a running-config is not a claim that forwarding is off. What the command buys is
+  // the other direction: `no ipv6 unicast-routing` really does stop the box forwarding, which is the
+  // only way to tell a router with a broken route from a router that is not routing at all.
+  // The per-port spelling of a global command, or null when there is none worth naming.
+  // Only forms that actually exist in this console are listed: the note exists to help an operator
+  // who typed a global command in an interface block, and inventing a command does the opposite.
+  _perPortForm(tokens) {
+    const a = String(tokens[0] || '').toLowerCase();
+    const b = String(tokens[1] || '').toLowerCase();
+    // The value the operator typed is carried through, so the note is a command they can run
+    // rather than a template they have to fill in again.
+    if (a === 'ospf' && b === 'area') return 'ip ospf ...';
+    if (a === 'vlan') return 'switchport access vlan <id>';
+    return null;
+  }
+
+  _ipv6UnicastRouting(on, tokens) {
+    const usage = on ? 'ipv6 unicast-routing' : 'no ipv6 unicast-routing';
+    const extra = this._noExtra(tokens, 0, usage);
+    if (extra) return extra;
+    const dev = this.device;
+    if (dev.config.ip6Routing === undefined) dev.config.ip6Routing = true;
+    if (!dev.capabilities.includes('l3-forward') && on) {
+      return ['% ' + (dev.name || dev.id) + ' does not route - ' + dev.label + ' forwards no IPv6'];
+    }
+    if (on) {
+      if (dev.config.ip6Routing) return ['IPv6 unicast routing is already enabled on ' + (dev.name || dev.id)];
+      dev.config.ip6Routing = true;
+      return ['IPv6 unicast routing enabled on ' + (dev.name || dev.id)];
+    }
+    if (!dev.config.ip6Routing) return ['IPv6 unicast routing is already disabled on ' + (dev.name || dev.id)];
+    dev.config.ip6Routing = false;
+    return ['IPv6 unicast routing disabled on ' + (dev.name || dev.id) +
+      ' - this device now forwards no IPv6 packet (its own addresses still answer)'];
   }
 
   // ---------- IPv6 neighbour discovery / router advertisements ----------
@@ -1452,7 +1568,20 @@ class CliSession {
       if (bad) return bad;
       const c = cfg();
 
+      // Every ND verb takes a fixed number of words, and each of them dropped the rest: `ipv6 nd
+      // ra enable extra` answered "enabled", `ipv6 nd suppress-ra extra` answered "suppressed",
+      // and `ipv6 nd ra lifetime 600 900` answered 600. A dropped word here changes what a link
+      // hears, which is not something to guess at.
+      const ndExtra = function (allowed, usage) {
+        if (t.length > allowed) {
+          return ['% Unexpected argument "' + t[allowed] + '" - ' + usage + ' takes no more',
+            '% Usage: ' + usage];
+        }
+        return null;
+      };
       if (sub === 'enable' || sub === 'disable') {
+        const bad = ndExtra(2, 'ipv6 nd ra ' + sub);
+        if (bad) return bad;
         // 'no ipv6 nd ra enable' reads as "stop advertising", and that is what it
         // does: the negated form flips the verb rather than being refused.
         const on = (sub === 'enable') !== negated;
@@ -1462,6 +1591,8 @@ class CliSession {
           : 'IPv6 router advertisements disabled on ' + dev.name];
       }
       if (sub === 'managed' || sub === 'other-config') {
+        const bad = ndExtra(2, 'ipv6 nd ra ' + sub);
+        if (bad) return bad;
         const on = !negated;
         if (sub === 'managed') c.m = on; else c.o = on;
         return ['IPv6 RA ' + (sub === 'managed' ? 'M (managed)' : 'O (other-config)') +
@@ -1473,6 +1604,8 @@ class CliSession {
         if (!/^\d{1,5}$/.test(val)) return ['% Invalid router lifetime "' + val + '" (0..65535 seconds)'];
         const n = parseInt(val, 10);
         if (n > 65535) return ['% Router lifetime out of range: ' + val + ' (0..65535)'];
+        const extra = ndExtra(3, 'ipv6 nd ra lifetime <seconds>');
+        if (extra) return extra;
         c.routerLifetime = n;
         return ['IPv6 RA router lifetime ' + n + 's' + (n === 0 ? ' (not a default router)' : '')];
       }
@@ -1482,6 +1615,11 @@ class CliSession {
     if (t[0] === 'suppress-ra') {
       const bad = needsRouter();
       if (bad) return bad;
+      if (t.length > 1) {
+        return ['% Unexpected argument "' + t[1] + '" - ipv6 nd ' +
+          (negated ? 'no ' : '') + 'suppress-ra takes no more',
+          '% Usage: ipv6 nd suppress-ra'];
+      }
       const c = cfg();
       c.suppress = !negated;
       return [negated
@@ -1716,6 +1854,12 @@ class CliSession {
         '% e.g. "ipv6 route 2001:db8:1::/64 2001:db8::1"'];
     }
     if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + nh + '"'];
+    // A third word was dropped in silence: `ipv6 route 2001:db8:7::/64 2001:db8:1::2 250` answered
+    // "IPv6 route ... via 2001:db8:1::2" and threw `250` away, so the operator who typed a distance
+    // or an interface has no way to learn it was ignored.
+    const usage = 'ipv6 route <prefix>/<len> <next-hop>';
+    const extra = this._noExtra(tokens, 2, usage);
+    if (extra) return extra;
     if (!this.device.config.routes6) this.device.config.routes6 = [];
     const net = v6.networkAddress6(dest);
     this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
@@ -2701,6 +2845,16 @@ class CliSession {
   }
 
   _ping(tokens) {
+    // `ping ipv6 <addr>` is the spelling IOS 12 documents and the one an operator reaches for first.
+    // The keyword was read as the destination and refused as an invalid target, so the *whole* IPv6
+    // stack - addressing, static routes, router advertisements - could be configured and never
+    // tested from the console: `ping 2001:db8:1::2` answered "% Invalid ping target". The simulator
+    // has had ping6() all along; only the door was missing.
+    if (tokens.length && String(tokens[0]).toLowerCase() === 'ipv6') tokens = tokens.slice(1);
+    const v6lib = require('./ipv6');
+    if (tokens.length && v6lib.validateAddress6(String(tokens[0])).ok) {
+      return this._ping6(tokens);
+    }
     const dest = this._requireDest(tokens, 'ping <dst> [count <n>] [at <ms>|converged]');
     if (!dest.ok) return [dest.message];
     let count = 4;
@@ -2767,6 +2921,76 @@ class CliSession {
     return out;
   }
 
+  // The IPv6 half of `ping`. Same output shape as the IPv4 one on purpose: an operator comparing two
+  // runs should be reading addresses, not two different report formats.
+  _ping6(tokens) {
+    const v6lib = require('./ipv6');
+    const dst = String(tokens[0]);
+    if (!v6lib.validateAddress6(dst).ok) return ['% Invalid IPv6 ping target: ' + dst];
+    let count = 4;
+    let atMs = null;
+    for (let i = 1; i < tokens.length; i++) {
+      const tok = String(tokens[i]);
+      const lower = tok.toLowerCase();
+      if (lower === 'at') {
+        if (tokens[i + 1] === undefined) {
+          return ['% Incomplete command: ping <v6dst> [count <n>] [at <ms>|converged]'];
+        }
+        const when = parseInstant(tokens[i + 1]);
+        if (!when.ok) return ['% Invalid instant: ' + tokens[i + 1]];
+        atMs = when.atMs;
+        i++;
+        continue;
+      }
+      const isKeyword = lower === 'count';
+      const value = isKeyword ? tokens[i + 1] : tok;
+      const whole = /^[+-]?\d+$/.test(String(value === undefined ? '' : value));
+      if (!isKeyword && !whole) {
+        return ['% Unrecognised argument "' + tok + '" (expected count <n> or at <ms>)'];
+      }
+      if (!whole || Number(value) < 1) {
+        return ['% count expects a whole number of at least 1 (got ' +
+          (value === undefined ? '(none)' : value) + ')'];
+      }
+      count = Number(value);
+      if (isKeyword) i++;
+    }
+    if (!this.sim) return ['% Simulator not attached'];
+    if (atMs !== null) this.sim.setRunTime(atMs);
+    const out = ['Type escape sequence to abort.',
+      'Sending ' + count + ', 100-byte ICMP Echos to ' + dst + ', timeout is 2 seconds:' +
+      (atMs !== null ? '  (at ' + instantLabel(atMs) + ')' : '')];
+    const res = this.sim.ping6(this.device.id, dst, { count: count });
+    out.push(res.replies.map(function (r) { return r.success ? '!' : '.'; }).join(''));
+    const ok = res.replies.filter(function (r) { return r.success; }).length;
+    out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
+    for (const r of res.replies) {
+      if (!r.success) { out.push('Request timed out (seq ' + r.seq + ')'); continue; }
+      const t = (r.rtt === null || r.rtt === undefined)
+        ? (r.hops + ' hops')
+        : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
+      out.push('Reply from ' + dst + ': bytes=100 time=' + t);
+    }
+    // Why nothing answered is the question the marks ask. The drops the run recorded name the exact
+    // reason - no route, no egress, forwarding switched off - so the answer does not leave an
+    // operator guessing between "the address is wrong" and "the router is not routing".
+    if (!ok) {
+      const seen = [];
+      for (const ev of res.events || []) {
+        if (ev.type !== 'drop' && ev.type !== 'no-route6') continue;
+        let who = ev.dev || '';
+        if (who && this.sim && this.sim.topo && typeof this.sim.topo.getDevice === 'function') {
+          const d = this.sim.topo.getDevice(who);
+          if (d) who = d.name || d.id;
+        }
+        const line = '% ' + (ev.reason || ev.type) + (who ? ' on ' + who : '');
+        if (seen.indexOf(line) === -1) seen.push(line);
+      }
+      for (const line of seen.slice(0, 4)) out.push(line);
+    }
+    return out;
+  }
+
   // ---------- traceroute ----------
   //
   // The forwarding path, hop by hop. TTL expiry is not modelled: the path is the one
@@ -2774,6 +2998,18 @@ class CliSession {
   // uses. The delay column is the one-way propagation + serialisation to reach that
   // hop, which is why it grows down the list instead of jittering.
   _traceroute(tokens) {
+    // The IPv6 path is not modelled hop by hop (there is no tracePath6), so an IPv6 destination is
+    // refused by name and pointed at the command that does answer: `% Invalid traceroute target:
+    // 2001:db8:1::2` reads as though the address were malformed.
+    const v6lib = require('./ipv6');
+    if (tokens.length && v6lib.validateAddress6(String(tokens[0])).ok) {
+      return ['% traceroute does not follow an IPv6 path in this model - the forwarding path is',
+        '% computed from IPv4 routing tables only. "ping ' + tokens[0] + '" does work over IPv6.'];
+    }
+    if (tokens.length && String(tokens[0]).toLowerCase() === 'ipv6') {
+      return ['% traceroute ipv6 <dst> is not modelled - use "ping ipv6 <dst>"',
+        '% (this model computes a hop-by-hop path for IPv4 only)'];
+    }
     const dest = this._requireDest(tokens, 'traceroute <dst> [at <ms>|converged]');
     if (!dest.ok) return [dest.message];
     const target = this._resolveHost(dest.value, 'traceroute target');
@@ -5306,13 +5542,23 @@ class CliSession {
     const out = [];
     const AD = dev.constructor.ADMIN_DISTANCE;
 
-    if (tokens.length) return this._routeLookup6(dev, tokens);
+    // A table is not a promise. `no ipv6 unicast-routing` leaves every row in place and stops the
+    // forwarding, so the answer has to say so - otherwise the table reads as "this box will route
+    // 2001:db8:2::/64" when it will drop it on the next packet.
+    const routingOff = dev.config && dev.config.ip6Routing === false;
+    const guard = routingOff
+      ? ['! IPv6 unicast routing is DISABLED on this device - these routes are configured but no',
+        '! packet is forwarded (ipv6 unicast-routing re-enables it)']
+      : [];
+
+    if (tokens.length) return guard.concat(this._routeLookup6(dev, tokens));
 
     const rows = dev.routes6Table();
     if (!rows.length) {
       out.push('% No IPv6 routes - no interface has a global address and none is configured');
-      return out;
+      return out.concat(guard);
     }
+    out.push.apply(out, guard);
     const present = {};
     for (const r of rows) present[r.code] = true;
     const names = { C: 'connected', S: 'static' };
@@ -5410,6 +5656,34 @@ class CliSession {
   _showIpv6Interface(tokens) {
     const dev = this.device;
     const out = [];
+    // `show ipv6 interface brief` is the one-line-per-port view, and `brief` is not a port name -
+    // it used to be looked up as one and refused with "% No IPv6 port named brief on R1", which
+    // reads as though the device has no such port rather than no such table.
+    if (tokens.length && String(tokens[0]).toLowerCase() === 'brief') {
+      const rest = tokens.slice(1);
+      const pick = this._portArg(rest, dev, 'show ipv6 interface brief [<port>]');
+      if (!pick.ok) return out.concat(pick.output);
+      const addrs = dev.ip6Addrs();
+      const rows = [];
+      for (const i of dev.interfaces.values()) {
+        if (pick.port && i.name !== pick.port) continue;
+        if (!pick.port && this._isModuleBay(i)) continue;
+        const mine = addrs.filter(function (a) { return a.name === i.name; });
+        const st = this._ifaceState(i);
+        if (!mine.length) rows.push([i.name, 'unassigned', st.status, st.protocol]);
+        for (const a of mine) {
+          rows.push([i.name, a.addr + '/' + a.prefix, st.status, st.protocol]);
+        }
+      }
+      if (!rows.length) {
+        return out.concat([pick.port
+          ? '% No IPv6 port named ' + pick.port + ' on ' + (dev.name || dev.id)
+          : '% No ports - this device has no interfaces']);
+      }
+      if (pick.port) out.push('Interface ' + pick.port + ' on ' + (dev.name || dev.id) + ':');
+      out.push.apply(out, renderTable(['Interface', 'IP-Address', 'Status', 'Protocol'], rows));
+      return out;
+    }
     const typed = tokens.length ? String(tokens[0]) : null;
     const wanted = typed ? resolvePortName(dev, typed) : null;
     const addrs = dev.ip6Addrs();
@@ -5590,6 +5864,8 @@ class CliSession {
       helpLine('dns zone <name> | dns add <name> <type> <value>',
         'serve a zone, or add a record to one'),
       helpLine('scion <isd-as>', 'join a SCION ISD-AS  (no scion)'),
+      helpLine('ipv6 unicast-routing | no ipv6 unicast-routing',
+        'whether this device forwards IPv6 it is not the destination of'),
       helpLine('ipv6 route <prefix>/<len> <next-hop> | ipv6 gateway <addr>',
         'static IPv6 route, or the default gateway'),
       helpLine('ipv6 nd ra enable|disable|managed|other-config',
@@ -5662,6 +5938,11 @@ class CliSession {
       helpLine('flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>|converged]', 'start a conversation from here (dst = address or name)'),
       helpLine('flow close <id>', 'close one (TCP four-way, UDP retired)'),
       helpLine('ping <dst> [count <n>] [at <ms>|converged]', 'ICMP echo; dst = address or name, "at" = an instant'),
+      // A second row rather than a union on one row: a top-level `|` in a help row makes two spellings
+      // of the *same* command, and the abbreviation table then no longer sees `count` after a value,
+      // so `ping 10.0.0.5 cou` stopped expanding to `count`. Two rows expand two.
+      helpLine('ping ipv6 <v6dst> [count <n>] [at <ms>|converged]',
+        'the same echo over IPv6 (an IPv6 address needs no keyword either)'),
       helpLine('traceroute <dst> [at <ms>|converged] [numeric]', 'the forwarding path, hop by hop; numeric = addresses only (tracert too)'),
       helpLine('nslookup <name> [type]', 'resolve a name (own zones first, then the lab)'),
       helpLine('converge [<ms>|converged]', 'when each control plane finishes'),
@@ -5703,7 +5984,7 @@ class CliSession {
       helpLine('show scion', 'membership, segments and reachability'),
       helpLine('show scion paths [<isd-as>]', 'composed paths, and the best of them'),
       helpLine('show ipv6 nd', 'what this device would advertise'),
-      helpLine('show ipv6 interface [<port>] [at <ms>|converged]',
+      helpLine('show ipv6 interface [brief] [<port>] [at <ms>|converged]',
         'IPv6 addresses per port, and where each came from'),
       helpLine('show ipv6 route [<dest>] [at <ms>|converged]',
         'the IPv6 table, a longest-match lookup, or an instant'),

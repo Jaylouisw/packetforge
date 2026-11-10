@@ -1,0 +1,27 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');
+const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R);r1.name='R1';const r2=t.addDevice(R);r2.name='R2';
+t.connect(r1.id,'Gi0/0',r2.id,'Gi0/0');const sim=new Simulator(t);
+const cfg=(d,cmds)=>{const s=new CliSession(d,t,sim);s.run('enable');s.run('configure terminal');for(const x of cmds){const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED ['+d.name+'] '+x+' => '+o[0]);}s.run('end');return s;};
+const s1=cfg(r1,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:1::1/64','exit']);
+const s2=cfg(r2,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:1::2/64','exit']);
+const rate=(o)=>{const m=/Success rate is (\d+) percent/.exec(o.join(' '));return m?m[1]+'%':'?';};
+console.log('ping:', rate(s1.run('ping 2001:db8:1::2 count 2').output));
+s2.run('configure terminal');console.log(' ', s2.run('no ipv6 unicast-routing').output[0]);s2.run('end');
+console.log('ping after disable on R2:', rate(s1.run('ping 2001:db8:1::2 count 2').output));
+s2.run('configure terminal');console.log(' ', s2.run('ipv6 unicast-routing').output[0]);s2.run('end');
+console.log('ping after enable:', rate(s1.run('ping 2001:db8:1::2 count 2').output));
+// three-router chain, so the *transit* router is the one that must forward
+const t2=new Topology();const a=t2.addDevice(R);a.name='A';const m=t2.addDevice(R);m.name='M';const z=t2.addDevice(R);z.name='Z';
+t2.connect(a.id,'Gi0/0',m.id,'Gi0/0');t2.connect(m.id,'Gi0/1',z.id,'Gi0/0');const sim2=new Simulator(t2);
+const cfg2=(d,cmds)=>{const s=new CliSession(d,t2,sim2);s.run('enable');s.run('configure terminal');for(const x of cmds){const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED ['+d.name+'] '+x+' => '+o[0]);}s.run('end');return s;};
+const sa=cfg2(a,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:12::1/64','exit','ipv6 route 2001:db8:23::/64 2001:db8:12::2']);
+const sm=cfg2(m,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:12::2/64','exit','interface Gi0/1','ipv6 address 2001:db8:23::2/64','exit']);
+const sz=cfg2(z,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:23::1/64','exit','ipv6 route 2001:db8:12::/64 2001:db8:23::2']);
+console.log('transit ping:', rate(sa.run('ping 2001:db8:23::1 count 2').output));
+sm.run('configure terminal');console.log(' ', sm.run('no ipv6 unicast-routing').output[0]);sm.run('end');
+console.log('transit ping, M not routing:', rate(sa.run('ping 2001:db8:23::1 count 2').output));
+sm.run('configure terminal');console.log(' ', sm.run('ipv6 unicast-routing').output[0]);sm.run('end');
+console.log('transit ping restored:', rate(sa.run('ping 2001:db8:23::1 count 2').output));
+console.log('M routes still there:', sm.run('show ipv6 route').output.filter(l=>/^ +\*/.test(l)).length, 'rows');

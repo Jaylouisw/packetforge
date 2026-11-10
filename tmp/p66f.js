@@ -1,0 +1,17 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t2=new Topology();const a=t2.addDevice(R);a.name='A';const m=t2.addDevice(R);m.name='M';const z=t2.addDevice(R);z.name='Z';
+t2.connect(a.id,'Gi0/0',m.id,'Gi0/0');t2.connect(m.id,'Gi0/1',z.id,'Gi0/0');const sim2=new Simulator(t2);
+const cfg2=(d,cmds)=>{const s=new CliSession(d,t2,sim2);s.run('enable');s.run('configure terminal');for(const x of cmds){const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED ['+d.name+'] '+x+' => '+o[0]);}s.run('end');return s;};
+const sa=cfg2(a,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:12::1/64','exit','ipv6 route 2001:db8:23::/64 2001:db8:12::2']);
+const sm=cfg2(m,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:12::2/64','exit','interface Gi0/1','ipv6 address 2001:db8:23::2/64','exit']);
+const sz=cfg2(z,['ipv6 unicast-routing','interface Gi0/0','ipv6 address 2001:db8:23::1/64','exit','ipv6 route 2001:db8:12::/64 2001:db8:23::2']);
+const show=(s,x)=>{console.log('$ '+x);s.run(x).output.forEach(l=>console.log('   '+l));};
+show(sa,'ping 2001:db8:23::1 count 2');
+sm.run('configure terminal');sm.run('no ipv6 unicast-routing');sm.run('end');
+show(sa,'ping 2001:db8:23::1 count 2');
+show(sm,'show ipv6 route');
+sm.run('configure terminal');sm.run('ipv6 unicast-routing');sm.run('end');
+show(sa,'ping 2001:db8:23::1 count 1');
+show(sa,'ping ipv6 2001:db8:99::1 count 1');
+show(sa,'ping 2001:db8:23::1 count abc');

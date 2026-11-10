@@ -1174,6 +1174,124 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### IPv6 can be configured, tested, and its arguments are its own
+
+Every IPv6 feature in this model was configurable and none of it could be tested from the console:
+
+```
+R1#ping 2001:db8:1::2
+% Invalid ping target: 2001:db8:1::2
+R1#ping ipv6 2001:db8:1::2
+% Unrecognised argument "2001:db8:1::2" (expected count <n> or at <ms>)
+```
+
+`sim.ping6()` had been there all along — only the door was missing. `ping` now takes an IPv6
+destination, with or without the `ipv6` keyword, and reports in the same shape as the IPv4 run:
+
+```
+R1#ping 2001:db8:23::1 count 2
+Type escape sequence to abort.
+Sending 2, 100-byte ICMP Echos to 2001:db8:23::1, timeout is 2 seconds:
+!!
+Success rate is 100 percent (2/2)
+Reply from 2001:db8:23::1: bytes=100 time=0.103 ms
+```
+
+When nothing answers, the answer says **why**, from the drops the run recorded:
+
+```
+R1#ping 2001:db8:23::1 count 2
+..
+Success rate is 0 percent (0/2)
+Request timed out (seq 0)
+Request timed out (seq 1)
+% IPv6 unicast routing is disabled on M
+```
+
+`traceroute` does not follow an IPv6 path in this model, and now says so instead of calling the
+address malformed:
+
+```
+R1#traceroute 2001:db8:1::2
+% traceroute does not follow an IPv6 path in this model - the forwarding path is
+% computed from IPv4 routing tables only. "ping 2001:db8:1::2" does work over IPv6.
+```
+
+#### `ipv6 unicast-routing` is a switch, not a decoration
+
+The command was missing entirely, and the model forwarded IPv6 between configured interfaces
+regardless. It exists now and **really does stop forwarding**:
+
+```
+M(config)#no ipv6 unicast-routing
+IPv6 unicast routing disabled on M - this device now forwards no IPv6 packet (its own addresses still answer)
+M#show ipv6 route
+! IPv6 unicast routing is DISABLED on this device - these routes are configured but no
+! packet is forwarded (ipv6 unicast-routing re-enables it)
+Codes: C - connected
+  *  Prefix              AD  Gateway  Interface
+  *  C 2001:db8:12::/64  0   -        Gi0/0
+  *  C 2001:db8:23::/64  0   -        Gi0/1
+```
+
+A table is not a promise, so the table says when it is not. (The switch starts **on** here, unlike
+IOS, because this lab has always forwarded IPv6 the moment interfaces had addresses; that is stated
+rather than implied by a missing line in a dump.)
+
+#### The words an `ipv6` command does not use are refused
+
+Only the **first** cell of a docs table is read as a command synopsis by `test/docs-syntax.test.js`,
+so the cases below are described rather than quoted there.
+
+```
+typed                              before                                  now
+<addr>/<len> extra                 success, `extra` dropped                % Unexpected argument "extra"
+<addr>/<len> typed twice           success twice                           ... (already configured)
+::1/128                            accepted                                % ::1 is the loopback address
+ff02::1/64                         accepted, and show ipv6 route printed    % ff02::1 is a multicast address
+                                   a *connected route for ff02::/64*        - a port cannot hold one
+fe80::1/64                         accepted                                % fe80::1 is link-local - Gi0/0 already
+                                                                           has one derived from its MAC
+no argument at all                 % Invalid IPv6 address ""               % Incomplete command: ipv6 address
+                                                                           <addr>/<len> | autoconfig
+same address on two ports          accepted                                % ... is already configured on Gi0/0
+two ports in one IPv6 subnet       accepted                                % 2001:db8:1::/64 is already on Gi0/0
+                                                                           - two ports in one IPv6 subnet is
+                                                                           ambiguous
+a second global address            the first replaced in silence           note: replaced 2001:db8:1::1/64 - this
+                                                                           model keeps one global IPv6 address
+                                                                           per port
+<prefix> <next-hop> 250            success, `250` dropped                  % Unexpected argument "250"
+nd suppress-ra extra               success, `extra` dropped                % Unexpected argument "extra"
+nd ra enable extra                 success, `extra` dropped                % Unexpected argument "extra"
+nd ra lifetime 600 900             success, `900` dropped                  % Unexpected argument "900"
+```
+
+#### A refused command does not move the operator
+
+`ipv6 nd suppress-ra extra` typed inside an interface block fell through to the global dispatcher,
+which refused it **in its own words** (`% Unknown IPv6 RA command`); the fall-through only recognised
+one refusal wording, so it treated the refusal as success, left the interface block, and the
+operator's next commands went to the wrong prompt. Any line beginning with `%` is now a refusal,
+whoever wrote it, and the block is kept.
+
+The "this is a global command" note also used to end with `(the per-port form is "ip <first word>
+...")` for every command — suggesting `ip ipv6 …` for `ipv6 nd suppress-ra`. It names a per-port form
+only where one exists — `ospf area 0` inside a port block still says the block was left, and now says
+`(the per-port form is "ip ospf ...")`; for `ipv6 nd suppress-ra` the note carries no form at all.
+
+#### `show ipv6 interface brief`
+
+```
+R1#show ipv6 interface brief
+Interface  IP-Address        Status  Protocol
+Gi0/0      2001:db8:1::1/64  up      up
+Gi0/1      unassigned        up      up
+```
+
+`brief` used to be looked up as a port name (`% No IPv6 port named brief on R1`), and the state
+columns come from the same `_ifaceState()` the IPv4 tables use.
+
 ### A logical interface's state is the state of what carries it
 
 `show ip interface brief` answered from `i.enabled` alone, so a subinterface whose parent was shut

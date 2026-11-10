@@ -2242,6 +2242,15 @@ class Simulator {
       this._emit({ type: 'drop', reason: 'hop limit exceeded', dev: dev.id });
       return;
     }
+    // `no ipv6 unicast-routing` is a real switch, not a decoration: a box with it off does not
+    // forward an IPv6 packet that is not addressed to it, however good its routing table looks.
+    // Without this the command would be accepted and change nothing, which is the shape of lie this
+    // console keeps finding - and "the route is there but nothing forwards" is exactly the question
+    // `show ipv6 route` cannot answer on its own.
+    if (dev.config && dev.config.ip6Routing === false) {
+      this._emit({ type: 'drop', reason: 'IPv6 unicast routing is disabled', dev: dev.id });
+      return;
+    }
     const route = dev.route6To(frame.ip.dst);
     if (!route) {
       this._emit({ type: 'drop', reason: 'no IPv6 route to ' + frame.ip.dst, dev: dev.id });
