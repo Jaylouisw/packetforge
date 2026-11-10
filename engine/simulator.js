@@ -3167,7 +3167,17 @@ class Simulator {
     // remembered: the table would then contain the very address the port refused, and `show mac
     // address-table` would contradict `show port-security`.
     if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) {
-      const sec = psLib.checkIngress(dev, this._logicalPortName(dev, inIface) || inIface, f.srcMac, vid);
+      const nowMs = Number.isFinite(this.runAtMs) ? this.runAtMs : 0;
+      // Aging runs before the decision: an address that has aged out is not held by the port any
+      // more, so the frame that arrives after it left is a new station, not a violation.
+      const expired = psLib.age(dev, nowMs);
+      if (expired.length) {
+        for (const gone of expired) {
+          this._emit({ type: 'port-security-age', dev: dev.id, iface: gone.port, mac: gone.mac,
+            addressType: gone.type, agingMinutes: (psLib.peek(dev, gone.port) || {}).agingTimeMin });
+        }
+      }
+      const sec = psLib.checkIngress(dev, this._logicalPortName(dev, inIface) || inIface, f.srcMac, vid, nowMs);
       if (sec.action === 'drop') {
         this._emit({ type: 'port-security-drop', dev: dev.id, iface: inIface, mac: f.srcMac,
           mode: sec.mode, counted: !!sec.count, errDisabled: !!sec.errDisable, reason: sec.reason });

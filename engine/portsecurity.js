@@ -40,6 +40,10 @@ function blankPort() {
     configured: [],       // MACs written by hand: always allowed, counted against the maximum
     stickyMacs: [],       // learned, and remembered across a clear of the dynamic table
     dynamic: [],          // learned and not sticky
+    agingTimeMin: 0,      // 0 = addresses never age out (IOS default)
+    agingType: 'absolute', // absolute counts from first sighting, inactivity from the last one
+    agingStatic: false,   // whether configured addresses age too
+    seen: {},             // mac -> { first, last } in lab milliseconds
     violations: 0,        // restrict and shutdown count; protect does not
     lastSource: null,     // last source address seen on the port, allowed or not
     lastViolationMac: null,
@@ -75,7 +79,7 @@ function macCount(st) { return allowedMacs(st).length; }
 // Returns { action: 'forward' } when the source is acceptable - learning it first if there is room -
 // or { action: 'drop', mode, count, errDisable, reason } when it is not. The caller does not decide
 // anything: protect, restrict and shutdown differ here, where the mode is read, and nowhere else.
-function checkIngress(dev, portName, mac, vid) {
+function checkIngress(dev, portName, mac, vid, nowMs) {
   const st = peek(dev, portName);
   if (!st || !st.enabled) return { action: 'forward', secured: false };
   const source = String(mac || '').toLowerCase();
@@ -91,11 +95,16 @@ function checkIngress(dev, portName, mac, vid) {
     return { action: 'drop', mode: st.violation, count: false, errDisable: false,
       reason: 'the port is err-disabled by a port security violation' };
   }
-  if (allowedMacs(st).indexOf(source) !== -1) return { action: 'forward', secured: true, learned: false };
+  if (allowedMacs(st).indexOf(source) !== -1) {
+    // Seen again: inactivity aging counts from here, absolute aging does not move.
+    touch(st, source, nowMs, false);
+    return { action: 'forward', secured: true, learned: false };
+  }
   if (macCount(st) < st.maximum) {
     // Room for one more: this is learning, not a violation.
     if (st.sticky) st.stickyMacs.push(source);
     else st.dynamic.push(source);
+    touch(st, source, nowMs, true);
     return { action: 'forward', secured: true, learned: true, sticky: !!st.sticky, vlan: vid };
   }
   // Full. What happens next is the configured mode, and the three differ in cost on purpose.
@@ -167,6 +176,75 @@ function addressRows(dev) {
   return rows.sort(function (a, b) { return a.mac.localeCompare(b.mac); });
 }
 
+
+// ---------------------------------------------------------------------------
+// aging
+// ---------------------------------------------------------------------------
+//
+// The detail view printed `Aging Time : 0 mins`, `Aging Type : Absolute` and
+// `SecureStatic Address Aging : Disabled` from the day the feature landed, and none of the three could
+// be configured. Printing a setting that has no command is the same defect as recommending a command
+// that does not exist: it describes a device that is not there.
+//
+// Aging is what stops a secure port from being pinned to a laptop that has left the building. In this
+// lab "now" is the instant a question is asked about (the same `at <ms>` the rest of the console uses),
+// so an address is aged against that instant rather than against a wall clock that does not exist.
+
+function agingDefaults() {
+  return { agingTimeMin: 0, agingType: 'absolute', agingStatic: false };
+}
+
+// When an address was first learned, and when it was last seen. Two times because the two aging types
+// ask different questions: absolute counts from the first sighting, inactivity from the latest one.
+function touch(st, mac, nowMs, isNew) {
+  if (!st.seen) st.seen = {};
+  const at = Number.isFinite(Number(nowMs)) ? Number(nowMs) : 0;
+  const rec = st.seen[mac] || null;
+  if (isNew || !rec) st.seen[mac] = { first: at, last: at };
+  else rec.last = at;
+}
+
+// Remove the addresses aging says are gone. Returns the addresses removed, in table order.
+//
+// `nowMs` is the instant being asked about. With no aging configured nothing is ever removed, so a port
+// that never asked for aging cannot lose an address to it.
+function age(dev, nowMs) {
+  const table = dev.portSecurity;
+  if (!table || !table.ports) return [];
+  const now = Number.isFinite(Number(nowMs)) ? Number(nowMs) : 0;
+  const removed = [];
+  for (const name of Object.keys(table.ports)) {
+    const st = table.ports[name];
+    if (!st.enabled || !st.agingTimeMin) continue;
+    const limitMs = Number(st.agingTimeMin) * 60 * 1000;
+    const sweep = function (list, isStaticList) {
+      const keep = [];
+      for (const mac of list) {
+        // Static addresses are configuration: they only age when aging static was asked for.
+        if (isStaticList && !st.agingStatic) { keep.push(mac); continue; }
+        const rec = (st.seen && st.seen[mac]) || null;
+        if (!rec) { keep.push(mac); continue; }
+        const since = st.agingType === 'inactivity' ? rec.last : rec.first;
+        if (now - since >= limitMs) { removed.push({ port: name, mac: mac, type: isStaticList ? 'SecureConfigured' : 'SecureDynamic' }); continue; }
+        keep.push(mac);
+      }
+      return keep;
+    };
+    const beforeSticky = st.stickyMacs.length;
+    // A sticky address is learned, so it ages like a learned one; forgetting it is the point of aging.
+    const before = st.dynamic.length;
+    st.dynamic = sweep(st.dynamic, false);
+    st.stickyMacs = sweep(st.stickyMacs, false);
+    if (st.agingStatic) st.configured = sweep(st.configured, true);
+    if (st.dynamic.length !== before || st.stickyMacs.length !== beforeSticky) {
+      for (const mac of Object.keys(st.seen || {})) {
+        if (allowedMacs(st).indexOf(mac) === -1) delete st.seen[mac];
+      }
+    }
+  }
+  return removed;
+}
+
 module.exports = {
   DEFAULT_MAXIMUM: DEFAULT_MAXIMUM,
   DEFAULT_VIOLATION: DEFAULT_VIOLATION,
@@ -183,5 +261,8 @@ module.exports = {
   recover: recover,
   securedPorts: securedPorts,
   addressRows: addressRows,
-  isGroupMac: isGroupMac
+  isGroupMac: isGroupMac,
+  age: age,
+  touch: touch,
+  agingDefaults: agingDefaults
 };

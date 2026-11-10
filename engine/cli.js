@@ -2866,6 +2866,10 @@ class CliSession {
       return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no secured ports',
         '% Port security is a bridge feature'];
     }
+    // Aging is applied against the instant the question is asked at, the same `at <ms>` the rest of
+    // the console reads time from: an address that has aged out by then is not in the answer.
+    const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : 0;
+    const aged = psLib.age(dev, nowMs);
     const ports = psLib.securedPorts(dev);
     const sub = String(args[0] || '').toLowerCase();
     if (sub === 'address') {
@@ -2876,6 +2880,14 @@ class CliSession {
       const rows = psLib.addressRows(dev);
       const out = [];
       if (!rows.length) {
+        // An empty table has two very different explanations - nothing was ever learned, or what was
+        // learned has aged out - and printing only the first sends the operator looking for a bug.
+        if (aged.length) {
+          out.push('% No secure addresses at this instant: ' + aged.length + ' aged out (' +
+            aged.map(function (a) { return a.mac + ' on ' + a.port; }).join(', ') + ')');
+          out.push('% Secured ports with a free slot: ' + ports.join(', '));
+          return out;
+        }
         out.push('% No secure addresses: no port has port security enabled, or none has learned a source');
         if (ports.length) out.push('% Secured ports with no address yet: ' + ports.join(', '));
         return out;
@@ -2896,6 +2908,11 @@ class CliSession {
       const sticky = rows.filter(function (r) { return r.type === 'SecureSticky'; }).length;
       out.push('  ' + rows.length + ' secure address' + (rows.length === 1 ? '' : 'es') + ': ' +
         configured + ' configured, ' + sticky + ' sticky, ' + (rows.length - configured - sticky) + ' learned');
+      if (aged.length) {
+        // Nothing else on this console would explain a shorter table than the operator expected.
+        out.push('  ' + aged.length + ' address' + (aged.length === 1 ? ' has' : 'es have') +
+          ' aged out by now: ' + aged.map(function (a) { return a.mac + ' on ' + a.port; }).join(', '));
+      }
       return out;
     }
     if (sub === 'interface') {
@@ -2918,9 +2935,10 @@ class CliSession {
         'Port Security              : Enabled',
         'Port Status                : ' + status,
         'Violation Mode             : ' + st.violation,
-        'Aging Time                 : 0 mins',
-        'Aging Type                 : Absolute',
-        'SecureStatic Address Aging : Disabled',
+        // Real settings now, printed the way IOS prints them, with the reason when they are off.
+        'Aging Time                 : ' + (st.agingTimeMin ? st.agingTimeMin + ' mins' : '0 mins'),
+        'Aging Type                 : ' + (st.agingType === 'inactivity' ? 'Inactivity' : 'Absolute'),
+        'SecureStatic Address Aging : ' + (st.agingStatic ? 'Enabled' : 'Disabled'),
         'Maximum MAC Addresses      : ' + st.maximum,
         'Total MAC Addresses        : ' + psLib.macCount(st),
         'Configured MAC Addresses   : ' + st.configured.length,
@@ -3108,12 +3126,20 @@ class CliSession {
         return ['Secure address ' + mac + ' is already configured on ' + iface.name];
       }
       cur.configured.push(mac);
+      // The address is held from now, so aging has an instant to count from. Without this a
+      // configured address had no timestamp and `aging static` could never remove one - the setting
+      // would be accepted and do nothing, which is the defect this whole pass is about.
+      const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : 0;
+      psLib.touch(cur, mac, nowMs, true);
       const out = ['Secure address ' + mac + ' configured on ' + iface.name,
         '  The port now allows ' + psLib.macCount(cur) + ' of ' + cur.maximum];
       if (psLib.macCount(cur) > cur.maximum) {
         out.push('  That is more than the maximum: the address is kept, and every frame from it is a violation');
       }
       return out;
+    }
+    if (sub === 'aging') {
+      return this._psAging(rest, iface, isNo, st);
     }
     if (sub === 'violation') {
       const extra = isNo ? this._noExtra(rest, 0, 'no switchport port-security violation') : this._noExtra(rest, 1, 'switchport port-security violation <protect|restrict|shutdown>');
@@ -3147,6 +3173,93 @@ class CliSession {
     }
     return ['% Unrecognized port-security command: ' + String(args[0]),
       '% Usage: ' + usage];
+  }
+
+  // `switchport port-security aging {time <1-1440>|type absolute|inactivity|static}` - the three
+  // settings the detail view has been printing since the feature landed, and which had no commands.
+  _psAging(args, iface, isNo, st) {
+    const usage = 'switchport port-security aging [time <1-1440>|type absolute|inactivity|static]';
+    const what = String(args[0] || '').toLowerCase();
+    const cur = st || psLib.portState(this.device, iface.name);
+    if (!what) {
+      return ['% Incomplete command: ' + usage,
+        '% time is how long an address lives, type is what the clock counts from, static says whether written addresses age too'];
+    }
+    if (['time', 'type', 'static'].indexOf(what) === -1) {
+      return ['% "' + args[0] + '" is not an aging setting', '% Usage: ' + usage];
+    }
+    const rest = args.slice(1);
+    if (what === 'static') {
+      const extra = this._noExtra(rest, 0, (isNo ? 'no ' : '') + 'switchport port-security aging static');
+      if (extra) return extra;
+      // `no aging static` is the default state, and saying so is more useful than a bare "ok".
+      if (isNo) {
+        if (!cur.agingStatic) return ['Aging of static addresses is already disabled on ' + iface.name];
+        cur.agingStatic = false;
+        return ['Aging of static addresses disabled on ' + iface.name,
+          '  Configured addresses are kept until "no switchport port-security mac-address" removes them'];
+      }
+      if (cur.agingStatic) return ['Aging of static addresses is already enabled on ' + iface.name];
+      cur.agingStatic = true;
+      return ['Aging of static addresses enabled on ' + iface.name,
+        '  Configured addresses now age out with everything else - they are no longer permanent'];
+    }
+    if (what === 'time') {
+      if (isNo) {
+        const extra = this._noExtra(rest, 0, 'no switchport port-security aging time');
+        if (extra) return extra;
+        const had = cur.agingTimeMin;
+        cur.agingTimeMin = 0;
+        return ['Aging time on ' + iface.name + ' reset to 0 - secure addresses no longer age out' +
+          (had ? ' (was ' + had + ' min)' : '')];
+      }
+      const extra = this._noExtra(rest, 1, 'switchport port-security aging time <1-1440>');
+      if (extra) return extra;
+      const word = String(rest[0] || '');
+      if (!word) {
+        return ['% Incomplete command: switchport port-security aging time <1-1440>',
+          '% The time is in minutes'];
+      }
+      if (!/^[0-9]+$/.test(word)) return ['% "' + word + '" is not a number of minutes'];
+      const n = parseInt(word, 10);
+      if (n < 1 || n > 1440) {
+        return ['% Aging time ' + n + ' is outside 1-1440 minutes',
+          '% 1440 minutes is a day, which is the longest IOS will age a secure address over',
+          '% To stop aging entirely: no switchport port-security aging time'];
+      }
+      if (cur.agingTimeMin === n) return ['Aging time on ' + iface.name + ' is already ' + n + ' min'];
+      const had = cur.agingTimeMin;
+      cur.agingTimeMin = n;
+      return ['Aging time on ' + iface.name + ' set to ' + n + ' min' + (had ? ' (was ' + had + ')' : ''),
+        '  An address that has not been ' + (cur.agingType === 'inactivity' ? 'seen' : 'held') +
+          ' for ' + n + ' min leaves the port, and the slot is free for the next station'];
+    }
+    // type
+    if (isNo) {
+      const extra = this._noExtra(rest, 0, 'no switchport port-security aging type');
+      if (extra) return extra;
+      const had = cur.agingType;
+      if (had === 'absolute') return ['Aging type on ' + iface.name + ' is already absolute'];
+      cur.agingType = 'absolute';
+      return ['Aging type on ' + iface.name + ' reset to absolute (was ' + had + ')'];
+    }
+    const extra = this._noExtra(rest, 1, 'switchport port-security aging type absolute|inactivity');
+    if (extra) return extra;
+    const mode = String(rest[0] || '').toLowerCase();
+    if (!mode) {
+      return ['% Incomplete command: switchport port-security aging type absolute|inactivity',
+        '% absolute counts from the first time the address was seen, inactivity from the last'];
+    }
+    if (['absolute', 'inactivity'].indexOf(mode) === -1) {
+      return ['% "' + rest[0] + '" is not an aging type', '% Use absolute or inactivity'];
+    }
+    if (cur.agingType === mode) return ['Aging type on ' + iface.name + ' is already ' + mode];
+    const had = cur.agingType;
+    cur.agingType = mode;
+    return ['Aging type on ' + iface.name + ' set to ' + mode + (had ? ' (was ' + had + ')' : ''),
+      '  ' + (mode === 'absolute'
+        ? 'the clock starts when an address is learned and is not reset by traffic'
+        : 'the clock resets every time the address is seen, so a quiet station ages out')];
   }
 
   // One station is on one port: find the other secured port holding this address, if any.
@@ -5729,6 +5842,11 @@ class CliSession {
         if (sec.violation !== psLib.DEFAULT_VIOLATION) {
           out.push('  switchport port-security violation ' + sec.violation);
         }
+        // Aging is configuration too: a paste that dropped it would pin the port to whoever is
+        // plugged in now, which is the state aging exists to leave behind.
+        if (sec.agingTimeMin) out.push('  switchport port-security aging time ' + sec.agingTimeMin);
+        if (sec.agingType === 'inactivity') out.push('  switchport port-security aging type inactivity');
+        if (sec.agingStatic) out.push('  switchport port-security aging static');
       }
       if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
       if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
@@ -8479,6 +8597,9 @@ class CliSession {
       helpLine('switchport port-security mac-address <mac>', 'pin one station to this port'),
       helpLine('switchport port-security mac-address sticky', 'keep what the port learns, across a clear and a reload'),
       helpLine('switchport port-security violation <mode>', 'protect | restrict | shutdown - what a violation costs'),
+      helpLine('switchport port-security aging time <1-1440>', 'minutes an address lives before it leaves (0 = never)'),
+      helpLine('switchport port-security aging type absolute|inactivity', 'count from the first sighting, or the last'),
+      helpLine('switchport port-security aging static', 'let configured addresses age out too'),
       helpLine('no switchport port-security', 'turn port security off on the port (and forget its addresses)'),
       helpLine('channel-group <id> mode active|passive|on|static',
         'add this port to a LAG'),

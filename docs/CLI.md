@@ -41,7 +41,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port only when the owner is **directly cabled** to this device — a host behind a switch shows `-` — and prints `(self)` for the device's own address |
 | `show mac address-table [interface <port>]` | MAC table (switches); one port narrows it |
 | `show port-security` | secured ports: address limit, addresses held, violations, violation mode, and any port err-disabled by a violation |
-| `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
+| `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source, and the three aging settings ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
 | `show port-security address` | which station is pinned to which port: `SecureConfigured`, `SecureSticky` or `SecureDynamic` |
 | `clear port-security counters [interface <port>]` | reset the violation count and nothing else — the port stays err-disabled until `no shutdown` |
 | `clear port-security dynamic [interface <port>]` | forget learned secure addresses, keeping configured and sticky ones |
@@ -1183,6 +1183,63 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Three settings the detail view printed and nothing could configure
+
+`show port-security interface` printed this from the day the feature landed:
+
+```
+Aging Time                 : 0 mins
+Aging Type                 : Absolute
+SecureStatic Address Aging : Disabled
+```
+
+…and `switchport port-security aging time 1` was `% Unrecognized port-security command: aging`. Three
+lines of a show command describing a device that was not there — the same defect as recommending a
+command that does not exist, one layer quieter. Aging is also the setting that makes port security
+usable: without it the port is pinned to whoever was plugged in when it was configured.
+
+```
+SW1(config-if)#switchport port-security aging time 1
+Aging time on Fa0/1 set to 1 min
+  An address that has not been held for 1 min leaves the port, and the slot is free for the next station
+
+SW1(config-if)#switchport port-security aging type inactivity
+Aging type on Fa0/1 set to inactivity (was absolute)
+  the clock resets every time the address is seen, so a quiet station ages out
+```
+
+**"Now" is the instant being asked about**, the same `at <ms>` the rest of the console reads time from
+(`sim.setRunTime(ms)` from a test), because this lab has no wall clock to age against. That makes the two
+types genuinely different, and observable:
+
+| type | clock starts | traffic |
+|---|---|---|
+| `absolute` | when the address is learned | does not reset it — the address dies on schedule |
+| `inactivity` | at the last sighting | resets it — a quiet station ages out, a talking one does not |
+
+Aging runs **before** the ingress decision (in `_processFrame`) and again whenever a `show` asks a
+question at an instant, so an address that has aged out is simply not held any more: the frame that
+arrives after it left is **learned as the new occupant, not refused as a violation**. That is the whole
+point, and the test asserts both sides — refused while the slot is held, accepted once it is free.
+
+Configured addresses are configuration and are permanent by default; `aging static` makes them age too.
+The one bug that made that flag a no-op is worth naming: a configured address had **no timestamp** at
+all, so the sweep skipped it forever — the command was accepted and did nothing. Configuring an address
+now records the instant it was held from.
+
+The empty table also explains itself, because "no secure addresses" has two very different causes:
+
+```
+SW1#show port-security address
+% No secure addresses at this instant: 1 aged out (02:00:00:00:01:00 on Fa0/1)
+% Secured ports with a free slot: Fa0/1
+```
+
+Every word is validated where it is typed (a time outside 1–1440, `0` refused with a pointer at
+`no … aging time` rather than being silently accepted, a type that is not one of the two, a missing or
+extra argument), the three settings are dumped inside the interface block and paste back, and a port
+left on the defaults contributes no line.
 
 ### The command the console recommended did not exist
 
