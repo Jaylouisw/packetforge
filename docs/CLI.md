@@ -4938,6 +4938,31 @@ SW1(config)#vlan 4095
 % VLAN 4095 is outside 1-4094
 ```
 
+**There is no VLAN sub-mode, and that is the trap for anyone who has typed IOS.** `vlan 20` creates the
+VLAN and returns you to config mode — it does not open a `(config-vlan)#` prompt — so the name has to be
+on the same line. The block form an operator's fingers expect fails twice, and the second failure is
+the confusing one:
+
+```text
+SW1(config)#vlan 20
+VLAN 20 created (name: VLAN0020)
+SW1(config)#name GUEST
+% Unrecognized config command: name GUEST
+
+SW1#show vlan name GUEST
+% No VLAN named "GUEST" on SW1
+% Names here: VLAN0020, VLAN0030
+```
+
+Nothing is broken — the VLAN exists, under the auto name — but the refusal names a list that contains
+neither `GUEST` nor "VLAN 20", so it reads as though the VLAN vanished. Write it on one line and both
+halves agree:
+
+```text
+SW1(config)#vlan 20 name GUEST
+VLAN 20 name changed to GUEST
+```
+
 `no vlan <id>` is a promise, so it refuses the two cases where it would be a lie — a VLAN that is
 not there, and a VLAN a port is still in:
 
