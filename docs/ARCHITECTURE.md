@@ -90,6 +90,29 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### What a wrong request gets
+
+Every endpoint that takes a body checks its shape before using it, and answers with a sentence and a status a
+client can act on:
+
+| request | answer |
+|---|---|
+| body that does not parse | `400`, "invalid JSON body" |
+| body missing a required field | `400 E_BAD_REQUEST`, naming what was expected and what was missing |
+| an id that does not exist | `404`, naming the id |
+| content the engine refuses (an impossible cable, a bad link state) | `409` / `422` with the engine's own `code` |
+
+Two rules, both learned the hard way:
+
+* **a response never contains the runtime's own words.** A missing body used to be dereferenced straight through
+  and came back as `Cannot read properties of undefined (reading 'trim')` — with a `400` on `/config` and a `409`
+  on `/links`, because a missing body is apparently a conflict;
+* **a rejected request changes nothing.** `POST /load` with `{"format":"x"}` used to replace the live board with an
+  empty one and answer `ok: true`: silent data loss from a request that should never have touched anything. The
+  document's envelope is now checked first (`format`, `devices`, `links`), and a document with neither `devices`
+  nor `links` is refused rather than emptying the board. `Topology.fromJSON()` stays tolerant — it reads old files
+  — but tolerance belongs to reading, not to replacing.
+
 ### Port names in URLs
 
 A port name is not one path segment: `1/1/1`, `Fa0/1`, `Gi0/0/2`. `POST /api/topologies/:name/interfaces/:device/:port`
