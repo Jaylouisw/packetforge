@@ -4414,6 +4414,25 @@ A client is configured with `ip address dhcp` on its interface. The exchange run
 packet of a run, and the failures are the ones a server really produces — `no-server`, `no-pool`,
 `pool-exhausted`, `nak`. See [SIMULATION.md §5.1](SIMULATION.md).
 
+**None of those reason strings reaches a console.** Measured with a one-address pool and two clients: the
+second client's ping simply times out, and the only trace of why is `Method DHCP` beside an unassigned
+address —
+
+```text
+PC2#ping 10.0.5.1
+Success rate is 0 percent (0/4)
+PC2#show ip interface brief
+Interface  IP-Address  OK?  Method  Status  Protocol
+eth0       unassigned  YES  DHCP    up      up
+PC2#show ip dhcp binding
+% PC2 is not a DHCP server (no pools) and holds no DHCP lease
+```
+
+— while the reason lives in the run's timeline as `{ type: 'dhcp', phase: 'failed', reason:
+'pool-exhausted', serverName: 'R1', pool: 'ONE' }`. So "my host has no address" is diagnosable here by
+`Method DHCP` plus a pool that reports `In use : 1 of 1`, not by a message on the client. The server side
+does not report the refusal either; `show ip dhcp binding` on `R1` lists the one lease that succeeded.
+
 What the exchange actually handed out is visible from both ends:
 
 ```
