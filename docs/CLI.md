@@ -4589,6 +4589,32 @@ Requests heard on those ports are unicast to the server, with this port's addres
 as giaddr so the server allocates from the right subnet.
 ```
 
+**A port can hold several helpers, and the list is the one that is used.** Two `ip helper-address` lines
+are stored in order, `show ip dhcp binding` prints one relay line per helper, and removing one leaves the
+other alone:
+
+```text
+R1(config-if)#ip helper-address 10.0.9.50
+R1(config-if)#ip helper-address 10.0.9.9
+R1#show ip dhcp binding
+DHCP relay on R1:
+  Gi0/0  ->  10.0.9.50
+  Gi0/0  ->  10.0.9.9
+R1(config-if)#no ip helper-address 10.0.9.50
+Helper address 10.0.9.50 removed from Gi0/0
+```
+
+Measured with a dead helper first and a live server second, the client still leased — so a list is
+searched rather than only its first entry being tried. That matters when you are changing a relay and
+add the new address before removing the old one.
+
+**The command is accepted on devices that cannot relay.** A switch port and a host interface both answer
+`Helper address 10.0.9.9 on Fa0/1 (DHCP requests will be relayed to it)` with the same confidence a
+router does, and neither relays anything: with the helper on the switch only, the client on the other
+side of a router fails with `no-server` exactly as if nothing had been configured. The confirmation
+sentence is about what was stored, not about what will happen — the device has to be the router in front
+of the client's wire.
+
 What is *not* modelled: the request is not re-broadcast on the server's wire, pool selection is a
 plain subnet match on `giaddr` (no per-relay pool overrides), and there is no Option 82 — no
 circuit-id, no remote-id. A helper address that no device in the lab owns is not an error at config
