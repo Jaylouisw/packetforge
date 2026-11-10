@@ -67,7 +67,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
 | `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
-| `show ip ospf [<process-id>]` | process, interfaces and adjacency count; naming one narrows the answer ([OSPF](#ospf)) |
+| `show ip ospf [<process-id>]` | process, interfaces and adjacency count ([OSPF](#ospf)). **The `<process-id>` form refuses every number today** — nothing sets a process id, so the bare form is the one that answers; see [the measured note](#a-group-id-is-an-id-not-a-timestamp) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
 | `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
 | `show lldp neighbors [<port>]` | neighbours actually heard on the wire ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
@@ -1200,6 +1200,37 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A page that lists what the mode cannot run
+
+Exec and enable share one command set here, so the page cannot hide the privileged half without lying
+about the other one — and it was listing that half silently:
+
+```
+SW1>clear arp        % clear arp needs enable mode - type "enable" first
+SW1>write memory     % write memory needs enable mode - type "enable" first
+```
+
+Both rows were on the page the operator was reading when they typed them. The page now names the
+privileged half after the rows, so the answer arrives before the command does:
+
+```
+Privileged commands (they answer "needs enable mode" until you type "enable"):
+  write memory, copy running-config startup-config, copy startup-config running-config,
+  clear logging, clear counters, clear interface counters, clear arp, clear ip arp, clear mac
+  address-table, clear port-security
+```
+
+The list is **capability-gated like every other row**: a router names `clear ip nat translation` and
+not the bridging clears, a switch the other way round, because naming a command the device does not
+have is the same defect in the other direction. It is checked **both ways** by the suite — every verb
+it names must refuse in user exec, and every row that refuses must be named — so the list cannot
+drift as verbs are added.
+
+Two traps the suite had to learn, both worth writing down. A single session cannot walk a page that
+contains `configure terminal`: part-way through, every later row is answered by the config parser. And
+`help` prints this page, so a refusal check that greps the whole output reads a help page as a
+privilege failure — the check is on the first line only.
+
 ### A saved copy you can never return to is a copy nobody needed
 
 `write memory`, `copy running-config startup-config` and `show startup-config` all existed. Nothing
@@ -1444,6 +1475,29 @@ R1#show ip ospf 1
 % No OSPF process 1 on R1
 % The process here is "ospf 7"
 ```
+
+**Known limitation, measured: the OSPF form cannot currently succeed.** `show vrrp <group>` filters
+correctly, but `show ip ospf <n>` refuses **every** `n`, including the process it names — because
+nothing ever sets `config.ospf.pid`: there is no command that takes a process id, so the key is
+`undefined`, and the comparison is `Number(what) !== Number(cfg.pid)`:
+
+```text
+R1#show ip ospf
+Routing Process "ospf 1" with ID 1.1.1.1
+  Area 0
+  ...
+
+R1#show ip ospf 1
+% No OSPF process 1 on R1
+% The process here is "ospf 1"
+```
+
+The second line is the misleading part: `cfg.pid` is `undefined`, and the message prints
+`(cfg.pid || 1)`, so it invents the `1` it has just refused. Until the engine sets a process id (or
+treats "no id configured" as id 1), use the bare `show ip ospf` — it answers the same question, and
+`show ip ospf neighbor` / `database` / `interface` are unaffected. Two smaller artefacts of the same
+path, both reproducible: `show ip ospf process 1` prints an unrelated `OSPF at t=1 ms` line before
+refusing, and any unknown word is echoed back as `not "process"`.
 
 Every `at <ms>` and every `converged` is still an instant everywhere — those are unambiguous, and they
 are the spellings the help advertises.
