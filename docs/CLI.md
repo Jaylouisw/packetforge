@@ -5351,9 +5351,27 @@ Flows in this lab (2 recorded, 3 opened, 1 refused):
 ```
 
 `2 recorded` is what is still in the table, `3 opened` counts the attempts that put a SYN or a
-datagram on the wire, and `1 refused` counts the one a closed port turned away — its record is
+datagram on the wire, and `1 refused` counts the ones the data path turned away — their records are
 deleted, so `recorded < opened` is the normal trace of something having been refused, not a fault.
 `Opened` is a **step**, the simulator's own logical tick, not a wall-clock time.
+
+The two counters are **not** mutually exclusive, which is the part worth measuring. A refused connection
+counts in both; an attempt that never found a route counts only as refused:
+
+```text
+PC1#flow open 10.0.1.20 port 9       (SYN out, RST back → E_REFUSED)
+PC1#show flows
+Flows in this lab: none (1 opened, 1 refused, no record kept)
+
+PC1#flow open 192.0.2.99 port 80     (nothing sent → E_NO_ROUTE)
+PC1#show flows
+Flows in this lab: none (0 opened, 1 refused, no record kept)
+```
+
+So `opened` minus `refused` is not "conversations in progress", and a refusal with no route leaves the
+counters at `0 0` for packets because no frame ever left the device. Both failures are attributed to the
+device that opened them, never to the destination — `show flows counters` shows the `Refused` count
+against `PC1` in each case.
 
 `show flows flow-1` is the record in full — both ends resolved to device names, the state and whether
 it is still open, the segmentation the payload produced, the MSS and MTU it was sized against, and
@@ -5386,6 +5404,10 @@ Flow counters in this lab:
 
 `Bytes in 0` for PC1 is not a bug: acknowledgements are packets without payload, so a sender
 receives packets and no bytes — which is exactly why the two columns are separate.
+
+**A device with no traffic is not listed at all.** An isolated PC in the same lab is absent from the table
+rather than present with zeros, so read a missing row as "moved nothing" and check the topology if you
+expected traffic from it — this command cannot tell you that a device exists but is idle.
 
 ## VLANs
 
