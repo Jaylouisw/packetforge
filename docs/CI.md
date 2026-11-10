@@ -274,8 +274,17 @@ class and prove it fails on a deliberately broken table before trusting a green 
 The fifth check is the one the list had been missing: same-file `#anchor` links were covered, but
 a link into the middle of a different document (`OTHER.md#anchor`) was not, and that is the shape
 that breaks on every heading rename. It resolves the target relative to the linking file and demands the
-heading exist there. All six such links in the tree currently resolve; the check was proved to bite by
-pointing one at a heading that does not exist.
+heading exist there. **Three** such links exist today — `README.md` into `CLI.md` twice (the NAT section
+and link aggregation) and into `ARCHITECTURE.md` once (transport flows) — and all three resolve. The
+number is not stable and does not need to be: count them with
+
+```bash
+grep -rhoE '\]\([A-Za-z0-9_./-]*docs/[A-Za-z0-9_.-]+\.md#[^)]+' docs/*.md docs/wiki/*.md README.md CONTRIBUTING.md CHANGELOG.md | wc -l
+# 3, on the tree this was measured against
+```
+
+The check was proved to bite by pointing one of them at a heading that does not exist — and it bit for
+real when the NAT heading was renamed, which is how the count came to be re-measured.
 
 The wrapped-row check has one subtlety worth keeping: it only considers lines that belong to a real
 table (a `|` line followed by a separator). Prose is allowed to start with `|` — a sentence that wraps
