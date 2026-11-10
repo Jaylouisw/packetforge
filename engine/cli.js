@@ -3028,8 +3028,12 @@ class CliSession {
     // A dump emits `neighbor ...` / `bgp router-id ...` and does not say `exit` between blocks.
     if (head === 'neighbor' || head === 'no' || head === 'bgp' || head === 'network') {
       if (head === 'network') {
-        return ['% BGP "network" is not modelled here: the routes this box announces are the connected',
-          '% and static ones its own table holds - "show ip bgp" lists what it would send'];
+        // This used to promise that connected *and static* routes are announced. Only the connected
+        // ones are: a static route on R1 never reached the peer, so the sentence described a
+        // behaviour the engine does not have. The rule is now the real one, and the view it points at
+        // lists the originated prefixes.
+        return ['% BGP "network" is not modelled here: this box announces the subnets it has an address',
+          '% on, and nothing else - there is no "redistribute" either. "show ip bgp" lists them'];
       }
       if (head === 'no') {
         const asGlobalNo = (function (self) {
@@ -6562,8 +6566,22 @@ class CliSession {
     const up = rows.filter(function (r) { return r.established; }).length;
     out.push('');
     out.push(up + ' of ' + rows.length + ' neighbour(s) established');
+    // "installed" was the count of prefixes *received*, so a prefix a connected or static route beat
+    // was still counted as installed - the summary said `2 prefix(es) installed from BGP` above a
+    // table where both rows were marked as losing, and a routing table with no BGP row installed at
+    // all. The routing table decides; this line only counts its answer.
     const learned = (dev.bgpRoutes || []).length;
-    out.push(learned + ' prefix(es) installed from BGP');
+    const rtBgp = (typeof dev.routesTable === 'function')
+      ? dev.routesTable().filter(function (r) { return r.code === 'B'; }) : [];
+    const installed = rtBgp.filter(function (r) { return r.installed; }).length;
+    if (!learned) {
+      out.push('no prefix received from BGP');
+    } else if (installed === learned) {
+      out.push(learned + ' prefix(es) received, all installed in the routing table');
+    } else {
+      out.push(learned + ' prefix(es) received, ' + installed + ' installed - the rest lose on ' +
+        'distance (see "show ip bgp" and "show ip route")');
+    }
     return out;
   }
 
@@ -6603,7 +6621,7 @@ class CliSession {
     out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
       ', local AS number ' + cfg.as);
     out.push('');
-    if (!learned.length) {
+    if (!learned.length && !(dev.bgpOriginated || []).length) {
       out.push('     Network            Next Hop     Path');
       const peers = (dev.bgpNeighbors || []).length || (cfg.neighbors || []).length;
       out.push(peers
@@ -6611,19 +6629,35 @@ class CliSession {
         : '(no prefix has been received and no neighbour is configured - "neighbor <ip> remote-as <as>")');
       return out;
     }
+    // A prefix this router announces is part of its BGP table, and it was missing: the table showed
+    // only what was received, so a box with no peers said "no prefix has been received" and nothing
+    // else - although it was announcing its own subnets. Next hop 0.0.0.0 is how a locally originated
+    // prefix is spelled, and it is the only marker needed.
+    const own = (dev.bgpOriginated || []).map(function (r) {
+      return ['*>', r.dest + '/' + net.prefixOf(r.mask), '0.0.0.0', '-'];
+    });
     const rows = learned.map(function (r) {
       const best = installedFor(r);
       return [(best ? '*>' : '*'),
         r.dest + '/' + net.prefixOf(r.mask),
         r.nextHop || '-',
         (r.asPath && r.asPath.length) ? r.asPath.join(' ') : '-'];
-    });
+    }).concat(own);
     rows.sort(function (a, b) { return String(a[1]).localeCompare(String(b[1])); });
     out.push.apply(out, renderTable(['', 'Network', 'Next Hop', 'Path'], rows));
     out.push('');
-    out.push('  *> this row forwards   * a route to the same prefix wins ahead of it');
-    out.push('  Not modelled here: MED, local preference, weight and the origin attribute - every');
-    out.push('  figure above is what the peer sent, and "show ip route" is what forwards.');
+    out.push('  *> a received row that forwards, or a prefix this router announces (next hop 0.0.0.0)');
+    out.push('  *  a received row that a closer route beats - see "show ip route"');
+    out.push('  This model announces the subnets it has an address on; there is no "network" or');
+    out.push('  "redistribute" verb to change that.');
+    if (!learned.length) {
+      const peers = (dev.bgpNeighbors || []).length || (cfg.neighbors || []).length;
+      out.push(peers
+        ? '  Nothing has been received from a peer: "show ip bgp summary" says whether one is up.'
+        : '  Nothing has been received: no neighbour is configured ("neighbor <ip> remote-as <as>").');
+    }
+    out.push('  MED, local preference, weight and origin are fixed defaults here - nothing in this');
+    out.push('  console changes them - so they are not shown; every figure above came from the peer.');
     for (const r of learned) {
       if (installedFor(r)) continue;
       const prefix = r.dest + '/' + net.prefixOf(r.mask);
@@ -6697,8 +6731,9 @@ class CliSession {
           : 'another path to ' + prefix + ' won') + ' - see "show ip route ' +
         hit.dest + '"');
     }
-    out.push('  No MED, local preference, weight or origin attribute is modelled: the path above is');
-    out.push('  exactly what the peer sent.');
+    out.push('  AS path and next hop are as the peer sent them. MED, local preference, weight and the');
+    out.push('  origin attribute are fixed defaults in this engine - no verb changes them, so none is');
+    out.push('  printed as though it were measured.');
     return out;
   }
 
@@ -6829,7 +6864,12 @@ class CliSession {
       out.push('(no neighbour is configured - "neighbor <ip> remote-as <as>" adds one)');
       return out;
     }
-    const installed = (dev.bgpRoutes || []).length;
+    // Two views, one fact: this count is the routing table's, exactly as the summary's is. Counting
+    // `bgpRoutes.length` said "installed" about a prefix a connected route was forwarding.
+    const installed = (typeof dev.routesTable === 'function')
+      ? dev.routesTable().filter(function (x) { return x.code === 'B' && x.installed; }).length
+      : (dev.bgpRoutes || []).length;
+    const received = (dev.bgpRoutes || []).length;
     for (const r of picked) {
       const kind = r.session === 'ibgp' ? 'iBGP' : 'eBGP';
       out.push('');
@@ -6844,7 +6884,9 @@ class CliSession {
       }
       out.push('  Hold time      ' + bgpLib.DEFAULT_HOLD_TIME + ' s');
       if (r.established) {
-        out.push('  Prefixes in    ' + installed + ' (installed from BGP on this router)');
+        out.push('  Prefixes in    ' + received + ' (received)' + (
+          received === installed ? ', all installed in the routing table'
+            : ', ' + installed + ' installed - the rest lose on distance'));
       } else {
         out.push('  Prefixes in    0 (no session, so nothing was exchanged)');
       }

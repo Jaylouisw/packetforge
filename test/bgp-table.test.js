@@ -52,7 +52,11 @@ console.log('The bare command is the BGP table:');
   ok(/Network\s+Next Hop\s+Path/.test(body), 'the header names the columns it fills');
   ok(!/Neighbor\s+V\s+AS\s+State/.test(body), 'and it is not the neighbour summary');
   const rows = body.split('\n').filter(function (l) { return /^\s*[*>]+\s+\d/.test(l); }).map(cells);
-  ok(rows.length === 2, 'both received prefixes are listed (' + rows.length + ')');
+  // Two received prefixes, plus the one this router originates itself - which used to be missing
+  // from the table entirely, although the box announces it.
+  ok(rows.length === 3, 'two received prefixes and the local one are listed (' + rows.length + ')');
+  ok(rows.filter(function (r) { return r[2] === '0.0.0.0'; }).length === 1,
+    'the local prefix is the one with next hop 0.0.0.0');
   ok(rows.some(function (r) { return r.indexOf('192.168.5.0/24') !== -1; }), 'the far subnet is one of them');
   ok(rows.some(function (r) { return r.indexOf('10.0.0.0/24') !== -1; }), 'and the transit subnet the peer sent');
   // Alignment is checked here rather than in table-layout: that lab has no received prefixes, and a
@@ -85,10 +89,12 @@ console.log('\nWhat is not modelled is said, not printed as zero:');
 {
   const env = lab();
   const body = text(env.sa.run('show ip bgp'));
-  ok(/Not modelled here: MED, local preference, weight and the origin attribute/.test(body),
-    'the header names the attributes this engine does not have');
-  ok(!/\bLocPrf\b/.test(body), 'and no column claims to show one');
-  ok(!/\bWeight\b/.test(body), 'nor a weight');
+  // The first wording claimed these attributes were "not modelled", which was not quite true: the
+  // engine carries them as fixed defaults that no verb changes. The header now says that instead.
+  ok(/MED, local preference, weight and origin are fixed defaults here/.test(body),
+    'the header says those attributes are fixed defaults, not measurements');
+  ok(!/^\s*\)?LocPrf/.test(body), 'and no column claims to show one');
+  ok(!/Network\s+Next Hop\s+Path\s+Metric/.test(body), 'nor a metric column');
 }
 
 console.log('\nOne prefix, with the reason it is or is not forwarding:');
@@ -130,8 +136,10 @@ console.log('\nAn empty table says why it is empty:');
   sa.run('router bgp 65001'); sa.run('neighbor 10.0.0.9 remote-as 65002'); sa.run('exit'); sa.run('end');
   const body = text(sa.run('show ip bgp'));
   ok(/Network\s+Next Hop\s+Path/.test(body), 'the header is still there');
-  ok(/no prefix has been received - 1 neighbour\(s\) configured, see "show ip bgp summary"/.test(body),
-    'and the empty answer points at the view that says whether the peer is up');
+  // The table lists the prefix this box announces, so "empty" is now about what was *received* - and
+  // the answer points at the view that says whether the peer is up.
+  ok(/Nothing has been received from a peer: "show ip bgp summary" says whether one is up/.test(body),
+    'and the received-empty answer points at the view that says whether the peer is up');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

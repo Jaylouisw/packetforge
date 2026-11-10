@@ -1849,6 +1849,21 @@ class Simulator {
       });
     }
 
+    // What each speaker announces is a property of the box, not of having a peer: recording it here,
+    // before the early return, means `show ip bgp` on a router with no neighbours still lists the
+    // prefixes it would send - which is what the refusal for `network` tells an operator to look at.
+    // The identifier it elected belongs here too: `show ip bgp` printed `0.0.0.0` for a box with an
+    // address, because the election ran only when there were two speakers to elect between.
+    for (const s of speakers) {
+      s.dev.bgpRouterId = s.routerId || null;
+      s.dev.bgpOriginated = s.addrs.map(function (x) {
+        return {
+          dest: net.intToIp(net.networkOf(x.ip, x.mask)),
+          mask: x.mask,
+          iface: x.iface
+        };
+      });
+    }
     if (speakers.length < 2) { this.bgpResult = null; this.bgpSessions = 0; return null; }
 
     // --- sessions: both ends must agree, AND the peer must be reachable ---

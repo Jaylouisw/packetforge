@@ -123,7 +123,7 @@ BGP router identifier 1.1.1.1, local AS number 65001
 Neighbor   V  AS     State        Reason
 10.0.12.2  4  65002  Established  eBGP
 1 of 1 neighbour(s) established
-2 prefix(es) installed from BGP
+2 prefix(es) received, 2 installed
 R1#show vrrp
 Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
 Gi0/0      10     120  Master  R1      10.0.1.254  00:00:5e:00:01:0a
@@ -1534,6 +1534,55 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### A count called "installed" has to be the routing table's count
+
+The BGP summary ended with a number that readers take at face value, and it was counting the wrong
+thing:
+
+```
+R1#show ip bgp summary
+2 of 2 neighbour(s) established
+2 prefix(es) received, 2 installed          <- and the routing table installed none of them
+
+R1#show ip bgp
+*  10.0.0.0/24  10.0.0.2  65002          <- neither row forwarding: the connected routes win
+*  10.1.0.0/24  10.1.0.2  65003
+
+R1#show ip route
+*  C 10.0.0.0/24 ...                     <- no B row installed at all
+```
+
+The count was `bgpRoutes.length` — prefixes *received* — under the word "installed". It now counts
+what `routesTable()` installed, and reports both numbers, so the difference is visible instead of
+being papered over:
+
+```
+2 prefix(es) received, 0 installed - the rest lose on distance (see "show ip bgp" and "show ip route")
+```
+
+The neighbour detail (`show ip bgp neighbors <addr>`) counts the same way, because it is the same
+fact: `Prefixes in    2 (received), 0 installed - the rest lose on distance`.
+
+**And the table lists what this router announces.** It showed only what had been *received*, so a box
+with no peers answered "no prefix has been received" while it was announcing its own subnets — and the
+refusal for `network` told operators that `show ip bgp` "lists what it would send". Next hop `0.0.0.0`
+is a locally originated prefix:
+
+```
+R1#show ip bgp
+    Network      Next Hop  Path
+*   10.0.0.0/24  10.0.0.1  65001
+*>  10.0.0.0/24  0.0.0.0   -
+```
+
+That refusal also promised that connected *and static* routes are announced. Only the connected ones
+are: a static route on one router never reached its peer. The sentence now states the rule the engine
+follows, and the suite checks the promise and the behaviour against each other.
+
+Last, the identifier: `show ip bgp` printed `BGP router identifier 0.0.0.0` for a box with an address,
+because the election ran only when two speakers were configured. It is elected for every speaker, peers
+or not.
 
 ### `show ip bgp` is the table, and the summary is the summary
 
@@ -6496,7 +6545,7 @@ Neighbor   V  AS     State        Reason
 10.0.12.2  4  65002  Established  eBGP
 
 1 of 1 neighbour(s) established
-2 prefix(es) installed from BGP
+2 prefix(es) received, 2 installed
 ```
 
 The `Reason` column is where a session that did *not* come up says why (wrong AS, no route to the

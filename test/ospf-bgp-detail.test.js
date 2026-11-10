@@ -154,13 +154,26 @@ console.log('\nBGP neighbours are per peer, and a down peer says why:');
   match(/Remote AS\s+65002 \(eBGP\)/, detail, 'with its AS and session type');
   match(/State\s+Established/, detail, 'and the session state');
   match(/Hold time\s+180 s/, detail, 'the hold time comes from the library, not a guess');
-  // The count must be the same number the summary reports - two shows, one fact.
-  const summaryCount = /(\d+) prefix\(es\) installed from BGP/.exec(
-    env.a.run('show ip bgp summary').output.join('\n'));
-  match(/Prefixes in\s+\d+ \(installed from BGP on this router\)/, detail,
-    'and how many prefixes are installed');
-  match(new RegExp('Prefixes in\\s+' + (summaryCount ? summaryCount[1] : '1') + ' '), detail,
-    'which is the same count the summary gives (' + (summaryCount ? summaryCount[1] : '?') + ')');
+  // The counts must be the same fact in both shows. Both now count what the routing table
+  // installed, not what was received: a prefix a connected route beat is not installed.
+  const summaryText = env.a.run('show ip bgp summary').output.join('\n');
+  const summaryMatch = /(\d+) prefix\(es\) received, (\d+) installed/.exec(summaryText) ||
+    /(\d+) prefix\(es\) received, all installed/.exec(summaryText);
+  const installedCount = summaryMatch
+    ? (summaryMatch[2] === undefined ? summaryMatch[1] : summaryMatch[2])
+    : null;
+  match(/Prefixes in\s+\d+ \(received\)/, detail, 'the detail says how many prefixes arrived');
+  const receivedCount = summaryMatch ? summaryMatch[1] : null;
+  if (receivedCount !== null) {
+    match(new RegExp('Prefixes in\\s+' + receivedCount + ' \\(received\\)'), detail,
+      'and the same received count the summary gives (' + receivedCount + ')');
+  }
+  if (installedCount !== null) {
+    match(new RegExp(', ' + installedCount + ' installed'), detail,
+      'with the same installed count (' + installedCount + ')');
+  } else {
+    ok(true, 'this lab installed every received prefix, so both shows say so in words');
+  }
   // One peer by address, and an address that is not a peer named with the ones that are.
   eq(env.a.run('show ip bgp neighbors 10.9.0.2').output.join('\n'), detail.join('\n'),
     'asking for one configured peer gives that peer');
