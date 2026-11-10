@@ -1,0 +1,28 @@
+{
+  "vendor": "adtran",
+  "model": "SDX 631",
+  "label": "Adtran SDX 631 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT with 1× 10G LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over no published management.",
+  "capabilities": [
+    "l2-forward",
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-adtran-sdx-631/"
+}
