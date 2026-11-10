@@ -463,6 +463,88 @@ class Device {
   isL3() { return this.hasCap('l3-forward'); }
 
   // MAC table for a given VLAN (VLAN 1 keeps the legacy flat map).
+  // -- What the tables say ------------------------------------------------------------------------------
+  //
+  // The console has printed these rows since #1253-#1255: which port a MAC or a neighbour was learned on, and
+  // whether that port can still carry a frame. The state payload published the raw maps instead - `mac` ->
+  // `"1/1/1"`, `{"10.0.0.2": "02:.."}` - so a client was told an entry existed but not that it was stale, and
+  // LLDP was not published at all. Same fault as the Routes table in #1300: the fact is computed in one place
+  // (here) and read by every surface, so the sentences cannot drift.
+
+  // "Is this port still somewhere a frame can go, and if not why" - the sentence every table appends to a row
+  // whose port can no longer carry. `extra` is an additional reason that outranks the port state (`vlan mismatch`).
+  portCarrierNote(port, topo, extra) {
+    if (!port) return extra || '(gone)';
+    const link = this.ifaceStatus(port, topo);
+    if (link.status === 'up') return extra || '';
+    // `administratively down` already says who did it; "shut down" after it would be the same fact twice.
+    const why = (!link.reason || link.reason === 'shut down' || link.reason === link.status)
+      ? link.status : link.status + ': ' + link.reason;
+    return '(' + why + ')';
+  }
+
+  // `show mac address-table`, as data: every entry, the VLAN it belongs to, the port it points at, and the note
+  // explaining why that port cannot be the way to it.
+  macRows(topo) {
+    const vlanLib = require('./vlan');
+    const rows = [];
+    for (const [mac, iface] of this.macTable.entries()) rows.push({ vlan: 1, mac: mac, port: iface });
+    for (const [vid, table] of (this.macTables || new Map()).entries()) {
+      for (const [mac, iface] of table.entries()) rows.push({ vlan: vid, mac: mac, port: iface });
+    }
+    rows.sort(function (a, b) { return (a.vlan - b.vlan) || String(a.mac).localeCompare(String(b.mac)); });
+    return rows.map(function (r) {
+      const port = (r.port && typeof r.port === 'object') ? r.port : this.resolveIface(r.port);
+      const name = port ? port.name : String(r.port);
+      // A port that no longer carries this VLAN cannot be the way to a MAC in it, even while the port itself is
+      // up: moving a port between VLANs is exactly how that happens (#1255).
+      const mismatch = (port && vlanLib.classifyEgress(port.vlan, r.vlan).action === 'drop') ? '(vlan mismatch)' : '';
+      return { vlan: r.vlan, mac: r.mac, port: name, note: this.portCarrierNote(port, topo, mismatch) };
+    }, this);
+  }
+
+  // `show arp`, as data: the neighbour, the port it was learned on, and whether that port still carries.
+  arpRows(topo) {
+    const rows = [];
+    for (const [ip, mac] of this.arp.entries()) {
+      const portName = (this.arpPorts && this.arpPorts.get(ip)) || null;
+      let port = '-';
+      let note = '';
+      if (portName) {
+        const iface = this.resolveIface(portName);
+        if (!iface) { port = portName; note = '(gone)'; }
+        else {
+          port = iface.name;
+          // The reason travels with the status: "down" alone sends you looking for a cable when the cable is
+          // fine and the far port is shut (#1253).
+          note = this.portCarrierNote(iface, topo);
+        }
+      }
+      // Age is not modelled: the simulator has steps, not minutes, and printing a step count in a minutes column
+      // would be a number with the wrong unit.
+      rows.push({ ip: ip, mac: mac, port: port, age: '-', note: note });
+    }
+    rows.sort(function (a, b) { return String(a.ip).localeCompare(String(b.ip)); });
+    return rows;
+  }
+
+  // `show lldp`, as data: a neighbour is not "here" because it was once heard.
+  lldpRows(topo) {
+    const rows = [];
+    for (const [portName, nb] of this.lldp.entries()) {
+      const iface = this.resolveIface(portName);
+      rows.push({
+        port: iface ? iface.name : portName,
+        systemName: (nb && nb.systemName) || '?',
+        portId: (nb && nb.portId) || '?',
+        mgmtIp: (nb && nb.mgmtIp) || '-',
+        note: iface ? this.portCarrierNote(iface, topo) : '(gone)'
+      });
+    }
+    rows.sort(function (a, b) { return String(a.port).localeCompare(String(b.port)); });
+    return rows;
+  }
+
   macTableFor(vid) {
     const v = Number(vid) || 1;
     if (v === 1) return this.macTable;
