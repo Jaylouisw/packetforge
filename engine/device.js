@@ -181,7 +181,11 @@ class Device {
       // null until the device is told to advertise anything, which is why no
       // existing lab suddenly starts emitting RAs.
       ra: null,
-      scionAs: null              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
+      scionAs: null,
+      // Bridge priority for the spanning-tree root election: 0..61440 in 4096 steps, lower wins.
+      // `computeStp()` has read this since STP was modelled, and nothing ever wrote it - a switch's
+      // bridge priority was fixed at the default and no command could change it (#1364).
+      stpPriority: null              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
@@ -968,6 +972,12 @@ class Device {
     if (this.config.vrrp && this.config.vrrp.length) {
       out.config.vrrp = JSON.parse(JSON.stringify(this.config.vrrp));
     }
+    // Same rule again, and for the same reason: a switch that never had a bridge priority should not grow a
+    // null in every saved board, but one that had it must not lose it - the root election changes on reload.
+    // `0` is a legal priority and the best one, so this tests for null rather than falsiness.
+    if (this.config.stpPriority !== null && this.config.stpPriority !== undefined) {
+      out.config.stpPriority = this.config.stpPriority;
+    }
     return out;
   }
 
@@ -997,6 +1007,8 @@ class Device {
         d.config.gateway6Iface = state.config.gateway6Iface || null;
         d.config.ra = state.config.ra ? JSON.parse(JSON.stringify(state.config.ra)) : null;
         d.config.scionAs = state.config.scionAs || null;
+        d.config.stpPriority = (state.config.stpPriority === 0 || state.config.stpPriority)
+          ? Number(state.config.stpPriority) : null;
         d.config.dhcpPools = (state.config && Array.isArray(state.config.dhcpPools))
           ? JSON.parse(JSON.stringify(state.config.dhcpPools)) : [];
         d.config.vrrp = (state.config && Array.isArray(state.config.vrrp))

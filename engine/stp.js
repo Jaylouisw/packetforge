@@ -260,6 +260,10 @@ function runStp(input) {
 
   return {
     root: {
+      // The root used to be reported as a priority and a MAC, which is the bridge ID and not a device:
+      // a caller could not say *which* box won the election, so `show spanning-tree` on a switch that
+      // had just been made root still read the same as one that had not (#1364).
+      key: root.key,
       priority: root.priority,
       mac: (root.macRaw === null) ? root.mac : root.macRaw
     },

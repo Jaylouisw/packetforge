@@ -96,6 +96,36 @@ class CliSession {
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    if (head === 'spanning-tree') {
+      // The engine has read `config.stpPriority` since STP was modelled and nothing ever wrote it, so
+      // every box in every lab ran the default and the root was decided by MAC address alone. This is
+      // the command that reaches it (#1364).
+      const dev = this.device;
+      if (tokens[1] && tokens[1].toLowerCase() === 'vlan') {
+        // IOS spells this per VLAN. This model runs one spanning tree for the device, so accepting a
+        // VLAN id would promise a per-VLAN election that does not exist - say so instead of quietly
+        // applying it to everything.
+        return ['% This device runs one spanning tree, not one per VLAN: use `spanning-tree priority <0-61440>`'];
+      }
+      const value = tokens[2];
+      if (!value || !/^\d+$/.test(value)) {
+        return ['% Usage: spanning-tree priority <0-61440 in 4096 steps>'];
+      }
+      const p = Number(value);
+      const stpLib = require('./stp');
+      const problem = p % 4096 !== 0
+        ? 'it must be a multiple of 4096 (the low 12 bits are the system ID extension); the nearest valid values are ' +
+          (Math.floor(p / 4096) * 4096) + ' and ' + Math.ceil(p / 4096) * 4096
+        : (p > 61440 ? 'the range is 0 to 61440' : null);
+      if (problem) return ['% ' + p + ' is not a valid bridge priority: ' + problem];
+      const was = dev.config.stpPriority;
+      dev.config.stpPriority = p;
+      out.push('Bridge priority set to ' + p + ' (lower wins the root election)' +
+        (was === null || was === undefined ? '' : ', was ' + was) +
+        (dev.isL2 && dev.isL2() ? '' : '; this device has no bridging ports, so no election runs here'));
+      this._controlPlaneChanged();
+      return out;
+    }
     if (head === 'hostname') {
       // The whole remainder is the name. Taking tokens[1] silently truncated
       // "core switch 1" to "core", which is what the UI's hostname field appeared to do
@@ -116,6 +146,17 @@ class CliSession {
       const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
+    } else if (head === 'no' && tokens[1] === 'spanning-tree') {
+      const dev = this.device;
+      if (!dev.config.stpPriority && dev.config.stpPriority !== 0) {
+        const stpLib = require('./stp');
+        return ['% No bridge priority set: the device is using the default ' + stpLib.STP_DEFAULT_PRIORITY];
+      }
+      const was = dev.config.stpPriority;
+      dev.config.stpPriority = null;
+      this._controlPlaneChanged();
+      const stpLib = require('./stp');
+      return ['Bridge priority cleared (was ' + was + '), back to the default ' + stpLib.STP_DEFAULT_PRIORITY];
     } else if (head === 'no' && tokens[1] === 'hostname') {
       // `hostname` was a one-way door: the console accepted it, `show running-config` printed it, and there
       // was no way to take it back short of rewriting the device. A backup you cannot edit back is half a
@@ -2196,7 +2237,23 @@ class CliSession {
       if (this.sim && typeof this.sim.recomputeStp === 'function') this.sim.recomputeStp();
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
       const names = Object.keys(st.states || {}).sort();
+      const stpLib = require('./stp');
+      const mine = (dev.config && dev.config.stpPriority !== null && dev.config.stpPriority !== undefined)
+        ? dev.config.stpPriority : stpLib.STP_DEFAULT_PRIORITY;
       out.push('Spanning tree enabled protocol ieee');
+      // The bridge priority decides the election, so a tree report that omits it cannot explain itself.
+      const rootRes = this.sim && this.sim.stpResult && this.sim.stpResult.root;
+      if (rootRes) {
+        const rootDev = this.topo ? this.topo.getDevice(rootRes.key) : null;
+        // A device's `name` is its catalogue label ("Aruba CX 6000 24G 4SFP+"), which names the model
+        // three switches share, so a root report built on it named nothing. Hostname, else the id the
+        // lab uses.
+        const rootName = rootDev ? (rootDev.config.hostname || rootDev.id) : String(rootRes.key);
+        out.push('  Bridge priority ' + mine + (rootRes.key === dev.id ? ' (this bridge is the root)' : '') +
+          ', root bridge ' + rootName + ' priority ' + rootRes.priority);
+      } else {
+        out.push('  Bridge priority ' + mine + ', root bridge not measured (no election has run)');
+      }
       if (!names.length) {
         // With nothing having run, "no ports are bridging" is a claim the command cannot make - the same
         // distinction `show interfaces` makes for its counters (#1252). Both answers used to be the same
@@ -2407,6 +2464,11 @@ class CliSession {
       // Each line below is the exact spelling the parser takes back, printed only when it differs from the
       // default the device already assumes, in an order that replays: the OSPF router exists before the
       // interface overrides that require it.
+      // The bridge priority decides who is root, and a restore that dropped it would silently move the
+      // root to whichever other switch has the lower MAC.
+      if (dev.config.stpPriority !== null && dev.config.stpPriority !== undefined) {
+        out.push('spanning-tree priority ' + dev.config.stpPriority);
+      }
       for (const ns of (dev.config.dnsServers || [])) out.push('ip name-server ' + ns);
       if (dev.config.scionAs) out.push('scion ' + dev.config.scionAs);
       // IPv6 is the same hole in the other address family: `ipv6 address`, `ipv6 route` and `ipv6 gateway`
