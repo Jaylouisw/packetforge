@@ -288,5 +288,38 @@ console.log('\nA VDSL router whose WAN is not a LAN port (#691):');
   ok(copper.ok && copper.speedMbps === 1000, 'Vigor 2767ax: a LAN port links to a 1G host at 1G');
 }
 
+console.log('\nTwo Ubiquiti devices that are 100M, not gigabit (#43, #322):');
+{
+  // The trap both of these share: the names suggest modern UniFi gear and the hardware is Fast
+  // Ethernet. A spec that guessed "1G" would let a lab cable them at a rate the port cannot carry.
+  const uap = find('UniFi AP (UAP)');
+  const apPorts = effectiveInterfaces(uap);
+  eq(apPorts.length, 2, 'UniFi AP (UAP): one Ethernet port and one radio');
+  eq(apPorts[0].speed, '100M', 'UniFi AP (UAP): the wired port is 10/100');
+  eq(apPorts[0].poeIn, 4, 'UniFi AP (UAP): it is a powered device drawing 4 W');
+  eq(apPorts[1].speed, '300M', 'UniFi AP (UAP): 2.4 GHz 802.11n, 300 Mbps');
+  ok(!(uap.capabilities || []).includes('cli'),
+    'UniFi AP (UAP): no console - the UniFi Controller is the management surface');
+
+  const cube = find('airCube ACB-ISP');
+  const cubePorts = effectiveInterfaces(cube);
+  eq(cubePorts.filter(function (p) { return p.type === 'ethernet'; }).length, 4,
+    'airCube: four Fast Ethernet ports');
+  ok(cubePorts.filter(function (p) { return p.type === 'ethernet'; })
+    .every(function (p) { return p.speed === '100M'; }), 'airCube: every one of them 10/100');
+  eq(cubePorts.filter(function (p) { return p.role === 'wan'; }).length, 1,
+    'airCube: exactly one WAN port, which is where the PoE passthrough lives');
+  eq(cubePorts.filter(function (p) { return p.poeIn === 5; }).length, 1,
+    'airCube: power comes in on one port only, and the spec says which');
+
+  // The physical consequence: a 100M port runs a gigabit partner at 100M, not at 1G.
+  const t6 = new Topology();
+  const uapDev = t6.addDevice(uap);
+  const host = t6.addDevice(find('generic-pc'));
+  const link = t6.validateLink(uapDev.id, 'eth0', host.id, 'eth0', {});
+  ok(link.ok && link.speedMbps === 100,
+    'UniFi AP (UAP): a gigabit host on its port runs at 100M (' + (link.mediaName || link.mediaId) + ')');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

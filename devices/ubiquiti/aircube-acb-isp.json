@@ -1,0 +1,67 @@
+{
+  "vendor": "ubiquiti",
+  "model": "airCube ACB-ISP",
+  "label": "Ubiquiti airCube ACB-ISP home Wi-Fi AP",
+  "category": "wireless",
+  "description": "Ubiquiti airCube ISP (ACB-ISP) - 4x 10/100 Fast Ethernet ports with a controllable 24 V passive PoE passthrough on the WAN port for an airMAX CPE, 802.11n 2x2 on 2.4 GHz (300 Mbps), powered by 24 V passive PoE on LAN port 1 or a 5 V micro-USB adapter. 5 W maximum draw.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 5
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-aircube-airmax-isp-home-wifi-access-point-acbisp-p-7078.html",
+  "notes": "Everything here is 100M: four Fast Ethernet ports and a 2.4 GHz 802.11n radio, so this is a WISP subscriber box, not the gigabit dual-band AP its name suggests. The PoE is *passive* and passes through to the CPE on the WAN port (24 V on pairs 4,5 / 7,8) - the page publishes no wattage for it, so no `poeOut` number is declared rather than inventing one; the 5 W is the device's own draw, which is what `poeIn` on LAN port 1 means. Only LAN port 1 accepts power in, which is why `poeIn` sits on that port and not on the device."
+}

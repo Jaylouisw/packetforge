@@ -1,0 +1,33 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UniFi AP (UAP)",
+  "label": "Ubiquiti UniFi AP (first-generation UAP)",
+  "category": "wireless",
+  "description": "Ubiquiti UniFi AP, first generation - one 10/100 Ethernet port with passive PoE 12-24 V in (4 W maximum draw) and a single 802.11n 2x2 radio on 2.4 GHz (300 Mbps). Ceiling/wall mount, managed by the UniFi Controller; no 5 GHz radio and no gigabit copper.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeIn": 4
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-unifi-uap-single-unit-p-4743.html",
+  "notes": "The first-generation UAP, not the UAP-AC series: 2.4 GHz only, 802.11n 2x2, and **10/100** copper with passive 12-24 V PoE. A lab that models this as a dual-band gigabit AP is describing a different product, which is exactly the confusion that makes a rebuilt topology subtly wrong about the hardware on the wall. It has no console - management is the UniFi Controller - so no `cli` capability is declared."
+}
