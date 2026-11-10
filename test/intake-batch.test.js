@@ -220,5 +220,47 @@ console.log('\nA PoE-powered access point and a router whose ports have two role
     'Vigor 3912: the fixed LAN ports share one bridge group, as a consumer router\'s LAN sockets do');
 }
 
+console.log('\nTwo data-centre leaf switches whose uplink block is the same (#762, #763):');
+{
+  // Both are 1U ToR leaves from one vendor: 48 access ports and 8x 100G QSFP28 uplinks. The pair is
+  // worth pinning together because the only difference is the access rate, and a spec that drifted
+  // on one of them would hand a lab 10G ports where the hardware has 25G.
+  const b48 = find('N8560-48BC');
+  const s48 = find('N5860-48SC');
+  const pb = effectiveInterfaces(b48), ps = effectiveInterfaces(s48);
+
+  eq(pb.length, 57, 'N8560-48BC: 48 access ports, 8 uplinks and a management port');
+  eq(ps.length, 57, 'N5860-48SC: the same count');
+  eq(pb.filter(function (p) { return (p.connector || '') === 'qsfp28'; }).length, 8,
+    'N8560-48BC: eight QSFP28 uplinks');
+  eq(ps.filter(function (p) { return (p.connector || '') === 'qsfp28'; }).length, 8,
+    'N5860-48SC: eight QSFP28 uplinks');
+
+  eq(b48.portTemplate.speed, '25G', 'N8560-48BC: the access ports are 25G');
+  eq(s48.portTemplate.speed, '10G', 'N5860-48SC: and on the other model they are 10G');
+  ok((b48.portTemplate.speedCaps || []).indexOf(10000) !== -1,
+    'N8560-48BC: a 25G port still takes a 10G SFP+ module');
+  ok((s48.portTemplate.speedCaps || []).indexOf(1000) !== -1,
+    'N5860-48SC: and a 10G port takes a 1G SFP');
+
+  // The uplink block accepts 40G optics in a 100G cage on both, which is what the datasheet says.
+  ok(pb.concat(ps).filter(function (p) { return (p.connector || '') === 'qsfp28'; })
+    .every(function (p) { return (p.speedCaps || []).indexOf(40000) !== -1; }),
+    'both: the 100G cages accept 40G QSFP+ optics');
+  // ...but neither claims a 4x25G breakout, because the datasheet states only 40/100G.
+  ok(pb.concat(ps).filter(function (p) { return (p.connector || '') === 'qsfp28'; })
+    .every(function (p) { return (p.speedCaps || []).indexOf(25000) === -1; }),
+    'both: and neither invents a 25G breakout the datasheet does not list');
+
+  // The consequence of not claiming a breakout: a 10G SFP+ optic cannot go into a 40/100G QSFP28
+  // cage, and the engine says so rather than quietly running the link at 10G.
+  const t4 = new Topology();
+  const leaf = t4.addDevice(b48);
+  const host = t4.addDevice(find('PLS-8-10G-720W'));
+  const up = t4.validateLink(leaf.id, 'qsfp28-1', host.id, 'uplink1', {});
+  ok(!up.ok, 'N8560-48BC: a 10G SFP+ optic in a 40/100G cage is refused (' +
+    ((up.errors[0] || {}).code || 'no code') + ')');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

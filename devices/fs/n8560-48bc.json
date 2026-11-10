@@ -1,0 +1,115 @@
+{
+  "vendor": "fs",
+  "model": "N8560-48BC",
+  "label": "N8560-48BC 25G/100G data-centre leaf switch",
+  "category": "switch",
+  "description": "FS N8560-48BC 1U ToR leaf switch - 48x 25G/10G SFP28 ports and 8x 100G/40G QSFP28 uplinks, non-blocking, with VXLAN/EVPN, M-LAG, PFC/ECN, redundant hot-swap PSUs and fans. Managed over CLI, SNMPv1/v2c/v3 and NETCONF; one MGMT port and one console port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "sfp28-",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfp28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#2563eb",
+  "sourceUrl": "https://img-en.fs.com/file/datasheet/n8560-48bc-switch-datasheet.pdf",
+  "notes": "Port list confirmed against FS's own N8560-48BC datasheet (the PDF this spec cites): `48x 25G ports and 8x 100G ports`, 1U, with MGMT and console in the manageability list. The 25G ports accept 10G SFP+ modules and the 100G ports accept 40G QSFP+, which is what the datasheet's `48 10G/25G and 8 40/100G` means; no 4x25G breakout is claimed because the datasheet does not state one. Ports carry the media they present (`sfp28-1..48`, `qsfp28-1..8`) rather than a NOS interface name: FS does not publish the CLI naming for this model, and inventing it would be a fact the datasheet does not contain. Console is a serial port, not a data interface, so it is not modelled."
+}

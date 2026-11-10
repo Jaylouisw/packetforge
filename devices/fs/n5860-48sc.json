@@ -1,0 +1,115 @@
+{
+  "vendor": "fs",
+  "model": "N5860-48SC",
+  "label": "N5860-48SC 10G/100G data-centre leaf switch",
+  "category": "switch",
+  "description": "FS N5860-48SC 1U ToR leaf switch - 48x 10G SFP+ ports and 8x 100G QSFP28 uplinks, non-blocking, with VXLAN/EVPN, M-LAG, PFC/ECN and RDMA, redundant hot-swap PSUs. Managed over CLI, SNMP and NETCONF.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "sfp+",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "qsfp28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "qsfp28-8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.fs.com/uk/c/data-center-switches-3404",
+  "notes": "The port list is the one filed with the request (48x 10G SFP+ and 8x 100G QSFP28), read by the reporter from FS's datasheet. It could not be re-verified here: FS's per-model datasheet URL 404s and its product pages do not serve text to a fetch, so the citation is the catalogue page the request itself names. What corroborates the shape is the family: the N8560-48BC datasheet in this catalogue (same 1U ToR platform, same 8x QSFP28 uplink block, MGMT + console) confirms the structure, and the switching capacity/customer-comparison sheet puts the N5860 in the same 4 Tbps class as the N8560. Ports carry their media (`sfp+1..48`, `qsfp28-1..8`) rather than a NOS name, for the same reason as its sibling."
+}
