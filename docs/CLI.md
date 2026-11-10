@@ -60,6 +60,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
 | `show vrrp` | group state after the last election ([VRRP](#vrrp-first-hop-redundancy)) |
+| `show ip protocols` | the routing processes running here, their areas, peers and distances |
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
@@ -1195,6 +1196,54 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### Two views of one peer, and only one of them could see it
+
+One router, OSPF in area 0, one BGP peer. Three commands, three answers that could not all be right:
+
+```
+R1#show ip bgp summary
+10.0.0.2  4  65002  Idle   not yet evaluated     <- the peer is configured
+
+R1#show ip bgp neighbors
+(no neighbours configured - add one with "bgp neighbor <ip> remote-as <as>")
+
+R1#show ip bgp neighbors 10.0.0.2
+% No BGP neighbour 10.0.0.2 on R1
+% Configured: (none)                              <- advice to configure the peer that exists
+```
+
+The summary reads configuration; the detail views read only the **computed** session rows, so with no
+simulation run they saw nothing and reported an absence. The rule the summary was already taught is
+the fix: *a peer is configuration, its session state is not* — a configured peer with no evaluation is
+`Idle / not yet evaluated`, not missing.
+
+`show ip protocols` was `% Invalid show command: ip protocols`, for a command whose facts the model
+already holds:
+
+```
+R1#show ip protocols
+Routing Protocol is "ospf 1"
+  Router ID       (not configured - the highest interface address)
+  Administrative distance 110 for OSPF routes (a static route is 1, so it wins for the same prefix)
+  Areas           0
+  Interfaces      Gi0/0 (area 0)
+  Neighbours      0 (0 FULL)
+Routing Protocol is "bgp 65001"
+  Router ID       0.0.0.0 (not yet chosen)
+  Peers           10.0.0.2 (AS 65002)
+  Administrative distance 20 for eBGP, 200 for iBGP
+
+Redistribution is not modelled: a route is connected, static, OSPF or BGP, and the
+administrative distance above is what decides between them for the same prefix.
+```
+
+It reads the device's interfaces (as `show ip ospf` does, not a parallel map that does not exist) and
+the one `Device.ADMIN_DISTANCE` table the route decision uses, so the distances cannot drift from the
+table they explain. On a device with nothing running it names the commands that would start a
+process; on a host it names what the device *is* instead.
+
+`show standby` joined the absent-show table by naming VRRP — the first-hop redundancy this model has.
 
 ### `do show` demoted the prompt out of every block
 

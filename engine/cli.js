@@ -3532,6 +3532,13 @@ class CliSession {
       return ['% One fixed chassis: this model has no modules, no stacking and no supervisor slots',
         '% What the device is, including its port count, is in "show version"'];
     }
+    if (first === 'standby' || (first === 'hsrp')) {
+      // HSRP is the Cisco-only twin of the first-hop redundancy this model does have. Naming the
+      // one it has is more use than a typo complaint.
+      return ['% HSRP is not modelled: the first-hop redundancy here is VRRP',
+        '%   show vrrp                  groups, priorities, state and virtual MAC',
+        '%   vrrp <id> ip <addr>        inside an interface block, adds a group'];
+    }
     if (first === 'inventory') {
       return ['% There is no inventory: this model has no serial numbers, no FRUs and no modules',
         '% What a device is: "show version" (vendor, model, capabilities, port count)',
@@ -6005,6 +6012,80 @@ class CliSession {
   }
 
   // ---------- show ----------
+  // show ip protocols
+  //
+  // One view of the routing processes a device is *running*, which is the question a lab asks
+  // before it asks about any one of them. Every fact here is already held by the model (the OSPF
+  // areas, the BGP peers, the administrative distances); nothing is invented, and a device with no
+  // routing process says so instead of printing an empty table.
+  _showIpProtocols(args) {
+    const dev = this.device;
+    const out = [];
+    if (args.length) {
+      return ['% show ip protocols takes no argument' + (args[0] ? ', not "' + args[0] + '"' : ''),
+        '% The processes here are listed by "show ip protocols" without one'];
+    }
+    const ospf = dev.config && dev.config.ospf;
+    const bgp = dev.config && dev.config.bgp;
+    // One copy of the distances, from the module that decides routing with them.
+    const AD = require('./device').Device.ADMIN_DISTANCE;
+    if (ospf && ospf.pid !== undefined && ospf.pid !== null) {
+      // The neighbours are computed, not stored, so ask the simulator first - the same rule the BGP
+      // summary was taught: a view that reads stale state reports a fault that is not there.
+      if (this.sim && typeof this.sim.computeOspf === 'function') {
+        try { this.sim.computeOspf(); } catch (e) { /* keep the persisted state */ }
+      }
+      // The interfaces come from the device, as they do in `show ip ospf`. Reading a parallel config
+      // map that does not exist made this view report "(none)" for a process whose interface was in
+      // area 0 - the invented-emptiness defect, in a new place.
+      const participating = [];
+      for (const i of dev.interfaces.values()) {
+        if (!i.enabled || !i.ip || !i.mask) continue;
+        const ov = (ospf.interfaces || []).filter(function (x) { return x.name === i.name; })[0];
+        participating.push({ name: i.name, area: (ov && ov.area !== undefined) ? ov.area : (ospf.areaId || 0),
+          passive: !!(ov && ov.passive) });
+      }
+      const neighbours = dev.ospfNeighbors || [];
+      out.push('Routing Protocol is "ospf ' + ospf.pid + '"');
+      out.push('  Router ID       ' + (ospf.routerId || '(not configured - the highest interface address)'));
+      out.push('  Administrative distance ' + AD.ospf + ' for OSPF routes' +
+        ' (a static route is ' + AD.static + ', so it wins for the same prefix)');
+      out.push('  Areas           ' + (Array.from(new Set(participating.map(function (p) {
+        return p.area;
+      }))).sort().join(', ') || '(none - no interface has an address in an area)'));
+      out.push('  Interfaces      ' + (participating.length
+        ? participating.map(function (p) {
+          return p.name + ' (area ' + p.area + (p.passive ? ', passive' : '') + ')';
+        }).join(', ')
+        : '(none - no interface has an address and a mask)'));
+      out.push('  Neighbours      ' + neighbours.length + ' (' +
+        neighbours.filter(function (n) { return n.state === 'FULL'; }).length + ' FULL)');
+    }
+    if (bgp && bgp.as) {
+      const peers = bgp.neighbors || [];
+      out.push('Routing Protocol is "bgp ' + bgp.as + '"');
+      out.push('  Router ID       ' + (bgp.routerId || dev.bgpRouterId || '0.0.0.0' + ' (not yet chosen)'));
+      out.push('  Peers           ' + (peers.length
+        ? peers.map(function (n) { return n.address + ' (AS ' + n.remoteAs + ')'; }).join(', ')
+        : '(none configured)'));
+      out.push('  Administrative distance ' + AD.ebgp + ' for eBGP, ' + AD.ibgp + ' for iBGP');
+    }
+    if (!out.length) {
+      const isL3 = typeof dev.isL3 === 'function' && dev.isL3();
+      if (!isL3) {
+        return ['% ' + (dev.name || dev.id) + ' runs no routing protocol',
+          '% It is not a router: a host reaches other networks with "ip default-gateway"'];
+      }
+      return ['% No routing protocol is running on ' + (dev.name || dev.id),
+        '% OSPF: "router ospf <process-id>"   BGP: "router bgp <as>"',
+        '% What is in the table now: "show ip route"'];
+    }
+    out.push('');
+    out.push('Redistribution is not modelled: a route is connected, static, OSPF or BGP, and the');
+    out.push('administrative distance above is what decides between them for the same prefix.');
+    return out;
+  }
+
   // show ip bgp [summary]
   //
   // The interesting column is State, and the interesting news is that it can be something
@@ -6168,7 +6249,17 @@ class CliSession {
     if (this.sim && typeof this.sim.computeBgp === 'function') {
       try { this.sim.computeBgp(); } catch (e) { /* keep the persisted state */ }
     }
-    const rows = dev.bgpNeighbors || [];
+    let rows = dev.bgpNeighbors || [];
+    // The same rule the summary was taught in this series: a peer is *configuration*, its session
+    // state is not. Reading only the computed rows made this view contradict the summary one command
+    // away - "no neighbours configured" for a router listing two of them, and "% No BGP neighbour
+    // 10.0.0.2 ... Configured: (none)" for a peer configured three lines earlier, with advice to
+    // configure the peer that was already there.
+    if (!rows.length && (cfg.neighbors || []).length) {
+      rows = (cfg.neighbors || []).map(function (n) {
+        return { address: n.address, remoteAs: n.remoteAs, state: 'Idle', reason: 'not yet evaluated' };
+      });
+    }
     const want = args.length ? String(args[0]) : null;
     if (want !== null && !rows.some(function (r) { return String(r.address) === want; })) {
       return ['% No BGP neighbour ' + want + ' on ' + (dev.name || dev.id),
@@ -6182,7 +6273,7 @@ class CliSession {
     const picked = want === null ? rows : rows.filter(function (r) { return String(r.address) === want; });
     if (!picked.length) {
       out.push('');
-      out.push('(no neighbours configured - add one with "bgp neighbor <ip> remote-as <as>")');
+      out.push('(no neighbour is configured - "neighbor <ip> remote-as <as>" adds one)');
       return out;
     }
     const installed = (dev.bgpRoutes || []).length;
@@ -7241,6 +7332,8 @@ class CliSession {
           return [(r.installed ? '*' : ''), r.code + ' ' + r.dest + '/' + net.prefixOf(r.mask),
             String(r.ad === undefined ? '-' : r.ad), r.gw, r.iface];
         }), 2));
+    } else if (what === 'ip' && tokens[1] === 'protocols') {
+      out.push.apply(out, this._showIpProtocols(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'ospf') {
@@ -10265,6 +10358,7 @@ class CliSession {
       helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
       helpLine('show access-lists', 'entries, and where they are bound'),
       helpLine('show vrrp', 'groups, priorities and current state'),
+      helpLine('show ip protocols', 'the routing processes running here, and their distances'),
       helpLine('show ip bgp summary', 'peers and installed prefixes'),
       helpLine('show ip bgp neighbors [<addr>]', 'one peer in detail, with the reason it is down'),
       helpLine('show ip ospf', 'process, interfaces, adjacencies'),

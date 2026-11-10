@@ -97,7 +97,7 @@ console.log('\nEach level narrows:');
   // Six, not seven: `nd` belongs to `show ipv6 nd`, and it used to leak in here because `ipv6`
   // starts with `ip`. An exact keyword match closes the position - `show ip` means `ip`, never
   // `ipv6` - which is the same rule that keeps `<dest>` from carrying two meanings below.
-  eq(ip.join(','), 'bgp,dhcp,interface,nat,ospf,route', 'show ip offers exactly its six subcommands');
+  eq(ip.join(','),  'bgp,dhcp,interface,nat,ospf,protocols,route', 'show ip offers exactly its seven subcommands');
   eq(l.labels(l.run('sh ipv ?')).join(','), 'interface,nd,route',
     'and the ipv6 subtree is reached by its own prefix');
   const route = l.labels(l.run('show ip route ?'));
@@ -136,7 +136,7 @@ console.log('\nIt works in every mode and through `do`:');
     'every interface-mode completion carries a meaning, not a blank column');
   // `do` inside configuration is an exec command, so its completions come from the exec tree.
   const doShow = l.labels(l.run('do sh ip ?'));
-  eq(doShow.join(','), 'bgp,dhcp,interface,nat,ospf,route', '`do sh ip ?` completes the exec subtree');
+  eq(doShow.join(','),  'bgp,dhcp,interface,nat,ospf,protocols,route', '`do sh ip ?` completes the exec subtree');
 }
 
 console.log('\nA question that has no answer says so, usefully:');
