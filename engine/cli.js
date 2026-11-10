@@ -316,6 +316,13 @@ class CliSession {
       return all;
     }
     const out = [];
+    if (typeof line !== 'string') {
+      // `run(['a', 'b'])` used to fail inside `.trim()` with "line.trim is not a function", which
+      // says nothing about what was wrong. The multi-line form is `run('a', 'b')`.
+      throw new TypeError('CliSession.run expects a string, got ' +
+        (Array.isArray(line) ? 'an array (pass the lines as separate arguments: run(a, b))'
+          : typeof line));
+    }
     let tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
 
@@ -676,22 +683,11 @@ class CliSession {
       this.device.ospfRoutes = [];
       out.push('OSPF disabled');
     } else if (head === 'ip' && tokens[1] === 'route') {
-      // ip route DEST MASK GW [iface]
-      const dest = tokens[2], mask = tokens[3], gw = tokens[4], iface = tokens[5] || null;
-      if (!dest || !mask) return ['% Incomplete command'];
-      net.maskToInt(mask); // validate
-      this.device.config.routes.push({ dest: dest, mask: mask, gw: gw || null, iface: iface });
-      out.push('Route added: ' + dest + '/' + net.prefixOf(mask) + ' via ' + (gw || 'on-link'));
+      out.push.apply(out, this._ipRoute(tokens));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'route') {
-      const dest = tokens[3], mask = tokens[4], gw = tokens[5] || null;
-      const before = this.device.config.routes.length;
-      this.device.config.routes = this.device.config.routes.filter(function (r) {
-        return !(r.dest === dest && r.mask === mask && (gw == null || r.gw === gw));
-      });
-      out.push(before > this.device.config.routes.length ? 'Route removed' : '% Route not found');
+      out.push.apply(out, this._noIpRoute(tokens));
     } else if (head === 'ip' && tokens[1] === 'default-gateway') {
-      this.device.config.defaultGateway = tokens[2] || null;
-      out.push('Default gateway: ' + (tokens[2] || '(none)'));
+      out.push.apply(out, this._defaultGateway(tokens));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'default-gateway') {
       this.device.config.defaultGateway = null;
       out.push('Default gateway cleared');
@@ -1172,8 +1168,25 @@ class CliSession {
     if (!iface.isSubinterface || !iface.isSubinterface()) {
       return ['% encapsulation dot1q is only valid on a subinterface (e.g. ' + iface.name + '.10)'];
     }
-    const vid = parseInt(t[1], 10);
-    if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + (t[1] || '')];
+    // `encapsulation dot1q` with no value answered `% VLAN out of range: ` - an empty value in a
+    // range complaint - and `encapsulation dot1q abc` answered `% VLAN out of range: abc`, which calls
+    // a word out of range instead of not a number.
+    const vidText = t[1];
+    if (vidText === undefined) {
+      return ['% Incomplete command: encapsulation dot1q <vlan-id>',
+        '% e.g. "encapsulation dot1q 10" for the VLAN this subinterface carries'];
+    }
+    if (!/^\d+$/.test(String(vidText))) {
+      return ['% VLAN id must be a number, not "' + vidText + '"',
+        '% Usage: encapsulation dot1q <vlan-id>'];
+    }
+    const vid = parseInt(vidText, 10);
+    if (!(vid >= 1 && vid <= 4094)) {
+      return ['% VLAN ' + vidText + ' is outside 1-4094',
+        '% Usage: encapsulation dot1q <vlan-id>'];
+    }
+    const trailing = this._noExtra(t, 2, 'encapsulation dot1q <vlan-id>');
+    if (trailing) return trailing;
     iface.encapVid = vid;
     const parent = this.device.interfaces.get(iface.parent);
     if (parent) {
@@ -1375,13 +1388,168 @@ class CliSession {
     return ['% Unknown IPv6 ND command: ipv6 nd ' + t.join(' ')];
   }
 
+  _ifaceList() {
+    const names = [];
+    for (const name of this.device.interfaces.keys()) names.push(name);
+    return names;
+  }
+
+  // An interface named by the operator, in whatever case they typed it, or null.
+  _ifaceNamed(text) {
+    const want = String(text || '').toLowerCase();
+    if (!want) return null;
+    for (const name of this.device.interfaces.keys()) {
+      if (String(name).toLowerCase() === want) return name;
+    }
+    return null;
+  }
+
+  // `ip route` used to take its four words and store them: nothing was checked, so a typo went into
+  // the routing table and stayed there. `ip route abc 255.0.0.0 1.1.1.1` was answered
+  //
+  //   Route added: abc/8 via 1.1.1.1
+  //
+  // ...and from then on **every** lookup on that router threw `Invalid IPv4 address: abc`, because
+  // routeTo() parsed the stored destination. The device was not merely misconfigured, it was bricked
+  // by one mistyped word, and the error surfaced later, in `ping`, as `% Error: Invalid IPv4 address:
+  // abc`. A next hop was never checked either: `... 255.255.255.0 abc` installed `via abc`, and
+  // `... 255.255.255.0 1.1.1.1 999` stored `999` as an *interface* name (the fourth word is an
+  // interface, not a distance), so the route pointed at a port that does not exist.
+  _ipRoute(tokens) {
+    const USAGE = 'ip route <network> <mask> <next-hop> [<interface>]';
+    const dest = tokens[2], mask = tokens[3], target = tokens[4], ifaceText = tokens[5];
+    if (!dest || !mask) {
+      return ['% Incomplete command: ' + USAGE];
+    }
+    if (!net.isIp(dest)) {
+      return ['% "' + dest + '" is not an IPv4 address, so it cannot be a destination network',
+        '% Usage: ' + USAGE];
+    }
+    let prefix = null;
+    try { prefix = net.prefixOf(mask); } catch (e) { prefix = null; }
+    if (prefix === null || !net.isIp(mask)) {
+      return ['% "' + mask + '" is not a subnet mask (e.g. 255.255.255.0)',
+        '% Usage: ' + USAGE];
+    }
+    const extra = this._noExtra(tokens, ifaceText === undefined ? 5 : 6, USAGE);
+    if (extra) return extra;
+    if (target === undefined) {
+      // A static route with no next hop is not a route: it claims reachability for a prefix while
+      // naming nothing that could answer for it. It used to be accepted as "on-link", listed in
+      // `show ip route`, and time out every packet sent to it.
+      return ['% Incomplete command: ' + USAGE,
+        '% A static route needs a next hop, e.g. "ip route 10.0.0.0 255.255.255.0 192.168.1.1"'];
+    }
+
+    let gw = null;
+    let iface = null;
+    if (ifaceText !== undefined) {
+      // `ip route <net> <mask> <gw> <iface>`: the next hop is an address and the fourth word names the
+      // port to reach it through.
+      if (!net.isIp(target)) {
+        return ['% "' + target + '" is not an IPv4 next hop',
+          '% Usage: ' + USAGE];
+      }
+      gw = target;
+      iface = this._ifaceNamed(ifaceText);
+      if (!iface) {
+        const listed = this._ifaceList();
+        const out = ['% "' + ifaceText + '" is not an interface on ' +
+          (this.device.name || 'this device')];
+        if (/^\d+$/.test(ifaceText)) {
+          // `ip route 10.0.0.0 255.255.255.0 1.1.1.1 250` reads as a distance in IOS. It cannot be
+          // one here, and saying only "not an interface" would leave the reader guessing why.
+          out.push('% The fourth word is an interface, not a distance - this model has no per-route' +
+            ' administrative distance (AD is per source: connected 0, static 1, OSPF 110, eBGP 20)');
+        }
+        out.push('% Interfaces: ' + listed.slice(0, 8).join(', ') +
+          (listed.length > 8 ? ', ...' : ''));
+        return out;
+      }
+    } else if (net.isIp(target)) {
+      gw = target;
+    } else if (this._ifaceNamed(target)) {
+      // `ip route 192.168.2.0 255.255.255.0 Gi0/0` - the interface-only form IOS accepts on a
+      // point-to-point link. Here it installs a route that forwards nothing: the lookup resolves the
+      // destination to itself with that port and then ARPs for the destination on the wire, where
+      // nobody answers (measured: 0/4 replies, while the same lab with a next hop answers 4/4).
+      // Accepting it would be a routing table that cannot tell a working route from a dead one.
+      return ['% ' + target + ' is an interface, not a next hop - this model forwards to a next-hop' +
+        ' address',
+        '% Name the neighbour\'s address instead: "ip route ' + dest + ' ' + mask + ' <neighbour-ip>"',
+        '% (the interface-only form is accepted by IOS on point-to-point links, and would forward' +
+        ' nothing here)'];
+    } else {
+      const listed = this._ifaceList();
+      return ['% "' + target + '" is neither an IPv4 next hop nor an interface on ' +
+        (this.device.name || 'this device'),
+        '% Usage: ' + USAGE,
+        '% Interfaces: ' + listed.slice(0, 8).join(', ') + (listed.length > 8 ? ', ...' : '')];
+    }
+
+    this.device.config.routes.push({ dest: dest, mask: mask, gw: gw, iface: iface });
+    return ['Route added: ' + dest + '/' + prefix + ' via ' + (gw || iface || 'on-link')];
+  }
+
+  // The removal is as narrow as the command that installed the route: it matches on what was stored,
+  // and it says which route it removed rather than "Route removed" for a route that was never there.
+  _noIpRoute(tokens) {
+    const USAGE = 'no ip route <network> <mask> [<next-hop|interface>]';
+    const dest = tokens[3], mask = tokens[4], target = tokens[5];
+    if (!dest || !mask) return ['% Incomplete command: ' + USAGE];
+    if (!net.isIp(dest) || !net.isIp(mask)) {
+      return ['% "' + (net.isIp(dest) ? mask : dest) + '" is not an IPv4 address',
+        '% Usage: ' + USAGE];
+    }
+    const extra = this._noExtra(tokens, 6, USAGE);
+    if (extra) return extra;
+    const matches = function (r) {
+      if (r.dest !== dest || r.mask !== mask) return false;
+      if (target === undefined) return true;
+      return r.gw === target || String(r.iface || '').toLowerCase() === String(target).toLowerCase();
+    };
+    const before = this.device.config.routes.slice();
+    const kept = before.filter(function (r) { return !matches(r); });
+    if (kept.length === before.length) {
+      return ['% No route to ' + dest + '/' + net.prefixOf(mask) +
+        (target ? ' via ' + target : '') + ' is configured',
+        '% "show ip route" lists what is: ' + (before.length
+          ? before.map(function (r) { return r.dest + '/' + net.prefixOf(r.mask); }).join(', ')
+          : 'no static routes')];
+    }
+    this.device.config.routes = kept;
+    return ['Route removed: ' + dest + '/' + net.prefixOf(mask) +
+      (target ? ' via ' + target : '')];
+  }
+
+  _defaultGateway(tokens) {
+    const USAGE = 'ip default-gateway <address>';
+    const ip = tokens[2];
+    const extra = this._noExtra(tokens, 3, USAGE);
+    if (extra) return extra;
+    if (ip === undefined) return ['% Incomplete command: ' + USAGE];
+    // `ip default-gateway abc` stored the string and reported success; the gateway was then parsed at
+    // forwarding time, where it could only fail.
+    if (!net.isIp(ip)) {
+      return ['% "' + ip + '" is not an IPv4 address, so it cannot be a default gateway',
+        '% Usage: ' + USAGE];
+    }
+    this.device.config.defaultGateway = ip;
+    return ['Default gateway: ' + ip];
+  }
+
   _ipv6Route(tokens) {
     const v6 = require('./ipv6');
     const dest = tokens[0];
     const nh = tokens[1];
     const p = v6.parsePrefix6(dest);
     if (!p.valid) return ['% Invalid IPv6 prefix "' + (dest || '') + '"'];
-    if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + (nh || '') + '"'];
+    // A missing next hop was quoted as an empty string: `% Invalid IPv6 next hop ""`.
+    if (nh === undefined) {
+      return ['% Incomplete command: ipv6 route <prefix> <next-hop>',
+        '% e.g. "ipv6 route 2001:db8:1::/64 2001:db8::1"'];
+    }
+    if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + nh + '"'];
     if (!this.device.config.routes6) this.device.config.routes6 = [];
     const net = v6.networkAddress6(dest);
     this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
@@ -1975,7 +2143,13 @@ class CliSession {
     const what = (tokens[2] || '').toLowerCase();
     if (what === 'ip') {
       const ip = tokens[3];
-      if (!ip || !net.isIp(ip)) return ['% Invalid address: ' + (tokens[3] || '(none)')];
+      // A missing address answered `% Invalid address: (none)` - a placeholder in the position where
+      // the offending value should be. Nothing was typed, so there is nothing to quote.
+      if (ip === undefined) {
+        return ['% Incomplete command: vrrp <vrid> ip <address>',
+          '% e.g. "vrrp 1 ip 10.0.0.254"'];
+      }
+      if (!net.isIp(ip)) return ['% Invalid address: ' + ip];
       if (!group) {
         group = { vrid: vrid, interface: this.iface, ips: [], priority: 100, preempt: true, advertSec: 1 };
         dev.config.vrrp.push(group);
@@ -2999,7 +3173,12 @@ class CliSession {
       for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
     }
     for (const r of dev.config.routes) {
-      out.push('ip route ' + r.dest + ' ' + r.mask + ' ' + (r.gw || '') + (r.iface ? ' ' + r.iface : ''));
+      // An interface-only route has no next hop, and `(r.gw || '')` left its slot empty, so the line
+      // came out with two spaces in the middle: `ip route 10.0.0.0 255.255.255.0  Gi0/1`.
+      const words = ['ip route', r.dest, r.mask];
+      if (r.gw) words.push(r.gw);
+      if (r.iface) words.push(r.iface);
+      out.push(words.join(' '));
     }
     if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
 

@@ -835,6 +835,88 @@ length`, `% Invalid mask: … (not a contiguous netmask)`), never by letting the
 throw: `net.isIp()` is a shape check that accepts `10.0.0.999`, and the parse behind it raises
 `Invalid IPv4 address`, which reached the console as `% Error: …` and looked like a crash.
 
+### Configuring a static route — every word is checked
+
+`ip route` took four words and stored them. Nothing was validated, and a typo in the first one did not
+stay in the table: `routeTo()` parses the stored destination, so **one mistyped word bricked the
+device's data path** — every ping, traceroute and flow on that router answered
+`% Error: Invalid IPv4 address: abc`, a message about a word typed three commands earlier, appearing
+in a different command:
+
+```
+R1(config)#ip route abc 255.0.0.0 1.1.1.1
+Route added: abc/8 via 1.1.1.1
+R1#ping 10.0.0.5
+% Error: Invalid IPv4 address: abc
+```
+
+Now each word is checked where it is typed, and the refusal names the word:
+
+```
+R1(config)#ip route abc 255.0.0.0 1.1.1.1
+% "abc" is not an IPv4 address, so it cannot be a destination network
+% Usage: ip route <network> <mask> <next-hop> [<interface>]
+R1(config)#ip route 192.168.2.0 255.255.255.0 abc
+% "abc" is neither an IPv4 next hop nor an interface on R1
+% Usage: ip route <network> <mask> <next-hop> [<interface>]
+% Interfaces: Gi0/0, Gi0/1, Gi0/2
+R1(config)#ip route 192.168.2.0 255.255.255.0 10.0.0.2 250
+% "250" is not an interface on R1
+% The fourth word is an interface, not a distance - this model has no per-route administrative distance (AD is per source: connected 0, static 1, OSPF 110, eBGP 20)
+% Interfaces: Gi0/0, Gi0/1, Gi0/2
+```
+
+Three of those refusals exist because the form the console *advertises* is `ip route <network>
+<mask> <next-hop> [<interface>]`: the fourth word is an **interface**, not an IOS distance. A number
+in that slot used to be stored as an interface name (so the route pointed at a port that does not
+exist), and the numerical hint is printed only when the word is a number, so a genuine misspelling of
+`Gi0/0` is not answered with a lecture about distances.
+
+**A route that names nothing is refused, and so is one that names a dead end.** Both of these used to
+be accepted, listed in `show ip route` as if they forwarded, and answered 0/4 pings:
+
+```
+R1(config)#ip route 10.9.9.0 255.255.255.0
+% Incomplete command: ip route <network> <mask> <next-hop> [<interface>]
+% A static route needs a next hop, e.g. "ip route 10.0.0.0 255.255.255.0 192.168.1.1"
+R1(config)#ip route 192.168.2.0 255.255.255.0 Gi0/0
+% Gi0/0 is an interface, not a next hop - this model forwards to a next-hop address
+% Name the neighbour's address instead: "ip route 192.168.2.0 255.255.255.0 <neighbour-ip>"
+% (the interface-only form is accepted by IOS on point-to-point links, and would forward nothing here)
+```
+
+The second one is the interesting case: IOS accepts `ip route <net> <mask> <interface>` on a
+point-to-point link, and this model resolves the destination to itself through that port and then ARPs
+for the destination on the wire, where nobody answers — measured 0/4 replies, against 4/4 for the same
+lab with a next-hop address. A routing table cannot tell a working route from a dead one, so the form
+is refused rather than stored.
+
+The working form, and the removal, are as narrow as they look — the removal names the route it
+removed and refuses one that is not there:
+
+```
+R1(config)#ip route 192.168.2.0 255.255.255.0 10.0.0.2
+Route added: 192.168.2.0/24 via 10.0.0.2
+R1(config)#no ip route 10.9.9.0 255.255.255.0
+% No route to 10.9.9.0/24 is configured
+% "show ip route" lists what is: 192.168.2.0/24
+R1(config)#no ip route 192.168.2.0 255.255.255.0
+Route removed: 192.168.2.0/24
+R1#ping 192.168.2.10 count 2
+Success rate is 100 percent (2/2)
+```
+
+`ip default-gateway` is held to the same rule (`% "abc" is not an IPv4 address, so it cannot be a
+default gateway`), and so are the small neighbours that used to quote an empty or placeholder value:
+`ipv6 route <prefix>` with no next hop, `vrrp <vrid> ip` with no address (`% Invalid address: (none)`
+before), and `encapsulation dot1q` with no VLAN (`% VLAN out of range: ` — an empty value inside a
+range complaint).
+
+**Where the address check itself was wrong.** `net.isIp()` was a pattern match, so it called
+`10.0.0.999` an address and the parser behind it then threw `% Error: Invalid IPv4 address:
+10.0.0.999` at the console. `isIp()` now keeps the regex as a first pass and lets the parser decide,
+which fixes that class of answer everywhere it is used, not only in `ip route`.
+
 ### show ip route — now, or at an instant
 
 The plain command prints the table **as it stands now**, and getting there means deriving the

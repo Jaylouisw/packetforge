@@ -45,8 +45,14 @@ function broadcastOf(ip, mask) { return (networkOf(ip, mask) | (~maskToInt(mask)
 function sameSubnet(a, b, mask) { return networkOf(a, mask) === networkOf(b, mask); }
 function ipInSubnet(ip, net, mask) { return networkOf(ip, mask) === networkOf(net, mask); }
 
+// "Is this an IPv4 address" must mean an address, not the *shape* of one: the regex alone accepted
+// `10.0.0.999`, `10.0.0.256` and `1.1.1.300`, so a caller that validated with isIp() and then parsed
+// with ipToInt() got a throw from the parser - `% Error: Invalid IPv4 address: 10.0.0.999` at the
+// console, on a value the same module had just called valid. The regex stays as the cheap first pass
+// and the parser has the final word.
 function isIp(s) {
-  return /^(\d{1,3}\.){3}\d{1,3}$/.test(String(s).trim());
+  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(String(s).trim())) return false;
+  try { ipToInt(s); return true; } catch (e) { return false; }
 }
 
 function macToInt(mac) {

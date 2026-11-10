@@ -1,0 +1,22 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r=t.addDevice(R);r.name='R1';const sim=new Simulator(t);const s=new CliSession(r,t,sim);s.run('enable');
+const p=(x)=>{try{const o=s.run(x).output;console.log('$ '+x+(o.length?'\n    '+o.join('\n    '):''));}catch(e){console.log('$ '+x+'\n    THREW: '+e.message);}};
+s.run('configure terminal'); s.run('interface Gi0/0'); s.run('ip address 10.0.0.1 255.255.255.0'); s.run('exit');
+p('ip route 10.9.9.0 255.255.255.0');
+p('ip route 10.8.8.0 255.255.255.0 abc');
+s.run('end');
+p('show ip route');
+console.log('routes:', JSON.stringify(r.config.routes));
+for (const a of ['10.9.9.5','10.8.8.5','10.0.0.5']) { try { console.log('  routeTo('+a+') =', JSON.stringify(r.routeTo(a))); } catch(e){ console.log('  routeTo('+a+') THREW:', e.message); } }
+p('ping 10.9.9.5 count 1');
+p('ping 10.8.8.5 count 1');
+console.log('--- subinterface encapsulation');
+s.run('configure terminal');
+p('interface Gi0/1.10');
+p('encapsulation dot1q abc');
+p('encapsulation dot1q 9999');
+p('encapsulation dot1q');
+p('encapsulation dot1q 10');
+console.log('--- vrrp none');
+p('exit'); p('interface Gi0/0'); p('vrrp 1 ip'); p('vrrp 2');
