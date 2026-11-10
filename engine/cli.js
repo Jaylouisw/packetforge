@@ -6514,9 +6514,18 @@ class CliSession {
     if (sub === 'neighbors' || sub === 'neighbour' || sub === 'neighbors' || sub === 'neighbor') {
       return this._showBgpNeighbors(args.slice(1));
     }
-    if (sub && sub !== 'summary') {
-      return ['% show ip bgp takes summary or neighbors' + (sub ? ', not "' + args[0] + '"' : ''),
-        '% e.g. show ip bgp summary | show ip bgp neighbors 10.9.0.2'];
+    // `show ip bgp` on its own is the BGP table, which is a different question from the summary - and
+    // the one an operator asks when a prefix is missing. A prefix argument narrows it to one entry.
+    if (!sub) return this._showBgpTable([]);
+    // `at <ms>` and `converged` are the console's instant conveniences and belong to the summary,
+    // which is the view whose state changes over time.
+    if (sub === 'summary' || sub === 'at' || sub === 'converged') {
+      // falls through to the neighbour table below
+    } else if (/^\d+\.\d+\.\d+\.\d+(\/\d+)?$/.test(String(args[0]))) {
+      return this._showBgpTable([args[0]]);
+    } else {
+      return ['% show ip bgp takes summary, neighbors or a prefix' + ', not "' + args[0] + '"',
+        '% e.g. show ip bgp | show ip bgp summary | show ip bgp 192.168.5.0/24'];
     }
 
     // The first question after configuring a peer answered "0 of 0 neighbour(s) established" and
@@ -6555,6 +6564,141 @@ class CliSession {
     out.push(up + ' of ' + rows.length + ' neighbour(s) established');
     const learned = (dev.bgpRoutes || []).length;
     out.push(learned + ' prefix(es) installed from BGP');
+    return out;
+  }
+
+
+  // `show ip bgp` - the BGP table. It printed the neighbour summary, which meant the console answered
+  // two different questions ("are my peers up" and "what did they give me, and which row forwards")
+  // with one table, and the second question had no command at all.
+  //
+  // The columns are only the ones this model holds. IOS prints Metric, LocPrf, Weight and Origin
+  // here; nothing in this engine has a MED, a local preference, a weight or an origin attribute, so
+  // printing `0  100  0  ?` would be four invented figures on every row. The header says what is not
+  // modelled instead, and every number that is printed came from the peer.
+  _showBgpTable(args) {
+    const dev = this.device;
+    const cfg = dev.config && dev.config.bgp;
+    const out = [];
+    if (!cfg || !cfg.as) { out.push('% BGP is not enabled' + NEEDS.bgp); return out; }
+    if (this.sim && typeof this.sim.computeBgp === 'function') {
+      try { this.sim.computeBgp(); } catch (e) { /* keep the persisted state */ }
+    }
+    const learned = (dev.bgpRoutes || []).slice();
+    // Which row forwards is the routing table's answer, not this view's: an `O` or `C` route to the
+    // same prefix can beat BGP, and the two views must not disagree about the same row.
+    const rt = (typeof dev.routesTable === 'function') ? dev.routesTable() : [];
+    const installedFor = function (row) {
+      const match = rt.filter(function (x) {
+        return x.dest === row.dest && x.code === 'B';
+      })[0];
+      return !!(match && match.installed);
+    };
+    const want = args && args.length ? String(args[0]) : null;
+
+    if (want) {
+      return this._showBgpPrefix(want, learned, installedFor);
+    }
+
+    out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
+      ', local AS number ' + cfg.as);
+    out.push('');
+    if (!learned.length) {
+      out.push('     Network            Next Hop     Path');
+      const peers = (dev.bgpNeighbors || []).length || (cfg.neighbors || []).length;
+      out.push(peers
+        ? '(no prefix has been received - ' + peers + ' neighbour(s) configured, see "show ip bgp summary")'
+        : '(no prefix has been received and no neighbour is configured - "neighbor <ip> remote-as <as>")');
+      return out;
+    }
+    const rows = learned.map(function (r) {
+      const best = installedFor(r);
+      return [(best ? '*>' : '*'),
+        r.dest + '/' + net.prefixOf(r.mask),
+        r.nextHop || '-',
+        (r.asPath && r.asPath.length) ? r.asPath.join(' ') : '-'];
+    });
+    rows.sort(function (a, b) { return String(a[1]).localeCompare(String(b[1])); });
+    out.push.apply(out, renderTable(['', 'Network', 'Next Hop', 'Path'], rows));
+    out.push('');
+    out.push('  *> this row forwards   * a route to the same prefix wins ahead of it');
+    out.push('  Not modelled here: MED, local preference, weight and the origin attribute - every');
+    out.push('  figure above is what the peer sent, and "show ip route" is what forwards.');
+    for (const r of learned) {
+      if (installedFor(r)) continue;
+      const prefix = r.dest + '/' + net.prefixOf(r.mask);
+      const winner = (dev.routeTo(r.dest) || {}).type;
+      if (winner && winner !== 'bgp') {
+        out.push('  ' + prefix + ' is also ' + (winner === 'connected' ? 'connected' : winner) +
+          ' here, which is closer than BGP\'s distance ' + r.ad + ' - see "show ip route"');
+      }
+    }
+    return out;
+  }
+
+  // One prefix in the BGP table. The question after "is the peer up" is "did that prefix arrive, and
+  // if it did, why is it not forwarding" - so both answers are here.
+  _showBgpPrefix(want, learned, installedFor) {
+    const dev = this.device;
+    const out = [];
+    const text = String(want);
+    const slash = text.indexOf('/');
+    const addr = slash === -1 ? text : text.slice(0, slash);
+    const addrInt = net.ipToInt(addr);
+    if (addrInt === null) {
+      return ['% "' + text + '" is not an address or a prefix',
+        '% e.g. show ip bgp 192.168.5.0 | show ip bgp 192.168.5.0/24'];
+    }
+    let hit = null;
+    if (slash !== -1) {
+      const len = Number(text.slice(slash + 1));
+      hit = learned.filter(function (r) {
+        return r.dest === net.intToIp(net.networkOf(addr, String(len))) &&
+          net.prefixOf(r.mask) === len;
+      })[0] || null;
+    } else {
+      // No length given: the longest match containing the address, which is the question an operator
+      // with a destination address in hand is actually asking.
+      let bestLen = -1;
+      for (const r of learned) {
+        if (!net.ipInSubnet(addr, r.dest, r.mask)) continue;
+        const len = net.prefixOf(r.mask);
+        if (len > bestLen) { bestLen = len; hit = r; }
+      }
+    }
+    if (!hit) {
+      out.push('% ' + text + ' is not in the BGP table on ' + (dev.name || dev.id));
+      if (learned.length) {
+        out.push('% The prefixes here are: ' + learned.slice().sort(function (a, b) {
+          return String(a.dest).localeCompare(String(b.dest));
+        }).map(function (r) {
+          return r.dest + '/' + net.prefixOf(r.mask);
+        }).join(', '));
+      } else {
+        out.push('% Nothing has been received: "show ip bgp summary" says whether a peer is up');
+      }
+      return out;
+    }
+    const prefix = hit.dest + '/' + net.prefixOf(hit.mask);
+    const best = installedFor(hit);
+    out.push('BGP routing table entry for ' + prefix);
+    out.push('  Received from  ' + hit.nextHop + ' (AS ' + (hit.peerAs || '?') + ', ' +
+      (hit.session === 'ibgp' ? 'iBGP' : 'eBGP') + ')');
+    out.push('  Next hop       ' + hit.nextHop + (hit.iface ? ' (' + hit.iface + ')' : ''));
+    out.push('  AS path        ' + ((hit.asPath && hit.asPath.length) ? hit.asPath.join(' ') : '-'));
+    out.push('  Distance       ' + hit.ad);
+    if (best) {
+      out.push('  Status         best - this row forwards');
+    } else {
+      const winner = (dev.routeTo(hit.dest) || {}).type;
+      out.push('  Status         not installed: ' +
+        (winner && winner !== 'bgp'
+          ? 'a ' + winner + ' route to ' + prefix + ' is closer than distance ' + hit.ad
+          : 'another path to ' + prefix + ' won') + ' - see "show ip route ' +
+        hit.dest + '"');
+    }
+    out.push('  No MED, local preference, weight or origin attribute is modelled: the path above is');
+    out.push('  exactly what the peer sent.');
     return out;
   }
 
@@ -10961,6 +11105,8 @@ class CliSession {
       helpLine('show access-lists', 'entries, and where they are bound'),
       helpLine('show vrrp [<group>]', 'groups, priorities and current state - one group if named'),
       helpLine('show ip protocols', 'the routing processes running here, and their distances'),
+      helpLine('show ip bgp', 'the BGP table: prefixes received, and which row forwards'),
+      helpLine('show ip bgp <prefix>', 'one prefix in the table, and why it is or is not installed'),
       helpLine('show ip bgp summary', 'peers and installed prefixes'),
       helpLine('show ip bgp neighbors [<addr>]', 'one peer in detail, with the reason it is down'),
       helpLine('show ip ospf [<process-id>]', 'the process, its interfaces, areas and adjacencies'),

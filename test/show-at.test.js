@@ -119,8 +119,10 @@ console.log('\nA protocol with no timer gives the same answer at both instants -
   // BGP establishes immediately in this model (there is no connect/hold timer to walk), so the
   // instant form is not a way to catch it mid-session. Saying so is the useful outcome: the label
   // reports the question, and identical answers are the truthful reply to it.
-  const early = cli(r1, ['show ip bgp at 0']);
-  const settled = cli(r1, ['show ip bgp at converged']);
+  // `show ip bgp` on its own is now the BGP table, so the neighbour state the instant form is about
+  // lives in the summary - which is the view whose state has a timeline to be mid-way through.
+  const early = cli(r1, ['show ip bgp summary at 0']);
+  const settled = cli(r1, ['show ip bgp summary at converged']);
   match(/^BGP at t=0 ms/, early, 'the early answer is labelled');
   match(/^BGP at converged/m, settled, 'and so is the converged one');
   const state = function (text) {

@@ -306,7 +306,10 @@ console.log('\nEvery table keeps its columns aligned to its own header:');
     ['converge', 'Process'],
     ['traceroute 10.0.2.20', 'Hop'],
     ['show dns', 'Name'],
-    ['show ip bgp', 'Neighbor']
+    // `show ip bgp` is the BGP table now; the neighbour summary keeps its own header. This lab has
+    // no received prefixes, so the table itself is aligned-checked in test/bgp-table.test.js, where
+    // there are rows to check.
+    ['show ip bgp summary', 'Neighbor']
   ];
   let exercised = 0;
   for (const [command, headerStart] of tables) {

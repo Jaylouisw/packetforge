@@ -164,14 +164,20 @@ console.log('\nBGP neighbours are per peer, and a down peer says why:');
   // One peer by address, and an address that is not a peer named with the ones that are.
   eq(env.a.run('show ip bgp neighbors 10.9.0.2').output.join('\n'), detail.join('\n'),
     'asking for one configured peer gives that peer');
+  // The refusal's list of forms grew a prefix (see the BGP table view), and the assertion follows
+  // the message while still checking that an unknown word is refused by naming what exists.
+  match(/takes summary, neighbors or a prefix/, env.a.run('show ip bgp bogus').output,
+    'an unknown sub-word is refused, listing what exists');
   match(/% No BGP neighbour 10\.9\.0\.9 on R1/, env.a.run('show ip bgp neighbors 10.9.0.9').output,
     'an address that is not a peer is refused');
   match(/% Configured: 10\.9\.0\.2/, env.a.run('show ip bgp neighbors 10.9.0.9').output,
     'with the peers that are');
   match(/% Unexpected argument "extra"/, env.a.run('show ip bgp neighbors 10.9.0.2 extra').output,
     'a third word is refused');
-  match(/% show ip bgp takes summary or neighbors, not "bogus"/, env.a.run('show ip bgp bogus').output,
-    'and so is an unknown sub-word');
+  // This used to assert the same refusal twice. The bare form is now the BGP table, which is the
+  // change worth pinning here: `show ip bgp` no longer answers with the neighbour summary.
+  match(/Network\s+Next Hop\s+Path/, env.a.run('show ip bgp').output,
+    'and the bare form is the BGP table, not the summary');
   // A peer that never answers is down *for a reason*, and the reason is the whole point.
   env.cfg(env.a, ['router bgp 65001', 'no bgp neighbor 10.9.0.2',
     'bgp neighbor 10.9.0.99 remote-as 65002', 'exit']);
