@@ -1161,6 +1161,11 @@ class CliSession {
         }
         return written({ allowedVlans: 'all' }, 'Trunk on ' + iface.name + ' allows all VLANs again');
       }
+      if (leaf[0] === 'voice' && leaf[1] === 'vlan') {
+        if (cur.voiceVlan === null) return ['% ' + iface.name + ' has no voice VLAN'];
+        const was = cur.voiceVlan;
+        return written({ voiceVlan: null }, 'Voice VLAN ' + was + ' removed from ' + iface.name);
+      }
       if (leaf[0] === 'mode') {
         if (cur.mode === 'access') {
           return ['% ' + iface.name + ' is already in access mode'];
@@ -1183,6 +1188,29 @@ class CliSession {
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: id }));
       this.device.flushMacsOnPort(iface.name);
       return ['Access VLAN ' + id + ' on ' + iface.name + note];
+    }
+    if (t[0] === 'voice' && t[1] === 'vlan') {
+      // The voice VLAN was in the config shape, validated and printed, and read by nothing: a phone on a
+      // port configured for voice traffic landed in the data VLAN (#1368).
+      const arg = String(t[2] === undefined ? '' : t[2]).toLowerCase();
+      if (arg === 'none') {
+        const was = vlanLib.normalizePortConfig(iface.vlan || {}).voiceVlan;
+        if (was === null) return ['% ' + iface.name + ' has no voice VLAN'];
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { voiceVlan: null }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Voice VLAN ' + was + ' removed from ' + iface.name];
+      }
+      const id = parseInt(arg, 10);
+      if (!Number.isInteger(id)) return ['% Usage: switchport voice vlan <1-4094>|none'];
+      // Validate the field this command writes, not the whole port: a port whose native VLAN is not in its own
+      // allowed list (legal to build, reported by `show interfaces`) must still accept a voice VLAN, and the
+      // refusal has to be about the number the operator just typed.
+      const chk = vlanLib.validatePortConfig({ voiceVlan: id });
+      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      const note = modeNote(this, iface, 'trunk');
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { voiceVlan: id }));
+      this.device.flushMacsOnPort(iface.name);
+      return ['Voice VLAN ' + id + ' on ' + iface.name + note];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
       const id = parseInt(t[3], 10);
@@ -2762,6 +2790,8 @@ class CliSession {
           // console lets you type it - vanished from the backup and never came back.
           const spMode = i.vlan.mode === 'trunk' ? 'trunk' : 'access';
           const spAccess = Number(i.vlan.accessVlan) || 1;
+          const spVoice = i.vlan.voiceVlan === null || i.vlan.voiceVlan === undefined
+            ? null : Number(i.vlan.voiceVlan);
           const spNative = Number(i.vlan.nativeVlan) || 1;
           const spAllowed = i.vlan.allowedVlans;
           // An empty list is the engine's "unset", not a configuration: no command can produce it
@@ -2771,6 +2801,7 @@ class CliSession {
             ? null : spAllowed.join(',');
           if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
           if (spAccess !== 1) out.push('  switchport access vlan ' + spAccess);
+          if (spVoice !== null) out.push('  switchport voice vlan ' + spVoice);
           if (spNative !== 1) out.push('  switchport trunk native vlan ' + spNative);
           if (spAllowedText !== null) out.push('  switchport trunk allowed vlan ' + spAllowedText);
         }

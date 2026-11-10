@@ -444,6 +444,37 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### The voice VLAN
+
+```
+interface Gi1/0/5
+ switchport mode trunk
+ switchport trunk allowed vlan 10
+ switchport voice vlan 20
+```
+
+A phone on that port talks on VLAN 20 and the PC behind it on VLAN 10. The voice VLAN is carried by the trunk
+**whether or not it appears in the allowed list** — that field is how the switch is told which VLAN voice traffic
+arrives on — so the port above carries 10 (native data) and 20 (tagged voice) and nothing else.
+
+The parameter needs a trunk, because voice traffic is tagged. On an access port it is accepted and **stored, not
+in use**:
+
+```
+sw1(config-if)# switchport voice vlan 20
+Voice VLAN 20 on Gi1/0/5 (stored; the port is in access mode - set "switchport mode trunk" to use it)
+```
+
+`show interfaces <port>` says the same thing in one sentence, and the inspector panel prints the same sentence:
+
+```
+switchport: trunk · native 10 · allowed 10 · voice 20
+```
+
+`no switchport voice vlan` removes it and names the value that was in force; `switchport voice vlan none` does the
+same. `show running-config` prints `switchport voice vlan 20` inside the interface block, and a saved board restores
+it, so a reloaded lab still separates voice from data.
+
 ### NAT: configuring it, and reading what it did
 
 ```
@@ -743,9 +774,9 @@ Vlan    Mac Address         Type        Ports
   you the row is stale.
 * `(vlan mismatch)` means the port does not carry that VLAN at all — an entry that cannot be a forwarding
   decision, however healthy the port looks.
-* **A VLAN parameter is not a mode change.** `switchport trunk native vlan`, `switchport trunk allowed vlan`
-  and `switchport access vlan` store their value and leave the port's mode alone, saying so when the value
-  cannot be used yet:
+* **A VLAN parameter is not a mode change.** `switchport trunk native vlan`, `switchport trunk allowed vlan`,
+  `switchport access vlan` and `switchport voice vlan` store their value and leave the port's mode alone, saying
+  so when the value cannot be used yet:
 
   ```
   sw1(config-if)#switchport trunk native vlan 20

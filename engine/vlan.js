@@ -295,8 +295,10 @@ function switchportSentence(portConfig) {
   // as `none`, not as `all`. Only the unset field means all.
   const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans))
     ? 'all' : (cfg.allowedVlans.length ? cfg.allowedVlans.join(',') : 'none');
+  const voiceText = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined
+    ? ' · voice ' + Number(cfg.voiceVlan) : '';
   if (mode === 'trunk') {
-    return 'trunk · native ' + cfg.nativeVlan + ' · allowed ' + allowed;
+    return 'trunk · native ' + cfg.nativeVlan + ' · allowed ' + allowed + voiceText;
   }
   let line = 'access VLAN ' + cfg.accessVlan;
   // "Staged" is read from the stored fields, not from the normalised ones: the normaliser derives a native VLAN
@@ -316,6 +318,9 @@ function switchportSentence(portConfig) {
   }
   // Stored, not in force. Saying "access VLAN 1" alone would leave the operator believing the trunk settings
   // they typed a moment ago had gone somewhere.
+  if (cfg.voiceVlan !== null && cfg.voiceVlan !== undefined) {
+    staged.push('voice ' + Number(cfg.voiceVlan));
+  }
   if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
   return line;
 }
@@ -331,9 +336,18 @@ function classifyEgress(portConfig, vlanId) {
   }
 
   // trunk
-  if (!vlanListIncludes(cfg.allowedVlans, vid)) return { action: 'drop', vid: vid };
+  // The voice VLAN is carried by the trunk whether or not it appears in the allowed list: that field is how the
+  // switch is told which VLAN voice traffic arrives on, and `validatePortConfig` already insists it be a trunk
+  // because voice traffic is tagged. It was stored, validated, printed - and read by nothing (#1368).
+  const voice = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
+  if (!vlanListIncludes(cfg.allowedVlans, vid) && !(voice !== null && vid === voice)) {
+    return { action: 'drop', vid: vid };
+  }
   if (vid === cfg.nativeVlan) return { action: 'untagged', vid: vid };
-  return { action: 'tagged', vid: vid };
+  const out = { action: 'tagged', vid: vid };
+  // Only present when it is true: the verdict for an ordinary VLAN keeps exactly the shape it always had.
+  if (voice !== null && vid === voice) out.voice = true;
+  return out;
 }
 
 // Ingress: is an arriving frame accepted, and into which VLAN does it land?
@@ -363,10 +377,13 @@ function classifyIngress(portConfig, frame) {
   if (!isValidVlan(vid)) {
     return { action: 'drop', vlanId: null, reason: 'invalid-vid' };
   }
-  if (!vlanListIncludes(cfg.allowedVlans, vid)) {
+  const voiceIn = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
+  if (!vlanListIncludes(cfg.allowedVlans, vid) && !(voiceIn !== null && vid === voiceIn)) {
     return { action: 'drop', vlanId: null, reason: 'vlan-not-allowed' };
   }
-  return { action: 'accept', vlanId: vid };
+  const accepted = { action: 'accept', vlanId: vid };
+  if (voiceIn !== null && vid === voiceIn) accepted.voice = true;
+  return accepted;
 }
 
 // ---------------------------------------------------------------------------

@@ -108,7 +108,11 @@ first.
 | **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. | `engine/device.js:331-337`, `engine/simulator.js:1895` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-26` |
 | **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` falls back to the parent's VLAN when no tag is present. | `engine/simulator.js:72-78`, `engine/cli.js:187-199` |
-| **Absent** | Voice VLAN in the data path: `voiceVlan` is accepted and validated in the config shape (`engine/vlan.js:13`, `engine/vlan.js:423`) but nothing in the forwarder reads it. QinQ / 802.1ad, private VLANs, VTP, VLAN pruning negotiation. | — |
+| **Modelled** | The voice VLAN. `switchport voice vlan <id>` stores it, `classifyEgress`/`classifyIngress` carry
+that VLAN on the trunk whether or not it is in the allowed list, `switchportSentence()` and the panel name it,
+`show running-config` prints it and a save restores it. It requires a trunk because voice traffic is tagged;
+on an access port it is stored and reported as staged, not in use. | `engine/vlan.js:classifyEgress` |
+| **Absent** | QinQ / 802.1ad, private VLANs, VTP, VLAN pruning negotiation. | — |
 
 ### 2.3 Link aggregation (LAG)
 
