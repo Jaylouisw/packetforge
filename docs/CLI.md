@@ -29,6 +29,8 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
 | `show clock` | the instant the lab is being asked about, and a plain statement that there is no wall clock ([Event log](#event-log)) |
 | `clear logging` | truncate the event log (privileged exec) |
+| `show startup-config` | the saved copy, then what the running config has changed ([Saving the configuration](#saving-the-configuration)) |
+| `write memory` / `copy running-config startup-config` | save the running configuration as the startup copy (privileged exec) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
@@ -1058,6 +1060,8 @@ R1(config)#ip dhcp pool lan
 R1(config-dhcp)#network 10.0.0.0 255.255.255.0
 R1(config-dhcp)#exit
 % E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
+% Pool lan discarded - a pool is kept only once it is valid
+% Add "range <start> <end>" inside the pool, or start again with "ip dhcp pool lan"
 ```
 
 **`lease <days>` takes days, as in IOS.** The one place this page is easiest to misread: `lease 600`
@@ -2342,6 +2346,86 @@ has and a port it does not, in two different labs, and the assertion is written 
 rather than against today's output — the filtered answer must not equal the full one, must carry fewer
 of the full answer's lines, and must not mention any other port on the device.
 
+## Saving the configuration
+
+`write memory` saves the running configuration; `show startup-config` reads the copy back. Both
+spellings of the save exist (`write memory`, `copy running-config startup-config`) because an operator
+types one of them without thinking about which the box happens to prefer:
+
+```
+R1#write memory
+Saved startup-config on R1: 7 lines
+(this is the first save in this lab - "show startup-config" now answers)
+```
+
+The saved copy is the **rendered** configuration — the text `show running-config` prints, minus its
+`! PacketForge running-config` label — not the model behind it. That is deliberate: it is what a person
+reads and pastes, and it is the only thing a diff against the running config can honestly compare.
+
+**The reason to have a saved copy is the difference.** IOS answers `Building configuration... [OK]` and
+says nothing else; the question an operator asks next is "what did I change?", so the dump answers it:
+
+```
+R1#show startup-config
+! PacketForge startup-config (saved copy)
+hostname R1
+vlan 99 users
+interface Gi0/0
+  ip address 10.0.1.1 255.255.255.0
+interface Gi0/1
+  description uplink
+interface Gi0/2
+!
+! running-config differs from this copy: 2 lines added, 1 line removed
+! not in this copy (running-config only):
+! + vlan 100 extra
+! +   ip address 192.168.9.1 255.255.255.0
+! no longer in the running config (this copy still has):
+! -   description uplink
+! "write memory" replaces this copy with the running configuration
+```
+
+Three things about that output are load-bearing:
+
+- **The delta is `!` comments.** A dump that cannot be pasted is a dump an operator has to edit before
+  using it, and the whole block would break a paste if it were prose. Pasted onto a bare device, the
+  dump rebuilds the same running configuration exactly — that round trip is a test, not a claim.
+- **The counts are true.** The diff is a line-level longest-common-subsequence, not a set difference, so
+  two identical `description` lines on two interfaces count as one removal when one goes away. The test
+  recomputes the difference independently and requires the two to agree.
+- **Nothing is invented on a first save.** There is no previous copy to compare against, so the answer
+  says it is the first rather than reporting a delta of zero.
+
+Saving again reports what it replaced, and a repeat save says there was nothing to do — without that
+second state, an operator can never tell whether the save worked:
+
+```
+R1#write memory
+Saved startup-config on R1: 8 lines (2 lines added, 1 line removed)
+R1#write memory
+Saved startup-config on R1: 8 lines (no changes since the previous save)
+```
+
+Before anything is saved, the command says so instead of printing an empty configuration, and a session
+that never enabled is told why it cannot save:
+
+```
+R1#show startup-config
+% No startup-config on R1 - nothing has been written in this lab
+% "write memory" saves the running configuration (privileged, as on a real device)
+
+R1>write memory
+% write memory needs enable mode - this session is at the user prompt
+```
+
+The saved copy belongs to the **device**, not to the console session: a new session on the same box
+finds it, the other router in the lab does not have one, and it survives everything the running
+configuration can do to itself — including being deleted. That is the entire point: a copy that changed
+whenever the configuration did would answer no question at all.
+
+What it is **not**: there is no `reload` in this lab, so a saved copy does not boot a device. It exists
+to answer "what was on this box" and "what have I changed since".
+
 ## Switch management address — an SVI
 
 A switch's own address lives on a **VLAN**, not on a socket. IOS calls that object an SVI and spells it
@@ -2774,7 +2858,7 @@ IPv6, DNS, SCION, BGP — is reachable with `grep -rn "E_" engine/*.js`.
 |---|---|
 | `E_DHCP_BAD_NETWORK` | `network` is not an IPv4 address |
 | `E_DHCP_BAD_MASK` | `mask` is not a contiguous mask (`255.255.255.0` or `/24` both work) |
-| `E_DHCP_BAD_RANGE` | only one of `rangeStart` / `rangeEnd` was given — both are required |
+| `E_DHCP_BAD_RANGE` | a pool has no `range` (or only half of one) — this model allocates only from an explicit range, never from the whole subnet. An invalid pool is **discarded** when you leave the sub-mode, so it never appears in `show running-config` |
 | `E_DHCP_RANGE_ORDER` | `rangeStart` is above `rangeEnd` |
 | `E_DHCP_RANGE_OUTSIDE` | the range is not inside `network`/`mask` |
 | `E_DHCP_RANGE_ENDPOINT` | the range includes the network or broadcast address |

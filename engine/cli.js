@@ -12,6 +12,42 @@ function plural(n, one, many) {
   return n + ' ' + (n === 1 ? one : (many || one + 's'));
 }
 
+// A line-level diff, longest common subsequence. Configurations are a couple of hundred lines, so the
+// quadratic table is nothing, and an accurate diff is the difference between "3 lines changed" and a
+// number an operator cannot check. Duplicate lines are handled correctly because the walk pairs them
+// positionally through the table rather than by set membership.
+function diffLines(before, after) {
+  const a = before || [], b = after || [];
+  const n = a.length, m = b.length;
+  const row = function () { return new Array(m + 1).fill(0); };
+  const t = [];
+  for (let i = 0; i <= n; i++) t.push(row());
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      t[i][j] = a[i] === b[j] ? t[i + 1][j + 1] + 1 : Math.max(t[i + 1][j], t[i][j + 1]);
+    }
+  }
+  const added = [], removed = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { i++; j++; }
+    else if (t[i + 1][j] >= t[i][j + 1]) { removed.push(a[i]); i++; }
+    else { added.push(b[j]); j++; }
+  }
+  while (i < n) { removed.push(a[i]); i++; }
+  while (j < m) { added.push(b[j]); j++; }
+  return { added: added, removed: removed };
+}
+
+// "3 lines added, 1 removed" - with the singular spelled out, because "1 lines" is the kind of detail
+// that makes a reader distrust the count.
+function describeDelta(d) {
+  const parts = [];
+  if (d.added.length) parts.push(plural(d.added.length, 'line') + ' added');
+  if (d.removed.length) parts.push(plural(d.removed.length, 'line') + ' removed');
+  return parts.join(', ') || 'no changes';
+}
+
 // "  (2 acl-deny, 1 no route in this VLAN)" - a drop count without its reasons is a number nobody can
 // act on, and the reasons are already tallied per port by the simulator.
 function dropReasons(reasons) {
@@ -300,6 +336,27 @@ class CliSession {
             if (this.sim && this.sim.events) this.sim.events.length = 0;
             out.push('Event log cleared (' + had + ' event' + (had === 1 ? '' : 's') + ' dropped)');
           }
+        } else if (head === 'write' || head === 'copy') {
+          // `write memory` and `copy running-config startup-config` are the same act, and both are how
+          // an operator answers "what was on this box before I started changing it". The saved copy is
+          // the *rendered* configuration, not the model: it is what a person reads and pastes, and it
+          // is the only thing a diff against the running config can honestly compare.
+          const isWrite = head === 'write';
+          const target = isWrite ? (tokens[1] === undefined ? 'memory' : tokens[1])
+            : (tokens[1] === 'running-config' || tokens[1] === 'run' ? tokens[2] : null);
+          const okTarget = isWrite
+            ? ['memory', 'mem', 'startup-config', 'startup'].indexOf(target) !== -1
+            : ['startup-config', 'startup', 'start'].indexOf(target) !== -1;
+          if (!okTarget) {
+            out.push(head === 'write'
+              ? '% write takes memory (or startup-config) - there is nothing else to write'
+              : '% copy takes running-config startup-config - the source must be running-config');
+          } else if (this.mode !== MODE_ENABLE) {
+            out.push('% ' + (isWrite ? 'write memory' : 'copy running-config startup-config') +
+              ' needs enable mode - this session is at the user prompt');
+          } else {
+            out.push.apply(out, this._saveConfig(this.device));
+          }
         } else if (head === 'configure' || head === 'conf') {
           if (tokens[1] === 'terminal' || tokens[1] === 't') {
             // Remember where we came from: `exit`/`end` return to that prompt. IOS puts you back
@@ -400,6 +457,12 @@ class CliSession {
         this.device.config.dhcpPools.push(pool);
         out.push('Created DHCP pool ' + name);
       }
+      // Snapshot the pool as it was, and remember whether it was just created: leaving the sub-mode
+      // validates it, and an invalid pool must not survive as configuration. A pool the console
+      // accepted and then cannot re-enter is the defect this snapshot prevents - the running-config
+      // dump prints pools, and a dump that fails its own validation on paste is not a dump.
+      this.poolSnapshot = JSON.parse(JSON.stringify(pool));
+      this.poolCreated = !pool.rangeStart && !pool.network;
       this.pool = name;
       this.mode = MODE_DHCP_POOL;
     } else if (head === 'scion') {
@@ -1598,9 +1661,28 @@ class CliSession {
       const check = dhcpLib.validatePool(dhcpLib.normalizePool(pool));
       if (!check.ok) {
         for (const e of check.errors) out.push('% ' + e.code + ': ' + e.message);
+        // An invalid pool is not configuration, so it does not stay in the configuration. The old
+        // behaviour validated on exit and kept the object anyway, which left a pool that `show
+        // ip dhcp pool` listed, that allocated nothing, and whose own line in `show running-config`
+        // could not be pasted back without the same error.
+        const wasNew = this.poolCreated;
+        if (wasNew) {
+          this.device.config.dhcpPools = (this.device.config.dhcpPools || [])
+            .filter(function (q) { return q.name !== pool.name; });
+          out.push('% Pool ' + pool.name + ' discarded - a pool is kept only once it is valid');
+          out.push('% Add "range <start> <end>" inside the pool, or start again with "ip dhcp pool ' +
+            pool.name + '"');
+        } else if (this.poolSnapshot) {
+          Object.keys(pool).forEach(function (k) { delete pool[k]; }, this);
+          Object.assign(pool, this.poolSnapshot);
+          out.push('% Pool ' + pool.name + ' restored to its previous configuration - the edit was ' +
+            'not valid');
+        }
       }
       this.mode = mode;
       this.pool = null;
+      this.poolSnapshot = null;
+      this.poolCreated = false;
       return out;
     };
 
@@ -2290,6 +2372,222 @@ class CliSession {
     return 'State';
   }
 
+  // Save the running configuration as the startup copy, and report what changed since the last save.
+  //
+  // IOS says "Building configuration... [OK]" and tells you nothing else. The one question worth
+  // answering here is the one the operator will ask next - *what is different* - so the answer names
+  // the delta against the copy being replaced. The first save has nothing to compare against, and says
+  // so rather than inventing a zero.
+  _saveConfig(dev) {
+    // The header line is a label, not configuration: `! PacketForge running-config` would be a lie in a
+    // copy that is no longer the running config, and keeping it would make every diff report one line
+    // added and one removed for the label alone. The body is what is saved and what is compared.
+    const lines = this._runningConfigLines(dev).slice(1);
+    const previous = dev.savedConfig;
+    dev.savedConfig = { lines: lines.slice(), savedAtRun: this.sim ? this.sim.step : null };
+    const head = 'Saved startup-config on ' + (dev.name || dev.id) + ': ' + lines.length + ' lines';
+    if (!previous) {
+      return [head, '(this is the first save in this lab - "show startup-config" now answers)'];
+    }
+    const d = diffLines(previous.lines, lines);
+    if (!d.added.length && !d.removed.length) return [head + ' (no changes since the previous save)'];
+    return [head + ' (' + describeDelta(d) + ')'];
+  }
+
+  // `show startup-config` - the saved copy, then what the running config has done to it since.
+  //
+  // The delta is printed as `!` comments so the whole answer stays pasteable: a config dump that
+  // cannot be pasted is a config dump an operator has to edit before using.
+  _showStartupConfig(dev) {
+    const saved = dev.savedConfig;
+    if (!saved) {
+      return ['% No startup-config on ' + (dev.name || dev.id) +
+        ' - nothing has been written in this lab',
+      '% "write memory" saves the running configuration (privileged, as on a real device)'];
+    }
+    const out = ['! PacketForge startup-config (saved copy)'].concat(saved.lines);
+    const current = this._runningConfigLines(dev).slice(1);
+    const d = diffLines(saved.lines, current);
+    if (d.added.length || d.removed.length) {
+      out.push('!');
+      out.push('! running-config differs from this copy: ' + describeDelta(d));
+      const CAP = 12;
+      if (d.added.length) {
+        out.push('! not in this copy (running-config only):');
+        for (const l of d.added.slice(0, CAP)) out.push('! + ' + l);
+        if (d.added.length > CAP) out.push('! ... ' + (d.added.length - CAP) + ' more');
+      }
+      if (d.removed.length) {
+        out.push('! no longer in the running config (this copy still has):');
+        for (const l of d.removed.slice(0, CAP)) out.push('! - ' + l);
+        if (d.removed.length > CAP) out.push('! ... ' + (d.removed.length - CAP) + ' more');
+      }
+      out.push('! "write memory" replaces this copy with the running configuration');
+    }
+    return out;
+  }
+
+  // The running configuration, as the lines a person reads and a paste re-enters.
+  //
+  // One rendering, used by `show running-config`, by `write memory` (which stores this text as the
+  // saved copy) and by the diff against it. Two renderings would drift, and the diff would then
+  // compare a configuration to something that was never printed.
+  _runningConfigLines(dev) {
+    const out = [];
+    out.push('! PacketForge running-config');
+    out.push('hostname ' + (dev.config.hostname || dev.name));
+
+    // VLAN declarations, not just the switchport membership that points at them.
+    const vlans = dev.config.vlans || {};
+    for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
+      out.push('vlan ' + id + (vlans[id] && vlans[id].name ? ' ' + vlans[id].name : ''));
+    }
+
+    // OSPF process first: `ip ospf …` inside an interface is refused until
+    // `ospf router-id` has enabled the process, so the global lines must
+    // precede the interface blocks to round-trip.
+    const ospf = dev.config.ospf;
+    if (ospf && ospf.routerId) {
+      out.push('ospf router-id ' + ospf.routerId);
+      if (ospf.areaId) out.push('ospf area ' + ospf.areaId);
+    }
+    const ospfIfaces = (ospf && ospf.interfaces) || [];
+    const vrrp = Array.isArray(dev.config.vrrp) ? dev.config.vrrp : [];
+
+    for (const i of dev.interfaces.values()) {
+      out.push('interface ' + i.name);
+      if (i.description) out.push('  description ' + i.description);
+      if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
+      if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
+      // `ip address dhcp` is accepted after a static address and does not clear
+      // it, so a port that has both must emit both lines or the flag is lost.
+      if (i.dhcp) out.push('  ip address dhcp');
+      // A relay that the dump forgets is a relay the pasted config loses, which is the one thing
+      // `show running-config` exists to prevent.
+      for (const helper of (i.helperAddresses || [])) {
+        out.push('  ip helper-address ' + helper);
+      }
+      // An SVI is a member of its VLAN by definition, not by configuration: `switchport` on a
+      // logical interface is not a thing, and emitting it made the dump describe the port rather
+      // than the object it belongs to.
+      if (i.vlan && !i.svi) {
+        if (i.vlan.mode === 'trunk') {
+          out.push('  switchport mode trunk');
+          out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
+          const av = i.vlan.allowedVlans;
+          out.push('  switchport trunk allowed vlan ' +
+          (av === 'all' || !Array.isArray(av) ? 'all' : av.join(',')));
+        } else {
+          const av = Number(i.vlan.accessVlan) || 1;
+          if (av !== 1) {
+            out.push('  switchport mode access');
+            out.push('  switchport access vlan ' + av);
+          }
+        }
+      }
+      const lag = dev.lagFor ? dev.lagFor(i.name) : null;
+      if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
+      const binds = dev.aclBindings && dev.aclBindings[i.name];
+      if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
+      if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
+      // OSPF interface overrides, carried by the same interface block.
+      const ov = ospfIfaces.filter(function (x) { return x.name === i.name; })[0];
+      if (ov) {
+        if (ov.cost !== undefined) out.push('  ip ospf cost ' + ov.cost);
+        if (ov.area !== undefined) out.push('  ip ospf area ' + ov.area);
+        if (ov.passive) out.push('  ip ospf passive');
+      }
+      // IPv6 addressing: autoconfig is the source of truth; a static address
+      // is only emitted when the interface is not waiting on a router.
+      if (i.autoconfig) {
+        out.push('  ipv6 address autoconfig');
+      } else if (dev.config.ip6 && dev.config.ip6[i.name] && dev.config.ip6[i.name].addr) {
+        out.push('  ipv6 address ' + dev.config.ip6[i.name].addr + '/' + dev.config.ip6[i.name].prefix);
+      }
+      // VRRP is configured per interface, so it round-trips inside the block.
+      for (const g of vrrp) {
+        if (g.interface !== i.name) continue;
+        for (const vip of (g.ips || [])) out.push('  vrrp ' + g.vrid + ' ip ' + vip);
+        if (g.priority !== undefined && g.priority !== 100) out.push('  vrrp ' + g.vrid + ' priority ' + g.priority);
+        if (g.advertSec !== undefined && g.advertSec !== 1) out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
+      }
+      if (!i.enabled) out.push('  shutdown');
+    }
+    const allAcls = dev.config.acls || {};
+    for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
+      for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
+    }
+    for (const r of dev.config.routes) {
+      out.push('ip route ' + r.dest + ' ' + r.mask + ' ' + (r.gw || '') + (r.iface ? ' ' + r.iface : ''));
+    }
+    if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
+
+    // BGP: the process line must precede router-id and neighbours.
+    const bgp = dev.config.bgp;
+    if (bgp && bgp.as) {
+      out.push('router bgp ' + bgp.as);
+      if (bgp.routerId) out.push('bgp router-id ' + bgp.routerId);
+      for (const n of (bgp.neighbors || [])) out.push('neighbor ' + n.address + ' remote-as ' + n.remoteAs);
+    }
+
+    // IPv6 routing.
+    for (const r6 of (dev.config.routes6 || [])) {
+      out.push('ipv6 route ' + r6.dest + '/' + r6.prefix + ' ' + r6.nextHop);
+    }
+    if (dev.config.gateway6) out.push('ipv6 gateway ' + dev.config.gateway6);
+
+    // IPv6 router advertisements. Only non-default state is emitted: a device
+    // that never configured RA has `ra === null`, and the timer values (hop
+    // limit, reachable, retransmit) have no CLI verb, so there is nothing to say
+    // about them.
+    const raLib = require('./ra');
+    const ra = dev.config.ra ? raLib.normalizeConfig(dev.config.ra) : null;
+    if (ra) {
+      if (ra.enabled) out.push('ipv6 nd ra enable');
+      if (ra.m) out.push('ipv6 nd ra managed');
+      if (ra.o) out.push('ipv6 nd ra other-config');
+      if (ra.suppress) out.push('ipv6 nd suppress-ra');
+      if (ra.routerLifetime !== raLib.DEFAULTS.routerLifetime) {
+        out.push('ipv6 nd ra lifetime ' + ra.routerLifetime);
+      }
+      for (const p of ra.prefixes) {
+        out.push('ipv6 nd prefix ' + p.prefix + '/' + p.prefixLen +
+        ' valid ' + p.validLifetime + ' preferred ' + p.preferredLifetime);
+      }
+    }
+
+    // DNS: each zone's records follow its `dns zone`, so a paste re-attaches
+    // them to the right zone rather than the last one opened.
+    for (const z of (dev.config.dnsZones || [])) {
+      out.push('dns zone ' + z.name);
+      for (const rec of (z.records || [])) out.push('dns add ' + rec.name + ' ' + rec.type + ' ' + rec.value);
+    }
+    for (const ns of (dev.config.dnsServers || [])) out.push('ip name-server ' + ns);
+
+    if (dev.config.scionAs) out.push('scion ' + dev.config.scionAs);
+
+    // DHCP pools: a block per pool, `exit` returning to config mode between them.
+    for (const pool of (dev.config.dhcpPools || [])) {
+      out.push('ip dhcp pool ' + pool.name);
+      if (pool.network) out.push('  network ' + pool.network + (pool.mask ? ' ' + pool.mask : ''));
+      if (pool.gateway) out.push('  default-router ' + pool.gateway);
+      if (pool.dns) out.push('  dns-server ' + pool.dns);
+      if (pool.rangeStart && pool.rangeEnd) out.push('  range ' + pool.rangeStart + ' ' + pool.rangeEnd);
+      if (pool.excluded && pool.excluded.length) out.push('  excluded-address ' + pool.excluded.join(' '));
+      const lease = Number(pool.leaseSec);
+      if (Number.isFinite(lease) && lease > 0) {
+        const days = Math.floor(lease / 86400);
+        const hours = Math.floor((lease % 86400) / 3600);
+        const mins = Math.floor((lease % 3600) / 60);
+        out.push('  lease ' + days + ' ' + hours + ' ' + mins);
+      }
+      const reservations = pool.reservations || {};
+      for (const mac of Object.keys(reservations)) out.push('  host ' + reservations[mac] + ' ' + mac);
+      out.push('  exit');
+    }
+    return out;
+  }
+
   _show(tokens) {
     // An SVI's line protocol depends on the current link state, so it is recomputed before every
     // `show` rather than trusted from the last run: configuration can change between two questions,
@@ -2674,158 +2972,10 @@ class CliSession {
             '/' + i.peer.iface
           : 'disconnected'));
       }
+    } else if (what === 'startup-config' || what === 'start') {
+      out.push.apply(out, this._showStartupConfig(dev));
     } else if (what === 'running-config' || what === 'run') {
-      out.push('! PacketForge running-config');
-      out.push('hostname ' + (dev.config.hostname || dev.name));
-
-      // VLAN declarations, not just the switchport membership that points at them.
-      const vlans = dev.config.vlans || {};
-      for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
-        out.push('vlan ' + id + (vlans[id] && vlans[id].name ? ' ' + vlans[id].name : ''));
-      }
-
-      // OSPF process first: `ip ospf …` inside an interface is refused until
-      // `ospf router-id` has enabled the process, so the global lines must
-      // precede the interface blocks to round-trip.
-      const ospf = dev.config.ospf;
-      if (ospf && ospf.routerId) {
-        out.push('ospf router-id ' + ospf.routerId);
-        if (ospf.areaId) out.push('ospf area ' + ospf.areaId);
-      }
-      const ospfIfaces = (ospf && ospf.interfaces) || [];
-      const vrrp = Array.isArray(dev.config.vrrp) ? dev.config.vrrp : [];
-
-      for (const i of dev.interfaces.values()) {
-        out.push('interface ' + i.name);
-        if (i.description) out.push('  description ' + i.description);
-        if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
-        if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
-        // `ip address dhcp` is accepted after a static address and does not clear
-        // it, so a port that has both must emit both lines or the flag is lost.
-        if (i.dhcp) out.push('  ip address dhcp');
-        // A relay that the dump forgets is a relay the pasted config loses, which is the one thing
-        // `show running-config` exists to prevent.
-        for (const helper of (i.helperAddresses || [])) {
-          out.push('  ip helper-address ' + helper);
-        }
-        // An SVI is a member of its VLAN by definition, not by configuration: `switchport` on a
-        // logical interface is not a thing, and emitting it made the dump describe the port rather
-        // than the object it belongs to.
-        if (i.vlan && !i.svi) {
-          if (i.vlan.mode === 'trunk') {
-            out.push('  switchport mode trunk');
-            out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
-            const av = i.vlan.allowedVlans;
-            out.push('  switchport trunk allowed vlan ' +
-              (av === 'all' || !Array.isArray(av) ? 'all' : av.join(',')));
-          } else {
-            const av = Number(i.vlan.accessVlan) || 1;
-            if (av !== 1) {
-              out.push('  switchport mode access');
-              out.push('  switchport access vlan ' + av);
-            }
-          }
-        }
-        const lag = dev.lagFor ? dev.lagFor(i.name) : null;
-        if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
-        const binds = dev.aclBindings && dev.aclBindings[i.name];
-        if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
-        if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
-        // OSPF interface overrides, carried by the same interface block.
-        const ov = ospfIfaces.filter(function (x) { return x.name === i.name; })[0];
-        if (ov) {
-          if (ov.cost !== undefined) out.push('  ip ospf cost ' + ov.cost);
-          if (ov.area !== undefined) out.push('  ip ospf area ' + ov.area);
-          if (ov.passive) out.push('  ip ospf passive');
-        }
-        // IPv6 addressing: autoconfig is the source of truth; a static address
-        // is only emitted when the interface is not waiting on a router.
-        if (i.autoconfig) {
-          out.push('  ipv6 address autoconfig');
-        } else if (dev.config.ip6 && dev.config.ip6[i.name] && dev.config.ip6[i.name].addr) {
-          out.push('  ipv6 address ' + dev.config.ip6[i.name].addr + '/' + dev.config.ip6[i.name].prefix);
-        }
-        // VRRP is configured per interface, so it round-trips inside the block.
-        for (const g of vrrp) {
-          if (g.interface !== i.name) continue;
-          for (const vip of (g.ips || [])) out.push('  vrrp ' + g.vrid + ' ip ' + vip);
-          if (g.priority !== undefined && g.priority !== 100) out.push('  vrrp ' + g.vrid + ' priority ' + g.priority);
-          if (g.advertSec !== undefined && g.advertSec !== 1) out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
-        }
-        if (!i.enabled) out.push('  shutdown');
-      }
-      const allAcls = dev.config.acls || {};
-      for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
-        for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
-      }
-      for (const r of dev.config.routes) {
-        out.push('ip route ' + r.dest + ' ' + r.mask + ' ' + (r.gw || '') + (r.iface ? ' ' + r.iface : ''));
-      }
-      if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
-
-      // BGP: the process line must precede router-id and neighbours.
-      const bgp = dev.config.bgp;
-      if (bgp && bgp.as) {
-        out.push('router bgp ' + bgp.as);
-        if (bgp.routerId) out.push('bgp router-id ' + bgp.routerId);
-        for (const n of (bgp.neighbors || [])) out.push('neighbor ' + n.address + ' remote-as ' + n.remoteAs);
-      }
-
-      // IPv6 routing.
-      for (const r6 of (dev.config.routes6 || [])) {
-        out.push('ipv6 route ' + r6.dest + '/' + r6.prefix + ' ' + r6.nextHop);
-      }
-      if (dev.config.gateway6) out.push('ipv6 gateway ' + dev.config.gateway6);
-
-      // IPv6 router advertisements. Only non-default state is emitted: a device
-      // that never configured RA has `ra === null`, and the timer values (hop
-      // limit, reachable, retransmit) have no CLI verb, so there is nothing to say
-      // about them.
-      const raLib = require('./ra');
-      const ra = dev.config.ra ? raLib.normalizeConfig(dev.config.ra) : null;
-      if (ra) {
-        if (ra.enabled) out.push('ipv6 nd ra enable');
-        if (ra.m) out.push('ipv6 nd ra managed');
-        if (ra.o) out.push('ipv6 nd ra other-config');
-        if (ra.suppress) out.push('ipv6 nd suppress-ra');
-        if (ra.routerLifetime !== raLib.DEFAULTS.routerLifetime) {
-          out.push('ipv6 nd ra lifetime ' + ra.routerLifetime);
-        }
-        for (const p of ra.prefixes) {
-          out.push('ipv6 nd prefix ' + p.prefix + '/' + p.prefixLen +
-            ' valid ' + p.validLifetime + ' preferred ' + p.preferredLifetime);
-        }
-      }
-
-      // DNS: each zone's records follow its `dns zone`, so a paste re-attaches
-      // them to the right zone rather than the last one opened.
-      for (const z of (dev.config.dnsZones || [])) {
-        out.push('dns zone ' + z.name);
-        for (const rec of (z.records || [])) out.push('dns add ' + rec.name + ' ' + rec.type + ' ' + rec.value);
-      }
-      for (const ns of (dev.config.dnsServers || [])) out.push('ip name-server ' + ns);
-
-      if (dev.config.scionAs) out.push('scion ' + dev.config.scionAs);
-
-      // DHCP pools: a block per pool, `exit` returning to config mode between them.
-      for (const pool of (dev.config.dhcpPools || [])) {
-        out.push('ip dhcp pool ' + pool.name);
-        if (pool.network) out.push('  network ' + pool.network + (pool.mask ? ' ' + pool.mask : ''));
-        if (pool.gateway) out.push('  default-router ' + pool.gateway);
-        if (pool.dns) out.push('  dns-server ' + pool.dns);
-        if (pool.rangeStart && pool.rangeEnd) out.push('  range ' + pool.rangeStart + ' ' + pool.rangeEnd);
-        if (pool.excluded && pool.excluded.length) out.push('  excluded-address ' + pool.excluded.join(' '));
-        const lease = Number(pool.leaseSec);
-        if (Number.isFinite(lease) && lease > 0) {
-          const days = Math.floor(lease / 86400);
-          const hours = Math.floor((lease % 86400) / 3600);
-          const mins = Math.floor((lease % 3600) / 60);
-          out.push('  lease ' + days + ' ' + hours + ' ' + mins);
-        }
-        const reservations = pool.reservations || {};
-        for (const mac of Object.keys(reservations)) out.push('  host ' + reservations[mac] + ' ' + mac);
-        out.push('  exit');
-      }
+      out.push.apply(out, this._runningConfigLines(dev));
     } else {
       out.push('% Invalid show command: ' + (tokens.join(' ') || '(empty)'));
     }
@@ -4298,6 +4448,8 @@ class CliSession {
       helpLine('show ip dhcp pool', 'pool summary and addresses in use'),
       helpLine('show power inline [<port>]', 'PoE budget and which ports are powered'),
       helpLine('show running-config', 'the whole configuration, pasteable'),
+      helpLine('show startup-config', 'the saved copy, then what the running config changed'),
+      helpLine('write memory / copy running-config startup-config', 'save the running configuration'),
       '',
       '',
       'A show that reports control-plane state also answers "at <ms>" or "at converged":',
