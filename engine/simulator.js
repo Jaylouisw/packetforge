@@ -205,7 +205,14 @@ class Simulator {
         })[0] || answers[0];
         const addr = a && (a.value || a.address || a.data);
         if (addr) {
-          return { ok: true, address: addr, status: 'OK', server: c.dev.name, rcode: res.rcode, answers: answers };
+          // The device name is a label ("ISR 4331 branch router-r1"); a console that prints it where a real box
+          // prints the answering server's address is inventing a format. Carry the id and the address the query
+          // reached, so the caller can print either without guessing (#1375).
+          const answered = c.ips[0] || null;
+          return {
+            ok: true, address: addr, status: 'OK', server: c.dev.name,
+            serverId: c.dev.id, serverIp: answered, rcode: res.rcode, answers: answers
+          };
         }
       }
     }
@@ -235,13 +242,20 @@ class Simulator {
     }
     if (sawName) {
       // NOERROR, zero answers: the name resolves, the type does not exist.
-      return { ok: false, rcode: dnsLib.RCODE.NOERROR, status: 'NODATA', server: server, answers: [] };
+      return {
+        ok: false, rcode: dnsLib.RCODE.NOERROR, status: 'NODATA', server: server,
+        serverId: candidates.length ? candidates[0].dev.id : null,
+        serverIp: candidates.length ? (candidates[0].ips[0] || null) : null,
+        answers: []
+      };
     }
     return {
       ok: false,
       rcode: dnsLib.RCODE.NXDOMAIN,
       status: sawZone ? 'NXDOMAIN' : 'SERVFAIL',
       server: server,
+      serverId: candidates.length ? candidates[0].dev.id : null,
+      serverIp: candidates.length ? (candidates[0].ips[0] || null) : null,
       answers: []
     };
   }
