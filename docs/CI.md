@@ -385,7 +385,7 @@ services, and a job that has to swap makes the whole queue slower.
   | Run | Reading | Red suites |
   |---|---|---|
   | while the `show`-argument work was in flight | 232 suites, **9,980 passed, 62 failed** | 14 |
-  | after the help rows caught up | 232 suites, **10,037 passed, 4 failed** | 3 (`config-do-show`, `link-parts`, `ma5801`) |
+  | after the help rows caught up | 232 suites, **10,037 passed, 4 failed** | 3 — and one of those is a crash, not four failed assertions: `config-do-show` 1, `link-parts` 2, `ma5801` **0 passed, 1 failed, `(no summary line)`** |
 
   The fourteen-suite failure had one cause rather than fourteen: `_showExtraArgRefusal()` in
   `engine/cli.js` reads the **enable-mode help table as the contract**, so a handler that accepts an
@@ -393,6 +393,26 @@ services, and a job that has to swap makes the whole queue slower.
   before it runs. The handler was right, the rows were stale, and the tests were the thing saying so.
   That is exactly why a sentence of the form "no suite is red" does not belong in a page: it is a
   reading, and readings go stale between two runs of the same command.
+
+  **How to read the runner's own output**, because two of its habits surprise people:
+
+  | What you see | What it means |
+  |---|---|
+  | `✓ name            36 passed      792 ms` | the suite's last summary line, and exit status 0 |
+  | `✗ name            20 passed, 1 failed` | real assertion failures |
+  | `✗ name             0 passed, 1 failed  (no summary line)` | the suite **threw**; the runner counted one failure and marked it so you can tell a crash from a red assertion |
+  | trailing block `Failed:` followed by `✗ test/…` | the same suites, listed by path, for grepping |
+  | trailing block `Note: N suite(s) printed no "<n> passed, <m> failed" line` | a suite that ran, passed, and never printed its tally — a broken convention rather than a green result |
+
+  Two rules in the code are worth knowing before you trust a number. The **exit code is the authority**:
+  `tally()` forces at least one failure whenever a suite exits non-zero, so a suite that prints
+  `36 passed, 0 failed` and then dies still counts against you. And only the **last** summary line of a
+  suite is used — a suite that prints several tallies reports its final one, which is the only one that
+  describes the run that finished.
+
+  The `Note:` block sits *after* the failure exit, so on a red run you will never see it: a crashed suite
+  shows up as `(no summary line)` instead. Useful flags, all from the header of the script:
+  `--filter=bgp`, `--bail`, `--verbose`, `--list`.
 
   So quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
   `ls test/*.test.js | wc -l` prints the size. If the two disagree with the sentence you are reading,
