@@ -1994,9 +1994,31 @@ class CliSession {
     return out;
   }
 
+  // A `show` describes the lab at an instant, and the control planes are results - they are computed, not stored.
+  // `show ip route` printed whatever the last `computeOspf()` left on the device, so a console with no run behind it
+  // reported "no O routes" on a lab that was fully converged, and the answer to the same question depended on which
+  // run happened before it (#1338). Recorded state is not the thing being asked about; the simulation is.
+  _refreshControlPlane() {
+    const sim = this.sim;
+    if (!sim) return;
+    // Recompute at the instant the session is standing at. Each of these is idempotent for a given
+    // (topology, runAtMs), and each is what the packet path already runs before it sends anything.
+    //
+    // Only the processes this device is *configured* to run. Recomputing a process that is not configured does not
+    // give the same answer twice - it erases the device's learned routes, so a `show` would quietly delete state that
+    // something else installed (a test fixture, an imported lab, a future caller). A `show` may compute; it must not
+    // destroy.
+    const cfg = this.device.config || {};
+    if (typeof sim.computeStp === 'function') sim.computeStp();
+    if (cfg.vrrp && typeof sim.computeVrrp === 'function') sim.computeVrrp();
+    if (cfg.ospf && typeof sim.computeOspf === 'function') sim.computeOspf();
+    if (cfg.bgp && typeof sim.computeBgp === 'function') sim.computeBgp();
+  }
+
   _show(tokens) {
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
+    this._refreshControlPlane();
     const out = [];
     if (what === 'version' || what === 'ver') {
       out.push(this._banner());

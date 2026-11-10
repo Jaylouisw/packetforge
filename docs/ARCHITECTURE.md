@@ -134,6 +134,21 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### A `show` describes an instant, not a cache
+
+The control planes are **results**: `computeStp()`, `computeVrrp()`, `computeOspf()` and `computeBgp()` each write what
+they concluded onto the devices, and each honours `runAtMs`. A `show` command used to print whatever the last
+computation happened to leave there, which meant:
+
+* a console with no run behind it reported `(no O routes)` on a lab that was fully converged — the routes only appear
+  if something ran the OSPF computation first;
+* the answer to the same question depended on **which run happened before it**: `show ip route` at instant 5000 could
+  print routes installed by a settled run 20000 ms later.
+
+`CliSession._show()` now refreshes the control planes at the instant the session is standing at, before producing any
+output — the same four computations the packet path already runs before it sends anything. Asking does not change the
+configuration, and rows keep their distances and their `is directly connected` wording.
+
 ### The console over HTTP
 
 `POST /api/topologies/:id/config/:devId` runs the console for a device: `{ commands: [...], atMs? }` in, the printed
