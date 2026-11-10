@@ -1,0 +1,37 @@
+{
+  "vendor": "garland",
+  "model": "P1GCUA_mini",
+  "label": "Garland FieldTAP 10/100/1000M Aggregation TAP (P1GCUA_mini)",
+  "category": "tap",
+  "passive": true,
+  "capabilities": [],
+  "description": "Garland FieldTAP P1GCUA_mini - pocket-sized passive aggregation TAP for field troubleshooting: two 10/100/1000BASE-T RJ45 network ports inline, copies aggregated out of a single USB 3.0 monitoring port (5 Gb/s), DIP-switch configured, passes PoE through, power supply included.",
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.4gon.co.uk/garland-fieldtap-101001000m-aggregation-tap-p1gcuamini-p-10344.html",
+  "notes": "The monitor port is the interesting absence: the copies leave through **USB 3.0** (5 Gb/s) into a laptop, which is not a network medium and cannot be an interface here. So this TAP has two RJ45 network ports and **no in-band monitor port** - a lab sees a pass-through pair, which is exactly what it is on the wire; the capture goes off-network. It also **passes PoE through**, so inserting it does not drop power to a downstream device - a detail no `poeIn`/`poeOut` field expresses, since the watts neither terminate nor originate here. DIP switches, no software: passive, no capabilities."
+}

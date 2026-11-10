@@ -1,0 +1,55 @@
+{
+  "vendor": "garland",
+  "model": "P10GSFPA",
+  "label": "Garland 1G/10G Aggregating TAP (P10GSFPA)",
+  "category": "tap",
+  "passive": true,
+  "capabilities": [],
+  "description": "Garland AggregatorTAP Fiber P10GSFPA - portable passive TAP with four SFP+ cages at 1G/10G, DIP-switch selectable modes (breakout, aggregation, regeneration, bypass), metal chassis, four units per 1U rack shelf, two AC power supplies included.",
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.4gon.co.uk/garland-1g10g-aggregating-tap-p10gsfpa-p-10340.html",
+  "notes": "Four SFP+ cages, and the mode is a DIP switch rather than software: breakout (two independent taps), aggregation (both directions into one monitoring port), regeneration/SPAN, bypass. The spec models the **aggregation** wiring - netA/netB in, copies out monA/monB - because that is what the four cages are for in the default configuration; breakout would be two taps in one shell and a graph would have to draw it as two nodes. It is a passive TAP: no management, no capabilities, and nothing learned. Two AC supplies ship with it, which is redundancy, not PoE - nothing here powers a peer."
+}

@@ -414,5 +414,39 @@ console.log('\nA mesh router with one LAN socket (#281):');
     'AFI-INS-R: mains powered, and it says so instead of letting the AP heuristic guess');
 }
 
+console.log('\nTwo TAPs, one of which has no monitor port on the wire (#661, #665):');
+{
+  const agg = find('P10GSFPA');
+  eq(agg.passive, true, 'P10GSFPA: a passive TAP, not an aggregating appliance');
+  eq((agg.capabilities || []).length, 0, 'P10GSFPA: nothing inside it to have capabilities with');
+  const aggPorts = effectiveInterfaces(agg);
+  eq(aggPorts.length, 4, 'P10GSFPA: four SFP+ cages');
+  eq(aggPorts.filter(function (p) { return p.connector === 'sfp+'; }).length, 4,
+    'P10GSFPA: all four are SFP+ - there is no copper on this box');
+  ok(aggPorts.every(function (p) { return p.speedCaps.indexOf(1000) !== -1 && p.speedCaps.indexOf(10000) !== -1; }),
+    'P10GSFPA: each cage is 1G/10G, the ladder the datasheet states');
+
+  // A copper host cannot be patched into an SFP+ cage, so the refusal is the correct answer.
+  const t11 = new Topology();
+  const aggDev = t11.addDevice(agg);
+  const pcA = t11.addDevice(find('generic-pc'));
+  const noCage = t11.validateLink(aggDev.id, 'netA', pcA.id, 'eth0', {});
+  ok(!noCage.ok, 'P10GSFPA: an RJ45 host needs a module in the cage (' +
+    ((noCage.errors[0] || {}).code || 'no code') + ')');
+
+  const field = find('P1GCUA_mini');
+  const fieldPorts = effectiveInterfaces(field);
+  eq(fieldPorts.length, 2, 'P1GCUA_mini: two network ports and no in-band monitor port');
+  ok(fieldPorts.every(function (p) { return p.name.indexOf('mon') !== 0; }),
+    'P1GCUA_mini: the copies leave through USB 3.0, which is not a network medium, so no mon port is declared');
+  eq(field.passive, true, 'P1GCUA_mini: passive, DIP-switch configured');
+
+  const t12 = new Topology();
+  const fieldDev = t12.addDevice(field);
+  const hostA = t12.addDevice(find('generic-pc'));
+  const copper = t12.validateLink(fieldDev.id, 'netA', hostA.id, 'eth0', {});
+  ok(copper.ok && copper.speedMbps === 1000, 'P1GCUA_mini: a copper host links to its network port at 1G');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
