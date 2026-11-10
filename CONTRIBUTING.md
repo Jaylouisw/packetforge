@@ -107,7 +107,9 @@ npm test
 `npm test` is three things in sequence — `scripts/audit-port-types.js`, `scripts/check-control-bytes.js`
 and `scripts/run-tests.js` — and it does **not** include `npm run syntax`. That is why a PR runs both.
 
-Running all 234 suites takes long enough that you will not do it while iterating, so `package.json`
+Running all of them takes long enough that you will not do it while iterating — `git ls-files 'test/*.test.js' | wc -l`
+says how many CI would run, and `ls test/*.test.js | wc -l` includes any untracked suite sitting in your
+working copy, so a difference between the two is normal mid-task — which is why `package.json`
 carries **43** `test:<area>` shortcuts, each of which runs one suite (except `test:ipv6-wire`, which
 runs four). None of them were documented anywhere before this table:
 

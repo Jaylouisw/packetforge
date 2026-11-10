@@ -440,10 +440,14 @@ services, and a job that has to swap makes the whole queue slower.
     that a quarantined file whose entire purpose is to record the stale URL is not a violation. The two
     assertions that depended on a clean tree followed the exemption.
 
-- **One suite is red on the current tree, and it is red on wording, not behaviour.**
-  `test/block-stray-words.test.js` reports **15 passed, 4 failed**. The four failures all match one
-  regex — `/is not an argument to "shutdown"/`, and the same shape for `no ip address`,
-  `no description` and `no lease`. The engine refuses the line, but with a different sentence:
+- **A red suite can exist in a working copy without existing in the repository.** At one point
+  `test/block-stray-words.test.js` reported **15 passed, 4 failed** while `git ls-files test/block-stray-words.test.js`
+  returned nothing: the suite was **untracked**, sitting in a working copy next to an uncommitted 163-line change
+  to `engine/cli.js`. CI checks out `HEAD` and runs `test/*.test.js` from there, so on that tree the suite does not
+  exist and CI is green. Both statements are true at once, and only one of them belongs in this page.
+
+  What the four failures showed was a mismatch *inside that in-flight pair*: the suite matches
+  `/is not an argument to "shutdown"/`, and the new engine code answers differently:
 
   ```text
   D1(config-if)#shutdown zzzz
@@ -453,19 +457,20 @@ services, and a job that has to swap makes the whole queue slower.
   % Unexpected argument "zzzz" - no ip address takes no more
   ```
 
-  The refusal is real and the state is untouched — the suite's own `✓ the port was not taken down by
-  the refused line` and `✓ the lease is still configured after the refused line` both pass, and the
-  183-row sweep at the end passes too. So the fix is four regexes in the test, not a change in the
-  engine, and until somebody makes it the suite stays red. Count the damage rather than trusting this
-  paragraph:
+  The refusal itself is real and the state is untouched — the suite's own `✓ the port was not taken down by the
+  refused line` and `✓ the lease is still configured after the refused line` pass, as does the 183-row sweep — so
+  the stale half is the expectation, not the engine, and the fix is four regexes rather than a behaviour change.
+  The two older red suites (`spec-vs-description`, `canonical-urls`) are green now at 3/0 and 43/0, so "the
+  known-red suites" is a set that moves in both directions.
+
+  Before quoting any of this, ask git whether the suite is in the tree at all:
 
   ```bash
-  node test/block-stray-words.test.js    # 15 passed, 4 failed
+  git ls-files 'test/*.test.js' | wc -l   # what CI would run
+  ls test/*.test.js | wc -l               # what your working copy would run
   ```
 
-  Worth knowing that the two suites this page used to carry here are **green** now
-  (`spec-vs-description` 3/0, `canonical-urls` 43/0), so "the known-red suites" is a set that moves in
-  both directions — re-run all three before repeating any of it.
+  A difference between those two numbers is the whole explanation, and it is the check this page was missing.
 
 - **Nothing checks that the generated wiki is current.** `docs/wiki/` is written by
   `scripts/build-wiki.js` from text templates held in that script, and no job runs
