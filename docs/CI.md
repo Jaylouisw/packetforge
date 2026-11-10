@@ -514,6 +514,21 @@ services, and a job that has to swap makes the whole queue slower.
   missing the NAT caveat ("no `nat` CLI command yet") and the convergence-timing paragraph. After
   publishing, all six are content-identical and the blobs in the wiki repo are LF.
 
+  **It has drifted again, and this time the drift is the count corrections.** Re-measured the same
+  way on a later tree: three of the six pages differ from the live wiki, and all three differ because
+  a fact inside them moved —
+
+  | Page | Live wiki still says | `docs/wiki/` now says |
+  |---|---|---|
+  | `Home.md` | 1,584 models from 245 vendors | 1,661 from 247 |
+  | `Requesting-Hardware.md` | 1,234 `sourceUrl`, 22 `source`, 1,256 pointing at a datasheet | 1,313 / 20 / 1,333 |
+  | `Simulation-Fidelity.md` | L2 stops at LLDP, L3 at longest-prefix match | adds voice VLAN, port security with violation modes and aging, IPv6 first-hop |
+
+  `_Sidebar.md`, `Contributing.md` and `Getting-Started.md` are still identical. The lesson is that a
+  wiki page holding a number goes stale **by being right**: nothing about publishing changed, the
+  catalogue did. And the reason it sits there is the next paragraph — a publish from a machine with no
+  tty hangs on `could not read Username`, so the fix is a manual run, not something to leave to habit.
+
   **`--dry-run` reporting every page as "updated" is not staleness — it is `core.autocrlf`.**
   `publish-wiki.js` compares the clone's files to `docs/wiki/` as raw strings; on Windows with
   `core.autocrlf=true` the checkout is CRLF while the repo stores LF, so every page differs on every

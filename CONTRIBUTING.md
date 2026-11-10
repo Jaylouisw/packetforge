@@ -253,7 +253,7 @@ in it to pass, so do not run it to see what it does.
 | `gh-bridge.js` | mirror inbound GitHub contributions onto the forge (`--dry-run`, `--all`, `--prs`, `--issues`, `--limit`, `--force`, `--report`) | the tracker |
 | `cf-access-bypass.js` | Cloudflare Access bypass for one public path (`--check`, `--apply`) | the Cloudflare zone |
 | `build-wiki.js` | regenerate `docs/wiki/*.md` from the templates inside it | `docs/wiki/` |
-| `publish-wiki.js` | push those pages to the wiki repo (`--dry-run`, `--quiet`) | the wiki repository |
+| `publish-wiki.js` | push those pages to the wiki repo (`--dry-run`; no `--quiet` — an unknown flag is silently ignored, so a mistyped one publishes) | the wiki repository |
 
 **Almost every one of these scripts ignores a flag it does not know.** Exactly one validates:
 `missing-devices.js`, which holds a `known` set and prints `Unknown flag: --bogus` with the usage line
