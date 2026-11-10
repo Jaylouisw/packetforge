@@ -21,6 +21,23 @@ The form asks for five things. Two of them actually matter:
 If you already have the JSON, skip the form and open a PR — see
 [DEVICE_REGISTRY.md](DEVICE_REGISTRY.md).
 
+### What the form does, measured
+
+Two things about the form are worth stating because neither is visible from the page:
+
+- **The labels.** `.github/ISSUE_TEMPLATE/device_request.yml` declares
+  `labels: ["device-request", "device", "enhancement"]`. The 24 open requests carry the first two and
+  **none** carries `enhancement`, so a query filtered on that label finds nothing while the template says
+  it will be there. No page depends on it — the triage sweep finds requests by *title prefix*
+  (`[Device]`), never by label — but do not write a filter that assumes it.
+- **The link needs an account.** `GET/issues/new?template=device_request.yml` answers **303** to an
+  anonymous client, so the form's rendering is not something this repository can verify; a maintainer
+  with a session sees it, and the checked-in YAML is the only thing under review here. If you change the
+  template, open the form once by hand.
+
+Closed issues in this tracker carry no labels at all (a sample of 50 of the 1367 closed ones has none),
+so label counts describe the *open* queue only — which is the queue the sweep reads.
+
 ## What happens next
 
 1. **Acknowledgement — generated, not yet automatic.** `node scripts/request-queue.js` reads every
