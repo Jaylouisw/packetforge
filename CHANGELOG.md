@@ -461,10 +461,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
 longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
 
+**As of this pass, none of the five reproduces.** Four were already marked that way; the fifth (#41) was
+re-measured below and moved from *still real* to *no longer reproduces*. The list is kept because it is the
+record of what was filed, not a claim about today — but the summary line at the top of a section is the one
+that gets quoted, so it has to move when the entries do.
+
 - #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
-  **Still real.** Three routers in AS 65001, full mesh absent by construction: `R3` ends up with
-  `B 10.1.0.0/30  200  10.2.0.1  eth1` — the route `R2` learned over iBGP, re-advertised to a third
-  iBGP peer, with the next hop rewritten to the relayer.
+  **No longer reproduces** — re-measured on the current tree with the same three routers in AS 65001 and
+  no full mesh: `R2` learns `10.1.0.0/30` from `R1` over iBGP (`show ip bgp` on R2 lists
+  `*>  10.1.0.0/30  10.2.0.1  -`), and `R3` never receives it — its table holds only R2's own connected
+  `10.2.0.0/30` and its own `10.3.0.0/30`, and `show ip route` on R3 shows `B 10.2.0.0/30  200  10.3.0.1`
+  with no route to `10.1.0.0/30`. Both of R2's sessions are `Established`/`iBGP` in
+  `show ip bgp summary`, so the route was available to re-advertise and was not. iBGP split horizon
+  holds; the sentence that used to be here said the opposite.
 
 - #42 OSPF installs a route for its own connected network, at transit cost. **No longer reproduces** —
   `show ip route` on an OSPF speaker shows `C` and only `C` for its own two subnets, no `O` row for

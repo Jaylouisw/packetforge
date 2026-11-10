@@ -578,20 +578,25 @@ This is exactly what the advertisement loop in `computeBgp()` does today
 > contained in that UPDATE message to other internal peers (unless the speaker
 > acts as a BGP Route Reflector [RFC2796])."
 
-**The current `computeBgp()` does not implement this.** The Phase-3 loop at
-`computeBgp()` advertises every best path to every adjacency except the
-one it came from, with no session-type check. With two iBGP speakers and one of
-them also eBGP-connected, a route is relayed one iBGP hop further than the RFC
-allows. Nothing in `test/bgp-wire.test.js` catches it because that topology is
-three eBGP ASes.
-
-Required change, in the advertisement loop:
+**Implemented — this page used to say the opposite.** The advertisement loop in
+`Simulator.computeBgp()` carried only `if (e.from === adj.peer.dev.id) continue;`, which stops a route
+going *back* to the peer it came from and does nothing about a third iBGP peer: with two iBGP speakers
+and one of them also eBGP-connected, a route was relayed one iBGP hop further than the RFC allows, and
+the relayed copy named the relayer as its next hop. That was filed as #41 and is fixed. The guard now
+sits directly after the loop-back line:
 
 ```js
 // RFC 4271 9.2: a route learned over iBGP is not relayed to other iBGP peers
 // (no route reflectors in this layer).
 if (adj.type === 'ibgp' && e.session === 'ibgp') continue;
 ```
+
+Measured on the current tree — three routers in AS 65001, no full mesh, `R1`—`R2` and `R2`—`R3` both
+iBGP: `R2` learns `10.1.0.0/30` from `R1` (`*>  10.1.0.0/30  10.2.0.1  -` in `show ip bgp`, both sessions
+`Established  iBGP` in `show ip bgp summary`), and `R3`'s table holds only `R2`'s connected
+`10.2.0.0/30` — no `10.1.0.0/30` at all, so nothing was relayed. `test/protocol-regression.test.js`
+asserts both halves (`an iBGP-learned route is not re-advertised to another iBGP peer (#41)` and
+`the iBGP route names the originator, not the relayer, as its next hop (#41)`).
 
 Consequence to document in the CLI/help text: **iBGP requires a full mesh** in
 this simulator, which is the real-world reason iBGP exists in a full mesh and
