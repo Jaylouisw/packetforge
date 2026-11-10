@@ -825,7 +825,9 @@ class Device {
         scionAs: this.config.scionAs || null
       },
       interfaces: Array.from(this.interfaces.values()).map(function (i) {
-        return {
+        // A port is written once and read back as itself, but an unset optional field is not a fact worth a line in
+        // every board: `maxRangeM`, `comboWith` and `comboRole` are added below only when they hold something.
+        const doc = {
           name: i.name, type: i.type, speed: i.speed,
           ip: i.ip, mask: i.mask, enabled: i.enabled,
           dhcp: i.dhcp, description: i.description,
@@ -837,6 +839,11 @@ class Device {
           speedCaps: i.hardware.speedCaps,
           poeOut: i.hardware.poeOut,
           poeIn: i.hardware.poeIn,
+          // The two hardware facts that are *computed* rather than read off the cage, and were therefore the
+          // two that did not survive a save: a 115.2 kbps console came back believing it could do 1 Gbps, and
+          // 1,499 ports that declared their own PoE came back looking as if the engine had guessed it (#1321).
+          maxSpeedMbps: i.hardware.maxSpeedMbps,
+          poeOutDeclared: i.hardware.poeOutDeclared,
           duplex: i.duplex,
           vlan: {
             mode: i.vlan.mode,
@@ -857,6 +864,12 @@ class Device {
           parent: i.parent || null,
           encapVid: i.encapVid || null
         };
+        // A combo port shares one cage with its sibling: cabling either half occupies it. Without these the pair
+        // came back as two independent ports and the "only one half" rule stopped applying (#1321).
+        if (i.comboWith) doc.comboWith = i.comboWith;
+        if (i.comboRole) doc.comboRole = i.comboRole;
+        if (i.hardware.maxRangeM !== null && i.hardware.maxRangeM !== undefined) doc.maxRangeM = i.hardware.maxRangeM;
+        return doc;
       }),
       // per-interface ACL bindings (acl definitions live in config.acls)
       aclBindings: this.aclBindings || {}

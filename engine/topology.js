@@ -562,11 +562,14 @@ addDevice(spec, id) {
         interfaces: (d.interfaces || []).filter(function (i) {
           return !i.parent;   // subinterfaces are rebuilt by Device.hydrate
         }).map(function (i) {
-          // `cage` is saved (see Device.serialize) because it is physical hardware,
-          // not something to re-derive: an OLT whose PON module is SC/UPC would
-          // otherwise reload as SC/APC from the port name alone, and its hybrid
-          // cord would look like it was joining two APC ports.
-          return { name: i.name, type: i.type, speed: i.speed, cage: i.cage };
+          // The whole port document, not four keys of it.
+          //
+          // `cage` was the first field found to be un-derivable (an OLT whose PON module is SC/UPC reloaded as
+          // SC/APC from the port name alone). The same is true of every other physical fact the file states, and
+          // narrowing to four keys silently dropped the rest: a combo port forgot its sibling, a 115.2 kbps console
+          // came back as 1 Gbps, and 1,499 ports that declared their own PoE came back looking guessed (#1321).
+          // Rebuilding a port from less than was saved is how a board stops being the lab it was.
+          return Object.assign({}, i);
         })
       };
       const dev = Device.hydrate(d.id, spec, d);

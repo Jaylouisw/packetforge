@@ -1015,7 +1015,9 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     // A port that stated its rate - in speedCaps or in baud - keeps it. Falling back to the cage
     // ladder here is what silently widened a 9600-baud console into a 115200 one.
     speedCaps: (hw.speedCaps || (capMbps.length ? capMbps : speeds)).slice(),
-    maxSpeedMbps: maxMbps,
+    // A port restored from a saved board states the cap it had. Recomputing it from the cage gives the cage's
+    // default, not this port's limit - which is how a 115.2 kbps console came back as a 1 Gbps port (#1321).
+    maxSpeedMbps: (typeof spec.maxSpeedMbps === 'number' && isFinite(spec.maxSpeedMbps)) ? spec.maxSpeedMbps : maxMbps,
     // PoE
     poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null),
     poeIn: hw.poeIn !== undefined ? hw.poeIn : (spec.poeIn !== undefined ? spec.poeIn : null),
@@ -1024,9 +1026,14 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     // power is a statement about hardware, while a guess is the engine filling a silence. Only
     // the guess is a defect when it lands on a device that does not switch (see the PoE
     // invariant in test/poe-inference.test.js).
-    poeOutDeclared: (hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null)) !== null,
+    // `poeOutDeclared` answers "did the hardware say so, or did the engine guess?" - so a restored port has to
+    // bring the answer with it, or every declared PoE port in a reloaded lab looks guessed (#1321).
+    poeOutDeclared: (spec.poeOutDeclared !== undefined)
+      ? !!spec.poeOutDeclared
+      : (hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.poeOut : null)) !== null,
     // distance / cabling hints
-    maxRangeM: hw.maxRangeM !== undefined ? hw.maxRangeM : null
+    maxRangeM: hw.maxRangeM !== undefined ? hw.maxRangeM
+      : (typeof spec.maxRangeM === 'number' ? spec.maxRangeM : null)
   };
 
   // Best-effort PoE inference for common device classes when the spec is silent.

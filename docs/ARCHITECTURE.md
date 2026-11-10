@@ -114,6 +114,29 @@ database, no dependency. Five rules, each of which a bug taught:
 A board's name is a name, so the path segment is percent-decoded before it is looked up — otherwise a board called
 `a b` can be created and then never reached again.
 
+### A saved board is the lab that was saved
+
+`Topology.serialize()` writes each device's ports; `fromJSON()` reads them back. The two have one rule:
+
+**every field of every port survives the round trip, for every model in the catalogue.**
+
+That rule is tested, not assumed (`test/port-roundtrip.test.js`). It was not true: the reader rebuilt each port
+from four keys — `{name, type, speed, cage}` — and re-derived the rest, so **322 of 2,015 devices** came back
+different:
+
+| lost on reload | ports | what it changed |
+|---|---|---|
+| `comboWith`, `comboRole` | 84 | a combo cage stopped knowing it was one cage, so two cables went into one physical position |
+| `hardware.maxSpeedMbps` | 1,028 | a 115.2 kbps console reloaded as a 1 Gbps port, inventing a speed-downgrade warning |
+| `hardware.poeOutDeclared` | 1,499 | a port that declared its own PoE reloaded looking like the engine had guessed |
+
+The reader now passes the whole port document through. Physical facts are not re-derived: `derivePortHardware()`
+honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
+only computes what is missing, which is what a spec needs and what a saved board does not.
+
+A board written by an older version — without any of the newer keys — still loads, and its hardware is derived the
+way it always was.
+
 ### The live-sync socket
 
 `server/ws.js` is a hand-written RFC 6455 server (about 140 lines, no dependencies) used for live multi-client
