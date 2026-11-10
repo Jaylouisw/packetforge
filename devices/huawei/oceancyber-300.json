@@ -1,0 +1,82 @@
+{
+  "vendor": "huawei",
+  "model": "OceanCyber 300",
+  "label": "Huawei OceanCyber 300 data security appliance",
+  "category": "server",
+  "description": "Huawei OceanCyber 300 - 2U data security appliance that detects and responds to ransomware across OceanStor Dorado, OceanStor hybrid flash, OceanStor Pacific and OceanProtect storage: one appliance manages up to 8 storage systems, detects at up to 50 TiB/hour across 23 billion files, and delivers air-gap policy, secure snapshots and orchestrated recovery. Hardware: 2x GE network ports, 1x iBMC management port and 2x 10/25GE optical ports.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "ibmc",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        10000,
+        25000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        10000,
+        25000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://e.huawei.com/en/products/storage/oceanprotect/oceancyber-series.html",
+  "notes": "The hardware row is one line and it is a complete census: '**Port: GE network port x 2; iBMC network port x 1; 10/25GE optical port x 2**' - 2U, 447 mm wide. Two modelling decisions come straight out of that line. The **iBMC** port is out-of-band management (Huawei's IPMI), so it is declared as its own interface and kept **out of the LAN bridge group** - a lab that bridges it into the data network is wiring a management plane to the thing it is supposed to survive. And the **10/25GE optical ports** are 25G-capable cages carrying a 10G/25G ladder, not fixed 10G links. It is an **appliance, not a storage array**: it holds no user data, it inspects up to 8 connected storage systems at 50 TiB/hour and orchestrates their snapshots and recovery, so it carries `host` and `http-server` and no forwarding capability. 2U, mains powered, no PoE."
+}

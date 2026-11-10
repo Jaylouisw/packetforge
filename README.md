@@ -56,7 +56,7 @@ docker run --rm -p 8000:8000 packetforge
 ```
 
 Then open **http://localhost:8000**. Verified from a clean checkout: the build succeeds, the
-container answers `GET /api/version` on Node 20, and the whole catalogue (1,637 models) is inside.
+container answers `GET /api/version` on Node 20, and the whole catalogue (1,638 models) is inside.
 
 ### If it will not start
 
@@ -186,7 +186,7 @@ rather than `SW1`.
 | Area | What's implemented |
 |------|--------------------|
 | Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | **1,637 models across 246 vendors**, in **25** `category` values rendered as **24** palette buckets (router, switch, L3 switch, firewall, wireless AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, IoT, tap, splitter, cloud, host), plus the generic models. The 25th category is `ap`, and it has exactly one member — `huawei/WiFi Extender AX3000`. It has no bucket in `CAT_ORDER` and no entry in `BADGE_LABELS`, so it is **not offered in the type filter** and its card shows the raw string `ap` where every other device shows a label; it is still findable by search, and it renders with the wireless icon. Adding a model is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
+| Vendors | **1,638 models across 246 vendors**, in **25** `category` values rendered as **24** palette buckets (router, switch, L3 switch, firewall, wireless AP, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, IoT, tap, splitter, cloud, host), plus the generic models. The 25th category is `ap`, and it has exactly one member — `huawei/WiFi Extender AX3000`. It has no bucket in `CAT_ORDER` and no entry in `BADGE_LABELS`, so it is **not offered in the type filter** and its card shows the raw string `ap` where every other device shows a label; it is still findable by search, and it renders with the wireless icon. Adding a model is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP, IPv4, ICMP echo/reply, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static, dynamic pool and PAT — all three translated in the data path, configured in the topology JSON; there is **no `nat` config command**, but [`show ip nat translations` / `statistics`](docs/CLI.md#nat--configured-in-the-topology-not-the-cli) read back what the data path wrote), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |

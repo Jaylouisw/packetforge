@@ -929,5 +929,23 @@ console.log('\nThe MA5801 family, where one member is wired differently (#784):'
     'MA5801-GP16: no copper uplinks at all - reusing the FL04 shape here would add ports that do not exist');
 }
 
+console.log('\nAn appliance whose out-of-band port stays out of the lan (#739):');
+{
+  const oc = find('OceanCyber 300');
+  const ports = effectiveInterfaces(oc);
+  eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 3,
+    'OceanCyber 300: two GE network ports plus one iBMC port');
+  eq(ports.filter(function (p) { return p.connector === 'sfp28'; }).length, 2,
+    'OceanCyber 300: two 10/25GE optical ports');
+  const bmc = ports.filter(function (p) { return p.name === 'ibmc'; })[0];
+  ok(!!bmc && bmc.bridgeGroup === undefined,
+    'OceanCyber 300: the iBMC port is out-of-band and NOT in the LAN bridge group');
+  ok(ports.filter(function (p) { return p.connector === 'sfp28'; })
+    .every(function (p) { return p.speedCaps.indexOf(10000) !== -1 && p.speedCaps.indexOf(25000) !== -1; }),
+    'OceanCyber 300: the optical ports carry a 10G/25G ladder, not a fixed 10G');
+  ok(!(oc.capabilities || []).some(function (c) { return /forward/.test(c); }),
+    'OceanCyber 300: an inspection appliance forwards nothing');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
