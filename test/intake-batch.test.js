@@ -1165,5 +1165,25 @@ console.log('\nA draytek whose ethernet wan is its own socket (#689):');
     'V2765-K: four RJ45 sockets in total, because its WAN2 is one of them');
 }
 
+console.log('\nA single-mode tap whose ladder runs from fast ethernet to 100g (#655):');
+{
+  const os = find('OS2501');
+  const ports = effectiveInterfaces(os);
+  eq(ports.length, 4, 'OS2501: four LC ports - two network, two monitor');
+  ok(ports.every(function (p) { return p.connector === 'lc'; }),
+    'OS2501: single-mode LC on every port, not a cage');
+  ok(ports.every(function (p) { return p.speedCaps.indexOf(100) !== -1; }),
+    'OS2501: the ladder starts at 100M, not at gigabit');
+  ok(ports.every(function (p) { return p.speedCaps.indexOf(100000) !== -1; }),
+    'OS2501: and reaches 100G');
+  ok(os.passive === true, 'OS2501: passive - it passes light with no power');
+  ok(ports.every(function (p) { return p.poeIn === undefined && p.poeOut === undefined; }),
+    'OS2501: a passive split has no PoE in either direction');
+  // The multimode sibling keeps the same shape, which is what makes the port count trustworthy.
+  eq(effectiveInterfaces(find('OM4501')).map(function (p) { return p.name; }).join(','),
+    ports.map(function (p) { return p.name; }).join(','),
+    'OM4501 and OS2501 share the network/monitor port shape');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

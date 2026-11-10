@@ -1,0 +1,71 @@
+{
+  "vendor": "garland",
+  "model": "OS2501",
+  "label": "Garland single-mode passive fibre TAP 100M-100G (OS2501)",
+  "category": "tap",
+  "passive": true,
+  "capabilities": [],
+  "description": "Garland OS2501 passive single-mode fibre TAP - one tap, 50/50 split, 1310/1550 nm over OS2 9 um LC single-mode fibre, passing 100M/1G/10G/25G/40G/100G unpowered with copies on two monitor ports. No power source, no IP or MAC address.",
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "100G",
+      "speedCaps": [
+        100,
+        1000,
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "100G",
+      "speedCaps": [
+        100,
+        1000,
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "100G",
+      "speedCaps": [
+        100,
+        1000,
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "100G",
+      "speedCaps": [
+        100,
+        1000,
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.garlandtechnology.com/products/fiber-taps",
+  "notes": "Garland's own fibre-TAP table gives one row per part number, and the OS2501 row is: '**TAPs 1; TAP Media OS2 9 um SMF; Monitor Media OS2 9 um SMF; Speed 100M / 1G / 10G / 25G / 40G / 100G; Wavelength 1310 / 1550 nm; Connector LC; Split ratio 50/50**'. **Four LC ports, two network and two monitor** - the same shape as the OM4501 multimode sibling already in this catalogue (and as the OM3501 and P10GSFPA cage variants), because a '1 TAP' duplex fibre unit inline between two devices needs two network ports and each direction's 50/50 copy needs a monitor port. That is geometry rather than a guess, and it is the reason this model can be trusted where a copper TAP's port list could not. **The speed ladder is the whole row, not the headline:** 100M through 100G, which is why `speedCaps` runs `[100, 1000, 10000, 25000, 40000, 100000]` rather than stopping at the 10G that most OS2 taps do. 1310/1550 nm, 50/50 with other ratios orderable. **Nothing to configure and no power:** a passive optical split keeps the live link up even when the monitoring tool is unplugged, so there is no `poeIn`, no address and no capabilities. The -W variants in the same table (OS2501W) go to 400G over a wider 1270-1310/1510-1590 nm window and are a separate part, not this one."
+}
