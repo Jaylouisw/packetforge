@@ -277,7 +277,24 @@ class CliSession {
     return host + '>';
   }
 
+  // `run()` takes one line. It used to *silently ignore* the rest: `run('configure terminal',
+  // 'hostname R1')` configured nothing and returned the output of the first line only, so eighteen
+  // call sites across the test suite were asserting against a lab that had never been configured -
+  // and passing, because an empty diff is a valid diff. A second line is now run, in order, and the
+  // outputs are concatenated, which is what every one of those call sites already assumed.
   run(line) {
+    const lines = Array.prototype.slice.call(arguments).filter(function (x) {
+      return x !== undefined && x !== null;
+    });
+    if (lines.length > 1) {
+      const all = { output: [], actions: [] };
+      for (const one of lines) {
+        const r = this.run(String(one));
+        all.output.push.apply(all.output, r.output || []);
+        all.actions.push.apply(all.actions, r.actions || []);
+      }
+      return all;
+    }
     const out = [];
     let tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
@@ -843,7 +860,10 @@ class CliSession {
     } else if (head === 'switchport') {
       out.push.apply(out, this._switchport(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'switchport') {
-      out.push.apply(out, this._switchport(['reset'], iface));
+      // `no switchport <what>` used to map every spelling onto a full reset, so
+      // `no switchport trunk allowed vlan 10` wiped the port's mode, native VLAN and access VLAN
+      // instead of removing VLAN 10 from a list - a targeted command answering with a broad one.
+      out.push.apply(out, this._switchport(['no'].concat(tokens.slice(2)), iface));
     } else if (head === 'channel-group') {
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
@@ -1493,6 +1513,38 @@ class CliSession {
   _switchport(tokens, iface) {
     const vlanLib = require('./vlan');
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    const devName = this.device.name || this.device.id;
+
+    // A switchport is a membership in a bridge domain. A router has none (it forwards between its own
+    // sockets), and a logical interface has none either (an SVI *is* the domain, and a subinterface is
+    // a tag on a parent that already decided). Both used to accept `switchport access vlan 10` and
+    // store it, so the console confirmed a membership nothing would ever read.
+    if (!this.device.isL2()) {
+      return ['% ' + devName + ' does not switch - it has no switchports',
+        '% Its ports are routed sockets: put the address on the port with "ip address"'];
+    }
+    if (iface.svi || iface.parent) {
+      return ['% ' + iface.name + ' is a logical interface - it is not a switchport',
+        iface.svi
+          ? '% An SVI is the VLAN\'s own address, not a member of it: configure the member ports'
+          : '% A subinterface carries a tag on its parent; the parent decides the VLAN'];
+    }
+
+    // A VLAN id is a number in a range, and this is where every switchport spelling gets it - the
+    // internal field name (`accessVlan 9999 is outside 1-4094`) is not an answer an operator can use.
+    const vlanId = function (typed, usage) {
+      if (typed === undefined || String(typed).length === 0) {
+        return { error: ['% Incomplete command: ' + usage] };
+      }
+      if (!/^\d+$/.test(String(typed))) {
+        return { error: ['% VLAN id must be a number, not "' + typed + '"', '% Usage: ' + usage] };
+      }
+      const id = parseInt(typed, 10);
+      if (!(id >= 1 && id <= 4094)) {
+        return { error: ['% VLAN ' + typed + ' is outside 1-4094', '% Usage: ' + usage] };
+      }
+      return { id: id };
+    };
 
     if (t[0] === 'reset') {
       iface.vlan = vlanLib.normalizePortConfig({});
@@ -1501,6 +1553,10 @@ class CliSession {
     if (t[0] === 'mode') {
       const mode = t[1];
       if (mode !== 'access' && mode !== 'trunk') return ['% Usage: switchport mode access|trunk'];
+      // `switchport mode trunk access` was answered "Switchport mode trunk on Fa0/1" - the trailing
+      // word dropped on the floor, which reads as if it had been taken as an option.
+      const modeExtra = this._noExtra(tokens, 2, 'switchport mode access|trunk');
+      if (modeExtra) return modeExtra;
       const next = Object.assign({}, iface.vlan, { mode: mode });
       // A trunk with no explicit allowed list must carry everything, otherwise
       // it would silently carry no VLANs at all.
@@ -1509,22 +1565,32 @@ class CliSession {
       return ['Switchport mode ' + mode + ' on ' + iface.name];
     }
     if (t[0] === 'access' && t[1] === 'vlan') {
-      const id = parseInt(t[2], 10);
-      const chk = vlanLib.validatePortConfig({ accessVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: id }));
-      return ['Access VLAN ' + id + ' on ' + iface.name];
+      const got = vlanId(tokens[2], 'switchport access vlan <id>');
+      if (got.error) return got.error;
+      const extra = this._noExtra(tokens, 3, 'switchport access vlan <id>');
+      if (extra) return extra;
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: got.id }));
+      return ['Access VLAN ' + got.id + ' on ' + iface.name];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
-      const id = parseInt(t[3], 10);
-      const chk = vlanLib.validatePortConfig({ nativeVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: id }));
-      return ['Trunk native VLAN ' + id + ' on ' + iface.name];
+      const got = vlanId(tokens[3], 'switchport trunk native vlan <id>');
+      if (got.error) return got.error;
+      const extra = this._noExtra(tokens, 4, 'switchport trunk native vlan <id>');
+      if (extra) return extra;
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: got.id }));
+      return ['Trunk native VLAN ' + got.id + ' on ' + iface.name];
+    }
+    if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] !== 'vlan') {
+      // `switchport trunk allowed` answered "% Unrecognized switchport command: trunk allowed" while
+      // the next word down answered "% Incomplete command" - two spellings of "you stopped one word
+      // short", and neither named the form.
+      return [t[2] === undefined
+        ? '% Incomplete command: switchport trunk allowed vlan <list|all>'
+        : '% Unrecognized switchport command: ' + t.join(' ')];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
       const spec = t.slice(3).join('');
-      if (!spec) return ['% Incomplete command'];
+      if (!spec) return ['% Incomplete command: switchport trunk allowed vlan <list|all>'];
       if (spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
         return ['Trunk on ' + iface.name + ' allows all VLANs'];
@@ -1535,6 +1601,67 @@ class CliSession {
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', allowedVlans: parsed.vlans }));
       return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',')];
+    }
+    if (t[0] === 'no') {
+      // Every `no switchport …` used to become a full reset. A removal has to be as narrow as the
+      // command that added the thing: remove a VLAN from a list and the list shrinks; remove the mode
+      // and the mode goes back to access. Only `no switchport` on its own is a reset.
+      const rest = t.slice(1);
+      if (!rest.length) {
+        iface.vlan = vlanLib.normalizePortConfig({});
+        return ['Switchport reset to defaults on ' + iface.name + ' (access VLAN 1)'];
+      }
+      if (rest[0] === 'mode') {
+        const extra = this._noExtra(rest, 1, 'no switchport mode');
+        if (extra) return extra;
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access' }));
+        return ['Switchport mode access on ' + iface.name +
+          ' (the default) - access VLAN ' + (iface.vlan.accessVlan || 1) + ' is unchanged'];
+      }
+      if (rest[0] === 'access' && rest[1] === 'vlan') {
+        const extra = this._noExtra(rest, 2, 'no switchport access vlan');
+        if (extra) return extra;
+        const had = iface.vlan.accessVlan || 1;
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: 1 }));
+        return ['Access VLAN 1 on ' + iface.name + ' (the default, was VLAN ' + had + ')'];
+      }
+      if (rest[0] === 'trunk' && rest[1] === 'native' && rest[2] === 'vlan') {
+        const extra = this._noExtra(rest, 3, 'no switchport trunk native vlan');
+        if (extra) return extra;
+        const had = iface.vlan.nativeVlan || 1;
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { nativeVlan: 1 }));
+        return ['Trunk native VLAN 1 on ' + iface.name + ' (the default, was VLAN ' + had + ')'];
+      }
+      if (rest[0] === 'trunk' && rest[1] === 'allowed' && rest[2] === 'vlan') {
+        const spec = rest.slice(3).join('');
+        if (!spec) {
+          iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
+          return ['Trunk on ' + iface.name + ' allows all VLANs (no explicit list)'];
+        }
+        const current = iface.vlan.allowedVlans;
+        const parsed = vlanLib.parseVlanList(spec);
+        if (!parsed.ok) return ['% ' + (parsed.message || 'invalid VLAN list')];
+        if (!Array.isArray(current)) {
+          return ['% The trunk on ' + iface.name + ' allows all VLANs - there is no list to remove ' +
+            parsed.vlans.join(',') + ' from',
+            '% Give it an explicit list first: "switchport trunk allowed vlan <list>"'];
+        }
+        const gone = parsed.vlans.filter(function (v) { return current.indexOf(v) !== -1; });
+        if (!gone.length) {
+          return ['% VLAN ' + parsed.vlans.join(',') + ' is not in the allowed list on ' + iface.name +
+            ' (it allows ' + current.join(',') + ')'];
+        }
+        const left = current.filter(function (v) { return gone.indexOf(v) === -1; });
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: left }));
+        return ['Trunk on ' + iface.name + ': removed ' + gone.join(',') +
+          (left.length ? ', still allows ' + left.join(',') : ' - the list is now empty')];
+      }
+      return ['% Unrecognized no switchport command: ' + rest.join(' ')];
+    }
+    if (!t.length || !t[0]) {
+      return ['% Incomplete command: switchport mode access|trunk',
+        '% Also: switchport access vlan <id> | switchport trunk native vlan <id> | ' +
+        'switchport trunk allowed vlan <list|all>'];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }

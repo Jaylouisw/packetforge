@@ -2125,6 +2125,66 @@ refusal names are exactly the ports the table lists — see `test/vlan-lifecycle
 assertions), which also proves the domain is real by pinging across it and then separating the hosts
 by moving one port.
 
+### `switchport` — a membership, and a `no` form as narrow as the command
+
+The switchport verbs sit one level below the VLAN verbs, and had the same defect one level down: a
+VLAN id was read with `parseInt` and used whatever came out.
+
+```
+SW1(config-if)#switchport access vlan abc
+% VLAN id must be a number, not "abc"
+% Usage: switchport access vlan <id>
+SW1(config-if)#switchport access vlan 10 20
+% Unexpected argument "20" - switchport access vlan <id> takes no more
+% Usage: switchport access vlan <id>
+SW1(config-if)#switchport
+% Incomplete command: switchport mode access|trunk
+% Also: switchport access vlan <id> | switchport trunk native vlan <id> | switchport trunk allowed vlan <list|all>
+```
+
+`switchport access vlan abc` used to answer **`Access VLAN NaN on Fa0/1`** — a confirmation for a
+VLAN that does not exist — and `switchport access vlan` with no value answered the same thing.
+An out-of-range id used to leak the data-model field name (`% accessVlan 9999 is outside 1-4094`), and
+a word after the mode (`switchport mode trunk access`) was dropped without a word.
+
+A `no` form is now **as narrow as the command it undoes**. Every `no switchport …` used to become a
+full port reset, so a one-VLAN removal wiped the mode, the native VLAN and the access VLAN:
+
+```
+SW1(config-if)#switchport mode trunk
+Switchport mode trunk on Fa0/1
+SW1(config-if)#switchport trunk native vlan 99
+Trunk native VLAN 99 on Fa0/1
+SW1(config-if)#switchport trunk allowed vlan 10,20,30
+Trunk on Fa0/1 allows VLANs 10,20,30
+SW1(config-if)#no switchport trunk allowed vlan 10
+Trunk on Fa0/1: removed 10, still allows 20,30
+```
+
+`show running-config` afterwards is `switchport mode trunk`, `switchport trunk native vlan 99`,
+`switchport trunk allowed vlan 20,30` — the trunk is still a trunk, which is the whole point: a full
+reset would have taken it away. `no switchport mode` returns to access *without* touching the access
+VLAN; `no switchport access vlan` reports what it replaced (`(the default, was VLAN 30)`); and only a
+bare `no switchport` is a reset. Removing a VLAN from a trunk that allows *all* is refused, because
+the model has no way to say "all but 10":
+
+```
+SW1(config-if)#no switchport trunk allowed vlan 5
+% The trunk on Fa0/1 allows all VLANs - there is no list to remove 5 from
+% Give it an explicit list first: "switchport trunk allowed vlan <list>"
+```
+
+A port that cannot be a switchport says so instead of storing the setting:
+
+```
+R1(config-if)#switchport access vlan 10
+% R1 does not switch - it has no switchports
+% Its ports are routed sockets: put the address on the port with "ip address"
+SW1(config-if)#switchport access vlan 10          (on Vlan10)
+% Vlan10 is a logical interface - it is not a switchport
+% An SVI is the VLAN's own address, not a member of it: configure the member ports
+```
+
 A trunk with no explicit allowed list carries **everything**; `switchport trunk allowed vlan all`
 says so again. A list is accepted as ids and ranges (`10,20,30-32` is echoed back as
 `10,20,30,31,32`), and an id outside 1–4094 is refused.
