@@ -444,6 +444,63 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### Reading DHCP
+
+DHCP has been modelled end to end since it was: pools, ranges, exclusions, reservations, lease times, renewals
+and expiry. The server keeps an allocation table — which MAC holds which address, and when it comes back — and
+until now **nothing could read it**: there was no `show ip dhcp` at all. You could build a pool and not find out
+whether a single address had been handed out.
+
+```
+r1> show ip dhcp binding
+IP address      Client identifier / MAC          Pool              Expires in
+192.168.10.100  02:00:00:00:01:00                lan               3540s (0:59:00)
+192.168.10.105  02:00:00:00:00:0a (reserved)     lan               3595s (0:59:55)
+
+2 active binding(s); the lease clock runs from the instant the lease was granted
+```
+
+`Expires in` is the lease time counted from the instant it was granted, not from the last time you looked. The
+`(reserved)` marker means the address is the one that MAC is pinned to, so it will get it back after any lapse.
+
+```
+r1> show ip dhcp pool
+Pool lan:
+  Network:        192.168.10.0 255.255.255.0
+  Range:          192.168.10.100 - 192.168.10.110
+  Default router: 192.168.10.1
+  DNS servers:    1.1.1.1
+  Lease:          60s
+  Excluded:       192.168.10.102
+  Reservations:   192.168.10.105 (aa:bb:cc:00:00:99)
+  In use:         2 of 10 address(es)
+                  192.168.10.100 (02:00:00:00:01:00), 192.168.10.105 (02:00:00:00:00:0a)
+```
+
+The capacity in `In use` is counted the way allocation counts: the range endpoints included, exclusions removed,
+network and broadcast removed, and the gateway removed when it sits inside the range. A reservation is counted,
+because it is allocatable to its owner.
+
+A binding can be asked for by address or by MAC, and an unknown one is reported rather than shown as an empty
+table:
+
+```
+r1> show ip dhcp binding aa:bb:cc:dd:ee:ff
+% No binding for aa:bb:cc:dd:ee:ff (no lease is held by that MAC)
+r1> show ip dhcp pool guest
+% No DHCP pool named guest (pools on this device: lan)
+```
+
+A lease that lapses is not kept forever: when the deadline passes the address goes back into the pool and can be
+handed to someone else. `show ip dhcp binding` still shows a lapsed row — marked `lapsed (address free)` — for as
+long as the server's table holds it, because a table that forgets a row cannot explain why an address is
+unavailable.
+
+```
+sw1> show ip dhcp binding
+% This device is not a DHCP server (no "ip dhcp pool" configured)
+```
+
 ### Reading OSPF
 
 OSPF has been configurable since it was modelled — `ospf router-id`, `ospf area`, and per interface

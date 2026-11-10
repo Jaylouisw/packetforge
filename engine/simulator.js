@@ -894,6 +894,21 @@ class Simulator {
     return events;
   }
 
+  // Leases are counted in seconds (dhcp.js STEP_SECONDS), while a run is asked at an instant in milliseconds.
+  // One conversion, in one place, so a lease granted at t=5000 ms is not stamped as if it were granted at 0.
+  _dhcpNowSec() {
+    return Number.isFinite(this.runAtMs) ? Math.floor(this.runAtMs / 1000) : null;
+  }
+
+  // The server's own binding table, as a plain sorted array. The exchange has always recorded leases and nothing
+  // could ever read them (#1373).
+  dhcpBindings(devId) {
+    const state = this._dhcpStates && this._dhcpStates.get(devId);
+    if (!state) return [];
+    const nowSec = this._dhcpNowSec();
+    return dhcpLib.leaseTable(state, nowSec === null ? undefined : nowSec);
+  }
+
   // One client, one interface, one DISCOVER -> OFFER -> REQUEST -> ACK.
   _runDhcpExchange(client, clientIface, servers) {
     const mac = clientIface.mac || (client.macAddress || '00:00:00:00:00:00');
@@ -948,7 +963,13 @@ class Simulator {
     }
     const state = this._dhcpStates.get(serverDev.id);
 
-    const offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: this.step });
+    // A lease that has lapsed frees its address. Nothing ever called expireLeases(), so an expired binding held
+    // its address for the life of the process and a pool could be exhausted by clients that were long gone.
+    const nowSec = this._dhcpNowSec();
+    if (nowSec !== null) dhcpLib.expireLeases(state, nowSec);
+    const leaseStep = nowSec === null ? this.step : nowSec;
+
+    const offer = dhcpLib.handleDiscover(chosen.pool, state, { mac: mac, step: leaseStep });
     if (!offer) {
       return {
         lease: null,
@@ -961,7 +982,7 @@ class Simulator {
     }
 
     const ack = dhcpLib.handleRequest(chosen.pool, state, {
-      mac: mac, requestedIp: offer.ip, step: this.step
+      mac: mac, requestedIp: offer.ip, step: leaseStep
     });
     if (!ack || ack.type !== dhcpLib.DHCP_MESSAGE_TYPES.ACK) {
       return {
