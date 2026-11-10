@@ -21,9 +21,16 @@ That is enough. You do not need to write JSON.
    resolve to a cage, no port may claim a line rate its cage cannot carry, and a device may
    not describe two identical ports differently.
 3. The spec records the datasheet URL it was built from, so a later reader can check the claim
-   rather than trust it. It is **recommended, not enforced**: 1,279 of the 1,629 specs carry a
-   `sourceUrl` today and 22 more carry the older `source` spelling, so 1,267 point at a datasheet
-   somewhere; the remaining 328 are tracked as missing rather than refused.
+   rather than trust it. It is **recommended, not enforced**: 1,313 of the 1,661 specs carry a
+   `sourceUrl` and 20 more carry the older `source` spelling, so 1,333 point at a datasheet
+   somewhere; the remaining 328 are tracked as missing rather than refused. Those three numbers
+   move as the catalogue grows, so re-count rather than quote -- `grep -rl` counts files, not keys, and
+   overcounts by 24 on this tree, because a few specs mention the key in a note:
+
+   ```bash
+   node -e "const l=require('./devices/registry').loadCatalog(require('path').resolve('devices')).filter(d=>!d.error);const u=l.filter(d=>d.sourceUrl).length,o=l.filter(d=>!d.sourceUrl&&d.source).length;console.log(l.length,'specs,',u,'sourceUrl,',o,'source,',l.length-u-o,'neither')"
+   # 1661 specs, 1313 sourceUrl, 20 source, 328 neither
+   ```
 
 ## What "accurate" means here
 
