@@ -170,6 +170,32 @@ function portKey(name) {
   return s;
 }
 
+// The long name of an interface type, so `GigabitEthernet0/0` finds the port the panel calls `Gi0/0`.
+// IOS names a port by its type in full and accepts any unambiguous prefix of it; the panel label is
+// the shortest spelling. Only the types a catalogue device actually uses are listed - anything else
+// (SFP+1, ether1, ...) keeps the spelling it has.
+const IFACE_LONG_TYPE = {
+  gi: 'GigabitEthernet', fa: 'FastEthernet', eth: 'Ethernet', e: 'Ethernet', et: 'Ethernet',
+  te: 'TenGigabitEthernet', tengige: 'TenGigabitEthernet', twe: 'TwentyFiveGigE',
+  tw: 'TwoGigabitEthernet', fi: 'FiveGigabitEthernet', fo: 'FortyGigabitEthernet',
+  hu: 'HundredGigE', po: 'Port-channel', vl: 'Vlan', vlan: 'Vlan', lo: 'Loopback', tu: 'Tunnel'
+};
+
+// Every spelling of a port name that its label stands for: the long type name, each prefix of it
+// from two letters up, and the label itself. `Gi0/0` therefore answers to Gi0/0, Gig0/0, Giga0/0
+// through GigabitEthernet0/0.
+function ifaceNameAliases(name) {
+  const m = /^([A-Za-z][A-Za-z-]*?)(\d[\d/]*)$/.exec(String(name));
+  if (!m) return [];
+  const label = m[1];
+  const rest = m[2];
+  const long = IFACE_LONG_TYPE[label.toLowerCase()];
+  if (!long) return [];
+  const out = [];
+  for (let i = 2; i <= long.length; i++) out.push(long.slice(0, i) + rest);
+  return out;
+}
+
 // Resolve a name the operator typed onto the device's own interface name.
 // Returns null when the device has no such port, so callers can say so.
 function resolvePortName(device, typed) {
@@ -195,6 +221,17 @@ function resolvePortName(device, typed) {
       if (alias === null) alias = name;
       else if (alias !== name) return null;          // ambiguous: refuse to guess
     }
+  }
+  if (alias) return alias;
+  // The long spelling of a type: `GigabitEthernet0/0`, `FastEthernet0/1`, `Gig0/0`. Matched the same
+  // way, so a spelling that fits two ports is refused rather than guessed.
+  for (const name of map.keys()) {
+    const hit = ifaceNameAliases(name).some(function (a) {
+      return a.toLowerCase() === lower;
+    });
+    if (!hit) continue;
+    if (alias === null) alias = name;
+    else if (alias !== name) return null;
   }
   return alias;
 }
@@ -386,6 +423,23 @@ class CliSession {
       if (res && res.tokens) tokens = res.tokens;
     }
     const head = tokens[0].toLowerCase();
+
+    // `GigabitEthernet 0/0` - a type word and its index split across two tokens - is one port name
+    // in every position: `interface GigabitEthernet 0/0` answered "Interface not found:
+    // GigabitEthernet" and left the index unread. Joined here, once, so no command has to know.
+    if (this.device && this.device.interfaces && tokens.length >= 3) {
+      for (let i = 1; i + 1 < tokens.length; i++) {
+        const m = /^([A-Za-z][A-Za-z-]*)\s+(\d[\d/]*(?:\.\d+)?)$/.exec(tokens[i] + ' ' + tokens[i + 1]);
+        if (!m) continue;
+        // `vlan` is a keyword in its own right (`vlan 10`, `switchport access vlan 10`,
+        // `spanning-tree vlan 10 priority 4096`) and joining it to the number turned every one of
+        // those into an interface name. The SVI still answers to its single-token spellings.
+        if (/^(vlan|vl)$/i.test(m[1])) continue;
+        if (!resolvePortName(this.device, m[1] + m[2])) continue;
+        tokens = tokens.slice(0, i).concat([m[1] + m[2]], tokens.slice(i + 2));
+        break;
+      }
+    }
 
     // '!' is a comment, exactly as it is in a pasted IOS config: a device that
     // rejects the first line of its own dump cannot be restored from that dump.
@@ -10390,7 +10444,14 @@ class CliSession {
       return s === 'interface' || (s.length >= 2 && 'interface'.startsWith(s));
     };
     const hadKeyword = (args || []).some(isIface);
-    const rest = (args || []).filter(Boolean).filter(function (a) { return !isIface(a); });
+    let rest = (args || []).filter(Boolean).filter(function (a) { return !isIface(a); });
+    // A type word and its index split across two tokens - `interface GigabitEthernet 0/0` - is one
+    // port name. Reading them separately answered "No interface named GigabitEthernet" and left the
+    // index unread, which is the silent half of the same mistake.
+    if (rest.length >= 2 && /^[A-Za-z][A-Za-z-]*$/.test(rest[0]) && /^\d[\d/]*(\.\d+)?$/.test(rest[1]) &&
+        resolvePortName(dev, rest[0] + rest[1])) {
+      rest = [rest[0] + rest[1]].concat(rest.slice(2));
+    }
     if (!rest.length) {
       // `interface` on its own is a truncated command, not an absent argument: answering it with the
       // whole table is the same silent-ignore this helper exists to prevent, one keystroke earlier.

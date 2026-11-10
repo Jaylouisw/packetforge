@@ -1538,6 +1538,33 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A port has the name IOS gives it
+
+```
+R1#show interfaces GigabitEthernet0/0
+% No interface named GigabitEthernet0/0 on R1
+R1(config)#interface GigabitEthernet 0/0
+% Interface not found: GigabitEthernet
+```
+
+The panel label (`Gi0/0`) is the shortest spelling of a name and the only one that resolved. IOS names a
+port by its type in full and accepts any unambiguous prefix of it, so every one of these names `Gi0/0`:
+
+```
+Gi0/0   gi0/0   GI0/0   Gig0/0   Giga0/0   GigabitEthernet0/0   GigabitEthernet 0/0
+```
+
+The alias set is derived from the label, not listed by hand: `Gi` stands for `GigabitEthernet`, and each
+prefix of that word from two letters up is a spelling, with the index appended. A spelling that fits two
+ports is still refused rather than guessed, and the model keeps printing the one spelling it stores — the
+long form never reaches the running-config. The type word separated from its index by a space is joined
+in one place, before dispatch, so no command has to know about it.
+
+`vlan` is the trap: it is a type word (`Vlan10` is an SVI) **and** a keyword (`vlan 10`,
+`switchport access vlan 10`, `spanning-tree vlan 10 priority 4096`). The first cut joined it to its number
+and turned all three into interface names; it is excluded from the join, and the SVI keeps its single-token
+spellings (`interface Vlan10`, `interface vlan 10`).
+
 ### The exec verbs take no word either
 
 ```
