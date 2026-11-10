@@ -7121,9 +7121,18 @@ class CliSession {
       // built from membership only, so `vlan 20` then `show vlan` printed VLAN 1 and nothing else -
       // while `show vlan 20` answered for the VLAN the table had just denied. A switch lists what it
       // holds, and a VLAN with no ports is a row with `-` in the Ports column.
+      // A host has no VLAN domain: it has one address and one gateway, and `vlan <id>` is refused on
+      // it. Printing VLAN 1 with "-" in the Ports column invented the one object the device cannot
+      // have - the same defect the router rows had, one class further down.
+      if (!bridged && !this._canDeclareVlan()) {
+        return out.concat(['% ' + (dev.name || dev.id) + ' is a host: it has no VLANs',
+          '% A VLAN is a broadcast domain on something that switches it, or routes between it',
+          '% Its own address and gateway are in "show ip interface brief"']);
+      }
       let keys = bridged
         ? Array.from(new Set(Array.from(byVlan.keys()).concat(declaredIds)))
-        : Array.from(new Set([1].concat(declaredIds)));
+        : Array.from(new Set([1].concat(declaredIds)
+          .filter(function (id) { return id === 1 ? declaredIds.indexOf(1) !== -1 : true; })));
       keys = keys.sort(function (a, b) {
         if (a === 'all') return 1;
         if (b === 'all') return -1;
@@ -7167,6 +7176,11 @@ class CliSession {
           : '-';       // no bridge, so no membership - not an empty cell, a column with nothing to say
         vlanRows.push([id, name, 'active', ports]);
       }
+      // Nothing declared and nothing bridged: a header row with no rows under it is not an answer.
+      if (!bridged && !vlanRows.length) {
+        return out.concat(['% ' + (dev.name || dev.id) + ' does not bridge, so it has no VLAN table',
+          '% It can still declare VLAN names for the subinterfaces it routes: "vlan <id> name <name>"']);
+      }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
     } else if (what === 'spanning-tree') {
       // `show spanning-tree summary` and `show spanning-tree root` are the two questions an operator
@@ -7194,6 +7208,17 @@ class CliSession {
         // and "no such port" must not look the same - the latter was already refused above.
         return out.concat(['% ' + pick.port + ' is not running spanning tree on ' + dev.name,
           '% It is not part of any L2 loop - see "show spanning-tree" for the ports that are']);
+      }
+      // `show spanning-tree` on a PC printed "Spanning tree enabled protocol ieee" and then a
+      // sentence explaining it had no bridged ports - the first line a claim, the second its
+      // retraction. The `summary` and `root` forms already refused by naming the device's nature;
+      // the plain form now does the same, in the same words.
+      if (!dev.isL2 || !dev.isL2()) {
+        const isL3 = typeof dev.isL3 === 'function' && dev.isL3();
+        return ['% ' + (dev.name || dev.id) + ' does not bridge, so it runs no spanning tree',
+          isL3 ? '% Routers forward at L3 - a loop between them is a routing problem'
+            : '% A host sends everything to its default gateway and never forwards',
+          '% The L2 view on a switch is "show spanning-tree"'];
       }
       out.push('Spanning tree enabled protocol ieee');
       // The root, and the bridge that decided it. The help row has always promised "root bridge,
@@ -7270,6 +7295,10 @@ class CliSession {
         }
       }
     } else if (what === 'etherchannel') {
+      if (!dev.isL2 || !dev.isL2()) {
+        return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no link aggregation',
+          '% A channel-group bundles switch ports into one logical link ("channel-group <n> mode …")'];
+      }
       const lags = dev.config.lags || {};
       const ids = Object.keys(lags).sort();
       if (!ids.length) {
@@ -7372,6 +7401,13 @@ class CliSession {
         out.push('  (none - no cached address resolves to this port)');
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
+      // A PC with one port printed an empty table with headers: a switching table, on a device that
+      // has no switching to tabulate. The L3 equivalent is the ARP cache, and saying so is the answer.
+      if (!dev.isL2 || !dev.isL2()) {
+        return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no MAC address table',
+          '% A MAC table is what a bridge learns: which port a hardware address is behind',
+          '% The equivalent here is the address cache - "show arp"'];
+      }
       // `show mac address-table count` and `... dynamic` are the two spellings an operator types
       // after looking at the table, and both were answered "No interface named count on <device>" -
       // the sub-word read as a port. `count` totals what is learned; `dynamic` is what this model
@@ -9354,6 +9390,18 @@ class CliSession {
     }
     if (first === 'spanning-tree' || (first === 'no' && second === 'spanning-tree')) {
       return l2 ? null : bridged;
+    }
+    // The `show` views that describe a bridge are bridge views: a host is not offered them, and
+    // asking for one anyway explains what the device is (that refusal is the `show` handler's).
+    if (first === 'show' && second) {
+      // `show interfaces <port> switchport` is the L2 view of one port, so it goes with them.
+      if (second === 'interfaces' && words.indexOf('switchport') !== -1) return l2 ? null : switches;
+      if (['vlan', 'spanning-tree', 'port-security', 'etherchannel', 'mac'].indexOf(second) !== -1) {
+        if (second === 'vlan') return this._canDeclareVlan() ? null : 'it neither switches nor routes, so it has no VLANs';
+        return l2 ? null : switches;
+      }
+      if (second === 'ip' && words[2] === 'nat') return has('nat') ? null : 'it does not translate addresses';
+      if (second === 'ip' && (words[2] === 'bgp' || words[2] === 'ospf')) return l3 ? null : routes;
     }
     if (first === 'switchport' ||
       (first === 'clear' && second === 'mac') || (first === 'clear' && second === 'port-security')) {

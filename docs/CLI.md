@@ -27,6 +27,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show history` | the commands typed into this session, last 10 ([Commands from a lab guide](#commands-from-a-lab-guide-and-the-word-this-console-answers-with)) |
 | `configure terminal` | enter config mode |
 | `?` in any mode | only the commands this device can use ([help](#the-help-page-was-the-same-page-on-every-device)) |
+| `show vlan / spanning-tree / mac address-table / etherchannel` | the bridge's tables - and what the device is, on one that has none ([show](#the-show-views-a-device-could-not-have-and-answered-anyway)) |
 | `show version` | vendor, model, category, capabilities |
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
 | `show clock` | the instant the lab is being asked about, and a plain statement that there is no wall clock ([Event log](#event-log)) |
@@ -1193,6 +1194,51 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### The `show` views a device could not have, and answered anyway
+
+The helper pages were filtered; the **`show` views were not, and they did not refuse — they
+answered**. On a PC with one Ethernet port:
+
+```
+PC1#show vlan
+VLAN  Name      Status  Ports        <- a VLAN 1, invented, with "-" where the ports would be
+1     VLAN0001  active  -
+
+PC1#show spanning-tree
+Spanning tree enabled protocol ieee   <- "enabled", on a host
+  No bridged ports: this device is not part of any L2 loop.
+
+PC1#show mac address-table
+Vlan  Mac Address  Type  Ports        <- a switching table, empty, on a device with one port
+
+PC1#show etherchannel
+% No link aggregation groups configured   <- true, and useless: it cannot have any
+```
+
+`show port-security` already answered properly — *"does not switch, so it has no secured ports"* —
+so the fix was to make its four neighbours agree with it, in the `show` handler **and** on the page:
+
+```
+PC1#show vlan
+% PC1 is a host: it has no VLANs
+% A VLAN is a broadcast domain on something that switches it, or routes between it
+% Its own address and gateway are in "show ip interface brief"
+
+R1#show vlan
+% R1 does not bridge, so it has no VLAN table
+% It can still declare VLAN names for the subinterfaces it routes: "vlan <id> name <name>"
+```
+
+A router keeps `show vlan` (once it declares one, the row is listed) but loses `show
+spanning-tree`; a switch keeps every table, because it has every one. The page follows the handler,
+so a PC's `?` no longer offers `show vlan`, `show spanning-tree`, `show mac address-table`,
+`show etherchannel` or `show interfaces <port> switchport`.
+
+One line was invented on the way: the router's VLAN table used to print **VLAN 1** for a router that
+never declared it — a fabricated bridge domain, preserved by an assertion that counted three lines
+"header plus VLAN 1 and VLAN 99". The assertion was encoding the invention, so it changed with the
+behaviour.
 
 ### The help page was the same page on every device
 

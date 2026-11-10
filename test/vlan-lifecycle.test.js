@@ -243,7 +243,11 @@ console.log('\nA device that does not bridge declares VLANs but has no members t
   ok(/\s-\s*$/.test(row99), 'with no port membership, because a router does not bridge');
   ok(!out.some(function (x) { return /Gi0\/0/.test(x); }),
     'and no router port is claimed to be in VLAN 1');
-  ok(out.length === 3, 'the table is a header plus VLAN 1 and VLAN 99, not a fabricated membership');
+  // A header plus VLAN 99, and no VLAN 1: the router never declared VLAN 1, and printing it as a
+  // row with "-" in the Ports column was inventing the one object a router cannot have. (This used
+  // to assert three lines - header, VLAN 1, VLAN 99 - which encoded the invention.)
+  ok(out.length === 2, 'the table is a header plus the VLAN the router declared, and nothing else');
+  ok(!out.some(function (x) { return /^1\s/.test(x); }), 'with no VLAN 1 that was never declared');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
