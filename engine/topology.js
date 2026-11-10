@@ -60,6 +60,48 @@ function cableProblem(link, topo) {
   return null;
 }
 
+// A position is two finite numbers. Anything else is not a position.
+function isPosition(p) {
+  return !!p && typeof p === 'object' && !Array.isArray(p) &&
+    typeof p.x === 'number' && isFinite(p.x) && typeof p.y === 'number' && isFinite(p.y);
+}
+
+function copyLayout(layout) {
+  const out = {};
+  for (const id of Object.keys(layout || {})) {
+    const p = layout[id];
+    if (p && typeof p === 'object') out[id] = Object.assign({}, p);
+  }
+  return out;
+}
+
+// Read a layout out of a document, keeping only positions that name a device the board actually has.
+function readLayout(raw, devices) {
+  const layout = {};
+  const issues = [];
+  if (raw === undefined || raw === null) return { layout: layout, issues: issues };
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    issues.push({ severity: 'error', code: 'E_LAYOUT_MALFORMED',
+      message: 'layout is ' + (Array.isArray(raw) ? 'an array' : typeof raw) + ', not a map of device id to position' });
+    return { layout: layout, issues: issues };
+  }
+  for (const id of Object.keys(raw)) {
+    const p = raw[id];
+    if (!isPosition(p)) {
+      issues.push({ severity: 'error', code: 'E_LAYOUT_BAD_ENTRY',
+        message: 'position for ' + id + ' is not { x, y } with two numbers: ' + JSON.stringify(p) });
+      continue;
+    }
+    if (!devices.has(id)) {
+      issues.push({ severity: 'warning', code: 'E_LAYOUT_UNKNOWN_DEVICE',
+        message: 'position for ' + id + ', which is not a device in this document' });
+      continue;
+    }
+    layout[id] = { x: p.x, y: p.y };
+  }
+  return { layout: layout, issues: issues };
+}
+
 class Topology {
   constructor() {
     this.devices = new Map();
@@ -568,6 +610,10 @@ addDevice(spec, id) {
     for (const [lid, link] of Array.from(this.links.entries())) {
       if (link.touches(id)) this.disconnect(lid);
     }
+    // Where a device sat is part of the device. The server remembered to delete this and the engine did not, so a
+    // removal from anywhere else - a script, a test, a future caller - left the position behind, and it was written
+    // into the next save as a box that is not on the board (#1325).
+    delete this.layout[id];
     return this.devices.delete(id);
   }
 
@@ -580,7 +626,10 @@ addDevice(spec, id) {
     const out = {
       format: 'packetforge-topology', version: 1,
       seq: this._seq,
-      devices: devices, links: links, layout: this.layout
+      devices: devices, links: links,
+      // A copy, for the same reason link endpoints are copies (#1323): the document that goes out is what the API,
+      // the UI and every fixture receives, and adjusting it must not adjust the board (#1325).
+      layout: copyLayout(this.layout)
     };
     // Only when a change has happened: a lab built and never disturbed has nothing to say about it,
     // and a field on every saved file is noise in every diff and every regenerated example.
@@ -646,7 +695,12 @@ addDevice(spec, id) {
         topo.loadIssues.push({ severity: 'error', linkId: l && l.id, code: 'E_LINK_NOT_RESTORED', message: e.message });
       }
     }
-    topo.layout = (data.layout && typeof data.layout === 'object') ? data.layout : {};
+    // Where each box sits. Validated, because the canvas draws `pos.x` straight from here: a document with
+    // `{"x": "left"}` put a device at NaN, and `layout: []` - an array is an object - kept the positions in memory
+    // and then dropped them at the next save, because JSON.stringify of an array ignores its string keys (#1325).
+    const layoutResult = readLayout(data.layout, topo.devices);
+    topo.layout = layoutResult.layout;
+    for (const issue of layoutResult.issues) topo.loadIssues.push(issue);
 
     // Restore the id sequence LAST, after the devices and links are in place.
     //

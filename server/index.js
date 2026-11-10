@@ -629,7 +629,12 @@ async function handleApi(req, res, urlPath) {
           });
         }
         const dev = topo.addDevice(spec, body.id || null);
-        topo.layout[dev.id] = { x: body.x || 160, y: body.y || 160 };
+        // `body.x || 160` turned a device placed at x = 0 into a device placed at 160: zero is a coordinate, and it
+        // is the one at the top-left of the canvas (#1325).
+        topo.layout[dev.id] = {
+          x: (typeof body.x === 'number' && isFinite(body.x)) ? body.x : 160,
+          y: (typeof body.y === 'number' && isFinite(body.y)) ? body.y : 160
+        };
         broadcast(topoId);
         return sendJSON(res, 201, { device: dev.serialize(), state: fullState(topo) });
       }
@@ -952,9 +957,26 @@ async function handleApi(req, res, urlPath) {
     // /layout
     if (parts[3] === 'layout' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
-      if (body.positions && typeof body.positions === 'object') {
+      if (body.positions && typeof body.positions === 'object' && !Array.isArray(body.positions)) {
+        // Every position is checked before any is stored, so a bad entry cannot half-apply a layout. The canvas
+        // draws `pos.x` directly: a string put the box at NaN and nothing said why (#1325).
+        const bad = [];
         for (const id of Object.keys(body.positions)) {
-          if (topo.devices.has(id)) topo.layout[id] = body.positions[id];
+          const p = body.positions[id];
+          if (!topo.devices.has(id)) continue;
+          if (!p || typeof p !== 'object' || typeof p.x !== 'number' || !isFinite(p.x) ||
+              typeof p.y !== 'number' || !isFinite(p.y)) {
+            bad.push(id + ': ' + JSON.stringify(p));
+          }
+        }
+        if (bad.length) {
+          return sendJSON(res, 400, {
+            code: 'E_BAD_REQUEST',
+            error: 'a position must be { x, y } with two numbers - ' + bad.slice(0, 3).join('; ')
+          });
+        }
+        for (const id of Object.keys(body.positions)) {
+          if (topo.devices.has(id)) topo.layout[id] = { x: body.positions[id].x, y: body.positions[id].y };
         }
       }
       broadcast(topoId);

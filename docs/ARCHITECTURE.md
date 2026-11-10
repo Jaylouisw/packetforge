@@ -134,6 +134,25 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### Where the boxes are
+
+`layout` maps device id to `{x, y}`: where each box sits on the canvas. Three rules, all learned by breaking them:
+
+* **it is copied on the way out.** `serialize()` used to hand out `this.layout` itself, so the document the API, the
+  UI and every fixture received *was* the board — move a box in the document and the lab moved.
+* **a position belongs to its device.** `removeDevice()` used to leave the position behind; the server remembered
+  to delete it and the engine did not, so a removal from any other caller left a box in the file that was not on the
+  board.
+* **a position is two finite numbers.** The canvas draws `pos.x` straight from the layout, so `{"x": "left"}` put a
+  box at NaN with nothing to explain it. On load, a bad entry is dropped and reported (`E_LAYOUT_BAD_ENTRY`), a
+  layout that is not a map is refused outright (`E_LAYOUT_MALFORMED` — `[]` is an object, and its positions were
+  silently lost at the next save because JSON ignores an array's string keys), and a position naming a device the
+  document does not contain is a warning (`E_LAYOUT_UNKNOWN_DEVICE`). Over the API, a bad position is a `400` before
+  anything is stored.
+
+And `0` is a coordinate. The API placed a device at `160,160` when asked for `0,0`, because `body.x || 160` treats
+zero as missing — the one place on the canvas a box is most likely to be dragged to.
+
 ### A cable is restored or explained
 
 Every option `connect()` accepts survives a save and reload (`mediaId`, `speedMbps`, `duplex`, `lengthM`,
