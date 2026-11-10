@@ -969,6 +969,12 @@ console.log('\nTwo i-MO kits differing only in how many modems are inside (#623,
   eq(two.powerMaxW, 20, 'IMO-210-2x4G-KIT: the same 20 W estimate - two modems do not double it');
   ok(find('i-MO 310').powerMaxW === undefined,
     'i-MO 310: no wattage is published, so none is claimed');
+
+  // The 210's port rows name Ethernet and USB and nothing else - no console socket.
+  eq(effectiveInterfaces(one).filter(function (p) { return p.type === 'console'; }).length, 0,
+    'IMO-210-1x4G-KIT: no console port - its CLI is software, not a socket');
+  eq(effectiveInterfaces(two).filter(function (p) { return p.type === 'console'; }).length, 0,
+    'IMO-210-2x4G-KIT: no console port either, despite the 310 having one');
 }
 
 console.log('\nThe i-MO 310 is six configurable ports and no modem at all (#623):');
@@ -984,6 +990,26 @@ console.log('\nThe i-MO 310 is six configurable ports and no modem at all (#623)
   ok(ports.filter(function (p) { return p.type === 'wireless'; })
     .every(function (p) { return !p.role; }),
     'i-MO 310: its radio is an access point, not an uplink');
+}
+
+console.log('\nThe 225 bonds two 5G links and claims no rate for either (#624):');
+{
+  const r = find('i-MO 225 Series');
+  const ports = effectiveInterfaces(r);
+  eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 2,
+    'i-MO 225: two Gigabit Ethernet ports, as two LANs or one LAN one WAN');
+  eq(ports.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 2,
+    'i-MO 225: both 5G modems are ports - bonding two links is the product');
+  ok(ports.filter(function (p) { return p.name.indexOf('wwan') === 0; })
+    .every(function (p) { return p.role === 'wan'; }),
+    'i-MO 225: each modem is an uplink');
+  ok(ports.filter(function (p) { return p.type === 'wireless'; })
+    .every(function (p) { return p.speed === undefined; }),
+    'i-MO 225: no speed is claimed for a 5G modem the page never quantifies');
+  eq(ports.filter(function (p) { return p.type === 'console'; }).length, 0,
+    'i-MO 225: no console socket');
+  ok(ports.filter(function (p) { return p.type === 'wireless'; }).length === 2,
+    'i-MO 225: no WiFi radio either - the page lists none, so none is added by resemblance');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

@@ -1,0 +1,61 @@
+{
+  "vendor": "i-mo",
+  "model": "i-MO 225 Series",
+  "label": "i-MO 225 Series 5G bonding router",
+  "category": "router",
+  "description": "i-MO 225 Series - 5G multichannel bonding router: two internal 5G-capable modems as standard with up to four SIMs from different networks, 2x Gigabit Ethernet that can be two LANs or one LAN and one WAN, 8x SMA (a main and a diversity connector per modem/antenna), Optibond bonding and failover, powered from the external 100-240 VAC adapter or a regulated 12 V automotive supply, 185 x 65 x 195 mm.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "role": "wan"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/imo-225-series-5g-multichannel-bonding-router-p-10057.html",
+  "notes": "The key-features line is the census: '**2x 5G Modems, 8x SMA, 2x Gigabit Ethernet**', and the prose settles the roles: 'The device has two Ethernet ports that can be set up as two LANs or one LAN and one WAN.' So `eth1` carries the WAN role and `eth2` the LAN role, with the note that this is the one-LAN-one-WAN configuration the page names - two LANs is the other legal arrangement and the catalogue carries one role per port. **Both modems are ports here:** the appliances ships with 'two 5G capable modems as standard' and bonds 'two 5G connections plus one WAN connection', so a lab that models one modem cannot test the product's whole purpose. Four SIMs across two modems, switched to manage data allowances, is recorded here rather than as four ports - a SIM is not an interface. **No rate is claimed for the 5G ports.** The page gives no figure for them at all - not a category like the 210's CAT6, not a throughput - so the `wireless` interfaces carry `role: wan` and no `speed`, which is the honest shape: inventing a number would be the one figure a lab could then plan around. **No WiFi, no console.** Unlike the 210 and 310, the 225 page lists no WLAN access point and no management port - the eight SMA are cellular main/diversity connectors, and the web/CLI management is software. Nothing is added by family resemblance (see the correction on the 210 kits)."
+}
