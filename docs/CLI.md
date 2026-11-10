@@ -5070,6 +5070,37 @@ R1#sh int br
 
 The abbreviation that works is `sh ip int br`, the one in the example at the top.
 
+### Help is per mode, and modes are sticky
+
+`help` lists what the mode you are in accepts, so the list itself is a claim worth testing: every form
+under `help` was run in the mode it was listed under, in a session of its own — **57 at the exec prompt,
+46 in global config, 27 in interface config, 130 forms, none refused as unrecognised.** The rule holds:
+documented means typable.
+
+What does not hold is running the list as a batch. Modes are sticky, and several documented commands
+change the parser for every line after them — `ip dhcp pool <name>` puts you in pool mode, and from
+there `converge` is judged as a pool command:
+
+```
+R1(config)#ip dhcp pool POOL
+R1(config-dhcp)#converge
+% Unrecognized DHCP pool command: converge
+```
+
+Which is the second use of these refusals: **they name the mode you are actually in**, so an
+unexpectedly refused line tells you where a previous line left you.
+
+| Where you are | What an unknown word says |
+|---|---|
+| global config | `% Unrecognized config command: bogus` |
+| DHCP pool | `% Unrecognized DHCP pool command: bogus` |
+| interface | `% Unrecognized interface command: bogus` and then `% Unrecognized config command: bogus` |
+| `router ospf` | `% "bogus" is not a router ospf command`, then `% In this mode: network <net> <wildcard> area <id` |
+
+Interface mode printing *two* lines is not a double failure: the interface parser falls through to the
+global-config one, so you see the same word rejected by both. Only `router ospf` names what it does want
+in the same breath — `In this mode: …` — which is the pattern the others do not follow.
+
 Four rules, and each one is a decision:
 
 | Rule | Why |
