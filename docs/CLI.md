@@ -5322,6 +5322,23 @@ PC1#flow close flow-1
 Flow flow-1 closed: closed, 5000 of 5000 bytes delivered (already closed)
 ```
 
+"Nothing at all for UDP" means no packets, not no effect — the state still changes, and the record keeps
+the step it closed at. Measured on the counters, a UDP close is invisible (1 packet out before, 1 after),
+while a TCP close puts three more frames on the wire (the closer's count rises by 2, the peer's by 1):
+
+```
+PC1#flow close flow-1                (udp)
+PC1#show flows flow-1
+Flow flow-1 (udp):
+  State         closed  (closed at step 16)
+  Payload       300 bytes in 1 segment, 1 packet on the wire
+```
+
+The `State` line carries two facts, and the second is decided by one field: the annotation is
+`(still open)` whenever `closedStep` is null and `(closed at step <n>)` once it is set, so there are only
+those two forms. Read it as "did this flow ever close", not as a restatement of the state beside it — a
+flow that ended in `reset` never had a `closedStep`, so it would still read `reset  (still open)`.
+
 The heading separates three numbers that are easy to confuse, because a refused conversation is
 counted and then dropped:
 
