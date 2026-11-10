@@ -117,7 +117,7 @@ Five contracts, each already guarded by an existing test. Any patch that violate
 one is wrong even if it makes issue #30 work.
 
 > **Numbers in this table are the phase-0 baseline, not today's tree.** C4 and C5 quote
-> "878 models" and "the 61-suite chain" — the catalogue has since grown to **1,628 models across
+> "878 models" and "the 61-suite chain" — the catalogue has since grown to **1,629 models across
 > 246 vendors** and `npm test` now runs well over a hundred suites. The criterion is the *mechanism*
 > each row names (the round-trip test, the cable matrix, the invariants suite), not the count beside
 > it.
@@ -128,7 +128,7 @@ one is wrong even if it makes issue #30 work.
 | C2 | Every cable that mates today still mates, at the same medium and rate | `test/cable-matrix.test.js` (an explicit cageA×cageB verdict table — the specification, not a snapshot) |
 | C3 | `routeTo()` keeps its signature and single-route return | **10 call sites** in `simulator.js` today, measured as `grep '\.routeTo(' engine/simulator.js \| grep -vc '//'` — and note the three counts differ, which is why this row keeps going stale: `grep -c 'routeTo('` returns **13** (it matches prose and comments), `grep -c '\.routeTo('` returns **11**, and only the comment-filtered count is **10**. The criterion is the signature `routeTo(dstIp)` returning one route or `null`, which the ARP, next-hop and TTL paths all depend on |
 | C4 | A device with no upstream configuration behaves exactly as today | new `test/upstream-baseline.test.js` (phase 0) |
-| C5 | No device spec gains a required field; all models load (1,628 today, 878 when this was written) | `test/hardware-invariants.test.js`, and the whole `npm test` chain (61 suites then, 229 now) |
+| C5 | No device spec gains a required field; all models load (1,629 today, 878 when this was written) | `test/hardware-invariants.test.js`, and the whole `npm test` chain (61 suites then, 229 now) |
 
 The design below is shaped by C3 and C4 more than anything else.
 

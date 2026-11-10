@@ -35,7 +35,7 @@ leg fails the same job, so "three jobs" and "five checks" are both true and neit
 | `Test (Node 18)` | Syntax or API that only works on newer Node. The floor is 18. |
 | `Test (Node 20)` | Nothing Node 18 and 22 together cannot — kept for the middle of the support window |
 | `Test (Node 22)` | Behaviour that regressed on the newest runtime |
-| `Server smoke test` | A server that boots but cannot serve: every API route, the catalogue, WebSocket upgrade |
+| `Server smoke test` | A server that boots but cannot serve. `scripts/smoke-http.js` runs **18 checks** against a real server on a free port: the UI shell, `/api/catalog`, `/api/media`, `/api/version` (twice — once that it answers, once that its device count agrees with `/api/catalog`), then topology create → place two devices → `validate-link` for a legal pair and an impossible medium → a refused cable → a legal cable → self-cabling refused → double-cabling refused → the topology read back → delete. **Not** "every route", and **not** the WebSocket upgrade: `/api/config`, `/api/interfaces`, `/api/ping`, `/api/flows`, `/api/layout`, `/api/load`, `/api/reset`, `/api/link-options` and `…/links/:id/state` are outside it, and no automated check drives the upgrade handshake at all |
 | `Docker build` | Two things, in order. First `scripts/check-dockerfile.js` — static checks that a build would have caught early: the base image is **pinned**, the container does **not run as root**, there is a `HEALTHCHECK`, **every `COPY` source exists in the repo**, and there is a command to run. Then a **real `docker build` only where the job has a daemon**: the step installs the CLI and builds if `docker info` succeeds, otherwise it prints that the build was skipped and why. A green Docker job on a daemon-less runner therefore means "the Dockerfile is well-formed", not "the image builds". |
 
 The test job runs, in order: `syntax-check`, `check-control-bytes`, `check-node-surface`
@@ -46,6 +46,11 @@ then `examples/build-examples.js` (rebuild and self-verify every example lab —
   example passes the job: the files are compared to nothing. `git diff --exit-code examples/` after
   the build would turn that into a real check) and
 `missing-devices.js examples --no-issues` (every model an example names still exists).
+
+**That coverage gap has a consequence worth stating plainly.** The WebSocket upgrade is documented
+in `docs/ARCHITECTURE.md` and was measured by hand with an RFC 6455 client, but nothing in CI or in
+`test/` drives it — `grep -rl "Sec-WebSocket" test/ scripts/` finds nothing. A regression in the upgrade
+handshake would be found by a human or by using the UI, not by a red check run.
 
 The three jobs carry 7 + 1 + 3 steps between them (measured by counting `- name:` under each job in
 `ci.yml`): the test job seven, the smoke job one, the Docker job three — the last of which is the static

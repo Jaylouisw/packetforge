@@ -109,7 +109,7 @@ catalogue grows. These are the commands, run against the tree as it stands — c
 you are about to change, rather than editing the doc to match the doc.
 
 ```bash
-# 1,628 models / 246 vendors / 16,746 ports
+# 1,629 models / 246 vendors / 16,754 ports
 node -e "const{loadCatalog}=require('./devices/registry');const{Topology}=require('./engine');const c=loadCatalog(require('path').resolve('devices')).filter(d=>!d.error);let p=0;for(const d of c){p+=new Topology().addDevice(d).interfaces.size}console.log(c.length,'models /',new Set(c.map(d=>d.vendor)).size,'vendors /',p,'ports')"
 
 # 89 media / 9 families / 26 cages
@@ -126,7 +126,16 @@ ls test/*.test.js | wc -l
 node scripts/run-tests.js | tail -6
 ```
 
-**Pass `loadCatalog()` an absolute path.** Hand it the relative string `'devices'` and it returns 1,628
+**Every number above is a snapshot, and the catalogue does not hold still.** It grew 1,584 → 1,629 on
+2026-11-10 alone; during one documentation pass the model count changed under a commit made twenty
+minutes earlier (1,628 → 1,629), so a prose count can be stale before it is merged. Two rules follow:
+
+- **Copy the command, then the number** — never a number from another page, which is how five pages
+  ended up quoting 1,584 while the catalogue held 1,628.
+- **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
+  the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
+
+**Pass `loadCatalog()` an absolute path.** Hand it the relative string `'devices'` and it returns 1,629
 entries that are all `{ vendor: 'error', model: '<file>', error: … }` — not one real spec, and no
 exception to warn you. The cause is line 19 of `devices/registry.js`: it `require()`s `path.join(dir,
 …)`, and a path with no leading `./` is read as a **module specifier**, so every file fails to resolve
@@ -134,7 +143,7 @@ and becomes an error entry by design (the `catch` that exists to survive one bro
 whole directory). `path.resolve('devices')` — or `__dirname` from inside the module — is the fix, and
 it is why every call site in `engine/` and `scripts/` passes an absolute path. Filter `d => !d.error`
 anyway: with a correct path there are none on this tree, but an import that lands a malformed spec will
-produce one, and that is the difference between a count of 1,628 and a count that quietly includes a
+produce one, and that is the difference between a count of 1,629 and a count that quietly includes a
 `{ "vendor": "error" }` row.
 
 

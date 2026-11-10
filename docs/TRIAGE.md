@@ -101,7 +101,7 @@ absence of confidently wrong ones.
 Stripping punctuation made `WiFi Mesh 3+` and `WiFi Mesh 3` the same key — and a request for the
 `+` variant was matching the box that is not the `+` variant. `+` becomes the word `plus` and
 everything else becomes a separator, so `RB5009UPr+S+IN` and `RB5009UPr+S+OUT` stay distinct —
-which matters, because the catalogue has both. It is not a theoretical worry: **104 of the 1,628
+which matters, because the catalogue has both. It is not a theoretical worry: **104 of the 1,629
 models carry a `+`**. `++` is folded to `plusplus` ahead of the single-`+` rule; no current model
 uses one, so that branch is defensive rather than exercised.
 
