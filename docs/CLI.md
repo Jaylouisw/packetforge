@@ -2642,7 +2642,9 @@ absent is the defect this whole series is about.
 `show history` was the one of these that deserved to exist rather than be explained: the console keeps
 the lines typed into it, bounded at 200, and prints the last 10 the way IOS does. Asking for the
 history is deliberately *not* recorded — a question that changes its own answer is the same defect as
-a `show` that moves a counter.
+a `show` that moves a counter. The buffer is the *session's*, not the device's: a second console on the
+same box answers `No commands in this session yet`, which is also what a fresh session prints. That
+makes it the one place a `clear logging` survives, since history is not an event.
 
 Two commands did come out of the sweep as real work:
 
@@ -4873,10 +4875,36 @@ No events: the log is empty - nothing has run yet in this lab
 Send a packet (`ping <dst>`) or run `converge`, then ask again.
 ```
 
-`clear logging` truncates it (`Event log cleared (13 events dropped)`), is privileged like its IOS
-counterpart, and refuses an argument it does not have. Asking for events *after* a clear is the other
-common reason for an empty table, and the message distinguishes that from a lab where nothing has
-happened.
+`clear logging` truncates it, is privileged like its IOS counterpart, and refuses an argument it does
+not have:
+
+```
+R1>clear logging
+% clear logging needs enable mode - type "enable" first
+
+R1#clear logging now
+% Unexpected argument "now" (clear logging takes none)
+
+R1#clear logging
+Event log cleared (67 events dropped)
+```
+
+**A cleared log is indistinguishable from one that never ran.** This page used to claim the empty-table
+message told the two apart; measured, it does not — there is no "cleared" flag, only an event count, so
+both cases print exactly the same thing:
+
+```
+R1#clear logging
+Event log cleared (67 events dropped)
+R1#show logging
+No events: the log is empty - nothing has run yet in this lab
+Send a packet (`ping <dst>`) or run `converge`, then ask again.
+```
+
+A fresh lab answers identically, and the type-filtered form has its own variant
+(`% The log is empty: nothing has run in this lab, so there is nothing of any type`). So: if you did not
+clear it yourself, an empty log means nothing has run — and if you did, `show history` will still show
+the `clear logging` line in your session, which is the only surviving record.
 
 `show logging` is lab-wide, like `links` and `show flows`: the event stream is the simulator's, so any
 console sees the same timeline.
