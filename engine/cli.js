@@ -99,6 +99,14 @@ class CliSession {
   // the promise (`ipv6 nd ra`). Everything else was accepted and then silently inert - a Raspberry Pi took
   // `ip dhcp pool`, `ip route` and `ospf router-id` and created objects nothing on it could use (#1387). The
   // refusal names the capability and the consequence, in the same words the RA gate uses.
+  // What to use instead of `switchport` on a box that routes. A host gets no advice, because "this port routes"
+  // would be a second wrong statement in the same sentence.
+  _routedPortHint() {
+    return (this.device && typeof this.device.hasCap === 'function' && this.device.hasCap('l3-forward'))
+      ? ' - this port routes: use `ip address <address> <mask>`'
+      : '';
+  }
+
   _capabilityRefusal(cap, consequence) {
     const dev = this.device;
     if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
@@ -606,17 +614,27 @@ class CliSession {
     } else if (head === 'encapsulation') {
       out.push.apply(out, this._encap(tokens.slice(1), iface));
     } else if (head === 'switchport') {
+      // Switching a frame is what `l2-forward` means. A router took `switchport mode trunk` and answered
+      // "Switchport mode trunk on Gi0", then `show interfaces` printed nothing about it because the printer
+      // knows a routed port does not switch (#1387). The command and the printer disagreed about the same box.
+      const cannotSwitch = this._capabilityRefusal('l2-forward', 'switch frames');
+      if (cannotSwitch) return [cannotSwitch + this._routedPortHint()];
       const changed = this._switchport(tokens.slice(1), iface);
       // A VLAN parameter changes which ports forward for which VLAN, which is exactly what STP's timers are about.
       this._controlPlaneChanged();
       out.push.apply(out, changed);
     } else if (head === 'no' && tokens[1] === 'switchport') {
+      const cannotSwitch = this._capabilityRefusal('l2-forward', 'switch frames');
+      if (cannotSwitch) return [cannotSwitch + this._routedPortHint()];
       // `no switchport access vlan` has to remove the access VLAN, not the whole switchport configuration.
       // Every `no switchport ...` form used to fall through to the blanket reset, so removing one leaf
       // cleared the mode, the native VLAN and the allowed list as well - five fields gone, announced as
       // "reset to defaults".
       out.push.apply(out, this._switchport(['no'].concat(tokens.slice(2)), iface));
     } else if (head === 'channel-group') {
+      // A LAG is a bundle of switch ports; there is nothing to bundle on a box that does not switch.
+      const cannotBundle = this._capabilityRefusal('l2-forward', 'bundle ports into a LAG');
+      if (cannotBundle) return [cannotBundle];
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
       out.push.apply(out, this._channelGroup(['remove'], iface));

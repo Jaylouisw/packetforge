@@ -1106,8 +1106,16 @@ Router(config)# ip route 0.0.0.0 0.0.0.0 10.9.8.1     ! on an L2-only switch
 ```
 
 `ip route`, `ospf`, `ip nat`, `ip dhcp pool` and `vrrp` are gated on `l3-forward`, `nat` and `dhcp-server`
-respectively; see [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#what-a-capability-stops-you-doing) for the table. A refused
-command changes nothing — no half-made pool, no route that nothing forwards.
+respectively, and `switchport …` and `channel-group` on `l2-forward` — a router does not switch frames, and it is told
+what to do instead:
+
+```
+Router(config-if)# switchport mode trunk
+% ISR 4331 branch router-d1 cannot switch frames: it has no l2-forward capability - this port routes: use `ip address <address> <mask>`
+```
+
+See [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#what-a-capability-stops-you-doing) for the table. A refused command changes
+nothing — no half-made pool, no route that nothing forwards, no switchport state the printer will not describe.
 
 ### converge — when is it up?
 

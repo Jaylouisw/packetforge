@@ -98,6 +98,16 @@ the console will not *create* one, so the "created / added / enabled" sentence a
 | `ip dhcp pool <name>` | `dhcp-server` | cannot serve DHCP |
 | `vrrp <group> ip <address>` | `l3-forward` | cannot run a VRRP group |
 | `ipv6 nd ra …` | `l3-forward` | cannot advertise |
+| `switchport …` / `no switchport` | `l2-forward` | cannot switch frames |
+| `channel-group <n> mode …` | `l2-forward` | cannot bundle ports into a LAG |
+
+The L2 rows are the mirror image of the others, and they close a disagreement the printer had already noticed:
+`show interfaces` has never printed a `switchport:` line for a device without `l2-forward`, because "the capability
+is what makes a port a switchport" — while the console happily answered `Switchport mode trunk on Gi0` for a router
+and stored it where nothing would read it. One of the two had to give, and the printer was right.
+
+A router is told what to do instead (`this port routes: use \`ip address <address> <mask>\``). A host is not: it does
+not route either, and "this port routes" would be a second wrong statement in the same sentence.
 
 ## Interfaces
 
