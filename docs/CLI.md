@@ -1178,6 +1178,59 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A neighbour table that could only ever fill
+
+The LLDP neighbour table is trustworthy for one reason: it is filled from LLDPDUs that really crossed
+the link, not from the topology file. It also had no off switch:
+
+```
+SW1(config)#no lldp run
+% Unrecognized config command: no lldp run
+SW1(config-if)#no lldp transmit
+% Unrecognized interface command: no lldp transmit
+SW1(config-if)#no lldp receive
+% Unrecognized interface command: no lldp receive
+```
+
+So the table could only grow, and the only way to empty it was to unplug the cable — which is also the
+one thing you cannot do when the lab is about a device that must not be discovered. Three decisions
+now exist, at three scopes:
+
+```
+SW1(config)#no lldp run
+LLDP disabled on SW1: no port announces and none listens
+  2 neighbours forgotten; peers keep their entries until they stop listening
+  "lldp run" turns it back on; "no lldp transmit|receive" does it for one port
+
+SW1#show lldp neighbors
+% LLDP is disabled on SW1 (no lldp run)
+% No port announces and none listens, so no neighbour can be learned
+% "lldp run" turns it back on
+
+SW1(config-if)#no lldp receive
+LLDP receive off on Fa0/1: the port is no longer listening
+  The neighbour learned earlier on this port (SW2) is dropped: this port no longer listens.
+
+SW1#show lldp neighbors Fa0/1
+% Fa0/1 is not listening for LLDP (no lldp receive)
+% Nothing can be learned on it until "lldp receive" is put back
+```
+
+Three details make the answers honest rather than convenient:
+
+* `no lldp receive` **drops what that port had already heard**. This model keeps no hold timer, so an
+  entry left behind would be a neighbour the port refused to hear — the table would contradict the
+  decision.
+* `no lldp transmit` says plainly that the **peer keeps its entry**, because ageing is what would
+  remove it and there is no ageing here: *"this model keeps no timers, so it stays"*.
+* `show lldp neighbors` on a disabled device answers with the state, never with
+  `(none - no LLDP has been heard)`, which reads like a cabling fault.
+
+Transmit and receive are independent per port, so a lab can have a switch that announces but does not
+listen — the shape you need to show what a neighbour table is *for*. All three decisions are dumped
+(`no lldp run` globally, `no lldp transmit` / `no lldp receive` inside the port's block) and paste
+back, and every `no` form is a row `?` can see.
+
 ### A port that can refuse power, and a console that could not
 
 PoE was one of the most completely modelled planes in this simulator: a budget per device, an

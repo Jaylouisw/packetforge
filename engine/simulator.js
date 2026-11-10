@@ -2518,9 +2518,14 @@ class Simulator {
   announceLldp() {
     for (const dev of this.topo.devices.values()) {
       if (!dev.lldp) continue;
+      // `no lldp run` is the device not speaking at all; `no lldp transmit` is one port not
+      // speaking. Both were unreachable from the console, so a neighbour table could only ever
+      // fill - and the only way to empty it was to unplug the cable.
+      if (dev.config && dev.config.lldp && dev.config.lldp.run === false) continue;
       for (const iface of dev.activeInterfaces()) {
         if (!iface.peer) continue;                 // nothing plugged in
         if (iface.parent) continue;                // subinterfaces are not ports
+        if (iface.lldpTx === false) continue;      // `no lldp transmit` on this port
         try {
           this._emitFrame(dev, iface, lldp.buildFrame(dev, iface));
         } catch (e) {
@@ -3181,7 +3186,11 @@ class Simulator {
     // itself. This is the protocol that answers "what is plugged into this port" on
     // real hardware.
     if (lldp.isLldp(f)) {
-      if (dev.lldp && inIface) {
+      // `no lldp receive` drops the LLDPDU at the door: the frame arrived, the port was told not to
+      // listen, and the neighbour table must not record what the port refused to hear.
+      const listening = !(dev.config && dev.config.lldp && dev.config.lldp.run === false) &&
+        (function (port) { return !(port && port.lldpRx === false); })(inIface ? dev.interfaces.get(inIface) : null);
+      if (dev.lldp && inIface && listening) {
         const nb = lldp.neighbourFrom(f, inIface);
         dev.lldp.set(inIface, nb);
         this._emit({

@@ -788,6 +788,10 @@ class CliSession {
       }
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
+    } else if (head === 'lldp' && tokens[1] === 'run') {
+      out.push.apply(out, this._lldpRun(false, tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'lldp' && tokens[2] === 'run') {
+      out.push.apply(out, this._lldpRun(true, tokens.slice(3)));
     } else if (head === 'ipv6' && tokens[1] === 'unicast-routing') {
       out.push.apply(out, this._ipv6UnicastRouting(true, tokens.slice(2)));
     } else if (head === 'ipv6' && tokens[1] === 'gateway') {
@@ -1104,6 +1108,11 @@ class CliSession {
       out.push.apply(out, this._portSpeed(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
     } else if (head === 'duplex' || (head === 'no' && tokens[1] === 'duplex')) {
       out.push.apply(out, this._portDuplex(head === 'no' ? tokens.slice(2) : tokens.slice(1), iface, head === 'no'));
+    } else if ((head === 'lldp' || (head === 'no' && tokens[1] === 'lldp')) &&
+               ['transmit', 'receive'].indexOf(String(tokens[head === 'no' ? 2 : 1] || '').toLowerCase()) !== -1) {
+      const isNo = head === 'no';
+      const dir = String(tokens[isNo ? 2 : 1]).toLowerCase();
+      out.push.apply(out, this._portLldp(isNo, dir, iface, isNo ? tokens.slice(3) : tokens.slice(2)));
     } else if (head === 'power' && tokens[1] === 'inline') {
       out.push.apply(out, this._portPowerInline(tokens.slice(2), iface, false));
     } else if (head === 'no' && tokens[1] === 'power' && tokens[2] === 'inline') {
@@ -2731,6 +2740,80 @@ class CliSession {
         ' blocking: the loop is cut, which is the tree working');
     }
     return out;
+  }
+
+  // `lldp run` / `no lldp run`: whether this device speaks LLDP at all.
+  //
+  // Turning it off is the whole point of the command: a lab in which discovery must not work (a
+  // security exercise, a device that should not be found) had no way to be built, and a neighbour
+  // table could only ever fill.
+  _lldpRun(isNo, rest) {
+    const dev = this.device;
+    const usage = (isNo ? 'no ' : '') + 'lldp run';
+    const extra = this._noExtra(rest, 0, usage);
+    if (extra) return extra;
+    if (!dev.lldp) {
+      return ['% ' + (dev.name || dev.id) + ' has no LLDP stack',
+        '% LLDP is a switch/router feature in this model; a plain host does not speak it'];
+    }
+    if (!dev.config.lldp) dev.config.lldp = { run: true };
+    const running = dev.config.lldp.run !== false;
+    if (isNo) {
+      if (!running) return ['LLDP is already disabled on ' + (dev.name || dev.id), '% Usage: lldp run'];
+      dev.config.lldp.run = false;
+      const had = dev.lldp.size;
+      dev.lldp.clear();
+      return ['LLDP disabled on ' + (dev.name || dev.id) + ': no port announces and none listens',
+        had ? '  ' + plural(had, 'neighbour') + ' forgotten; peers keep their entries until they stop listening'
+          : '  No neighbour had been learned, so nothing was forgotten',
+        '  "lldp run" turns it back on; "no lldp transmit|receive" does it for one port'];
+    }
+    if (running) return ['LLDP is already enabled on ' + (dev.name || dev.id)];
+    dev.config.lldp.run = true;
+    return ['LLDP enabled on ' + (dev.name || dev.id) + ': every cabled port announces and listens',
+      '  Run a simulation ("show lldp neighbors") to hear and be heard again'];
+  }
+
+  // LLDP per port: whether this port speaks, and whether it listens.
+  //
+  // The neighbour table is filled from LLDPDUs that really crossed the link, which is what makes it
+  // trustworthy - and it could only ever grow. There was no way to stop a device announcing, so the
+  // only way to empty a neighbour table was to unplug the cable, and an operator building a lab in
+  // which discovery must not work (the usual reason to care) had no command at all.
+  _portLldp(isNo, dir, iface, rest) {
+    const usage = (isNo ? 'no ' : '') + 'lldp ' + dir;
+    const extra = this._noExtra(rest || [], 0, usage);
+    if (extra) return extra;
+    const flag = dir === 'transmit' ? 'lldpTx' : 'lldpRx';
+    const on = dir === 'transmit' ? 'announcing itself' : 'listening';
+    if (isNo) {
+      if (iface[flag] === false) {
+        return ['LLDP ' + dir + ' on ' + iface.name + ' is already off - the port is not ' + on];
+      }
+      iface[flag] = false;
+      const out = ['LLDP ' + dir + ' off on ' + iface.name + ': the port is no longer ' + on];
+      if (dir === 'receive') {
+        // A port told to stop listening must not keep what it heard: with no ageing in this model,
+        // an entry left behind would be a neighbour the port refused to hear.
+        if (this.device.lldp && this.device.lldp.has(iface.name)) {
+          const nb = this.device.lldp.get(iface.name);
+          this.device.lldp.delete(iface.name);
+          out.push('  The neighbour learned earlier on this port (' + (nb.systemName || nb.name || 'a peer') +
+            ') is dropped: this port no longer listens.');
+        }
+      } else {
+        out.push('  Peers will stop seeing ' + (this.device.name || this.device.id) +
+          ' on this port once their entry ages out - this model keeps no timers, so it stays');
+        out.push('  until they are told to stop listening or the link changes.');
+      }
+      return out;
+    }
+    if (iface[flag] !== false) {
+      return ['LLDP ' + dir + ' on ' + iface.name + ' is already on - the port is ' + on];
+    }
+    iface[flag] = true;
+    return ['LLDP ' + dir + ' on ' + iface.name + ' re-enabled: the port is ' + on + ' again',
+      '  Run a simulation ("show lldp neighbors") to hear or be heard.'];
   }
 
   // Power inline: whether this port will feed a powered device.
@@ -4965,6 +5048,8 @@ class CliSession {
     const out = [];
     out.push('! PacketForge running-config');
     out.push('hostname ' + (dev.config.hostname || dev.name));
+    // LLDP is on unless it was turned off, so the off state is what the dump has to carry.
+    if (dev.config.lldp && dev.config.lldp.run === false) out.push('no lldp run');
 
     // VLAN declarations, not just the switchport membership that points at them.
     const vlans = dev.config.vlans || {};
@@ -5060,6 +5145,9 @@ class CliSession {
       // A port without power is a decision that has to survive a paste: the budget it frees is the
       // reason the line was typed, and a dump that dropped it would silently re-power the device.
       if (i.poeAdmin && i.poeAdmin !== 'auto') out.push('  power inline ' + i.poeAdmin);
+      // LLDP is on by default, so only the departures from that are dumped.
+      if (i.lldpTx === false) out.push('  no lldp transmit');
+      if (i.lldpRx === false) out.push('  no lldp receive');
       if (i.natRole) out.push('  ip nat ' + i.natRole);
       if (i.stpCost !== undefined) out.push('  spanning-tree cost ' + i.stpCost);
       const lag = dev.lagFor ? dev.lagFor(i.name) : null;
@@ -5432,6 +5520,20 @@ class CliSession {
       // from the topology file. An empty table means nothing has announced itself.
       const pick = this._portArg(tokens.slice(2), dev, 'show lldp neighbors');
       if (!pick.ok) return out.concat(pick.output);
+      // A device told to stop speaking has no neighbour table, and saying "none" invites the reader
+      // to look for a cabling fault. The state is the answer.
+      if (!dev.lldp || (dev.config.lldp && dev.config.lldp.run === false)) {
+        return ['% LLDP is disabled on ' + dev.name + ' (no lldp run)',
+          '% No port announces and none listens, so no neighbour can be learned',
+          '% "lldp run" turns it back on'];
+      }
+      if (pick.port) {
+        const port = dev.interfaces.get(pick.port);
+        if (port && port.lldpRx === false && !dev.lldp.has(pick.port)) {
+          return ['% ' + pick.port + ' is not listening for LLDP (no lldp receive)',
+            '% Nothing can be learned on it until "lldp receive" is put back'];
+        }
+      }
       out.push('LLDP neighbours on ' + dev.name + ':');
       let rows = Array.from(dev.lldp.entries());
       if (pick.port) {
@@ -7614,6 +7716,8 @@ class CliSession {
     if (this.mode === MODE_CONFIG) return helpRows([
       'Config-mode commands (exit / end to leave):',
       helpLine('hostname <name>', 'set device hostname (spaces kept)'),
+      helpLine('lldp run', 'enable LLDP on this device (it is on by default)'),
+      helpLine('no lldp run', 'stop announcing and listening; the neighbour table is forgotten'),
       helpLine('interface <name> | int <name>', 'enter interface configuration'),
       helpLine('interface vlan <id>', 'the switch\'s own address in that VLAN (an SVI)'),
       helpLine('interface <parent>.<vlan>', 'creates a tagged subinterface'),
@@ -7689,6 +7793,8 @@ class CliSession {
       helpLine('speed <mbps>|auto', 'port speed; the spanning-tree path cost follows it'),
       helpLine('duplex full|auto', 'duplex (half is refused: no collisions are modelled)'),
       helpLine('power inline auto|never', 'whether this port feeds a PoE device (frees its watts)'),
+      helpLine('lldp transmit | no lldp transmit', 'whether this port announces itself'),
+      helpLine('lldp receive | no lldp receive', 'whether this port listens for a neighbour'),
       helpLine('no mtu | no speed | no duplex | no power inline',
         'back to the default, negotiation, auto, or powered'),
       helpLine('encapsulation dot1q <vlan>', 'tag this subinterface'),
