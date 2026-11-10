@@ -243,8 +243,14 @@ console.log('\nBoth spellings do the same thing, and the wrong ones say what is 
     'and write memory immediately after has nothing to do, so the two are the same act');
   ok(/write takes memory/.test(env.c1.text('write terminal')),
     'write terminal is refused with the targets that exist');
-  ok(/copy takes running-config startup-config/.test(env.c1.text('copy startup-config running-config')),
-    'copying the saved copy back over the running config is refused by name');
+  // The reverse direction used to be refused here; it is now the merge IOS performs, so what is
+  // checked is that a target the console does not have is still refused by name.
+  ok(/nothing to copy from|Copied startup-config into the running configuration/.test(
+    env.c1.text('copy startup-config running-config')),
+    'copying the saved copy back into the running config is a real command');
+  ok(/copy takes running-config startup-config, or startup-config running-config/.test(
+    env.c1.text('copy startup-config flash')),
+    'and a target that does not exist is refused, with the two that do');
   const userOnly = consoleFor(env.r1, env.t, env.sim);
   ok(/needs enable mode/.test(userOnly.text('copy running-config startup-config')),
     'and the copy spelling is privileged too');

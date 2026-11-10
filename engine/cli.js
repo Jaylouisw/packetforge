@@ -667,15 +667,27 @@ class CliSession {
           // the *rendered* configuration, not the model: it is what a person reads and pastes, and it
           // is the only thing a diff against the running config can honestly compare.
           const isWrite = head === 'write';
+          // The other direction existed nowhere: a saved copy could be written and read, and nothing
+          // ever loaded it back, so `write memory` was an act with no way to return to it. IOS's
+          // `copy startup-config running-config` *merges* the saved copy into the running one (it does
+          // not clear first - that is `reload`), and that is what this does.
+          const reverse = !isWrite && (['startup-config', 'startup', 'start'].indexOf(tokens[1]) !== -1) &&
+            (tokens[2] === 'running-config' || tokens[2] === 'run');
           const target = isWrite ? (tokens[1] === undefined ? 'memory' : tokens[1])
             : (tokens[1] === 'running-config' || tokens[1] === 'run' ? tokens[2] : null);
           const okTarget = isWrite
             ? ['memory', 'mem', 'startup-config', 'startup'].indexOf(target) !== -1
             : ['startup-config', 'startup', 'start'].indexOf(target) !== -1;
-          if (!okTarget) {
+          if (reverse) {
+            if (this.mode !== MODE_ENABLE) {
+              out.push('% copy startup-config running-config needs enable mode' + NEEDS.enable);
+            } else {
+              out.push.apply(out, this._loadSavedConfig(this.device));
+            }
+          } else if (!okTarget) {
             out.push(head === 'write'
               ? '% write takes memory (or startup-config) - there is nothing else to write'
-              : '% copy takes running-config startup-config - the source must be running-config');
+              : '% copy takes running-config startup-config, or startup-config running-config');
           } else if (this.mode !== MODE_ENABLE) {
             out.push('% ' + (isWrite ? 'write memory' : 'copy running-config startup-config') +
               ' needs enable mode' + NEEDS.enable);
@@ -693,6 +705,21 @@ class CliSession {
             this.mode = MODE_CONFIG;
           }
           else out.push('% Invalid input: ' + line);
+        } else if (head === 'reload') {
+          // `reload` reboots the box from its saved configuration. Nothing here boots - there is no
+          // boot loader, no image, no POST - so answering "% Unrecognized command" would send the
+          // operator looking for a typo. The saved copy is real, and the way back to it is real.
+          const saved = this.device.savedConfig && this.device.savedConfig.lines;
+          out.push('% There is no reload on this console - nothing here boots, so there is no restart');
+          out.push('%   to schedule and no saved image to load on the way up');
+          if (saved) {
+            out.push('% The saved copy is real, and so is the way back to it:');
+            out.push('%   copy startup-config running-config   merge the saved copy into the running one');
+            out.push('%   show startup-config                the saved copy, plus what has changed since');
+          } else {
+            out.push('% Nothing has been saved in this lab yet: "write memory" keeps a copy to return to');
+          }
+          out.push('% To discard unsaved changes, build the device again - that is what a reboot would do here');
         } else if (head === 'show') {
           out.push.apply(out, this._show(tokens.slice(1)));
         } else if (head === 'ping') {
@@ -1161,7 +1188,22 @@ class CliSession {
         out.push('% do only supports "do show <...>" here');
       }
     } else {
-      out.push('% Unrecognized config command: ' + tokens.join(' '));
+      // A real exec verb typed here is not a typo, and "% Unrecognized config command: write memory"
+      // says it is. IOS refuses the same way but names the mode, which is the difference between
+      // "you mistyped" and "you are one prompt away". `do` carries the read-only forms; `end` carries
+      // the rest.
+      const execVerbs = ['write', 'copy', 'reload', 'clear', 'ping', 'traceroute', 'tracert',
+        'nslookup', 'enable', 'disable', 'configure', 'terminal'];
+      const first = String(tokens[0] || '').toLowerCase();
+      if (execVerbs.indexOf(first) !== -1) {
+        out.push('% "' + tokens.join(' ') + '" is an exec command, not a configuration command');
+        out.push('% "end" leaves the configuration and puts you back at privileged exec');
+        // `do` carries reads only (`do show <...>`), so it is not offered here: a write, a ping or a
+        // clear needs `end` first, and advice that cannot be followed is the defect, not the fix.
+        out.push('% ("do" carries reads only - "do show <...>" - so this one needs "end" first)');
+      } else {
+        out.push('% Unrecognized config command: ' + tokens.join(' '));
+      }
     }
     return out;
   }
@@ -6970,6 +7012,58 @@ class CliSession {
     return [head + ' (' + describeDelta(d) + ')'];
   }
 
+  // `copy startup-config running-config` - the merge IOS performs: the saved copy is replayed through
+  // this same parser, line by line, so every line is validated exactly as it would be when pasted by
+  // hand (a saved line that the parser refuses today is reported, not swallowed). Nothing is cleared
+  // first: IOS's merge leaves running-config lines the saved copy does not mention, and `reload` is the
+  // verb that discards them.
+  _loadSavedConfig(dev) {
+    const name = dev.name || dev.id;
+    if (!dev.savedConfig || !dev.savedConfig.lines) {
+      return ['% No startup-config on ' + name + ' - there is nothing to copy from',
+        '% "write memory" saves the running configuration first'];
+    }
+    const lines = dev.savedConfig.lines.slice();
+    const savedMode = this.mode;
+    // The walk starts in configuration mode, exactly where a paste would: the saved copy is a
+    // running-config body, and its first lines are global config verbs.
+    this.modeBeforeConfig = this.mode;
+    this.mode = MODE_CONFIG;
+    const before = this._runningConfigLines(dev).slice(1);
+    let applied = 0;
+    const refused = [];
+    for (const raw of lines) {
+      const line = String(raw == null ? '' : raw).trim();
+      if (!line || line.startsWith('!')) continue;
+      // `hostname` is applied through the same path as everything else, so the label and the config
+      // cannot disagree after a load either.
+      const r = this.run(line);
+      const text = (r && r.output ? r.output : []).join('\n');
+      if (/^\s*%/.test(text)) refused.push(line + ' -> ' + text.split('\n')[0]);
+      else applied++;
+    }
+    // Leave the prompt where a merge leaves it: privileged exec, whatever mode the walk ended in.
+    this.mode = MODE_ENABLE;
+    this.modeBeforeConfig = null;
+    const after = this._runningConfigLines(dev).slice(1);
+    const d = diffLines(before, after);
+    const head = 'Copied startup-config into the running configuration on ' + name +
+      ': ' + applied + ' line' + (applied === 1 ? '' : 's') + ' applied';
+    const out = [head];
+    if (!d.added.length && !d.removed.length) {
+      out.push('  the running configuration did not change - the saved copy was already in force');
+    } else {
+      out.push('  ' + describeDelta(d) + ' (this is a merge: lines the saved copy does not mention are kept)');
+    }
+    if (refused.length) {
+      out.push('  ' + refused.length + ' saved line' + (refused.length === 1 ? ' was' : 's were') +
+        ' refused by the parser as it stands today:');
+      refused.slice(0, 5).forEach(function (x) { out.push('    ' + x); });
+    }
+    this.mode = savedMode === MODE_CONFIG ? MODE_ENABLE : savedMode;
+    return out;
+  }
+
   // The `interface <name>` block of a rendered configuration: the header line and the indented lines
   // under it, stopping at the first line that is not indented. A block is what a person pastes and
   // what a diff about one port has to compare, so it is extracted once and used by both shows.
@@ -10689,6 +10783,8 @@ class CliSession {
       helpLine('show startup-config', 'the saved copy, then what the running config changed'),
       helpLine('write memory', 'save the running configuration (privileged)'),
       helpLine('copy running-config startup-config', 'the same save, spelled the other way'),
+      helpLine('copy startup-config running-config', 'merge the saved copy back into the running one'),
+      helpLine('reload', 'what this console would do about booting - it does not boot'),
       '',
       '',
       'A show that reports control-plane state also answers "at <ms>" or "at converged":',

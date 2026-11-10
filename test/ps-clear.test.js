@@ -189,12 +189,14 @@ console.log('\nThe word is checked, and the command is not available where it do
     exec.run('clear port-security counters').output, 'from exec it asks for enable mode');
   match(/clear arp needs enable mode/, exec.run('clear arp').output, 'exactly as `clear arp` does');
   // In config mode it is not a config command at all, which is also what `clear arp` says there.
+  // The wording moved when configuration mode stopped calling real exec verbs "unrecognized": the
+  // assertion follows the message, and checks the pair still answer *identically*.
   exec.run('enable'); exec.run('configure terminal');
-  match(/Unrecognized config command: clear port-security counters/,
+  match(/is an exec command, not a configuration command/,
     exec.run('clear port-security counters').output,
-    'config mode does not take exec commands, and says so the same way for both');
-  match(/Unrecognized config command: clear arp/, exec.run('clear arp').output,
-    'the two clear commands behave identically in the wrong mode');
+    'config mode names an exec command instead of calling it a typo');
+  match(/is an exec command, not a configuration command/, exec.run('clear arp').output,
+    'and the two clear commands behave identically in the wrong mode');
 }
 
 console.log('\nA secure address is in the port\'s VLAN, not in VLAN 1:');
