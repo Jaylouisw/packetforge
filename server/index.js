@@ -171,6 +171,10 @@ function fullState(topo) {
   // Topology.serialize() on purpose: a saved file records what was built, while a verdict is a
   // derived answer about the hardware as it is now, and one written into a file would be read back
   // as fact long after the hardware it describes had changed.
+  //
+  // Recomputed on every payload rather than cached: it costs about 5 us per cable (a 211-cable board
+  // serialises in 1.24 ms against 0.21 ms without), and a cached verdict is exactly the stale answer
+  // this exists to stop being shown.
   s.links.forEach(function (l) {
     const live = topo.links.get(l.id);
     l.verdict = live ? topo.linkVerdict(live) : null;

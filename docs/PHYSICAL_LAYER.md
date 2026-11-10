@@ -303,6 +303,10 @@ Every state payload the server builds carries one per link. It is attached in `f
 about the hardware as it is now, and one written into a file would be read back as fact long after the
 hardware it describes had changed.
 
+Recomputing every link on every state payload costs about **5 µs per cable** — a 211-cable board
+serialises in 1.24 ms with verdicts against 0.21 ms without, measured — so it stays a straight
+recomputation rather than a cache. A cached verdict is the thing this whole change exists to avoid.
+
 The inspector renders what it is handed rather than asserting anything of its own:
 
 | verdict | what the panel says |

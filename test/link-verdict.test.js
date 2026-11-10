@@ -104,6 +104,39 @@ console.log('\nA warning is carried through, because the rule warns rather than 
   ok(String(warn.message || '').indexOf('1200 m') >= 0, 'and the message states the length that caused it');
 }
 
+console.log('\nA link that is not a cable is not called impossible:');
+{
+  // Radios associate, they are not cabled. A verdict that refused them would put "this cable cannot
+  // exist as drawn" over a working Wi-Fi link, which is the same class of lie in the other
+  // direction, so the wireless case is pinned here rather than assumed.
+  const t = new Topology();
+  const a = t.addDevice(spec('asus', 'RT-AX89X')); a.name = 'AP1';
+  const b = t.addDevice(spec('asus', 'RT-AX89X')); b.name = 'AP2';
+  const link = t.connect(a.id, 'radio0', b.id, 'radio0');
+  ok(link.mediaId === 'wireless-5', 'two radios associate over a wireless medium (' + link.mediaId + ')');
+  const v = t.linkVerdict(t.links.get(link.id));
+  ok(v.ok === true, 'and the verdict is ok, so the panel does not call a Wi-Fi link impossible');
+  ok(v.mediaId === 'wireless-5', 'and it reports the band it negotiated');
+}
+
+console.log('\nA file written before mediaId existed is negotiated, not refused:');
+{
+  const { t } = copperLab();
+  const json = JSON.parse(JSON.stringify(t.serialize()));
+  delete json.links[0].mediaId;
+  const loaded = Topology.fromJSON(json);
+  const live = loaded.links.get(loaded.serialize().links[0].id);
+  const v = loaded.linkVerdict(live);
+  ok(v.ok === true, 'the link still validates');
+  ok(v.mediaId === '1000base-t', 'and the medium is settled from the ports, not from the file');
+  live.lengthM = 500;
+  const v2 = loaded.linkVerdict(live);
+  const codes = (v2.warnings || []).map(function (w) { return w.code; });
+  ok(v2.ok === true, 'a 500 m copper run is still buildable');
+  ok(codes.indexOf('W_DISTANCE') >= 0, 'with W_DISTANCE (' + codes.join(',') + ')');
+  ok(codes.indexOf('W_COPPER_LONGRUN') >= 0, 'and W_COPPER_LONGRUN, as the build-time rule would give');
+}
+
 console.log('\nEvery writer of a state payload goes through fullState, and fullState attaches the verdict:');
 {
   const src = fs.readFileSync(path.join(__dirname, '..', 'server', 'index.js'), 'utf8');
