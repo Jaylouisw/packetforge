@@ -159,6 +159,31 @@ function simForFlows(topo) {
   return new Simulator(topo, { flowState: flowStateFor(topo) });
 }
 
+// What `/links` needs from each end of a cable, said as a sentence rather than a TypeError.
+function endShape(end) {
+  if (!end || typeof end !== 'object') return 'missing end of cable';
+  if (typeof end.deviceId !== 'string' || !end.deviceId) return 'missing deviceId';
+  if (typeof end.iface !== 'string' || !end.iface) return 'missing iface';
+  return '';
+}
+
+// What a document must look like before it is allowed to replace a live board. Deliberately only the envelope:
+// the engine decides what a valid cable is (#1304), and old files have to keep loading.
+function documentShapeProblem(doc) {
+  if (doc === undefined || doc === null) return 'expected a topology document, got nothing';
+  if (typeof doc !== 'object' || Array.isArray(doc)) return 'expected a topology document (an object)';
+  if (doc.format !== undefined && doc.format !== 'packetforge-topology') {
+    return 'expected format "packetforge-topology", got ' + JSON.stringify(doc.format);
+  }
+  if (doc.devices !== undefined && !Array.isArray(doc.devices)) return 'devices must be an array';
+  if (doc.links !== undefined && !Array.isArray(doc.links)) return 'links must be an array';
+  // A document with neither key is not a topology, it is a mistake - and loading it empties the board.
+  if (doc.devices === undefined && doc.links === undefined) {
+    return 'no devices and no links: this is not a topology document, and loading it would empty the board';
+  }
+  return '';
+}
+
 function fullState(topo) {
   const s = topo.serialize();
   const runtime = {};
@@ -554,6 +579,16 @@ async function handleApi(req, res, urlPath) {
     if (parts[3] === 'links' && parts.length === 4) {
       if (method === 'POST') {
         const body = await readBody(req);
+        // A missing body used to be dereferenced straight through - `body.a.deviceId` - and answered 409 with
+        // the JavaScript engine's own words ("Cannot read properties of undefined"). A malformed request is a
+        // client error, it is 400, and it says what was expected (#1309).
+        const endProblem = endShape(body && body.a) || endShape(body && body.b);
+        if (endProblem) {
+          return sendJSON(res, 400, {
+            code: 'E_BAD_REQUEST',
+            error: 'expected { a: { deviceId, iface }, b: { deviceId, iface } } - ' + endProblem
+          });
+        }
         try {
           const link = topo.connect(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, {
             mediaId: body.mediaId,
@@ -670,7 +705,19 @@ async function handleApi(req, res, urlPath) {
       const dev = topo.getDevice(devId);
       if (!dev) return sendJSON(res, 404, { error: 'device not found' });
       const body = await readBody(req);
-      const commands = Array.isArray(body.commands) ? body.commands : [body.command];
+      // `readBody()` gives back whatever was sent. With no body at all, `commands` became `[undefined]` and the
+      // CLI session threw on `undefined.trim()`, so the operator got 400 with a JavaScript message instead of a
+      // sentence mentioning commands (#1309).
+      const raw = (body && Array.isArray(body.commands)) ? body.commands
+        : (body && typeof body.command === 'string') ? [body.command] : null;
+      if (!raw || !raw.length || raw.some(function (c) { return typeof c !== 'string'; })) {
+        return sendJSON(res, 400, {
+          code: 'E_BAD_REQUEST',
+          error: 'expected { commands: ["configure terminal", ...] } - got ' +
+            (body === undefined || body === null ? 'no body' : JSON.stringify(body).slice(0, 80))
+        });
+      }
+      const commands = raw;
       const key = sessionKey(topoId, devId);
       let session = sessions.get(key);
       if (!session) { session = new CliSession(dev, topo, new Simulator(topo)); sessions.set(key, session); }
@@ -741,8 +788,13 @@ async function handleApi(req, res, urlPath) {
     // /ping
     if (parts[3] === 'ping' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
+      if (!body || typeof body.src !== 'string' || !body.src) {
+        return sendJSON(res, 400, { code: 'E_BAD_REQUEST', error: 'expected { src: <device id>, dst: <address> }' });
+      }
       const dev = topo.getDevice(body.src);
-      if (!dev) return sendJSON(res, 404, { error: 'source device not found' });
+      // A named device that does not exist is a 404; a request that named nothing is a 400, and the difference
+      // matters when you are reading someone else's failed call.
+      if (!dev) return sendJSON(res, 404, { error: 'source device not found: ' + body.src });
       const sim = new Simulator(topo);
       const result = sim.ping(body.src, body.dst, { count: body.count || 4 });
       return sendJSON(res, 200, { events: result.events, replies: result.replies, success: result.success, step: result.step, runtime: fullState(topo).runtime });
@@ -757,6 +809,17 @@ async function handleApi(req, res, urlPath) {
       }
       if (method === 'POST') {
         const body = await readBody(req);
+        // An empty body reached the engine as `srcDevice: undefined` and came back as "Unknown source device:
+        // undefined" - a 400 that names nothing the caller can act on (#1309).
+        const srcId = body && (body.srcDevice !== undefined ? body.srcDevice : body.src);
+        const dstId = body && (body.dstDevice !== undefined ? body.dstDevice : body.dst);
+        if (typeof srcId !== 'string' || !srcId || typeof dstId !== 'string' || !dstId) {
+          return sendJSON(res, 400, {
+            code: 'E_BAD_REQUEST',
+            error: 'expected { proto, srcDevice, dstDevice, srcPort, dstPort, bytes } - ' +
+              (body ? 'missing ' + (typeof srcId !== 'string' || !srcId ? 'srcDevice' : 'dstDevice') : 'no body')
+          });
+        }
         const sim = simForFlows(topo);
         let result;
         try {
@@ -829,6 +892,15 @@ async function handleApi(req, res, urlPath) {
     // /load  (import a full topology document)
     if (parts[3] === 'load' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
+      // `Topology.fromJSON()` is deliberately tolerant - it reads files this server wrote, including old ones,
+      // and skips links whose ports are gone. But /load does not read a file, it **replaces the live board**, and
+      // it used to do that with whatever it was handed: `{"format":"x"}` was accepted as an empty lab, reported
+      // `ok: true`, and threw the operator's work away (#1309). So the shape is checked first, and a document
+      // that is not a topology changes nothing at all.
+      const docProblem = documentShapeProblem(body);
+      if (docProblem) {
+        return sendJSON(res, 400, { code: 'E_BAD_DOCUMENT', error: docProblem });
+      }
       const newTopo = Topology.fromJSON(body);
       topologies.set(topoId, newTopo);
       for (const key of Array.from(sessions.keys())) if (key.indexOf(topoId + ':') === 0) sessions.delete(key);
