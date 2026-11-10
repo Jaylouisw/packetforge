@@ -1521,6 +1521,40 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A tag is an interface, and a segment with a tag is still a segment
+
+Router-on-a-stick is the other half of the lab: one trunk, two routers, an address on
+`interface Gi0/0.20` at each end. Nothing about it worked.
+
+**The area statement could not see the interface it named.**
+
+```
+R1(config)#interface Gi0/0.20
+R1(config-subif)#ip address 10.0.20.1 255.255.255.0
+R1(config-router)#network 10.0.20.0 0.0.0.255 area 0
+% No interface of R1 matches 10.0.20.0 0.0.0.255 - nothing was changed
+```
+
+The matcher skipped `i.parent` — and `i.svi`, so an L3 switch's own address could not be put in an
+area either, although the engine uses it happily once listed. A routed interface is a routed
+interface: the address is the test, and a refused statement now means what it says.
+
+**And a subinterface had no segment.** `segmentOf()` starts at `iface.peer`, which a subinterface does
+not have — it rides its parent's wire with a tag — so once the area was configurable nothing walked
+that segment. `segmentOf(..., { vid })` now walks a *tagged* frame: every switch port it touches must
+carry the tag, so a trunk that does not allow the VLAN stops an adjacency exactly as it stops a frame,
+and two different tags in one subnet stay two segments. A shut parent port now ends the walk at the
+start as well as at the destination — the far end used to produce the adjacency on its own.
+
+```
+R1#show ip ospf neighbor
+Neighbor ID  Pri  State  Address        Interface
+10.0.20.2    1    FULL   10.0.20.2      Gi0/0.20
+```
+
+Finally, a subinterface whose parent is down no longer participates in a process: the parent's
+`shutdown` used to leave the child enabled, so the router advertised a segment it could not reach.
+
 ### A refusal that names a command is a promise
 
 The `show` views were swept last pass for advice that cannot be taken. This pass swept the
@@ -4998,6 +5032,43 @@ A prefix that matches nothing is left completely alone, so a typo still says wha
 R1#sh nosuchthing
 % Invalid show command: nosuchthing
 ```
+
+**The prefix rule has one exception, and it is inside interface config mode.** There, a bare `show` is
+not parsed by the abbreviation layer at all, so even an unambiguous prefix is refused — and a `sh`
+abbreviation is not recognised as `show` in the first place:
+
+```
+R1(config-if)#sh vers
+% Unrecognized interface command: sh vers
+% Unrecognized config command: sh vers
+R1(config-if)#show vers
+% Invalid show command: vers
+```
+
+Put `do` in front and both work exactly as they do at the exec prompt, including the ambiguity list:
+
+```
+R1(config-if)#do sh vers
+PacketForge Router (generic generic-router)
+Vendor     : generic
+R1(config-if)#do sh i
+% Ambiguous command: "do sh i"
+% Candidates: interfaces, ip, ipv6
+```
+
+So the pattern that pays for itself when a command misbehaves in interface mode is `do show …`, not
+`show …`: without `do`, an ambiguous prefix is reported as *invalid*, which is the wrong diagnosis.
+
+**`sh int br` is not `show ip interface brief` here.** `int` expands to `interfaces`, which takes a port
+name, so `br` is read as one — and the refusal names the command you meant, which is the useful part:
+
+```
+R1#sh int br
+% No interface named br on R1
+% Try "show ip interface brief" for the ports this device has
+```
+
+The abbreviation that works is `sh ip int br`, the one in the example at the top.
 
 Four rules, and each one is a decision:
 
