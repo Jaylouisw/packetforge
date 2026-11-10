@@ -1197,6 +1197,36 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A bracketed part is optional, and a default is not the operator's
+
+Two questions asked of every help row containing `[optional]` parts: is each part accepted when
+present, and accepted when absent? Both spellings are typed at the device and neither may come back
+`% Unrecognized`. The sweep walks 37 such rows (96 lines) across config and interface mode on a
+router and a switch, so a bracket added around something the parser actually requires fails the
+suite instead of misleading a reader.
+
+The same sweep turned up a refusal that blamed the operator for a number they never typed:
+
+```
+R1(config-if)#ipv6 nd prefix 2001:db8:9::/64 valid 60
+% Preferred lifetime (604800s) cannot exceed the valid lifetime (60s)
+```
+
+The contradiction is real — a preferred lifetime past the valid one cannot be advertised — but
+`604800` was the model's *default*, invisible to the operator, and the only way forward was to guess
+it and type a preferred lifetime as well. When only the valid lifetime is given, the preferred one
+follows it down, and the answer says which number was not theirs:
+
+```
+R1(config-if)#ipv6 nd prefix 2001:db8:9::/64 valid 60
+IPv6 ND prefix 2001:db8:9::/64 advertised (L=1 A=1, valid 60s, preferred 60s)
+  the preferred lifetime followed the valid one down to 60s (it is the default 604800s, which
+  would outlast a valid lifetime of 60s)
+```
+
+A pair the operator *did* type is still refused, quoting their two numbers, and the clamped pair is
+dumped (`valid 60 preferred 60`), so a paste reproduces the state rather than re-deriving it.
+
 ### A keyword abbreviates where it stands, not only first
 
 The console abbreviates every keyword by prefix, from the help rows. That rule applied to the command

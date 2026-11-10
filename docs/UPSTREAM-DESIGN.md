@@ -48,7 +48,7 @@ That device is:
 | Ports | **1** (`eth0`) | probe `A_the_cloud_port_today` |
 | Cage | `rj45`, family `copper` | `derivePortHardware()` |
 | Speed caps | 10 / 100 / 1000 / 2500 / 5000 / 10000 Mbps | `CAGE_MEDIA.rj45` |
-| Media offered | all 6 copper BASE-T entries | `media.js:270` |
+| Media offered | all 6 copper BASE-T entries | `CAGE_MEDIA` at `media.js:486` |
 
 So every lab in the world terminates on an RJ45 socket, and the *only* thing a
 router can do with its fibre WAN is nothing: a `pon` port against `cloud/eth0`
@@ -70,7 +70,7 @@ radio where its modem should be.
 
 ### 1.1 The routing table has one default slot
 
-`Device.routeTo()` (`device.js:366`) returns **one** route object. Two
+`Device.routeTo()` (`device.js:541`) returns **one** route object. Two
 `ip route 0.0.0.0 0.0.0.0 <gw>` lines are both stored, and the second is never
 consulted:
 
@@ -95,7 +95,9 @@ link inspector that the engine ignores.
 ### 1.2 Asymmetry is already data, and dead
 
 Ten media entries carry `upstreamMbps` — DOCSIS 3.1 is 10000 down / 1000 up,
-GPON is 2488 / 1244 (`media.js:97,98,114-119,125,126`). Grepping `engine/`,
+GPON is 2488 down / 1244 up, and `MEDIA` carries the downstream rate at the `gpon-*`
+entries (`media.js:199-200, 211, 219`) with `xgspon-*` at 9953 (`:210, 212-213, 220`).
+Grepping `engine/`,
 `web/`, `server/` and `test/` for `upstreamMbps` returns **only those ten
 declarations**. Nothing consumes it. A GPON line and a 10G LAN cable carry
 packets identically, and no surface anywhere says "this line is asymmetric".
@@ -181,7 +183,8 @@ obsolete — that page now carries 89/9/26). Add a **tenth** family:
 '5g-nr-mmw':  { name: '5G NR mmWave', family: 'cellular', connector: 'antenna', speedMbps: 5000, upstreamMbps: 600, maxRangeM: null, radio: true },
 ```
 
-Cage, mate table, media and speeds (`media.js:157, 208, 270, 375`):
+Cage, mate table, media and speeds — `CAGES` at `media.js:314`, `CAGE_MATE` at `:413`,
+`CAGE_MEDIA` at `:486`, `CAGE_SPEEDS` at `:642`:
 
 ```js
 CAGES.cellular     = { name: 'Cellular radio', family: 'cellular', label: 'LTE / 5G radio' };
@@ -593,16 +596,32 @@ Rows marked ✅ are implemented; the rest are still the work order.
 The six cellular-cage rows were built for issue #129 as a prerequisite, with one deliberate
 deviation from this design: the cage is `wwan` and it mates with nothing. See row 3.
 
+**Reading the Anchor and Today columns.** They answer different questions and are maintained
+differently. *Anchor* names the symbol and the line it sits on **in this tree** — `CAGES` is at
+`media.js:314` today, not at 157, because `MEDIA` above it grew by four wireless entries and pushed
+everything down. Recount any of it in one line:
+
+```sh
+grep -n "^const CAGES\|^const CAGE_MATE\|^const CAGE_MEDIA\|^const CAGE_SPEEDS" engine/media.js
+grep -n "^function inferCage\|^function derivePortHardware\|^function canMate" engine/media.js
+```
+
+*Today* is a **snapshot of the tree this design was written against** (`d399dff`): "19 cages",
+"64 media, 8 families". Those numbers are deliberately frozen — they are the before-picture the
+migration is measured from, and rewriting them as `CAGES` grows would erase the evidence that the
+work was needed. Today's tree has 26 cages and 89 media; `docs/CONNECTORS.md` carries the live count
+and its own recount one-liners.
+
 | # | Anchor (at `d399dff`) | Today | Change |
 |---|---|---|---|
-| 1 | `media.js:54 MEDIA` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
-| 2 | `media.js:157 CAGES` | 19 cages | ✅ done (#129): added as **`wwan`**, not `cellular` — the name says what the port is, not what technology happens to use it |
-| 3 | `media.js:208 CAGE_MATE` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
-| 4 | `media.js:270 CAGE_MEDIA`, `:353,358,372` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
-| 5 | `media.js:375 CAGE_SPEEDS`, `:448,455,467` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
-| 6 | `media.js:479 inferCage()` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
-| 7 | `media.js:562 derivePortHardware()` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
-| 8 | `media.js:744 canMate()` | 3-test ladder | **no change** — service checks live in validation |
+| 1 | `MEDIA` at `media.js:54` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
+| 2 | `CAGES` at `media.js:314` | 19 cages | ✅ done (#129): added as **`wwan`**, not `cellular` — the name says what the port is, not what technology happens to use it |
+| 3 | `CAGE_MATE` at `media.js:413` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
+| 4 | `CAGE_MEDIA` at `media.js:486`, coax `:609` / dsl `:617` / powerline `:622` / wwan `:489` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
+| 5 | `CAGE_SPEEDS` at `media.js:642` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
+| 6 | `inferCage()` at `media.js:767` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
+| 7 | `derivePortHardware()` at `media.js:875` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
+| 8 | `canMate()` at `media.js:1230`, `cagesMate()` at `:455` | 3-test ladder | **no change** — service checks live in validation |
 | 9 | `validation.js:59 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |
 | 10 | `validation.js:549 let mate = canMate(...)` | physical verdict only | insert service checks after this block, before medium selection at `:588` |
 | 11 | `validation.js:833 validateTopology()` | takes a flat/nested issue list | **no change** — pass a second array |
@@ -614,7 +633,7 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 | 17 | `topology.js:257 setLinkLength()` | only length is editable | generalise to `patchLink(id, {lengthM, service})` |
 | 18 | `device.js:85 CAPABILITIES` | 15 tokens | add `'transit'` |
 | 19 | `device.js:149 config` | 17 keys | add `wans`, `multipath`, `ecmpHash` |
-| 20 | `device.js:366 routeTo()` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
+| 20 | `routeTo()` at `device.js:541` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
 | 21 | `device.js:386-399` static loop | `ad: 1` hard-coded | `ad: numOr(r.distance, 1)`, `metric: numOr(r.metric, 0)` |
 | 22 | `device.js:438` default gateway | `if (!best)` fallback, ad 254 | becomes a candidate in the list |
 | 23 | `device.js:524 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
@@ -622,10 +641,10 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 | 25 | `device.js:584 serialize()` / `:650 hydrate()` | white-list | add the three config keys — **both** |
 | 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
 | 27 | `simulator.js:1416 _sendIcmp()`, `:1445 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
-| 28 | `simulator.js:1894 _forwardL3()` | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
+| 28 | `_forwardL3()` at `simulator.js:3487` | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
 | 29 | `simulator.js:2036 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
 | 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
-| 31 | `server/index.js:319` POST `/links`, `:350` `/validate-link` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
+| 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
 | 32 | `cli.js:267 ip route` | `[iface]` only | `[distance]` |
 | 33 | `cli.js:899 show ip route` | `code dest/len via gw iface` | AD/metric/WAN columns; new `show wan` |
 | 34 | `web/app.js:351` picker, `:892-925` inspector, `:921` State | no service UI | Service block, WAN panel, failover button |
