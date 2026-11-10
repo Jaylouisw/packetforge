@@ -131,6 +131,12 @@ class Simulator {
     // existing lab and test relies on. See setRunTime().
     this.runAtMs = Infinity;
     this.flowState = o.flowState || flowLib.createFlowState();
+    // Per-port counters belong to the box, not to the question. They used to be a Map owned by one
+    // Simulator, which was invisible the moment anything else did the counting - the server builds a
+    // fresh Simulator per request, so a payload flow's frames were counted on a run nobody could ask
+    // about and `show interfaces` printed zeros while the payload published 5000 bytes. A caller that
+    // has somewhere to keep them passes it in; a plain `new Simulator(topo)` keeps them to itself.
+    this.portCounters = o.portCounters || new Map();
     this.reset();
   }
 
@@ -413,12 +419,19 @@ class Simulator {
     // something else had run - so a reader derives the planes itself. Deriving them again on every
     // keystroke would re-run the DHCP exchange and re-announce LLDP, which are events, not answers.
     const asked = o.atMs !== undefined && o.atMs !== null;
+    // The topology's revision is part of the cache key. Without it a reader that derived the planes
+    // once - a console session cached for a board, which is exactly what the HTTP console keeps -
+    // never noticed a cable the *next* request cut, and answered `show spanning-tree` from a tree
+    // computed before the cut. The revision is bumped by every change the derived state depends on,
+    // so an answer is derived at the revision it describes or not at all.
+    const rev = this.topo && this.topo.rev !== undefined ? this.topo.rev : null;
     // Each "announce then hear" plane remembers whether its queue has actually been run: a plane that
     // was derived but whose frames were never delivered is not answered yet. DHCP joins LLDP and RA
     // here because the ACK is what puts the address on the port - without the flag, a lab configured
     // a moment ago answered `unassigned` to the first question and an address to the second.
     if (!asked && !o.force && this._planesDone === this._planesRev &&
-      this._planesAtMs === this.runAtMs && (!o.lldp || this._planesLldp) &&
+      this._planesAtMs === this.runAtMs && this._planesTopoRev === rev &&
+      (!o.lldp || this._planesLldp) &&
       (!o.ra || this._planesRa) && (!o.dhcp || this._planesDhcp)) {
       return;
     }
@@ -448,6 +461,7 @@ class Simulator {
     if (o.lldp || o.ra || o.dhcp) this._run();
     this._planesDone = this._planesRev;
     this._planesAtMs = this.runAtMs;
+    this._planesTopoRev = rev;
     if (o.lldp) this._planesLldp = true;
     if (o.ra) this._planesRa = true;
     if (o.dhcp) this._planesDhcp = true;
@@ -3049,7 +3063,12 @@ class Simulator {
     // because a frame that never left the box -- denied by an ACL above, or
     // dropped for want of a VLAN -- is not throughput.
     const bytesOut = (out.l4 && out.l4.bytes) || frameBytes(out);
-    if (out.l4) flowLib.countPacket(this.flowState, dev.id, 'out', out.l4.bytes || 0);
+    // Every IP frame that leaves is counted, not only the ones a transport flow built: a ping is
+    // traffic too, and a payload that counted only `/flows` bytes reported the lab as idle while a
+    // console had just answered 100 percent. A frame with no transport payload (ICMP echo, and the
+    // ARP-adjacent control frames that carry `ip` without `l4`) counts as a packet and no bytes,
+    // which is what "payload bytes" means in this table.
+    if (out.l4 || out.ip) flowLib.countPacket(this.flowState, dev.id, 'out', out.l4 ? (out.l4.bytes || 0) : 0);
     const tx = this._portStat(dev.id, port.name);
     tx.tx++;
     tx.txBytes += bytesOut;
@@ -3158,7 +3177,9 @@ class Simulator {
     // 2b. Interface counters, ingress side. Counted on arrival, before any of the
     // drop tests below, because that is what a real `show interfaces` counter
     // does: a frame the ACL throws away was still received.
-    if (f.l4) flowLib.countPacket(this.flowState, dev.id, 'in', f.l4.bytes || 0);
+    // The same rule on the way in: received frames are counted whether or not a flow built them, so
+    // the two directions of one ping agree and the payload's counters are the ones the console prints.
+    if (f.l4 || f.ip) flowLib.countPacket(this.flowState, dev.id, 'in', f.l4 ? (f.l4.bytes || 0) : 0);
 
     // 3. MAC learning, scoped to the VLAN.
     // A passive coupler has no table to learn into: it forwards everything both

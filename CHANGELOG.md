@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The console over HTTP is the console.** Three defects, all measured against
+  `POST /api/topologies/:id/config/:devId` (#1335): the session was built on its own `Simulator`, so
+  `/flows` counted traffic that `show interfaces` could not see and a `ping` counted nothing the
+  payload published — one board, two accountings; the endpoint took no instant at all, so a lab the
+  cable endpoint reported mid-convergence could not be asked about that moment; and `show
+  spanning-tree` printed whichever tree a Simulator had written last, because a cached session never
+  re-derived its planes after another request removed a cable. The console now runs on the
+  topology's flow table and per-port counters, `atMs` is applied on **every** request (answered with
+  `runAtMs`, `null` = settled, plus the `convergence` schedule), and the derived planes are keyed on
+  the topology's revision so a cable removed through REST is in the next answer. See
+  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - **A number that names something is not a time.** `show vrrp <group>` and `show ip ospf <process-id>`
   took their number as a convenience *instant*, so `show vrrp 1` on the group-1 master answered "VRRP
   at t=1 ms" from before the election, and `show ip ospf 99` answered about process 1 at t=99 ms —
@@ -223,11 +234,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known defects (filed, not fixed)
 
+Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
+longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
+
 - #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
-- #42 OSPF installs a route for its own connected network, at transit cost.
-- #43 OSPF does not advertise a passive interface's network at all.
+  **Still real.** Three routers in AS 65001, full mesh absent by construction: `R3` ends up with
+  `B 10.1.0.0/30  200  10.2.0.1  eth1` — the route `R2` learned over iBGP, re-advertised to a third
+  iBGP peer, with the next hop rewritten to the relayer.
+- #42 OSPF installs a route for its own connected network, at transit cost. **No longer reproduces** —
+  `show ip route` on an OSPF speaker shows `C` and only `C` for its own two subnets, no `O` row for
+  either, and the neighbour learns them instead.
+- #43 OSPF does not advertise a passive interface's network at all. **No longer reproduces** — with
+  `ip ospf passive` on the LAN port (`show ip ospf` reports its state as `passive`), the neighbour still
+  installs `O 172.16.1.0/24`, which is what a passive interface is supposed to do: no adjacency, stub
+  network still advertised.
 - #44 OSPF keeps the more expensive advertisement for a shared network, chosen by id order.
+  **Not exercised** — the tie needs two routers advertising the same shared network at different costs,
+  which no lab here builds; do not take this line as either confirmation or clearance.
 - #54 NAT `flowKeyOf()` omits the inside source, so two hosts behind one PAT pool collide.
+  **No longer reproduces** — `flowKeyOf()` now keys on both `insideLocal` and `insideGlobal`, and two
+  hosts behind one overload pool get separate translations (`203.0.113.2:1024` for `10.0.0.10`,
+  `203.0.113.2:1025` for `10.0.0.11`), both pinging the far side `4/4`.
 
 ### Added
 

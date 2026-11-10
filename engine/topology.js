@@ -46,13 +46,24 @@ class Topology {
     // network rather than to a query, because the cable that was pulled at t=10 s is still pulled
     // when the next question is asked at t=41 s.
     this.lastChangeAtMs = 0;
+    // A revision for everything the derived state depends on: the device list, the cables, and when
+    // a cable last changed. A Simulator derives its control planes once and answers from them until
+    // the network moves, and "the network moved" is not something it can learn by looking at itself:
+    // the server builds a fresh Simulator for every request, and a console session cached for one
+    // board outlives the request that cabled it. So the fact lives here, in one number, and a reader
+    // compares it against the revision its answer was derived at.
+    this.rev = 0;
   }
+
+  // Something the derived state depends on changed.
+  _touch() { this.rev++; return this.rev; }
 
   // Record that something changed at an instant, so every later question can say whether the
   // network has finished reacting to it.
   markChange(atMs) {
     const n = Number(atMs);
     this.lastChangeAtMs = Number.isFinite(n) && n >= 0 ? n : 0;
+    this._touch();
     return this.lastChangeAtMs;
   }
 
@@ -72,6 +83,7 @@ class Topology {
     const dev = new Device(id, fullSpec);
     this._assignMacs(dev);
     this.devices.set(id, dev);
+    this._touch();
     return dev;
   }
 
@@ -390,6 +402,7 @@ class Topology {
     ai.peer = { deviceId: bId, iface: bIface };
     bi.peer = { deviceId: aId, iface: aIface };
     this.links.set(link.id, link);
+    this._touch();
     return link;
   }
 
@@ -429,6 +442,7 @@ class Topology {
     });
     if (!verdict.ok) return { ok: false, errors: verdict.errors, warnings: verdict.warnings || [] };
     link.lengthM = length;
+    this._touch();
     return { ok: true, link: link, warnings: verdict.warnings || [], errors: [] };
   }
 
@@ -523,6 +537,7 @@ class Topology {
       if (b.lldp) b.lldp.delete(link.b.iface);
     }
     this.links.delete(linkId);
+    this._touch();
     return true;
   }
 
@@ -530,7 +545,9 @@ class Topology {
     for (const [lid, link] of Array.from(this.links.entries())) {
       if (link.touches(id)) this.disconnect(lid);
     }
-    return this.devices.delete(id);
+    const gone = this.devices.delete(id);
+    if (gone) this._touch();
+    return gone;
   }
 
   // Map an interface's peer ref into a canonical {deviceId, iface} link record.

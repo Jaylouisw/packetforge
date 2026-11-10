@@ -13,17 +13,17 @@
  *   node scripts/sweep-device-requests.js --limit 300     # scan more pages
  *   node scripts/sweep-device-requests.js --close 10      # comment and close the first 10 matches
  *
- * Credentials come from the origin remote, the same way the other scripts here get them.
+ * Credentials come from `FORGEJO_TOKEN`, the same as every other tracker script here; the API base
+ * is `PF_API`, defaulting to the canonical host in scripts/canonical.js.
  */
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
+const tracker = require('./forgejo-api');
 
 const ROOT = path.join(__dirname, '..');
-const OWNER = 'jaylouisw', REPO = 'packetforge';
-const API = 'http://10.0.10.20:3000/api/v1';
+const OWNER = tracker.OWNER, REPO = tracker.NAME;
+const API = tracker.API;
 
 function arg(name, dflt) {
   const i = process.argv.indexOf('--' + name);
@@ -36,18 +36,15 @@ const LIMIT_PER_PAGE = 50;
 const MAX_ISSUES = Number(arg('limit', 200));
 const CLOSE_BUDGET = Number(arg('close', 0));
 
+// The token comes from the same place every other script in this directory gets it: the
+// environment. It used to be scraped out of a git remote URL, which stopped working the day the
+// remotes moved to ssh and a credential file - and the failure was loud, but only for whoever ran
+// it. `forgejo-api.availability()` reports the same thing as a reason rather than a throw.
 function token() {
-  for (const remote of ['github', 'origin']) {
-    let url = '';
-    try { url = execFileSync('git', ['remote', 'get-url', remote], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch (e) { continue; }
-    const m = /^[a-z]+:\/\/([^@]+)@/.exec(url);
-    if (m) {
-      const cred = m[1];
-      const idx = cred.indexOf(':');
-      if (idx !== -1) return cred.slice(idx + 1);
-    }
-  }
-  throw new Error('no token in a git remote');
+  const tok = tracker.token();
+  if (!tok) throw new Error('FORGEJO_TOKEN is not set - the tracker is not readable without it ' +
+    '(this is not the same as "no open requests")');
+  return tok;
 }
 
 async function api(tok, p, opts) {

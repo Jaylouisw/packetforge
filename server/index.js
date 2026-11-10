@@ -147,7 +147,38 @@ function flowStateFor(topo) {
 }
 
 function simForFlows(topo) {
-  return new Simulator(topo, { flowState: flowStateFor(topo) });
+  return new Simulator(topo, { flowState: flowStateFor(topo), portCounters: portCountersFor(topo) });
+}
+
+// Per-port counters live on the topology for the same reason the flow table does: they are the
+// board's count of what crossed its ports, and every request builds its own Simulator. Without this
+// the console printed zeros for traffic a `/flows` call had already moved, and the run that moved it
+// was gone by the time anything asked.
+function portCountersFor(topo) {
+  if (!topo.portCounters) topo.portCounters = new Map();
+  return topo.portCounters;
+}
+
+// The instant a request asks about, from a body field.
+//
+// `Infinity` is not a number JSON can carry, so "settled" is spelled three ways that a client
+// actually uses: absent, null, and the word `converged`. Everything else must be a non-negative
+// number of milliseconds, and a refusal says what was wrong rather than quietly answering about
+// "now" - a question asked at an instant and answered at another is the failure this exists for.
+function instantFrom(body, field) {
+  const raw = body ? body[field || 'atMs'] : undefined;
+  if (raw === undefined || raw === null) return { ok: true, atMs: Infinity };
+  if (typeof raw === 'string' && /^\s*(converged|infinity|inf)\s*$/i.test(raw)) {
+    return { ok: true, atMs: Infinity };
+  }
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) {
+    return {
+      ok: false, code: 'E_BAD_INSTANT',
+      error: (field || 'atMs') + ' must be a non-negative number of milliseconds, "converged", or absent'
+    };
+  }
+  return { ok: true, atMs: n };
 }
 
 function fullState(topo) {
@@ -469,9 +500,29 @@ async function handleApi(req, res, urlPath) {
       if (!dev) return sendJSON(res, 404, { error: 'device not found' });
       const body = await readBody(req);
       const commands = Array.isArray(body.commands) ? body.commands : [body.command];
+      // The instant is part of the question. `atMs` is applied on **every** request, not at session
+      // creation: a cached session that pinned the instant of whichever caller happened to create it
+      // would answer the next caller about a moment they never asked for. Absent (or null) means
+      // "settled", which is what this endpoint always meant before it could say anything else.
+      const when = instantFrom(body);
+      if (!when.ok) return sendJSON(res, 400, { error: when.error, code: when.code });
       const key = sessionKey(topoId, devId);
       let session = sessions.get(key);
-      if (!session) { session = new CliSession(dev, topo, new Simulator(topo)); sessions.set(key, session); }
+      if (!session) {
+        // The console shares the topology's flow state, so the counters it prints are the counters
+        // the payload publishes. It was built on `new Simulator(topo)`, which gave one board two
+        // accountings: traffic counted by `/flows` was invisible to `show interfaces`, and traffic
+        // the console itself generated was invisible to `runtime[id].counters`.
+        session = new CliSession(dev, topo, simForFlows(topo));
+        sessions.set(key, session);
+      }
+      if (session.sim) {
+        // Re-attached on every request, not only at creation: a topology reloaded underneath a cached
+        // session would otherwise answer from the accounting of the board it was built for.
+        session.sim.flowState = flowStateFor(topo);
+        session.sim.portCounters = portCountersFor(topo);
+        session.sim.setRunTime(when.atMs);
+      }
       const lines = [];
       for (const cmd of commands) {
         lines.push(session.prompt() + cmd);
@@ -483,8 +534,13 @@ async function handleApi(req, res, urlPath) {
       // output/lines/prompt/device, so the UI's `topo = r.state` stored undefined and
       // handed the renderer nothing to draw: setting a hostname blanked the board
       // while the server still held it (issue #38).
+      //
+      // `runAtMs` and `convergence` are the answer to "which moment is this", in the same shape the
+      // cable endpoint already returns: null means settled.
       return sendJSON(res, 200, {
         output: lines.join('\n'), lines: lines, prompt: session.prompt(),
+        runAtMs: Number.isFinite(when.atMs) ? when.atMs : null,
+        convergence: session.sim ? session.sim.getConvergence() : null,
         device: dev.serialize(), state: fullState(topo)
       });
     }
