@@ -750,5 +750,24 @@ console.log('\nA box OLT is a port count, and Flex-PON is not one rate (#786, #7
     'EA5801S-FL16: pon1 links to an ONT at 2488 Mbps (' + (pon.mediaName || (pon.media || [])[0]) + ')');
 }
 
+console.log('\nA passive poe switch publishes volts and amps, not a budget (#527):');
+{
+  const nx = find('WS-26-400-AC');
+  const ports = effectiveInterfaces(nx);
+  eq(ports.filter(function (p) { return p.connector === 'rj45' && p.type === 'ethernet'; }).length, 24,
+    'WS-26-400-AC: 24 copper ports - the PoE mode table assigns ports 01-24');
+  eq(ports.filter(function (p) { return p.connector === 'sfp'; }).length, 2, 'WS-26-400-AC: two SFP uplinks');
+  eq(ports.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'WS-26-400-AC: a serial console port, which is how the switch is configured');
+  eq(nx.poeBudget, undefined,
+    'WS-26-400-AC: no poeBudget - the 400 W is the supply rating and the ports could ask for more');
+  ok(ports.filter(function (p) { return p.poeOut === 24; }).length === 24,
+    'WS-26-400-AC: 24 W per port, the 24 V x 1 A that the base passive mode delivers');
+
+  // Passive PoE does not negotiate, so the engine must not treat it as 802.3af/at.
+  ok((nx.capabilities || []).indexOf('802.3af') === -1 && (nx.capabilities || []).indexOf('802.3at') === -1,
+    'WS-26-400-AC: no 802.3af/at capability - this is passive PoE on pins 4,5/7,8');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
