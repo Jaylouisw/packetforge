@@ -1,0 +1,114 @@
+{
+  "vendor": "i-mo",
+  "model": "i-MO 310",
+  "label": "i-MO 310 4G bonding router",
+  "category": "router",
+  "description": "i-MO 310 - multi-channel bonding router for small branches and temporary or mobile sites: 6x Gigabit Ethernet ports individually configurable as WAN or LAN, a single 12 V supply (upgradable to 10-30 V DC), up to 128 GB internal flash with an optional NAS module, one USB 2.0 port, an RS232 serial console and a 2.4 GHz 802.11 b/g/n access point. Up to 3 internal LTE/UMTS module slots and 6 SIMs are options, not part of the base unit.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "dhcp-client",
+    "bridge"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "con",
+      "type": "console"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    }
+  ],
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/imo-optibond-310-4g-bonding-router-p-6018.html",
+  "notes": "Read the port row exactly as written: '**LAN / WAN Interface - 6 Gigabit Ethernet ports that individually configurable for WAN or LAN function. LAN ports can be bridged together to act as a switch.**' That is a *configurable* six, not a 1-WAN-5-LAN split, and this catalogue carries one role per port - so all six are declared `lan` in one bridge group, which is the factory state the second sentence describes, and this note carries the fact that any of them can be reassigned to WAN. A spec file that picked a split would be inventing which two ports the customer's two bonded WANs land on. **No cellular ports.** The base appliance has *slots*: 'Embedded Modems - 3 x internal slots for LTE/UMTS modules', 'Cellular Data SIMS - 6'. Nothing is fitted as standard and the option is not a port, so the wwan side is absent - use the kit SKUs where a modem is included. Same reasoning as the components clause in `docs/DEVICE_REGISTRY.md`. **The radio is 2.4 GHz only:** 'WiFi WLAN Access Point - 802.11 b/g/n', 2.412-2.472 GHz, 17 dBm. The page quotes no PHY rate, so `300M` is the 802.11n 2x2 ceiling this catalogue uses for a single-stream-class radio and not a figure from the datasheet. Console is the '**Management Port - RS232 serial console**' row; it carries no connector field, because a console port is not an Ethernet socket however its cable ends. 5x SMA are antenna connectors, not network interfaces."
+}

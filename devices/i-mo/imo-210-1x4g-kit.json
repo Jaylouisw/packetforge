@@ -1,0 +1,67 @@
+{
+  "vendor": "i-mo",
+  "model": "IMO-210-1x4G-KIT",
+  "label": "i-MO 210 4G/LTE-A router kit",
+  "category": "router",
+  "description": "i-MO IMO-210-1x4G-KIT - single-modem 4G/LTE-A CAT6 bonding router kit: 2x Gigabit Ethernet (max 1 WAN), one internal CAT6 modem with up to two SIMs and A/B switching, 802.11ac access point, 2x USB 2.0, IPsec VPN, stateful firewall with WAN/DMZ/LAN zones, 12 V DC (external 110-220 VAC adapter), 20 W, -20 to +60 C.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M",
+      "role": "wan"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "867M"
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/imo-210-4gltea-router-kit-imo2101x4gkit-p-7554.html",
+  "notes": "The port row is precise and small: '**LAN / WAN Interface 2 x Gigabit Ethernet (Max 1 x WAN)**' - two sockets, only one of which may be a WAN at a time, plus '2 x USB 2.0' which are not network interfaces. So `eth1` is declared WAN and `eth2` LAN: the parenthetical says the *pair* can supply at most one WAN, and which of the two takes that role is a configuration choice, not a hardware one. **Cellular is fitted, not optional, in this kit:** 'Cellular Data Connectivity: 1 x 4G/LTE - A CAT6 Modems', 'Cellular Data SIMS: up to 2' (2 SIMs per modem with A/B switching). The 1 modem is therefore declared as `wwan` port with `role: \"wan\"` - the same shape the Peplink BR1 pair uses - because a bonding router that cannot be cabled to a cellular link cannot be tested. **CAT6 is the 3GPP UE category, not a measured rate:** it is the modem class the page names, and its downlink ceiling is 300 Mbit/s, which is what `speed` carries; the page's own throughput figure is different again - 'Max Bonded Throughput: > 150 Mbps' across the bonded links. **The radio is 802.11ac and the page quotes no PHY rate**, so `867M` is the 2x2 802.11ac ceiling this catalogue uses for that class and not a quoted figure. '4 x SMA - 2 x Cellular/MiMo + 2 x WiFi' are antenna connectors. **Same chassis as the dual kit, one fewer modem.** The two pages differ in exactly three rows - modems (1 vs 2), SIMs (2 vs 4) and antennas (4 vs 6, of which 2 vs 4 are cellular) - while dimensions, weight, CPU, memory, storage, port count, throughput and power are identical. They are two devices, not one device and an option: a lab testing 'modem fails, second modem takes over' needs the dual SKU and a lab testing a single-uplink branch needs this one.",
+  "powerMaxW": 20
+}

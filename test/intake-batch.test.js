@@ -947,5 +947,44 @@ console.log('\nAn appliance whose out-of-band port stays out of the lan (#739):'
     'OceanCyber 300: an inspection appliance forwards nothing');
 }
 
+console.log('\nTwo i-MO kits differing only in how many modems are inside (#623, #625, #626):');
+{
+  const one = find('IMO-210-1x4G-KIT');
+  const two = find('IMO-210-2x4G-KIT');
+  ['IMO-210-1x4G-KIT', 'IMO-210-2x4G-KIT'].forEach(function (sku) {
+    const ports = effectiveInterfaces(find(sku));
+    eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 2,
+      sku + ': two Gigabit Ethernet sockets, and the page says max one of them is a WAN');
+    eq(ports.filter(function (p) { return p.role === 'wan' && p.type === 'ethernet'; }).length, 1,
+      sku + ': exactly one Ethernet port carries the WAN role');
+  });
+  eq(effectiveInterfaces(one).filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 1,
+    'IMO-210-1x4G-KIT: one cellular modem, so one wwan port');
+  eq(effectiveInterfaces(two).filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 2,
+    'IMO-210-2x4G-KIT: two cellular modems, so two wwan ports');
+  ok(effectiveInterfaces(two).filter(function (p) { return p.name.indexOf('wwan') === 0; })
+    .every(function (p) { return p.role === 'wan'; }),
+    'a modem that cannot be cabled to a cellular link cannot be tested');
+  eq(one.powerMaxW, 20, 'IMO-210-1x4G-KIT: the quoted 20 W estimate');
+  eq(two.powerMaxW, 20, 'IMO-210-2x4G-KIT: the same 20 W estimate - two modems do not double it');
+  ok(find('i-MO 310').powerMaxW === undefined,
+    'i-MO 310: no wattage is published, so none is claimed');
+}
+
+console.log('\nThe i-MO 310 is six configurable ports and no modem at all (#623):');
+{
+  const r = find('i-MO 310');
+  const ports = effectiveInterfaces(r);
+  eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 6,
+    'i-MO 310: six Gigabit Ethernet ports');
+  eq(ports.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'i-MO 310: the RS232 management port is a console, not an Ethernet port');
+  eq(ports.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 0,
+    'i-MO 310: no cellular ports - the base appliance has empty module slots, not modems');
+  ok(ports.filter(function (p) { return p.type === 'wireless'; })
+    .every(function (p) { return !p.role; }),
+    'i-MO 310: its radio is an access point, not an uplink');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
