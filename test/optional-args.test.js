@@ -82,7 +82,7 @@ console.log('\nEvery bracketed part of every page is optional where it stands:')
 {
   const VALUES = { id: '10', name: 'LAB', ip: '10.0.0.1', addr: '10.0.0.1', address: '10.0.0.1',
     port: 'Fa0/1', 'process-id': '1', as: '65001', mac: '00:11:22:33:44:55', vlan: '10', group: '1',
-    prefix: '2001:db8:9::', len: '64', mask: '255.255.0.0', dst: '9.9.9.9', net: '10.0.0.0',
+    prefix: '2001:db8:9::', len: '64', 'next-hop': '2001:db8:1::9', mask: '255.255.0.0', dst: '9.9.9.9', net: '10.0.0.0',
     wildcard: '0.0.0.255', area: '0', vrid: '1', type: 'A', value: '10.0.0.5', version: '2',
     priority: '100', speed: '1000', mtu: '1500', text: 'hello', list: 'TEST', n: '2', ms: '100',
     count: '3', size: '100', host: 'host1.lab.test', seconds: '60', s: '60', seq: '10',

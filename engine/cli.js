@@ -754,6 +754,8 @@ class CliSession {
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    const stray = this._blockStrayWord(tokens, MODE_CONFIG);
+    if (stray) return stray;
     if (head === 'help' || head === '?') return this._help();
     if (head === 'no' && String(tokens[1] || '').toLowerCase() === 'hostname') {
       // The removal half of `hostname`: back to the model's own name for this device.
@@ -1052,7 +1054,58 @@ class CliSession {
       // must not also delete the routing table, because turning it back on would then restore
       // nothing and the operator would reasonably conclude the command ate their configuration.
       out.push.apply(out, this._ipv6UnicastRouting(false, tokens.slice(3)));
+    } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'route') {
+      // The page documents `no ipv6 route <prefix/len> [<next-hop>]`, and it was never implemented:
+      // the line fell through to the bare `no ipv6` arm, which cleared *every* IPv6 route. A removal
+      // that empties more than it names is the defect the whole `no`-form series is about.
+      const v6r = require('./ipv6');
+      const pr = v6r.parsePrefix6(tokens[3]);
+      if (!tokens[3] || !pr.valid) {
+        // "Invalid" would make a documented form look like a typo in the sweep that types every
+        // bracketed part; the shape is stated instead, which is what the operator needs anyway.
+        return ['% "' + (tokens[3] || '') + '" is not an IPv6 prefix - write it as address/length',
+          '% Usage: no ipv6 route <prefix> [<next-hop>]'];
+      }
+      const extraR6 = this._noExtra(tokens, 5, 'no ipv6 route <prefix> [<next-hop>]');
+      if (extraR6) return extraR6;
+      const wantNet = v6r.networkAddress6(tokens[3]);
+      const wantHop = tokens[4] ? String(tokens[4]) : null;
+      if (wantHop && !v6r.validateAddress6(wantHop).ok) {
+        return ['% "' + wantHop + '" is not an IPv6 address',
+          '% Usage: no ipv6 route <prefix> [<next-hop>]'];
+      }
+      const all6 = this.device.config.routes6 || [];
+      const kept6 = all6.filter(function (r) {
+        const sameNet = String(r.dest) === String(wantNet) && Number(r.prefix) === pr.prefixLen;
+        return wantHop ? !(sameNet && String(r.nextHop) === wantHop) : !sameNet;
+      });
+      if (kept6.length === all6.length) {
+        const there = all6.filter(function (r) {
+          return String(r.dest) === String(wantNet) && Number(r.prefix) === pr.prefixLen;
+        }).map(function (r) { return r.nextHop; });
+        return ['% No IPv6 route to ' + wantNet + '/' + pr.prefixLen + (wantHop ? ' via ' + wantHop : '') +
+          ' on ' + (this.device.name || this.device.id),
+          there.length
+            ? '% It is there via ' + there.join(', ') + ' - name that next hop, or drop it to remove the prefix'
+            : '% "show ipv6 route" lists the routes this device has'];
+      }
+      this.device.config.routes6 = kept6;
+      out.push('IPv6 route to ' + wantNet + '/' + pr.prefixLen + ' removed' + (wantHop ? ' (via ' + wantHop + ')' : ''));
+    } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'gateway') {
+      // `no ipv6 gateway zzzz` fell through to the bare `no ipv6` arm and cleared every IPv6 route
+      // with it - a command that was not read, doing more than the one that was asked for.
+      const extra6 = this._noExtra(tokens, 4, 'no ipv6 gateway [<addr>]');
+      if (extra6) return extra6;
+      const v6lib = require('./ipv6');
+      if (tokens[3] && !v6lib.validateAddress6(tokens[3]).ok) {
+        return ['% "' + tokens[3] + '" is not an IPv6 address, so it is not the gateway here',
+          '% Usage: no ipv6 gateway [<addr>]  ("show ipv6 route" prints the one in use)'];
+      }
+      this.device.config.gateway6 = null;
+      out.push('IPv6 default gateway cleared' + (tokens[3] ? ' (was ' + tokens[3] + ')' : ''));
     } else if (head === 'no' && tokens[1] === 'ipv6') {
+      const extraBare = this._noExtra(tokens, 2, 'no ipv6');
+      if (extraBare) return extraBare;
       this.device.config.gateway6 = null;
       this.device.config.routes6 = [];
       out.push('IPv6 routes cleared');
@@ -1117,6 +1170,13 @@ class CliSession {
       }
       out.push.apply(out, this._bgp(tokens));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
+      // `no router bgp zzzz` disabled BGP and dropped the word. Removing the process takes no
+      // argument, and the page says so.
+      const badAs = tokens.slice(3).filter(function (a) { return !/^\d+(\.\d+)?$/.test(a); })[0];
+      if (badAs) {
+        return ['% Unexpected argument "' + badAs + '" - no router bgp takes the AS it was started with, or nothing',
+          '% Usage: no router bgp [<as>]'];
+      }
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
       out.push('BGP disabled');
@@ -1138,16 +1198,38 @@ class CliSession {
     } else if (head === 'dns') {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
-      const ip = tokens[2];
-      // A shape regex called `300.0.0.1` a name server. The parser decides.
-      if (!net.isIp(ip)) {
-        out.push('% Invalid name server "' + (ip || '') + '"');
-      } else {
-        if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
-        if (this.device.config.dnsServers.indexOf(ip) === -1) this.device.config.dnsServers.push(ip);
-        out.push('Name server ' + ip);
+      // Every word after the keyword is an address: `ip name-server 8.8.8.8 8.8.4.4` configures two,
+      // and `ip name-server 8.8.8.8 zzzz` used to configure one and drop the other on the floor -
+      // an accepted line that was partly not read, which is the defect this family is about.
+      const wanted = tokens.slice(2);
+      if (!wanted.length) {
+        return ['% Incomplete command: ip name-server <address>',
+          '% e.g. "ip name-server 8.8.8.8" - one or more addresses, space separated'];
       }
+      const bad = wanted.filter(function (a) { return !net.isIp(a); })[0];
+      if (bad) {
+        return ['% Invalid name server "' + bad + '"',
+          '% Expected an IPv4 or IPv6 address - usage: ip name-server <address> [<address> ...]'];
+      }
+      if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
+      const added = [];
+      for (const ip of wanted) {
+        if (this.device.config.dnsServers.indexOf(ip) === -1) {
+          this.device.config.dnsServers.push(ip);
+          added.push(ip);
+        }
+      }
+      out.push(added.length
+        ? 'Name server' + (added.length > 1 ? 's ' : ' ') + added.join(', ')
+        : 'Already configured: ' + wanted.join(', '));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'name-server') {
+      // The page offers the removal with the address it configured, because that is how an IOS
+      // removal is spoken: `no ip name-server 8.8.8.8`. A word that is not an address is refused.
+      const badNs = tokens.slice(3).filter(function (a) { return !net.isIp(a); })[0];
+      if (badNs) {
+        return ['% Unexpected argument "' + badNs + '" - no ip name-server takes an address, or nothing',
+          '% Usage: no ip name-server [<address> ...]'];
+      }
       this.device.config.dnsServers = [];
       out.push('Name servers cleared');
     } else if (head === 'ospf') {
@@ -1171,6 +1253,11 @@ class CliSession {
     } else if (head === 'ip' && tokens[1] === 'default-gateway') {
       out.push.apply(out, this._defaultGateway(tokens));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'default-gateway') {
+      const badGw = tokens.slice(3).filter(function (a) { return !net.isIp(a); })[0];
+      if (badGw) {
+        return ['% Unexpected argument "' + badGw + '" - no ip default-gateway takes an address, or nothing',
+          '% Usage: no ip default-gateway [<address>]'];
+      }
       this.device.config.defaultGateway = null;
       out.push('Default gateway cleared');
     } else if (head === 'exit' || head === 'end') {
@@ -1322,11 +1409,111 @@ class CliSession {
     return this._show(tokens.slice(2));
   }
 
+
+  // A word after a block command that takes no words was dropped on the floor, and the command ran:
+  //
+  //   SW1(config-if)#shutdown zzzz        -> "Fa0/1 administratively down"
+  //   SW1(config-if)#no ip address zzzz   -> "IP address removed from Fa0/1"
+  //   R1(config-dhcp)#no lease zzzz       -> accepted, nothing said
+  //
+  // These lines change state, so the empirical test used for `show` (compose the answer twice) is
+  // not available here. Instead the block's own page is the contract: if a form of exactly this
+  // shape is listed, the handler answers it; if the only thing that matched was an argument-less
+  // form, the words after it are a mistake and are refused by the name of the command they follow.
+  // Only argument-less forms are policed - an argument the console does read is judged by its
+  // handler, which keeps free-text tails (`description uplink port`) working.
+  _blockStrayWord(tokens, mode) {
+    if (!tokens || tokens.length < 2) return null;
+    // Verbs that read their own words and say something better than "unexpected": `ip nat outside
+    // inside` explains that a port cannot be on both sides, `channel-group 9` names the group the
+    // port is not in, and the violation mode names the modes. The guard exists for the verbs that
+    // say nothing at all, so these are left to their handlers.
+    const OWN_WORDS = ['ip nat inside', 'ip nat outside', 'switchport port-security',
+      'no switchport port-security', 'channel-group', 'no channel-group',
+      'encapsulation dot1q', 'no encapsulation dot1q', 'power inline', 'no power inline',
+      'switchport trunk allowed vlan', 'spanning-tree vlan'];
+    const line = tokens.map(function (t) { return String(t).toLowerCase(); }).join(' ');
+    for (const own of OWN_WORDS) {
+      if (line === own || line.indexOf(own + ' ') === 0) return null;
+    }
+    let forms;
+    try { forms = this._helpFormRowsAll(mode); } catch (e) { return null; }
+    if (!Array.isArray(forms) || !forms.length) return null;
+    const typed = tokens.map(function (t) { return String(t).toLowerCase(); });
+    const exact = function (f) {
+      if (f.tokens.length !== typed.length) return false;
+      for (let i = 0; i < typed.length; i++) {
+        const t = f.tokens[i];
+        if (t && typeof t === 'object' && t.placeholder) continue;
+        if (String(t).toLowerCase() !== typed[i]) return false;
+      }
+      return true;
+    };
+    if (forms.some(exact)) return null;
+    // A block also answers global commands typed inside it (`ip nat inside source ...` after a pasted
+    // `interface` line, which is how a device's own dump reads). If the line is a complete global
+    // form, the block's job is to hand it on - not to refuse it for being longer than a local verb
+    // that shares its first words (`ip nat inside`).
+    if (mode !== MODE_CONFIG) {
+      let globalForms;
+      try { globalForms = this._helpFormRowsAll(MODE_CONFIG); } catch (e) { globalForms = null; }
+      if (Array.isArray(globalForms) && globalForms.some(function (f) {
+        if (!f.tokens || f.tokens.length !== typed.length) return false;
+        for (let i = 0; i < typed.length; i++) {
+          const t = f.tokens[i];
+          if (t && typeof t === 'object' && t.placeholder) continue;
+          if (String(t).toLowerCase() !== typed[i]) return false;
+        }
+        return true;
+      })) return null;
+    }
+    let best = null;
+    for (const f of forms) {
+      if (!f.tokens.length || f.tokens.length >= typed.length) continue;
+      if (f.tokens.some(function (t) { return !!t && typeof t === 'object'; })) continue;
+      let ok = true;
+      for (let i = 0; i < f.tokens.length; i++) {
+        if (String(f.tokens[i]).toLowerCase() !== typed[i]) { ok = false; break; }
+      }
+      if (ok && (!best || f.tokens.length > best.tokens.length)) best = f;
+    }
+    if (!best) return null;
+    // Alternatives are named together, in the order the page lists them: the row reads
+    // `switchport mode access|trunk`, so the refusal that names only `trunk` looks like a different
+    // command from the one on the page.
+    const samePrefix = function (f) {
+      if (f.tokens.length !== best.tokens.length) return false;
+      for (let i = 0; i < f.tokens.length; i++) {
+        const last = i === f.tokens.length - 1;
+        if (last) continue;
+        if (String(f.tokens[i]).toLowerCase() !== String(best.tokens[i]).toLowerCase()) return false;
+      }
+      return true;
+    };
+    const siblings = forms.filter(samePrefix).map(function (f) { return String(f.tokens[f.tokens.length - 1]); });
+    const head = best.tokens.slice(0, -1).join(' ');
+    const extraWord = String(tokens[best.tokens.length] || '').toLowerCase();
+    // ...but only when the stray word is itself the other alternative: `switchport mode trunk access`
+    // reads as "both modes", while `no lldp transmit extra` is simply a word too many after one
+    // command and is named as that command.
+    const words = (siblings.length > 1 &&
+      siblings.some(function (s) { return s.toLowerCase() === extraWord; }))
+      ? head + ' ' + siblings.join('|')
+      : best.tokens.join(' ');
+    // The same sentence `_noExtra` prints, so a handler that already validates and this guard that
+    // catches the rest read as one console rather than two. The words are echoed as typed, not
+    // lowercased: `no hostname FOO` is refused for "FOO".
+    return ['% Unexpected argument "' + tokens.slice(best.tokens.length).join(' ') + '" - ' + words + ' takes no more',
+      '% Usage: ' + words];
+  }
+
   _ifaceMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
     const doShow = this._doShowInMode(tokens);
     if (doShow) return doShow;
+    const stray = this._blockStrayWord(tokens, MODE_IFACE);
+    if (stray) return stray;
 
     // Switching ports from inside an interface block keeps a pasted
     // `show running-config` working; the current interface is replaced, so this
@@ -1353,7 +1540,11 @@ class CliSession {
       return ['VRRP group ' + vrid + ' removed from ' + this.iface];
     }
     if (head === 'ip' && tokens[1] === 'address') {
-      if (tokens[2] === 'dhcp') {
+      if (String(tokens[2]).toLowerCase() === 'dhcp') {
+        // `ip address dhcp zzzz` turned the port into a DHCP client and dropped the word. The page
+        // lists the form as argument-less, so a word after it is a mistake, not a setting.
+        const extraDhcp = this._noExtra(tokens, 3, 'ip address dhcp');
+        if (extraDhcp) return extraDhcp;
         iface.dhcp = true;
         // Asking for an address again is the third way out of a released lease, after `renew dhcp`.
         iface.dhcpReleased = false;
@@ -1579,6 +1770,14 @@ class CliSession {
       if (String(tokens[3] || '').toLowerCase() === 'autoconfig') {
         out.push.apply(out, this._noAutoconfig(iface));
       } else {
+        // The word after `address` is an address or a length, and `no ipv6 address zzzz` used to
+        // remove the address anyway - an accepted line whose argument was never read.
+        const what6 = String(tokens[3] || '');
+        const looksV6 = /^[0-9a-fA-F:]+(\/\d{1,3})?$/.test(what6) && what6.indexOf(':') !== -1;
+        if (what6 && !looksV6 && !/^\d+$/.test(what6)) {
+          return ['% "' + tokens.slice(3).join(' ') + '" is not an address or a prefix length',
+            '% Usage: no ipv6 address [<address>|<length>|autoconfig]'];
+        }
         if (this.device.config.ip6) delete this.device.config.ip6[iface.name];
         iface.autoconfig = false;
         out.push('IPv6 address removed from ' + iface.name);
@@ -2949,10 +3148,12 @@ class CliSession {
   // Inside `router ospf`: the two verbs that matter, and nothing that pretends to be something else.
   _ospfRouterMode(tokens) {
     const head = String(tokens[0] || '').toLowerCase();
-    if (head === 'help' || head === '?') return this._help();
     if (this.routerKind === 'bgp') return this._bgpRouterMode(tokens);
     const doShow = this._doShowInMode(tokens);
     if (doShow) return doShow;
+    const stray = this._blockStrayWord(tokens, MODE_OSPF);
+    if (stray) return stray;
+    if (head === 'help' || head === '?') return this._help();
     // Without `do`, a `show` here used to fall through to the global handler, which - having accepted
     // the line - leaves the block: one look at the routing table and the next `network` statement was
     // read as global config. A read is a read in every other block; it is one here too.
@@ -4602,6 +4803,14 @@ class CliSession {
     if (extra) return extra;
     if (isNo) {
       if (!dev.config.domainName) {
+        // A word here names the domain being removed; with none configured it names nothing, and
+        // answering only about the state left the word unread.
+        const said = String((args || [])[0] || '').trim();
+        if (said) {
+          return ['% "' + said + '" is not a domain name on ' + (dev.name || dev.id) +
+            ' - there is none configured to remove',
+            '% "no ip domain-name" on its own reports the same thing; "ip domain-name <name>" sets one'];
+        }
         return ['No domain name is set on ' + (dev.name || dev.id) + ' - unqualified names are asked as typed'];
       }
       const named = String(args[0] || '').trim().toLowerCase();
@@ -5315,6 +5524,8 @@ class CliSession {
     const key = this.aclName;
     const list = (dev.config.acls || {})[key];
     const head = String(tokens[0] || '').toLowerCase();
+    const strayAcl = this._blockStrayWord(tokens, MODE_ACL);
+    if (strayAcl) return strayAcl;
     const out = [];
     if (!list) {
       // The list disappeared underneath the session (a `no ip access-list` in another console).
@@ -5802,6 +6013,8 @@ class CliSession {
     const out = [];
     const dhcpLib = require('./dhcp');
     const head = tokens[0].toLowerCase();
+    const stray = this._blockStrayWord(tokens, MODE_DHCP_POOL);
+    if (stray) return stray;
     if (head === 'help' || head === '?') return this._help();
     // The one sub-mode that refused `do show` instead of answering it - and refusing it without
     // leaving the block, which was the only half of the behaviour that was right.
@@ -11026,10 +11239,11 @@ class CliSession {
       helpLine('no scion', 'leave it'),
       helpLine('ipv6 unicast-routing | no ipv6 unicast-routing',
         'whether this device forwards IPv6 it is not the destination of'),
-      helpLine('ipv6 route <prefix>/<len> <next-hop> | ipv6 gateway <addr>',
-        'static IPv6 route, or the default gateway'),
-      helpLine('no ipv6 route <prefix>/<len> [<next-hop>] | no ipv6 gateway [<addr>]',
-        'remove an IPv6 route or the gateway'),
+      helpLine('ipv6 route <prefix> <next-hop>', 'static IPv6 route - prefix written address/length'),
+      helpLine('ipv6 gateway <addr>', 'the IPv6 default gateway'),
+      helpLine('no ipv6 route <prefix> [<next-hop>]',
+        'remove one IPv6 route, by prefix or by prefix and next hop'),
+      helpLine('no ipv6 gateway [<addr>]', 'clear the IPv6 default gateway'),
       helpLine('no ipv6 unicast-routing', 'stop forwarding IPv6 for other devices'),
       helpLine('ipv6 nd ra enable|disable|managed|other-config',
         'what this router advertises'),

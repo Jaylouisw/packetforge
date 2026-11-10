@@ -347,7 +347,7 @@ Config mode:
 
 | Command | Effect |
 |---------|--------|
-| `ipv6 route <prefix/len> <next-hop>` | add a static IPv6 route — **no** interface argument, unlike `ip route` ([details](#static-routes-and-the-gateway-of-last-resort)) |
+| `ipv6 route <prefix> <next-hop>` | add a static IPv6 route — **no** interface argument, unlike `ip route` ([details](#static-routes-and-the-gateway-of-last-resort)) |
 | `ipv6 gateway <addr>` | set the default IPv6 gateway |
 | `no ipv6` | clear the IPv6 gateway and static routes |
 | `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertise prefixes to the link (`l3-forward` only) |
@@ -1538,6 +1538,51 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A word after a block command is refused, and the command does not run
+
+```
+SW1(config-if)#shutdown zzzz        -> "Fa0/1 administratively down"
+SW1(config-if)#no ip address zzzz   -> "IP address removed from Fa0/1"
+R1(config-dhcp)#no lease zzzz       -> accepted, nothing said
+```
+
+Three lines that change state and never read their last word. The `show` fix (compose the answer twice
+and compare) cannot be used here — the second run would be a second change — so the **block's own page
+is the contract**: if a form of exactly this shape is listed, the handler answers it; if the only thing
+that matched was an argument-less form, the words after it are refused by the name of the command they
+follow, in `_noExtra`'s own sentence:
+
+```
+SW1(config-if)#shutdown zzzz
+% Unexpected argument "zzzz" - shutdown takes no more
+% Usage: shutdown
+```
+
+Verbs that read their own words and say something better keep the job: `ip nat outside inside` still
+explains that a port cannot be on both sides, `channel-group 9` still names the group the port is not
+in, and the port-security violation mode still names the modes. The guard is for the verbs that say
+nothing at all. When the stray word is another alternative the row lists
+(`switchport mode trunk access`), the refusal names the row as written: `switchport mode access|trunk`.
+
+Four real behaviours fell out of the sweep:
+
+- `ip address dhcp` with a word after it turned the port into a DHCP client and dropped the word —
+  it is refused now and the port is untouched.
+- `no ipv6 address` with a word after it removed the address anyway — the word must now be an address
+  or a prefix length.
+- `no ipv6 gateway` with a word after it fell through to the bare `no ipv6` arm and cleared **every
+  IPv6 route** — it clears the gateway only, and refuses a word that is not an address.
+- `no ipv6 route` was documented and never implemented: `no ipv6 route 2001:db8:9::/64` answered
+  *"IPv6 routes cleared"* and took both statics with it. It removes that one route now, or names the
+  next hops the prefix *is* there via.
+
+`ip name-server` also takes a list now (`ip name-server 8.8.8.8 8.8.4.4`) and refuses a word that is
+not an address, rather than configuring the addresses it recognised and dropping the rest.
+
+A help-page trap, found because the sweep could not fill in the row: a placeholder written
+`<prefix>/<len>` parses as **two** placeholders around a literal `/`, so a typed `2001:db8:9::/64`
+never matched the form and the guard refused the documented command. The shape belongs in the synopsis,
+not in the placeholder name: `<prefix>`, documented as *"prefix written address/length"*.
 ### A word a command does not take is refused, not dropped
 
 ```
