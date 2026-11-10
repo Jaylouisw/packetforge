@@ -2376,13 +2376,28 @@
     return null;
   }
 
+  // The count rule, in the third place that asks it: the field has min/max attributes, but a typed value is not
+  // clamped by the browser, so `9999` used to be sent and 9999 replies drawn (#1379). engine/simulator.js bounds it
+  // and server/index.js refuses it; this is the same rule, and test/ping-count.test.js checks they agree.
+  function pingCountProblem(value) {
+    const raw = String(value === undefined || value === null ? '' : value).trim();
+    if (!raw) return 'Enter a count from 1 to 50';
+    if (!/^[0-9]+$/.test(raw)) return 'A count is a whole number from 1 to 50';
+    const n = Number(raw);
+    if (n < 1 || n > 50) return 'A count is a whole number from 1 to 50 (asked for ' + n + ')';
+    return null;
+  }
+
   async function runPing() {
     const dst = $('#ping-dst').value.trim();
-    const count = parseInt($('#ping-count').value, 10) || 4;
     const d = deviceById(selectedId);
     if (!d) return;
     const problem = pingTargetProblem(dst);
     if (problem) { toast(problem); return; }
+    const countField = $('#ping-count').value.trim();
+    const countProblem = pingCountProblem(countField === '' ? '4' : countField);
+    if (countProblem) { toast(countProblem); return; }
+    const count = Number(countField === '' ? 4 : countField);
     $('#ping-result').innerHTML = 'Sending ' + count + ' ICMP echos to ' + dst + '…';
     $('#event-log').innerHTML = '';
     try {
@@ -2926,6 +2941,7 @@
     setTopology: function (t) { topo = t; },
     maskBits: maskBits,
     pingTargetProblem: pingTargetProblem,
+    pingCountProblem: pingCountProblem,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,

@@ -446,7 +446,21 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 ### Pinging a name, and reading DNS
 
-`ping` takes an address or a name. A name is resolved through the lab's DNS servers before a packet is sent, and
+`ping <address|name> [<count 1-50>] [at <ms>]` — an address or a name, how many echoes, and optionally the instant to
+ask at. The count is a whole number from 1 to 50: `ping 10.0.0.1 51` is refused rather than sent, because the count
+is a loop bound and fifty is what one console answer is sized for. A stray word is refused too, with the usage
+attached, and `at` must be followed by a number.
+
+```
+r1> ping 10.0.0.1 51
+% Count must be a whole number from 1 to 50 (asked for 51)
+r1> ping 10.0.0.1 abc
+% Unrecognized "abc" (ping <address|name> [<count 1-50>] [at <ms>])
+r1> ping 10.0.0.1 5 at later
+% Invalid instant: later
+```
+
+A name is resolved through the lab's DNS servers before a packet is sent, and
 the console prints the resolution the way a box does:
 
 ```

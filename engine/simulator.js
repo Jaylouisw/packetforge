@@ -21,6 +21,11 @@ const flowLib = require('./flow');
 const latencyLib = require('./latency');
 const convergenceLib = require('./convergence');
 const dhcpLib = require('./dhcp');
+
+// How many echoes one ping may ask for. The default is what a box sends when you type `ping <address>`, and the
+// ceiling is what keeps a single call bounded; `PING_COUNT_DEFAULT` and `PING_COUNT_MAX` are the whole rule.
+const PING_COUNT_DEFAULT = 4;
+const PING_COUNT_MAX = 50;
 const vrrpLib = require('./vrrp');
 const segmentLib = require('./segment');
 const mediaModel = require('./media');
@@ -463,7 +468,15 @@ class Simulator {
   // --- public: run a ping from srcDeviceId to dstIp ---
   ping(srcId, dstIp, opts) {
     opts = opts || {};
-    const count = opts.count || 4;
+    // A count is a loop bound, so an unbounded one is an unbounded amount of work: one request asking for 1e9
+    // echoes is roughly 4,600 seconds of engine time and a response nobody can hold. The engine keeps itself
+    // bounded and says what it did, rather than trusting every caller to have thought about it (#1379). The
+    // surfaces refuse the value with a message; this is the backstop that makes "refuse" optional instead of
+    // load-bearing.
+    const requested = (opts.count === undefined || opts.count === null || opts.count === '')
+      ? null : Number(opts.count);
+    const usable = requested !== null && Number.isFinite(requested) && requested >= 1;
+    const count = usable ? Math.min(PING_COUNT_MAX, Math.floor(requested)) : PING_COUNT_DEFAULT;
     // Ask the question at an instant, if the caller named one. setRunTime() is the assignment;
     // this is the convenience form, so `ping(a, b, { atMs: 5000 })` cannot quietly be ignored.
     if (opts.atMs !== undefined) this.setRunTime(opts.atMs);
@@ -556,7 +569,14 @@ class Simulator {
         delay: delay
       });
     }
-    return { events: this.events, replies: replies, step: this.step, success: replies.some(function (r) { return r.success; }), resolved: target, dns: dnsResult };
+    // `count` is what was actually sent, and `requestedCount` is what the caller asked for (null when it asked
+    // for nothing). A caller that sent 5000 and got 50 back can see the difference instead of guessing.
+    return {
+      events: this.events, replies: replies, step: this.step,
+      success: replies.some(function (r) { return r.success; }),
+      resolved: target, dns: dnsResult,
+      count: count, requestedCount: usable ? Math.floor(requested) : null
+    };
   }
 
   // ---------------------------------------------------------------------

@@ -360,7 +360,12 @@ tests noticed because the tests drove the engine, not the URL.
 
 ### Ping, and what a destination is
 
-`POST /api/topologies/:name/ping` — `{ src, dst, count? }`. `dst` is an **address or a hostname**; a name is
+`POST /api/topologies/:name/ping` — `{ src, dst, count? }`. `count` is a whole number from 1 to 50 (the default is
+4); anything else is a `400` with `code: "E_BAD_COUNT"`, because a count is a loop bound and one request asking for a
+billion echoes is hours of engine time. The engine clamps as a backstop and reports both `count` (what was sent) and
+`requestedCount` (what was asked for, `null` when nothing was asked).
+
+`dst` is an **address or a hostname**; a name is
 resolved through the lab's DNS servers before a single packet is sent, and the resolver's verdict rides back in the
 answer:
 
