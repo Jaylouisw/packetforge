@@ -1,0 +1,30 @@
+{
+  "vendor": "kaon",
+  "model": "PM1191",
+  "label": "KAON PM1191 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT (Linux 4.14.275.saturn2-sfu-r2.2) with 1× 10G LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over web UI + SSH + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-kaon-pm1191/"
+}
