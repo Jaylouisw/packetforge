@@ -1538,6 +1538,31 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### The exec verbs take no word either
+
+```
+R1#write memory zzzz   -> saved the startup-config, the word dropped
+R1#enable zzzz         -> accepted in silence
+R1#logout zzzz         -> logged out anyway
+R1#clear arp zzzz      -> "% No interface named zzzz", a port that never existed
+```
+
+The config blocks got the page-driven rule and the `show` family got the empirical one; the exec verbs
+are the third half of the console and had neither. They are checked from an explicit list — the exec
+page groups its rows with `|` (one row reads `show version | show clock | …`), so a page-driven guard
+there matched a row that names fourteen commands at once, and the readers already judge their own
+arguments.
+
+```
+R1#write memory zzzz
+% Unexpected argument "zzzz" - write memory takes no more
+% Usage: write memory
+```
+
+`write` on its own is not on the list: its handler names the targets that exist, which is a better
+refusal than "write takes no more". And `clear arp <word>` says both things the word could be, because
+both spellings are real — `clear arp 10.0.0.9` and the port-scoped `clear arp Gi0/0`.
+
 ### A word after a block command is refused, and the command does not run
 
 ```

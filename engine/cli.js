@@ -404,6 +404,13 @@ class CliSession {
         out.push.apply(out, this._configMode(tokens));
       } else {
         // exec / enable mode
+        // The exec verbs that change something and take no word: `write memory zzzz` saved the
+        // configuration and dropped the word, `enable zzzz` was accepted in silence, `logout zzzz`
+        // logged out anyway. The list is explicit rather than read from the page because the exec
+        // page groups its rows with `|` (one row reads `show version | show clock | ...`), and the
+        // readers already judge their own arguments (`show`, `ping`, `traceroute`, `clear ...`).
+        const strayExec = this._execStrayWord(tokens);
+        if (strayExec) return { output: out.concat(strayExec), actions: [] };
         if (head === 'renew' && tokens[1] === 'dhcp') {
           out.push.apply(out, this._dhcpClientVerb('renew', tokens.slice(2)));
         } else if (head === 'release' && tokens[1] === 'dhcp') {
@@ -518,6 +525,23 @@ class CliSession {
                 i += 1;
               } else if (!isArp && /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(words[i])) {
                 wantMac = words[i].toLowerCase(); i += 1;
+              } else if (isArp) {
+                // A bare word after `clear arp` may be a port (the port-scoped spelling `clear arp
+                // Gi0/0` is real) or an address, and nothing else. When it is neither, say both
+                // halves rather than answering "No interface named zzzz" - which sends the operator
+                // looking for a port by that name when the mistake was the word.
+                const asPort = this._portArg([words[i]], this.device, usage);
+                if (asPort.ok && asPort.port) {
+                  pick = asPort;
+                  i += 1;
+                } else {
+                  // Both spellings are real here, so the refusal says both: the port message the
+                  // port spelling gives, and what the word may be instead.
+                  bad.push(['% No interface named ' + words[i] + ' on ' + (this.device.name || this.device.id),
+                    '% A word here is an address ("clear arp 10.0.0.9") or a port ("clear arp ' +
+                    (Array.from(this.device.interfaces.keys())[0] || 'Gi0/0') + '")']);
+                  i += 1;
+                }
               } else {
                 // A bare word could be a port name (the old spelling) or a typo.
                 const got = this._portArg([words[i]], this.device, usage);
@@ -1422,6 +1446,32 @@ class CliSession {
   // form, the words after it are a mistake and are refused by the name of the command they follow.
   // Only argument-less forms are policed - an argument the console does read is judged by its
   // handler, which keeps free-text tails (`description uplink port`) working.
+  // The exec verbs that take no word at all, longest spelling first so `write memory` is matched
+  // before `write`. A word after one of them was dropped and the verb ran.
+  _execStrayWord(tokens) {
+    // `write` on its own is not here: its handler names the targets that exist, which is a better
+    // refusal than "write takes no more".
+    const NOWORD = ['copy running-config startup-config', 'configure terminal', 'clear ip nat translation *',
+      'write memory', 'disable', 'enable', 'logout', 'quit', 'conf t', 'en'];
+    if (!tokens || tokens.length < 2) return null;
+    const typed = tokens.map(function (t) { return String(t).toLowerCase(); });
+    // A line that is exactly one of these takes no extra word, so there is nothing to refuse - and
+    // `write memory` must not be caught by the `write` entry.
+    if (NOWORD.some(function (e) { return e === typed.join(' '); })) return null;
+    // The longest spelling that matches wins, so `write memory` is not caught by `write`, and a
+    // line that *is* an entry takes no extra word and is left alone.
+    for (const entry of NOWORD.slice().sort(function (a, b) { return b.length - a.length; })) {
+      const words = entry.split(' ');
+      if (typed.length <= words.length) continue;
+      let ok = true;
+      for (let i = 0; i < words.length; i++) if (typed[i] !== words[i]) { ok = false; break; }
+      if (!ok) continue;
+      return ['% Unexpected argument "' + tokens.slice(words.length).join(' ') + '" - ' + entry + ' takes no more',
+        '% Usage: ' + entry];
+    }
+    return null;
+  }
+
   _blockStrayWord(tokens, mode) {
     if (!tokens || tokens.length < 2) return null;
     // Verbs that read their own words and say something better than "unexpected": `ip nat outside
