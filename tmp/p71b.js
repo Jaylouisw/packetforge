@@ -1,0 +1,14 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R),r2=t.addDevice(R);r1.name='R1';r2.name='R2';
+t.connect(r1.id,'Gi0/0',r2.id,'Gi0/0');
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const a=mk(r1),b=mk(r2);
+const cfg=(s,cmds)=>{s.run('configure terminal');cmds.forEach(x=>s.run(x));s.run('end');};
+cfg(a,['hostname R1','interface Gi0/0','ip address 10.9.0.1 255.255.255.0','exit','interface Gi0/1','ip address 10.0.0.1 255.255.255.0','exit','ospf router-id 1.1.1.1','ospf area 0','interface Gi0/0','ip ospf area 0','exit','interface Gi0/1','ip ospf area 0','exit']);
+cfg(b,['hostname R2','interface Gi0/0','ip address 10.9.0.2 255.255.255.0','exit','interface Gi0/1','ip address 10.1.0.1 255.255.255.0','exit','ospf router-id 2.2.2.2','ospf area 0','interface Gi0/0','ip ospf area 0','exit','interface Gi0/1','ip ospf area 0','exit']);
+sim.computeOspf();
+const simDev=sim.topo.getDevice(r1.id);
+console.log('cli dev ospfRoutes:', JSON.stringify(r1.ospfRoutes||null));
+console.log('sim dev ospfRoutes:', JSON.stringify((simDev.ospfRoutes||[]).slice(0,2)));
+console.log('sim neighbor row:', JSON.stringify((r1.ospfNeighbors||[])[0]));

@@ -1,0 +1,17 @@
+const {Topology,Simulator,CliSession}=require('../engine');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog('C:/Users/jay/packetforge/devices');const R=c.find(s=>s.model==='generic-router');
+const t=new Topology();const r1=t.addDevice(R),r2=t.addDevice(R);r1.name='R1';r2.name='R2';
+t.connect(r1.id,'Gi0/0',r2.id,'Gi0/0');
+const sim=new Simulator(t);const mk=d=>{const s=new CliSession(d,t,sim);s.run('enable');return s;};
+const a=mk(r1),b=mk(r2);
+const cfg=(s,cmds)=>{s.run('configure terminal');cmds.forEach(x=>{const o=s.run(x).output;if(o.some(l=>/^%/.test(l)))console.log('  REFUSED '+x+' => '+o.join(' / '));});s.run('end');};
+cfg(a,['hostname R1','interface Gi0/0','ip address 10.9.0.1 255.255.255.0','exit','router bgp 65001','bgp neighbor 10.9.0.2 remote-as 65002','exit']);
+cfg(b,['hostname R2','interface Gi0/0','ip address 10.9.0.2 255.255.255.0','exit','router bgp 65002','bgp neighbor 10.9.0.1 remote-as 65001','exit']);
+const show=(s,x)=>{console.log('[R1] $ '+x);const o=s.run(x).output;o.forEach(l=>console.log('   '+l));if(!o.length)console.log('   (SILENT)');};
+show(a,'show ip bgp summary');
+show(a,'show ip bgp neighbors');
+show(a,'show ip bgp neighbors 10.9.0.2');
+show(a,'show ip bgp neighbors 10.9.0.9');
+show(a,'show ip bgp bogus');
+cfg(a,['router bgp 65001','no bgp neighbor 10.9.0.2','bgp neighbor 10.9.0.99 remote-as 65002','exit']);
+show(a,'show ip bgp neighbors');

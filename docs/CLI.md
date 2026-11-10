@@ -1177,6 +1177,76 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The link-state database, and one BGP peer in detail
+
+Two shows answered a different question than they named:
+
+```
+R1#show ip ospf database
+Routing Process "ospf 1" with ID 1.1.1.1
+  Area 0
+  Interfaces:
+    Interface  Cost  Area  State
+    Gi0/0      10    0     active
+    Gi0/1      10    0     active
+  Neighbors: 1 (1 FULL)
+R1#show ip ospf interface       <- byte for byte the same output
+```
+
+```
+R1#show ip bgp neighbors        <- the summary table again, under another name
+Neighbor  V  AS     State        Reason
+10.9.0.2  4  65002  Established  eBGP
+```
+
+`show ip ospf database` is now the database, and it says what this model can and cannot show —
+there are no aged LSAs here, because the tree is computed from the adjacency graph on every change:
+
+```
+R1#show ip ospf database
+OSPF link-state database for process 1 (ID 1.1.1.1)
+  This model computes the tree from the adjacency graph, so links carry no age or
+  sequence number: what follows is exactly what the SPF ran on.
+
+Router Link States (Area 0)
+  Link ID  ADV Router  Interface  Cost  Neighbour  State
+  1.1.1.1  1.1.1.1     Gi0/0      10    2.2.2.2    FULL
+  1.1.1.1  1.1.1.1     Gi0/1      10    -          stub
+  2.2.2.2  2.2.2.2     Gi0/0      -     1.1.1.1    FULL
+
+Prefixes this database produced:
+  Prefix       Next hop  Interface  Cost
+  10.1.0.0/24  10.9.0.2  Gi0/0      20
+```
+
+Every row is a fact the SPF ran on: the links this router advertises, the adjacency each one
+produced, the peer's own link state, and the prefixes the database installed (the same list
+`show ip route ospf` reads). A peer in another area is not silently missing:
+
+```
+% R2 on Gi0/0 advertises area 1 - excluded from this database
+```
+
+`show ip bgp neighbors [<address>]` is per peer, and a peer that is **not** established says why —
+a state column cannot carry that:
+
+```
+R1#show ip bgp neighbors
+BGP router identifier 10.9.0.1, local AS number 65001
+
+BGP neighbour 10.9.0.99 on R1 (local AS 65001)
+  Remote AS      65002 (eBGP)
+  State          idle
+  Reason         no BGP speaker holds 10.9.0.99
+  Hold time      180 s
+  Prefixes in    0 (no session, so nothing was exchanged)
+```
+
+The prefix count is the same number the summary reports, because both read one list. Sub-words are
+refused by naming what exists (`show ip ospf routes` → `takes neighbor, database or interface`), and
+`show ip bgp summary` now asks the simulator before it answers — it used to say `0 of 0 neighbour(s)
+established … run a simulation` with a simulator attached.
+
 ### An access list can be named, and every line can be counted
 
 A filter could only be built by number, one line per command, and never counted:

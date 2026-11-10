@@ -3672,6 +3672,25 @@ class CliSession {
     const out = [];
     if (!cfg || !cfg.as) { out.push('% BGP is not enabled' + NEEDS.bgp); return out; }
 
+    // `show ip bgp neighbors` printed the summary table - the same rows, twice under two names -
+    // so the detail an operator asks for (which peer, what did it give me, why is it down) had no
+    // command at all. Unknown words are refused rather than answered with the summary.
+    const sub = String(args[0] || '').toLowerCase();
+    if (sub === 'neighbors' || sub === 'neighbour' || sub === 'neighbors' || sub === 'neighbor') {
+      return this._showBgpNeighbors(args.slice(1));
+    }
+    if (sub && sub !== 'summary') {
+      return ['% show ip bgp takes summary or neighbors' + (sub ? ', not "' + args[0] + '"' : ''),
+        '% e.g. show ip bgp summary | show ip bgp neighbors 10.9.0.2'];
+    }
+
+    // The first question after configuring a peer answered "0 of 0 neighbour(s) established" and
+    // told the operator to run a simulation - with one attached. Ask the simulator first, so the
+    // table is the state now rather than the state after the next packet.
+    if (this.sim && typeof this.sim.computeBgp === 'function') {
+      try { this.sim.computeBgp(); } catch (e) { /* keep the persisted state */ }
+    }
+
     const rows = dev.bgpNeighbors || [];
     out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
       ', local AS number ' + cfg.as);
@@ -3692,6 +3711,146 @@ class CliSession {
     out.push(up + ' of ' + rows.length + ' neighbour(s) established');
     const learned = (dev.bgpRoutes || []).length;
     out.push(learned + ' prefix(es) installed from BGP');
+    return out;
+  }
+
+  // The link-state database, as this model actually has it.
+  //
+  // There are no aged LSAs here: `engine/ospf.js` computes the tree from the adjacency graph on
+  // every change instead of storing LSAs with an age and a sequence number. Printing invented
+  // ages and sequence numbers would be the one thing this panel must never do, so the header says
+  // what it is and every row is a fact the SPF ran on: this router's participating links, the
+  // adjacencies they produced, and the prefixes the database put in the routing table.
+  _showOspfDatabase(neighbors, mismatched) {
+    const dev = this.device;
+    const cfg = dev.config.ospf;
+    const out = [];
+    out.push('OSPF link-state database for process 1 (ID ' + cfg.routerId + ')');
+    out.push('  This model computes the tree from the adjacency graph, so links carry no age or');
+    out.push('  sequence number: what follows is exactly what the SPF ran on.');
+    out.push('');
+
+    const overrides = cfg.interfaces || [];
+    const areas = new Map();
+    for (const i of dev.interfaces.values()) {
+      if (!i.enabled || !i.ip || !i.mask) continue;
+      const ov = overrides.filter(function (x) { return x.name === i.name; })[0];
+      const area = (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0);
+      const passive = !!(ov && ov.passive);
+      const cost = (ov && ov.cost) || (this.sim && typeof this.sim._ospfCost === 'function'
+        ? this.sim._ospfCost(i) : '?');
+      const viaPeer = neighbors.filter(function (n) { return n.iface === i.name; })[0];
+      if (!areas.has(area)) areas.set(area, []);
+      areas.get(area).push({
+        iface: i.name, cost: cost, passive: passive,
+        peer: viaPeer ? viaPeer.routerId : null,
+        state: viaPeer ? viaPeer.state : (passive ? 'passive' : 'stub')
+      });
+    }
+
+    const areaIds = Array.from(areas.keys()).sort(function (a, b) { return Number(a) - Number(b); });
+    if (!areaIds.length) {
+      out.push('(no links - no interface has an address and a mask, so nothing is advertised)');
+      return out;
+    }
+    for (const area of areaIds) {
+      out.push('Router Link States (Area ' + area + ')');
+      const rows = [[cfg.routerId, cfg.routerId, '', '', '', '']];
+      rows.length = 0;
+      for (const l of areas.get(area)) {
+        rows.push([cfg.routerId, cfg.routerId, l.iface, String(l.cost),
+          l.peer || '-', l.state]);
+      }
+      // A neighbour's own links are the other half of the database: without them a stub on this
+      // router and a link the peer advertises look the same.
+      for (const n of neighbors) {
+        const peerArea = (overrides.filter(function (x) { return x.name === n.iface; })[0] || {}).area;
+        const peerInArea = (peerArea === undefined) ? (cfg.areaId || 0) : peerArea;
+        if (Number(peerInArea) !== Number(area)) continue;
+        // The peer's own interface cost belongs to the peer and is not in this database; a guessed
+        // number would be worse than an honest dash.
+        rows.push([n.routerId, n.routerId, n.iface, n.cost === undefined ? '-' : String(n.cost),
+          cfg.routerId, n.state]);
+      }
+      out.push.apply(out, renderTable(['Link ID', 'ADV Router', 'Interface', 'Cost', 'Neighbour', 'State'],
+        rows, 2));
+      out.push('');
+    }
+
+    for (const m of mismatched) {
+      out.push('% ' + m.peer + ' on ' + m.iface + ' advertises area ' + m.peerArea +
+        ' - excluded from this database');
+    }
+
+    // The rows the SPF installed: `dev.ospfRoutes` is exactly that list, written by the same pass
+    // that filled the router's table, so the database and `show ip route ospf` cannot disagree.
+    const fromDb = (dev.ospfRoutes || []).slice();
+    const maslen = function (mask) {
+      if (!mask) return 32;
+      let n = 0;
+      for (const part of String(mask).split('.')) {
+        n += (Number(part) || 0).toString(2).split('1').length - 1;
+      }
+      return n;
+    };
+    out.push('Prefixes this database produced:');
+    if (!fromDb.length) {
+      out.push('  (none - no SPF result has been installed; see "show ip route ospf")');
+    } else {
+      out.push.apply(out, renderTable(['Prefix', 'Next hop', 'Interface', 'Cost'],
+        fromDb.map(function (r) {
+          return [r.dest + '/' + maslen(r.mask), r.nextHop || '-', r.iface || '-',
+            r.cost === undefined ? '-' : String(r.cost)];
+        }), 2));
+    }
+    return out;
+  }
+
+  // `show ip bgp neighbors [<address>]` - one row per peer was all the summary could say.
+  _showBgpNeighbors(args) {
+    const dev = this.device;
+    const cfg = dev.config && dev.config.bgp;
+    const bgpLib = require('./bgp');
+    if (this.sim && typeof this.sim.computeBgp === 'function') {
+      try { this.sim.computeBgp(); } catch (e) { /* keep the persisted state */ }
+    }
+    const rows = dev.bgpNeighbors || [];
+    const want = args.length ? String(args[0]) : null;
+    if (want !== null && !rows.some(function (r) { return String(r.address) === want; })) {
+      return ['% No BGP neighbour ' + want + ' on ' + (dev.name || dev.id),
+        '% Configured: ' + (rows.map(function (r) { return r.address; }).join(', ') || '(none)')];
+    }
+    if (args.length > 1) {
+      return ['% Unexpected argument "' + args[1] + '" - show ip bgp neighbors [<address>]'];
+    }
+    const out = ['BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
+      ', local AS number ' + cfg.as];
+    const picked = want === null ? rows : rows.filter(function (r) { return String(r.address) === want; });
+    if (!picked.length) {
+      out.push('');
+      out.push('(no neighbours configured - add one with "bgp neighbor <ip> remote-as <as>")');
+      return out;
+    }
+    const installed = (dev.bgpRoutes || []).length;
+    for (const r of picked) {
+      const kind = r.session === 'ibgp' ? 'iBGP' : 'eBGP';
+      out.push('');
+      out.push('BGP neighbour ' + r.address + ' on ' + (dev.name || dev.id) +
+        ' (local AS ' + cfg.as + ')');
+      out.push('  Remote AS      ' + (r.remoteAs == null ? '?' : r.remoteAs) + ' (' + kind + ')');
+      out.push('  State          ' + (r.established ? 'Established' : (r.state || 'Idle')));
+      // The reason is the part that answers "why is it down" - a session that never formed and one
+      // that was refused by its peer look identical in a state column.
+      if (!r.established && (r.reason || r.code)) {
+        out.push('  Reason         ' + (r.reason || r.code));
+      }
+      out.push('  Hold time      ' + bgpLib.DEFAULT_HOLD_TIME + ' s');
+      if (r.established) {
+        out.push('  Prefixes in    ' + installed + ' (installed from BGP on this router)');
+      } else {
+        out.push('  Prefixes in    0 (no session, so nothing was exchanged)');
+      }
+    }
     return out;
   }
 
@@ -3718,6 +3877,23 @@ class CliSession {
     const neighbors = dev.ospfNeighbors || [];
 
     const mismatched = dev.ospfAreaMismatch || [];
+    // `show ip ospf database` printed the *interface* table - the same rows as `show ip ospf`,
+    // under the name of a different question. The database is the thing the SPF ran on, and this
+    // model has it: the participating interfaces and the adjacencies they produced.
+    if (what === 'database' || what === 'db') {
+      return this._showOspfDatabase(neighbors, mismatched);
+    }
+    // `show ip ospf interface` is what an operator types, and it means the process view.
+    if (what === 'interface' || what === 'interfaces') {
+      return this._showOspf([]);
+    }
+    if (what && what !== 'neighbor' && what !== 'neighbors' && what !== 'neighbour') {
+      return ['% show ip ospf takes neighbor, database or interface, not "' + args[0] + '"',
+        '% e.g. show ip ospf | show ip ospf neighbor | show ip ospf database'];
+    }
+    if (args.length > 1 && (what === 'database' || what === 'db')) {
+      return ['% Unexpected argument "' + args[1] + '" - show ip ospf database takes no more'];
+    }
     if (what === 'neighbor' || what === 'neighbors') {
       if (!neighbors.length) {
         out.push('Neighbor ID     Pri   State           Address         Interface');
@@ -6664,8 +6840,11 @@ class CliSession {
       helpLine('show lldp neighbors [<port>]', 'what announced itself on each port'),
       helpLine('show access-lists', 'entries, and where they are bound'),
       helpLine('show vrrp', 'groups, priorities and current state'),
-      helpLine('show ip bgp', 'peers and installed prefixes'),
-      helpLine('show ip ospf [neighbor]', 'process, interfaces, adjacencies'),
+      helpLine('show ip bgp summary', 'peers and installed prefixes'),
+      helpLine('show ip bgp neighbors [<addr>]', 'one peer in detail, with the reason it is down'),
+      helpLine('show ip ospf', 'process, interfaces, adjacencies'),
+      helpLine('show ip ospf neighbor', 'adjacencies, and why one is missing'),
+      helpLine('show ip ospf database', 'the links the SPF ran on, and the prefixes it produced'),
       helpLine('show flows [<id> | counters]', 'conversations in this lab, and per-device counters'),
       helpLine('show ip nat translations', 'NAT entries the data path wrote'),
       helpLine('show ip nat statistics', 'rules, entries and hits'),
