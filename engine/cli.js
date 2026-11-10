@@ -10791,6 +10791,31 @@ class CliSession {
       'show ip route|ospf|bgp|dhcp, show arp, show mac address-table, show spanning-tree,',
       'show vrrp, show lldp.',
       '',
+      // The exec and enable pages share one command set, so the page cannot hide the privileged half
+      // without lying about the other one. What it can do is say which half it is: five `clear`
+      // verbs, the two `copy` directions and `write memory` all answer "needs enable mode" until
+      // `enable` is typed, and a page that lists them silently reads as if they work here.
+      // The list is checked both ways by test/exec-privilege.test.js - every verb named here must
+      // refuse in user exec, and every verb that refuses must be named - so it cannot drift.
+      ...(this.mode === MODE_ENABLE ? [] : [
+        '',
+        'Privileged commands - they answer "needs enable mode" until you type "enable":',
+        // Both spellings of the aliased ones are named here, because the page lists both spellings
+        // and a reader who typed the alias would otherwise be told a verb the legend does not
+        // mention is refused. The bridging clears are only named on a device that bridges, and the
+        // NAT one only where NAT exists - naming a command the device does not have is the same
+        // defect in the other direction.
+        //
+        // One leading space, never two: a line indented into the row column is a *form* to every
+        // reader of this page (help-forms types it, help-coverage calls it a hand-padded row). This
+        // is a note about rows, so it is shaped like prose.
+        ' write memory, copy running-config startup-config, copy startup-config running-config,',
+        ' clear logging, clear counters, clear interface counters, clear arp, clear ip arp,' +
+          ((this.device.isL2 && this.device.isL2())
+            ? ' clear mac address-table, clear port-security'
+            : ' clear ip nat translation')
+      ]),
+      '',
       'For config commands: configure terminal, then ?'
     ]);
   }
