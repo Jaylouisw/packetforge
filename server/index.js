@@ -10,6 +10,7 @@ const { URL } = require('url');
 
 const { Topology, Simulator, CliSession, flow } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
+const { validateTopology } = require('../engine/validation');
 const media = require('../engine/media');
 const { WebSocketServer } = require('./ws');
 const { formatStartupError } = require('./startup-error');
@@ -175,7 +176,33 @@ function fullState(topo) {
     };
   }
   s.runtime = runtime;
+  // What the engine thinks of every cable, computed once per state read. `validateTopology()` has existed since
+  // the physical-layer rules did and nothing at runtime ever called it, so an impossible cable - one loaded from
+  // a document written before a rule existed, or hand-edited - travelled through the whole UI without a verdict.
+  // The cable inspector then printed a hardcoded "this cable passed the physical-layer check" over it (#1303).
+  s.verdicts = linkVerdicts(topo);
   return s;
+}
+
+// One verdict per cable, in the shape the UI reads: `{ok, errorCount, warningCount, byLink, issues}`.
+// `byLink` exists so a panel that has one cable selected does not have to filter the whole lab on every render.
+function linkVerdicts(topo) {
+  let v;
+  try {
+    v = validateTopology(topo);
+  } catch (e) {
+    return { ok: false, errorCount: 1, warningCount: 0, byLink: {}, checked: false,
+      issues: [{ severity: 'error', code: 'E_LINK_UNCHECKABLE', message: 'Cables could not be checked: ' + e.message }] };
+  }
+  const byLink = {};
+  for (const issue of (v.issues || [])) {
+    const key = issue.linkId || '-';
+    (byLink[key] = byLink[key] || []).push(issue);
+  }
+  return {
+    ok: v.ok, errorCount: v.errorCount || 0, warningCount: v.warningCount || 0,
+    byLink: byLink, issues: v.issues || [], checked: true
+  };
 }
 
 // Every JSON response goes through here, which makes it the one place worth optimising.
@@ -792,7 +819,10 @@ async function handleApi(req, res, urlPath) {
       topologies.set(topoId, newTopo);
       for (const key of Array.from(sessions.keys())) if (key.indexOf(topoId + ':') === 0) sessions.delete(key);
       broadcast(topoId);
-      return sendJSON(res, 200, { ok: true, state: fullState(newTopo) });
+      // A document is loaded, not refused: an imported lab has to be fixable in place. But the operator is told
+      // straight away what the engine makes of it, instead of finding out by clicking every cable in turn.
+      const state = fullState(newTopo);
+      return sendJSON(res, 200, { ok: true, state: state, verdicts: state.verdicts });
     }
 
     // /reset  (clear runtime forwarding state)

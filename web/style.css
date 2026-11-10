@@ -398,6 +398,12 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
   color: var(--muted); background: rgba(52, 211, 153, .07);
   border: 1px solid rgba(52, 211, 153, .28); border-radius: 6px;
 }
+/* A cable the engine refuses, in the panel (#1303). The same box said "this cable passed the physical-layer
+   check" whether it had or not, so a fault has to look like a fault. */
+.verdict.bad {
+  color: var(--text); background: rgba(244, 85, 107, .10);
+  border-color: rgba(244, 85, 107, .45);
+}
 
 /* ---------- canvas link selection ---------- */
 .link-hit { stroke: transparent; stroke-width: 16; fill: none; pointer-events: stroke; cursor: pointer; }
