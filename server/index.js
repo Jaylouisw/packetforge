@@ -933,13 +933,26 @@ async function handleApi(req, res, urlPath) {
       if (!dev) return sendJSON(res, 404, { error: 'source device not found: ' + body.src });
       const dstProblemText = dstProblem(body.dst);
       if (dstProblemText) return sendJSON(res, 400, { code: 'E_BAD_DESTINATION', error: dstProblemText });
+      // `count` is a loop bound: one request asking for a billion echoes is hours of engine time and a response
+      // nobody can hold, and the engine only learned to bound itself in this same change (#1379). Refuse it here
+      // with the rule, so the caller learns the limit instead of being silently clamped.
+      if (body.count !== undefined && body.count !== null) {
+        const n = Number(body.count);
+        const whole = Number.isFinite(n) && Math.floor(n) === n;
+        if (!whole || n < 1 || n > 50) {
+          return sendJSON(res, 400, {
+            code: 'E_BAD_COUNT',
+            error: 'count must be a whole number from 1 to 50 (got ' + JSON.stringify(body.count) + ')'
+          });
+        }
+      }
       const sim = new Simulator(topo);
       const result = sim.ping(body.src, body.dst.trim(), { count: body.count || 4 });
       // A name is resolved before a packet is sent, and the resolver's verdict is part of the answer: a client that
       // only sees `replies: [{ success: false }]` cannot tell a lost packet from a name that does not exist.
       return sendJSON(res, 200, {
         events: result.events, replies: result.replies, success: result.success, step: result.step,
-        dns: result.dns || null, runtime: fullState(topo).runtime
+        count: result.count, dns: result.dns || null, runtime: fullState(topo).runtime
       });
     }
 

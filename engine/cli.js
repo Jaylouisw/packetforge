@@ -1721,11 +1721,23 @@ class CliSession {
     const out = [];
     const ip = tokens[0];
     let count = 4;
+    let requestedCount = null;
     let atMs = null;
+    let strayToken = null;
+    let atProblem = null;
     for (let i = 1; i < tokens.length; i++) {
-      if (tokens[i] === 'at' && tokens[i + 1]) { atMs = Number(tokens[i + 1]); i++; continue; }
-      const n = parseInt(tokens[i], 10);
-      if (Number.isFinite(n) && n > 0) count = n;
+      const tok = String(tokens[i]);
+      if (tok.toLowerCase() === 'at') {
+        const when = tokens[i + 1];
+        if (when === undefined) { atProblem = 'Invalid instant: "at" needs a time in milliseconds'; i++; continue; }
+        const t = Number(when);
+        if (!Number.isFinite(t) || t < 0) { atProblem = 'Invalid instant: ' + when; i++; continue; }
+        atMs = t;
+        i++;
+        continue;
+      }
+      if (/^[0-9]+$/.test(tok)) { requestedCount = Number(tok); count = requestedCount; continue; }
+      if (strayToken === null) strayToken = tok;
     }
     // A hostname is a target. `Simulator.ping()` has resolved names through the lab's DNS servers since
     // #241 - it emits a dns event and distinguishes NXDOMAIN from NODATA from SERVFAIL - and this guard
@@ -1733,6 +1745,16 @@ class CliSession {
     // not use the resolver the product already has (#1375).
     const target = String(ip === undefined || ip === null ? '' : ip);
     if (!target) return ['% Invalid ping target: (none)'];
+    // The count was whatever the number after the address happened to be, so `ping 10.0.0.1 5000` sent 5000
+    // echoes, `ping 10.0.0.1 0` silently sent four, and a stray word was ignored. Name the rule instead (#1379):
+    // one syntax, one message per mistake.
+    if (strayToken !== null) {
+      return ['% Unrecognized "' + strayToken + '" (ping <address|name> [<count 1-50>] [at <ms>])'];
+    }
+    if (requestedCount !== null && (requestedCount < 1 || requestedCount > 50)) {
+      return ['% Count must be a whole number from 1 to 50 (asked for ' + requestedCount + ')'];
+    }
+    if (atProblem !== null) return ['% ' + atProblem];
     // `net.isIp()` is a shape check (three dots, one to three digits), so 10.0.0.999 passes it and the engine
     // throws "Invalid IPv4 address" at the first packet. Ask the question properly here: is every octet in range?
     const strictIp = function (x) {
@@ -3420,7 +3442,7 @@ class CliSession {
       '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
       '  show ip dhcp [binding | pool] [<address|mac|name>]  who holds which address, and pool utilisation',
       '  show ip dns [zone [<name>]]                   the zones this device answers for, and its resolvers',
-      '  ping <address|name> [<count>] [at <ms>]       a name is resolved through the lab\'s DNS servers',
+      '  ping <address|name> [<count 1-50>] [at <ms>]   a name is resolved through the lab\'s DNS servers',
       '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
       '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];
