@@ -1,0 +1,87 @@
+{
+  "vendor": "draytek",
+  "model": "Vigor 2767ax",
+  "label": "DrayTek Vigor 2767ax VDSL2 / 2.5GbE Wi-Fi 6 router",
+  "category": "router",
+  "description": "DrayTek Vigor 2767ax selective dual-WAN router: one VDSL2/ADSL2+ DSL port with the modem built in, one 2.5GbE Ethernet WAN for FTTP/cable, and three 1GbE LAN ports, with Wi-Fi 6 AX3000 dual-band (574 + 2402 Mbps class) and two USB ports. Four LAN subnets with 802.1Q VLANs, 16 VPN tunnels, firewall and content filtering.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "speed": "100M",
+      "role": "wan"
+    },
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "574M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/draytek-vigor-2767ax-dualwan-vdsl225gbe-wifi-6-vpn-router-vigor2767ax-p-11397.html",
+  "notes": "Three things a topology gets wrong if they are flattened. (1) `dsl0` is the built-in VDSL2/ADSL2+ modem on its own port - a phone line, not an Ethernet socket - so it is modelled as the `dsl` medium and cannot be cabled to a switch port. (2) The 2.5GbE port is the *Ethernet WAN* (FTTP/cable), not a LAN port: this model has three LAN ports and the page says so in as many words, so plugging a host into `wan` expecting LAN is a real mistake the model should not hide. (3) The three LAN ports are one bridge group and share four subnets/802.1Q VLANs. Per-band radio rates (574 + 2402 Mbps) are the AX3000 class split; the page states only the aggregate ('up to three gigabits'), so the split is the class convention rather than a quoted figure. The 2x USB ports (storage, printer, 4G/5G modem) are not network ports and are not modelled."
+}

@@ -262,5 +262,31 @@ console.log('\nTwo data-centre leaf switches whose uplink block is the same (#76
     ((up.errors[0] || {}).code || 'no code') + ')');
 }
 
+console.log('\nA VDSL router whose WAN is not a LAN port (#691):');
+{
+  const rt = find('Vigor 2767ax');
+  const ports = effectiveInterfaces(rt);
+  eq(ports.length, 7, 'Vigor 2767ax: DSL, Ethernet WAN, three LAN ports and two radios');
+  const dsl = ports.filter(function (p) { return p.type === 'dsl'; })[0];
+  ok(!!dsl, 'Vigor 2767ax: the VDSL2 modem is its own port, modelled as the dsl medium');
+  eq(dsl.role, 'wan', 'Vigor 2767ax: and it is a WAN');
+  const wan = ports.filter(function (p) { return p.name === 'wan'; })[0];
+  eq(wan.speed, '2.5G', 'Vigor 2767ax: the Ethernet WAN is the 2.5GbE port');
+  eq(wan.role, 'wan', 'Vigor 2767ax: as a WAN, not as one of the LAN ports');
+  eq(ports.filter(function (p) { return p.role === 'lan'; }).length, 3,
+    'Vigor 2767ax: three LAN ports, which is what the page states');
+
+  // The physical consequence, both ways: a phone line cannot be plugged into Ethernet, and the
+  // 2.5G port accepts a host at its own negotiated rate.
+  const t5 = new Topology();
+  const rtDev = t5.addDevice(rt);
+  const host = t5.addDevice(find('generic-pc'));
+  const phone = t5.validateLink(rtDev.id, 'dsl0', host.id, 'eth0', {});
+  ok(!phone.ok, 'Vigor 2767ax: the DSL port refuses an RJ45 lead (' +
+    ((phone.errors[0] || {}).code || 'no code') + ')');
+  const copper = t5.validateLink(rtDev.id, 'lan1', host.id, 'eth0', {});
+  ok(copper.ok && copper.speedMbps === 1000, 'Vigor 2767ax: a LAN port links to a 1G host at 1G');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
