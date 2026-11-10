@@ -1,0 +1,31 @@
+{
+  "vendor": "genexis",
+  "model": "G2110C-2.5G",
+  "label": "Genexis FiberTwist G2110C-2.5G GPON ONT",
+  "category": "ont",
+  "description": "GPON ONT (Realtek RTL9601D, 32MB RAM / 128MB flash, Linux 3.18 (Luna SDK 3.3)) with 1× 2.5G LAN and no Wi-Fi; GPON line rate 2.488 Gbit/s down / 1.244 Gbit/s up on sc-apc, managed over web UI + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/ont-genexis-ft-g2110c-2.5g/"
+}
