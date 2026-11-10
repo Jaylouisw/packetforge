@@ -102,6 +102,71 @@ npm run examples                  # rebuild + verify the example labs
 npm test
 ```
 
+### Running one area instead of everything
+
+`npm test` is three things in sequence — `scripts/audit-port-types.js`, `scripts/check-control-bytes.js`
+and `scripts/run-tests.js` — and it does **not** include `npm run syntax`. That is why a PR runs both.
+
+Running all 234 suites takes long enough that you will not do it while iterating, so `package.json`
+carries **43** `test:<area>` shortcuts, each of which runs one suite (except `test:ipv6-wire`, which
+runs four). None of them were documented anywhere before this table:
+
+| script | runs |
+|---|---|
+| `npm run test:engine` | `test/engine.test.js` |
+| `npm run test:cli` | `test/cli.test.js` |
+| `npm run test:validation` | `test/validation.test.js` |
+| `npm run test:vlan` | `test/vlan.test.js` |
+| `npm run test:lag` | `test/lag.test.js` |
+| `npm run test:stp` | `test/stp.test.js` |
+| `npm run test:l2` | `test/l2.test.js` |
+| `npm run test:l3` | `test/l3.test.js` |
+| `npm run test:dhcp` | `test/dhcp.test.js` |
+| `npm run test:nat` | `test/nat.test.js` |
+| `npm run test:acl` | `test/acl.test.js` |
+| `npm run test:acl-data` | `test/acl-data.test.js` |
+| `npm run test:vrrp` | `test/vrrp.test.js` |
+| `npm run test:ospf` | `test/ospf.test.js` |
+| `npm run test:ospf-wire` | `test/ospf-wire.test.js` |
+| `npm run test:bgp` | `test/bgp.test.js` |
+| `npm run test:dns` | `test/dns.test.js` |
+| `npm run test:scion` | `test/scion.test.js` |
+| `npm run test:ipv6` | `test/ipv6.test.js` |
+| `npm run test:ipv6-slaac` | `test/ipv6-slaac.test.js` |
+| `npm run test:dns-wire` | `test/dns-wire.test.js` |
+| `npm run test:bgp-wire` | `test/bgp-wire.test.js` |
+| `npm run test:bgp-session` | `test/bgp-session.test.js` |
+| `npm run test:link-options` | `test/link-options.test.js` |
+| `npm run test:link-mode-ui` | `test/link-mode-ui.test.js` |
+| `npm run test:ipv6-wire` | `test/ipv6-wire.test.js` + `test/ui-render.test.js` + `test/scion-wire.test.js` + `test/poe.test.js` *(four at once)* |
+| `npm run test:hardware` | `test/hardware-invariants.test.js` |
+| `npm run test:combo` | `test/combo.test.js` |
+| `npm run test:requests` | `test/request-queue.test.js` |
+| `npm run test:l3-mgmt` | `test/l3-switch-management.test.js` |
+| `npm run test:apply-research` | `test/apply-research.test.js` |
+| `npm run test:fiber` | `test/fiber-connectors.test.js` |
+| `npm run test:hybrid` | `test/hybrid-cord.test.js` |
+| `npm run test:pon` | `test/pon-splitter.test.js` |
+| `npm run test:optics` | `test/optics-catalogue.test.js` |
+| `npm run test:port-roles` | `test/port-roles.test.js` |
+| `npm run test:canvas` | `test/canvas-ports.test.js` |
+| `npm run test:qsfpdd` | `test/qsfpdd.test.js` |
+| `npm run test:roundtrip` | `test/topology-roundtrip.test.js` |
+| `npm run test:lldp` | `test/lldp.test.js` |
+| `npm run test:flow` | `test/flow.test.js` |
+| `npm run test:pon-connectors` | `test/pon-connectors.test.js` |
+| `npm run test:ui-dom` | `test/ui-dom-contract.test.js` |
+
+Two more worth knowing, both unrelated to tests:
+
+- `npm run start` and `npm run dev` are **the same command** — `node server/index.js`. There is no
+  watcher and no reload, so a server-side edit needs a restart; the browser side is reloaded by the page.
+- `npm run missing:devices` reconciles the open `device-request` issues against the catalogue and prints
+  `CI gate: passed.`; with no `FORGEJO_TOKEN` it says `not scanned: FORGEJO_TOKEN is not set - the tracker
+  is not readable without it (this is not the same as "no open requests")`, which is the difference worth
+  noticing before you conclude the queue is empty. `npm run smoke` drives the HTTP API end to end without
+  a browser.
+
 ### Re-measuring the numbers in these docs
 
 Every figure in this repository's documentation was produced by a command, and each one moves when the
