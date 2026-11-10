@@ -88,8 +88,10 @@ console.log('Each way a spec can be wrong gets its own sentence, and the file na
     'no-model.json': /has no "model" field/,
     'ifaces-string.json': /"interfaces" must be an array/,
     'ifaces-empty.json': /empty "interfaces" array/,
-    'count-zero.json': /"portTemplate\.count" must be a positive whole number/,
-    'count-string.json': /"portTemplate\.count" must be a positive whole number/,
+    // The wording gained the range when #1319 found the ceiling unenforced: a message that says "positive" is
+    // not enough when "1000000" is positive and the schema says 1..512.
+    'count-zero.json': /"portTemplate\.count" must be a whole number from 1 to 512/,
+    'count-string.json': /"portTemplate\.count" must be a whole number from 1 to 512/,
     'no-ports.json': /declares no ports/
   };
   const misses = [];

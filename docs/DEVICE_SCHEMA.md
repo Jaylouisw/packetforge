@@ -94,6 +94,13 @@ Two ways to write them. Both end up as the same list.
 
 `count` is 1..512, `prefix` must be non-empty, and the expansion must produce at least one port.
 
+The 1..512 range is **enforced** — by `portCountProblem()` in `devices/registry.js`, which the loader and the
+expander both call. It used to be a sentence in this file and nothing else: the loader accepted any positive whole
+number, and `count: 1000000` asked it for a million ports while `count: Infinity` (which is a positive whole number
+as far as `Math.floor(n) === n` is concerned) asked for infinitely many, so building the catalogue never returned.
+The expander now refuses a count it cannot honour instead of trying: a spec that arrives from a hand-edited saved
+board never passes the loader, so the rule lives in the one function both doors use.
+
 | field | rule |
 |---|---|
 | `name` | required, unique in the spec. Two ports called `ge1` are an error, not a typo to fix silently — `loadCatalog()` refuses the whole spec and says which name clashed (see *What the loader refuses* below). |
@@ -125,6 +132,16 @@ it has a port the simulator will never light up.
 
 This is why `notes` and `description` are worth writing carefully: the check is cheap, and the
 alternative is a catalogue that reads well and lies.
+
+## One expansion rule
+
+There is exactly one implementation of "a spec's ports": `effectiveInterfaces()` in `devices/registry.js`. The
+engine (`engine/topology.js`) calls it, audits call it, the importer calls it.
+
+It used to be two — one in the registry and one in the engine — kept in step by a test that compared port **names**
+over the catalogue. That test could not see a divergence in any other field, on any spec outside the catalogue, or in
+any edge case, and the copies had already diverged where it mattered: the loader refused a template it could not
+honour and the engine started building it.
 
 ## What the loader refuses
 

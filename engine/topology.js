@@ -6,33 +6,20 @@ const media = require('./media');
 const ifaceName = require('./iface-name');
 const net = require('./net');
 
-// Expand a device spec's interfaces into a flat list. A spec may provide an
-// explicit `interfaces` array, a `portTemplate` (N generated ports), or BOTH —
-// in which case generated ports come first, then the explicit ones (so a spec
-// can describe "24x RJ45 + 2x SFP+" compactly).
+// Expand a device spec's interfaces into a flat list.
+//
+// This used to be a second implementation of the rule in `devices/registry.js` (`effectiveInterfaces`), kept in
+// step by a test that compared port NAMES over the catalogue - so a divergence in any other field, on any spec
+// outside the catalogue, or in any edge case, was invisible by construction. Worse, the two copies disagreed about
+// what to do with a template they could not honour: the loader refused `count: 1000000` and the engine obediently
+// started building a million ports (#1319).
+//
+// There is now one implementation. A spec that cannot describe a device is refused here too, because a device can
+// also arrive from a hand-edited saved board, which never passes through the loader.
+const { effectiveInterfaces } = require('../devices/registry');
+
 function expandInterfaces(spec) {
-  const out = [];
-  if (spec.portTemplate) {
-    const t = spec.portTemplate;
-    const prefix = t.prefix || 'eth';
-    const start = (t.start === undefined || t.start === null) ? 1 : t.start;
-    const count = (t.count === undefined || t.count === null) ? 1 : t.count;
-    const type = t.type || 'ethernet';
-    const speed = t.speed || '1G';
-    // carry explicit hardware hints (cage / media / PoE) onto every port
-    const extra = {};
-    for (const k of ['cage', 'connector', 'media', 'supportedMedia', 'speedCaps', 'poeOut', 'poeIn', 'hardware']) {
-      if (t[k] !== undefined) extra[k] = t[k];
-    }
-    for (let i = 0; i < count; i++) {
-      out.push(Object.assign({ name: prefix + (start + i), type: type, speed: speed }, extra));
-    }
-  }
-  if (Array.isArray(spec.interfaces)) {
-    for (const s of spec.interfaces) out.push(Object.assign({}, s));
-  }
-  if (!out.length) out.push({ name: 'eth0', type: 'ethernet', speed: '1G' });
-  return out;
+  return effectiveInterfaces(spec);
 }
 
 class Topology {
