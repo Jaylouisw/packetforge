@@ -1,0 +1,30 @@
+{
+  "vendor": "comtrend",
+  "model": "GRG-4362",
+  "label": "Comtrend GRG-4362 XGS-PON ONT",
+  "category": "ont",
+  "description": "XGS-PON ONT (Realtek RTL9615C, 512MiB RAM / SPI NAND 128MiB (Winbond W25N01GVZEIG) flash, Linux 5.10.70 (Realtek ASDK64-10.2.0 Build 3544)) with 1× 10G LAN and no Wi-Fi; XGS-PON line rate 9.953 Gbit/s symmetric on sc-apc, managed over web UI + SSH + telnet + serial.",
+  "capabilities": [
+    "l2-forward",
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "pon",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        9953
+      ]
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "10G"
+    }
+  ],
+  "sourceUrl": "https://hack-gpon.org/xgs/ont-comtrend-grg-4362/"
+}
