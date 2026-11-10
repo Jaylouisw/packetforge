@@ -3142,14 +3142,19 @@ class CliSession {
         out.push(pad('Internet', 10) + pad(r[0], 17) + pad('-', 11) + pad(r[1], 18) + r[2]);
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
-      out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + 'Ports');
+      // Rows are the rows at the instant this session is asking about: a dynamic entry that has been silent for
+      // longer than MAC_AGE_MS is gone, and the Age column says how long ago it was heard. Before this the table
+      // never aged anything and the row carried a note explaining that it might be stale (#1395).
+      const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+      out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + pad('Age', 8) + 'Ports');
       // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
-      const rows = dev.macRows(this.topo);
+      const rows = dev.macRows(this.topo, nowMs);
       for (const r of rows) {
-        // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A
-        // MAC learned before its port was shut or moved keeps its row - real switches age entries out,
-        // this one does not - so the row has to say that it is stale rather than read as current (#1255).
-        out.push(pad(r.vlan, 8) + pad(r.mac, 20) + pad('DYNAMIC', 12) + r.port + (r.note ? ' ' + r.note : ''));
+        // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A MAC learned
+        // before its port was shut or moved says why it cannot be the way to that address (#1255).
+        const age = (r.age === null || r.age === undefined) ? '-' : (r.age + 's');
+        out.push(pad(r.vlan, 8) + pad(r.mac, 20) + pad('DYNAMIC', 12) + pad(age, 8) +
+          r.port + (r.note ? ' ' + r.note : ''));
       }
     } else if (what === 'interfaces' || what === 'interface') {
       // `show interfaces Fa0/1` printed every port on the box: the answer to a question about one socket was

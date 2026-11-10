@@ -21,6 +21,9 @@ const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
+// Where a row's port sits in the printed table: Vlan, MAC, Type, Age, Ports. One constant, so a column added
+// later moves the index in one place instead of five (#1395).
+const PORT = 4;
 function ok(cond, msg, detail) {
   if (cond) { passed++; console.log('  \u2713 ' + msg); }
   else { failed++; console.error('  \u2717 ' + msg + (detail ? '  [' + detail + ']' : '')); }
@@ -59,30 +62,41 @@ console.log('The table lists what the switch has learned, per VLAN:');
   const env = lab();
   const out = table(env);
   ok(out.body.length === 2, 'both hosts are in the table', String(out.body.length));
-  ok(out.fields.every(function (f) { return f.length === 4; }),
-    'every row has four columns (Vlan, MAC, Type, Ports)',
+  ok(out.fields.every(function (f) { return f.length === PORT + 1; }),
+    'every row has five columns (Vlan, MAC, Type, Age, Ports)',
     out.fields.map(function (f) { return f.join('|'); }).join(' / '));
-  ok(out.fields[0][3] === 'Fa0/1' && out.fields[1][3] === 'Fa0/2',
-    'each on the port it was heard on', out.fields.map(function (f) { return f[3]; }).join(','));
+  ok(PORT === 4 && out.fields[0][PORT] === 'Fa0/1' && out.fields[1][PORT] === 'Fa0/2',
+    'each on the port it was heard on', out.fields.map(function (f) { return f[PORT]; }).join(','));
   ok(out.fields.every(function (f) { return f[0] === '1'; }), 'in VLAN 1, where the ports are');
+}
+
+console.log('');
+console.log('The Age column says how long ago the switch heard from an address:');
+{
+  const env = lab();
+  const out = table(env);
+  ok(out.fields.every(function (f) { return f[3] === '-'; }),
+    'an entry written without an instant reports no age rather than a made-up one',
+    out.fields.map(function (f) { return f[3]; }).join(','));
+  ok(/Age/.test(out.header), 'and the column is named', out.header);
 }
 
 console.log('');
 console.log('Moving a port to another VLAN drops what it learned there:');
 {
   const env = lab();
-  const before = table(env).fields.filter(function (f) { return f[3] === 'Fa0/2'; });
+  const before = table(env).fields.filter(function (f) { return f[PORT] === 'Fa0/2'; });
   ok(before.length === 1, 'Fa0/2 has an entry to lose', JSON.stringify(before));
 
   runCommands(env.sw, env.t, env.sim, ['configure terminal', 'interface Fa0/2',
     'switchport access vlan 20', 'end']);
 
   const after = table(env);
-  const onMoved = after.fields.filter(function (f) { return (f[3] || '').indexOf('Fa0/2') === 0; });
+  const onMoved = after.fields.filter(function (f) { return (f[PORT] || '').indexOf('Fa0/2') === 0; });
   ok(onMoved.length === 0, 'and nothing is left claiming VLAN 1 on it any more',
     onMoved.map(function (f) { return f.join(' '); }).join(' | '));
   ok(after.fields.length === 1, 'while the other port keeps its entry', String(after.fields.length));
-  ok(after.fields[0][3] === 'Fa0/1', 'and that entry is untouched', after.fields[0][3]);
+  ok(after.fields[0][PORT] === 'Fa0/1', 'and that entry is untouched', after.fields[0][PORT]);
 
   // The flush is per port: the VLAN-20 table must not lose anything that belongs to another port.
   env.sw.macTables.set(20, new Map([['02:00:00:00:aa:00', 'Fa0/1']]));
@@ -119,7 +133,7 @@ console.log('A row whose port is gone, or carries another VLAN, is marked:');
   const mismatch = out.fields.filter(function (f) { return f[1] === '02:00:00:00:bb:00'; })[0] || [];
   ok(/vlan mismatch/.test(out.body.join(' ')), 'an entry in a VLAN its port does not carry says so',
     out.body.join(' | '));
-  ok(mismatch[3] === 'Fa0/1', 'and still names the port', JSON.stringify(mismatch));
+  ok(mismatch[PORT] === 'Fa0/1', 'and still names the port', JSON.stringify(mismatch));
   ok(/gone/.test(out.body.join(' ')), 'an entry pointing at a port that does not exist says so',
     out.body.join(' | '));
 }

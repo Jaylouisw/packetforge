@@ -176,6 +176,17 @@ function mapToObject(m) {
   return o;
 }
 
+// The MAC table is published as address -> port, which is what it has always meant. The table itself now keeps
+// `{ port, atMs }` per entry so it can age (#1395); the instant is not part of what a client reads here, and
+// `runtime[id].mac` carries an age per row for anyone who wants it.
+function macTableObject(m) {
+  const o = {};
+  for (const [mac, where] of m) {
+    o[mac] = (where && typeof where === 'object') ? where.port : where;
+  }
+  return o;
+}
+
 // A flow record is already plain data (no Maps), so the wire shape is the record
 // plus the one thing a table always wants and has to compute: a summary line.
 function describeFlow(rec) {
@@ -249,7 +260,7 @@ function fullState(topo) {
   const runtime = {};
   for (const d of topo.devices.values()) {
     runtime[d.id] = {
-      macTable: mapToObject(d.macTable),
+      macTable: macTableObject(d.macTable),
       arp: mapToObject(d.arp),
       // The same rows the console prints, from the same place (#1327). `macTable` and `arp` above are bare maps -
       // MAC to port, address to MAC - which told a client that an entry existed and not whether the port it points

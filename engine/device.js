@@ -1,4 +1,9 @@
 'use strict';
+
+// How long a dynamically learned MAC survives silence, in milliseconds. 300 s is the usual switch default and the
+// number `show mac address-table` implies when it prints an age. Named here because the table's writer, its
+// reader and its reporter all have to agree on it (#1395).
+const MAC_AGE_MS = 300000;
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
 const { resolvePortName } = require('./iface-name');
@@ -141,8 +146,10 @@ class Device {
     // runtime forwarding state
     // VLAN 1 keeps the flat legacy table (also used by `show mac address-table`);
     // other VLANs get their own table because VLANs are separate broadcast domains.
-    this.macTable = new Map();   // mac -> iface name (VLAN 1)
-    this.macTables = new Map();  // vid -> Map(mac -> iface)
+    // A dynamic entry is `{ port, atMs }`: where it was seen and when. A bare port name is still accepted
+    // everywhere (it means "no timestamp"), because a fixture or an imported lab may write one (#1395).
+    this.macTable = new Map();   // mac -> { port, atMs } (VLAN 1)
+    this.macTables = new Map();  // vid -> Map(mac -> { port, atMs })
     this.arp = new Map();        // ip -> mac
     // Which port a neighbour was learned on (#1253). `show arp` prints an Interface column, and without
     // this the column was a header over nothing: the one field that tells you where to look when a
@@ -517,12 +524,22 @@ class Device {
 
   // `show mac address-table`, as data: every entry, the VLAN it belongs to, the port it points at, and the note
   // explaining why that port cannot be the way to it.
-  macRows(topo) {
+  macRows(topo, nowMs) {
     const vlanLib = require('./vlan');
+    // The rows are the rows at the instant asked. No instant means no ageing, which is what every caller got
+    // before the table had timestamps (#1395).
+    if (Number.isFinite(nowMs)) this.ageMacs(nowMs);
     const rows = [];
-    for (const [mac, iface] of this.macTable.entries()) rows.push({ vlan: 1, mac: mac, port: iface });
+    const collect = function (vid, table) {
+      for (const [mac, where] of table.entries()) {
+        const at = (where && typeof where === 'object') ? where.atMs : null;
+        rows.push({ vlan: vid, mac: mac, port: (where && typeof where === 'object') ? where.port : where, atMs: at });
+      }
+    };
+    collect(1, this.macTable);
     for (const [vid, table] of (this.macTables || new Map()).entries()) {
-      for (const [mac, iface] of table.entries()) rows.push({ vlan: vid, mac: mac, port: iface });
+      if (Number(vid) === 1) continue;
+      collect(vid, table);
     }
     rows.sort(function (a, b) { return (a.vlan - b.vlan) || String(a.mac).localeCompare(String(b.mac)); });
     return rows.map(function (r) {
@@ -531,7 +548,11 @@ class Device {
       // A port that no longer carries this VLAN cannot be the way to a MAC in it, even while the port itself is
       // up: moving a port between VLANs is exactly how that happens (#1255).
       const mismatch = (port && vlanLib.classifyEgress(port.vlan, r.vlan).action === 'drop') ? '(vlan mismatch)' : '';
-      return { vlan: r.vlan, mac: r.mac, port: name, note: this.portCarrierNote(port, topo, mismatch) };
+      // Seconds since the switch heard from this address, or null when nothing recorded when it did.
+      const ageSec = (Number.isFinite(r.atMs) && Number.isFinite(nowMs))
+        ? Math.max(0, Math.floor((nowMs - r.atMs) / 1000))
+        : null;
+      return { vlan: r.vlan, mac: r.mac, port: name, age: ageSec, note: this.portCarrierNote(port, topo, mismatch) };
     }, this);
   }
 
@@ -577,6 +598,52 @@ class Device {
     return rows;
   }
 
+  // A learned MAC is not "here" for ever. Real switches age dynamic entries out after a few minutes of silence
+  // (300 s is the usual default), and this table never did: `show mac address-table` listed an entry until the
+  // port changed VLAN or the lab was reloaded, which is why the row had to carry a (vlan mismatch) note to say it
+  // might be stale. The simulator has had an instant in milliseconds since convergence was modelled, so an entry
+  // can be stamped with when it was seen and aged against the question being asked (#1395).
+  //
+  // An entry written without a timestamp - by a fixture, an imported lab, or an older caller - is not aged and
+  // reports no age. That is the honest reading: nothing said when it was seen.
+  learnMac(vid, mac, port, atMs) {
+    if (!mac || !port) return null;
+    const table = this.macTableFor(vid);
+    const when = Number.isFinite(atMs) ? atMs : null;
+    table.set(mac, { port: (port && typeof port === 'object') ? port.name : port, atMs: when });
+    return table.get(mac);
+  }
+
+  // The port a MAC is reachable by, at an instant. An entry older than MAC_AGE_MS is not there at all - the
+  // data plane must not send a frame to a port the table only remembers, or a host that moved would be
+  // unreachable while the frame went to where it used to be.
+  macLookup(vid, mac, nowMs) {
+    const table = this.macTableFor(vid);
+    const hit = table.get(mac);
+    if (hit === undefined || hit === null) return null;
+    const at = (hit && typeof hit === 'object') ? hit.atMs : null;
+    const port = (hit && typeof hit === 'object') ? hit.port : hit;
+    if (Number.isFinite(at) && Number.isFinite(nowMs) && (nowMs - at) > MAC_AGE_MS) return null;
+    return (port && typeof port === 'object') ? port.name : port;
+  }
+
+  // Every dynamic entry older than the age is gone. Called by the report so a long run does not carry a table of
+  // addresses nobody has spoken from since the first second.
+  ageMacs(nowMs) {
+    if (!Number.isFinite(nowMs)) return 0;
+    let dropped = 0;
+    const sweep = function (table) {
+      if (!table || typeof table.keys !== 'function') return;
+      for (const [mac, where] of [...table.entries()]) {
+        const at = (where && typeof where === 'object') ? where.atMs : null;
+        if (Number.isFinite(at) && (nowMs - at) > MAC_AGE_MS) { table.delete(mac); dropped++; }
+      }
+    };
+    sweep(this.macTable);
+    for (const table of (this.macTables || new Map()).values()) sweep(table);
+    return dropped;
+  }
+
   macTableFor(vid) {
     const v = Number(vid) || 1;
     if (v === 1) return this.macTable;
@@ -601,8 +668,11 @@ class Device {
     const sweep = function (table) {
       if (!table || typeof table.keys !== 'function') return;
       for (const [mac, where] of [...table.entries()]) {
-        const at = (where && typeof where === 'object') ? where.name : where;
-        if (at === name) { table.delete(mac); dropped++; }
+        // An entry is `{ port, atMs }` now; `.name` is tolerated because an interface object is also written
+        // here by some callers, and a flush that matched neither would silently drop nothing (#1395).
+        const at = (where && typeof where === 'object') ? (where.port || where.name) : where;
+        const atName = (at && typeof at === 'object') ? at.name : at;
+        if (atName === name) { table.delete(mac); dropped++; }
       }
     };
     sweep(this.macTable);
@@ -1127,4 +1197,4 @@ class Device {
   }
 }
 
-module.exports = { Device, Interface, CAPABILITIES };
+module.exports = { Device, Interface, CAPABILITIES, MAC_AGE_MS };

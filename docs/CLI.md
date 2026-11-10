@@ -23,7 +23,7 @@ Modes and their prompts:
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache, with the port each neighbour was learned on and whether that port can still carry a frame |
-| `show mac address-table` | MAC table (switches), per VLAN, with stale entries marked |
+| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
@@ -728,6 +728,28 @@ show ip nat rules            # the rules, printed as the commands that would cre
 show ip nat translations     # the live table: proto, inside global, inside local, outside local/global
 show ip nat statistics       # rules by type, pools, timeouts, active translations
 ```
+
+### What the MAC table remembers, and for how long
+
+A dynamic entry is where a frame was last seen, and when. Silently, for longer than **300 s**, it is gone: the
+`Age` column is the silence, so a run that carries no traffic for five minutes legitimately ends with an empty
+table.
+
+```
+Vlan    Mac Address         Type        Age     Ports
+1       02:00:00:00:01:00   DYNAMIC     0s      1/1/1
+1       02:00:00:00:02:00   DYNAMIC     140s    1/1/2
+```
+
+The age is **silence, not a lifetime**: a frame from that address resets it, and a busy host never ages out. The
+same rule decides forwarding, not just the report — an entry the table only remembers is not a port a frame may be
+sent to, because a host that moved would otherwise be unreachable while the frame went where it used to be. When the
+lookup answers nothing the frame floods, exactly as it does for an address never seen.
+
+An entry that carries no timestamp — written by a fixture, an imported lab, an older caller — is never aged and
+reports `-`. That is the honest reading: nothing recorded when it was seen. The simulator's own learning always
+stamps the instant it was asked at, so a lab built by traffic ages; a lab built by hand does not, until traffic
+touches it.
 
 ### A translation that has been idle is not in force
 
