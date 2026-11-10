@@ -1,0 +1,127 @@
+{
+  "vendor": "asus",
+  "model": "RT-AX89U",
+  "label": "RT-AX89U AX6000 dual-band router (RT-AX89X firmware model string)",
+  "category": "router",
+  "description": "ASUS RT-AX89U - the model string this AX6000 board reports, which is the RT-AX89X hardware: Wi-Fi 6 AX6000 dual-band (2.4 GHz 4x4 1148 Mbps, 5 GHz 8x8 4804 Mbps), one 10GBASE-T RJ45 port, one 10G SFP+ cage, 1x 1G WAN, 8x 1G LAN and 2x USB 3.0. Commonly deployed as an AiMesh main router or node.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "speed": "1G",
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "10g-rj45",
+      "type": "ethernet",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ],
+      "role": "lan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "10g-sfp",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "lan",
+      "dualRole": [
+        "wan",
+        "lan"
+      ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "1G"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ax89x/techspec/",
+  "notes": "`RT-AX89U` is not a second product: it is the board and firmware name behind the retail RT-AX89X, which is why a management integration reading the live device reports `Asus / RT-AX89U` and a topology labelled `RT-AX89X` is wrong about what is on the shelf. Three measurements, all public: ASUS ships the AX89X firmware as `FW_RT_AX89U_<build>` (an owner's flash log runs FW_RT_AX89U_300438647027 then FW_RT_AX89X_300438647468 on the same unit); Asuswrt-Merlin's `model.c` maps the hardware model string `RT-AX89U` to `MODEL_RTAX89U`; and the SWRT/GPL source for the AX89X builds as target `rt-ax89u`. The port map is therefore the AX89X's, cited from its technical-specification page - two SKU labels over one set of sockets, not two speculations."
+}

@@ -1,0 +1,75 @@
+{
+  "vendor": "peplink",
+  "model": "PLS-8-10G-720W",
+  "label": "Peplink 8-Port PoE 10G switch (PLS-8-10G-720W)",
+  "category": "switch",
+  "description": "Peplink 8-Port PoE 10G switch - 8x 10GE RJ45 with 802.3bt Type 4 PoE++ (90 W per port, 720 W total budget) and 4x 10GE SFP+ uplinks, 240 Gbps switching capacity, 32,000-entry MAC table, 1U rack-mount with an internal 900 W PSU. Managed through Peplink InControl; a local switch controller is announced but not shipped.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000,
+      10000
+    ],
+    "poeOut": 90
+  },
+  "interfaces": [
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poeBudget": 720,
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/peplink-8-poe-10g-switch-pls810g720w-p-10950.html",
+  "notes": "The 720 W is a PoE budget, not a PSU rating: the datasheet lists a 900 W internal supply and 53 W system draw. 802.3bt Type 4 is why every copper port is 90 W - a Type 3 (60 W) reading of the same box would under-power a Wi-Fi 6E access point on a 10G run. Ports are named by what the panel is labelled with rather than by a CLI convention: Peplink publishes no interface naming for this switch, and inventing e.g. `Gi1/0/1` would be a fact the hardware does not state."
+}

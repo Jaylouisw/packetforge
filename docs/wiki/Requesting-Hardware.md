@@ -21,7 +21,7 @@ That is enough. You do not need to write JSON.
    resolve to a cage, no port may claim a line rate its cage cannot carry, and a device may
    not describe two identical ports differently.
 3. The spec records the datasheet URL it was built from, so a later reader can check the claim
-   rather than trust it. It is **recommended, not enforced**: 1,234 of the 1,584 specs carry a
+   rather than trust it. It is **recommended, not enforced**: 1,236 of the 1,586 specs carry a
    `sourceUrl` today and 22 more carry the older `source` spelling, so 1,256 point at a datasheet
    somewhere; the remaining 328 are tracked as missing rather than refused.
 
