@@ -360,10 +360,20 @@ tests noticed because the tests drove the engine, not the URL.
 
 ### Ping, and what a destination is
 
-`POST /api/topologies/:name/ping` — `{ src, dst, count? }`. `count` is a whole number from 1 to 50 (the default is
-4); anything else is a `400` with `code: "E_BAD_COUNT"`, because a count is a loop bound and one request asking for a
-billion echoes is hours of engine time. The engine clamps as a backstop and reports both `count` (what was sent) and
-`requestedCount` (what was asked for, `null` when nothing was asked).
+`POST /api/topologies/:name/ping` — `{ src, dst, count?, atMs? }`. `count` is a whole number from 1 to 50 (the
+default is 4); anything else is a `400` with `code: "E_BAD_COUNT"`, because a count is a loop bound and one request
+asking for a billion echoes is hours of engine time. The engine clamps as a backstop and reports both `count` (what
+was sent) and `requestedCount` (what was asked for, `null` when nothing was asked).
+
+`atMs` is the instant to ask at, in milliseconds, and it is the same question the console spells
+`ping <address> at <ms>`: it is how a lab that is still converging can be asked "will this work in five seconds?".
+A value that is not a time at or after 0 is a `400` with `code: "E_BAD_INSTANT"`. The answer reports `runAtMs`
+— the instant it was actually given at — so an answer can never be mistaken for one about a different moment.
+
+The ping runs on `simForFlows(topo)`, like the console: one board, one accounting. Its frames are counted in the
+port tallies `/flows` reports, so a ping sent over HTTP and a ping typed into the console are visible in the same
+place. (The device totals in `counters` are *flow* accounting — transport payload — so ICMP deliberately does not
+move them; the port tallies are *interface* accounting and count every frame.)
 
 `dst` is an **address or a hostname**; a name is
 resolved through the lab's DNS servers before a single packet is sent, and the resolver's verdict rides back in the

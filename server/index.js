@@ -946,13 +946,34 @@ async function handleApi(req, res, urlPath) {
           });
         }
       }
-      const sim = new Simulator(topo);
-      const result = sim.ping(body.src, body.dst.trim(), { count: body.count || 4 });
+      // `atMs`: the console has had `ping <address> at <ms>` since convergence was modelled, and the engine has
+      // honoured `opts.atMs` - but this endpoint dropped it, so "will this work in five seconds?" was answerable
+      // from the console and from nowhere else (#1381). Validate the instant the way the rest of the API does.
+      const pingOpts = {};
+      if (body.count !== undefined && body.count !== null) pingOpts.count = Number(body.count);
+      if (body.atMs !== undefined && body.atMs !== null) {
+        const at = Number(body.atMs);
+        if (!Number.isFinite(at) || at < 0) {
+          return sendJSON(res, 400, {
+            code: 'E_BAD_INSTANT',
+            error: 'atMs must be a time in milliseconds, at or after 0 (got ' + JSON.stringify(body.atMs) + ')'
+          });
+        }
+        pingOpts.atMs = at;
+      }
+      // The ping used `new Simulator(topo)` - a second accounting with its own flow state - so every packet it sent
+      // was invisible to `/flows`, while the same ping typed into the console was counted. That is the defect
+      // #1335 fixed for the console endpoint, one endpoint over (#1381).
+      const sim = simForFlows(topo);
+      const result = sim.ping(body.src, body.dst.trim(), pingOpts);
       // A name is resolved before a packet is sent, and the resolver's verdict is part of the answer: a client that
       // only sees `replies: [{ success: false }]` cannot tell a lost packet from a name that does not exist.
       return sendJSON(res, 200, {
         events: result.events, replies: result.replies, success: result.success, step: result.step,
-        count: result.count, dns: result.dns || null, runtime: fullState(topo).runtime
+        count: result.count, dns: result.dns || null,
+        runAtMs: Number.isFinite(sim.runAtMs) ? sim.runAtMs : null,
+        counters: flow.counterSnapshot(flowStateFor(topo), body.src),
+        runtime: fullState(topo).runtime
       });
     }
 
