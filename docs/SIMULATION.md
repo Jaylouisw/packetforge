@@ -11,6 +11,21 @@ discovered in a lab.
 Read it before you design a lab around a feature, and before you claim a feature
 in a commit message.
 
+**How the citations on this page work.** Every claim points at a symbol and, where it helps, a line —
+`computeStp()` at `engine/simulator.js:827`. Treat the symbol as the citation and the number as a hint
+from the moment it was written: this page has been corrected twice for citations that had slid onto
+unrelated code, once onto another file entirely. When a number stops matching, do not delete the claim —
+re-find the symbol. Note the pattern a class method needs — `function computeStp` matches nothing:
+
+```bash
+grep -n "computeStp() {" engine/simulator.js      # 827 today
+```
+
+That number read 823 while the sentence above was being written, and the engine grew by four lines
+between the two measurements — which is the whole argument for citing the symbol. If the number moves,
+fix it and say in the row what it had been: a silent repoint throws away the only information the error
+carried.
+
 ---
 
 ## How to read this page
@@ -77,7 +92,9 @@ first.
   and do not reconverge during the run.
 - Layer decisions are gated by `hasCap()`, and the only capabilities the
   forwarding path actually consults are `l2-forward`, `l3-forward` and `host`
-  (`engine/simulator.js:1856`, `engine/simulator.js:1923`).
+  (`hasCap('l2-forward')` at `engine/simulator.js:2310`, `l3-forward` at `:2368` and `:3463`). The two
+  numbers this sentence used to carry, 1856 and 1923, are BGP code — a stale pair, kept in mind because
+  this page has had to correct this class of citation before.
 
 **Approximate**
 
@@ -114,7 +131,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:1734`, `engine/device.js:331` |
 | **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:1895-2020` |
 | **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:1955-1970` |
-| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:1957` |
+| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded — the event reads `loop: egress equals ingress`. | `engine/simulator.js:3541` |
 | **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:1734` vs `1792` |
 | **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:1842` |
 | **Absent** | MAC ageing, MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
@@ -147,7 +164,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | Hash policies `l2`, `l3`, `l3l4`, deterministic FNV-1a — the same frame always lands on the same member. | `engine/lag.js:128` |
 | **Modelled** | Spanning tree sees one edge per bundle, so it does not block members against each other. The bundle is one `ports` entry per LAG group, with the cost divided by the member count. | `computeStp()` in `engine/simulator.js` (line 823 today; the group loop below it) — the cited `315-334` had drifted into DNS code |
 | **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:1970` |
-| **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored, and then has **no effect on behaviour** — only the hash policy is consulted at forwarding time. | `engine/lag.js:217-225` vs `engine/simulator.js:2039` |
+| **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored, and then has **no effect on behaviour** — only the hash policy is consulted at forwarding time. | `engine/lag.js:217-225` (the validation) vs `lagLib.selectMember(members, frame, cfg.hashPolicy …)` at `engine/simulator.js:3584`, which is the only place the mode is *not* read |
 | **Approximate** | `minLinks` is normalised and validated but never read at runtime: a bundle keeps forwarding at one member, it never shuts down. | `engine/lag.js:55-59` |
 | **Absent** | LACPDUs, negotiation, per-member failure detection beyond `iface.enabled`, load-based member selection, L3/L4 hash entropy from anything but the fields present. | — |
 
@@ -199,7 +216,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | Echo request → echo reply, with sequence numbers, per-reply success and a computed round trip. | `engine/simulator.js:2031-2090` |
 | **Modelled** | TTL starts at 64, decrements per router, and expiring TTL drops the packet with an event. Measured: a frame handed to `_forwardL3()` with `ttl: 1` came out at `0` with one `drop: TTL expired` in the log. No ICMP time-exceeded is generated, so the *sender* still sees only silence. | `engine/simulator.js` `_forwardL3()` |
 | **Limited** | **An echo is answered only for an address owned by the interface it arrived on.** `_handleLocalIp()` asks `dev.ownsIpOn(ingress, dst)` and drops anything else with the event reason `echo for unknown local IP`. Measured on a two-port router (`10.0.12.2/24` on `Gi0/0`, `10.9.9.1/24` on `Gi0/1`, both cabled): a host on the far subnet pings `10.9.9.1` → 4/4; a router across the link pings the same address → 0/4, **even though `show ip route` carries the route and `show ip interface brief` says `up up`**; a *host behind* that router is reached 4/4, because routed traffic never enters this path. The same rule explains why a device cannot ping its own non-ingress address — the echo leaves the wire and nothing answers. Bridge-group members are the exception: an address on one `lan` port answers an echo arriving on another. | `engine/simulator.js` `_handleLocalIp()` |
-| **Absent** | **Every other ICMP type.** There is no destination-unreachable, no time-exceeded, no redirect, no parameter-problem. A black-holed packet and a TTL-expired packet both look like silence to `ping`; only the event log tells you which. The `traceroute` command does not change this: it walks the routing tables and prints the path, it does not send TTL-limited probes. | `engine/net.js:81-82` |
+| **Absent** | **Every other ICMP type.** There is no destination-unreachable, no time-exceeded, no redirect, no parameter-problem. A black-holed packet and a TTL-expired packet both look like silence to `ping`; only the event log tells you which. The `traceroute` command does not change this: it walks the routing tables and prints the path, it does not send TTL-limited probes. | `_traceroute()` in `engine/cli.js:6593` — this row cited `engine/net.js:81-82`, which is hex conversion |
 | **Modelled** | `traceroute <dst> [at <ms>]` (and `tracert`) walks `routeTo()` hop by hop and prints each hop's address, device and cumulative one-way delay. TTL expiry is not involved: it reports the path the routing tables select, not a sequence of ICMP time-exceeded replies. `at <ms>` rebuilds the control planes at that instant first, so a trace before convergence stops at the hop with no route yet and names the process and its ready time. | `engine/simulator.js` `tracePath()`, `engine/cli.js` `_traceroute()` |
 | **Modelled — one refresh, three doors** | `ping`, `traceroute` and `openFlow` (`flow open`) all rebuild the same control planes before answering: STP, PoE, LLDP/RAs, **VRRP**, **DHCP**, OSPF, BGP. `openFlow()` was missing VRRP and DHCP, which made a flow to a virtual IP fail with "no response" on a fresh simulator while a ping to the same address succeeded — the election had never run, so nobody owned the VIP. VRRP state is sticky, so the bug only showed when the flow came first. `test/flow-vip.test.js` pins the agreement, and every case in it starts from a fresh `Simulator` for exactly that reason. | `engine/simulator.js` `openFlow()`, `tracePath()`, `ping()` |
 
@@ -1165,6 +1182,7 @@ number cannot be checked by reading, and a grep for the symbol can.
 | Verified the documented persistence claims with a live server on a scratch `PF_DATA`: a new board writes **no file** until something changes, the first edit lands at `$PF_DATA/topologies/docprobe.json` with envelope `format,version,savedAt,topology` and a nested `format,version,seq,devices,links,layout` — all as written. What was not written: how to add a *named* device through the API | `POST …/devices` with `{"kind":"pc","name":"PC1"}` answers `{"error":"unknown device model: undefined/undefined"}` — no 400, no field list; with `vendor`+`model` the device comes back as `PC-d1` because `name` is dropped; and renaming needs config mode, so `{"commands":["configure terminal","hostname PC1"]}` works while `{"commands":["hostname PC1"]}` answers `% Unrecognized command` and changes nothing. `config/<id>` for an absent device is `404`. All three added to `docs/ARCHITECTURE.md` | The API's silent-drop habits are consistent (a dropped `name`, a body it does not validate) and each one costs a client an afternoon — write the refusal text, not the intent |
 | Verified the checks the pages point at: `npm run smoke` passes on this tree and emits exactly the **18** checks `docs/CI.md` claims, and every number baked into `scripts/build-wiki.js` matches `loadCatalog()` today (1,661 / 247 / 1,313 `sourceUrl` / 1,333 with `source` / 328 neither). What no page covered was the repository's ignore rules | Read `.gitignore` and wrote the table into `CONTRIBUTING.md`: `/data/` is ignored on purpose (boards are the user's work), `node_modules/` and editor debris likewise — and **`tmp/` is not ignored at all**, so the probe scripts sitting in `git status` right now (`tmp/p148a.js`, `p148b.js`, `p148c.js`) are untracked rather than invisible. Noted that `docs/wiki/*.md` is tracked despite being generated | A contributor's first confusion is a file git cannot see or refuses to forget; one table costs less than one `git status` argument |
 | Checked whether this page's own `file.js:NNN` citations still point at what they claim, by reading the cited lines instead of trusting them. 240 citations exist; six were wrong: `ethFrame()` cited at `simulator.js:31` (now line 52 — 31 is `compareAdvId`), `_run()` at 1718 (now 3205), the LAG-bundle claim at `simulator.js:315-334` (now `computeStp()` at 823 — 315 is DNS code), `portPvid()` at 72-78 (now 104) plus a stale `cli.js:187-199` that is an interface-alias helper, `voiceVlan` parsing at `vlan.js:423` (now 267 — 423 is `E_TRUNK_NO_VLANS`), and `classifyEgress` pointed at `simulator.js:1666-1680` although it lives in `vlan.js:292` and is called from `simulator.js:3174` | Repointed all six at the symbol **and** the line, naming what the old line now holds, so the next reader can tell rot from a typo. Also completed the frame shape: `ethFrame()` returns `vid`, `wireTagged`, `wireVid` as well, which are the keys the wire actually carries and the ones a `vlan-drop` event reports | Line citations rot silently and a wrong **file** is worse than a wrong line, because the reader's grep succeeds in the wrong place. Cite the symbol, keep the line as a hint, and say what moved |
+| Continued the citation audit with the suspects the first pass flagged: four more were wrong — the capability gates cited 1856/1923 (both BGP code; they are 2310/2368/3463), the `loop` drop cited 1957 (BGP reachability; it is 3541 and the event text is `loop: egress equals ingress`), the LAG hash-policy pointer cited `simulator.js:2039` (it is `lagLib.selectMember(…)` at 3584), and the traceroute row cited `net.js:81-82`, which is hex conversion (`_traceroute()` is at `cli.js:6593`). One suspect was a false alarm — the recompute-order citation 438-452 is exactly right | Repointed all four. Then wrote a standing **citation convention** at the top of the page: the symbol is the citation, the line is a hint, here is the grep that re-finds it — and had to correct that sentence twice in ten minutes, first because `grep "function computeStp"` matches nothing for a class method, then because the line moved 823 → 827 while I was writing it | This page has now been fixed for citation rot three times. The durable fix is not another pass, it is teaching the reader how to re-find a symbol |
 
 ---
 
