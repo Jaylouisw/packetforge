@@ -512,6 +512,8 @@ console.log('\nA spec that says SFP does not get copper sockets:');
   }
   function copperSocketsOfFibreBox(spec, ifaces) {
     const text = specText(spec);
+    // Scope, by definition: this rule is only about a box that presents itself as fibre-only. A spec
+    // that mentions copper anywhere is not such a box, so there is nothing here for it to say.
     if (!FIBRE.test(text) || COPPER.test(text)) return [];
     const fromTemplate = templatePortNames(spec);
     const out = [];
