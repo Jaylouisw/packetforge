@@ -135,7 +135,11 @@ class Device {
     // other VLANs get their own table because VLANs are separate broadcast domains.
     this.macTable = new Map();   // mac -> iface name (VLAN 1)
     this.macTables = new Map();  // vid -> Map(mac -> iface)
-    this.arp = new Map();        // ip -> mac
+    this.arp = new Map();        // ip -> mac, learned from traffic
+    // Static ARP entries, configured by hand (`arp <ip> <mac>`). They live in their own table so a
+    // learned entry can never shadow a configured one, and so the one table that cannot be emptied
+    // (`clear arp`) is obvious in the code rather than a flag inside a shared map.
+    this.arpStatic = new Map();   // ip -> mac
     // LLDP neighbour table: our port name -> what announced itself on it. This is how
     // real hardware answers "what is plugged in here", and it is filled from frames
     // that actually crossed the link rather than from the topology file.
@@ -199,6 +203,15 @@ class Device {
   }
 
   interface(name) { return this.interfaces.get(name); }
+
+  // The MAC this device will use for an address, and where that answer came from. One door, so the
+  // data path, the table and the dump cannot disagree about which entries are hand-written.
+  arpLookup(ip) {
+    const stat = this.arpStatic ? this.arpStatic.get(ip) : undefined;
+    if (stat) return { mac: stat, source: 'static' };
+    const learned = this.arp ? this.arp.get(ip) : undefined;
+    return learned ? { mac: learned, source: 'learned' } : null;
+  }
 
   // A switch's own address lives on a VLAN, not on a socket. IOS calls that object an SVI and
   // spells it `interface Vlan10`; without one a switch had no management address at all, which is

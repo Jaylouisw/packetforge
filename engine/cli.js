@@ -502,9 +502,17 @@ class CliSession {
               removed = before;
             }
             const where = (this.device.name || this.device.id) + (pick.port ? ' for ' + pick.port : '');
+            // A static entry is configuration, not learning: `clear arp` empties what the lab taught
+            // the device and leaves what the operator wrote, because the alternative is a command
+            // documented as clearing the cache silently editing the running-config.
+            const kept = this.device.arpStatic.size;
             out.push(removed
               ? 'ARP cache cleared on ' + where + ' (' + removed + ' entr' + (removed === 1 ? 'y' : 'ies') + ')'
               : 'ARP cache on ' + where + ' was already empty - nothing to clear');
+            if (kept) {
+              out.push('  ' + plural(kept, 'static entry') + ' kept - they are configured, not learned' +
+                ' (remove with "no arp <ip>")');
+            }
           } else {
             const tables = [this.device.macTable].concat(
               Array.from((this.device.macTables || new Map()).values()));
@@ -788,6 +796,8 @@ class CliSession {
       }
     } else if (head === 'ipv6' && tokens[1] === 'route') {
       out.push.apply(out, this._ipv6Route(tokens.slice(2)));
+    } else if (head === 'arp' || (head === 'no' && tokens[1] === 'arp')) {
+      out.push.apply(out, this._staticArp(head === 'no' ? tokens.slice(2) : tokens.slice(1), head === 'no'));
     } else if (head === 'ip' && tokens[1] === 'domain-lookup') {
       out.push.apply(out, this._ipDomainLookup(true, tokens.slice(2)));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'domain-lookup') {
@@ -2747,6 +2757,87 @@ class CliSession {
       out.push('  ' + counts.blocking + ' port' + (counts.blocking === 1 ? ' is' : 's are') +
         ' blocking: the loop is cut, which is the tree working');
     }
+    return out;
+  }
+
+  // `arp <ip> <mac> [arpa]` / `no arp <ip>`: a hand-written entry in the cache.
+  //
+  // The cache is real - it is what `_sendL3` reads before it decides whether to ask - and every entry
+  // in it could only ever be learned. A static entry is the one thing an operator writes into it, and
+  // it is the entry that must not be relearned: that is what makes it a defence as well as a shortcut.
+  _staticArp(args, isNo) {
+    const dev = this.device;
+    const usage = isNo ? 'no arp <ip>' : 'arp <ip> <mac> [arpa]';
+    if (isNo) {
+      const extra = this._noExtra(args, 1, usage);
+      if (extra) return extra;
+      const ip = String(args[0] || '').trim();
+      if (!ip) return ['% Incomplete command: ' + usage, '% The address whose entry to remove'];
+      if (!net.isIp(ip)) return ['% "' + ip + '" is not an IPv4 address', '% Usage: ' + usage];
+      const hadStatic = dev.arpStatic.get(ip);
+      const hadLearned = dev.arp.get(ip);
+      if (!hadStatic && !hadLearned) {
+        return ['% No ARP entry for ' + ip + ' on ' + (dev.name || dev.id),
+          '% The cache holds ' + plural(dev.arp.size + dev.arpStatic.size, 'address', 'addresses')];
+      }
+      dev.arpStatic.delete(ip);
+      dev.arp.delete(ip);
+      return ['ARP entry for ' + ip + ' removed from ' + (dev.name || dev.id) +
+        (hadStatic ? ' (it was static: ' + hadStatic + ')' : '') +
+        (hadLearned ? ' (it was learned: ' + hadLearned + ')' : ''),
+        '  The next packet to ' + ip + ' asks for it again'];
+    }
+    // The third word is optional and is always `arpa` (the encapsulation, and the only one ARP has);
+    // anything else there is still refused, but the optional word must not be read as an extra one.
+    if (args[2] !== undefined && String(args[2]).toLowerCase() !== 'arpa') {
+      return ['% Unexpected argument "' + args[2] + '" - arp <ip> <mac> [arpa]',
+        '% The only word that can follow the MAC is "arpa" (the encapsulation)'];
+    }
+    const extra = this._noExtra(args, 3, usage);
+    if (extra) return extra;
+    const ip = String(args[0] || '').trim();
+    const macText = String(args[1] || '').trim().toLowerCase();
+    if (!ip) return ['% Incomplete command: ' + usage,
+      '% arp <ip> <mac> pins the MAC used for one address'];
+    if (!macText) return ['% Incomplete command: arp <ip> <mac> [arpa]',
+      '% The MAC is required: a static entry is an address and the MAC it must reach'];
+    if (!net.isIp(ip)) return ['% "' + ip + '" is not an IPv4 address', '% Usage: ' + usage];
+    // Both spellings a MAC is written in - `0011.2233.4455` (Cisco) and `00:11:22:33:44:55` - are
+    // accepted and stored in the one form the tables print.
+    const mac = (function (text) {
+      const dotted = /^([0-9a-f]{4})\.([0-9a-f]{4})\.([0-9a-f]{4})$/.exec(text);
+      if (dotted) return (dotted[1] + dotted[2] + dotted[3]).match(/../g).join(':');
+      const colon = /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/.exec(text);
+      if (colon) return text.replace(/-/g, ':');
+      return null;
+    })(macText);
+    if (!mac) {
+      return ['% "' + String(args[1]) + '" is not a MAC address',
+        '% Write it as 0011.2233.4455 or 00:11:22:33:44:55'];
+    }
+    if (/^00:00:00:00:00:00$/.test(mac)) {
+      return ['% The all-zero MAC is not an address anything can be reached at'];
+    }
+    if (parseInt(mac.slice(0, 2), 16) & 1) {
+      return ['% ' + mac + ' is a multicast or broadcast MAC, so no single host owns it',
+        '% A static ARP entry points at one device: use its unicast address'];
+    }
+    if (ip === '0.0.0.0' || ip === '255.255.255.255') {
+      return ['% ' + ip + ' is not a host address, so no entry can point at a device'];
+    }
+    const existing = dev.arpStatic.get(ip);
+    if (existing === mac) {
+      return ['Static ARP entry for ' + ip + ' is already ' + mac + ' on ' + (dev.name || dev.id)];
+    }
+    dev.arpStatic.set(ip, mac);
+    // A learned entry for the same address is now unreachable - the static one wins - so it is
+    // dropped rather than left in the table to contradict the entry that replaced it.
+    const learned = dev.arp.get(ip);
+    if (learned) dev.arp.delete(ip);
+    const out = ['Static ARP entry on ' + (dev.name || dev.id) + ': ' + ip + ' is at ' + mac +
+      (existing ? ' (was ' + existing + ')' : ''),
+      '  This entry never ages out and a reply cannot overwrite it - "no arp ' + ip + '" removes it'];
+    if (learned) out.push('  The learned entry for ' + ip + ' (' + learned + ') was dropped: the static one wins');
     return out;
   }
 
@@ -5162,6 +5253,13 @@ class CliSession {
     out.push('hostname ' + (dev.config.hostname || dev.name));
     // LLDP is on unless it was turned off, so the off state is what the dump has to carry.
     if (dev.config.lldp && dev.config.lldp.run === false) out.push('no lldp run');
+    // Static ARP entries are configuration, so they are in the dump; learned entries are not.
+    if (dev.arpStatic && dev.arpStatic.size) {
+      for (const [ip, mac] of dev.arpStatic.entries()) {
+        // Dumped in the spelling the console accepts, so a paste restores the same table.
+        out.push('arp ' + ip + ' ' + mac.replace(/:/g, '').replace(/(.{4})(?=.)/g, '$1.') + ' arpa');
+      }
+    }
     // Name resolution is on unless it was turned off, and a domain name changes what every
     // unqualified lookup asks - both survive a paste or the lab stops being the lab.
     if (dev.config.domainLookup === false) out.push('no ip domain-lookup');
@@ -5948,14 +6046,18 @@ class CliSession {
       }
       if (arpArgs.length === 1 && net.isIp(String(arpArgs[0]))) {
         const want = String(arpArgs[0]);
-        const mac = dev.arp.get(want);
-        if (!mac) {
+        const entry = dev.arpLookup ? dev.arpLookup(want) : (dev.arp.get(want) ? { mac: dev.arp.get(want), source: 'learned' } : null);
+        if (!entry) {
           return ['% No ARP entry for ' + want + ' on ' + (dev.name || dev.id),
-            '% The cache holds ' + plural(dev.arp.size, 'address') +
-            ' - "show arp" lists them, and a ping to ' + want + ' would learn it'];
+            '% The cache holds ' + plural(dev.arp.size + dev.arpStatic.size, 'address', 'addresses') +
+            ' - "show arp" lists them, and a ping to ' + want + ' would learn it',
+            '% To pin it instead: arp ' + want + ' <mac>'];
         }
-        return ['Protocol  Address       Age (min)  Hardware Addr     Interface',
-          'Internet  ' + want + '  -          ' + mac + '  ' + ifaceFor(want)];
+        // A static entry is the one row that never ages, so the row has to say which it is: the
+        // operator asking about one address is usually asking exactly that.
+        return ['Protocol  Address       Age (min)  Hardware Addr     Interface' + (entry.source === 'static' ? '  Type' : ''),
+          'Internet  ' + want + '  -          ' + entry.mac + '  ' + ifaceFor(want) +
+            (entry.source === 'static' ? '  STATIC' : '')];
       }
       if (arpArgs.length > 1) {
         return ['% show arp takes one port or one address, not "' + arpArgs.join(' ') + '"',
@@ -5966,15 +6068,32 @@ class CliSession {
       const pick = this._portArg(arpArgs, dev, 'show arp', saidInterface ? null : ['an address']);
       if (!pick.ok) return out.concat(pick.output);
       const arpRows = [];
-      for (const [ip, mac] of dev.arp.entries()) {
-        const onPort = ifaceFor(ip);
+      let statics = 0;
+      // Static entries first: they are the ones that cannot be emptied, and an operator scanning the
+      // table should meet the hand-written rows before the learned ones.
+      const merged = [];
+      for (const [ip, mac] of dev.arpStatic.entries()) merged.push({ ip: ip, mac: mac, static: true });
+      for (const [ip, mac] of dev.arp.entries()) merged.push({ ip: ip, mac: mac, static: false });
+      merged.sort(function (a, b) {
+        if (a.static !== b.static) return a.static ? -1 : 1;
+        return String(a.ip).localeCompare(String(b.ip));
+      });
+      for (const row of merged) {
+        const onPort = ifaceFor(row.ip);
         // Filtering by port is only honest for entries whose port is known: an entry behind a switch
         // shows `-`, and folding it into another port's answer would invent a fact.
         if (pick.port && onPort !== pick.port) continue;
-        arpRows.push(['Internet', ip, '-', mac, onPort]);
+        if (row.static) statics += 1;
+        arpRows.push(['Internet', row.ip, '-', row.mac, onPort + (row.static ? '  STATIC' : '')]);
       }
       if (pick.port) out.push('ARP entries on ' + pick.port + ' at ' + dev.name + ':');
       out.push.apply(out, renderTable(['Protocol', 'Address', 'Age (min)', 'Hardware Addr', 'Interface'], arpRows));
+      if (statics) {
+        // The Interface column carries the word because the table's shape is IOS's; the line below
+        // says what the word means and which command removes it.
+        out.push('  ' + plural(statics, 'static entry is', 'static entries are') +
+          ' hand-written: they never age out, a reply cannot overwrite them, and "clear arp" leaves them');
+      }
       if (pick.port && !arpRows.length) {
         out.push('  (none - no cached address resolves to this port)');
       }
@@ -7832,6 +7951,8 @@ class CliSession {
     if (this.mode === MODE_CONFIG) return helpRows([
       'Config-mode commands (exit / end to leave):',
       helpLine('hostname <name>', 'set device hostname (spaces kept)'),
+      helpLine('arp <ip> <mac> [arpa]', 'pin one address to a MAC - never ages out, cannot be overwritten'),
+      helpLine('no arp <ip>', 'remove one ARP entry (static or learned)'),
       helpLine('ip domain-name <name>', 'suffix an unqualified name gets before it is looked up'),
       helpLine('no ip domain-name', 'ask an unqualified name exactly as typed'),
       helpLine('ip domain-lookup', 'resolve names again (on by default)'),

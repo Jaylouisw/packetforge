@@ -2932,9 +2932,13 @@ class Simulator {
   _sendL3(dev, egress, nextHopIp, ip, icmp, vid, opts) {
     const v = (vid === undefined || vid === null) ? portPvid(egress) : vid;
     const o = opts || {};
-    const mac = dev.arp.get(nextHopIp);
+    const found = dev.arpLookup ? dev.arpLookup(nextHopIp) : (dev.arp.get(nextHopIp) ? { mac: dev.arp.get(nextHopIp), source: 'learned' } : null);
+    const mac = found ? found.mac : null;
     if (mac) {
-      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac, via: 'arp-cache', vlan: v });
+      // `via` says which table answered: a frame sent to a hand-written MAC never asked ARP, and the
+      // timeline should not claim it came from the cache it never read.
+      this._emit({ type: 'forward', dev: dev.id, iface: egress.name, nextHop: nextHopIp, mac: mac,
+        via: found.source === 'static' ? 'arp-static' : 'arp-cache', vlan: v });
       this._sendFromOwnIp(dev, egress, ethFrame(mac, egress.mac, net.ETH_IPV4, ip, icmp, null, o), v);
       return;
     }
@@ -3453,7 +3457,12 @@ class Simulator {
       // RFC 826: a station updates its table from any ARP it receives, not only from replies.
       // This is what makes a gratuitous ARP work - it is a request, and the whole point is that
       // the hosts who did not ask for it still believe it.
-      if (arp.senderIp && arp.senderMac) dev.arp.set(arp.senderIp, arp.senderMac);
+      // RFC 826 says a station updates its table from any ARP it receives - and a static entry is
+      // the exception every switch has: it is not learned, so it cannot be relearned by whoever
+      // answers. This is what makes `arp <ip> <mac>` a defence against a spoofed reply rather than
+      // a hint that the first responder can overwrite.
+      const staticHere = dev.arpStatic && dev.arpStatic.has(arp.senderIp);
+      if (arp.senderIp && arp.senderMac && !staticHere) dev.arp.set(arp.senderIp, arp.senderMac);
       const owner = dev.ownsIpOn(inIf, arp.targetIp);
       if (owner) {
         // Reply out of the port that asked: inside a bridge group every port reaches
@@ -3470,7 +3479,9 @@ class Simulator {
         // stack does. Forcing the reply out of the ingress port replaced a bridge with a unicast and
         // looked correct only because the two happen to reach the same host in a one-host lab.
         const replyIface = sameGroup ? inIf : owner;
-        if (arp.senderIp) dev.arp.set(arp.senderIp, arp.senderMac);
+        if (arp.senderIp && !(dev.arpStatic && dev.arpStatic.has(arp.senderIp))) {
+          dev.arp.set(arp.senderIp, arp.senderMac);
+        }
         // A virtual address is answered with the group's virtual MAC, not the box's own: that is
         // what lets a host keep its cache entry when mastership moves to the other router.
         // The address being defended is the one that was asked for. owner.ip is the interface's own
@@ -3488,6 +3499,18 @@ class Simulator {
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
+      const stat = dev.arpStatic && dev.arpStatic.get(arp.senderIp);
+      if (stat) {
+        // A reply that disagrees with a hand-written entry is refused, and the pending frame is sent
+        // to the configured MAC instead. The event says so, because "my ping went to the wrong MAC"
+        // is exactly the question this answers.
+        if (String(arp.senderMac) !== String(stat)) {
+          this._emit({ type: 'arp-static-hold', dev: dev.id, ip: arp.senderIp,
+            offered: arp.senderMac, kept: stat, vlan: vid });
+        }
+        this._flushPending(dev, arp.senderIp, stat, vid);
+        return;
+      }
       dev.arp.set(arp.senderIp, arp.senderMac);
       this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac, vlan: vid });
       this._flushPending(dev, arp.senderIp, arp.senderMac, vid);

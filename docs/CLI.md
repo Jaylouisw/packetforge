@@ -1178,6 +1178,57 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### An ARP cache that could only be learned into
+
+Every packet this model routes reads the ARP cache before it decides whether to ask, so the cache is
+real — and every entry in it could only ever be *learned*. The previous pass added `clear arp` to empty
+it; there was still no way to write into it:
+
+```
+R1(config)#arp 10.0.0.50 0200.0000.0100 arpa
+% Unrecognized config command: arp 10.0.0.50 0200.0000.0100 arpa
+```
+
+A static entry is the one thing an operator puts in that table by hand, and the one entry the lab must
+not be able to take back:
+
+```
+R1(config)#arp 10.0.0.50 0200.0000.0100 arpa
+Static ARP entry on R1: 10.0.0.50 is at 02:00:00:00:01:00
+  This entry never ages out and a reply cannot overwrite it - "no arp 10.0.0.50" removes it
+
+R1#show arp
+Protocol  Address    Age (min)  Hardware Addr      Interface
+Internet  10.0.0.50  -          02:00:00:00:01:00  Gi0/0  STATIC
+  1 static entry is hand-written: they never age out, a reply cannot overwrite them, and "clear arp" leaves them
+
+R1#clear arp
+ARP cache on R1 was already empty - nothing to clear
+  1 static entry kept - they are configured, not learned (remove with "no arp <ip>")
+```
+
+Four rules hold it together, and each one is a thing that used to be impossible to show:
+
+* **The entry is used, and ARP is never asked.** With a static entry for a reachable host, the timeline
+  contains no `arp-request` at all — the forward event says `via: arp-static`, not `arp-cache`, because
+  a frame that never read the cache must not be reported as if it did. A wrong entry is used as written,
+  and the ping fails: that is the reason it has to be right, not a bug.
+* **A reply cannot overwrite it.** This is the part that makes a static entry a defence rather than a
+  hint. A reply from another host claiming the same address is refused, an `arp-static-hold` event names
+  the MAC that offered itself and the MAC that was kept, and the pending frame is sent to the configured
+  MAC. Without the entry the identical reply is believed — the test asserts both directions.
+* **`clear arp` empties only what was learned.** A command documented as clearing the cache must not
+  silently edit the running-config, so the hand-written rows survive and the output says how many were
+  kept and how to remove them (`no arp <ip>`).
+* **It is configuration.** Static entries are in `show running-config` in the spelling the console
+  accepts (`arp 10.0.0.50 0200.0000.0100 arpa`) and paste back; learned entries are not, because they
+  are not configuration.
+
+Both MAC spellings are accepted (`0200.0000.0100`, `02:00:00:00:01:00`) and stored in the one form the
+tables print; the optional `arpa` word is optional and not a slot for anything else; and a MAC nothing
+can be reached at is refused by name — the all-zero MAC, and a multicast MAC (`01:00:5e00.0001` is a
+group, not a host).
+
 ### The two settings that decide what a name query even means
 
 Name resolution worked and could not be configured. It was always on, and a name was always asked
