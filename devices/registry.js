@@ -7,7 +7,12 @@ const path = require('path');
 const CATEGORY_ORDER = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server', 'wireless', 'ptp', 'cloud'];
 
 function loadCatalog(dir) {
-  dir = dir || __dirname;
+  // Resolved once, here, because `require()` decides how to find a file from the string it is
+  // given: a bare relative directory ("devices") made every single file unloadable, each throw was
+  // caught below, and the whole catalogue came back labelled "Broken spec". The load did not fail -
+  // it lied, in the one way that is hardest to notice, because 1,584 plausible-looking entries came
+  // back and only their contents were wrong.
+  dir = path.resolve(dir || __dirname);
   const specs = [];
   function walk(d) {
     for (const entry of fs.readdirSync(d)) {
@@ -17,9 +22,19 @@ function loadCatalog(dir) {
       else if (entry.endsWith('.json')) {
         try {
           const spec = require(full);
+          // A file that parses but declares no model is not a device, and used to disappear without
+          // a word: `"Model": "..."` for `"model"` is one keystroke away and produced a catalogue
+          // quietly missing a box. It is reported the same way as a parse error, which at least
+          // names the file.
           if (spec && spec.model) specs.push(spec);
+          else {
+            specs.push({
+              vendor: 'error', model: entry, label: 'Broken spec',
+              error: 'no "model" field, so this file does not describe a device'
+            });
+          }
         } catch (e) {
-          // ignore malformed spec files but surface the error
+          // surface the error instead of dropping the file
           specs.push({ vendor: 'error', model: entry, label: 'Broken spec', error: e.message });
         }
       }
