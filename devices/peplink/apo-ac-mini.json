@@ -1,0 +1,45 @@
+{
+  "vendor": "peplink",
+  "model": "APO-AC-MINI",
+  "label": "Peplink Pepwave AP One AC Mini",
+  "category": "ap",
+  "description": "Peplink Pepwave AP One AC Mini - palm-sized plenum-rated indoor access point: 1x Gigabit Ethernet uplink with 802.3af PoE input (9.5 W max, a 12V/2A adapter also supplied), simultaneous dual-band 802.11ac wave 2 2x2 MU-MIMO (300 Mbps at 2.4 GHz, 866 Mbps at 5 GHz), bridge/NAT/WDS modes, 16 SSIDs per radio, management VLAN, captive portal, SNMP and InControl/AP Controller management.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "nat",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "poeIn": 9.5
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "866M"
+    }
+  ],
+  "powerMaxW": 9.5,
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://download.peplink.com/resources/pepwave_apone_datasheet.pdf",
+  "notes": "From the AP One series datasheet, APO-AC-MINI row: '**Ethernet Port 1x GE**', 'Power Consumption 9.5W (max.)', 'Power Input ... 802.3af PoE (Injector Not Included)', and the package contents add a '12V2A Power Supply (ACW-601)' - so the one Ethernet port is both the uplink and the power inlet, and there is no second socket. **Both radios are quoted, not inferred from the class:** 'Simultaneous 802.11ac wave 2 /ac/a/n and 802.11b/g/n, 2x2 MU-MIMO, 2.4 GHz: 300Mbps, 5GHz: 866Mbps'. The Mini is single-Ethernet - a lab cabling a second cable into it is cabling into nothing. **9.5 W is the whole draw**, which is what `poeIn` carries: an 802.3af PSE (15.4 W at the port) can power it with margin, and the engine will say so. Unlike an access point with a PoE *pass-through*, the Mini has no output port at all. Built-in 2.2 dBi (2.4 GHz) / 3 dBi (5 GHz) omni antennas, 60 recommended clients, 16 SSIDs per radio, plenum-rated indoor plastic, 150 g, 0.33 pounds; transmit power 22 dBm at 2.4 GHz and 23 dBm at 5 GHz."
+}

@@ -1035,5 +1035,37 @@ console.log('\nThe br2 pro is 2.5G on the wan side and 1G on the lan side (#486)
   eq(r.powerMaxW, 30, 'BR2 Pro: 30 W max, 12 W nominal');
 }
 
+console.log('\nAn access point with one socket, a router with eight poe ports (#471, #458):');
+{
+  const ap = find('APO-AC-MINI');
+  const apPorts = effectiveInterfaces(ap);
+  eq(apPorts.filter(function (p) { return p.connector === 'rj45'; }).length, 1,
+    'AP One AC Mini: exactly one Ethernet socket');
+  eq(apPorts.filter(function (p) { return p.type === 'wireless'; }).length, 2,
+    'AP One AC Mini: two radios, simultaneous dual-band');
+  eq(apPorts.filter(function (p) { return p.speed === '300M'; }).length, 1,
+    'AP One AC Mini: 300 Mbps on 2.4 GHz');
+  eq(apPorts.filter(function (p) { return p.speed === '866M'; }).length, 1,
+    'AP One AC Mini: 866 Mbps on 5 GHz');
+  ok(apPorts.every(function (p) { return p.poeOut === undefined; }),
+    'AP One AC Mini: no PoE output - it is a powered device, not a PSE');
+  eq(ap.powerMaxW, 9.5, 'AP One AC Mini: 9.5 W is the whole draw');
+
+  const sdx = find('BPL-SDX');
+  const sdxPorts = effectiveInterfaces(sdx);
+  eq(sdxPorts.filter(function (p) { return p.poeOut === 30; }).length, 8,
+    'SDX: eight PoE+ LAN ports');
+  eq(sdx.poeBudget, 330, 'SDX: a 330 W PoE budget beside an 80 W system draw');
+  eq(sdxPorts.filter(function (p) { return p.connector === 'sfp+'; }).length, 2,
+    'SDX: two 10G SFP+ WAN cages');
+  eq(sdxPorts.filter(function (p) { return p.connector === 'rj45' && p.role === 'wan'; }).length, 2,
+    'SDX: two copper GE WAN ports as well');
+  ok(sdxPorts.filter(function (p) { return p.name === 'mgmt'; })
+    .every(function (p) { return p.bridgeGroup === undefined; }),
+    'SDX: the MGMT port is out-of-band and stays out of the LAN bridge');
+  eq(sdxPorts.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'SDX: one console port');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

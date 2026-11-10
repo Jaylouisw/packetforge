@@ -1,0 +1,212 @@
+{
+  "vendor": "peplink",
+  "model": "BPL-SDX",
+  "label": "Peplink Balance SDX",
+  "category": "router",
+  "description": "Peplink Balance SDX (BPL-SDX) - 1U enterprise branch SD-WAN router with edge computing: 2x Gigabit Ethernet WAN (convertible to LAN), 2x 10G SFP+ WAN, 8x Gigabit Ethernet LAN with 802.3at PoE+ output (330 W budget), 2x USB 3.0 WAN, a dedicated MGMT port and a console port, 12 Gbps stateful firewall throughput, 600 Mbps PepVPN with 256-bit AES, one FlexModule Plus slot, 80 W system draw, 0-40 C.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli",
+    "poe-pse",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 30,
+      "poeIn": 0
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "poeBudget": 330,
+  "powerMaxW": 80,
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://download.peplink.com/resources/peplink_SDX_datasheet.pdf",
+  "notes": "The ordering row is a complete census: '**SDX Base Model, No Expansion module, 2x GE WAN Ports, 2x 10GE SFP+ WAN ports, 8x GE LAN ports, 2x USB WAN**', and the chassis drawing adds '1x MGMT' and '1x Console'. The specs table agrees: 'WAN Interface: 2x 10G SFP+ Ports, 2x GE Ports, 2x USB 3.0 Ports', 'LAN Interface: 8x GE Ports with PoE+ Output'. **Every one of those LAN ports is a PSE, and the budget is quoted:** 'PoE Output: 8x 802.3at PoE+ Output', 'Power Consumption: 80W System, 330W PoE+ Power Budget'. Both are carried - `poeOut: 30` per port and `poeBudget: 330` - so a lab discovers that 8 x 30 W = 240 W fits and that the 330 W figure is the ceiling, not 8 x 30 W invented as one. **The WAN side is faster than the LAN side and mixes media:** two 10G SFP+ cages and two copper GE ports, with 'WAN Port Convertible into LAN Port' in the software table - recorded as a note, not as extra LAN ports. **MGMT is separate from the data plane.** '1x MGMT' is out-of-band management, so it is declared as its own interface and kept out of the `lan` bridge group. **Not modelled:** the 2x USB 3.0 WAN ports (no USB interface type in this catalogue) and the single FlexModule Plus slot - the slot is a module bay, which the components clause in `docs/DEVICE_REGISTRY.md` says is a fact about the host, not a port. With one module fitted the SDX gains 8 more GE ports or 4 more SFP+; the base chassis modelled here is the 'No Expansion module' SKU the datasheet names."
+}
