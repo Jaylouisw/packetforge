@@ -698,5 +698,25 @@ console.log('\nAn ethernet wan that is one of the lan sockets (#679):');
     'V2765-K: lan4 is the socket that can be reassigned as the Ethernet WAN, and it cables at 1G');
 }
 
+console.log('\nG.fast on the same rj11 socket, and still four rj45 sockets (#692):');
+{
+  const v66 = find('V2766-K');
+  const vp6 = effectiveInterfaces(v66);
+  eq(vp6.filter(function (p) { return p.type === 'ethernet'; }).length, 4,
+    'V2766-K: four RJ-45 sockets, with the Ethernet WAN being one of them');
+  const dsl = vp6.filter(function (p) { return p.type === 'dsl'; })[0];
+  ok(!!dsl && dsl.connector === 'rj11', 'V2766-K: the DSL port is RJ-11 - a phone line, not a socket for a patch lead');
+  ok(vp6.filter(function (p) { return p.type === 'wireless'; }).length === 0,
+    'V2766-K: the wired base model has no radios');
+  ok((v66.notes || '').indexOf('G.Fast') !== -1,
+    'V2766-K: G.Fast is the reason to pick this chassis over the 2765, and it is recorded');
+  const t21 = new Topology();
+  const r3 = t21.addDevice(v66);
+  const pc9 = t21.addDevice(find('generic-pc'));
+  ok(!t21.validateLink(r3.id, 'dsl0', pc9.id, 'eth0', {}).ok,
+    'V2766-K: an RJ45 lead into the DSL port is refused');
+  ok(t21.validateLink(r3.id, 'lan1', pc9.id, 'eth0', {}).ok, 'V2766-K: a LAN port takes a copper host');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

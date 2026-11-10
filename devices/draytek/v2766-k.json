@@ -1,0 +1,82 @@
+{
+  "vendor": "draytek",
+  "model": "V2766-K",
+  "label": "DrayTek Vigor 2766 G.Fast / VDSL2 VPN router",
+  "category": "router",
+  "description": "DrayTek Vigor 2766 - SoHo G.Fast, VDSL2, ADSL and Ethernet WAN VPN router (base wired model: no Wi-Fi, no VoIP ports) with one RJ-11 DSL port carrying G.Fast/VDSL2 35b/ADSL2+, four Gigabit Ethernet RJ-45 ports one of which can be reassigned as the Ethernet WAN2, a USB 2.0 port for a 3G/4G modem, SPI firewall with content filtering, four LAN subnets with port-based or 802.1Q VLANs and two VPN tunnels. 950 Mbps firewall throughput on Ethernet WAN, 24 W maximum from a 12 V external supply.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "dsl0",
+      "type": "dsl",
+      "connector": "rj11",
+      "speed": "100M",
+      "role": "wan"
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/documents/DrayTek_Datasheet_Vigor_2766_series.pdf",
+  "notes": "The series datasheet's physical interface block reads '**WAN1: G.Fast / VDSL2 / VDSL2 35b / ADSL2+, RJ-11**', '**WAN2/LAN Switchable Port: 1x Gigabit Ethernet**', '**WAN3: USB 2.0**', and the summary bullet says '**4 Gigabit LAN Ports**' with '**4 LAN Subnets**'. As on the Vigor 2765, the Ethernet WAN is **not a fifth socket** - it is one of the four RJ-45s reassigned - so the spec declares `dsl0` plus four LAN ports and leaves the reassignment to this note. Declaring a separate WAN2 would show five RJ-45s on a four-port box. The **G.Fast** capability is the difference from the 2765: the same RJ-11 socket terminates a G.Fast line, so a lab modelling a G.Fast tail can use this chassis rather than the older one. Speed on the DSL port is a line-rate placeholder: G.Fast/VDSL2 rates depend on the loop, and the datasheet quotes none. This is the `V2766-K` wired base: AC1300 radios belong to `V2766AC-K` and the two FXS ports to `V2766VAC-K`, so neither is declared. 12 V external PSU, no PoE."
+}
