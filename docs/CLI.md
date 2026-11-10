@@ -4048,15 +4048,24 @@ smm10g1 (ethernet, sfp+) - transceiver
 The cable's state and the port's are two different facts, and `link` prints both when they disagree.
 A run can be up while the socket it enters is administratively down, and this line used to answer
 `(up)` from the cable alone — true about the copper, and silent about the thing that was stopping
-every frame:
+every frame. Measured on an EP-S16 `sfp1` cabled to an ASR 1001-X `Te0/0/0`:
 
 ```
-SW1#show interfaces transceiver 10g-sfp
-10g-sfp (ethernet, sfp+) - transceiver
+SW1#configure terminal
+SW1(config)#interface sfp1
+SW1(config-if)#shutdown
+sfp1 administratively down
+
+SW1#show interfaces transceiver sfp1
+sfp1 (ethernet, sfp+) - transceiver
   cage         : sfp+
   rate         : 10G
   optics       : 18 for this cage (SFP-10G-SR, SFP-10G-LR, SFP-10G-ER, ...)
   link         : l3 -> R2/Te0/0/0 (up, this port is administratively down)
+  medium       : 10GBASE-SR (fiber, lc, 850 nm)
+  reach        : 300 m
+  length       : -
+  verdict      : reach unchecked (no cable length)
 ```
 
 The table gains no column, because the optic really is in the socket and the reach numbers are true
@@ -4065,10 +4074,18 @@ whatever the port is doing. The reason comes as a note under the rows instead, i
 since in that case our own port is genuinely up:
 
 ```
-  smm10g1: this port is administratively down
-  smm10g2: the far port Te0/0/0 on R2 is administratively down
+SW1#show interfaces transceiver
+SW1 transceivers (2 cage ports):
+  Port  Cage  Medium      Rate  Reach  Length  Verdict
+  sfp1  sfp+  10GBASE-SR  10G   300 m  -       reach unchecked (no cable length)
+  sfp2  sfp+  -           10G   -      -       not cabled
+  sfp1: this port is administratively down
   The optic and the run are as above; those ports are why no frame crosses them.
 ```
+
+With `sfp1` back and the ASR's `Te0/0/0` shut instead, the same line names the other end —
+`sfp1: the far port Te0/0/0 on R2 is administratively down` — because this port has nothing wrong
+with it. Uncabled ports are not listed: `not cabled` in the Verdict column is that fact already.
 
 Only module bays are listed. That is not "not copper": an antenna, a coax spur and a console socket
 are all non-copper cages with nothing to plug in, so the test is what the cage can carry — fibre,

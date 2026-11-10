@@ -10,6 +10,7 @@
 // The point of these assertions is that the CLI is not a second opinion: the verdict it
 // prints is the code validateLink() produced for the same pair.
 const path = require('path');
+const fs = require('fs');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
 
@@ -220,6 +221,45 @@ console.log('\nThe transceiver view answers for the port, not only for the optic
   const healthy = show(fibreLab().a, fibreLab().t, fibreLab().sim, 'show interfaces transceiver');
   ok(healthy.filter(function (l) { return /^\s{2}\S+: (this|there|the)/.test(l); }).length === 0,
     'a working port gets no note at all');
+}
+
+console.log('\nThe transcript docs/CLI.md quotes is the one this code prints:');
+{
+  // A transcript written from a real run is still a copy, and copies drift. The doc block these lines
+  // come from was first written by hand - plausible, and wrong in its port names - so the sentences it
+  // quotes are pinned here: if the console stops saying them, the docs are not quietly left alone.
+  const t = new Topology();
+  const sw = t.addDevice(catalog.find(function (s) { return s.vendor === 'ubiquiti' && s.model === 'EP-S16'; }));
+  sw.name = 'SW1';
+  const r = t.addDevice(catalog.find(function (s) { return s.vendor === 'cisco' && s.model === 'ASR 1001-X'; }));
+  r.name = 'R2';
+  const link = t.connect(sw.id, 'sfp1', r.id, 'Te0/0/0', { mediaId: '10gbase-sr' });
+  const sim = new Simulator(t);
+  const docs = fs.readFileSync(path.join(__dirname, '..', 'docs', 'CLI.md'), 'utf8');
+  const docsLines = docs.split('\n').map(function (l) { return l.replace(/\s+$/, ''); });
+
+  runCommands(sw, t, sim, ['enable', 'configure terminal', 'interface sfp1', 'shutdown', 'end']);
+  const detail = show(sw, t, sim, 'show interfaces transceiver sfp1').join('\n');
+  const table = show(sw, t, sim, 'show interfaces transceiver').join('\n');
+
+  const fenced = [
+    '  link         : ' + link.id + ' -> R2/Te0/0/0 (up, this port is administratively down)',
+    '  sfp1: this port is administratively down',
+    '  The optic and the run are as above; those ports are why no frame crosses them.'
+  ];
+  for (const line of fenced) {
+    ok(detail.indexOf(line) !== -1 || table.indexOf(line) !== -1,
+      'the console still prints: ' + line.trim());
+    ok(docsLines.indexOf(line) !== -1, 'and docs/CLI.md still quotes it verbatim');
+  }
+
+  // The far-end sentence is quoted inline in prose rather than in a fence, so it is found anywhere.
+  runCommands(sw, t, sim, ['enable', 'configure terminal', 'interface sfp1', 'no shutdown', 'end']);
+  runCommands(r, t, sim, ['enable', 'configure terminal', 'interface Te0/0/0', 'shutdown', 'end']);
+  const farLine = 'sfp1: the far port Te0/0/0 on R2 is administratively down';
+  ok(show(sw, t, sim, 'show interfaces transceiver').join('\n').indexOf(farLine) !== -1,
+    'the console still names a shut far end: ' + farLine);
+  ok(docs.indexOf(farLine) !== -1, 'and the doc still quotes that sentence');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
