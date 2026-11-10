@@ -454,6 +454,40 @@ Two zoom implementations exist and they currently agree: the toolbar's `+`/`−`
 but all three clamp to the same **0.25–3**. Only the wheel zooms towards the pointer; the buttons
 zoom the whole view.
 
+### One colour per cable family, and the cables that get none
+
+The canvas colours a cable by matching its media id against an ordered rule list in `canvas.js`
+(`MEDIUM_RULES`), and the palette carries the matching legend so a copper patch lead and a fibre uplink
+are tellable apart at a glance. There are nine families and the rule list is **first match wins**:
+
+| class | matches a media id starting with (or containing) |
+|---|---|
+| `wireless` | `wireless…` |
+| `dac` | `dac…` |
+| `aoc` | `aoc…` |
+| `pon` | `gpon`, `xgspon`, `xg-pon`, `epon`, `10g-epon`, `ngpon`, `pon` |
+| `coax` | `docsis`, `moca`, `coax` |
+| `dsl` | `vdsl`, `adsl`, `shdsl`, `dsl` |
+| `powerline` | `homeplug`, `g.hn`, `powerline`, `mains` |
+| `copper` | `…base-t`, `…-t`, `cat<n>`, `rj45` |
+| `fiber` | `…base-`, `optics`, `fiber`, `fibre`, `sx`, `lx`, `er`, `sr`, `fr`, `dr`, `lr4`, `cr4`, `base-x` |
+
+**Twenty-eight of the 89 media match none of them** and are drawn with no family class, so they appear in
+the default slate stroke (`.link { stroke: #3c4a63 }`) and have no legend entry. The groups, checked by running the same rules over
+`Object.keys(MEDIA)`:
+
+- all **16 Fibre Channel** media — `2gfc-sw` … `128gfc-lw`. Fibre Channel *is* fibre, but no rule mentions
+  `fc` or `gfc`, so these cables are not drawn as fibre and cannot be.
+- all **6 console** media — `console-rs232` and its `19200`/`38400`/`57600`/`9600` variants, plus
+  `usb-console`. A console cable has no physical family in the model, and none is invented for it.
+- **`ghn`** and **`ghn-25`** — the rule looks for `g.hn` with the dot, and the media ids have none.
+- **`lte`**, **`lte-a`**, **`5g-sub6`**, **`5g-mmwave`** — cellular has no class; the `wireless` rules match
+  `wireless…` ids only, so radio links that are not Wi-Fi fall through as well.
+
+Adding a tenth family means touching three files, which is why the fall-through is documented rather than
+silently patched: the rule list and `mediumClass()` in `canvas.js`, the `.link-*` rules in `style.css`, and
+the legend in `app.js`.
+
 ## Adding a feature
 
 The seams are deliberate. To add a new **protocol**, extend the simulator's `_tryProcessL3` and the
