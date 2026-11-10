@@ -1900,8 +1900,10 @@
       raw.allowedVlans.trim().toLowerCase() !== 'all') {
       allowed = raw.allowedVlans.trim();
     }
+    const voiceVlan = (raw.voiceVlan === undefined || raw.voiceVlan === null) ? null : Number(raw.voiceVlan);
+    const voiceText = voiceVlan === null ? '' : ' · voice ' + voiceVlan;
     if (mode === 'trunk') {
-      return 'trunk · native ' + nativeVlan + ' · allowed ' + allowed;
+      return 'trunk · native ' + nativeVlan + ' · allowed ' + allowed + voiceText;
     }
     let line = 'access VLAN ' + accessVlan;
     const staged = [];
@@ -1914,6 +1916,7 @@
       raw.allowedVlans.trim().toLowerCase() !== 'all') {
       staged.push('allowed ' + raw.allowedVlans.trim());
     }
+    if (voiceVlan !== null) staged.push('voice ' + voiceVlan);
     if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
     return line;
   }

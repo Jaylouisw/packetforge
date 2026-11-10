@@ -956,12 +956,21 @@ class Device {
           maxSpeedMbps: i.hardware.maxSpeedMbps,
           poeOutDeclared: i.hardware.poeOutDeclared,
           duplex: i.duplex,
-          vlan: {
-            mode: i.vlan.mode,
-            accessVlan: i.vlan.accessVlan,
-            nativeVlan: i.vlan.nativeVlan,
-            allowedVlans: i.vlan.allowedVlans
-          },
+          vlan: (function () {
+            // The voice VLAN is written only when it is set, for the same reason the optional hardware fields
+            // above are: a board should not grow a `voiceVlan: null` line on every port in the catalogue. It is
+            // written at all because before this a saved lab came back with its voice VLANs gone (#1368).
+            const out = {
+              mode: i.vlan.mode,
+              accessVlan: i.vlan.accessVlan,
+              nativeVlan: i.vlan.nativeVlan,
+              allowedVlans: i.vlan.allowedVlans
+            };
+            if (i.vlan.voiceVlan !== null && i.vlan.voiceVlan !== undefined) {
+              out.voiceVlan = i.vlan.voiceVlan;
+            }
+            return out;
+          })(),
           lagId: i.lagId,
           // port role: a dual-purpose cage can be WAN or LAN, and a bridge group
           // tells the UI which ports share one switch chip and therefore one address
@@ -1074,6 +1083,10 @@ class Device {
               nativeVlan: Number(is.vlan.nativeVlan) || 1,
               allowedVlans: is.vlan.allowedVlans === undefined ? 'all' : is.vlan.allowedVlans
             };
+            // Restored, not re-derived: the reader rebuilt this object from four keys, so a saved voice VLAN
+            // came back as a port that had never had one (#1368).
+            const voice = Number(is.vlan.voiceVlan);
+            if (Number.isInteger(voice) && voice > 0 && voice <= 4094) iface.vlan.voiceVlan = voice;
           }
           // Physical hardware is saved, so it must be restored - not re-derived.
           //

@@ -71,17 +71,23 @@ const modes = ['access', 'trunk', undefined];
 const accessVlans = [undefined, 1, 20, 4094];
 const nativeVlans = [undefined, null, 1, 20, 30];
 const allowedLists = [undefined, 'all', [], [10, 20], [20], '10,20'];
+// The voice VLAN is a switchport parameter like the others, so it belongs in the matrix: an unset field, one
+// that is in the allowed list and one that is not (#1368).
+const voiceVlans = [undefined, null, 20, 30];
 const matrix = [];
 for (const mode of modes) {
   for (const accessVlan of accessVlans) {
     for (const nativeVlan of nativeVlans) {
       for (const allowedVlans of allowedLists) {
-        const cfg = {};
-        if (mode !== undefined) cfg.mode = mode;
-        if (accessVlan !== undefined) cfg.accessVlan = accessVlan;
-        if (nativeVlan !== undefined) cfg.nativeVlan = nativeVlan;
-        if (allowedVlans !== undefined) cfg.allowedVlans = allowedVlans;
-        matrix.push(cfg);
+        for (const voiceVlan of voiceVlans) {
+          const cfg = {};
+          if (mode !== undefined) cfg.mode = mode;
+          if (accessVlan !== undefined) cfg.accessVlan = accessVlan;
+          if (nativeVlan !== undefined) cfg.nativeVlan = nativeVlan;
+          if (allowedVlans !== undefined) cfg.allowedVlans = allowedVlans;
+          if (voiceVlan !== undefined) cfg.voiceVlan = voiceVlan;
+          matrix.push(cfg);
+        }
       }
     }
   }
@@ -130,18 +136,37 @@ console.log('The sentence agrees with the data plane about every VLAN it mention
     if (/^trunk /.test(sentence)) {
       // A trunk's sentence is a claim about the allowed list, so the allowed list has to match the data plane
       // exactly - including `none`.
+      // The voice clause is a claim too: the port carries that VLAN whatever the allowed list says, and if the
+      // sentence names it the classifier had better agree in both directions.
+      const voiceMatch = /· voice (\d+)/.exec(sentence);
+      const voiceVid = voiceMatch ? Number(voiceMatch[1]) : null;
+      if (voiceVid !== null && !carried(cfg, voiceVid)) {
+        bad.push('names voice ' + voiceVid + ' but drops it: ' + JSON.stringify(cfg));
+      }
+      const voiceCarried = voiceVid !== null && carried(cfg, voiceVid);
       if (/allowed all/.test(sentence)) {
         for (const vid of probes) if (!carried(cfg, vid)) bad.push('all but drops ' + vid + ': ' + JSON.stringify(cfg));
       } else if (/allowed none/.test(sentence)) {
-        for (const vid of probes) if (carried(cfg, vid)) bad.push('none but carries ' + vid + ': ' + JSON.stringify(cfg));
+        for (const vid of probes) {
+          if (carried(cfg, vid) && !(voiceCarried && vid === voiceVid)) {
+            bad.push('none but carries ' + vid + ': ' + JSON.stringify(cfg));
+          }
+        }
       } else {
         const listed = /allowed ([\d,]+)/.exec(sentence)[1].split(',').map(Number);
         for (const vid of listed) if (!carried(cfg, vid)) bad.push('lists ' + vid + ' but drops it: ' + JSON.stringify(cfg));
         for (const vid of probes) {
-          if (listed.indexOf(vid) === -1 && carried(cfg, vid)) {
+          if (listed.indexOf(vid) === -1 && carried(cfg, vid) && !(voiceCarried && vid === voiceVid)) {
             bad.push('carries ' + vid + ' but claims it is not allowed: ' + JSON.stringify(cfg));
           }
         }
+      }
+      // And a voice VLAN outside the allowed list must actually be the one the clause names - a clause that
+      // named the wrong VLAN would pass the check above.
+      if (voiceVid !== null) {
+        const outro = vlanLib.classifyEgress(cfg, voiceVid);
+        // Untagged is right when the voice VLAN is also the native VLAN - the frame still leaves the port.
+        if (outro.action === 'drop') bad.push('voice ' + voiceVid + ' is dropped: ' + JSON.stringify(cfg));
       }
     } else {
       // An access port's sentence is a claim about one VLAN - and, in its staged clause, an explicit claim that
