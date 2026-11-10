@@ -134,6 +134,18 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### Every change answers the same question
+
+The HTTP API has five requests that change what the control plane will do — add a device, remove one, move a cable,
+cut one out, and edit a port. Four of them answered with the new state and said nothing about convergence; only
+`POST /links/:id/state` reported where the schedule stood. So an operator could ask "is this lab settled?" after
+cutting a cable and not after disabling a port, which is the same question about the same board.
+
+All five now answer through `noteChange()`, which attaches `convergence` (the engine's own `getConvergence()`), and
+records the instant the caller says they are standing at when the request carries `atMs`. A request that does not name
+an instant **leaves the clock alone** — moving it to 0 would claim the board changed before it did, which is a lie in
+the other direction. A nonsense or negative `atMs` is ignored rather than recorded.
+
 ### The clock
 
 Time in PacketForge is logical, never `Date.now()`. Three fields carry it:

@@ -199,6 +199,26 @@ function simForFlows(topo) {
   return new Simulator(topo, { flowState: flowStateFor(topo) });
 }
 
+// What an answer says when the request changed something the control plane depends on.
+//
+// Only `/links/:id/state` used to report convergence, so an operator driving the API could see whether the lab was
+// settled after cutting a cable and had no way to ask after disabling a port, adding a switch or moving a cable -
+// the same four questions, one of which answered (#1333). Nothing here invents a convergence model: `getConvergence()`
+// is the engine's own schedule, and the instant is the one the caller says they are standing at. A request that does
+// not say leaves the clock alone rather than moving it to 0, which would claim the board changed before it did.
+function noteChange(topo, body, extra) {
+  const atMs = body && body.atMs !== undefined ? Number(body.atMs) : null;
+  let recorded = null;
+  if (atMs !== null && Number.isFinite(atMs) && atMs >= 0 && typeof topo.markChange === 'function') {
+    recorded = topo.markChange(atMs);
+  }
+  const sim = simForFlows(topo);
+  const out = Object.assign({}, extra || {});
+  out.convergence = sim.getConvergence();
+  if (recorded !== null) out.atMs = recorded;
+  return out;
+}
+
 // What `/links` needs from each end of a cable, said as a sentence rather than a TypeError.
 function endShape(end) {
   if (!end || typeof end !== 'object') return 'missing end of cable';
@@ -642,7 +662,7 @@ async function handleApi(req, res, urlPath) {
           y: (typeof body.y === 'number' && isFinite(body.y)) ? body.y : 160
         };
         broadcast(topoId);
-        return sendJSON(res, 201, { device: dev.serialize(), state: fullState(topo) });
+        return sendJSON(res, 201, noteChange(topo, body, { device: dev.serialize(), state: fullState(topo) }));
       }
     }
 
@@ -654,7 +674,7 @@ async function handleApi(req, res, urlPath) {
         delete topo.layout[devId];
         for (const key of Array.from(sessions.keys())) if (key.indexOf(topoId + ':') === 0) sessions.delete(key);
         broadcast(topoId);
-        return sendJSON(res, 200, { ok: true, state: fullState(topo) });
+        return sendJSON(res, 200, noteChange(topo, null, { ok: true, state: fullState(topo) }));
       }
     }
 
@@ -686,7 +706,7 @@ async function handleApi(req, res, urlPath) {
           // what is on the other end without waiting for a ping.
           try { new Simulator(topo).refreshNeighbours(); } catch (e) { /* best effort */ }
           broadcast(topoId);
-          return sendJSON(res, 201, { link: link.serialize(), state: fullState(topo) });
+          return sendJSON(res, 201, noteChange(topo, body, { link: link.serialize(), state: fullState(topo) }));
         } catch (e) {
           // An impossible cable is a client error, not a server fault.
           return sendJSON(res, 409, {
@@ -763,7 +783,7 @@ async function handleApi(req, res, urlPath) {
       if (method === 'DELETE') {
         topo.disconnect(parts[4]);
         broadcast(topoId);
-        return sendJSON(res, 200, { ok: true, state: fullState(topo) });
+        return sendJSON(res, 200, noteChange(topo, null, { ok: true, state: fullState(topo) }));
       }
       if (method === 'PATCH' || method === 'POST') {
         const body = await readBody(req);
@@ -865,7 +885,7 @@ async function handleApi(req, res, urlPath) {
         iface.role = body.role;
       }
       broadcast(topoId);
-      return sendJSON(res, 200, { device: dev.serialize(), state: fullState(topo) });
+      return sendJSON(res, 200, noteChange(topo, body, { device: dev.serialize(), state: fullState(topo) }));
     }
 
     // /ping
