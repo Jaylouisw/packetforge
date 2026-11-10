@@ -35,7 +35,10 @@ class Link {
     // When this state last changed. A cable that was pulled at t=10 s is still pulled at t=41 s,
     // and every later question has to know when it happened to say whether the network has
     // finished reacting to it.
-    this.stateSinceMs = (o.stateSinceMs === undefined) ? 0 : Number(o.stateSinceMs);
+    // A timestamp that is not a number is not a time. `Number('soon')` is NaN, which serialises as null and
+    // compares false against everything, so a cable would claim it changed "not at any known time" (#1323).
+    const since = (o.stateSinceMs === undefined || o.stateSinceMs === null) ? 0 : Number(o.stateSinceMs);
+    this.stateSinceMs = isFinite(since) ? since : 0;
   }
 
   // The endpoint record matching (deviceId, iface), or null.
@@ -60,8 +63,11 @@ class Link {
   serialize() {
     const out = {
       id: this.id,
-      a: this.a,
-      b: this.b,
+      // Copies, not the live endpoint records. `serialize()` is what the API hands out and what the UI, the
+      // example builder and every test fixture receives; a caller that adjusts the document it was given must not
+      // be adjusting the board (#1323).
+      a: { deviceId: this.a.deviceId, iface: this.a.iface },
+      b: { deviceId: this.b.deviceId, iface: this.b.iface },
       type: this.type,
       mediaId: this.mediaId,
       speedMbps: this.speedMbps,

@@ -134,6 +134,26 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### A cable is restored or explained
+
+Every option `connect()` accepts survives a save and reload (`mediaId`, `speedMbps`, `duplex`, `lengthM`,
+`lagId`, `patchCord`, `state`, `stateSinceMs`, and the legacy `type` string), and `serialize()` hands out **copies**
+of the endpoint records — writing to the document you were given must not adjust the board.
+
+A cable that cannot be restored is not skipped in silence. `fromJSON()` records one entry per cable in
+`loadIssues`, which every state payload carries next to `verdicts`:
+
+| the document says | code |
+|---|---|
+| two cables share an id (links are kept in a map, so the second used to replace the first) | `E_LINK_DUPLICATE_ID` |
+| a `state` that is not `up` / `down` / `blocked` | `E_LINK_BAD_STATE` |
+| a port cabled to itself | `E_LINK_SELF_LOOP` |
+| an end naming a device or port the document does not contain | `E_LINK_ENDPOINT_MISSING` |
+| a cable the engine refuses (a port already connected, a cage already occupied) | `E_LINK_NOT_RESTORED`, with the engine's own sentence |
+
+The HTTP API has always refused a bad link state (`422 E_BAD_STATE`); the load path accepted anything, so a
+hand-edited or corrupted file produced a cable that `isUp()` said was not up and nothing else could explain.
+
 A board written by an older version — without any of the newer keys — still loads, and its hardware is derived the
 way it always was.
 

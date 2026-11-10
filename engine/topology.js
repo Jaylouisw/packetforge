@@ -22,6 +22,44 @@ function expandInterfaces(spec) {
   return effectiveInterfaces(spec);
 }
 
+// What is wrong with a cable in a document, before anything is built from it. Returns null when it is fine.
+//
+// A cable is two ports. A document can describe one that is not: endpoints that do not exist, a port cabled to
+// itself, a state nobody defines, or two cables sharing one id (the second silently replaced the first, because
+// links are kept in a map). The HTTP API refuses a bad state with 422; the load path accepted anything, so a
+// hand-edited or corrupted file produced a cable in a state that is neither up nor down (#1323).
+const LINK_STATES = ['up', 'down', 'blocked'];
+
+function cableProblem(link, topo) {
+  if (!link || typeof link !== 'object') return { code: 'E_LINK_MALFORMED', message: 'not a cable' };
+  const a = link.a, b = link.b;
+  if (!a || typeof a !== 'object' || typeof a.deviceId !== 'string' || typeof a.iface !== 'string') {
+    return { code: 'E_LINK_MALFORMED', message: 'cable has no a end (deviceId and iface)' };
+  }
+  if (!b || typeof b !== 'object' || typeof b.deviceId !== 'string' || typeof b.iface !== 'string') {
+    return { code: 'E_LINK_MALFORMED', message: 'cable has no b end (deviceId and iface)' };
+  }
+  if (a.deviceId === b.deviceId && a.iface === b.iface) {
+    return { code: 'E_LINK_SELF_LOOP', message: 'cable joins ' + a.deviceId + '/' + a.iface + ' to itself' };
+  }
+  if (link.state !== undefined && LINK_STATES.indexOf(link.state) === -1) {
+    return { code: 'E_LINK_BAD_STATE', message: 'cable state ' + JSON.stringify(link.state) +
+      ' is not one of ' + LINK_STATES.join(', ') };
+  }
+  if (link.id !== undefined && link.id !== null && topo.links.has(link.id)) {
+    return { code: 'E_LINK_DUPLICATE_ID', message: 'two cables share the id ' + JSON.stringify(link.id) +
+      '; the first one is kept' };
+  }
+  for (const end of [a, b]) {
+    const dev = topo.devices.get(end.deviceId);
+    if (!dev) return { code: 'E_LINK_ENDPOINT_MISSING', message: 'cable end ' + end.deviceId + '/' + end.iface +
+      ' names a device that is not in the document' };
+    if (!dev.interfaces.has(end.iface)) return { code: 'E_LINK_ENDPOINT_MISSING', message: 'cable end ' +
+      end.deviceId + '/' + end.iface + ' names a port that device does not have' };
+  }
+  return null;
+}
+
 class Topology {
   constructor() {
     this.devices = new Map();
@@ -552,6 +590,10 @@ addDevice(spec, id) {
 
   static fromJSON(data) {
     const topo = new Topology();
+    // What a document said that could not be restored, one entry per cable. A board that loses a cable used to do
+    // it in silence: the link was skipped by a bare `catch`, so an imported lab came back one cable short and the
+    // only way to find out was to count them (#1323).
+    topo.loadIssues = [];
     topo.lastChangeAtMs = Number(data.lastChangeAtMs) || 0;
     const devices = data.devices || [];
     // Two passes: create devices, then restore config/links.
@@ -579,7 +621,13 @@ addDevice(spec, id) {
     topo._macBase = 0x020000000000;
     for (const dev of topo.devices.values()) topo._assignMacs(dev);
 
+    // Every cable a document describes is either restored or explained.
     for (const l of (data.links || [])) {
+      const problem = cableProblem(l, topo);
+      if (problem) {
+        topo.loadIssues.push({ severity: 'error', linkId: l && l.id, code: problem.code, message: problem.message });
+        continue;
+      }
       // force: true so legacy topologies (no media info) still load.
       try {
         topo.connect(l.a.deviceId, l.a.iface, l.b.deviceId, l.b.iface, {
@@ -593,7 +641,9 @@ addDevice(spec, id) {
           stateSinceMs: l.stateSinceMs
         });
       } catch (e) {
-        // Skip links that can no longer be made (device/port removed).
+        // The cable cannot be made - a port the engine refuses, a cage already occupied - and it is reported
+        // rather than dropped quietly.
+        topo.loadIssues.push({ severity: 'error', linkId: l && l.id, code: 'E_LINK_NOT_RESTORED', message: e.message });
       }
     }
     topo.layout = (data.layout && typeof data.layout === 'object') ? data.layout : {};

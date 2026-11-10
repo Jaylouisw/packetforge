@@ -246,6 +246,9 @@ function fullState(topo) {
   // a document written before a rule existed, or hand-edited - travelled through the whole UI without a verdict.
   // The cable inspector then printed a hardcoded "this cable passed the physical-layer check" over it (#1303).
   s.verdicts = linkVerdicts(topo);
+  // Cables a document described that could not be restored. Kept next to `verdicts` so every state payload says the
+  // same thing about the board it carries (#1306) - a lab that lost a cable says which one and why (#1323).
+  s.loadIssues = (topo.loadIssues || []).slice();
   return s;
 }
 
