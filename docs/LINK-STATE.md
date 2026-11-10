@@ -246,3 +246,8 @@ nothing crosses is a claim, and nothing is known is not one.
   whose port is disabled without claiming the cable is down, keeps its medium class in both cases,
   labels a payload that predates the field `unknown` rather than guessing, and the stylesheet really
   dashes and recolours it.
+- `test/link-carries.test.js` — 43 assertions: `linkState()`'s four causes (shut port, far port shut,
+  cable down, socket gone), the console/engine matrix including the case where a port is genuinely up
+  while its link is not, that a cable called non-carrying really passes no frame (a ping across a shut
+  port fails, from either end), the payload contract (derived on read, absent from the saved file), and
+  the inspector's four renderings — including that the row never says `up` when the payload does not.

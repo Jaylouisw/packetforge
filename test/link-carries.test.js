@@ -120,6 +120,37 @@ console.log('\nThe console and the engine answer different questions, and both a
   }
 }
 
+console.log('\nA cable the engine calls non-carrying really passes no frame:');
+{
+  // The point of reporting `carries: false` is that it is not a cosmetic flag. If the forwarding path
+  // still delivered frames, the board would be right and the simulation wrong - the worst of the two
+  // ways to be inconsistent - so the two are pinned together here.
+  const t = new Topology();
+  const sw = t.addDevice(spec('generic', 'generic-switch')); sw.name = 'SW1';
+  const a = t.addDevice(spec('generic', 'generic-pc')); a.name = 'PC1';
+  const b = t.addDevice(spec('generic', 'generic-pc')); b.name = 'PC2';
+  t.connect(a.id, 'eth0', sw.id, 'Fa0/1');
+  t.connect(b.id, 'eth0', sw.id, 'Fa0/2');
+  const sim = new Simulator(t);
+  function cli(dev, cmds) {
+    const c = new CliSession(dev, t, sim);
+    for (const l of cmds) c.run(l);
+  }
+  cli(a, ['enable', 'configure terminal', 'interface eth0', 'ip address 10.0.0.1 255.255.255.0', 'exit']);
+  cli(b, ['enable', 'configure terminal', 'interface eth0', 'ip address 10.0.0.2 255.255.255.0', 'exit']);
+  ok(sim.ping(a.id, '10.0.0.2', { count: 1 }).replies[0].success, 'at first the hosts reach each other');
+
+  cli(sw, ['enable', 'configure terminal', 'interface Fa0/2', 'shutdown', 'end']);
+  const far = [...t.links.values()].filter(function (l) { return l.a.iface === 'Fa0/2' || l.b.iface === 'Fa0/2'; })[0];
+  ok(t.linkState(far).up === false, 'shutting the far switch port makes that cable non-carrying');
+  ok(!sim.ping(a.id, '10.0.0.2', { count: 1 }).replies[0].success,
+    'and no frame crosses it, so the label is a fact about the engine and not a caption');
+
+  cli(a, ['enable', 'configure terminal', 'interface eth0', 'shutdown', 'end']);
+  ok(!sim.ping(a.id, '10.0.0.2', { count: 1 }).replies[0].success,
+    'and a host cannot send out of its own shut port either');
+}
+
 console.log('\nThe answer is derived on read, so it is not written into the saved file:');
 {
   const { t } = lab();
