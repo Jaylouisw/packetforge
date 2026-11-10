@@ -1722,7 +1722,7 @@
         const iface = sp.getAttribute('data-iface');
         const cur = d.interfaces.find(function (i) { return i.name === iface; });
         try {
-          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { enabled: !cur.enabled });
+          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + encodeURIComponent(iface), { enabled: !cur.enabled });
           topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
         } catch (e) { toast(e.message); }
       });
@@ -1739,7 +1739,7 @@
         if (opts.length < 2) return;
         const next = opts[(opts.indexOf(cur.role) + 1) % opts.length];
         try {
-          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + iface, { role: next });
+          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + d.id + '/' + encodeURIComponent(iface), { role: next });
           topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
           toast(iface + ' is now a ' + next.toUpperCase() + ' port');
         } catch (e) { toast(e.message); }
@@ -1819,7 +1819,7 @@
           // Clearing the address clears its mask with it - an address with no mask
           // is not a thing you can route.
           delete pendingIp[key];
-          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface,
+          const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + encodeURIComponent(iface),
             { ip: null, mask: null });
           topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
           toast('Cleared ' + iface);
@@ -1838,7 +1838,7 @@
         if (!ip) { toast('Enter an IP address first'); return; }
         if (!raw) { toast('A mask is required with an address'); focusMask(devId, iface); return; }
         const mask = maskFromShorthand(raw);
-        const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + iface, { ip: ip, mask: mask });
+        const r = await api('POST', '/topologies/' + TOPO + '/interfaces/' + devId + '/' + encodeURIComponent(iface), { ip: ip, mask: mask });
         delete pendingIp[key];
         topo = r.state || topo; PFCanvas.setTopology(topo); renderDeviceTab();
         toast('Set ' + iface + ' to ' + ip + '/' + maskBits(mask));

@@ -629,8 +629,11 @@ async function handleApi(req, res, urlPath) {
         return sendJSON(res, 404, { error: 'no such link', code: result.code || 'E_NO_LINK' });
       }
       broadcast(topoId);
+      // `state` here used to appear twice in one object literal - the link's own 'up'/'down' first, the whole
+      // topology last - so the payload was saved only by JavaScript taking the later key. Renaming the string to
+      // `linkState` says what it is and removes the landmine (#1307).
       return sendJSON(res, 200, {
-        ok: true, linkId: parts[4], state: state, atMs: result.atMs,
+        ok: true, linkId: parts[4], linkState: state, atMs: result.atMs,
         reconvergeAtMs: result.reconvergeAtMs, changed: result.changed,
         convergence: sim.getConvergence(),
         state: fullState(topo)
@@ -689,8 +692,19 @@ async function handleApi(req, res, urlPath) {
     }
 
     // /interfaces/:devId/:iface  (direct property edit — nice UI shortcut)
-    if (parts[3] === 'interfaces' && parts.length === 6 && method === 'POST') {
-      const devId = parts[4], ifaceName = parts[5];
+    // A port name can contain a slash - `1/1/1`, `Fa0/1` - so the name is the rest of the path, not one segment,
+    // and a correct client percent-encodes it. Both forms have to resolve. Until they did, the inspector's
+    // shutdown toggle 404'd with `unknown endpoint: /api/topologies/default/interfaces/d1/1/1/1` for every port
+    // named that way, which is most of the catalogue: the control was there, it was wired, and it did nothing
+    // (#1307).
+    if (parts[3] === 'interfaces' && parts.length >= 6 && method === 'POST') {
+      const devId = parts[4];
+      let ifaceName;
+      try {
+        ifaceName = decodeURIComponent(parts.slice(5).join('/'));
+      } catch (e) {
+        return sendJSON(res, 400, { error: 'bad interface name in path' });
+      }
       const dev = topo.getDevice(devId);
       if (!dev) return sendJSON(res, 404, { error: 'device not found' });
       const iface = dev.interfaces.get(ifaceName);
