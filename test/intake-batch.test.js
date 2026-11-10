@@ -1012,5 +1012,28 @@ console.log('\nThe 225 bonds two 5G links and claims no rate for either (#624):'
     'i-MO 225: no WiFi radio either - the page lists none, so none is added by resemblance');
 }
 
+console.log('\nThe br2 pro is 2.5G on the wan side and 1G on the lan side (#486):');
+{
+  const r = find('MAX-BR2-PRO-5GN-T-PRM');
+  const ports = effectiveInterfaces(r);
+  const wan = ports.filter(function (p) { return p.role === 'wan' && p.type === 'ethernet'; });
+  const lan = ports.filter(function (p) { return p.role === 'lan' && p.type === 'ethernet'; });
+  eq(wan.length, 2, 'BR2 Pro: two Ethernet WAN ports');
+  eq(lan.length, 4, 'BR2 Pro: four Ethernet LAN ports');
+  ok(wan.every(function (p) { return p.speedCaps.indexOf(2500) !== -1; }),
+    'BR2 Pro: the WAN ports are 2.5G, which is faster than its own LAN ports');
+  ok(lan.every(function (p) { return p.speedCaps.indexOf(2500) === -1; }),
+    'BR2 Pro: the LAN ports stop at 1G');
+  eq(ports.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 2,
+    'BR2 Pro: two 5G modems - redundant SIM slots are a SIM switch, not a third modem');
+  eq(ports.filter(function (p) { return p.poeIn === 25; }).length, 1,
+    'BR2 Pro: 25 W of 802.3at on exactly one port, not two simultaneous feeds');
+  eq(ports.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'BR2 Pro: the serial OOBM port');
+  eq(ports.filter(function (p) { return p.type === 'wireless' && !p.role; }).length, 2,
+    'BR2 Pro: two radios, simultaneous dual-band');
+  eq(r.powerMaxW, 30, 'BR2 Pro: 30 W max, 12 W nominal');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

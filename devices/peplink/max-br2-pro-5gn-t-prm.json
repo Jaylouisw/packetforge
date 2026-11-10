@@ -1,0 +1,136 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR2-PRO-5GN-T-PRM",
+  "label": "Peplink MAX BR2 Pro 5G router",
+  "category": "router",
+  "description": "Peplink MAX BR2 Pro (MAX-BR2-PRO-5GN-T-PRM) - ruggedised dual-5G SD-WAN router for vehicle and mobile deployments: 2x 2.5G Ethernet WAN (each convertible to LAN), 2x 5G modems with redundant SIM slots, 4x Gigabit Ethernet LAN, USB 3.0 WAN, simultaneous dual-band Wi-Fi 6 2x2 MU-MIMO as WAN and/or AP, a serial OOBM port, 802.3at PoE input, 10-30 V DC with ignition sensing, 12 W nominal and 30 W max, -40 to +65 C.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli",
+    "wireless",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "poeIn": 25
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "4.1G",
+      "role": "wan"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "4.1G",
+      "role": "wan"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "powerMaxW": 30,
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://download.peplink.com/resources/peplink_br2_pro_datasheet.pdf",
+  "notes": "The datasheet PDF enumerates the ports as text where the product page only draws them - 'WAN Interface: 2x 10/100/1000/2500M Ethernet' with '2x 5G Modems with Redundant SIM Slots' and '1x USB 3.0 Interface', 'LAN Interface: 4x 10/100/1000M Ethernet' - so the census is 2x 2.5G WAN + 4x 1G LAN + two 5G modems, plus a serial OOBM port named in the introduction ('The Gigabit routing speed and serial port for OOBM allow versatility'). **The WAN ports are faster than the LAN ports**, which is the unusual part: 2.5G on the WAN side against 1G on the LAN side, and footnote 1 adds 'The WAN port can act as a LAN port if needed' - recorded here rather than as five LAN ports. **PoE-in on one port only, flagged:** the datasheet says 'Power over Ethernet 802.3at' and footnote 5 says '802.3at PoE port provide a power supply of 25W', without naming the socket. It is declared on `wan1` and not on `wan2`, because two simultaneous feeds is something the footnote does not support; the whole point of the feature is 'one cable for both power and data' extending an SD-WAN link. **The 5G modems carry the datasheet's own theoretical maximum** ('5G: 4.1Gbps / 900Mbps') and are marked as such by the page itself ('Theoretical maximum data rates'), not presented as achievable throughput - the same 4.1G figure sits next to 'Router Throughput: 1 Gbps'. **Two radios, no rate:** 'Simultaneous Dual-Band (2.4GHz / 5GHz) Wi-Fi 6, 2X2 MU-MIMO' with Wi-Fi WAN and/or AP, so `wlan0` and `wlan1` are both radio interfaces with no `speed` - the datasheet never rates the radio. **Not modelled:** the USB 3.0 WAN port, because this catalogue has no USB interface type and inventing one for a single device would be worse than a note. Also absent by design: 'Redundant SIM slots' is a SIM switch inside each modem, not a second modem - the two `wwan` ports are the two actual modems."
+}
