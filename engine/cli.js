@@ -1670,12 +1670,19 @@ class CliSession {
         for (const id of (all ? [native] : v.allowedVlans.map(Number))) {
           add(id, i.name + (Number(id) === native ? '(n)' : '(t)'));
         }
+        // A voice VLAN is carried by the port that names it, tagged like the rest of the trunk -
+        // and it is the one thing this table would otherwise omit while the port really does
+        // carry it.
+        if (Number(v.voiceVlan)) add(Number(v.voiceVlan), i.name + '(v)');
       } else {
         // An SVI is the device's own address in a VLAN, not a port that carries it. IOS does not
         // list it in this column; the model shows it marked, because "which VLAN is my management
         // address on" is a question the table can answer, and `Vlan20` sitting in a column headed
         // Ports answered it as though a cable plugged into itself.
         add(Number(v.accessVlan) || 1, i.svi ? i.name + ' (SVI)' : i.name);
+        // The phone port: untagged data in the access VLAN, tagged voice in its own. Both are
+        // memberships, so both are in the column.
+        if (!i.svi && Number(v.voiceVlan)) add(Number(v.voiceVlan), i.name + '(v)');
       }
     }
     return by;
@@ -3212,6 +3219,44 @@ class CliSession {
         ? '% Incomplete command: switchport trunk allowed vlan <list|all>'
         : '% Unrecognized switchport command: ' + t.join(' ')];
     }
+    if (t[0] === 'voice' && t[1] === 'vlan') {
+      // `switchport voice vlan <id>` - the field `voiceVlan` has existed, been validated and been
+      // printed by the reset message since VLANs were modelled, and nothing ever wrote it: the
+      // command did not exist, so a phone port could not be configured at all and a lab could only
+      // carry voice by pretending the phone spoke on the data VLAN.
+      const got = vlanId(tokens[2], 'switchport voice vlan <id>');
+      if (got.error) return got.error;
+      const extra = this._noExtra(tokens, 3, 'switchport voice vlan <id>');
+      if (extra) return extra;
+      const cur = vlanLib.normalizePortConfig(iface.vlan);
+      // The mode is a property of the port and the voice VLAN is a parameter of it: setting one must
+      // not move the other. That is requirement and reality at once - `switchport access vlan 20`
+      // sets the mode (the word "access" means the mode), and a phone port is *an access port plus a
+      // tagged second VLAN*, so the voice form must work on an access port without turning it into a
+      // trunk. Both modes are legal, and both are refused only for a real contradiction.
+      const untagged = cur.mode === 'trunk' ? (Number(cur.nativeVlan) || 1) : (Number(cur.accessVlan) || 1);
+      if (got.id === untagged) {
+        // A state refusal, not a spelling one: the command is well formed and the number is legal,
+        // it just names the VLAN that already leaves this port untagged. A voice VLAN must be a
+        // different VLAN, because the tag is the only thing that tells the two apart on the wire.
+        return ['% VLAN ' + got.id + ' is the VLAN that leaves ' + iface.name + ' untagged' +
+          (cur.mode === 'trunk' ? ' (the native VLAN)' : ' (the access VLAN)'),
+          '% Tagged voice traffic must land in a different VLAN - move the data VLAN first: ' +
+          (cur.mode === 'trunk' ? '"switchport trunk native vlan <other>"'
+            : '"switchport access vlan <other>"') + ', or choose another voice VLAN'];
+      }
+      const allowedNow = cur.allowedVlans;
+      if (cur.mode === 'trunk' && Array.isArray(allowedNow) && allowedNow.indexOf(got.id) === -1) {
+        const next = allowedNow.concat([got.id]).sort(function (a, b) { return a - b; });
+        return ['% VLAN ' + got.id + ' is not in the allowed list on ' + iface.name +
+          ' (it allows ' + allowedNow.join(',') + ')',
+          '% A voice VLAN the trunk drops is not a voice VLAN: "switchport trunk allowed vlan ' +
+          next.join(',') + '"'];
+      }
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, cur, { voiceVlan: got.id }));
+      return ['Voice VLAN ' + got.id + ' on ' + iface.name + ' (tagged; the untagged traffic on ' +
+        'this port stays in VLAN ' + untagged + ')'];
+    }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
       const spec = t.slice(3).join('');
       if (!spec) return ['% Incomplete command: switchport trunk allowed vlan <list|all>'];
@@ -3256,6 +3301,18 @@ class CliSession {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { nativeVlan: 1 }));
         return ['Trunk native VLAN 1 on ' + iface.name + ' (the default, was VLAN ' + had + ')'];
       }
+      if (rest[0] === 'voice' && rest[1] === 'vlan') {
+        const extra = this._noExtra(rest, 2, 'no switchport voice vlan');
+        if (extra) return extra;
+        const cur = vlanLib.normalizePortConfig(iface.vlan);
+        if (cur.voiceVlan === null) {
+          return [iface.name + ' has no voice VLAN - nothing to remove'];
+        }
+        const had = cur.voiceVlan;
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, cur, { voiceVlan: null }));
+        return ['Voice VLAN removed from ' + iface.name + ' (was VLAN ' + had +
+          '; tagged frames for it are now classified by the allowed list alone)'];
+      }
       if (rest[0] === 'trunk' && rest[1] === 'allowed' && rest[2] === 'vlan') {
         const spec = rest.slice(3).join('');
         if (!spec) {
@@ -3285,7 +3342,7 @@ class CliSession {
     if (!t.length || !t[0]) {
       return ['% Incomplete command: switchport mode access|trunk',
         '% Also: switchport access vlan <id> | switchport trunk native vlan <id> | ' +
-        'switchport trunk allowed vlan <list|all>'];
+        'switchport trunk allowed vlan <list|all> | switchport voice vlan <id>'];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }
@@ -3606,7 +3663,10 @@ class CliSession {
     } else {
       out.push('  Operational Mode: ' + mode);
     }
-    out.push('  Voice VLAN: none');
+    // This line was hardcoded `none` for every port in the lab, including one that (once the command
+    // existed) had been told to carry voice. A view that cannot say yes is not a view.
+    const voiceVlan = Number(v.voiceVlan) || null;
+    out.push('  Voice VLAN: ' + (voiceVlan ? String(voiceVlan) + ' (tagged)' : 'none'));
     // Port security is part of this view on a real switch, and it is modelled here.
     const sec = dev.portSecurity && dev.portSecurity.ports ? dev.portSecurity.ports[iface.name] : null;
     if (sec && sec.enabled) {
@@ -7128,6 +7188,10 @@ class CliSession {
       // so its own running-config could not be pasted back into it. The tagging requirement is
       // already stated once, by the subinterface's `encapsulation dot1q <vid>` line.
       if (i.vlan && !i.svi && (typeof dev.isL2 !== 'function' || dev.isL2())) {
+        // Outside the mode branches: the voice VLAN is a parameter of the port, not of the mode, so
+        // a dump that printed it only under `trunk` would lose it on a port whose mode changed.
+        const voice = Number(i.vlan.voiceVlan) || null;
+        if (voice) out.push('  switchport voice vlan ' + voice);
         if (i.vlan.mode === 'trunk') {
           out.push('  switchport mode trunk');
           out.push('  switchport trunk native vlan ' + i.vlan.nativeVlan);
@@ -10429,6 +10493,7 @@ class CliSession {
       helpLine('switchport mode access|trunk', 'the port carries one VLAN or many'),
       helpLine('switchport access vlan <id>', 'the access VLAN'),
       helpLine('switchport trunk native vlan <id>', 'the untagged VLAN on a trunk'),
+      helpLine('switchport voice vlan <id>', 'a second, always-tagged VLAN for a phone on this port'),
       helpLine('switchport trunk allowed vlan <list|all>', 'which VLANs the trunk carries'),
       helpLine('switchport port-security', 'secure the port: one source by default, and what to do about a second'),
       helpLine('switchport port-security maximum <n>', 'how many source addresses the port may hold (default 1)'),
@@ -10470,7 +10535,7 @@ class CliSession {
       helpLine('no ip nat inside|outside', 'this port is on neither side'),
       helpLine('no spanning-tree cost', 'back to the cost from the cable speed'),
       helpLine('no ip access-group [<acl>] [in|out]', 'unbind an access list from this port'),
-      helpLine('no switchport mode | no switchport access vlan | no switchport trunk ...',
+      helpLine('no switchport mode | no switchport access vlan | no switchport trunk ... | no switchport voice vlan',
         'undo one switchport setting, not the whole port'),
       helpLine('no channel-group', 'take this port out of its LAG'),
       helpLine('no encapsulation dot1q', 'remove the tag from this subinterface'),

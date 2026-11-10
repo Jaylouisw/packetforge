@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`switchport voice vlan <id>`, and a voice VLAN that is finally read.** `voiceVlan` had been in the
+  port's VLAN shape since VLANs were modelled — kept by `normalizePortConfig()`, insisted-on by
+  `validatePortConfig()`, listed by the switchport reset — and **nothing wrote it and nothing read
+  it** (#1369): there was no command, `classifyEgress`/`classifyIngress` consulted the allowed list
+  only (so a phone's tagged frames landed in the data VLAN), `show interfaces <port> switchport`
+  printed `Voice VLAN: none` on every port in every lab, and `serialize()` dropped the field so a
+  saved lab came back without one. Now: the command writes it and refuses a number that is wrong (the
+  native VLAN, a VLAN the trunk does not allow, 0, 4095, a trailing word) while **leaving the port's
+  mode alone** — a voice VLAN is a parameter, not a mode; the classifier carries it in both directions
+  (always tagged on egress, including on an access port, where it is the one tag an access port
+  understands); the L2 view and the inspector both name it; `show running-config` prints the line and
+  a save restores it. See [docs/CLI.md](docs/CLI.md).
 - **The console over HTTP is the console.** Three defects, all measured against
   `POST /api/topologies/:id/config/:devId` (#1335): the session was built on its own `Simulator`, so
   `/flows` counted traffic that `show interfaces` could not see and a `ping` counted nothing the

@@ -58,7 +58,11 @@ class Interface {
       mode: 'access',         // 'access' | 'trunk'
       accessVlan: 1,
       nativeVlan: 1,
-      allowedVlans: 'all'     // 'all' | array of VLAN ids
+      allowedVlans: 'all',    // 'all' | array of VLAN ids
+      // The second membership a port can carry: a phone tags its own traffic into this VLAN while
+      // the PC behind it stays untagged in the access/native VLAN. `null` means none, which is what
+      // normalizePortConfig() says for a port nobody has configured (issue #1369).
+      voiceVlan: null
     };
     this.lagId = null;        // LAG (link aggregation) group this port belongs to
     this.duplex = 'full';
@@ -840,7 +844,10 @@ class Device {
             mode: i.vlan.mode,
             accessVlan: i.vlan.accessVlan,
             nativeVlan: i.vlan.nativeVlan,
-            allowedVlans: i.vlan.allowedVlans
+            allowedVlans: i.vlan.allowedVlans,
+            // The one field of the port's VLAN shape that was left out of the file: a lab saved with
+            // a voice VLAN came back with none, which the console then reported as `Voice VLAN: none`.
+            voiceVlan: i.vlan.voiceVlan === undefined ? null : i.vlan.voiceVlan
           },
           lagId: i.lagId,
           // port role: a dual-purpose cage can be WAN or LAN, and a bridge group
@@ -930,7 +937,11 @@ class Device {
               mode: is.vlan.mode === 'trunk' ? 'trunk' : 'access',
               accessVlan: Number(is.vlan.accessVlan) || 1,
               nativeVlan: Number(is.vlan.nativeVlan) || 1,
-              allowedVlans: is.vlan.allowedVlans === undefined ? 'all' : is.vlan.allowedVlans
+              allowedVlans: is.vlan.allowedVlans === undefined ? 'all' : is.vlan.allowedVlans,
+              // A voice VLAN of 0 or absent means none, which is what normalizePortConfig() says
+              // too - a file written before this field existed restores without one.
+              voiceVlan: (is.vlan.voiceVlan === undefined || is.vlan.voiceVlan === null ||
+                Number(is.vlan.voiceVlan) === 0) ? null : Number(is.vlan.voiceVlan)
             };
           }
         }

@@ -128,6 +128,12 @@ ok(/\b1G\b/.test(devHtml), 'link rates are humanised');
 ok(/hw-grid/.test(devHtml), 'per-port hardware grid is present');
 ok(/Speeds/.test(devHtml) && /Cage/.test(devHtml) && /Media/.test(devHtml), 'cage / speeds / media rows present');
 ok(/VLAN/.test(devHtml) && /access 20/.test(devHtml), 'the VLAN config from the CLI shows up (access 20)');
+// A voice VLAN is a second membership on the port, and the inspector's one line about the port has
+// to name it - the field existed and was rendered nowhere (issue #1369).
+ok(pf.vlanSummary({ vlan: { mode: 'trunk', nativeVlan: 1, allowedVlans: [10, 30], voiceVlan: 30 } }) ===
+  'trunk \u00b7 native 1 \u00b7 allowed 10,30 \u00b7 voice 30', 'a trunk with a voice VLAN says so');
+ok(pf.vlanSummary({ vlan: { mode: 'trunk', nativeVlan: 1, allowedVlans: 'all', voiceVlan: null } }) ===
+  'trunk \u00b7 native 1 \u00b7 allowed all', 'and a trunk without one does not invent it');
 ok(/class="dot up"/.test(devHtml), 'admin state is shown per port');
 ok(/port-link/.test(devHtml) || /port-peer/.test(devHtml), 'cabled ports are marked');
 // A dot alone said "cabled" without saying where to. The row must name the peer.
