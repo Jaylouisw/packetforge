@@ -778,11 +778,11 @@ Bare `match`/`set` with no context is an error:
 |---|---|---|---|
 | config | `router bgp <as>` | `BGP enabled, local AS <as>` | `% Invalid AS number "<x>"` |
 | config | `no router bgp` | `BGP disabled` | — |
-| config | `bgp router-id <ip>` | `BGP router-id <ip>` | `% Invalid router-id "<x>"`, `% BGP is not enabled (use "router bgp <as>")` |
-| config | `bgp always-compare-med` | `BGP always-compare-med enabled` | `% BGP is not enabled (use "router bgp <as>")` |
-| config | `no bgp always-compare-med` | `BGP always-compare-med disabled` | `% BGP is not enabled (use "router bgp <as>")` |
+| config | `bgp router-id <ip>` | `BGP router-id <ip>` | `% Invalid router-id "<x>"`, `% BGP is not enabled - "router bgp <as>" in config mode turns BGP on` |
+| config | `bgp always-compare-med` | `BGP always-compare-med enabled` | `% BGP is not enabled - "router bgp <as>" in config mode turns BGP on` |
+| config | `no bgp always-compare-med` | `BGP always-compare-med disabled` | `% BGP is not enabled - "router bgp <as>" in config mode turns BGP on` |
 | config | `bgp default local-preference <n>` | `BGP default local-preference <n>` | `% local-preference must be 0..4294967295, got "<x>"` |
-| config | `neighbor <ip> remote-as <as>` | `BGP neighbor <ip> remote-as <as>` | `% Invalid remote AS "<x>"`, `% BGP is not enabled (use "router bgp <as>" first)` |
+| config | `bgp neighbor <ip> remote-as <as>` (also `neighbor <ip> remote-as <as>`) | `BGP neighbor <ip> remote-as <as>` | `% Invalid remote AS "<x>"`, `% BGP is not enabled - "router bgp <as>" in config mode turns BGP on` |
 | config | `neighbor <ip> route-map <name> in\|out` | `BGP neighbor <ip> route-map <name> <dir>` (+ note line if §2.2 case) | `% No such neighbor <ip>`, `% Route map "<name>" does not exist` |
 | config | `no neighbor <ip> route-map in\|out` | `Neighbor <ip> route-map <dir> removed` | `% No such neighbor <ip>` |
 | config | `neighbor <ip> next-hop-self` | `BGP neighbor <ip> next-hop-self` | `% No such neighbor <ip>` |

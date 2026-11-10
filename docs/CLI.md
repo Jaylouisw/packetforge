@@ -132,6 +132,38 @@ until traffic crosses, and no amount of asking fills them:
 `show running-config`, `show interfaces`, `show ip interface brief`, `show vlan`, `show access-lists`,
 `show dns` and `show power inline` report from configuration and need neither a run nor traffic.
 
+### When a feature is off, the refusal names the fix
+
+A command refused because a prerequisite is missing is the moment an operator most needs to be told
+which command supplies it — so every one of them names it, quoted, in the spelling the console
+accepts:
+
+```
+R1#show ip bgp
+% BGP is not enabled - "router bgp <as>" in config mode turns BGP on
+R1#show ip ospf
+% OSPF is not enabled - "ospf router-id <ip>" in config mode turns OSPF on
+R1#show vrrp
+% VRRP is not configured - "vrrp <id> ip <addr>" inside an interface block adds a group
+R1#show scion
+% This device is not a SCION AS - "scion <isd-as>" in config mode makes this device an AS
+R1>clear counters
+% clear counters needs enable mode - type "enable" first
+```
+
+Three properties, each of which was absent before:
+
+- **The show says as much as the verb.** `show ip bgp` answered `% BGP is not enabled` with no hint
+  while `bgp neighbor …` answered `% BGP is not enabled (use "router bgp <as>")`. The show is where
+  you learn the feature is off, so it was the one place that could not tell you how to turn it on.
+- **One wording per feature.** Six call sites had grown four spellings of the same fact; they now read
+  one string each (`NEEDS` in `engine/cli.js`), so a show and the verb it guards cannot disagree.
+- **The hint is typed, not trusted.** `test/refusal-pointers.test.js` takes the quoted command out of
+  every one of these refusals, fills its placeholders, types it in the mode the hint claims (config,
+  interface block, or `enable` itself), requires it to work, and then requires the original command to
+  stop refusing. A hint that drifts off the real spelling fails the suite — verified by writing
+  `"bgp <as>"` into the BGP hint: 4 assertions fail; removing a hint entirely: 3.
+
 `help` and `?` answer in **every** mode — exec, config, interface and the DHCP pool sub-mode — and
 each list is the set of commands that mode's parser actually accepts, not one wall of text. The
 interface list names the port you are on, and the pool list names the pool:
@@ -2235,7 +2267,7 @@ Neighbor ID  Pri  State  Address    Interface
 ```
 
 Joining an interface to an OSPF process that does not exist is refused rather than silently ignored:
-`% OSPF is not enabled (use "ospf router-id <ip>" in config mode)`.
+`% OSPF is not enabled - "ospf router-id <ip>" in config mode turns OSPF on`.
 
 A neighbour appears only if the link passed the passive and subnet checks — the same set the SPF
 ran over — so the table cannot claim an adjacency the routes did not use. When nothing passes, the
@@ -2553,7 +2585,7 @@ R1#show startup-config
 % "write memory" saves the running configuration (privileged, as on a real device)
 
 R1>write memory
-% write memory needs enable mode - this session is at the user prompt
+% write memory needs enable mode - type "enable" first
 ```
 
 The saved copy belongs to the **device**, not to the console session: a new session on the same box
@@ -2881,7 +2913,7 @@ R1#clear counters Gi0/99
 % Try "show ip interface brief" for the ports this device has
 
 R1>clear counters
-% clear counters needs enable mode - this session is at the user prompt
+% clear counters needs enable mode - type "enable" first
 ```
 
 Two properties worth stating because they are choices, not accidents:

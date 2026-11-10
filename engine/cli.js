@@ -80,6 +80,19 @@ const INSTANT_VALUE_KEYWORDS = new Set([
   'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone'
 ]);
 
+// How to satisfy a prerequisite, in one place per feature. Six sites used to answer `% BGP is not
+// enabled` with four different messages and two of them named no command at all - and the ones that
+// did name one were the *configuration* verbs, not the shows, so the command you were refused for was
+// the one place you could not learn how to fix it. `test/refusal-pointers.test.js` types the command
+// out of each message and requires it to work, so a hint that drifts off the real spelling fails.
+const NEEDS = {
+  bgp: ' - "router bgp <as>" in config mode turns BGP on',
+  ospf: ' - "ospf router-id <ip>" in config mode turns OSPF on',
+  vrrp: ' - "vrrp <id> ip <addr>" inside an interface block adds a group',
+  scion: ' - "scion <isd-as>" in config mode makes this device an AS',
+  enable: ' - type "enable" first'
+};
+
 const MODE_EXEC = 'exec';
 const MODE_ENABLE = 'enable';
 const MODE_CONFIG = 'config';
@@ -335,7 +348,7 @@ class CliSession {
           if (!pick.ok) {
             out.push.apply(out, pick.output);
           } else if (this.mode !== MODE_ENABLE) {
-            out.push('% clear counters needs enable mode - this session is at the user prompt');
+            out.push('% clear counters needs enable mode' + NEEDS.enable);
           } else if (!this.sim) {
             out.push('% No simulation is running, so there is nothing to clear');
           } else {
@@ -358,7 +371,7 @@ class CliSession {
           if (this.mode !== MODE_ENABLE) {
             // Not "Invalid exec command": the command is fine, the session is not privileged. Saying
             // otherwise sends an operator looking for a missing feature.
-            out.push('% clear logging needs enable mode - this session is at the user prompt');
+            out.push('% clear logging needs enable mode' + NEEDS.enable);
           } else if (tokens.length > 2) {
             out.push('% Unexpected argument "' + tokens[2] + '" (clear logging takes none)');
           } else {
@@ -383,7 +396,7 @@ class CliSession {
               : '% copy takes running-config startup-config - the source must be running-config');
           } else if (this.mode !== MODE_ENABLE) {
             out.push('% ' + (isWrite ? 'write memory' : 'copy running-config startup-config') +
-              ' needs enable mode - this session is at the user prompt');
+              ' needs enable mode' + NEEDS.enable);
           } else {
             out.push.apply(out, this._saveConfig(this.device));
           }
@@ -531,7 +544,7 @@ class CliSession {
       // `no bgp neighbor <ip>` is the spelling help documents; `no neighbor <ip>` is the one the rest
       // of the grammar suggests. Both remove the same neighbour.
       const addr = tokens[1] === 'bgp' ? tokens[3] : tokens[2];
-      if (!this.device.config.bgp) out.push('% BGP is not enabled');
+      if (!this.device.config.bgp) out.push('% BGP is not enabled' + NEEDS.bgp);
       else {
         const list = this.device.config.bgp.neighbors || [];
         const keep = list.filter(function (x) { return x.address !== addr; });
@@ -1221,7 +1234,7 @@ class CliSession {
     // bgp router-id <ip>
     if (t[0] === 'router-id') {
       if (!isIp(t[1])) return ['% Invalid router-id "' + (t[1] || '') + '"'];
-      if (!dev.config.bgp) return ['% BGP is not enabled (use "router bgp <as>")'];
+      if (!dev.config.bgp) return ['% BGP is not enabled' + NEEDS.bgp];
       dev.config.bgp.routerId = t[1];
       return ['BGP router-id ' + t[1]];
     }
@@ -1230,7 +1243,7 @@ class CliSession {
     if (isIp(t[0]) && String(t[1] || '').toLowerCase() === 'remote-as') {
       const asn = parseInt(t[2], 10);
       if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid remote AS "' + (t[2] || '') + '"'];
-      if (!dev.config.bgp) return ['% BGP is not enabled (use "router bgp <as>" first)'];
+      if (!dev.config.bgp) return ['% BGP is not enabled' + NEEDS.bgp];
       const list = dev.config.bgp.neighbors;
       let n = null;
       for (const x of list) { if (x.address === t[0]) { n = x; break; } }
@@ -1311,7 +1324,7 @@ class CliSession {
 
   _ipOspf(tokens, iface) {
     const dev = this.device;
-    if (!dev.config.ospf) return ['% OSPF is not enabled (use "ospf router-id <ip>" in config mode)'];
+    if (!dev.config.ospf) return ['% OSPF is not enabled' + NEEDS.ospf];
     const cfg = dev.config.ospf;
     if (!cfg.interfaces) cfg.interfaces = [];
 
@@ -1620,7 +1633,7 @@ class CliSession {
       if (group.ips.indexOf(ip) === -1) group.ips.push(ip);
       out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip);
     } else if (what === 'priority') {
-      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + ': give it an address first'];
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + NEEDS.vrrp];
       const p = parseInt(tokens[3], 10);
       if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
       group.priority = p;
@@ -1656,7 +1669,7 @@ class CliSession {
     const out = [];
     const dev = this.device;
     const groups = Array.isArray(dev.config && dev.config.vrrp) ? dev.config.vrrp : [];
-    if (!groups.length) { out.push('% VRRP is not configured'); return out; }
+    if (!groups.length) { out.push('% VRRP is not configured' + NEEDS.vrrp); return out; }
     const claims = (dev.vrrpClaims || []);
     out.push.apply(out, renderTable(['Interface', 'Group', 'Pri', 'State', 'Master', 'Virtual IP', 'Virtual MAC'],
       groups.map(function (g) {
@@ -2075,7 +2088,7 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config && dev.config.bgp;
     const out = [];
-    if (!cfg || !cfg.as) { out.push('% BGP is not enabled'); return out; }
+    if (!cfg || !cfg.as) { out.push('% BGP is not enabled' + NEEDS.bgp); return out; }
 
     const rows = dev.bgpNeighbors || [];
     out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
@@ -2111,7 +2124,7 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config && dev.config.ospf;
     const out = [];
-    if (!cfg || !cfg.routerId) { out.push('% OSPF is not enabled'); return out; }
+    if (!cfg || !cfg.routerId) { out.push('% OSPF is not enabled' + NEEDS.ospf); return out; }
 
     // Refresh from the current topology, so the table reflects the SPF that just
     // ran over it rather than whatever the last ping happened to leave behind.
@@ -2207,7 +2220,7 @@ class CliSession {
     const out = [];
     const raw = dev.config.scionAs;
     if (!raw) {
-      out.push('% This device is not a SCION AS (use "scion <isd-as>" in config mode)');
+      out.push('% This device is not a SCION AS' + NEEDS.scion);
       return out;
     }
     const parsed = scionLib.parseIsdAs(raw);

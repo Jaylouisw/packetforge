@@ -216,7 +216,7 @@ console.log('\nclear logging is privileged, exact, and honest about what it drop
   const s = new CliSession(l.t.getDevice('d1'), l.t, l.sim);
   // user exec: refused, and the log is untouched
   const refused = s.run('clear logging').output.join('\n');
-  match(/% clear logging needs enable mode - this session is at the user prompt/, refused,
+  match(/% clear logging needs enable mode - type "enable" first/, refused,
     'clearing from user exec is refused');
   eq(l.sim.events.length, had, 'and nothing was cleared');
   s.run('enable');
