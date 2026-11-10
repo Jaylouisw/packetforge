@@ -468,7 +468,11 @@ services, and a job that has to swap makes the whole queue slower.
   - `test/link-parts.test.js` — **the UI carries every catalogue part (34 of 58)**, and the two assertions that fail
     name what is missing: `QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-SR4`,
     `QSFP56-200G-FR4`, `QSFP28-100G-SR4`, `QSFP28-100G-BIDI`, `QSFP28-100G-eBIDI` and the rest of the QSFP family.
-    `web/link-parts.js` is behind the catalogue; nothing regenerates it.
+    the table behind that is `PART_ROWS` in `web/app.js` — a pipe-delimited list of
+    `part|form|media|speed|reach|polish|nm` rows — and nothing regenerates it, so a part added to
+    `catalogue/optics/transceivers.json` does not reach the UI until somebody edits that array by hand.
+    (These notes used to blame `web/link-parts.js`. That file is **not in the tree**; the table lives in
+    `app.js` now, which is why grepping the old name finds nothing.)
   - `test/ma5801.test.js` — **crashes rather than failing**: `TypeError: Cannot read properties of undefined
     (reading 'hardware')` at line 96, because the suite asks for `gpon1/1` and the GP16's PON ports are now named
     `pon1 … pon20` (`new Topology().addDevice(spec).interfaces.has('gpon1/1')` is false). A rename in the catalogue
