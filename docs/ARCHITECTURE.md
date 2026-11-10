@@ -90,6 +90,26 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### What the static server answers
+
+`web/` is four files served by `serveStatic()`, with three rules:
+
+| request | answer |
+|---|---|
+| `GET /` or any path with no file extension | `index.html` (a deep link opens the app) |
+| `GET /whatever.js` - a file that is not there | `404 text/plain`, never the document |
+| `POST` / `PUT` / `DELETE` / `PATCH` | `405` with `Allow: GET, HEAD` |
+| `HEAD` | the headers a `GET` would send, and no body - including when the response would have been gzipped |
+
+The second row is the one that mattered: a missing asset used to be answered with `index.html` and a 200, so the
+browser's only report was `Uncaught SyntaxError: Unexpected token '<'` in a file the reader could not identify. This
+app has no client-side routes, so the fallback was hiding wrong filenames and serving nothing.
+
+Containment is checked as a **path boundary** (`filePath === WEB_DIR || filePath.startsWith(WEB_DIR + path.sep)`),
+not as a string prefix: `indexOf(WEB_DIR) === 0` also accepts a sibling directory called `web-backup/`. The URL
+parser collapses `..` before the path is joined, which makes the difference unreachable over HTTP today - which is
+precisely why the check must not depend on that.
+
 ### What a wrong request gets
 
 Every endpoint that takes a body checks its shape before using it, and answers with a sentence and a status a
