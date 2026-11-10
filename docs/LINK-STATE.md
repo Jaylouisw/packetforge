@@ -18,8 +18,26 @@ Network converges again at 40000 ms.
 R1#link state l5
 Link l5  SW1:Fa0/1 <-> SW2:Fa0/1
   state: down since 10000 ms
+  carries: nothing - the cable is down
 
 R1#link up l5
+```
+
+A cable's state is what was done to the cable, so a cable into a port someone shut is still `up` and
+carries nothing. Both facts are printed rather than the first passed off as the second:
+
+```
+R1#links
+Link  Endpoints                State
+l5    SW1:Fa0/1 <-> SW2:Fa0/1  up
+l6    SW1:Fa0/2 <-> PC1:eth0   up
+  l5: carries nothing - SW2/Fa0/1 is administratively down
+  State is what was done to the cable; the lines above it are where no frame crosses.
+
+R1#link state l5
+Link l5  SW1:Fa0/1 <-> SW2:Fa0/1
+  state: up
+  carries: nothing - SW2/Fa0/1 is administratively down
 ```
 
 Over HTTP, for the UI:
@@ -219,10 +237,11 @@ nothing crosses is a claim, and nothing is known is not one.
 
 ## Tests
 
-- `test/link-state.test.js` — 67 assertions: a down link carries nothing and says where the frame
+- `test/link-state.test.js` — 76 assertions: a down link carries nothing and says where the frame
   died, `setLinkState` refusals, the tree healing around a failure, a network with no second path
   staying broken, the re-based schedule (nothing works at 11 s, works at 41 s), MAC table flush, the
-  DHCP segment walk refusing to cross a cut cable, save/load, and the CLI surface.
+  DHCP segment walk refusing to cross a cut cable, save/load, the CLI surface, and `links` /
+  `link state` reporting that a planted cable with a shut port carries nothing.
 - `test/link-state-drawing.test.js` — 22 assertions: the renderer marks a down cable, marks a cable
   whose port is disabled without claiming the cable is down, keeps its medium class in both cases,
   labels a payload that predates the field `unknown` rather than guessing, and the stylesheet really

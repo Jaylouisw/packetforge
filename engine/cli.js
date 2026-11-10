@@ -5726,6 +5726,11 @@ class CliSession {
       if (!l) return ['% No such link: ' + (id || '(none)')];
       out.push('Link ' + l.id + '  ' + this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b));
       out.push('  state: ' + l.state + (l.stateSinceMs ? ' since ' + l.stateSinceMs + ' ms' : ''));
+      // `state` is the cable's record. Whether a frame crosses is a second fact - a cable into a
+      // shut port is up and carries nothing - and this command is the one place an operator asks
+      // about a link, so it answers both instead of leaving the second to be guessed.
+      const st = this.topo.linkState(l);
+      out.push('  carries: ' + (st.up ? 'frames' : 'nothing - ' + st.reason));
       return out;
     }
     if (what !== 'up' && what !== 'down') {
@@ -5757,10 +5762,22 @@ class CliSession {
 
   _links() {
     const rows = [];
+    // A row is a cable, and `State` is what was done to it. A cable into a shut port is up and
+    // carries nothing, and this table said `up` for it - the same default-to-good-news the link
+    // inspector and the canvas had. The reason is printed under the rows rather than squeezed into a
+    // column, because a table of cables is scanned and a list of faults is read.
+    const stuck = [];
     for (const l of this.topo.links.values()) {
       rows.push([l.id, this._endpointName(l.a) + ' <-> ' + this._endpointName(l.b), l.state]);
+      const st = this.topo.linkState(l);
+      if (!st.up) stuck.push('  ' + l.id + ': carries nothing - ' + st.reason);
     }
-    return renderTable(['Link', 'Endpoints', 'State'], rows);
+    const out = renderTable(['Link', 'Endpoints', 'State'], rows);
+    if (stuck.length) {
+      out.push.apply(out, stuck);
+      out.push('  State is what was done to the cable; the lines above it are where no frame crosses.');
+    }
+    return out;
   }
 
   _endpointName(end) {

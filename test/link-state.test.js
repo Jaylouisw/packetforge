@@ -354,5 +354,38 @@ t('The CLI can pull a cable, list cables, and refuses nonsense');
   ok(help.some(function (l) { return /link up\|down/.test(l); }), 'help names the command');
 }
 
+// ---------------------------------------------------------------------------
+t('A cable is a record; whether it carries is a second fact');
+
+{
+  const L = line();
+  const healthy = L.cli(L.h1, ['enable', 'links']);
+  ok(!healthy.some(function (l) { return /carries nothing/.test(l); }),
+    'a board whose cables all carry prints no note at all');
+  const one = L.cli(L.h1, ['enable', 'link state ' + L.mid.id]);
+  ok(one.some(function (l) { return /carries: frames/.test(l); }),
+    'link state says a working cable carries frames');
+
+  // Shut the far end from that switch's own console. The cable stays plugged in, so its state stays
+  // `up` - and nothing crosses it. Both facts are true, and only one of them was in the table.
+  L.cli(L.s2, ['enable', 'configure terminal', 'interface Fa0/1', 'shutdown', 'end']);
+  eq(L.mid.state, 'up', 'the cable is still up, because nobody touched the cable');
+
+  const listed = L.cli(L.h1, ['enable', 'links']);
+  ok(listed.some(function (l) { return new RegExp('^  ' + L.mid.id + ': carries nothing').test(l); }),
+    'but links names the cable that carries nothing');
+  ok(/administratively down/.test(listed.join('\n')), 'and says which port was shut');
+  ok(listed.some(function (l) { return /State is what was done to the cable/.test(l); }),
+    'with a sentence saying which question the column answers');
+  ok(listed.filter(function (l) { return /carries nothing/.test(l); }).length === 1,
+    'and only that one cable is called out - the other two still carry');
+
+  const detail = L.cli(L.h1, ['enable', 'link state ' + L.mid.id]);
+  ok(detail.some(function (l) { return /carries: nothing - .*administratively down/.test(l); }),
+    'link state gives the same answer for that one cable');
+  ok(detail.some(function (l) { return /state: up/.test(l); }),
+    'while still reporting the cable itself as up');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
