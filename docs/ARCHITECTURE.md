@@ -358,6 +358,31 @@ answered `404 interface not found` - which meant the inspector's shutdown toggle
 named that way, and that is most of the catalogue. The control was rendered, wired, and inert; nothing in the
 tests noticed because the tests drove the engine, not the URL.
 
+### Ping, and what a destination is
+
+`POST /api/topologies/:name/ping` — `{ src, dst, count? }`. `dst` is an **address or a hostname**; a name is
+resolved through the lab's DNS servers before a single packet is sent, and the resolver's verdict rides back in the
+answer:
+
+```json
+{ "events": [...], "replies": [{ "success": false, "reason": "dns-nxdomain" }],
+  "success": false, "dns": { "ok": false, "status": "NXDOMAIN", "serverIp": "10.0.0.1" }, "runtime": ... }
+```
+
+`dns` is `null` when the destination was an address. A name that did not resolve is **not** 0% packet loss —
+nothing was sent — so a client that only looked at `replies` would report the wrong thing; the `dns-noerror`-style
+reason on the reply says which. A destination that is not a destination at all is a `400`:
+
+```
+POST /api/topologies/default/ping  {"src":"d1","dst":"10.0.0.999"}
+400 {"code":"E_BAD_DESTINATION","error":"dst "10.0.0.999" is not an IPv4 address (four octets, each 0-255)"}
+```
+
+Until #1377 that string reached the engine, which threw, and the answer was a 500 — a mistyped octet presented as a
+server fault. The same question is asked in three places, so it is asked once per surface and checked against the
+others: `engine/cli.js` `_ping()` for the console, the endpoint above, and `web/app.js` `pingTargetProblem()` for
+the inspector's Simulate tab (`test/ping-surface.test.js` compares them).
+
 ### Transport flows
 
 A ping proves a path carries one packet; a flow proves it carries a conversation.

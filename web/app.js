@@ -2344,8 +2344,8 @@
     wrap.innerHTML =
       '<div class="field-label">Ping from <strong>' + d.name + '</strong></div>' +
       '<div class="ping-form">' +
-      '<label>Destination IP</label>' +
-      '<input id="ping-dst" placeholder="e.g. 192.168.1.20" spellcheck="false">' +
+      '<label>Destination address or name</label>' +
+      '<input id="ping-dst" placeholder="e.g. 192.168.1.20 or server.lab" spellcheck="false">' +
       '<label>Count</label>' +
       '<input id="ping-count" type="number" min="1" max="50" value="4">' +
       '<button id="ping-run" class="btn ping-run">▶ Send Ping</button>' +
@@ -2356,20 +2356,52 @@
     $('#ping-dst').addEventListener('keydown', function (e) { if (e.key === 'Enter') runPing(); });
   }
 
+  // Is this string a ping destination? An address, or a name the lab's DNS can resolve.
+  //
+  // This used to be `/^(\d{1,3}\.){3}\d{1,3}$/` - a shape check that accepted 10.0.0.999 (which threw inside the
+  // engine and surfaced as a 500) and refused every hostname the engine resolves (#1377). The console has the same
+  // rule in engine/cli.js `_ping()`; the browser cannot require the engine, so it is written twice and
+  // test/ping-surface.test.js checks the two agree.
+  function pingTargetProblem(value) {
+    const s = String(value === undefined || value === null ? '' : value).trim();
+    if (!s) return 'Enter an address or a hostname';
+    if (/\s/.test(s)) return 'An address or a name cannot contain a space';
+    if (/^[0-9.]+$/.test(s)) {
+      const parts = s.split('.');
+      const bad = parts.length !== 4 || parts.some(function (o) {
+        return !/^\d{1,3}$/.test(o) || Number(o) > 255;
+      });
+      if (bad) return s + ' is not an IPv4 address (four octets, each 0-255)';
+    }
+    return null;
+  }
+
   async function runPing() {
     const dst = $('#ping-dst').value.trim();
     const count = parseInt($('#ping-count').value, 10) || 4;
     const d = deviceById(selectedId);
     if (!d) return;
-    if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(dst)) { toast('Enter a valid IPv4 destination'); return; }
+    const problem = pingTargetProblem(dst);
+    if (problem) { toast(problem); return; }
     $('#ping-result').innerHTML = 'Sending ' + count + ' ICMP echos to ' + dst + '…';
     $('#event-log').innerHTML = '';
     try {
       const r = await api('POST', '/topologies/' + TOPO + '/ping', { src: d.id, dst: dst, count: count });
       topo = r.state || topo;
       const ok = r.replies.filter(function (x) { return x.success; }).length;
-      $('#ping-result').innerHTML =
-        '<span class="' + (ok === count ? 'ok' : 'fail') + '">Success rate ' + Math.round(ok / count * 100) + '% (' + ok + '/' + count + ')</span>';
+      // A name that did not resolve is not 0% packet loss: nothing was ever sent. Say what the resolver said.
+      const dns = r.dns || null;
+      const resolvedLine = dns
+        ? (dns.ok
+          ? '<div class="hint">' + esc(dst) + ' resolved to ' + esc(dns.address) +
+            (dns.serverIp ? ' via ' + esc(dns.serverIp) : '') + '</div>'
+          : '<div class="fail">' + esc(dst) + ' did not resolve: ' + esc(String(dns.status || 'unknown')) +
+            ' - nothing was sent</div>')
+        : '';
+      $('#ping-result').innerHTML = dns && !dns.ok
+        ? resolvedLine
+        : resolvedLine + '<span class="' + (ok === count ? 'ok' : 'fail') + '">Success rate ' +
+          Math.round(ok / count * 100) + '% (' + ok + '/' + count + ')</span>';
       renderEventLog(r.events);
       PFCanvas.animateEvents(r.events);
     } catch (e) { $('#ping-result').innerHTML = '<span class="fail">' + esc(e.message) + '</span>'; }
@@ -2893,6 +2925,7 @@
   window.__pf = {
     setTopology: function (t) { topo = t; },
     maskBits: maskBits,
+    pingTargetProblem: pingTargetProblem,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,
     syncTopology: syncTopology,
