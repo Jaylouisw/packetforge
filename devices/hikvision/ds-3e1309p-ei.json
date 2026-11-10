@@ -1,0 +1,120 @@
+{
+  "vendor": "hikvision",
+  "model": "DS-3E1309P-EI",
+  "label": "Hikvision 8-port smart managed 100 Mbps PoE switch (DS-3E1309P-EI)",
+  "category": "switch",
+  "description": "Hikvision DS-3E1309P-EI - fanless metal smart-managed surveillance switch with 8x 100 Mbps PoE RJ45 ports (802.3af/at, 30 W per port, 110 W aggregate budget) and 1x gigabit RJ45 uplink. 3.6 Gbps switching capacity, 16 K MAC table, 6 kV surge protection on the PoE ports, Extend mode reaching 300 m.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "poe-pse",
+    "802.3at",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uplink",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "poeBudget": 110,
+  "icon": "switch",
+  "color": "#0f766e",
+  "sourceUrl": "https://www.4gon.co.uk/hikvision-8port-smart-managed-100-mbps-poe-switch-ds3e1309pei-p-9563.html",
+  "notes": "The port census is '8 x 100 Mbps PoE RJ45 ports, and 1 x gigabit network RJ45 port' - so eight **Fast Ethernet** PoE ports behind a **single** gigabit uplink. That asymmetry is the whole point of the part and the thing a guess gets wrong: it is a camera switch, not a gigabit switch with two speeds, and a lab that plugs a gigabit host into port 1 gets 100 Mbps. PoE figures are all quoted: 802.3af/at on ports 1-8, **30 W** maximum per port, **110 W** total budget - so four ports at 30 W exhausts the supply, and the budget is a real supply figure rather than a PSU rating. Extend mode pushes ports 1-8 to 300 m by dropping the link speed, which is a cabling-length behaviour rather than a port property, so it lives in `notes` and not in a field. Fanless, no console: management is the web/surveillance platform, hence `http-server` and no `cli`."
+}

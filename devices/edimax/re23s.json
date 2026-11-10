@@ -1,0 +1,40 @@
+{
+  "vendor": "edimax",
+  "model": "RE23S",
+  "label": "Edimax Gemini RE23S AC2600 Wi-Fi roaming repeater",
+  "category": "wireless",
+  "description": "Edimax Gemini RE23S - wall-plug AC2600 dual-band Wi-Fi repeater/access point: one 10/100/1000 Ethernet LAN port, 802.11ac 4-stream MU-MIMO radios at 800 Mbps on 2.4 GHz and 1733 Mbps on 5 GHz, two detachable external antennas, browser-based iQ Setup. Mains powered from an integrated AC plug.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "800M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "1733M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#3b82f6",
+  "sourceUrl": "https://www.4gon.co.uk/edimax-gemini-re23s-ac2600-wifi-roaming-repeater-p-9650.html",
+  "notes": "One Ethernet port, and it is **LAN only** in the modes the page describes (repeater, bridge, and AP mode fed by a wired router) - there is no WAN socket, because this is not a router. Rate figures are quoted per band: 2.4 GHz 800 Mbps and 5 GHz 1733 Mbps, four streams with MU-MIMO. Power is an **integrated AC plug** (100-240 V), so `poeIn: 0` is stated rather than left to the access-point heuristic: nothing on this device accepts power over the cable, and it has no battery either. Setup is browser-based iQ Setup, so `http-server` and no `cli`."
+}

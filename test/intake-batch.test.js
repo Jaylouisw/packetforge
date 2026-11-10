@@ -594,5 +594,35 @@ console.log('\nA PoE budget smaller than the port count times the port rating (#
   ok(link.ok && link.speedMbps === 1000, 'VSP2100-K: an 802.3at AP on port1 links at 1G');
 }
 
+console.log('\nEight fast ethernet PoE ports behind one gigabit uplink (#649, #673):');
+{
+  const hik = find('DS-3E1309P-EI');
+  const hp = effectiveInterfaces(hik);
+  eq(hp.filter(function (p) { return p.speed === '100M'; }).length, 8,
+    'DS-3E1309P-EI: eight Fast Ethernet PoE ports - 100M, not gigabit');
+  eq(hp.filter(function (p) { return p.speed === '1G'; }).length, 1,
+    'DS-3E1309P-EI: exactly one gigabit uplink');
+  eq(hik.poeBudget, 110, 'DS-3E1309P-EI: the quoted 110 W budget');
+  ok(hik.poeBudget < 8 * 30, 'DS-3E1309P-EI: four ports at 30 W already exceed the budget');
+
+  // The consequence: a gigabit camera on port 1 runs at 100M, which is the point of the box.
+  const t18 = new Topology();
+  const sw2 = t18.addDevice(hik);
+  const pc7 = t18.addDevice(find('generic-pc'));
+  const slow = t18.validateLink(sw2.id, 'port1', pc7.id, 'eth0', {});
+  ok(slow.ok && slow.speedMbps === 100, 'DS-3E1309P-EI: a gigabit host links at 100M on a PoE port');
+  const fast = t18.validateLink(sw2.id, 'uplink', pc7.id, 'eth0', {});
+  ok(fast.ok && fast.speedMbps === 1000, 'DS-3E1309P-EI: and at 1G on the uplink');
+
+  const rep = find('RE23S');
+  const rp = effectiveInterfaces(rep);
+  eq(rp.filter(function (p) { return p.type === 'ethernet'; }).length, 1,
+    'RE23S: one Ethernet port, and it is LAN only - this is not a router');
+  eq(rp.filter(function (p) { return p.type === 'wireless'; }).length, 2,
+    'RE23S: two radios, 2.4 GHz and 5 GHz');
+  eq(rp.filter(function (p) { return p.type === 'ethernet'; })[0].poeIn, 0,
+    'RE23S: mains plug, so it declares poeIn 0 rather than letting the AP heuristic guess');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
