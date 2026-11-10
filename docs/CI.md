@@ -477,6 +477,21 @@ services, and a job that has to swap makes the whole queue slower.
   Both are tests-vs-catalogue drift, which is the failure mode this project's own suite is worst at catching,
   because the test *is* the thing that is wrong.
 
+  One more difference between the two views, worth knowing before you land a `cli.js` change. `docs-syntax`
+  passes on `HEAD` (**289 help forms** from four modes, 158 synopses from `CLI.md`) and fails in the working
+  copy that carries the uncommitted fix for `no ipv6 route`: the fix splits the combined
+  `ipv6 route <prefix>/<len> <next-hop> | ipv6 gateway <addr>` help line into separate rows, the count drops to
+  288, and the check reports
+
+  ```text
+  ✗ no documented command is missing from help - ipv6 route <prefix>/<len> <next-hop>
+  ```
+
+  The behaviour being fixed is real and `CLI.md` already describes it correctly (see *"Help advertises `no ipv6
+  route <prefix>/<len> [<next-hop>]` … but the handler ignores the tail entirely"*): on `HEAD`,
+  `no ipv6 route 2001:db8:9::/64` answers `IPv6 routes cleared` and takes **both** statics with it. So the fix is
+  wanted — it just has to keep the help tokens the page cites, or change the page in the same commit.
+
 - **Nothing checks that the generated wiki is current.** `docs/wiki/` is written by
   `scripts/build-wiki.js` from text templates held in that script, and no job runs
   it — `grep -r wiki .forgejo/workflows/` returns nothing. So the pages drift, and
