@@ -1849,6 +1849,125 @@ class CliSession {
   // other than Established. Before the session walk existed, every configured neighbour was
   // Established by definition - which is the one thing a lab must not teach, because the
   // whole skill is reading Active or OpenSent and knowing what it means.
+  // `show ip ospf`, `show ip ospf neighbour`, `show ip ospf interface`.
+  //
+  // OSPF has been configurable since it was modelled - router-id, area, `ip ospf cost|area|passive` - and the
+  // engine computes adjacencies and an SPF tree from those numbers. None of it could be read back: the only
+  // console answer that mentioned OSPF was `show ip route` saying `O`. So an operator could set a cost and had
+  // no way to see whether the engine used it, or which port an adjacency formed on (#1371).
+  //
+  // Every row here comes from what `computeOspf()` recorded (`dev.ospfInterfaces`, `dev.ospfNeighbors`), so the
+  // console and the route table cannot disagree about the same topology.
+  _showOspf(args) {
+    const dev = this.device;
+    const out = [];
+    const cfg = dev.config && dev.config.ospf;
+    if (!cfg || !cfg.routerId) {
+      out.push('% OSPF is not enabled (use "ospf router-id <ip>" in config mode)');
+      return out;
+    }
+    const sub = String(args[0] === undefined ? '' : args[0]).toLowerCase();
+    const rest = args.slice(1).filter(function (t) { return String(t).toLowerCase() !== 'detail'; });
+    const ifaces = dev.ospfInterfaces || [];
+    const neighbours = dev.ospfNeighbors || [];
+    const evaluated = ifaces.length > 0 || neighbours.length > 0;
+
+    const portWanted = function () {
+      if (!rest.length) return { name: null };
+      const name = resolvePortName(dev, rest.join(' '));
+      return { name: name || rest.join(' ') };
+    };
+
+    if (sub === '' || sub === 'process') {
+      out.push('Routing Process "ospf ' + (cfg.areaId || 0) + '" with ID ' + cfg.routerId);
+      const areas = Array.from(new Set(ifaces.map(function (i) { return i.area; })))
+        .sort(function (a, b) { return a - b; });
+      out.push('  Areas: ' + (areas.length ? areas.join(', ') : String(cfg.areaId || 0)));
+      const passive = ifaces.filter(function (i) { return i.passive; }).length;
+      out.push('  Interfaces: ' + ifaces.length + (passive ? ' (' + passive + ' passive)' : ''));
+      out.push('  Neighbours: ' + neighbours.length);
+      const installed = (dev.ospfRoutes || []).length;
+      out.push('  Routes installed from OSPF: ' + installed +
+        (dev.ospfConverged ? '' : ' (withheld: still converging)'));
+      if (!evaluated) out.push('  (no OSPF state has been evaluated yet - run a simulation)');
+      return out;
+    }
+
+    if (sub === 'neighbor' || sub === 'neighbour' || sub === 'neighbors' || sub === 'neighbours') {
+      const wanted = portWanted();
+      const rows = wanted.name ? neighbours.filter(function (n) { return n.iface === wanted.name; }) : neighbours;
+      out.push(pad('Neighbor ID', 16) + pad('Address', 17) + pad('Interface', 12) + 'State');
+      if (!rows.length) {
+        if (!evaluated) {
+          out.push('(no OSPF state has been evaluated yet - run a simulation)');
+        } else if (wanted.name) {
+          // Name the port and say why nothing is on it: a passive interface forms no adjacency, and a port
+          // OSPF is not running on is not in the table at all.
+          const iface = ifaces.filter(function (i) { return i.name === wanted.name; })[0];
+          if (!iface) {
+            out.push('% ' + wanted.name + ' is not carrying OSPF' +
+              (dev.interfaces.get(wanted.name) ? ' (no address, shut down, or not an OSPF interface)' : ''));
+          } else if (iface.passive) {
+            out.push('% ' + wanted.name + ' is passive: it advertises its prefix and forms no adjacency');
+          } else {
+            out.push('% no neighbour on ' + wanted.name + ' (nothing on the other end runs OSPF here)');
+          }
+        } else {
+          out.push('% no adjacencies: nothing on the other end of an OSPF interface is running OSPF');
+        }
+        return out;
+      }
+      for (const n of rows) {
+        out.push(pad(n.routerId, 16) + pad(n.address, 17) + pad(n.iface, 12) + n.state);
+      }
+      out.push('');
+      out.push(rows.length + ' neighbour(s), all Fully adjacent' +
+        (dev.ospfConverged ? '' : ' (routes withheld: still converging)'));
+      return out;
+    }
+
+    if (sub === 'interface' || sub === 'interfaces') {
+      const wanted = portWanted();
+      const rows = wanted.name ? ifaces.filter(function (i) { return i.name === wanted.name; }) : ifaces;
+      if (!evaluated) {
+        out.push('% no OSPF state has been evaluated yet - run a simulation');
+        return out;
+      }
+      if (!rows.length) {
+        if (wanted.name) {
+          const port = dev.interfaces.get(wanted.name);
+          if (!port) {
+            out.push('% No interface ' + wanted.name);
+          } else if (!port.enabled) {
+            out.push('% ' + wanted.name + ' is administratively down: OSPF runs on no shut port with an address');
+          } else if (!port.ip || !port.mask) {
+            out.push('% ' + wanted.name + ' has no address: OSPF needs one to form an adjacency');
+          } else {
+            out.push('% ' + wanted.name + ' is not in OSPF');
+          }
+        } else {
+          out.push('% OSPF is enabled but no interface qualifies (needs an address and the port up)');
+        }
+        return out;
+      }
+      out.push(pad('Interface', 12) + pad('IP Address', 17) + pad('Area', 6) + pad('Cost', 6) + pad('Cost from', 12) +
+        pad('Adjacent', 10) + 'Passive');
+      for (const i of rows) {
+        const netLib = require('./net');
+        const len = netLib.prefixOf(i.mask);
+        out.push(pad(i.name, 12) + pad(i.ip + (len === null ? ' ' + i.mask : '/' + len), 17) +
+          pad(String(i.area), 6) + pad(String(i.cost), 6) + pad(i.costSource === 'configured' ? 'configured' : 'link rate', 12) +
+          pad(i.adjacent ? 'yes' : 'no', 10) + (i.passive ? 'yes' : 'no'));
+      }
+      out.push('');
+      out.push(rows.length + ' interface(s) in OSPF');
+      return out;
+    }
+
+    out.push('% Usage: show ip ospf [process | neighbour [<port>] | interface [<port>]]');
+    return out;
+  }
+
   _showBgp(args) {
     const dev = this.device;
     const cfg = dev.config && dev.config.bgp;
@@ -2367,6 +2486,8 @@ class CliSession {
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : ''));
       }
+    } else if (what === 'ip' && tokens[1] === 'ospf') {
+      out.push.apply(out, this._showOspf(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ipv6' && tokens[1] === 'nd') {
@@ -3044,6 +3165,7 @@ class CliSession {
       '  show vrrp                          the group, its state, and the master it elected',
       '  ospf router-id <ip> | area <id>                        (config mode)',
       '  ip ospf cost <n> | area <id> | passive                 (interface mode)',
+      '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
       '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
       '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];

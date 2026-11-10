@@ -444,6 +444,63 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### Reading OSPF
+
+OSPF has been configurable since it was modelled — `ospf router-id`, `ospf area`, and per interface
+`ip ospf cost | area | passive` — and the engine turns those into adjacencies, an SPF tree and installed routes.
+Until now the console could not report any of it: the only place OSPF appeared was an `O` in `show ip route`. You
+could set a cost and had no way to find out whether the engine used it.
+
+```
+r1> show ip ospf
+Routing Process "ospf 0" with ID 1.1.1.1
+  Areas: 0
+  Interfaces: 2 (1 passive)
+  Neighbours: 1
+  Routes installed from OSPF: 1
+```
+
+```
+r1> show ip ospf neighbour
+Neighbor ID     Address          Interface   State
+2.2.2.2         10.1.0.2         Gi0/0/0     Full
+
+1 neighbour(s), all Fully adjacent
+```
+
+```
+r1> show ip ospf interface
+Interface   IP Address       Area  Cost  Cost from   Adjacent  Passive
+Gi0/0/0     10.1.0.1/24      0     25    configured  yes       no
+Gi0/0/1     192.168.1.1/24   0     10    link rate   no        yes
+```
+
+`Cost from` answers the question the two numbers alone cannot: **25** because somebody typed `ip ospf cost 25`, or
+**10** because the wire is 100 Mbps and nothing was typed (the derived cost uses a 100 Mbps reference bandwidth:
+100 Mbps → 100, 1 Gbps → 10, 2.5 Gbps → 4, 5 Gbps → 2, 10 Gbps and above → 1). A cost that came from the link
+rate changes when the link renegotiates; a configured one does not.
+
+Every number here is what `computeOspf()` recorded, so the report and `show ip route` cannot disagree about the
+same topology. That includes the wait: on a lab that has not settled, the summary says
+`(withheld: still converging)` beside the route count, because that is what the engine did.
+
+`show ip ospf neighbour <port>` and `show ip ospf interface <port>` narrow to one port, and name the reason when
+the port you asked about is not contributing:
+
+```
+r1> show ip ospf neighbour Gi0/0/1
+% Gi0/0/1 is passive: it advertises its prefix and forms no adjacency
+r1> show ip ospf interface Gi0/0/2
+% Gi0/0/2 has no address: OSPF needs one to form an adjacency
+```
+
+An access switch has no OSPF at all, and says so rather than printing an empty table:
+
+```
+sw1> show ip ospf
+% OSPF is not enabled (use "ospf router-id <ip>" in config mode)
+```
+
 ### The voice VLAN
 
 ```
