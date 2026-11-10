@@ -1,0 +1,80 @@
+{
+  "vendor": "fs",
+  "model": "AC-1004",
+  "label": "FS AC-1004 802.11ax wireless LAN controller",
+  "category": "server",
+  "description": "FS AC-1004 - fanless 802.11ax wireless LAN controller that also acts as gateway and PoE switch: five Gigabit Ethernet ports (four with PoE), an RJ45 console port, management for up to 64 Wi-Fi 6 access points and 1000 clients, 5 Gbps throughput, L2/L3 with 4000 VLANs. 200 x 110 x 25 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli",
+    "http-server",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.fs.com/uk/products/141375.html",
+  "notes": "The service-port line is exact: '**1x 10/100/1000BASE-T ports, 4x 10/100/1000BASE-T ports (PoE Support)**' plus '**Console Port: (1) RJ45**'. So five copper ports, four of which can power an AP, and a console that is a console rather than a sixth Ethernet port. **No `poeOut` is declared**: FS publishes neither a per-port wattage nor an aggregate budget for these four ports on this page, and inventing 15.4 W apiece would be the error this catalogue refuses (see #527 for the passive-PSE case, where volts and amps *were* published and so were modelled). A lab should treat the PoE side as capability, not as a budget, until a figure exists. It is a **controller**, not an access point: it manages up to 64 Wi-Fi 6 APs, it has no radio of its own, and it forwards (gateway and switch functions) which is why `l2-forward`, `l3-forward` and `nat` are declared and `wireless` is not."
+}

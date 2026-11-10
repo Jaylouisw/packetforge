@@ -1,0 +1,263 @@
+{
+  "vendor": "fs",
+  "model": "AC-7072",
+  "label": "FS AC-7072 wireless LAN controller",
+  "category": "server",
+  "description": "FS AC-7072 - 1U wireless LAN controller with one 10/100/1000BASE-T port, eight gigabit combo ports (1000BASE-T or 1000BASE-X), four 10G SFP+ cages, two USB ports and two console ports; L2/L3 with 4000 VLANs. 440 x 340 x 43.6 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "combo1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo1-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo1-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo2-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo2-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo3-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo3-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo3",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo4-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo4-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo4",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo5-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo5-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo5",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo6-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo6-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo6",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo7-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo7-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo7",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo8-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo8-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo8",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console1",
+      "type": "console"
+    },
+    {
+      "name": "console2",
+      "type": "console"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.fs.com/uk/products/141375.html",
+  "notes": "From the comparison table: '**1x 10/100/1000MBASE-T RJ45, 8 x 1G Combo, 4x 10G SFP+**', 'SFP Ports: 4', 'Console Ports: 2'. Two things that would be easy to flatten: the **eight '1G Combo'** positions are RJ45-or-SFP each (sixteen interfaces naming each other), while the **four '10G SFP+'** are separate cages - the table's 'SFP Ports: 4' counts only the 10G ones, so counting the eight combos' fibre halves as extra cages would double the fibre capacity. And the box has **two console ports**, so two consoles are declared."
+}

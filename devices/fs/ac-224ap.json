@@ -1,0 +1,136 @@
+{
+  "vendor": "fs",
+  "model": "AC-224AP",
+  "label": "FS AC-224AP wireless LAN controller",
+  "category": "server",
+  "description": "FS AC-224AP - rack-mount wireless LAN controller with six 10/100/1000BASE-T ports, two gigabit combo ports (1000BASE-T or 1000BASE-X), two USB ports and an RJ45 console port; L2/L3 with 4000 VLANs. 430 x 250 x 45 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "combo1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo1-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo1-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "combo2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "comboWith": "combo2-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "combo2-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "combo2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.fs.com/uk/products/141375.html",
+  "notes": "From the comparison table: '**6x 1000BASE-T ports, 2x 1000BASE-T/1000BASE-X ports (combo)**', 'SFP Ports: 2', 'Console Ports: 1'. The two 'SFP Ports' in the table are **the fibre halves of the two combo positions**, not extra cages: a 1000BASE-T/1000BASE-X combo port is one physical position that takes an RJ45 plug or an SFP, so it is modelled as two interfaces naming each other and the engine refuses the second cable with `E_COMBO_OCCUPIED`. That is why this device has eight copper-or-fibre positions and eight Ethernet interfaces plus a console, not ten."
+}

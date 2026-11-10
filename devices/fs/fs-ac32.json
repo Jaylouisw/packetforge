@@ -1,0 +1,90 @@
+{
+  "vendor": "fs",
+  "model": "FS-AC32",
+  "label": "FS FS-AC32 wireless LAN controller",
+  "category": "server",
+  "description": "FS FS-AC32 - rack-mount wireless LAN controller with six 10/100/1000BASE-T ports, two USB ports and an RJ45 console port, managing FS Wi-Fi access points centrally; L2/L3 with 4000 VLANs. 430 x 250 x 45 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.fs.com/uk/products/141375.html",
+  "notes": "From FS's own comparison table on the AC-1004 page: '**6x 10/100/1000M Ports**', 'SFP Ports: \u2014', 'USB Ports: 2', 'Console Ports: 1'. Six copper ports, no cages, one console. Only the ports are quoted here: the managed-AP count for this model is not in the table (the AC-1004's 64 is), so it is not stated rather than guessed from the model name - 'AC32' looking like '32 APs' is exactly the kind of inference this catalogue does not make."
+}

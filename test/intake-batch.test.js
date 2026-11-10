@@ -817,5 +817,48 @@ console.log('\nFour sockets, quoted as three plus one (#690):');
     'V2767AX-4G-K: and the DSL port still refuses an RJ45 lead');
 }
 
+console.log('\nFour FS controllers from one comparison table (#766-#769):');
+{
+  const a = find('AC-1004');
+  const ap = effectiveInterfaces(a);
+  eq(ap.filter(function (p) { return p.connector === 'rj45'; }).length, 5,
+    'AC-1004: five GE ports - 1x plus 4x with PoE support');
+  eq(ap.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'AC-1004: and a console port that is not a sixth Ethernet port');
+  ok(a.poeBudget === undefined, 'AC-1004: no poeBudget - FS publishes no figure for those four ports');
+  ok(!(a.capabilities || []).includes('wireless'),
+    'AC-1004: a controller has no radio of its own');
+
+  const ac32 = find('FS-AC32');
+  eq(effectiveInterfaces(ac32).filter(function (p) { return p.connector === 'rj45'; }).length, 6,
+    'FS-AC32: six GE ports and no cages');
+
+  // The combo halves: the table's "SFP Ports: 2" are these two positions, not extra cages.
+  const ap224 = find('AC-224AP');
+  const p224 = effectiveInterfaces(ap224);
+  eq(p224.filter(function (p) { return p.comboWith; }).length, 4,
+    'AC-224AP: two combo positions = four interfaces naming each other');
+  eq(p224.filter(function (p) { return p.connector === 'sfp'; }).length, 2,
+    'AC-224AP: and the two SFP entries are exactly those combo fibre halves');
+
+  const ap7072 = find('AC-7072');
+  const p70 = effectiveInterfaces(ap7072);
+  eq(p70.filter(function (p) { return p.comboWith; }).length, 16,
+    'AC-7072: eight 1G combo positions = sixteen interfaces');
+  eq(p70.filter(function (p) { return p.connector === 'sfp+'; }).length, 4,
+    'AC-7072: four SEPARATE 10G SFP+ cages, distinct from the combos');
+  eq(p70.filter(function (p) { return p.type === 'console'; }).length, 2,
+    'AC-7072: two console ports, as the table says');
+
+  // One cage, one cable: the combo rule has to hold on a controller too.
+  const t24 = new Topology();
+  const ctl = t24.addDevice(ap224);
+  const peer = t24.addDevice(find('VSP2100-K'));
+  t24.connect(ctl.id, 'combo1-sfp', peer.id, 'sfp1', {});
+  const blocked = t24.validateLink(ctl.id, 'combo1', peer.id, 'sfp2', {});
+  ok((blocked.errors || []).some(function (e) { return e.code === 'E_COMBO_OCCUPIED'; }),
+    'AC-224AP: the RJ45 half of a combo is refused while its SFP half is cabled');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
