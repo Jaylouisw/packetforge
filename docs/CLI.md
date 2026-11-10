@@ -1196,6 +1196,44 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The tree could be configured per VLAN and not viewed that way
+
+`spanning-tree vlan 10 root primary` is accepted, and its own answer says *"Spanning tree for VLAN 10"*.
+Asking to see it refused the command:
+
+```
+SW1#show spanning-tree vlan 10
+% show spanning-tree takes one port, not "vlan 10"
+% Try "show ip interface brief" for the ports this device has
+```
+
+Advice about the port list, for a command naming a VLAN the previous prompt had just accepted. And
+`show spanning-tree root` claimed **"Root bridge for VLAN 1"** — a per-VLAN specificity the model does
+not have, on a VLAN nobody configured.
+
+The model runs **one tree for every VLAN**, so the fix is not a per-VLAN table it cannot back. It is to
+answer the VLAN-shaped question with the tree that exists and say so:
+
+```
+SW1#show spanning-tree vlan 10
+Spanning tree enabled protocol ieee
+  VLAN 10 - one tree covers every VLAN on this device, so this is it
+  Root bridge: priority 24576, 02:00:00:00:00:00 (SW1)
+  ...
+
+SW1#show spanning-tree vlan 10 root
+Root bridge for VLAN 10 (one tree covers every VLAN on this device): priority 24576, ...
+
+SW1#show spanning-tree vlan 99
+% No VLAN 99 on SW1 - nothing is configured for it and no port carries it
+% The VLANs here are: 10, 20
+```
+
+Without a VLAN, the root header now speaks for every VLAN instead of inventing VLAN 1. `root` and
+`summary` combine with `vlan <id>`, and the capability gate runs **before** the VLAN lookup, because a
+host answering *"No VLAN 10 on PC1 … The VLANs here are: 1"* re-invented the VLAN 1 that every other
+view had already been taught to drop.
+
 ### `no vlan` blamed a port that was an SVI
 
 A switch with its own address in VLAN 20 could not lose VLAN 20:

@@ -3273,7 +3273,9 @@ class CliSession {
   // `show spanning-tree summary` (counts) and `show spanning-tree root` (who is root, and what it
   // costs this bridge to reach it) - both rendered from the election's own result, so neither can
   // disagree with the table `show spanning-tree` prints.
-  _showStpSummary(dev, wantRoot) {
+  _showStpSummary(dev, wantRoot, wantVlan) {
+    const vlanNote = wantVlan === undefined || wantVlan === null ? null
+      : 'VLAN ' + wantVlan + ' (one tree covers every VLAN on this device)';
     const st = dev.stp || { states: {}, roles: {}, costs: {}, blocked: new Set() };
     const ports = Object.keys(st.states || {}).sort();
     const rootName = (function (self) {
@@ -3293,7 +3295,9 @@ class CliSession {
       ? st.root.priority : require('./stp').STP_DEFAULT_PRIORITY;
 
     if (wantRoot) {
-      const out = ['Root bridge for VLAN 1: priority ' + rootPriority + ', ' +
+      // "for VLAN 1" was a specificity the model does not have: one tree covers every VLAN, so
+      // naming one made the header look like a per-VLAN answer and made VLAN 1 look configured.
+      const out = ['Root bridge for ' + (vlanNote || 'every VLAN (one tree)') + ': priority ' + rootPriority + ', ' +
         (st.root && st.root.mac ? st.root.mac : 'unknown') +
         (rootName ? ' (' + rootName + ')' : '') + (st.isRoot ? ' - this bridge' : '')];
       if (st.isRoot) {
@@ -7501,17 +7505,57 @@ class CliSession {
       // asks of a tree that is not converging, and both were answered "No interface named summary on
       // <device>" - the sub-word was read as a port name. A keyword is not a port.
       const sub = String(tokens[1] || '').toLowerCase();
-      if (sub === 'summary' || sub === 'root') {
-        if (tokens.length > 2) {
-          return ['% Unexpected argument "' + tokens[2] + '" - show spanning-tree ' + sub + ' takes no more'];
+      // `spanning-tree vlan 10 root primary` configures it per VLAN, and `show spanning-tree vlan 10`
+      // answered "% show spanning-tree takes one port, not \"vlan 10\"" with advice about the port
+      // list - a view of the thing the configuration names, refused as though it were a typo. The
+      // model runs one tree for every VLAN, so the VLAN form shows that tree *and says so*, rather
+      // than pretending to a per-VLAN table that does not exist here.
+      let wantVlan = null;
+      let tail = tokens.slice(1);
+      // Asked before the VLAN is looked up: a device that does not bridge has no tree and no VLAN
+      // domain, so "No VLAN 10 on PC1 … The VLANs here are: 1" answered with a list a host cannot
+      // have - the invented VLAN 1 this series removed from every other view.
+      if (sub === 'vlan' && (!dev.isL2 || !dev.isL2())) {
+        const isL3 = typeof dev.isL3 === 'function' && dev.isL3();
+        return ['% ' + (dev.name || dev.id) + ' does not bridge, so it runs no spanning tree',
+          isL3 ? '% Routers forward at L3 - a loop between them is a routing problem'
+            : '% A host sends everything to its default gateway and never forwards',
+          '% The L2 view on a switch is "show spanning-tree"'];
+      }
+      if (sub === 'vlan') {
+        const vidWord = String(tokens[2] === undefined ? '' : tokens[2]);
+        if (!/^\d+$/.test(vidWord)) {
+          return ['% show spanning-tree vlan needs a VLAN id, not "' +
+            (tokens[2] === undefined ? 'nothing' : tokens[2]) + '"',
+            '% e.g. "show spanning-tree vlan 10" or "show spanning-tree vlan 10 root"'];
+        }
+        const vid = Number(vidWord);
+        const declared = (dev.config.vlans || {})[vid];
+        const carried = this._vlanMap(dev).has(vid);
+        if (!declared && !carried) {
+          const have = Object.keys(dev.config.vlans || {}).map(Number)
+            .concat(Array.from(this._vlanMap(dev).keys()).filter(function (x) { return x !== 'all'; }).map(Number));
+          const uniq = Array.from(new Set(have)).sort(function (a, b) { return a - b; });
+          return ['% No VLAN ' + vid + ' on ' + (dev.name || dev.id) +
+            ' - nothing is configured for it and no port carries it',
+            uniq.length ? '% The VLANs here are: ' + uniq.join(', ') : '% It has no VLANs at all'];
+        }
+        wantVlan = vid;
+        tail = tokens.slice(3);
+      }
+      const sub2 = String(tail[0] || '').toLowerCase();
+      if (sub2 === 'summary' || sub2 === 'root') {
+        if (tail.length > 1) {
+          return ['% Unexpected argument "' + tail[1] + '" - show spanning-tree ' +
+            (wantVlan === null ? '' : 'vlan ' + wantVlan + ' ') + sub2 + ' takes no more'];
         }
         if (!dev.isL2 || !dev.isL2()) {
           return ['% ' + (dev.name || dev.id) + ' does not bridge, so it runs no spanning tree',
             '% Routers forward at L3 - a loop between them is a routing problem'];
         }
-        return this._showStpSummary(dev, sub === 'root');
+        return this._showStpSummary(dev, sub2 === 'root', wantVlan);
       }
-      const pick = this._portArg(tokens.slice(1), dev, 'show spanning-tree', ['summary', 'root']);
+      const pick = this._portArg(tail, dev, 'show spanning-tree', ['summary', 'root']);
       if (!pick.ok) return out.concat(pick.output);
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
       const names = Object.keys(st.states || {}).sort().filter(function (n) {
@@ -7535,6 +7579,11 @@ class CliSession {
           '% The L2 view on a switch is "show spanning-tree"'];
       }
       out.push('Spanning tree enabled protocol ieee');
+      // Answering a VLAN-specific question with an identical table would read as "the argument was
+      // ignored". It was not: there is one tree, and this line says the table is that tree.
+      if (wantVlan !== null && wantVlan !== undefined) {
+        out.push('  VLAN ' + wantVlan + ' - one tree covers every VLAN on this device, so this is it');
+      }
       // The root, and the bridge that decided it. The help row has always promised "root bridge,
       // port roles and states"; the table printed roles and states and never a root, so the one
       // question the command exists for - which switch is root, and why - had no answer in it.
@@ -10139,6 +10188,8 @@ class CliSession {
         'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
       helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
+      helpLine('show spanning-tree vlan <id> [root|summary]',
+        'the same tree, asked for by VLAN - one tree covers every VLAN here, and it says so'),
       helpLine('show spanning-tree [<port>|summary|root]',
         'root bridge, port roles and states; or the counts, or the path to the root'),
       helpLine('show etherchannel', 'LAGs and their members'),

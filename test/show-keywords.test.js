@@ -91,11 +91,14 @@ console.log('\n`show spanning-tree root` answers who is root and what it costs:'
 {
   const env = lab();
   const root = env.a.run('show spanning-tree root').output;
-  match(/Root bridge for VLAN 1: priority 32768, \S+ \(SW1\) - this bridge/, root,
+  // "for VLAN 1" was the old header, and it named a VLAN the model does not have per tree: one
+  // tree covers every VLAN. The header now says that (test/stp-vlan-view.test.js pins the VLAN form).
+  match(/Root bridge for every VLAN \(one tree\): priority 32768, \S+ \(SW1\) - this bridge/, root,
     'on the root, it says so');
   match(/This bridge is the root: root path cost 0/, root, 'and that its cost is zero');
   const leaf = env.c.run('show spanning-tree root').output;
-  match(/Root bridge for VLAN 1: priority 32768, \S+ \(SW1\)/, leaf, 'a non-root names the root by name');
+  match(/Root bridge for every VLAN \(one tree\): priority 32768, \S+ \(SW1\)/, leaf,
+    'a non-root names the root by name');
   noMatch(/this bridge/, leaf, 'and does not claim to be it');
   match(/Root path cost for SW3: 20000/, leaf, 'its root path cost is stated');
   match(/Root port: Fa0\/2/, leaf, 'and which port leads there');
