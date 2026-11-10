@@ -1535,6 +1535,34 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A word a command does not take is refused, not dropped
+
+```
+R1#show version zzzz                -> the version, as if nothing had been typed
+R1#show interfaces Gi0/0 zzzz       -> the interface, the word gone
+R1#show ip nat translations zzzz    -> the table
+```
+
+Three answers to three questions nobody asked. A per-command audit had closed this for the views it
+looked at; a sweep of every `show` row on the exec page showed it was the general case.
+
+The check is empirical rather than inferred from the help page. The answer is composed, then composed
+again without the trailing words: if the two are identical **and** a nonsense word in that position
+changes nothing either, the position is not read at all and the words were ignored. Identical answers
+alone are not proof, because an argument that filters narrows to the same table when everything matches
+it — `show access-lists TEST` with one list, `show vrrp 1` with one group — and those keep working.
+
+```
+R1#show version zzzz
+% "zzzz" is not an argument to "show version"
+% "show version" takes no argument here - type it on its own, or "?" for the commands
+```
+
+The rule cuts both ways: the page is the contract, so a handler that reads an argument the page does not
+list is a help defect. Two were found by the guard refusing them — `show access-lists <name>` (supported
+since the filter was added, never documented) and `show etherchannel summary`. Both rows are on the page
+now, and the sweep types every argument-less row plus a stray word, so the next one fails loudly.
+
 ### A view may not print a JavaScript value, and a produced route is not an installed one
 
 Two views of the OSPF database, both reading the wrong thing.

@@ -332,6 +332,27 @@ optical.hybridCord('sc-apc', 'sc-upc')   // -> the same entry (order does not ma
 optical.hybridCord('sc-apc', 'sc-apc')   // -> null: a matched pair needs no cord
 ```
 
+### The UI's part picker is a snapshot of the catalogue, and it can be behind
+
+The engine reads `catalogue/optics/transceivers.json`; the browser cannot. That directory sits outside the
+static root the UI is served from, so `web/app.js` carries `PART_ROWS` — a hand-kept copy that becomes
+`opticParts` for the picker and backs `partsForMedia()`. Adding a transceiver to the catalogue therefore
+does **not** add it to the picker; someone has to append it, and `test/link-parts.test.js` is what says so.
+It asserts three things about the copy: the same number of parts, the same field values, and no part the
+catalogue does not list.
+
+Read the current count rather than trusting this paragraph:
+
+```bash
+node test/link-parts.test.js | grep 'carries every catalogue part'
+# the UI carries every catalogue part (34 of 58)      <- red, 24 behind, measured
+```
+
+The 24 that are missing include `QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4` and
+`QSFP56-200G-SR4`. Those optics are perfectly valid in a spec — `cagesMate()` and `canMate()` do not consult
+the picker — so the practical effect is a working lab you cannot build through the UI, which is the kind of
+gap a reader looks for in a page like this one rather than in a red test.
+
 `hybridCord(a, b)` only answers for the same shape with different polishes, and
 only when `catalogue/optics/odn.json` actually contains a cord terminated that
 way. A link then *declares* the part:
