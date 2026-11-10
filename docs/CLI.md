@@ -129,6 +129,14 @@ Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
 Gi0/0      10     120  Master  R1      10.0.1.254  00:00:5e:00:01:0a
 ```
 
+**What those route columns are not.** `AD` is the administrative distance (0 connected, 110 OSPF, 20 eBGP
+here) and the `*` marks the row that forwards; **no column carries the metric**, and no `show` command
+prints a route's cost. `show ip ospf interface` prints the *per-interface* cost, which is what an
+advertisement contributes, not what a learned route accumulated — those two numbers differ the moment a
+path crosses a transit link, and the accumulated one lives on the route objects `computeOspf()` returns
+(`cost: 20` above). So a transcript proves the path, never the metric: to see why one path beat another you
+have to measure it, not read it.
+
 That covers `show ip route`, `show ipv6 route`, `show ip ospf`, `show ip ospf neighbor`, `show ip bgp`,
 `show vrrp`, `show ip dhcp binding` / `show ip dhcp pool`, `show spanning-tree`, `show lldp neighbors`,
 and `show ipv6 interface`. A reader derives the planes it displays; a *non*-reader (a configuration
