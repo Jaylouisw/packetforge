@@ -43,6 +43,22 @@ node server/index.js
 
 Open **http://localhost:8000**.
 
+Two things about that command are worth knowing before you run it on a shared network. The server calls
+`server.listen(PORT)` with **no host argument**, so it binds every interface, not just loopback — measured
+on this machine, `http://<lan-ip>:8000/api/version` answers `200` as readily as localhost does. And there
+is **no authentication of any kind**: anyone who can reach the port can read and rewrite topologies. Put it
+behind a firewall or an authenticating proxy if that port is not on a network you trust; `docs/PUBLIC-ACCESS.md`
+describes the Cloudflare Access arrangement used for one deployment.
+
+If you only want to know whether it is alive, `/api/version` is the cheapest check and needs no session:
+
+```bash
+curl -s http://localhost:8000/api/version
+# {"name":"packetforge","version":"0.1.0","commit":null,"node":"v24.11.0","platform":"win32/x64","devices":1661}
+```
+
+`devices` is the loaded catalogue count, so it also tells you the server found its specs.
+
 ### With Docker
 
 There is **no published image**: nothing in this repository pushes one, and an anonymous

@@ -163,6 +163,14 @@ friendly message, and `PORT=1.2.3.4` is truncated to `1` and starts the server o
 word of complaint — which also means the `EADDRNOTAVAIL` branch cannot be reached by typing an
 address into `PORT`. See [README.md](../README.md#if-it-will-not-start).
 
+**What it listens on, and for whom.** `server.listen(PORT, cb)` passes **no host**, so the socket binds
+every interface rather than loopback — measured on this machine, `GET http://<lan-ip>:8000/api/version`
+answers `200` with the same payload as localhost. Nothing in the server authenticates, authorises or
+rate-limits a request: the HTTP surface is the whole security model, and the WebSocket endpoint is bound by
+the same rule. That is the intended shape for a lab tool on a trusted network and the reason
+[PUBLIC-ACCESS.md](PUBLIC-ACCESS.md) exists for a deployment that is not on one — if you expose the port,
+put something in front of it that authenticates, because the process will not.
+
 ### Error responses
 
 Every failure is JSON with a human-readable `error` string, and the HTTP status carries the class:
