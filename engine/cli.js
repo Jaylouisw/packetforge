@@ -7861,7 +7861,70 @@ class CliSession {
     return null;
   }
 
+
+  // A word after a command that takes no words is not a comment: it is a mistake, and a view that
+  // ignored it answered as though it had been understood.
+  //
+  //   R1#show version zzzz             -> the version, as if nothing had been typed
+  //   R1#show interfaces Gi0/0 zzzz    -> the interface, the word dropped
+  //   R1#show ip nat translations zzzz -> the table
+  //
+  // The test is empirical rather than inferred from the help page: the answer is composed, and then
+  // composed again without the trailing words. If the two are identical, those words were ignored —
+  // which is exactly the defect, whatever the page happens to say. A handler that judged the word
+  // itself (a refusal, or a different answer) is left alone, so `show interfaces vlan 20`,
+  // `show logging acl-deny summary` and every other multi-word argument keeps working.
+  _ignoredArgRefusal(tokens, answer) {
+    if (!tokens || tokens.length < 2 || !answer || !answer.length) return null;
+    if (/^%/.test(String(answer[0]))) return null;      // the handler judged the words itself
+    let forms;
+    try { forms = this._helpFormRowsAll(MODE_ENABLE); } catch (e) { return null; }
+    if (!Array.isArray(forms) || !forms.length) return null;
+    const isPlaceholder = function (t) { return !!t && typeof t === 'object' && !!t.placeholder; };
+    const completeAt = function (k) {
+      const typed = ['show'].concat(tokens.slice(0, k).map(function (t) {
+        return String(t).toLowerCase();
+      }));
+      return forms.some(function (f) {
+        if (!f.tokens || f.tokens.length !== typed.length) return false;
+        if (String(f.tokens[0]).toLowerCase() !== 'show') return false;
+        for (let i = 0; i < typed.length; i++) {
+          if (isPlaceholder(f.tokens[i])) continue;
+          if (String(f.tokens[i]).toLowerCase() !== typed[i]) return false;
+        }
+        return true;
+      });
+    };
+    // If the whole line is a form the page lists, the words are part of the command and the handler
+    // answered them - even when the answer looks the same as the bare form's (`show vrrp 1` with one
+    // group, `show vlan brief` which is the table, a peer filter with a single peer).
+    if (completeAt(tokens.length)) return null;
+    for (let k = tokens.length - 1; k >= 1; k--) {
+      if (!completeAt(k)) continue;
+      const shorter = this._showInner(tokens.slice(0, k));
+      if (!shorter || !shorter.length || /^%/.test(String(shorter[0]))) return null;
+      if (shorter.join('\n') !== answer.join('\n')) return null;
+      // Identical answers are not proof on their own: an argument that filters, in a state where
+      // everything matches it, narrows to the same table (`show access-lists TEST` with one list,
+      // `show vrrp 1` with one group). So the position is probed with a word that names nothing -
+      // if that changes the answer, the handler reads the position and the word was meaningful.
+      const probe = this._showInner(tokens.slice(0, k).concat(['zzzz']));
+      if (probe && probe.length && probe.join('\n') !== answer.join('\n')) return null;
+      const words = ['show'].concat(tokens.slice(0, k)).join(' ');
+      const extra = tokens.slice(k).join(' ');
+      return ['% "' + extra + '" is not an argument to "' + words + '"',
+        '% "' + words + '" takes no argument here - type it on its own, or "?" for the commands'];
+    }
+    return null;
+  }
+
   _show(tokens) {
+    // The answer, then a check that the words were actually used: see _ignoredArgRefusal.
+    const answer = this._showInner(tokens);
+    return this._ignoredArgRefusal(tokens, answer) || answer;
+  }
+
+  _showInner(tokens) {
     // An SVI's line protocol depends on the current link state, so it is recomputed before every
     // `show` rather than trusted from the last run: configuration can change between two questions,
     // and a stale `lineUp` would answer about a VLAN that no longer has a live port. One place, so no
@@ -8959,7 +9022,16 @@ class CliSession {
       }
     } else if (what === 'startup-config' || what === 'start') {
       const pick = this._portArg(tokens.slice(1), dev, 'show startup-config');
-      if (!pick.ok) return out.concat(pick.output);
+      if (!pick.ok) {
+        // `show startup-config zzzz` is not a request for a port called zzzz - the port comes after
+        // the literal `interface`. Answering "No interface named zzzz" sent the operator looking for
+        // a port by that name when the mistake was the command's shape.
+        if (tokens.length > 1 && String(tokens[1]).toLowerCase() !== 'interface') {
+          return out.concat(['% "' + tokens.slice(1).join(' ') + '" is not an argument to "show startup-config"',
+            '% It takes one port, written `show startup-config interface <port>`, or nothing at all']);
+        }
+        return out.concat(pick.output);
+      }
       out.push.apply(out, this._showStartupConfig(dev, pick.port));
     } else if (what === 'running-config' || what === 'run') {
       // The argument used to be dropped on the floor: `show running-config interface Gi0/0` printed
@@ -11170,13 +11242,13 @@ class CliSession {
         'the same tree, asked for by VLAN - one tree covers every VLAN here, and it says so'),
       helpLine('show spanning-tree [<port>|summary|root]',
         'root bridge, port roles and states; or the counts, or the path to the root'),
-      helpLine('show etherchannel', 'LAGs and their members'),
+      helpLine('show etherchannel [summary]', 'LAGs and their members'),
       helpLine('show lldp', 'LLDP state: whether it runs, which ports announce, neighbours count'),
       helpLine('show lldp neighbors [<port>]', 'what announced itself on each port'),
       helpLine('show lldp neighbors detail', 'one block per neighbour: chassis, port, TTL, medium'),
       helpLine('show lldp interface [<port>]', 'per-port transmit/receive decision and the neighbour'),
       helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
-      helpLine('show access-lists', 'entries, and where they are bound'),
+      helpLine('show access-lists [<name>]', 'entries, and where they are bound'),
       helpLine('show vrrp [<group>]', 'groups, priorities and current state - one group if named'),
       helpLine('show ip protocols', 'the routing processes running here, and their distances'),
       helpLine('show ip bgp', 'the BGP table: prefixes received, and which row forwards'),
