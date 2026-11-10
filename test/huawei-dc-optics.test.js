@@ -97,5 +97,48 @@ console.log('\nThe reach ladder is ordered, which is what makes a run refusable:
     smfParts.length + ' SMF)');
 }
 
+console.log('\nThe 100G/40G/25G StarryLink parts, tab by tab (#747, #748, #750):');
+{
+  const byName = {};
+  require('../catalogue/optics/transceivers.json').forEach(function (t) { byName[t.partNumber] = t; });
+
+  // -- 100GE under 2 km ------------------------------------------------------
+  const hundred = ['QSFP28-100G-SR4', 'QSFP28-100G-BIDI', 'QSFP28-100G-eBIDI',
+                   'QSFP28-100G-CWDM4-Lite', 'QSFP28-100G-DR'];
+  ok(hundred.every(function (n) { return byName[n]; }), 'all five 100GE parts are in the catalogue');
+  ok(hundred.every(function (n) { return byName[n].formFactor === 'qsfp28' && byName[n].speedMbps === 100000; }),
+    'every 100GE part is QSFP28 at 100 Gbit/s');
+  eq(byName['QSFP28-100G-SR4'].connector, 'mpo',
+    'SR4 is the MPO part - the only 100G one here with a 12-fibre connector');
+  eq(byName['QSFP28-100G-DR'].connector, 'lc', 'DR is duplex LC');
+  ok(byName['QSFP28-100G-eBIDI'].reachM > byName['QSFP28-100G-BIDI'].reachM,
+    'eBIDI reaches further than BIDI (' + byName['QSFP28-100G-BIDI'].reachM + ' m vs ' +
+    byName['QSFP28-100G-eBIDI'].reachM + ' m) - that is the only difference the table publishes');
+  eq(byName['QSFP28-100G-BIDI'].pairWavelengthNm, 910, 'BIDI declares its return wavelength, not just 850 nm');
+  eq(byName['QSFP28-100G-SR4'].pairWavelengthNm, null, 'and SR4 does not claim to be bidirectional');
+  eq(byName['QSFP28-100G-CWDM4-Lite'].wavelengthNm, null,
+    'CWDM4-Lite is not a single-lambda part: no wavelengthNm, the grid lives in cwdmChannel');
+  eq(byName['QSFP28-100G-CWDM4-Lite'].fiber, 'smf', '...and it is single-mode, unlike its BIDI siblings');
+
+  // -- 40GE ------------------------------------------------------------------
+  const forty = ['QSFP-40G-iSR4', 'QSFP-40G-eSR4', 'QSFP-40G-LX4-MM', 'QSFP-40G-LR4-Lite'];
+  ok(forty.every(function (n) { return byName[n] && byName[n].formFactor === 'qsfp+' && byName[n].speedMbps === 40000; }),
+    'all four 40GE parts are QSFP+ at 40 Gbit/s');
+  ok(byName['QSFP-40G-eSR4'].reachM > byName['QSFP-40G-iSR4'].reachM,
+    'eSR4 outruns iSR4 on the same fibre');
+  // The trap in this table: a CWDM optic on MULTIMODE.
+  eq(byName['QSFP-40G-LX4-MM'].fiber, 'mmf',
+    'LX4-MM is CWDM over multimode - the part that breaks the "CWDM means single-mode" assumption');
+  eq(byName['QSFP-40G-LR4-Lite'].fiber, 'smf', 'while LR4-Lite is the single-mode 2 km one');
+  ok(byName['QSFP-40G-LR4-Lite'].reachM === 2000, 'LR4-Lite is 2 km, as published');
+
+  // -- 25GE ------------------------------------------------------------------
+  eq(byName['SFP-25G-SR'].formFactor, 'sfp28', 'SFP-25G-SR is an SFP28 part');
+  eq(byName['SFP-25G-SR'].reachM, byName['SFP-25G-SR-E'].reachM,
+    'the -E variant publishes the same distances as the plain part: two codes, one optical spec');
+  ok(/1e-12/.test(byName['SFP-25G-SR'].note),
+    'and the BER-dependent reach (1e-12 vs 5e-5) is recorded, because the four numbers are not interchangeable');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

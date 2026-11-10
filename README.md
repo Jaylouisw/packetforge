@@ -294,7 +294,7 @@ packetforge/
 │   ├── registry.js  #   loads + groups device specs
 │   └── <vendor>/*.json
 ├── catalogue/       # the other catalogue: real optics, not abstract media
-│   └── optics/      #   transceivers.json (34 part numbers), odn.json (16 splitters/cords),
+│   └── optics/      #   transceivers.json (50 part numbers), odn.json (16 splitters/cords),
 │                    #   hybrid-patch-cords.json (13 UPC↔APC assemblies) — read by engine/optical.js
 ├── research/        # datasheet research intake; findings land here before they are applied
 │   └── incoming/    #   the JSON that scripts/apply-research.js and import-devices.js consume
