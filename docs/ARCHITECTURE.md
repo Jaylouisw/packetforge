@@ -134,6 +134,23 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### The console over HTTP
+
+`POST /api/topologies/:id/config/:devId` runs the console for a device: `{ commands: [...], atMs? }` in, the printed
+lines plus the new state out. Three things it now does that it did not:
+
+* **it shares the board's accounting.** The session used `new Simulator(topo)`, which brings its own flow state, so
+  traffic counted by `/flows` was invisible to the console and traffic the console generated was invisible to the
+  payload. Measured before the fix: 100 bytes of flow on a host's port and a payload that said `counted: false`. The
+  console now prints exactly the counters the payload publishes.
+* **it takes an instant.** `atMs` asks the question at that instant — the same `runAtMs` the CLI has always had — and
+  the answer echoes `runAtMs` (`null` meaning "once everything has settled") plus `convergence`, like every other
+  mutation. It is set on **every** request, not only when supplied, so a session cached by an earlier caller cannot
+  pin a later one to an instant it did not ask for.
+* **`show spanning-tree` recomputes before it answers.** `dev.stp` is written by whichever simulator computed it
+  last; a console asked at 25000 printed the tree from an earlier pass at `Infinity` and called a port that was still
+  listening "forwarding".
+
 ### Every change answers the same question
 
 The HTTP API has five requests that change what the control plane will do — add a device, remove one, move a cable,

@@ -823,7 +823,16 @@ async function handleApi(req, res, urlPath) {
       const commands = raw;
       const key = sessionKey(topoId, devId);
       let session = sessions.get(key);
-      if (!session) { session = new CliSession(dev, topo, new Simulator(topo)); sessions.set(key, session); }
+      // The session used `new Simulator(topo)` - a second accounting with a second flow state - so traffic counted
+      // by `/flows` was invisible to the console and traffic the console generated was invisible to the payload: one
+      // board, two sets of counters (#1335). It now shares the topology's, like every other endpoint.
+      if (!session) { session = new CliSession(dev, topo, simForFlows(topo)); sessions.set(key, session); }
+      // Which instant the question is asked at. With no `atMs` the console answers "once everything has settled",
+      // which is what it has always done; with one, the lab can be asked about mid-convergence. It is set on every
+      // request rather than only when supplied, so a session cached by an earlier caller cannot pin this one to an
+      // instant it did not ask for (#1335).
+      const askedAt = (body && body.atMs !== undefined) ? Number(body.atMs) : NaN;
+      session.sim.setRunTime(Number.isFinite(askedAt) && askedAt >= 0 ? askedAt : Infinity);
       const lines = [];
       for (const cmd of commands) {
         lines.push(session.prompt() + cmd);
@@ -837,6 +846,11 @@ async function handleApi(req, res, urlPath) {
       // while the server still held it (issue #38).
       return sendJSON(res, 200, {
         output: lines.join('\n'), lines: lines, prompt: session.prompt(),
+        // The instant this answer describes, and where convergence stood at it - the same two facts every other
+        // mutation reports (#1333), so an operator driving the API never has to guess which lab a console answer came
+        // from.
+        runAtMs: Number.isFinite(session.sim.runAtMs) ? session.sim.runAtMs : null,
+        convergence: session.sim.getConvergence(),
         device: dev.serialize(), state: fullState(topo)
       });
     }
