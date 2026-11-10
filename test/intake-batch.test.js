@@ -898,5 +898,36 @@ console.log('\nA pof unit quotes its output budget, and its polish (#785):');
     'OptiXaccess S0316: every port is a PON-family port, not Ethernet');
 }
 
+console.log('\nThe MA5801 family, where one member is wired differently (#784):');
+{
+  const fam = { 'MA5801-GP16': 16, 'MA5801-GP08': 8, 'MA5801-FL16': 16, 'MA5801-FL04': 4 };
+  Object.keys(fam).forEach(function (model) {
+    const s = find(model);
+    const ports = effectiveInterfaces(s);
+    eq(ports.filter(function (p) { return p.type === 'pon'; }).length, fam[model],
+      model + ': ' + fam[model] + ' PON service ports, as the model table states');
+    ok(ports.filter(function (p) { return p.type === 'pon'; })
+      .every(function (p) { return p.connector === 'sc-apc'; }),
+      model + ': PON ports use the catalogue PON convention');
+  });
+
+  // Flex-PON members reach 9953 (XG(S)-PON); the GPON-only members stop at 2488.
+  const flex = effectiveInterfaces(find('MA5801-FL16')).filter(function (p) { return p.type === 'pon'; })[0];
+  const gpon = effectiveInterfaces(find('MA5801-GP16')).filter(function (p) { return p.type === 'pon'; })[0];
+  ok(flex.speedCaps.indexOf(9953) !== -1, 'MA5801-FL16: Flex-PON reaches XG(S)-PON at 9953');
+  ok(gpon.speedCaps.indexOf(9953) === -1, 'MA5801-GP16: GPON-only ports do not claim 10G');
+
+  // FL04 is the odd one: two copper 2.5G uplinks alongside four optical cages.
+  const fl04 = effectiveInterfaces(find('MA5801-FL04'));
+  const copper = fl04.filter(function (p) { return p.connector === 'rj45'; });
+  eq(copper.length, 2, 'MA5801-FL04: two electrical uplinks, unlike its siblings');
+  ok(copper.every(function (p) { return p.speedCaps.indexOf(2500) !== -1; }),
+    'MA5801-FL04: and they are 2.5GE, so the ladder reaches 2500');
+  eq(fl04.filter(function (p) { return p.connector === 'sfp+'; }).length, 4,
+    'MA5801-FL04: four optical GE/10GE uplinks as well');
+  eq(effectiveInterfaces(find('MA5801-GP16')).filter(function (p) { return p.connector === 'rj45'; }).length, 0,
+    'MA5801-GP16: no copper uplinks at all - reusing the FL04 shape here would add ports that do not exist');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

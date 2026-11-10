@@ -1,69 +1,224 @@
 {
   "vendor": "huawei",
   "model": "MA5801-GP16",
-  "label": "MA5801-GP16 OLT",
+  "label": "Huawei SmartAX MA5801-GP16 box OLT",
   "category": "olt",
-  "description": "Huawei OptiXaccess MA5801-GP16, a 1U box-shaped OLT (442 x 220 x 43.6 mm) with the control and service functions integrated on one board: 16 GPON service ports and 4 GE/10GE upstream SFP+ ports, 140 Gbit/s switching capacity. There are no line-card slots - the box is the configuration, so unlike the MA5800 chassis this spec is the whole device, not one populated slot. The 4 'common interfaces' the datasheet lists (console, alarm and BITS-style dry contacts) are not IP interfaces and are not modelled. Requested in #198; port counts and capacity from Huawei's MA5801 specification table.",
+  "description": "Huawei SmartAX MA5801-GP16 - 1U box OLT with 16 GPON service ports, 4x GE/10GE upstream ports, 140 Gbit/s switching capacity and up to 1024 ONTs, dual AC or DC supplies, for FTTH and POL.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "dhcp-server",
-    "dhcp-client"
+    "http-server",
+    "nat"
   ],
-  "portTemplate": {
-    "prefix": "gpon1/",
-    "start": 1,
-    "count": 16,
-    "type": "pon",
-    "speed": "2.5G",
-    "connector": "sc-apc",
-    "speedCaps": [
-      1244,
-      2488
-    ]
-  },
   "interfaces": [
     {
-      "name": "xge0/1",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488
       ]
     },
     {
-      "name": "xge0/2",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488
       ]
     },
     {
-      "name": "xge0/3",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488
       ]
     },
     {
-      "name": "xge0/4",
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon9",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon10",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon11",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon12",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon13",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon14",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon15",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon16",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "uplink1",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
         1000,
         10000
-      ]
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
     }
   ],
-  "source": "https://e.huawei.com/en/products/optical-access/ma5801"
+  "icon": "olt",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5801.html",
+  "notes": "From the MA5801 model table: **4x GE/10GE** upstream and **16 GPON** service ports, 140 Gbit/s switching capacity, 1024 ONTs, 1U and under 5 kg, dual AC or DC supplies, -40 to +65 C. The GPON service ports carry the 2.5G/1.25G ladder this catalogue uses for every OLT (`[1244, 2488]`); the upstream ports are **GE/10GE** cages so both rates are on the ladder. As with the EA5801E family, the PON ferrule polish is not published on this page - `sc-apc` is the catalogue's PON convention and is inherited rather than quoted. "
 }

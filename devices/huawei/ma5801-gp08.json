@@ -1,0 +1,144 @@
+{
+  "vendor": "huawei",
+  "model": "MA5801-GP08",
+  "label": "Huawei SmartAX MA5801-GP08 box OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5801-GP08 - 1U box OLT with 8 GPON service ports, 4x GE/10GE upstream ports, 110 Gbit/s switching capacity and up to 1024 ONTs, dual AC or DC supplies.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488
+      ]
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    }
+  ],
+  "icon": "olt",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5801.html",
+  "notes": "From the MA5801 model table: **4x GE/10GE** upstream and **8 GPON** service ports, 110 Gbit/s switching capacity, 1024 ONTs, 1U and under 5 kg, dual AC or DC supplies, -40 to +65 C. The GPON service ports carry the 2.5G/1.25G ladder this catalogue uses for every OLT (`[1244, 2488]`); the upstream ports are **GE/10GE** cages so both rates are on the ladder. As with the EA5801E family, the PON ferrule polish is not published on this page - `sc-apc` is the catalogue's PON convention and is inherited rather than quoted. "
+}

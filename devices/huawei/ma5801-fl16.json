@@ -1,70 +1,240 @@
 {
   "vendor": "huawei",
   "model": "MA5801-FL16",
-  "label": "MA5801-FL16 OLT",
+  "label": "Huawei SmartAX MA5801-FL16 box OLT",
   "category": "olt",
-  "description": "Huawei OptiXaccess MA5801-FL16, the Flex-PON member of the MA5801 family: the same 1U box and the same 4 GE/10GE upstream SFP+ ports, but each of its 16 service ports can be provisioned as GPON (2.5G downstream), XGS-PON (10G) or a GPON+XGS-PON combo, and the switching capacity rises to 460 Gbit/s. Modelled as one PON port that accepts either rate, because the hardware decides at provisioning time which of the three it is - a port pinned to one rate is a software choice, not a different box. Combo mode carries both wavelengths on one port simultaneously; this model carries the rate, not the second wavelength. Requested in #198; figures from Huawei's MA5801 specification table.",
+  "description": "Huawei SmartAX MA5801-FL16 - 1U box OLT with 16 Flex-PON service ports (GPON, XG(S)-PON or GPON Combo), 4x GE/10GE upstream ports, 460 Gbit/s switching capacity and up to 2048 ONTs, dual AC or DC supplies.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "dhcp-server",
-    "dhcp-client"
+    "http-server",
+    "nat"
   ],
-  "portTemplate": {
-    "prefix": "gpon1/",
-    "start": 1,
-    "count": 16,
-    "type": "pon",
-    "speed": "10G",
-    "connector": "sc-apc",
-    "speedCaps": [
-      1244,
-      2488,
-      9953
-    ]
-  },
   "interfaces": [
     {
-      "name": "xge0/1",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon1",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488,
+        9953
       ]
     },
     {
-      "name": "xge0/2",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon2",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488,
+        9953
       ]
     },
     {
-      "name": "xge0/3",
-      "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "name": "pon3",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
       "speedCaps": [
-        1000,
-        10000
+        1244,
+        2488,
+        9953
       ]
     },
     {
-      "name": "xge0/4",
+      "name": "pon4",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon5",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon6",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon7",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon8",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon9",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon10",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon11",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon12",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon13",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon14",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon15",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "pon16",
+      "type": "pon",
+      "connector": "sc-apc",
+      "speed": "2.5G",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    },
+    {
+      "name": "uplink1",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
         1000,
         10000
-      ]
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "wan"
     }
   ],
-  "source": "https://e.huawei.com/en/products/optical-access/ma5801"
+  "icon": "olt",
+  "color": "#7c3aed",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5801.html",
+  "notes": "From the MA5801 model table: **4x GE/10GE** upstream and **16 Flex-PON** service ports, 460 Gbit/s switching capacity, 2048 ONTs, 1U and under 5 kg, dual AC or DC supplies, -40 to +65 C. The GPON service ports carry the 2.5G/1.25G ladder this catalogue uses for every OLT (`[1244, 2488]`); the upstream ports are **GE/10GE** cages so both rates are on the ladder. As with the EA5801E family, the PON ferrule polish is not published on this page - `sc-apc` is the catalogue's PON convention and is inherited rather than quoted. **Flex-PON** is why the ladder reaches 9953: each port's rate follows the module fitted, so `speedCaps: [1244, 2488, 9953]` records GPON and XG(S)-PON rather than pinning 2.5G."
 }
