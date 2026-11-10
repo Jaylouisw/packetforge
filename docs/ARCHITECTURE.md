@@ -90,6 +90,30 @@ Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.
 
+### What is on the disk
+
+One JSON file per board, in `PF_DATA/topologies/` (`~/.packetforge` unless the environment says otherwise). No
+database, no dependency. Five rules, each of which a bug taught:
+
+* **a change is saved before the answer is sent.** `broadcast()` is the one place that knows a board changed, and it
+  saves synchronously. There is no debounce: on Windows a kill calls `TerminateProcess`, so no signal handler and no
+  `exit` listener ever runs, and anything waiting on a timer is gone. A board is a few kilobytes and a human makes
+  one change at a time;
+* **a write is a temporary file and a rename,** so a crash mid-write cannot leave a half-written board that the next
+  boot refuses to parse;
+* **a created board is saved when it is acknowledged** — "make a board, name it, come back tomorrow" used to lose it,
+  because the board lived in memory until something else happened to it;
+* **the file name is injective.** `a b` and `a_b` both sanitise to `a_b.json`, so two boards shared one file: one of
+  them silently overwritten on every save and gone at the next boot. When the sanitised form differs from the id, a
+  short hash of the id is appended, and the id is written inside the file so the name never has to be reversed;
+* **a file that is not a board is left alone, and said so.** `Topology.fromJSON()` is tolerant on purpose (it reads
+  old files), but tolerance must not turn a corrupted save into an **empty board**: the operator would open the app
+  and their lab would be gone, with nothing to read. The envelope is checked before anything is adopted, and the log
+  line names the file.
+
+A board's name is a name, so the path segment is percent-decoded before it is looked up — otherwise a board called
+`a b` can be created and then never reached again.
+
 ### The live-sync socket
 
 `server/ws.js` is a hand-written RFC 6455 server (about 140 lines, no dependencies) used for live multi-client

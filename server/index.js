@@ -47,9 +47,22 @@ const wss = new WebSocketServer();
 // single CLI command can touch several interfaces and each one broadcasts.
 const pendingSaves = new Map();
 
+// A board's file name is derived from its id, and the derivation loses information: `a b` and `a_b` both
+// become `a_b.json`, so two boards shared one file - one of them silently overwritten on every save and gone at
+// the next boot. When the sanitised form differs from the id, a short hash of the exact id is appended, which
+// makes the name injective again. The id itself is written into the file, so the name never has to be reversed
+// (#1315).
+// decodeURIComponent() throws on a malformed sequence (`%E0%A4%A`). A bad escape is a bad request, not a crash.
+function safeDecode(s) {
+  try { return decodeURIComponent(s); } catch (e) { return s; }
+}
+
 function topologyFile(id) {
-  const safe = String(id).replace(/[^A-Za-z0-9._-]/g, '_');
-  return path.join(TOPO_DIR, safe + '.json');
+  const raw = String(id);
+  const safe = raw.replace(/[^A-Za-z0-9._-]/g, '_');
+  if (safe === raw) return path.join(TOPO_DIR, raw + '.json');
+  const tag = require('crypto').createHash('sha1').update(raw).digest('hex').slice(0, 8);
+  return path.join(TOPO_DIR, safe + '-' + tag + '.json');
 }
 
 function saveTopologyNow(id) {
@@ -60,6 +73,7 @@ function saveTopologyNow(id) {
     const body = {
       format: 'packetforge-topology',
       version: 1,
+      id: id,
       savedAt: new Date().toISOString(),
       topology: t.serialize()
     };
@@ -71,7 +85,8 @@ function saveTopologyNow(id) {
     fs.renameSync(tmp, target);
     return true;
   } catch (e) {
-    console.error('could not save topology ' + id + ': ' + e.message);
+    // The path, because "could not save topology default" does not tell a human which directory to look at.
+    console.error('could not save topology ' + id + ' to ' + topologyFile(id) + ': ' + e.message);
     return false;
   }
 }
@@ -109,14 +124,39 @@ function loadSavedTopologies() {
     const full = path.join(TOPO_DIR, name);
     try {
       const body = JSON.parse(fs.readFileSync(full, 'utf8'));
+      // A file that parses but is not a board used to be adopted as an **empty** one: the operator opened the app
+      // and their lab was gone, with nothing said. `Topology.fromJSON()` is tolerant on purpose (it reads old
+      // files), so the envelope is checked here, where the decision to replace something is made (#1315).
       const raw = body && body.topology ? body.topology : body;
+      const problem = savedDocProblem(raw, body);
+      if (problem) {
+        console.error('could not load ' + name + ': ' + problem + ' - left alone');
+        continue;
+      }
       const topo = Topology.fromJSON(raw);
-      const id = name.replace(/\.json$/i, '');
+      // The id is in the file when this server wrote it; older files are named after their board.
+      const id = (body && typeof body.id === 'string' && body.id) ? body.id : name.replace(/\.json$/i, '');
       topologies.set(id, topo);
     } catch (e) {
       console.error('could not load ' + name + ': ' + e.message);
     }
   }
+}
+
+// What a saved file must look like before it is allowed to become a board.
+function savedDocProblem(raw, body) {
+  if (body && body.format !== undefined && body.format !== 'packetforge-topology') {
+    return 'expected format "packetforge-topology", got ' + JSON.stringify(body.format);
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return 'not a topology document';
+  // A save always has at least one of these keys; a board is allowed to be empty, but the keys have to be there,
+  // because a file without them is a mistake rather than an empty lab.
+  if (raw.devices === undefined && raw.links === undefined) {
+    return 'no devices and no links: not a topology document';
+  }
+  if (raw.devices !== undefined && !Array.isArray(raw.devices)) return 'devices must be an array';
+  if (raw.links !== undefined && !Array.isArray(raw.links)) return 'links must be an array';
+  return '';
 }
 
 function ensureTopology(id) {
@@ -488,6 +528,10 @@ async function handleApi(req, res, urlPath) {
   res.pfReq = req;
   const method = req.method.toUpperCase();
   const parts = urlPath.split('/').filter(Boolean); // e.g. ['api','topologies','default','devices']
+  // A board's name is a name. It may contain a space, a slash or a `#`, so the path segment is percent-encoded by
+  // the client - and it has to be decoded here, or a board called `a b` can be created and then never reached again
+  // (#1315). Port names learned this in #1307.
+  if (parts[1] === 'topologies' && parts.length > 2) parts[2] = safeDecode(parts[2]);
 
   try {
     // GET /api/catalog
@@ -536,7 +580,12 @@ async function handleApi(req, res, urlPath) {
       if (method === 'POST') {
         const body = await readBody(req);
         const id = body.id || ('topo-' + Date.now().toString(36));
-        if (!topologies.has(id)) topologies.set(id, new Topology());
+        if (!topologies.has(id)) {
+          topologies.set(id, new Topology());
+          // A board that was created and acknowledged is a thing the operator made. It used to live only in memory
+          // until something else happened to it, so "make a board, name it, come back tomorrow" lost it (#1315).
+          saveTopology(id);
+        }
         return sendJSON(res, 201, { id: id, state: fullState(topologies.get(id)) });
       }
     }
