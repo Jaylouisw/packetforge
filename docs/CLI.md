@@ -1178,6 +1178,68 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### The table a switch operator lives in, and the state column that lied
+
+Two commands an operator types before anything else did not exist, and the state column they read was
+wrong for every port nobody had plugged in:
+
+```
+SW1#show interfaces status
+% "show interfaces status" is not a command here
+SW1#show interfaces description
+% "show interfaces description" is not a command here
+R1#show ip interface
+% Invalid show command: ip interface
+SW1#show ip interface brief
+Fa0/1     unassigned    YES  manual  up    up      <- cabled to PC1
+Fa0/5     unassigned    YES  manual  up    up      <- nothing plugged in
+```
+
+The first two are the reason you give a port a description at all. The label was stored, dumped and
+pasted back, and could only ever be read one port at a time. The third is the detail view of a table
+that already existed. The fourth is the real defect: `lineUp` was maintained only for SVIs and
+subinterfaces, so a physical port answered `up/up` in **every** table with a state column, because
+nothing had told it there was no cable.
+
+```
+SW1#show interfaces status
+Ports on SW1 (8):
+Port   Name            Status      Vlan   Duplex  Speed  Type
+Fa0/1  to PC1          connected   1      a-full  100M   ethernet
+Fa0/2  uplink to R1    connected   1      a-full  a-1G   ethernet
+Fa0/3                  notconnect  20     a-full  a-1G   ethernet
+Fa0/4  spare (unused)  disabled    1      a-full  a-1G   ethernet
+Fa0/5                  notconnect  1      a-full  a-1G   ethernet
+...
+2 connected, 1 disabled, 5 notconnect
+
+SW1#show interfaces description
+Interfaces on SW1 (8):
+Interface  Status                 Protocol  Description
+Fa0/1      up                     up        to PC1
+Fa0/4      administratively down  down      spare (unused)
+
+R1#show ip interface Gi0/0
+Gi0/0 is up, line protocol is up
+  Internet address is 10.0.0.1/24
+  Broadcast address is 10.0.0.255
+  MTU is 1500 bytes
+  NAT role: inside
+  Inbound access list is 10
+```
+
+Each column is a fact the model already held — the label typed on the port, its shutdown, its cable,
+its VLAN, its negotiated speed — so nothing is derived twice: `computePortState()` decides a port's
+line from shutdown + cable + link (the same three things the data path requires before it will
+forward out of the port), and every table with a state column reads that one answer. `show interfaces
+status` also counts its own rows (`2 connected, 1 disabled, 5 notconnect`), and the count is asserted
+against the rows so a summary cannot drift from the table above it.
+
+The state vocabulary follows IOS: a **physical** port with no cable is `down/down` in `show ip
+interface brief` and `notconnect` in `show interfaces status`, while a **logical** interface is
+`up/down` (`Vlan30  up  down`) because it is not shut and its line protocol is what is waiting —
+`show ip interface` names the reason (`Line state: no port is cabled`) in both cases.
+
 ### A keyword is not a port name
 
 Every `show` verb that takes an optional port argument reads an unrecognised word as a port, which is

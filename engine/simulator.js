@@ -459,8 +459,38 @@ class Simulator {
   // a management address answer on a VLAN whose every port was shut, which is the one situation an
   // operator is usually trying to diagnose. The state is stored on the interface as `lineUp` and read
   // by ownsIpOn(), routeTo() and the two show commands, so there is one answer and not three.
+  // A physical port's line state, for every table that has a state column.
+  //
+  // `lineUp` used to be maintained only for SVIs and subinterfaces, so a switch port with nothing
+  // plugged into it answered `up/up` in `show ip interface brief` and `show interfaces`, and the new
+  // `show interfaces status` would have had to invent `connected` for it. A port is up when the
+  // administrator has not shut it, a cable is attached, and that cable's link is up - the same three
+  // facts the data path already requires before it will forward a frame out of the port.
+  computePortState() {
+    for (const dev of this.topo.devices.values()) {
+      for (const iface of dev.interfaces.values()) {
+        if (iface.svi || iface.parent) continue;   // a logical interface borrows someone else's line
+        if (!iface.peer) {
+          iface.lineUp = false;
+          iface.lineStateReason = 'no cable attached';
+          continue;
+        }
+        const link = this._linkAt(dev.id, iface.name);
+        if (link && !link.isUp()) {
+          iface.lineUp = false;
+          iface.lineStateReason = link.reason ? String(link.reason()) : 'the cable is down';
+          continue;
+        }
+        iface.lineUp = true;
+        iface.lineStateReason = null;
+      }
+    }
+  }
+
   computeSviState() {
     const vlanLib = require('./vlan');
+    // The SVIs below are decided from what the ports are doing, so the ports are decided first.
+    this.computePortState();
     for (const dev of this.topo.devices.values()) {
       for (const iface of dev.interfaces.values()) {
         if (!iface.svi) continue;

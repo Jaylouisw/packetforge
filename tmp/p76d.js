@@ -1,0 +1,10 @@
+const path=require('path');
+const {Topology,Simulator}=require('../engine');const {CliSession}=require('../engine/cli');const {loadCatalog}=require('../devices/registry');
+const c=loadCatalog(path.join(__dirname,'..','devices'));const SW=c.find(s=>s.model==='generic-switch');
+const t=new Topology();const sw=t.addDevice(SW);sw.name='SW1';
+const sim=new Simulator(t);const s=new CliSession(sw,t,sim);s.run('enable');s.run('configure terminal');s.run('interface Fa0/3');s.run('switchport access vlan 20');s.run('end');
+const i=sw.interfaces.get('Fa0/3');
+console.log('vlan field:', JSON.stringify(i.vlan));
+console.log('peer:', JSON.stringify(i.peer), 'lineUp:', i.lineUp, 'enabled:', i.enabled);
+console.log('Fa0/9 (no link) peer:', JSON.stringify(sw.interfaces.get('Fa0/9') && sw.interfaces.get('Fa0/9').peer), 'enabled:', sw.interfaces.get('Fa0/9').enabled);
+console.log('macTable iface values sample:', JSON.stringify(Array.from(sw.macTable.entries()).slice(0,3)));

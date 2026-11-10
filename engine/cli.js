@@ -5133,8 +5133,13 @@ class CliSession {
       };
     }
     if (i.lineUp === false) {
+      // A logical interface whose line is not up is still `up` in the Status column - IOS's
+      // `Vlan10  up  down`, because the administrator has not shut it and the line protocol is what
+      // is waiting. A physical port with no cable is `down` in both columns: there is nothing to
+      // wait for, and claiming `up` is how an unplugged switch port used to answer `up/up`.
+      const logical = !!(i.svi || i.parent);
       return {
-        status: 'up', protocol: 'down',
+        status: logical ? 'up' : 'down', protocol: 'down',
         reason: i.lineStateReason || (i.svi ? 'no active port in its VLAN' : 'no carrier')
       };
     }
@@ -5207,6 +5212,48 @@ class CliSession {
       out.push('Capabilities: ' + dev.capabilities.join(', '));
       out.push('Interfaces : ' + dev.interfaces.size);
       out.push('Simulator  : PacketForge 0.1.0');
+    } else if (what === 'ip' && tokens[1] === 'interface' &&
+               String(tokens[2] || '').toLowerCase() !== 'brief') {
+      // `show ip interface` (no `brief`) is the detailed view of the same ports, and it answered
+      // `% Invalid show command: ip interface` - the one spelling an operator reaches for after the
+      // brief table shows a port they do not expect. Every field here is one this model already
+      // stores on the interface; nothing is invented, and a field nobody set is not printed.
+      const pick = this._portArg(tokens.slice(2), dev, 'show ip interface');
+      if (!pick.ok) return out.concat(pick.output);
+      const blocks = [];
+      for (const i of dev.interfaces.values()) {
+        if (pick.port && i.name !== pick.port) continue;
+        const st = this._ifaceState(i);
+        const lines = [i.name + ' is ' + st.status + ', line protocol is ' + st.protocol];
+        if (!i.ip) {
+          lines.push('  Internet address is not set');
+          if (i.dhcp) lines.push('  Address is negotiated by DHCP');
+        } else {
+          const prefix = net.prefixOf(i.mask);
+          lines.push('  Internet address is ' + i.ip + '/' + prefix);
+          const bcast = (function () {
+            const n = net.ipToInt(i.ip), m = net.ipToInt(i.mask);
+            return net.intToIp((n | (~m >>> 0)) >>> 0);
+          })();
+          lines.push('  Broadcast address is ' + bcast);
+        }
+        if (i.mtu) lines.push('  MTU is ' + i.mtu + ' bytes');
+        if (i.natRole) lines.push('  NAT role: ' + i.natRole);
+        if (i.helperAddresses && i.helperAddresses.length) {
+          lines.push('  Helper addresses: ' + i.helperAddresses.join(', '));
+        }
+        if (st.reason) lines.push('  Line state: ' + st.reason);
+        const bind = dev.aclBindings && dev.aclBindings[i.name];
+        if (bind && bind.in) lines.push('  Inbound access list is ' + bind.in);
+        if (bind && bind.out) lines.push('  Outgoing access list is ' + bind.out);
+        blocks.push(lines.join('\n'));
+      }
+      if (!blocks.length) {
+        return ['% No interface to describe on ' + (dev.name || dev.id)];
+      }
+      out.push('Interfaces on ' + (dev.name || dev.id) + ' (' + blocks.length + '):');
+      out.push('');
+      out.push.apply(out, blocks);
     } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
       const pick = this._portArg(tokens.slice(3), dev, 'show ip interface brief');
       if (!pick.ok) return out.concat(pick.output);
@@ -5720,8 +5767,70 @@ class CliSession {
       // which is worse than a refusal: it looks like an answer. The token goes through the
       // same resolver the config parser uses, so any spelling of the port works.
       let only = null;
-      if (tokens[1] !== undefined
-          && String(tokens[1]).toLowerCase() === 'counters') {
+      const ifSub = String(tokens[1] || '').toLowerCase();
+      if (ifSub === 'status') {
+        // The table a switch operator lives in, and it did not exist: `show interfaces status`
+        // answered "% \"show interfaces status\" is not a command here". Every column is a fact the
+        // model already holds - the description typed on the port, its line state, its VLAN, its
+        // negotiated speed and duplex - so nothing here is derived for the first time.
+        if (tokens[2] !== undefined) {
+          return ['% Unexpected argument "' + tokens[2] + '" - show interfaces status takes no more',
+            '% For one port, use "show interfaces <port>"'];
+        }
+        if (!dev.isL2 || !dev.isL2()) {
+          return ['% ' + (dev.name || dev.id) + ' does not switch, so it has no per-port VLAN status',
+            '% Its ports are in "show ip interface brief", and their state in "show interfaces <port>"'];
+        }
+        const rows = [];
+        for (const i of dev.interfaces.values()) {
+          if (i.parent) continue;
+          // `lineUp` is derived in computePortState() from shutdown, cable and link state, so this
+          // column says `notconnect` for a port with nothing plugged into it rather than claiming
+          // `connected` because nothing is broken.
+          const link = !i.enabled ? 'disabled' : (i.lineUp === false ? 'notconnect' : 'connected');
+          // The VLAN a frame leaving this port is in: a trunk carries many and says so.
+          const vlan = (function () {
+            const v = i.vlan || {};
+            if (v.mode === 'trunk') return 'trunk';
+            if (v.accessVlan) return String(v.accessVlan);
+            return '1';
+          })();
+          const duplex = i.duplexConfigured ? String(i.duplex) : ('a-' + String(i.duplex || 'full'));
+          const speed = i.speedConfigured ? String(i.speed) : ('a-' + String(i.speed || '1G'));
+          rows.push([i.name, i.description || '', link, vlan, duplex, speed, i.type || 'ethernet']);
+        }
+        out.push('Ports on ' + (dev.name || dev.id) + ' (' + rows.length + '):');
+        out.push.apply(out, renderTable(['Port', 'Name', 'Status', 'Vlan', 'Duplex', 'Speed', 'Type'], rows));
+        const counts = rows.reduce(function (a, r) {
+          a[r[2]] = (a[r[2]] || 0) + 1; return a;
+        }, {});
+        out.push('');
+        out.push(Object.keys(counts).sort().map(function (k) { return counts[k] + ' ' + k; }).join(', '));
+        return out;
+      }
+      if (ifSub === 'description') {
+        // Every port's label, in one list - the reason you type a description at all. The label was
+        // stored, dumped and pasted back, and could only ever be read one port at a time.
+        const pick = this._portArg(tokens.slice(2), dev, 'show interfaces description');
+        if (!pick.ok) return out.concat(pick.output);
+        const rows = [];
+        let labelled = 0;
+        for (const i of dev.interfaces.values()) {
+          if (pick.port && i.name !== pick.port) continue;
+          const st = this._ifaceState(i);
+          if (i.description) labelled++;
+          rows.push([i.name, st.status, st.protocol, i.description || '']);
+        }
+        out.push('Interfaces on ' + (dev.name || dev.id) + ' (' + rows.length + '):');
+        out.push.apply(out, renderTable(['Interface', 'Status', 'Protocol', 'Description'], rows));
+        if (!labelled) {
+          out.push('');
+          out.push('  (no port on this device has a description - '
+            + 'set one with "description <text>" in interface mode)');
+        }
+        return out;
+      }
+      if (ifSub === 'counters') {
         // This used to be refused with a pointer to a command that had no counters in it. It is a
         // command now, and the pointer is gone because it is no longer needed.
         const pick = this._portArg(tokens.slice(2), dev, 'show interfaces counters');
@@ -7600,6 +7709,9 @@ class CliSession {
       helpLine('clear mac address-table [interface <port>]', 'empty the MAC table (switches); routing tables are not flushable here'),
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
+      helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
+      helpLine('show interfaces description [<port>]', 'every port label in one list, with its state'),
+      helpLine('show ip interface [brief] [<port>]', 'per-port detail: address, mask, MTU, ACLs, NAT'),
       helpLine('show interfaces counters [<port>]', 'one row per port: packets, bytes, drops'),
       helpLine('show interfaces transceiver [<port>]', 'cage, optic, reach and cable-length verdict'),
       helpLine('show ip route [<dest>|connected|static|ospf|bgp|summary] [at <ms>|converged]',
