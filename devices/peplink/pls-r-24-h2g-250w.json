@@ -1,0 +1,169 @@
+{
+  "vendor": "peplink",
+  "model": "PLS-R-24-H2G-250W",
+  "label": "Peplink 24-Port PoE 2.5G rugged switch (PLS-R-24-H2G-250W)",
+  "category": "switch",
+  "description": "Peplink 24-Port PoE 2.5G rugged switch - 16x 1GE RJ45 and 8x 2.5GE RJ45, all 802.3at PoE+ (30 W per port, 250 W total budget), plus 4x 10GE SFP+ uplinks. Fanless, -40 to 65 degrees C, external PSU, managed through InControl.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poeBudget": 250,
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/peplink-24-poe-25g-switch-rugged-plsr24h2g250w-p-10952.html",
+  "notes": "The PoE budget is 250 W, which the model name, the specification table and the description all state - the page's own key-features bullet says 410 W, copied from the non-rugged sibling, and it is the odd one out of four sources on the same page. The budget is also what separates this from PLS-24-H2G-410W: identical ports, 160 W less power, fanless and rated to 65 C, so a lab can be right about which one is in the cabinet. The page likewise disagrees with itself on the external supply (180 W in one bullet, 300 W in the table and the package list), so no PSU figure is modelled."
+}

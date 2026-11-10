@@ -1,0 +1,169 @@
+{
+  "vendor": "peplink",
+  "model": "PLS-24-H2G-410W",
+  "label": "Peplink 24-Port PoE 2.5G switch (PLS-24-H2G-410W)",
+  "category": "switch",
+  "description": "Peplink 24-Port PoE 2.5G switch - 16x 1GE RJ45 and 8x 2.5GE RJ45, all 802.3at PoE+ (30 W per port, 410 W total budget), plus 4x 10GE SFP+ uplinks. 1U, internal 480 W PSU, managed through InControl with the local switch controller announced rather than shipped.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poeBudget": 410,
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/peplink-24-poe-25g-switch-pls24h2g410w-p-10951.html",
+  "notes": "Two copper rates on one panel is the point of this model: a 2.5GE access point belongs on ports 17-24 and a 1GE camera on 1-16, and a spec that flattened all 24 to 1G would refuse the link the hardware accepts. The 410 W is a PoE budget - the internal supply is 480 W and system draw is 38 W. No CLI interface naming is published for this family, so ports carry the panel's numbers (`port1..port24`) and the cages are `uplink1..uplink4`."
+}

@@ -84,5 +84,58 @@ console.log('\nThe PoE budget is a PoE budget (request #523):');
   ok(!into.ok, 'and a copper lead into an SFP+ uplink is refused (' + (into.errors[0] || {}).code + ')');
 }
 
+console.log('\nThe switch family agrees with its own names (#524, #525, #526):');
+{
+  // Four models from one vendor, whose model strings carry three numbers each: port count, uplink
+  // rate and PoE budget. A spec that drifts from its own name is the kind of error nobody notices
+  // until a lab refuses to cable or a budget is short, so every number in the name is checked
+  // against the ports the spec actually declares.
+  const family = catalog.filter(function (s) {
+    return String(s.vendor).toLowerCase() === 'peplink' && /^PLS-/i.test(String(s.model));
+  });
+  ok(family.length >= 4, 'four PoE switches from this vendor are modelled (' + family.length + ')');
+
+  for (const s of family) {
+    const ports = effectiveInterfaces(s);
+    const copper = ports.filter(function (p) { return (p.connector || '') === 'rj45'; });
+    const cages = ports.filter(function (p) { return (p.connector || '') === 'sfp+'; });
+    const namePorts = /^PLS-(?:R-)?(\d+)-/.exec(String(s.model));
+    const nameWatts = /(\d+)W$/.exec(String(s.model));
+
+    eq(copper.length, Number(namePorts[1]), s.model + ': the name counts the copper ports it has');
+    eq(Number(s.poeBudget), Number(nameWatts[1]), s.model + ': the watts in the name are the PoE budget');
+    eq(cages.length, 4, s.model + ': four SFP+ uplinks');
+
+    // 802.3bt Type 4 on the 10G model, 802.3at Type 2 on the 2.5G family - the class, not a nickname.
+    const want = /0G-\d+W$/.test(String(s.model)) ? 90 : 30;
+    ok(copper.every(function (p) { return p.poeOut === want; }),
+      s.model + ': every copper port sources ' + want + ' W');
+    ok(cages.every(function (p) { return p.poeOut === undefined; }),
+      s.model + ': the uplink cages source no power');
+
+    // "H2G" means mixed rates: a 2.5G access port and a 1G one must be different ports, not one
+    // port described twice.
+    if (/H2G/i.test(String(s.model))) {
+      const fast = copper.filter(function (p) { return p.speed === '2.5G'; });
+      const slow = copper.filter(function (p) { return p.speed === '1G'; });
+      ok(fast.length > 0 && slow.length > 0,
+        s.model + ': both copper rates are modelled (' + slow.length + ' at 1G, ' + fast.length + ' at 2.5G)');
+      ok(fast.every(function (p) { return (p.speedCaps || []).indexOf(2500) !== -1; }),
+        s.model + ': and a 2.5G port negotiates 2.5G');
+      ok(fast.every(function (p) { return (p.speedCaps || []).indexOf(100) !== -1; }),
+        s.model + ': and negotiates down to 100M, which is what the PHY does on a long lead');
+    }
+  }
+
+  // The rugged sibling differs from the plain one only in power and enclosure; if a later edit gives
+  // them the same budget, the model has lost the reason both exist.
+  const plain = find('PLS-24-H2G-410W');
+  const rugged = find('PLS-R-24-H2G-250W');
+  eq(effectiveInterfaces(plain).length, effectiveInterfaces(rugged).length,
+    'the rugged and plain 24-port models have the same ports');
+  ok(plain.poeBudget === 410 && rugged.poeBudget === 250,
+    'and different PoE budgets, which is why they are two models (410 W vs 250 W)');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

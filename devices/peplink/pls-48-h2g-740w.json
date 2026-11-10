@@ -1,0 +1,265 @@
+{
+  "vendor": "peplink",
+  "model": "PLS-48-H2G-740W",
+  "label": "Peplink 48-Port PoE 2.5G switch (PLS-48-H2G-740W)",
+  "category": "switch",
+  "description": "Peplink 48-Port PoE 2.5G switch - 32x 1GE RJ45 and 16x 2.5GE RJ45, all 802.3at PoE+ (30 W per port, 740 W total budget), plus 4x 10GE SFP+ uplinks. 1U, internal 900 W PSU, managed through InControl.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 32,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port33",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port34",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port35",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port36",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port37",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port38",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port39",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port40",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port41",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port42",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port43",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port44",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port45",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port46",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port47",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port48",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "uplink1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "uplink4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poeBudget": 740,
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.4gon.co.uk/peplink-48-poe-25g-switch-pls48h2g740w-p-10953.html",
+  "notes": "The 740 W PoE budget is below the 900 W supply, which is what makes the full 48-port PoE+ load possible with headroom. The datasheet contradicts itself on switching capacity (176 Gbps in the feature bullets, 224 Gbps in the specification table) and on the forwarding rate (131 vs 318 Mpps), so neither number is modelled here: this simulator does not forward at a stated fabric rate, and quoting one of two published figures would choose a side of an error rather than record it. Ports are `port1..port48` (32x 1G, then 16x 2.5G) with `uplink1..uplink4` cages, because Peplink publishes no CLI naming for the family."
+}
