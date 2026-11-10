@@ -1,0 +1,40 @@
+{
+  "vendor": "ruckus",
+  "model": "T350C",
+  "label": "Ruckus T350c outdoor Wi-Fi 6 access point",
+  "category": "ap",
+  "description": "Ruckus T350c - outdoor 2x2:2 Wi-Fi 6 (802.11ax) access point with an internal omnidirectional antenna, one 1GbE RJ-45 port with 802.3at Class 4 PoE input, IP67, -20 to 65 C, wind survivability to 266 km/h, wall/pole mount.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/t350/ds-ruckus-t350.pdf",
+  "notes": "Source is CommScope/Ruckus's own **HTML datasheet** (`webresources.ruckuswireless.com/datasheets/<slug>/ds-ruckus-<slug>.html`), whose **PHYSICAL INTERFACES** table is machine-readable text - the 4gon product pages for these APs return no extractable content and the AP pages on ruckusnetworks.com are script-driven. **One port, and the class is explicit:** 'Ethernet: 1 x 1GbE port, RJ-45 PoE In - 802.3at Class 4'. Class 4 is the 802.3at band (25.5 W at the PSE), which is a stronger statement than '802.3at capable', so it is carried as `802.3at` on a single PoE inlet. **The T350 family's three variants differ here** - `T350c` is the only one with no USB and no DC terminal block; `T350d` and `T350se` add both. This spec is the `T350c`, so a lab cannot power it from the 12 V terminal because it has none. 2x2:2 in both bands; the datasheet gives no per-band PHY figure for this model."
+}

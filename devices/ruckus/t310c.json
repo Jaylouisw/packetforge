@@ -1,0 +1,43 @@
+{
+  "vendor": "ruckus",
+  "model": "T310C",
+  "label": "Ruckus T310c outdoor Wi-Fi 6 access point",
+  "category": "ap",
+  "description": "Ruckus T310c - outdoor 2x2:2 802.11ac Wave 2 access point, one 1GbE RJ-45 port with 802.3af/at PoE input (7.92 W max), IP67, -20 to 65 C, wind survivability to 266 km/h, wall/pole/drop-ceiling mount, 512 clients and 31 SSIDs.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/t310/ds-ruckus-t310.html",
+  "notes": "Source is CommScope/Ruckus's own **HTML datasheet** (`webresources.ruckuswireless.com/datasheets/<slug>/ds-ruckus-<slug>.html`), whose **PHYSICAL INTERFACES** table is machine-readable text - the 4gon product pages for these APs return no extractable content and the AP pages on ruckusnetworks.com are script-driven. **The T310 datasheet is a four-column table and the columns are not equivalent**, so the model has to say which one it is: Ethernet is '1 x 1GbE port, RJ-45' across `T310c/d/s/n`, but the USB 2.0 port and the 12V DC terminal block belong to `T310d`, `T310s` and `T310n` only, and the power draw differs too - 7.92 W on PoE for the `T310c` against 11.86 W for the others. This spec is the **T310c**: one port, PoE only, no DC terminal. **Peak PHY rates are published per band here** - '2.4GHz: 300Mbps, 5GHz: 867Mbps' - which is why, unusually for this batch, both radios carry a `speed`. 512 clients, 31 SSIDs per AP, BeamFlex+."
+}

@@ -1,0 +1,53 @@
+{
+  "vendor": "ruckus",
+  "model": "ZD1200",
+  "label": "Ruckus ZoneDirector 1200 WLAN controller",
+  "category": "server",
+  "description": "Ruckus ZoneDirector 1200 - enterprise-class smart WLAN controller on a thin desktop footprint: manages up to 150 Ruckus APs and 256 WLANs from one box, with 2x auto-sensing 10/100/1000 Mbps Ethernet ports (one of them a redundant standby) and an RJ-45 console port, powered by a 12V/2A external adapter, 25 x 15.93 x 3.16 cm, 1 kg.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://www.gordion.de/fileadmin/downloads/produkte/ruckus/ruckus-zonedirector1200-ds.pdf",
+  "notes": "The port census is two lines of the datasheet, not a product-page guess: '**PORTS: 2 Ethernet ports, auto MDX, auto-sensing 10/100/1000 Mbps, 1 Console RJ-45 port**', and the hardware-features summary calls them '**Two 1000 Mbps ports for full redundancy**' - which is what makes a controller with a pair of ports one device rather than a switch: the second port is a standby, not a second uplink into a fabric. **Both ports are gigabit and there is no PoE on either** - the box is powered by a 12V/2A external adapter ('Output: 12V DC, 2A'), so `poeIn: 0` is stated rather than left to inference. **The console is an RJ-45 socket but is not an Ethernet interface**, so it carries no `connector` field: 802.1X and the management plane are reachable over `eth1`, and plugging a laptop into the console port asks for a serial session, which is exactly what the engine models. Not modelled: 'Support for 256 WLANs' and 'up to 150 RUCKUS APs' are capacities of the software, and the WLAN/AP-controller layer is not a port. Compare the FS controllers (#766-#769), which are the same shape of device with POE banks instead of a standby pair."
+}

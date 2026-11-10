@@ -1,0 +1,56 @@
+{
+  "vendor": "ruckus",
+  "model": "R750",
+  "label": "Ruckus R750 Wi-Fi 6 indoor access point",
+  "category": "ap",
+  "description": "Ruckus R750 - dual-band dual-concurrent Wi-Fi 6 (802.11ax) access point for ultra-dense indoor spaces: 8 spatial streams (4x4:4 in both bands), up to 1024 clients, BeamFlex+ adaptive antennas, onboard BLE and Zigbee IoT radios, one 2.5Gbps and one 1Gbps Ethernet port with 802.3af/at/bt PoE, a USB 2.0 port, 4 to 2400 Mbps 802.11ax rates.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "role": "lan"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r750/ds-ruckus-r750.html",
+  "notes": "Source is CommScope/Ruckus's own **HTML datasheet** (`webresources.ruckuswireless.com/datasheets/<slug>/ds-ruckus-<slug>.html`), whose **PHYSICAL INTERFACES** table is machine-readable text - the 4gon product pages for these APs return no extractable content and the AP pages on ruckusnetworks.com are script-driven. **Two Ethernet ports of different speeds, and the fast one is the uplink:** 'Ethernet: One 2.5Gbps Ethernet port and one 1Gbps Ethernet port - Power over Ethernet (802.3af/at/bt) with Category 5/5e/6 cable - LLDP', confirmed by the ordering row: 'dual ports ... One Ethernet port is 2.5GbE'. **Three PoE classes:** af, at *and* bt, with the datasheet's consumption figures - 12.54 W on 802.3af, 22.34 W on 802.3at+, 22.69 W on DC - so the spec carries all three classes rather than the highest, and an 802.3af injector is a legal way to power it at reduced capability. **Radios carry no per-band rate:** the rate row is a single '802.11ax: 4 to 2400 Mbps', so inventing a 2.4 GHz figure from the 4x4:4 stream count would be my arithmetic. 1024 clients, 8 spatial streams, onboard BLE and Zigbee (IoT radios are not Ethernet and are not modelled)."
+}

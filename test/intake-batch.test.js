@@ -1108,5 +1108,45 @@ console.log('\nFive fs access points from one comparison table (#770, #773, #774
     'AP-N716: the inlet carries no invented wattage - 12V/2.5A is the adapter rating, not a draw');
 }
 
+console.log('\nFive ruckus devices whose port rows are one line each (#442, #444, #445, #446, #447):');
+{
+  const r750 = effectiveInterfaces(find('R750'));
+  eq(r750.filter(function (p) { return p.connector === 'rj45'; }).length, 2,
+    'R750: two Ethernet ports, and they are not the same speed');
+  eq(r750.filter(function (p) { return p.connector === 'rj45' && p.speed === '2.5G'; }).length, 1,
+    'R750: one 2.5Gbps port is the uplink');
+  eq(r750.filter(function (p) { return p.connector === 'rj45' && p.speed === '1G'; }).length, 1,
+    'R750: the second is 1Gbps');
+  ok((find('R750').capabilities || []).indexOf('802.3bt') !== -1,
+    'R750: 802.3bt is a class it supports, alongside af and at');
+
+  // One port on each of the outdoor APs and the R320.
+  ['T350C', 'T310C', 'R320'].forEach(function (model) {
+    eq(effectiveInterfaces(find(model)).filter(function (p) { return p.connector === 'rj45'; }).length, 1,
+      model + ': exactly one 1GbE port');
+    eq(effectiveInterfaces(find(model)).filter(function (p) { return p.type === 'console'; }).length, 0,
+      model + ': no console port');
+  });
+
+  // The T310 family is a four-column table; only the T310c is PoE-only.
+  const t310 = effectiveInterfaces(find('T310C'));
+  eq(t310.filter(function (p) { return p.speed === '300M'; }).length, 1,
+    'T310C: 2.4 GHz peak PHY of 300 Mbps, published per band');
+  eq(t310.filter(function (p) { return p.speed === '867M'; }).length, 1,
+    'T310C: 5 GHz peak PHY of 867 Mbps');
+  eq(effectiveInterfaces(find('R320')).filter(function (p) { return p.speed === '300M'; }).length, 0,
+    'R320: no PHY rate claimed - its datasheet publishes none');
+
+  // The controller's second port is a standby, not a fabric uplink.
+  const zd = effectiveInterfaces(find('ZD1200'));
+  eq(zd.filter(function (p) { return p.connector === 'rj45'; }).length, 2,
+    'ZD1200: two Ethernet ports');
+  eq(zd.filter(function (p) { return p.type === 'console'; }).length, 1,
+    'ZD1200: one console port, RJ-45 physically but not an Ethernet interface');
+  ok(zd.filter(function (p) { return p.connector === 'rj45'; })
+    .every(function (p) { return p.poeIn === 0; }),
+    'ZD1200: no PoE on either port - it runs from a 12V adapter');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

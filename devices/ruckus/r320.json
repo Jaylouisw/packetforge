@@ -1,0 +1,40 @@
+{
+  "vendor": "ruckus",
+  "model": "R320",
+  "label": "Ruckus ZoneFlex R320 indoor access point",
+  "category": "ap",
+  "description": "Ruckus ZoneFlex R320 - indoor 802.11ac Wave 2 2x2:2 access point, one 1GbE RJ-45 port, 802.3af PoE (12.18 W max) or 12 VDC 1A (9.15 W), BeamFlex+ adaptive antenna, wall/ceiling/desk mount, 308 g.",
+  "capabilities": [
+    "wireless",
+    "bridge",
+    "http-server",
+    "poe-pd",
+    "802.3af"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan"
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless"
+    },
+    {
+      "name": "wlan1",
+      "type": "wireless"
+    }
+  ],
+  "icon": "ap",
+  "color": "#8b5cf6",
+  "sourceUrl": "https://webresources.ruckuswireless.com/datasheets/r320/ds-ruckus-r320.html",
+  "notes": "Source is CommScope/Ruckus's own **HTML datasheet** (`webresources.ruckuswireless.com/datasheets/<slug>/ds-ruckus-<slug>.html`), whose **PHYSICAL INTERFACES** table is machine-readable text - the 4gon product pages for these APs return no extractable content and the AP pages on ruckusnetworks.com are script-driven. The whole interface table is one line - '**Ethernet: 1 x 1GbE port, RJ-45**' - with no USB and no second port, and the power table gives both feed options with their own figures: '802.3af 12.18W' and 'DC input 12 VDC 1A 9.15W'. Both are recorded: an 802.3af PSE is enough, and DC is the cheaper draw. Radios are 2x2:2 802.11ac Wave 2 and this datasheet publishes no peak PHY rate, so neither radio carries a `speed` - unlike its T310 sibling, whose table does quote 300/867."
+}
