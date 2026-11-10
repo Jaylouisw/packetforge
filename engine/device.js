@@ -185,7 +185,9 @@ class Device {
       // Bridge priority for the spanning-tree root election: 0..61440 in 4096 steps, lower wins.
       // `computeStp()` has read this since STP was modelled, and nothing ever wrote it - a switch's
       // bridge priority was fixed at the default and no command could change it (#1364).
-      stpPriority: null              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
+      stpPriority: null,
+      // { rules: [...], pools: { name: { start, end, netmask } } } - the shape Simulator._natTableOf reads.
+      nat: { rules: [], pools: {} }              // SCION ISD-AS membership, e.g. '1-ff00:0:110'
     };
     // Routes learned by OSPF (derived, never persisted)
     this.ospfRoutes = [];
@@ -978,6 +980,11 @@ class Device {
     if (this.config.stpPriority !== null && this.config.stpPriority !== undefined) {
       out.config.stpPriority = this.config.stpPriority;
     }
+    // NAT: rules and the pools they name. A reloaded lab that kept its addresses but forgot its translations
+    // would send the same packets somewhere else, which is the opposite of a save.
+    if (this.config.nat && ((this.config.nat.rules || []).length || Object.keys(this.config.nat.pools || {}).length)) {
+      out.config.nat = JSON.parse(JSON.stringify(this.config.nat));
+    }
     return out;
   }
 
@@ -1009,6 +1016,9 @@ class Device {
         d.config.scionAs = state.config.scionAs || null;
         d.config.stpPriority = (state.config.stpPriority === 0 || state.config.stpPriority)
           ? Number(state.config.stpPriority) : null;
+        d.config.nat = state.config.nat
+          ? JSON.parse(JSON.stringify(state.config.nat))
+          : { rules: [], pools: {} };
         d.config.dhcpPools = (state.config && Array.isArray(state.config.dhcpPools))
           ? JSON.parse(JSON.stringify(state.config.dhcpPools)) : [];
         d.config.vrrp = (state.config && Array.isArray(state.config.vrrp))

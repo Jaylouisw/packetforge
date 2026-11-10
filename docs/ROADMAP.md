@@ -10,7 +10,7 @@ PacketForge is a working foundation, not a finished product. Priorities below.
 - [ ] **VLANs / 802.1Q** trunks and per-VLAN MAC tables.
 - [ ] **Spanning Tree (STP)** to prevent L2 loops in redundant topologies.
 - [ ] **OSPF / RIP** dynamic routing (adjacency + SPF).
-- [ ] **NAT** (source NAT using the `nat` capability).
+- [x] **NAT** (source NAT using the `nat` capability) — static, dynamic and PAT, configurable from the console (`ip nat …`) and readable (`show ip nat …`).
 - [ ] **ACLs / firewall rules** using the `firewall` capability.
 - [ ] **Wireless** association + a virtual RF medium for the `wireless` capability.
 
