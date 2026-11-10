@@ -1,14 +1,29 @@
 # Triage: hardware requests
 
-Nearly every open issue in this repository is a device request — **126 of 127** when this was measured,
+Every open issue in this repository is a device request — **24 of 24** when this was last measured,
 each carrying both the `device` and `device-request` labels — and a steady fraction ask for hardware
 that is already modelled. Each one costs a human reading it.
+
+The count is the part that moves, and it has moved a lot: this page has quoted 127, 126 and 121 at
+different times, and the queue is now 24, because closing them is the point. So measure rather than
+remember — two anonymous requests, no token needed for either:
+
+```bash
+curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1" \
+  -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 24
+curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=50" \
+  | grep -o '"title":"\[[^]]*\]' | sort | uniq -c      # 24 "title":"[Device] - one line, nothing else
+```
+
 `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before anyone
 reads the body: **is this already in the catalogue?**
 
-The exception is worth knowing by name, because a page that says "every" invites a reader to stop
-checking: **#1335** ("The console over HTTP has its own counters…") carries **no labels at all** and is
-not a device request. The script does not care either way, and that is the more useful fact —
+The exception this page used to name — because a page that says "every" invites a reader to stop
+checking — was **#1335** ("The console over HTTP has its own counters…"), which carried **no labels at
+all** and was not a device request. It is closed now, and the current queue holds no unlabelled issue,
+so the exception is history rather than a live example. Keep the rule it taught: the sweep below finds a
+device request by its **title prefix**, never by its labels, which is why an unlabelled one would still
+be found. The script does not care either way, and that is the more useful fact —
 it counts a device request by the **title prefix** (`[device]` / `[hardware]`, case-insensitive),
 never by label. So an unlabelled `[device]` request is found like any other, and #1335 is scanned only
 as a body to match against the catalogue — which is why the sweep is safe to run over the whole queue
@@ -42,15 +57,15 @@ script says *"the tracker is not readable without it (this is not the same as \"
 and exits **2** before parsing anything — the public API answers anonymous reads, but a write does not.
 Point `PF_API` at another instance if you are sweeping one.
 
-The script's own header still says the repository "has ~830 open issues"; it has **121** (measured
+The script's own header still says the repository "has ~830 open issues"; it has **24** (measured
 against the tracker: `x-total-count` on the `limit=1` request above, which is the number this page
-should be re-measured rather than re-quoted — it moved from 127 in an afternoon). Nothing reads that
-comment, and `--limit 200` still covers the whole queue, as the default does — but do not quote the
-header as if it were a count.
+should be re-measured rather than re-quoted — it has fallen from 127 to 24 while this page sat here).
+Nothing reads that comment, and `--limit 200` still covers the whole queue, as the default does — but do
+not quote the header as if it were a count.
 
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
-200** — with the backlog at 127 that default already covers everything, so the flag is only needed
-once the queue grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps
+200** — the queue has not been near that since this page was written, so the flag is only needed
+once it grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps
 a page at **50** regardless: the script paginates, so `--limit 200` is four requests, not one, and the
 `limit=1` count above is the only request whose size you can predict. That is why `LIMIT_PER_PAGE`
 is 50 and not 200: the loop stops when a page comes back short (`batch.length < LIMIT_PER_PAGE`), so a
