@@ -518,6 +518,26 @@ Loading still takes the document as written — an imported lab has to be fixabl
 carries the verdict, and the UI says `Imported, but 1 cable cannot be used` instead of `Topology imported`. A
 payload with no verdict at all reads `This cable has not been checked`, never the reassuring sentence.
 
+### On the drawing too
+
+The canvas reads the same verdict, so a refused cable is not drawn as a working one:
+
+| what the engine says | the line |
+|---|---|
+| error (copper in a fibre cage, an optic the port cannot seat) | dotted red, `link-invalid` |
+| warning (a run longer than the medium's reach - it links, it will not carry) | amber, `link-caveat` |
+| `state: down` (a cut cable) | dashed red, `link-down` - a cut is a state, not an impossibility |
+| nothing wrong | unchanged, `data-link-valid="true"` |
+
+Every cable line carries `data-link-valid` (`true` / `warn` / `false` / `unchecked`) and, when there is an issue,
+`data-link-issue` with the code and `data-link-issue-text` with the sentence, plus a `<title>` so the message is
+there on hover without a click. `unchecked` means the payload carried no verdict - the drawing claims nothing
+rather than implying the cable is fine.
+
+Two rules earned their place here: the verdict is filed **per cable**, so one bad run does not redden the lab; and
+a malformed issue entry is filtered out rather than thrown on, because the per-link `try/catch` would have
+swallowed the throw and a refused cable would have vanished from the drawing entirely.
+
 ### `validateTopology()` takes a topology
 
 ```js

@@ -197,6 +197,12 @@ a.btn { text-decoration: none; display: inline-block; line-height: normal; }
 .link-ghost { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
 /* A cable that is down: dashed, red, and dimmed, so a broken lab reads as broken at a glance. */
 .link.link-down { stroke: var(--red); stroke-dasharray: 5 5; opacity: .55; }
+/* A cable the engine refuses (#1305): it is up, but it cannot be what it claims. Dotted rather than dashed, so it
+   is not read as a cut cable - "cut" and "impossible" need different fixes. */
+.link.link-invalid { stroke: var(--red); stroke-width: 3; stroke-dasharray: 2 3; opacity: .95; }
+.link.link-invalid.selected { stroke-width: 4; }
+/* A caveat, not a refusal: a run longer than the medium's reach still links. Amber, thinner than a refusal. */
+.link.link-caveat { stroke: #e8b339; stroke-width: 2.5; stroke-dasharray: 8 4; }
 .link.link-down:hover { stroke: var(--red); opacity: 1; }
 .packet { fill: var(--amber); filter: url(#glow); }
 /* Grid lines are scenery: 400 of them used to be hover/click candidates. */
