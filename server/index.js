@@ -227,7 +227,6 @@ function documentShapeProblem(doc) {
 function fullState(topo) {
   const s = topo.serialize();
   const runtime = {};
-  const counters = (topo.flowState && topo.flowState.counters) || {};
   for (const d of topo.devices.values()) {
     runtime[d.id] = {
       macTable: mapToObject(d.macTable),
@@ -241,11 +240,10 @@ function fullState(topo) {
       arpRows: d.arpRows(topo),
       lldp: d.lldpRows(topo),
       routes: d.routesTable(topo),
-      // Throughput, so a table or a sparkline can be drawn without a second call.
-      counters: counters[d.id] || {
-        bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
-        flowsOpened: 0, flowsRefused: 0
-      }
+      // Throughput, so a table or a sparkline can be drawn without a second call. The engine's own snapshot: the
+      // same shape whether or not the device has carried anything, and a copy, so editing what you were given does
+      // not edit the tally (#1329). `counted` separates "nothing has crossed this device" from "zero shown here".
+      counters: flow.counterSnapshot(topo.flowState, d.id)
     };
   }
   s.runtime = runtime;
