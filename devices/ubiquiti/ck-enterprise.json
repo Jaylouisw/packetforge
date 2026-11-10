@@ -1,0 +1,56 @@
+{
+  "vendor": "ubiquiti",
+  "model": "CK-Enterprise",
+  "label": "Ubiquiti UniFi Cloud Key Enterprise",
+  "category": "server",
+  "description": "Ubiquiti UniFi Cloud Key Enterprise (CK-Enterprise) - 1U rack-mounted UniFi OS console for large deployments: manages 1,000+ UniFi devices and 10,000 simultaneous clients, 16-core Intel Xeon-SP Gold 5218 with 32 GB DDR4 ECC, one 1 GbE RJ45 LAN port, one 10G SFP+ port and a dedicated MGMT port, dual hot-swappable 550 W PSUs, 190 W max consumption.",
+  "capabilities": [
+    "host",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan"
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    }
+  ],
+  "powerMaxW": 190,
+  "icon": "server",
+  "color": "#475569",
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/cloud-key-enterprise",
+  "notes": "Ubiquiti's own tech-spec page publishes a port layout row, which is what the 4gon page never did: '**Port Layout - 1 GbE RJ45: 1 (1G/100M/10M); 10G SFP+: 1 (10G/1G); MGMT: 1 (1G/100M/10M)**'. Three sockets total - a controller is not a switch, and the 10G cage is a *single* uplink rather than the start of a fabric. **MGMT is out-of-band** and is kept out of the LAN bridge group, the same call as the OceanCyber iBMC (#739): it is the port you reach the box on when the network it manages is the thing that failed. **The SFP+ ladder is `[1000, 10000]`** because the spec says '10G (10G/1G)' - it will take a 1G optic. 1U, 787 x 43.7 x 481.4 mm, (2) hot-swappable 550 W PSUs with 190 W max draw, 1,000 devices and 10,000 clients. A console/Bluetooth setup radio is not an Ethernet interface and is not modelled."
+}

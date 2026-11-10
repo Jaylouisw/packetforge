@@ -1205,5 +1205,31 @@ console.log('\nTwo aggregators that differ by how they fail (#662, #663):');
     'INT1G10CSASP: eight unpaired SPAN inputs, nothing to fail over');
 }
 
+console.log('\nA controller with three sockets and a router that powers its own aps (#145, #452):');
+{
+  const ck = find('CK-Enterprise');
+  const ckPorts = effectiveInterfaces(ck);
+  eq(ckPorts.filter(function (p) { return p.connector === 'rj45'; }).length, 2,
+    'CK-Enterprise: one GbE LAN port and one MGMT port');
+  eq(ckPorts.filter(function (p) { return p.connector === 'sfp+'; }).length, 1,
+    'CK-Enterprise: one 10G SFP+ uplink - a controller is not a switch');
+  ok(ckPorts.filter(function (p) { return p.name === 'mgmt'; })
+    .every(function (p) { return p.bridgeGroup === undefined; }),
+    'CK-Enterprise: MGMT is out-of-band, outside the LAN bridge');
+  eq(ck.powerMaxW, 190, 'CK-Enterprise: 190 W max with two hot-swappable PSUs');
+
+  const br = find('MAX-BR1-ENT');
+  const brPorts = effectiveInterfaces(br);
+  eq(brPorts.filter(function (p) { return p.connector === 'rj45'; }).length, 3,
+    'MAX BR1 ENT: one WAN plus two LAN, three copper ports');
+  eq(brPorts.filter(function (p) { return p.poeOut === 15.4; }).length, 2,
+    'MAX BR1 ENT: it is a PSE too - up to 2x 802.3af out of its LAN ports');
+  ok(br.poeBudget === undefined,
+    'MAX BR1 ENT: and no invented shared budget - "up to 2x 802.3af" is per port');
+  eq(brPorts.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 1,
+    'MAX BR1 ENT: one modem - redundant SIM slots are a switch inside it');
+  eq(br.powerMaxW, 16, 'MAX BR1 ENT: 16 W max draw');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

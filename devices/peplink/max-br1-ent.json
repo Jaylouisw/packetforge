@@ -1,0 +1,77 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-BR1-ENT",
+  "label": "Peplink Pepwave MAX BR1 ENT",
+  "category": "router",
+  "description": "Peplink Pepwave MAX BR1 ENT - enterprise LTE router with a single embedded LTE modem and redundant SIM slots: 1x Gigabit Ethernet WAN (convertible to LAN), 2x Gigabit Ethernet LAN with up to 2x 802.3af PoE output to power access points, 1x USB interface, 200 Mbps router throughput, 10-56 V DC input, 16 W max consumption.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
+    "vpn-ipsec",
+    "bridge",
+    "http-server",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 15.4,
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeOut": 15.4,
+      "poeIn": 0
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "300M",
+      "role": "wan"
+    }
+  ],
+  "powerMaxW": 16,
+  "icon": "router",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.bipom.com/documents/peplink/pepwave_max_br1_ent_datasheet.pdf",
+  "notes": "The Peplink datasheet's specification block is explicit: '**WAN Interface: 1x GE; USB Interface: 1x; Embedded LTE Modem with Redundant SIM Slots; LAN Interface: 2x GE ... Power Output: Up to 2x 802.3af; Power Consumption Max.: 16W, Typical: 11W, Min.: 8W**', and the ordering block repeats it as '2x 10/100/1000M Ethernet LAN, 1x 10/100/1000M Ethernet WAN/LAN'. **This router is also a PSE** - 'Up to 2x 802.3af' - which is the interesting part for a lab: it powers the access points it backhauls over LTE, so each LAN port carries `poeOut: 15.4` (the 802.3af PSE ceiling). No `poeBudget` is declared because the datasheet publishes none; 'up to 2x 802.3af' is a per-port statement and inventing a shared ceiling from it would be exactly the PSU-rating-as-budget mistake. **One modem, not two:** 'redundant SIM slots' is a SIM switch inside the single embedded LTE modem, so there is one `wwan0` and not two - the same reading as the MAX BR2 Pro (#486). The modem rate row quotes 300/50 Mbps for the LTE-A modem and 600/150 for the LTE-A Pro; this spec carries the base modem's 300M and flags the two. **The WAN port can be a LAN port** ('WAN Port Convertible into LAN Port' in the software table), recorded here rather than as a third LAN port. The USB interface is not modelled - no USB type in this catalogue."
+}
