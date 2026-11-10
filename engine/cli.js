@@ -2168,6 +2168,10 @@ class CliSession {
         out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + members.join(', '));
       }
     } else if (what === 'spanning-tree') {
+      // `dev.stp` is written by whichever Simulator computed it last, and every HTTP request builds its own - so a
+      // console asked at instant 25000 could print the tree from an earlier pass at Infinity and call a port that is
+      // still listening "forwarding" (#1335). The attached simulator recomputes for the instant it was given.
+      if (this.sim && typeof this.sim.recomputeStp === 'function') this.sim.recomputeStp();
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
       const names = Object.keys(st.states || {}).sort();
       out.push('Spanning tree enabled protocol ieee');
