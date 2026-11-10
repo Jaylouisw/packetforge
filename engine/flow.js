@@ -391,6 +391,53 @@ function emptyDrops() {
   return { total: 0, byReason: {}, unported: 0 };
 }
 
+// What a reader gets: the whole shape, always, and a copy.
+//
+// `counterFor()` creates a record on the first counted packet and returns the live one. That is right for the
+// accounting path and wrong for a payload: a device that has carried nothing came back with six keys and no
+// `drops` at all, so a client adding up drops on an idle box read `undefined` and drew NaN, while a busier box in
+// the same lab had the full record - one field, two shapes (#1329). And the record handed out was the engine's own,
+// so a consumer that adjusted what it was given adjusted the tally.
+//
+// `counted` says whether anything has ever been counted for this device, which is not the same fact as a zero.
+function counterSnapshot(state, devId, topology) {
+  const live = (state && state.counters) ? state.counters[devId] : null;
+  const c = live || {
+    bytesIn: 0, bytesOut: 0, packetsIn: 0, packetsOut: 0,
+    flowsOpened: 0, flowsRefused: 0,
+    drops: emptyDrops(),
+    ports: {}
+  };
+  const drops = c.drops || emptyDrops();
+  const out = {
+    bytesIn: c.bytesIn || 0,
+    bytesOut: c.bytesOut || 0,
+    packetsIn: c.packetsIn || 0,
+    packetsOut: c.packetsOut || 0,
+    flowsOpened: c.flowsOpened || 0,
+    flowsRefused: c.flowsRefused || 0,
+    counted: !!live,
+    drops: {
+      total: drops.total || 0,
+      byReason: Object.assign({}, drops.byReason || {}),
+      unported: drops.unported || 0
+    },
+    ports: {}
+  };
+  for (const name of Object.keys(c.ports || {})) {
+    const p = c.ports[name] || {};
+    const pd = p.drops || { total: 0, byReason: {} };
+    out.ports[name] = {
+      packetsIn: p.packetsIn || 0, bytesIn: p.bytesIn || 0,
+      packetsOut: p.packetsOut || 0, bytesOut: p.bytesOut || 0,
+      transportPacketsIn: p.transportPacketsIn || 0, transportBytesIn: p.transportBytesIn || 0,
+      transportPacketsOut: p.transportPacketsOut || 0, transportBytesOut: p.transportBytesOut || 0,
+      drops: { total: pd.total || 0, byReason: Object.assign({}, pd.byReason || {}) }
+    };
+  }
+  return out;
+}
+
 function counterFor(state, devId) {
   const s = state || null;
   if (!s) return null;
@@ -566,6 +613,7 @@ module.exports = {
   canTransition,
   setState,
   createFlowState,
+  counterSnapshot,
   resetFlowState,
   nextFlowId,
   counterFor,

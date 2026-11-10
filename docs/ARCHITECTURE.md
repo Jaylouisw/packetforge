@@ -134,6 +134,20 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+### Throughput: two counts, one shape
+
+`runtime[d].counters` is `flow.counterSnapshot()`: always the same keys, always a copy, and `counted` says whether
+anything has ever crossed the device. Two things it is worth knowing before reading it:
+
+* **the device totals count transport payload, the port tallies count every frame.** `packetsOut` on a device is what
+  its TCP/UDP flows carried; `ports["1/1/1"].packetsOut` is every frame that left that socket, ARP, LLDP and ICMP
+  included. A switch that only forwards therefore has port tallies and zero device packets, which is correct and looks
+  wrong until you know it.
+* **a missing record is not a zero.** The engine creates a counter record on the first counted packet, so an untouched
+  device has none; `counted: false` says so, and the numbers are still zeroes rather than absent fields. The payload
+  used to give that device six keys and a busy one eight — `drops` and `ports` simply missing — so a client adding up
+  drops read `undefined` on exactly the devices most likely to be idle.
+
 ### What the tables say
 
 `show mac address-table`, `show arp` and `show lldp` each grew an honest note: the port an entry was learned on and
