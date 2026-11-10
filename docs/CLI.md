@@ -4778,6 +4778,26 @@ The filters, and the question each one answers:
 - `show logging last <n>` — the tail, for "it was working a minute ago"
 - `show logging summary` — counts by type and by device, the aggregate view
 
+The per-device view keeps the same columns and says how much of the log it is a subset of, and a name
+that matches nothing is refused by name rather than answered with an empty table:
+
+```
+R1#show logging device PC1
+Event log (11 events on PC1, from 72 in the lab):
+  #   Step  Type           Device  Detail
+  4   2     lldp           PC1     on eth0
+  14  6     arp-request    PC1     on eth0, vlan 1
+  ...
+
+R1#show logging device NOPE
+% No device named "NOPE"
+```
+
+`summary` accepts the same `last <n>` window the log does, and the header admits the subset:
+`show logging summary last 3` reads `Event summary (last 3 of 72 events)`. Its by-device column ends
+with the frames that belong to no single device, counted and pluralised rather than dropped —
+`(plus 31 link-level events with no single device …)`, or `1 link-level event` when that is the number.
+
 Each one names the event type it filters on, so `show logging` + a type it cannot satisfy answers with
 the types that *do* have events rather than an empty table — and it says exactly that, which matters,
 because the filter cannot tell a typo from a real type that simply has not happened yet:
@@ -4859,22 +4879,11 @@ common reason for an empty table, and the message distinguishes that from a lab 
 happened.
 
 `show logging` is lab-wide, like `links` and `show flows`: the event stream is the simulator's, so any
-console sees the same timeline. A filter that matches nothing names what *is* there rather than
-returning a blank table, and says plainly that the vocabulary is what has happened rather than a fixed
-list of legal types:
+console sees the same timeline.
 
-```
-R1#show logging notatype
-% No event of type "notatype" has happened here
-% Types with events so far: arp-cache, arp-reply, arp-request, forward, frame, icmp-echo,
-%   icmp-received, icmp-reply, lldp, ping, switch
-% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is
-%   either a type that has not happened yet or a typo - "show logging" lists them all
-```
-
-That is the third different answer this command gives about an empty result, and the three are worth
-telling apart — a type that exists with no events, a lab where nothing has happened, and a word that is
-not a type at all:
+**A type filter on a lab where nothing has run gets its own answer**, different from both an unknown
+type and an empty table — the refusal quoted [above](#event-log) would suggest the word was wrong, and
+in a fresh lab that is not the diagnosis:
 
 ```
 R1#show logging frame                 (fresh lab, before anything ran)
@@ -4897,7 +4906,7 @@ R1#show logging f
 `show logging all` is the whole log — `all` means no filter, since the bare command already does that,
 and it is not a type. Note the prefix rules apply to *seen* types only, so `show logging pat` in a lab
 where NAT has not run reports "has not happened here" even though `pat` is a real type in the
-[vocabulary below](#event-log).
+[vocabulary above](#event-log).
 
 ## Abbreviations
 
