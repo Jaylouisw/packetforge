@@ -113,12 +113,33 @@ console.log('A reloaded catalogue is not stale:');
 console.log('');
 console.log('The whole catalogue still filters in a keystroke-shaped budget:');
 {
-  const t0 = process.hrtime.bigint();
-  for (let i = 0; i < 50; i++) pf.filterDevices('crs3', specs, {});
-  const ms = Number(process.hrtime.bigint() - t0) / 1e6 / 50;
-  // Deliberately loose: this is a guard against a catastrophic regression (an O(n^2) haystack, a
-  // cache that never hits), not a benchmark. The measured figure before caching was ~10 ms.
-  ok(ms < 6, 'fifty warm filters average under 6 ms each (' + ms.toFixed(2) + ' ms)');
+  // Wall-clock is the wrong unit for a shared runner: two CI jobs on one host, and a warm filter
+  // that measures 0.4 ms on an idle machine measures 8 ms behind a Docker build - which is how this
+  // suite went red on commits whose neighbours were green. So the assertion is a RATIO between the
+  // same work done twice in the same process under the same load, and the absolute ceiling is only a
+  // catastrophe guard (an O(n^2) haystack, or a cache that never hits), set wide enough that load
+  // alone cannot trip it.
+  const perCall = function (fn, n) {
+    const t0 = process.hrtime.bigint();
+    for (let i = 0; i < n; i++) fn(i);
+    return Number(process.hrtime.bigint() - t0) / 1e6 / n;
+  };
+  pf.filterDevices('crs3', specs, {});
+  const warm = perCall(function () { pf.filterDevices('crs3', specs, {}); }, 50);
+  // A fresh copy every iteration: object identity changes, so every one of these is a cache miss and
+  // the keys are rebuilt exactly as they were before the cache existed.
+  const cold = perCall(function () {
+    const fresh = specs.map(function (s) { return Object.assign({}, s); });
+    pf.filterDevices('crs3', fresh, {});
+  }, 20);
+
+  console.log('    warm ' + warm.toFixed(2) + ' ms/filter, cold ' + cold.toFixed(2) + ' ms/filter over ' +
+    specs.length + ' specs');
+  ok(warm < cold * 0.75,
+    'a warm filter is faster than a cold one (' + warm.toFixed(2) + ' ms vs ' + cold.toFixed(2) + ' ms, ' +
+    (cold / Math.max(warm, 0.001)).toFixed(1) + 'x)');
+  ok(warm < 25,
+    'and stays inside a catastrophic-regression ceiling of 25 ms (' + warm.toFixed(2) + ' ms)');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
