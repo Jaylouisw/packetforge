@@ -83,7 +83,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show scion` | membership, segments, peers and reachability ([SCION](#scion)) |
 | `show scion paths [<isd-as>]` | composed paths, and the one `pingScion()` would carry |
 | `show flows [<id> \| counters]` | conversations in the lab, one in full, or per-device counters ([Flows](#flows)) |
-| `show ip nat translations` | NAT entries the data path wrote ([NAT](#nat--configured-in-the-topology-not-the-cli)) |
+| `show ip nat translations` | NAT entries the data path wrote ([NAT](#nat--static-and-pat-from-the-console-a-pool-from-the-topology)) |
 | `show ip nat statistics` | rule counts, entry counts and hits |
 | `show ip dhcp binding` | leases a server handed out, or the lease this device holds ([DHCP server](#dhcp-server)) |
 | `show ip dhcp pool` | pool summary with addresses in use |
@@ -6453,13 +6453,31 @@ actually landed, and the codes the parser does produce (`E_ACTION`, `E_PROTOCOL`
 ones in the [refusal-code appendix](#refusal-codes-the-ones-you-will-actually-meet). This is a live
 defect, not a documentation gap, and it is listed in `docs/SIMULATION.md` §10.
 
-## NAT — configured in the topology, not the CLI
+## NAT — static and PAT from the console, a pool from the topology
 
-**There is no `nat` configuration command.** `ip nat inside source list …` is answered with
-`% Unrecognized config command`, and the UI has no NAT panel. The engine is not missing the
-feature — `engine/nat.js` implements static, dynamic and PAT, and the simulator translates before
-routing on the way in and after routing on the way out — but the table is read from the device
-config, so today you set it in the topology JSON:
+**Two of the three rule types are configuration commands, and the third is not.** Measured on a router:
+
+```text
+R1(config)#ip nat inside source static 10.0.0.5 203.0.113.5
+NAT rule added on R1: static 10.0.0.5 -> 203.0.113.5
+  (a rule needs one interface inside and one outside - mark them with "ip nat inside"
+   and "ip nat outside", or this rule will match nothing)
+
+R1(config)#ip nat inside source list 10 interface eth0 overload
+% eth0 has no address - "overload" translates onto that address,
+% so it needs one before the rule can be written
+
+R1(config)#ip nat pool P1 203.0.113.10 203.0.113.20
+% This model translates inside source addresses ("ip nat inside source …"),
+% not "pool"
+```
+
+So `static` and `pat` are written from the console and land in `show running-config`; a **dynamic**
+rule that hands out pool addresses still comes from the topology JSON, because there is no pool
+command. The UI has no NAT panel either. The engine is not missing any of the three —
+`engine/nat.js` implements static, dynamic and PAT, and the simulator translates before routing on the
+way in and after routing on the way out — so the JSON below is still the way to express a pool, and it
+is also accepted for the other two:
 
 ```json
 { "config": { "nat": { "rules": [

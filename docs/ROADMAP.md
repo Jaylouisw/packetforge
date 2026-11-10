@@ -29,10 +29,13 @@ unticked line that survives here is a real gap.
       `test/ospf.test.js`, `test/ospf-wire.test.js`). **RIP** is still absent.
 - [x] **NAT** — all three types (`NAT_TYPES` = `static`, `dynamic`, `pat`), each translated in the
       data path: a dynamic rule hands out a pool address and a PAT rule rewrites the port
-      (`engine/nat.js`, `test/nat.test.js`). Rules are configured in the topology JSON — there is no
-      `nat` CLI command — and the console can read the result two ways: `show ip nat translations`
-      (the entries the data path wrote) and `show ip nat statistics` (`rules 1 (pat 1)`, `translations`,
-      `dynamic entries`, `hits`).
+      (`engine/nat.js`, `test/nat.test.js`). Static and PAT rules are configurable from the console —
+      `ip nat inside source static <local> <global>` and `ip nat inside source list <acl> interface <if>
+      overload` — and **pool-based dynamic rules are not**: `ip nat pool …` is refused with
+      `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`, so a dynamic
+      rule still comes from the topology JSON. The console reads the result two ways:
+      `show ip nat translations` (the entries the data path wrote) and `show ip nat statistics`
+      (`rules 1 (pat 1)`, `translations`, `dynamic entries`, `hits`).
 - [x] **ACLs** — extended ACLs in the data path (`engine/acl.js`, `test/acl.test.js`,
       `test/acl-data.test.js`). The `firewall` capability itself is still inert; ACLs are what
       actually filters.

@@ -30,7 +30,7 @@ Cisco Packet Tracer teaches Cisco. PacketForge aims at the thing a lab actually 
 on which port, which optic mates with which ferrule, what a cable that cannot exist would
 mean if it did.
 
-The catalogue holds **1,641 device models from 247 vendors**, from ONTs and OLTs to PTP radios,
+The catalogue holds **1,661 device models from 247 vendors**, from ONTs and OLTs to PTP radios,
 switches, servers, printers, cameras and phones. It is JSON: one file per model, no code
 changes to add one.
 
@@ -154,8 +154,9 @@ is right.
 - **Layer 2**: MAC learning, VLANs (access/trunk/native), LAG, STP, LLDP.
 - **Layer 3**: IPv4 and IPv6, ARP/ND, ICMP, static routes, longest-prefix match.
 - **Services**: DHCP client and server, NAT (static, dynamic pool and PAT — all three translated in
-  the data path and visible in \`show ip nat translations\`, but configured in the topology JSON:
-  there is no \`nat\` CLI command yet), ACLs, VRRP.
+  the data path and visible in \`show ip nat translations\`; static and PAT rules can be written from the
+  console with \`ip nat inside source …\`, but a pool-based dynamic rule still comes from the topology
+  JSON, because \`ip nat pool\` is refused), ACLs, VRRP.
 - **Routing**: OSPF (areas, SPF, passive interfaces), BGP (eBGP/iBGP, split horizon).
 - **Naming and overlay**: DNS, SCION.
 
