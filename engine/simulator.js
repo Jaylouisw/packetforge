@@ -3464,6 +3464,14 @@ class Simulator {
   }
 
   _forwardL3(dev, frame, inIface) {
+    // `no ip routing` is a decision, not a missing capability: the device still switches, but it will
+    // not move a packet between two of its own interfaces. Without this check the command would be
+    // configuration that changed nothing, which is the defect this model keeps having to remove.
+    if (dev.config && dev.config.ipRouting === false) {
+      this._emit({ type: 'drop', reason: 'IP routing is disabled on ' + (dev.name || dev.id) +
+        ' ("no ip routing")', dev: dev.id, iface: inIface ? inIface.name : undefined });
+      return;
+    }
     // NAT happens before the routing decision on the way in and after it on the
     // way out; this is the "out" half. A translated packet keeps its identity
     // (the flow tag) but gets a new source address.

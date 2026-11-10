@@ -147,7 +147,10 @@ console.log('\nThe check can fail:');
   ok(refused !== null, 'a command that is recognised but refuses on state still passes');
   // The search really does look in every mode: these two verbs exist in exactly one place,
   // and finding them there is what makes "recognised somewhere" a useful statement.
-  const ifaceOnly = recognised(LAB.devices.R1, 'R1', 'switchport mode access');
+  // `mtu 1400` lives in an interface block and nowhere else. (`switchport` used to be the example,
+  // until config mode began answering it with the mode it belongs to - which is a recognition, and
+  // the right thing for the console to do, but it stops being a one-mode verb.)
+  const ifaceOnly = recognised(LAB.devices.R1, 'R1', 'mtu 1400');
   ok(ifaceOnly && ifaceOnly.mode === 'iface', 'an interface-mode verb is found in interface mode');
   const configOnly = recognised(LAB.devices.R1, 'R1', 'hostname PROBE');
   ok(configOnly && configOnly.mode === 'config', 'a config-mode verb is found in config mode');

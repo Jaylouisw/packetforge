@@ -328,6 +328,28 @@ function expand(typed, forms) {
       if (values.indexOf(value) === -1) values.push(value);
     }
     if (values.length > 1) {
+      // `ip rou 0.0.0.0 0.0.0.0 1.1.1.1` is ambiguous between `ip route` and `ip routing` on the word
+      // alone, but only one of them can accept the rest of the line: a candidate whose keyword ends
+      // and takes nothing more cannot be what was typed. IOS stops at "Ambiguous"; resolving it by
+      // the words that follow costs nothing and never guesses between two commands that both fit.
+      const rest = typed.length - i - 1;
+      const fits = cands.filter(function (f) {
+        const room = f.length - i - 1;
+        if (room < 0) return false;
+        if (rest === 0) return true;
+        // A form that ends here cannot take the tokens that follow.
+        return f.length > i + 1;
+      });
+      const fitValues = [];
+      for (const f of fits) {
+        const value = resolve(f[i], want);
+        if (fitValues.indexOf(value) === -1) fitValues.push(value);
+      }
+      if (fitValues.length === 1) {
+        out.push(fitValues[0]);
+        current = fits;
+        continue;
+      }
       return { ambiguous: want, candidates: values.slice().sort() };
     }
     out.push(values[0]);

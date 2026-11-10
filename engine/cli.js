@@ -852,6 +852,15 @@ class CliSession {
       this.device.config.gateway6 = null;
       this.device.config.routes6 = [];
       out.push('IPv6 routes cleared');
+    } else if (head === 'switchport') {
+      // The verbs are per interface, and at global scope the bare refusal reads like a typo. `vrrp`
+      // already answers this way; `switchport` is typed here far more often.
+      return ['% switchport is configured per interface: enter one first, e.g. "interface Gi0/1"',
+        '% Then: switchport mode access|trunk, switchport access vlan <id>, switchport port-security'];
+    } else if (head === 'ip' && tokens[1] === 'routing') {
+      out.push.apply(out, this._ipRouting(tokens));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'routing') {
+      out.push.apply(out, this._ipRouting(tokens));
     } else if (head === 'router' && tokens[1] === 'ospf') {
       out.push.apply(out, this._routerOspf(tokens));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'ospf') {
@@ -2146,7 +2155,19 @@ class CliSession {
         '% Interfaces: ' + listed.slice(0, 8).join(', ') + (listed.length > 8 ? ', ...' : '')];
     }
 
-    this.device.config.routes.push({ dest: dest, mask: mask, gw: gw, iface: iface });
+    // IOS installs a route once. Typing the same line twice used to append a second identical row,
+    // so a dump pasted twice doubled the table - configuration applied twice was not the same
+    // configuration, which is exactly what a paste has to be.
+    const routes = this.device.config.routes;
+    const twin = routes.filter(function (r) {
+      return String(r.dest) === String(dest) && String(r.mask) === String(mask) &&
+        String(r.gw || '') === String(gw || '') && String(r.iface || '') === String(iface || '');
+    })[0];
+    if (twin) {
+      return [dest + '/' + prefix + ' is already configured: via ' + (gw || iface || 'on-link'),
+        '  The table is unchanged - "no ip route ' + dest + ' ' + mask + '" removes it'];
+    }
+    routes.push({ dest: dest, mask: mask, gw: gw, iface: iface });
     return ['Route added: ' + dest + '/' + prefix + ' via ' + (gw || iface || 'on-link')];
   }
 
@@ -2362,6 +2383,33 @@ class CliSession {
   }
 
   // ---------- OSPF ----------
+  // `ip routing` / `no ip routing` - the switch every L3-switch lab sets, and which this model did not
+  // have: `ip routing` answered `% Unrecognized config command` on a device whose whole purpose is
+  // routing between its VLANs. The model forwarded whenever the device could, with no way to stop it.
+  _ipRouting(tokens) {
+    const dev = this.device;
+    const negate = String(tokens[0]).toLowerCase() === 'no';
+    const from = negate ? 3 : 2;
+    const extra = this._noExtra(tokens, from, (negate ? 'no ' : '') + 'ip routing');
+    if (extra) return extra;
+    if (typeof dev.isL3 === 'function' && !dev.isL3()) {
+      return ['% ' + (dev.name || dev.id) + ' is not a router: it has no interfaces to route between',
+        '% A host uses "ip default-gateway <gw>" for the one router it sends everything to'];
+    }
+    const was = dev.config.ipRouting !== false;
+    if (!negate) {
+      if (was) return ['IP routing is already enabled on ' + (dev.name || dev.id)];
+      dev.config.ipRouting = true;
+      return ['IP routing enabled on ' + (dev.name || dev.id),
+        '  Packets are forwarded between its interfaces again, and the routing table is used'];
+    }
+    if (!was) return ['IP routing is already disabled on ' + (dev.name || dev.id)];
+    dev.config.ipRouting = false;
+    return ['IP routing disabled on ' + (dev.name || dev.id),
+      '  The device still switches within a VLAN, but it will not forward between its interfaces',
+      '  Routes stay configured - "ip routing" turns forwarding back on'];
+  }
+
   // `router ospf <pid>` - the way OSPF is configured on every real router, and the one spelling this
   // console did not have: it answered `% Unrecognized config command: router ospf 1` while `router
   // bgp` was implemented, so an operator following any lab guide could not start OSPF at all.
@@ -4549,6 +4597,15 @@ class CliSession {
     const seq = given === null ? last + 10 : given;
     parsed.sequence = seq;
     parsed.line = tokens.join(' ').replace(/^\d+\s+/, '');
+    // An identical line is not a second entry, on a real box or here: the sequence number is the
+    // identity of the entry, and the same rule twice would double its match counter and lengthen
+    // every dump a paste touches.
+    const identity = aclLib.entryKey(parsed);
+    const dup = list.filter(function (e) { return aclLib.entryKey(e) === identity; })[0];
+    if (dup) {
+      return ['  ' + seq + ' ' + parsed.line + ' is already in ' + key +
+        ' at sequence ' + dup.sequence + ' - the list is unchanged'];
+    }
     list.push(parsed);
     list.sort(function (a, b) { return Number(a.sequence) - Number(b.sequence); });
     return ['  ' + seq + ' ' + parsed.line + '  (added to ' + key + ')'];
@@ -4607,6 +4664,12 @@ class CliSession {
     const seq = (list.length ? Number(list[list.length - 1].sequence || 0) : 0) + 10;
     entry.sequence = seq;
     entry.line = tokens.slice(1).join(' ');
+    const identity = aclLib.entryKey(entry);
+    const dup = list.filter(function (e) { return aclLib.entryKey(e) === identity; })[0];
+    if (dup) {
+      return [kind.charAt(0).toUpperCase() + kind.slice(1) + ' access list ' + num + ': that entry is' +
+        ' already there at sequence ' + dup.sequence + ' - the list is unchanged'];
+    }
     list.push(entry);
     return [kind.charAt(0).toUpperCase() + kind.slice(1) + ' access list ' + num +
       ' (' + seq + '): ' + entry.action + ' entry added'];
@@ -6203,6 +6266,9 @@ class CliSession {
     // `ospf router-id` has enabled the process, so the global lines must
     // precede the interface blocks to round-trip.
     const ospf = dev.config.ospf;
+    // `no ip routing` is configuration, so it is dumped; a paste that dropped it would silently
+    // restore forwarding that somebody had deliberately turned off.
+    if (dev.config.ipRouting === false) out.push('no ip routing');
     if (ospf && ospf.routerId) {
       out.push('ospf router-id ' + ospf.routerId);
       if (ospf.areaId) out.push('ospf area ' + ospf.areaId);
@@ -6652,6 +6718,11 @@ class CliSession {
         if (order.indexOf(c) === -1) legend.push(c + ' - other');
       }
       out.push('Codes: ' + legend.join(', '));
+      // A table full of routes on a device that will not forward them is the most misleading output
+      // in the model: every row looks live. Say it once, at the top, in the words of the command.
+      if (dev.config && dev.config.ipRouting === false) {
+        out.push('IP routing is disabled - these routes are configured but will not forward ("ip routing" turns it on)');
+      }
       // The note only appears when something is shadowed: on a table where every row forwards,
       // explaining that the unmarked ones do not would be inventing a distinction.
       if (rows.some(function (r) { return !r.installed; })) {
@@ -9090,6 +9161,8 @@ class CliSession {
         'BGP identity and peers'),
       helpLine('no bgp neighbor <ip> | no neighbor <ip>', 'stop peering with one address'),
       helpLine('no router bgp [<as>]', 'turn BGP off and drop every peer'),
+      helpLine('switchport <verb>', 'per interface (mode, access vlan, port-security) - enter an interface first'),
+      helpLine('ip routing | no ip routing', 'forward between this device\'s interfaces, or stop forwarding'),
       helpLine('router ospf <process-id>', 'start OSPF and enter router mode, where "network … area …" lives'),
       helpLine('no router ospf', 'remove the OSPF process and its routes'),
       helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF'),

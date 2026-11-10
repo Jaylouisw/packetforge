@@ -59,6 +59,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show vrrp` | group state after the last election ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip bgp` | peers and installed prefixes ([BGP](#bgp)) |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
+| `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
 | `show ip ospf` | process, interfaces and adjacency count ([OSPF](#ospf)) |
 | `show ip ospf neighbor` | peers the SPF ran over: router-id, state, address, port |
 | `show lldp` | whether LLDP runs, the interval and hold time, which ports announce, neighbours learned ([One LLDP view](#one-lldp-view-and-three-questions-it-could-not-answer)) |
@@ -1190,6 +1191,56 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at converged
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
+
+### `ip routing`, and configuration that is not the same when applied twice
+
+`ip routing` answered `% Unrecognized config command` on `generic-l3-switch` — a device whose whole
+purpose is routing between its VLANs. The model forwarded whenever the device *could*, with no way to
+stop it, so the one switch every L3-switch lab sets did not exist:
+
+```
+L31(config)#no ip routing
+IP routing disabled on L31
+  The device still switches within a VLAN, but it will not forward between its interfaces
+  Routes stay configured - "ip routing" turns forwarding back on
+
+L31#show ip route
+Codes: C - connected, S - static
+IP routing is disabled - these routes are configured but will not forward ("ip routing" turns it on)
+```
+
+The table is where the lie would otherwise live: every row looks live. `_forwardL3()` checks the flag
+first and drops with the reason `IP routing is disabled on L31 ("no ip routing")`, so the ping fails
+*as written* rather than silently. The setting is dumped (a paste that dropped it would restore
+forwarding somebody turned off), and a host is refused the verb by name, pointed at
+`ip default-gateway`.
+
+The same probe — apply a broad reference configuration, dump it, paste it into an identical device,
+compare the two dumps — is now a test over five device kinds (`generic-switch`, `generic-l3-switch`,
+`generic-router`, `generic-pc`, `generic-server`). It found a second class of defect immediately:
+**pasting a dump twice was not the same as pasting it once.**
+
+```
+R1(config)#access-list 110 permit tcp 192.168.5.0 0.0.0.255 any eq 443
+Extended access list 110 (10): permit entry added
+R1(config)#access-list 110 permit tcp 192.168.5.0 0.0.0.255 any eq 443
+Extended access list 110: that entry is already there at sequence 10 - the list is unchanged
+
+R1(config)#ip route 10.0.0.0 255.255.0.0 10.10.0.254
+Route added: 10.0.0.0/16 via 10.10.0.254
+R1(config)#ip route 10.0.0.0 255.255.0.0 10.10.0.254
+10.0.0.0/16 is already configured: via 10.10.0.254
+  The table is unchanged - "no ip route 10.0.0.0 255.255.0.0" removes it
+```
+
+Three list-shaped settings appended blindly: static routes, ACL entries (both spellings) and — before
+this pass — NAT rules, which already had the guard. An identical ACL line used to double its match
+counter and lengthen every dump; an identical route used to appear twice in `show ip route` with the
+same administrative distance. Identity is now the library's (`acl.entryKey`) or the route's own five
+fields, so a paste is idempotent and a `show` of a table says how many rules it really has.
+
+`switchport mode access` typed at global scope now answers the way `vrrp` does — *which mode the verb
+lives in*, and what it takes — instead of `% Unrecognized config command: switchport mode access`.
 
 ### The two commands every OSPF lab starts with, and this console did not have
 
