@@ -76,8 +76,6 @@ needed to move; the ones in `cli.js` and `simulator.js` are **not**, and went st
 Each row therefore names the symbol first and gives a line only as a hint — `grep -n '<symbol>'`
 is the citation that survives a refactor.
 
-| Anchor | Today | This design changes it to |
-|---|---|---|
 ### The eight steps, measured
 
 `comparePaths(a, b)` returns a negative number when `a` wins. Run against the current tree — the
@@ -101,7 +99,9 @@ returns `-1`, so this simulator prefers the lower MED even when the paths came f
 That is the simplification §4.5 exists to remove, and it is why the elimination pipeline cannot be
 expressed as a sortable comparator.
 
-| Anchor | Today | This design changes it to | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
+| Anchor | Today | This design changes it to |
+|---|---|---|
+| constants in `bgp.js` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
 | `bgp.js` `comparePaths(a, b)` (near the top of the decision section) | 8 steps, MED compared unconditionally (declared simplification in the file header comment) | 9 steps; MED only within a neighbouring AS; optional `opts` third argument; new peer-address step |
 | `bgp.js` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
 | `bgp.js` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
@@ -111,6 +111,13 @@ expressed as a sortable comparator.
 | `CliSession._bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
 | `this._dnsZone` (in `CliSession`) | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
 | `CliSession._help()` | command list | add the new lines |
+
+Two of those three constants are **not exported**. `require('./engine/bgp').DEFAULT_LOCAL_PREF` is
+`100`, but `DEFAULT_WEIGHT` and `DEFAULT_MED` are module-private (`bgp.js:57` and `:58`) — a `require()`
+of either yields `undefined`, so a reader checking the table above against the code has to read the file
+or probe the behaviour instead. Probing works: `comparePaths({ weight: 1 }, {})` returns `-1`, which is
+only true while the unset weight is `0`, and `comparePaths({ med: 0 }, { med: 1 })` returns `-1` for the
+same reason.
 
 Design invariants that must survive the change, because every existing test
 relies on them:

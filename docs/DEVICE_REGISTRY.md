@@ -80,7 +80,7 @@ catalogue's other 1,534 files state none at all, and the engine infers from the 
 
 ### Keys the catalogue carries that this table does not gate on
 
-A survey of all 1,599 files finds thirteen keys the schema table above never mentions. They matter
+A survey of all 1,599 files finds **fourteen** top-level keys the schema table above never mentions — thirty-two exist in total, eighteen are in that table, and `poe` counts as documented because the `poeBudget` row names it. They matter
 because a contributor copying an existing spec will meet them, and because **whether any code reads a
 key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>" engine/ web/ server/`:
 
