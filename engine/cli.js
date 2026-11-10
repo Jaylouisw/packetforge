@@ -264,10 +264,23 @@ class CliSession {
     // `% Unrecognized command: sh ?`), which is the worst kind of reply to a question. Completion
     // does not insert anything: it prints the completions, which is honest about what this console
     // is (there is no line editor to insert into).
-    if (tokens[tokens.length - 1] === '?') {
-      const prefix = tokens.slice(0, -1);
-      if (!prefix.length) return { output: this._help(), actions: [] };
-      return { output: this._complete(prefix), actions: [] };
+    //
+    // The `?` does not need a space in front of it: `show ip?` and `sh st?` are how the key is
+    // actually typed, and both were refused as if the `?` were part of the word. The typed text is
+    // handed over as it stands - the walk already treats a word as a prefix of the keywords it
+    // offers - so `sh st?` narrows to `startup-config` instead of listing everything after `show`.
+    // A `?` that is part of the text is escaped, the way a real console needs Ctrl-V for it:
+    // `description ready\?` writes the question mark instead of asking a question.
+    if (/(^|[^\\])\?$/.test(line.trim())) {
+      const whole = line.trim().replace(/\?$/, '');
+      const words = whole.split(/\s+/).filter(Boolean);
+      const attached = !/\s$/.test(whole) && words.length > 1 ? words.pop() : null;
+      if (!words.length) return { output: this._help(), actions: [] };
+      return { output: this._complete(words, attached), actions: [] };
+    }
+    if (/\\\?$/.test(line.trim())) {
+      line = line.replace(/(\\\?)$/, '?');
+      tokens = line.trim().split(/\s+/).filter(Boolean);
     }
 
     // Unambiguous keyword abbreviation, the IOS rule (`sh ip int br`). Done before dispatch so every
@@ -3672,7 +3685,7 @@ class CliSession {
   // that abbreviation uses, so a completion can only ever offer a command that exists, and a command
   // becomes completable when it is documented. Values are shown as their placeholder (`<dest>`) with
   // the row's description, because "a destination goes here" is the answer to the question.
-  _complete(prefix) {
+  _complete(prefix, partial) {
     const abbrev = require('./abbrev');
     const mode = this._completionMode(prefix);
     const forms = this._helpFormRows(mode);
@@ -3702,11 +3715,88 @@ class CliSession {
       const keywords = step.filter(function (row) { return typeof row.tokens[i] === 'string'; });
       candidates = exact.length ? exact : (keywords.length ? keywords : step);
     }
+    // An attached `?` (`sh st?`) is asking about the *word being typed*, not about what follows it.
+    // The walk above has already narrowed to the commands this text can still become, so the answer
+    // is the spellings of the next keyword that start with the fragment - which is what the key does
+    // on a real console, and what the reader needs: `startup-config`, not a list of its options.
+    if (partial) {
+      const at = words.length;
+      const typedStem = prefix.join(' ');
+      // The stem is matched as an *abbreviation*, not as an exact word: `conf` is a prefix of both
+      // `configure` and the alias `conf t`, and the exact-match narrowing above (which exists so a
+      // completion list is not noisy) would keep only the alias and hide `terminal`. Every row the
+      // stem can still become is a candidate for completing the fragment.
+      let wide = forms;
+      for (let i = 0; i < words.length && wide.length; i++) {
+        const want = String(words[i]).toLowerCase();
+        wide = wide.filter(function (row) {
+          const tok = row.tokens[i];
+          if (tok === undefined) return false;
+          if (typeof tok === 'object') return true;
+          return String(tok).toLowerCase().indexOf(want) === 0;
+        });
+      }
+      const keywordRows = wide.filter(function (row) {
+        const tok = row.tokens[at];
+        return typeof tok === 'string' && tok.toLowerCase().indexOf(partial.toLowerCase()) === 0;
+      });
+      const exactRow = keywordRows.filter(function (row) {
+        return String(row.tokens[at]).toLowerCase() === partial.toLowerCase();
+      });
+      // Every spelling that starts with the fragment is listed, not just an exact one. The exact-match
+      // rule belongs to words *already chosen* (it keeps `show ip route` from dragging in `ipv6`); a
+      // word being completed has the opposite need - `conf t?` must show `terminal`, and the exact
+      // match there is the alias's own `t`. Exact spellings are listed first.
+      const use = keywordRows;
+      void exactRow;
+      const meanings = new Map();
+      for (const row of use) {
+        const spelling = String(row.tokens[at]);
+        if (!meanings.has(spelling)) meanings.set(spelling, []);
+        const d = row.desc || '';
+        if (d && meanings.get(spelling).indexOf(d) === -1) meanings.get(spelling).push(d);
+      }
+      if (!meanings.size) {
+        return ['% Nothing after "' + typedStem + '" starts with "' + partial + '"',
+          '% Ask ? on its own for the words that can follow it',
+          '% To write a literal "?" instead of asking, end the line with \\?'];
+      }
+      const out = ['Completions for "' + typedStem + ' ' + partial + '" (' + meanings.size +
+        ', completing "' + partial + '"):'];
+      const spellings = Array.from(meanings.keys()).sort(function (a, b) {
+        const ax = a.toLowerCase() === partial.toLowerCase() ? 0 : 1;
+        const bx = b.toLowerCase() === partial.toLowerCase() ? 0 : 1;
+        return ax - bx || a.localeCompare(b);
+      });
+      out.push.apply(out, renderTable(['Word', 'Meaning'], spellings.map(function (w) {
+        const d = meanings.get(w);
+        return [w, d.length === 1 ? d[0] : (d.length > 1 ? 'more options' : '')];
+      }), 2));
+      // If every command that fits agrees on what comes after the completed word, say it: the next
+      // question is already answered, and asking it costs a keystroke.
+      const then = new Set();
+      for (const row of use) {
+        const tok = row.tokens[at + 1];
+        then.add(tok === undefined ? null : (typeof tok === 'object' ? '<' + tok.placeholder + '>' : String(tok)));
+      }
+      const followed = Array.from(then);
+      if (followed.length === 1 && followed[0] !== null) {
+        out.push('');
+        out.push('Then: ' + followed[0]);
+        if (followed[0][0] === '<') {
+          out.push('A name in angle brackets is a value: type one, then ask ? again for what follows it.');
+        }
+      }
+      return out;
+    }
     const survivors = candidates;
     const typed = prefix.join(' ');
     if (!survivors.length) {
+      // A trailing `?` is a question, so text that ends in one cannot be typed as text - which is
+      // exactly the trap a real console has, and it needs the same way out: say so, and name it.
       return ['% No completions for "' + typed + '"',
-        '% Type ? on its own for every command this mode accepts'];
+        '% Type ? on its own for every command this mode accepts',
+        '% To write a literal "?" instead of asking, end the line with \\?'];
     }
     // Group by what can come next. A label that several different commands reach is a *subtree*
     // (`show ip` continues into interface, route, bgp, ospf, nat, dhcp), so it must not borrow the
@@ -3736,6 +3826,14 @@ class CliSession {
       return av - bv || a.localeCompare(b);
     });
     const out = [];
+    if (!labels.length) {
+      // Every command that fits ends at the last word typed, so there is no list to print. An empty
+      // table under a header claiming completions is a broken answer; the fact is that the word is
+      // already as far as it goes - and the attached form asks about the word itself, which is
+      // usually what was meant.
+      return ['"' + typed + '" is as far as this command goes - nothing follows it',
+        '% To complete the word you are typing, put the ? against it: "' + typed + '?"'];
+    }
     out.push('Completions for "' + typed + '" (' + labels.length +
       (openEnded ? ', and this form ends here' : '') + '):');
     // When every completion belongs to the same command row, its description belongs in the header

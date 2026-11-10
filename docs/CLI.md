@@ -1562,6 +1562,66 @@ R1#sh nosuch ?
 % Type ? on its own for every command this mode accepts
 ```
 
+### The `?` goes against the word
+
+A space before the `?` asks *what may follow these words*. No space asks *what this word can be* — and
+that is the form the key is actually typed in:
+
+```
+R1#sh st?
+Completions for "sh st" (1, completing "st"):
+  Word            Meaning
+  startup-config  the saved copy, then what the running config changed
+
+R1#show ip?
+Completions for "show ip" (2, completing "ip"):
+  Word  Meaning
+  ip    more options
+  ipv6  more options
+
+R1(config)#no ip rou?
+Completions for "no ip rou" (1, completing "rou"):
+  Word   Meaning
+  route  remove one, or all with that prefix
+
+  Then: <dest>
+  A name in angle brackets is a value: type one, then ask ? again for what follows it.
+```
+
+The stem is read as an **abbreviation**, so `sh st?` works and `conf t?` offers both `terminal` and the
+alias's own `t`. `show ip?` offering `ipv6` as well is not noise: `ip` is a prefix of `ipv6`, and this
+console accepts prefixes everywhere, so both readings really are open. When everything that fits agrees
+on what comes after the completed word, `Then:` says so and saves the next keystroke.
+
+Both forms used to be refused — `show ip?` answered `% Invalid show command: ip?`, as if the `?` were
+part of the word. The spaced form at a word that ends the command now says so instead of printing an
+empty table, and points at the other form:
+
+```
+R1#sh st ?
+"sh st" is as far as this command goes - nothing follows it
+% To complete the word you are typing, put the ? against it: "sh st?"
+```
+
+**A `?` that belongs to the text is escaped.** A trailing `?` is always a question, so a description
+that ends in one needs the way out a real console needs Ctrl-V for:
+
+```
+R1(config-if)#description ready?
+% Nothing after "description" starts with "ready"
+% Ask ? on its own for the words that can follow it
+% To write a literal "?" instead of asking, end the line with \?
+
+R1(config-if)#description ready\?
+Description set
+
+R1(config-if)#description up? or down
+Description set
+```
+
+Only the **trailing** character is a question. A `?` in the middle of free text is just text, which is
+why the third form above needs no escape at all.
+
 Building this exposed a defect in the help text rather than in the code: `ip ospf cost <n> | area <id>
 | passive` used a spaced bar for what is really a shared prefix, so `area` and `passive` were being
 read as commands in their own right. The rule the parser relies on — and which the test sweep now

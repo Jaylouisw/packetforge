@@ -233,5 +233,64 @@ console.log('\nThe help text obeys the rule the parser relies on:');
   ok(suspicious >= 0, 'spaced bars in config help read as complete commands (' + suspicious + ' exceptions)');
 }
 
+console.log('\nThe `?` does not need a space in front of it:');
+{
+  // `sh st?` is how the key is actually typed, and it used to be read as a word ending in `?`:
+  // `% Invalid show command: st?`. The attached form asks about the *word being typed*, so the answer
+  // is the spelling it completes to, not the list of what follows that word.
+  const env = lab();
+  const attached = env.text('show star?');
+  ok(/Completions for "show star"/.test(attached), 'show star? is answered as a question');
+  ok(/startup-config/.test(attached), 'and names the word it completes to');
+  // The spaced form asks a different question - what can follow "show" - and both must keep working.
+  const spaced = env.text('show star ?');
+  ok(/is as far as this command goes/.test(spaced),
+    'the spaced form says the command ends at the last word typed');
+  ok(/put the \? against it/.test(spaced), 'and points at the attached form that completes the word');
+  // Attached forms in every mode, including a partial on the second word.
+  ok(/startup-config/.test(env.text('sh st?')), 'sh st? completes through an abbreviation of show');
+  const alias = env.text('conf t?');
+  ok(/terminal/.test(alias), 'conf t? offers terminal as well as the alias\'s own t');
+  ok(!/Then: t/.test(alias), 'and the alias no longer leaks into what follows the word');
+  env.run('configure terminal');
+  ok(/route/.test(env.text('ip rou?')), 'ip rou? completes route in config mode');
+  ok(/interface/.test(env.text('int?')), 'int? completes interface');
+  // When everything that fits agrees on what comes after the completed word, that is said too - the
+  // next question is already answered. `ip rou?` alone has several endings in config mode, so the
+  // stable case is a command with one shape.
+  ok(/Then: <dest>/.test(env.text('no ip rou?')), 'and says what follows the word it completed');
+  env.run('exit');
+  // An attached `?` after a value asks about the keywords that can follow the value.
+  ok(/at/.test(env.text('show ip route 10.0.0.0?')), 'a ? after a value still offers what may follow it');
+}
+
+console.log('\nA `?` that belongs to the text is escaped, and the refusal says so:');
+{
+  const env = lab();
+  // One command per call: `run()` takes a line, not a script.
+  env.run('enable');
+  env.run('configure terminal');
+  env.run('interface Gi0/0');
+  // Without the escape a trailing ? is a question - which is the trap a real console has too, and the
+  // difference between "your description was saved" and "I thought you were asking me something".
+  const asked = env.text('description ready?');
+  ok(/% Nothing after "description" starts with/.test(asked),
+    'a trailing ? on free text is treated as a question');
+  ok(/literal "\?"/.test(asked), 'and the refusal names the escape for it');
+  env.run('description ready\\?');
+  env.run('exit');
+  env.run('exit');
+  const shown = env.text('show interfaces Gi0/0');
+  ok(/desc: ready\?/.test(shown), 'with the escape the question mark is saved as text');
+  // The escape is only for the trailing character; a ? inside the text was never a question.
+  env.run('configure terminal');
+  env.run('interface Gi0/0');
+  env.run('description up? or down');
+  env.run('exit');
+  env.run('exit');
+  ok(/desc: up\? or down/.test(env.text('show interfaces Gi0/0')),
+    'a question mark inside the text needs no escape');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

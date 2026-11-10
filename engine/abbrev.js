@@ -199,6 +199,17 @@ function expandTokens(tokens) {
 // `?` useful rather than a wall of words: `sh ip ?` should say what `route` and `ospf` *are*, not
 // only that they exist. A row too long for one line keeps its description on the next line, indented
 // to the description column, so that line is picked up here.
+// `configure terminal / conf t` is one row that documents **two complete spellings**, and lexing it as
+// a synopsis with a bar in the middle produced neither: the parse came out as `configure terminal t`
+// and `configure conf t`, so completion offered `t` as the word that follows `terminal`, and nothing
+// offered `conf t` as a command. A `/` with spaces on both sides is a row separator, so it is split
+// before the synopsis grammar sees it. A `/` without spaces is part of a value (`<addr>/<len>`,
+// `10.0.0.1/24`) and is left alone.
+function aliasSpellings(synopsis) {
+  const parts = String(synopsis).split(/\s+\/\s+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  return parts.length ? parts : [String(synopsis)];
+}
+
 function parseFormsWithDesc(lines) {
   const rows = [];
   for (let n = 0; n < lines.length; n++) {
@@ -215,8 +226,10 @@ function parseFormsWithDesc(lines) {
       const next = lines[n + 1] === undefined ? '' : String(lines[n + 1]);
       if (/^ {40,}\S/.test(next)) desc = next.trim();
     }
-    for (const tokens of expandSynopsis(synopsis)) {
-      if (tokens.length) rows.push({ tokens: tokens, desc: desc, synopsis: synopsis });
+    for (const spelling of aliasSpellings(synopsis)) {
+      for (const tokens of expandSynopsis(spelling)) {
+        if (tokens.length) rows.push({ tokens: tokens, desc: desc, synopsis: synopsis });
+      }
     }
   }
   return rows;
@@ -241,8 +254,10 @@ function parseForms(lines) {
     const gap = /\s{2,}/.exec(body);
     const synopsis = (gap ? body.slice(0, gap.index) : body).trim();
     if (!synopsis) continue;
-    for (const tokens of expandSynopsis(synopsis)) {
-      if (tokens.length) forms.push(tokens);
+    for (const spelling of aliasSpellings(synopsis)) {
+      for (const tokens of expandSynopsis(spelling)) {
+        if (tokens.length) forms.push(tokens);
+      }
     }
   }
   return forms;
