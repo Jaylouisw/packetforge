@@ -1613,9 +1613,24 @@ class CliSession {
       pool.leaseSec = String(sec);
     } else if (head === 'host') {
       // host <address> <hardware-address> - a reservation, which is how a printer keeps its address.
-      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac>');
+      //
+      // The two tokens are told apart by shape, because `host <mac> <address>` is the same statement in the other
+      // order and this handler used to store it verbatim: the reservation came out keyed by the *address*, so the
+      // pool held `{"192.168.10.104": "aa:bb:cc:00:00:98"}` and said nothing until `exit` refused the whole pool
+      // with "reservation key ... is not a valid MAC address" (#1373). A refusal at the point of the typo beats a
+      // refusal three commands later that blames the pool.
+      if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac> | host <mac> <address>');
+      const isMacShaped = function (x) { return /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/i.test(String(x)); };
+      const isAddrShaped = function (x) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(x)); };
+      let address = null, mac = null;
+      if (isAddrShaped(tokens[1]) && isMacShaped(tokens[2])) { address = tokens[1]; mac = tokens[2]; }
+      else if (isMacShaped(tokens[1]) && isAddrShaped(tokens[2])) { address = tokens[2]; mac = tokens[1]; }
+      if (address === null || mac === null) {
+        return ['% Not a reservation: give an address and a MAC, in either order ' +
+          '(host ' + tokens[1] + ' ' + tokens[2] + ' is neither). A MAC is six hex pairs, like aa:bb:cc:00:00:99.'];
+      }
       if (!pool.reservations) pool.reservations = {};
-      pool.reservations[tokens[2]] = tokens[1];
+      pool.reservations[mac] = address;
     } else if (head === 'no') {
       const what = (tokens[1] || '').toLowerCase();
       // These used to answer nothing at all - not even "done" - so a `no` that silently did nothing was
@@ -1849,6 +1864,128 @@ class CliSession {
   // other than Established. Before the session walk existed, every configured neighbour was
   // Established by definition - which is the one thing a lab must not teach, because the
   // whole skill is reading Active or OpenSent and knowing what it means.
+  // `show ip dhcp binding` and `show ip dhcp pool`.
+  //
+  // DHCP has been modelled end to end since it was: pools, ranges, exclusions, reservations, lease times, renewals
+  // and expiry. The server keeps an allocation table (mac -> address, expiry) and **nothing could read it**: there
+  // was no `show ip dhcp` at all, so an operator could configure a pool and could not find out which addresses had
+  // been handed out, to whom, or when they come back (#1373). The bindings come from the engine's own table
+  // through `Simulator.dhcpBindings()`, and the pool view is the pool the server actually answers from
+  // (`normalizePool()` + `validatePool()`), not a re-reading of the config text.
+  _showDhcp(args) {
+    const dev = this.device;
+    const out = [];
+    const dhcpLib = require('./dhcp');
+    const pools = (dev.config && Array.isArray(dev.config.dhcpPools)) ? dev.config.dhcpPools : [];
+    const sub = String(args[0] === undefined ? '' : args[0]).toLowerCase();
+    const want = args.slice(1).join(' ').trim();
+
+    const normalized = pools.map(function (raw) { return dhcpLib.normalizePool(raw); });
+    const poolByName = function (name) {
+      for (const p of normalized) { if (p.name === name) return p; }
+      return null;
+    };
+    const human = function (sec) {
+      if (sec === null || sec === undefined) return '-';
+      const s = Math.max(0, Math.floor(sec));
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+      return s + 's' + (h ? ' (' + h + ':' + String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') + ')' : '');
+    };
+    if (sub === '' || sub === 'binding' || sub === 'bindings' || sub === 'lease' || sub === 'leases') {
+      if (!pools.length) {
+        out.push('% This device is not a DHCP server (no "ip dhcp pool" configured)');
+        return out;
+      }
+      if (!this.sim) {
+        out.push('% no binding state has been evaluated yet - run a simulation');
+        return out;
+      }
+      let rows = this.sim.dhcpBindings ? this.sim.dhcpBindings(dev.id) : [];
+      if (want) {
+        const needle = want.toLowerCase();
+        const looksMac = /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/.test(needle);
+        const matched = rows.filter(function (r) {
+          return looksMac ? String(r.mac).toLowerCase() === needle : r.ip === want;
+        });
+        if (!matched.length) {
+          out.push('% No binding for ' + want +
+            (looksMac ? ' (no lease is held by that MAC)' : ' (no lease holds that address)'));
+          return out;
+        }
+        rows = matched;
+      }
+      out.push(pad('IP address', 16) + pad('Client identifier / MAC', 30) + pad('Pool', 18) + 'Expires in');
+      if (!rows.length) {
+        out.push('% no leases: nothing has asked this server for an address yet');
+        return out;
+      }
+      let lapsed = 0;
+      for (const r of rows) {
+        const pool = r.pool ? poolByName(r.pool) : null;
+        const reserved = !!(pool && pool.reservations && pool.reservations[r.mac] === r.ip);
+        const isExpired = r.state === 'expired';
+        if (isExpired) lapsed++;
+        out.push(pad(r.ip, 16) + pad(r.mac + (reserved ? ' (reserved)' : ''), 30) +
+          pad(r.pool || '-', 18) +
+          (isExpired ? 'lapsed (address free)' : human(r.remainingSec)));
+      }
+      const active = rows.length - lapsed;
+      out.push('');
+      out.push(active + ' active binding(s)' + (lapsed ? ', ' + lapsed + ' lapsed' : '') +
+        '; the lease clock runs from the instant the lease was granted');
+      return out;
+    }
+
+    if (sub === 'pool' || sub === 'pools') {
+      if (!pools.length) {
+        out.push('% No DHCP pools configured (use "ip dhcp pool <name>" in config mode)');
+        return out;
+      }
+      const bindings = (this.sim && this.sim.dhcpBindings) ? this.sim.dhcpBindings(dev.id) : null;
+      const chosen = want ? [poolByName(want)].filter(Boolean) : normalized;
+      if (!chosen.length) {
+        out.push('% No DHCP pool named ' + want + ' (pools on this device: ' +
+          normalized.map(function (p) { return p.name; }).join(', ') + ')');
+        return out;
+      }
+      for (const p of chosen) {
+        const check = dhcpLib.validatePool(p);
+        out.push('Pool ' + p.name + ':');
+        out.push('  Network:        ' + p.network + ' ' + p.mask);
+        out.push('  Range:          ' + (p.rangeStart || '-') + ' - ' + (p.rangeEnd || '-'));
+        out.push('  Default router: ' + (p.gateway || 'none'));
+        out.push('  DNS servers:    ' + ((p.dns && p.dns.length) ? p.dns.join(', ') : 'none'));
+        out.push('  Lease:          ' + (Number.isFinite(Number(p.leaseSec)) ? Number(p.leaseSec) + 's' : 'default'));
+        const excl = Array.isArray(p.excluded) ? p.excluded : [];
+        out.push('  Excluded:       ' + (excl.length
+          ? excl.map(function (r) { return r.start + (r.end && r.end !== r.start ? '-' + r.end : ''); }).join(', ')
+          : 'none'));
+        const res = p.reservations || {};
+        const resKeys = Object.keys(res).sort();
+        out.push('  Reservations:   ' + (resKeys.length
+          ? resKeys.map(function (m) { return res[m] + ' (' + m + ')'; }).join(', ')
+          : 'none'));
+        if (!check.ok) {
+          out.push('  In use:         no - ' + check.error);
+        } else if (bindings === null) {
+          out.push('  In use:         not measured (no simulation has run)');
+        } else {
+          const mine = bindings.filter(function (r) { return r.pool === p.name && r.state !== 'expired'; });
+          const cap = dhcpLib.poolCapacity ? dhcpLib.poolCapacity(p) : null;
+          out.push('  In use:         ' + mine.length + (cap === null ? ' lease(s)' : ' of ' + cap + ' address(es)'));
+          if (mine.length) {
+            out.push('                  ' + mine.map(function (r) { return r.ip + ' (' + r.mac + ')'; }).join(', '));
+          }
+        }
+        out.push('');
+      }
+      return out;
+    }
+
+    out.push('% Usage: show ip dhcp [binding [<address|mac>] | pool [<name>]]');
+    return out;
+  }
+
   // `show ip ospf`, `show ip ospf neighbour`, `show ip ospf interface`.
   //
   // OSPF has been configurable since it was modelled - router-id, area, `ip ospf cost|area|passive` - and the
@@ -2486,6 +2623,8 @@ class CliSession {
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : ''));
       }
+    } else if (what === 'ip' && tokens[1] === 'dhcp') {
+      out.push.apply(out, this._showDhcp(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'ospf') {
       out.push.apply(out, this._showOspf(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'bgp') {
@@ -3166,6 +3305,7 @@ class CliSession {
       '  ospf router-id <ip> | area <id>                        (config mode)',
       '  ip ospf cost <n> | area <id> | passive                 (interface mode)',
       '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
+      '  show ip dhcp [binding | pool] [<address|mac|name>]  who holds which address, and pool utilisation',
       '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
       '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];

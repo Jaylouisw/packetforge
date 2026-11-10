@@ -274,7 +274,8 @@ a `/25` connected route regardless of list order.
 | **Wired** | `Simulator.computeDhcp()` runs before the first packet of a run: every interface with `ip address dhcp` sends a DISCOVER into its broadcast domain, a server whose own interface sits in a pool's subnet answers, and the lease is installed on the interface (address, mask, gateway, DNS, lease time). | `engine/simulator.js` `computeDhcp()` |
 | **Broadcast domain** | Walked rather than assumed: bridges pass the DISCOVER on, routers stop it, a spanning-tree blocked port passes nothing, and a VLAN boundary is a boundary. | `engine/segment.js` |
 | **In the timeline** | The exchange is an event, so a lab can see the ACK and read the pool it came from. | `{ type: 'dhcp', phase: 'ack', ip, pool, serverIp, leaseSec }` |
-| **In the CLI** | `ip dhcp pool <name>` with `network`, `default-router`, `dns-server`, `range`, `excluded-address`, `lease`, `host` (reservation). The pool is validated once, on leaving the sub-mode — a half-typed pool is not an error. | `engine/cli.js` `_dhcpPoolMode()` |
+| **In the CLI** | `ip dhcp pool <name>` with `network`, `default-router`, `dns-server`, `range`, `excluded-address`, `lease`, `host` (reservation, address and MAC in either order). The pool is validated once, on leaving the sub-mode — a half-typed pool is not an error. | `engine/cli.js` `_dhcpPoolMode()` |
+| **Reported** | `show ip dhcp binding [<address\|mac>]` and `show ip dhcp pool [<name>]` read the server's own allocation table (`Simulator.dhcpBindings()` → `dhcp.leaseTable()`), so the console and the engine cannot disagree about who holds an address. Expiry is applied at the instant asked (`expireLeases()`), so a lapsed lease frees its address instead of holding it for the life of the run. | `engine/cli.js` `_showDhcp()`, `engine/simulator.js` `dhcpBindings()` |
 
 The failures are the ones a real server produces, and each is distinguishable:
 

@@ -219,6 +219,27 @@ function normalizePool(spec) {
 // accessors on a normalised pool (all tolerant -- they never throw)
 // ---------------------------------------------------------------------------
 
+// How many addresses this pool can hand out. Counted the way allocation walks the range: endpoints included,
+// exclusions removed, network/broadcast removed, and the gateway removed when it sits inside the range (it is
+// deliberately not allocatable). Reservations are inside the range and are counted, because they are allocatable
+// to their owner. Returns null for a pool that could not be used, so a caller can say "unknown" rather than print
+// a number it invented.
+function poolCapacity(p) {
+  const check = validatePool(p);
+  if (!check.ok) return null;
+  const range = rangeInts(p);
+  if (range === null) return null;
+  const gw = parseIp(p.gateway);
+  let count = 0;
+  for (let n = range.start; n <= range.end; n++) {
+    if (isEndpointInt(p, n)) continue;
+    if (isExcludedInt(p, n)) continue;
+    if (gw !== null && n === gw) continue;
+    count++;
+  }
+  return count;
+}
+
 function maskIntOf(p) { return parseMask(p.mask); }
 function networkIntOf(p) { return parseIp(p.network); }
 function rangeInts(p) {
@@ -459,7 +480,7 @@ function stateOf(state) {
 
 // Commit a lease, keeping both maps consistent: a MAC holds at most one
 // address, an address belongs to at most one MAC.
-function recordLease(state, mac, ip, step, leaseSec) {
+function recordLease(state, mac, ip, step, leaseSec, poolName) {
   const prev = state.leases.get(mac);
   if (prev && prev.ip !== ip && state.byIp.get(prev.ip) === mac) state.byIp.delete(prev.ip);
 
@@ -467,7 +488,9 @@ function recordLease(state, mac, ip, step, leaseSec) {
   if (holder && holder !== mac) state.leases.delete(holder);
 
   const expiresStep = step + (Math.max(1, Math.floor(leaseSec)) * STEP_SECONDS);
-  state.leases.set(mac, { ip: ip, expiresStep: expiresStep });
+  // The pool name is kept with the lease so the server can answer "which pool is this address from" without
+  // re-deriving it, and so a lease can be explained when the pool it came from is later edited (#1373).
+  state.leases.set(mac, { ip: ip, expiresStep: expiresStep, pool: poolName || null, leaseSec: leaseSec });
   state.byIp.set(ip, mac);
   return expiresStep;
 }
@@ -671,7 +694,7 @@ function handleRequest(pool, state, req) {
     return nakMessage(p, 'RESERVED', mac + ' must use its reserved address ' + reserved + '.');
   }
 
-  const expiresStep = recordLease(s, mac, ip, step, leaseSeconds(p));
+  const expiresStep = recordLease(s, mac, ip, step, leaseSeconds(p), p.name);
   return ackMessage(p, ip, mac, expiresStep);
 }
 
@@ -715,13 +738,27 @@ function expireLeases(state, step) {
 }
 
 // Current bindings, ordered by address so output is stable across runs.
-function leaseTable(state) {
+//
+// `step` is optional: given one, each row also says which pool it came from, how long it was for, how much of it
+// is left and whether it has lapsed. Without it the historical three-field shape is returned, so the table stays
+// usable by anything that only wants the bindings. Nothing is dropped or hidden here - an expired lease is still
+// a row, marked `expired`, because a console that silently forgets one cannot explain why an address is stuck.
+function leaseTable(state, step) {
   const s = stateOf(state);
+  const now = step === undefined || step === null ? null : stepOf(step);
   const rows = [];
   for (const mac of Array.from(s.leases.keys())) {
     const lease = s.leases.get(mac);
     if (!lease) continue;
-    rows.push({ mac: mac, ip: lease.ip, expiresStep: lease.expiresStep });
+    const row = { mac: mac, ip: lease.ip, expiresStep: lease.expiresStep };
+    if (now !== null) {
+      const expiresStep = Number(lease.expiresStep);
+      row.pool = lease.pool === undefined ? null : lease.pool;
+      row.leaseSec = lease.leaseSec === undefined ? null : lease.leaseSec;
+      row.remainingSec = Number.isFinite(expiresStep) && Number.isFinite(now) ? expiresStep - now : null;
+      row.state = Number.isFinite(expiresStep) && Number.isFinite(now) && expiresStep <= now ? 'expired' : 'active';
+    }
+    rows.push(row);
   }
   rows.sort(function (a, b) {
     const ai = parseIp(a.ip);
@@ -745,5 +782,6 @@ module.exports = {
   handleRequest,
   releaseLease,
   expireLeases,
-  leaseTable
+  leaseTable,
+  poolCapacity
 };
