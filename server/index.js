@@ -906,15 +906,41 @@ async function handleApi(req, res, urlPath) {
     if (parts[3] === 'ping' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
       if (!body || typeof body.src !== 'string' || !body.src) {
-        return sendJSON(res, 400, { code: 'E_BAD_REQUEST', error: 'expected { src: <device id>, dst: <address> }' });
+        return sendJSON(res, 400, {
+          code: 'E_BAD_REQUEST',
+          error: 'expected { src: <device id>, dst: <address or name> }'
+        });
       }
+      // The destination reached the engine unvalidated, so `10.0.0.999` threw inside `Simulator.ping()` and came
+      // back as a 500 - a mis-typed octet presented as a server fault. And the browser's dialog refused a name the
+      // engine resolves. Both are the same question: is this string a destination? (#1377)
+      const dstProblem = function (v) {
+        if (typeof v !== 'string' || !v.trim()) return 'dst must be an address or a hostname';
+        const s = v.trim();
+        if (/\s/.test(s)) return 'dst "' + s + '" contains whitespace, so it is neither an address nor a name';
+        if (/^[0-9.]+$/.test(s)) {
+          const parts = s.split('.');
+          if (parts.length !== 4 || parts.some(function (o) { return !/^\d{1,3}$/.test(o) || Number(o) > 255; })) {
+            return 'dst "' + s + '" is not an IPv4 address (four octets, each 0-255)';
+          }
+        }
+        return null;
+      };
       const dev = topo.getDevice(body.src);
       // A named device that does not exist is a 404; a request that named nothing is a 400, and the difference
-      // matters when you are reading someone else's failed call.
+      // matters when you are reading someone else's failed call. This is asked before the destination, so a
+      // request that got both wrong is answered about the device it named.
       if (!dev) return sendJSON(res, 404, { error: 'source device not found: ' + body.src });
+      const dstProblemText = dstProblem(body.dst);
+      if (dstProblemText) return sendJSON(res, 400, { code: 'E_BAD_DESTINATION', error: dstProblemText });
       const sim = new Simulator(topo);
-      const result = sim.ping(body.src, body.dst, { count: body.count || 4 });
-      return sendJSON(res, 200, { events: result.events, replies: result.replies, success: result.success, step: result.step, runtime: fullState(topo).runtime });
+      const result = sim.ping(body.src, body.dst.trim(), { count: body.count || 4 });
+      // A name is resolved before a packet is sent, and the resolver's verdict is part of the answer: a client that
+      // only sees `replies: [{ success: false }]` cannot tell a lost packet from a name that does not exist.
+      return sendJSON(res, 200, {
+        events: result.events, replies: result.replies, success: result.success, step: result.step,
+        dns: result.dns || null, runtime: fullState(topo).runtime
+      });
     }
 
     // /flows  (GET: list and counters, POST: open a transport flow)
