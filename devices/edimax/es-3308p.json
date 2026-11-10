@@ -1,0 +1,26 @@
+{
+  "vendor": "edimax",
+  "model": "ES-3308P",
+  "label": "Edimax ES-3308P 8-port Fast Ethernet desktop switch",
+  "category": "switch",
+  "description": "Edimax ES-3308P - 8x 10/100 Mbps RJ45 unmanaged desktop switch, store-and-forward, 802.3az Energy Efficient Ethernet with inactive-link and cable-length detection. No PoE, no management interface, no VLANs: plug in and it forwards.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "100M",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100
+    ]
+  },
+  "icon": "switch",
+  "color": "#64748b",
+  "sourceUrl": "https://www.4gon.co.uk/edimax-es3308p-8-port-ethernet-desktop-switch-p-9626.html",
+  "notes": "Unmanaged by design: no console, no web interface, no VLANs, so it is one of the few specs here that deliberately declares neither `cli` nor `http-server` - a lab expecting a prompt from it would be wrong. 10/100 only, so a gigabit-only device on a port is refused rather than silently downshifted: auto-negotiation here tops out at 100M. The page carries no port table (it defers to a datasheet), so the eight RJ45 sockets are the ones its own title and description state. Energy Efficient Ethernet, inactive-link detection and cable-length power scaling are power features with no forwarding consequence and are not modelled."
+}

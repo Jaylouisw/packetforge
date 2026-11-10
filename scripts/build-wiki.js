@@ -30,7 +30,7 @@ Cisco Packet Tracer teaches Cisco. PacketForge aims at the thing a lab actually 
 on which port, which optic mates with which ferrule, what a cable that cannot exist would
 mean if it did.
 
-The catalogue holds **1,589 device models from 245 vendors**, from ONTs and OLTs to PTP radios,
+The catalogue holds **1,591 device models from 246 vendors**, from ONTs and OLTs to PTP radios,
 switches, servers, printers, cameras and phones. It is JSON: one file per model, no code
 changes to add one.
 
@@ -116,7 +116,7 @@ That is enough. You do not need to write JSON.
    resolve to a cage, no port may claim a line rate its cage cannot carry, and a device may
    not describe two identical ports differently.
 3. The spec records the datasheet URL it was built from, so a later reader can check the claim
-   rather than trust it. It is **recommended, not enforced**: 1,239 of the 1,589 specs carry a
+   rather than trust it. It is **recommended, not enforced**: 1,241 of the 1,591 specs carry a
    \`sourceUrl\` today and 22 more carry the older \`source\` spelling, so 1,256 point at a datasheet
    somewhere; the remaining 328 are tracked as missing rather than refused.
 

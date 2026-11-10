@@ -137,5 +137,43 @@ console.log('\nThe switch family agrees with its own names (#524, #525, #526):')
     'and different PoE budgets, which is why they are two models (410 W vs 250 W)');
 }
 
+console.log('\nA managed PoE switch and an unmanaged one, from the same batch (#672, #674):');
+{
+  const eng = find('EWS1200-28TFP');
+  const ports = effectiveInterfaces(eng);
+  eq(ports.filter(function (p) { return (p.connector || '') === 'rj45'; }).length, 24, 'EWS1200-28TFP: 24 copper ports');
+  eq(ports.filter(function (p) { return (p.connector || '') === 'sfp'; }).length, 4, 'EWS1200-28TFP: 4 SFP uplinks');
+  eq(eng.poeBudget, 410, 'EWS1200-28TFP: the 410 W budget is the spec');
+  ok(ports.filter(function (p) { return (p.connector || '') === 'rj45'; })
+    .every(function (p) { return p.poeOut === 30; }), 'EWS1200-28TFP: 802.3at PoE+ is 30 W at the PSE');
+  ok(!(eng.capabilities || []).includes('l3-forward'),
+    'EWS1200-28TFP: modelled as L2 - the page says full-featured layer 2, the request said L3');
+
+  // The uplinks are SFP (1G), not SFP+. The engine's own verdict is the check: a 10G SFP+ port at
+  // the far end still resolves at 1000base-sx, i.e. this cage runs a 1G module, not 10G.
+  const t2 = new Topology();
+  const engDev = t2.addDevice(eng);
+  const ten = t2.addDevice(find('PLS-8-10G-720W'));
+  const uplink = t2.validateLink(engDev.id, 'sfp1', ten.id, 'uplink1', {});
+  ok(uplink.ok && uplink.speedMbps === 1000,
+    'EWS1200-28TFP: its SFP uplink to a 10G SFP+ port negotiates 1G (' +
+    (uplink.mediaName || uplink.mediaId) + ')');
+
+  const ed = find('ES-3308P');
+  const edPorts = effectiveInterfaces(ed);
+  eq(edPorts.length, 8, 'ES-3308P: eight ports');
+  ok(edPorts.every(function (p) { return p.speed === '100M'; }), 'ES-3308P: all of them 10/100');
+  const edDev = t2.addDevice(ed);
+  eq(edDev.poeBudget, 0, 'ES-3308P: no PoE, and the budget says so rather than being guessed from a name');
+  ok(!(ed.capabilities || []).includes('cli') && !(ed.capabilities || []).includes('http-server'),
+    'ES-3308P: unmanaged - no console and no web interface is claimed');
+
+  // The switch's ceiling wins, which is what a real 10/100 PHY does with a gigabit partner.
+  const pc2 = t2.addDevice(catalog.find(function (s) { return s.model === 'generic-pc'; }));
+  const down = t2.validateLink(edDev.id, 'port1', pc2.id, 'eth0', {});
+  ok(down.ok && down.speedMbps === 100,
+    'ES-3308P: a gigabit host on one of its ports runs at 100M (' + (down.mediaName || down.mediaId) + ')');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

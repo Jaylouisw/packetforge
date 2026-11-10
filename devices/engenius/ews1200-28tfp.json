@@ -1,0 +1,69 @@
+{
+  "vendor": "engenius",
+  "model": "EWS1200-28TFP",
+  "label": "EnGenius Neutron EWS1200-28TFP 24-port PoE+ switch",
+  "category": "switch",
+  "description": "EnGenius Neutron EWS1200-28TFP - 24x 10/100/1000 RJ45 with 802.3af/at PoE+ (30 W per port, 410 W total budget) plus 4x SFP uplinks, 19-inch 1U, web-managed with on-board Neutron tools and ezMaster. Layer 2 switching with 802.1Q VLAN, 802.1X and ACLs.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "poeBudget": 410,
+  "icon": "switch",
+  "color": "#16a34a",
+  "sourceUrl": "https://www.4gon.co.uk/engenius-24port-managed-gigabit-410w-poe-network-switch-ews120028tfp-p-8544.html",
+  "notes": "The key-feature list says `4 x SFP Ports` and the prose on the same page advertises `1-10 Gbps SFP+ slot options` - boilerplate shared with the 48-port model. The named part wins: SFP, 1G, and no 10G capability is claimed here, because accepting a 10G module in a 1G cage would be a link the hardware cannot make. The request filed this as a Layer 3 switch; the page calls it `Full-Featured Layer 2 Switching`, so it is modelled as an L2 switch that does not route. 802.3at/af is Type 2, 30 W per port, with the 410 W total stated on the page."
+}
