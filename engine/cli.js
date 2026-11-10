@@ -2429,6 +2429,15 @@ class CliSession {
       return ['% "' + mask + '" is not a subnet mask (e.g. 255.255.255.0)',
         '% Usage: ' + USAGE];
     }
+    // A mask whose ones are interrupted is not a mask. `prefixOf` counts the leading ones and stops
+    // at the first zero, so `ip route 10.0.0.0 255.0.255.0 10.0.0.9` was answered "Route added:
+    // 10.0.0.0/8" - a route covering every 10/8 address, silently wider than the words typed.
+    // `ip address` has refused this for a while (isContiguousMask); the route table had not.
+    if (!net.isContiguousMask(mask)) {
+      return ['% "' + mask + '" is not a contiguous mask - the ones must all be on the left',
+        '% Read as /' + prefix + ' it would cover every address that prefix matches - wider than the words typed',
+        '% Try 255.255.255.0, or a route for the wider network you meant'];
+    }
     const extra = this._noExtra(tokens, ifaceText === undefined ? 5 : 6, USAGE);
     if (extra) return extra;
     if (target === undefined) {
@@ -2598,6 +2607,26 @@ class CliSession {
     // cannot. (The library's own header notes the same mistake in another place.)
     const isIp = net.isIp;
 
+    // An AS number is a number. `parseInt` read "1e3" as 1, "65001abc" as 65001 and asdot "1.10"
+    // as 1 - three different ways to configure an AS nobody typed, each answered in the affirmative.
+    // IOS accepts asplain (65001) and asdot (1.10 = 1*65536+10); both are read here, and the answer
+    // says which number went in when the words did not spell it out.
+    function parseAsn(raw) {
+      const s = String(raw === undefined || raw === null ? '' : raw).trim();
+      if (/^\d{1,10}$/.test(s)) {
+        const n = Number(s);
+        if (n >= 1 && n <= 4294967295) return { asn: n };
+        return { error: '% Invalid AS number "' + s + '" - it must be 1-4294967295' };
+      }
+      const m = s.match(/^(\d{1,5})\.(\d{1,5})$/);
+      if (m && Number(m[1]) <= 65535 && Number(m[2]) <= 65535) {
+        const n = Number(m[1]) * 65536 + Number(m[2]);
+        if (n >= 1) return { asn: n, asdot: s };
+      }
+      return { error: ['% Invalid AS number "' + s + '" - a whole number 1-4294967295, or asdot as in 1.10',
+        '% e.g. 65001, or 1.10 which is the same as 65546'] };
+    }
+
     function ensure(asn) {
       if (!dev.config.bgp) dev.config.bgp = { as: null, routerId: null, neighbors: [] };
       if (!dev.config.bgp.neighbors) dev.config.bgp.neighbors = [];
@@ -2607,10 +2636,11 @@ class CliSession {
 
     // router bgp <as>
     if (t[0] === 'as') {
-      const asn = parseInt(t[1], 10);
-      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid AS number "' + (t[1] || '') + '"'];
+      const parsed = parseAsn(t[1]);
+      if (parsed.error) return Array.isArray(parsed.error) ? parsed.error : [parsed.error];
+      const asn = parsed.asn;
       ensure(asn);
-      return ['BGP enabled, local AS ' + asn];
+      return ['BGP enabled, local AS ' + asn + (parsed.asdot ? ' ("' + parsed.asdot + '" is asdot for ' + asn + ')' : '')];
     }
 
     // bgp router-id <ip>
@@ -2627,8 +2657,13 @@ class CliSession {
 
     // neighbor <ip> remote-as <as>
     if (isIp(t[0]) && String(t[1] || '').toLowerCase() === 'remote-as') {
-      const asn = parseInt(t[2], 10);
-      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid remote AS "' + (t[2] || '') + '"'];
+      const parsedAs = parseAsn(t[2]);
+      if (parsedAs.error) {
+        const errs = Array.isArray(parsedAs.error) ? parsedAs.error.slice() : [parsedAs.error];
+        errs[0] = String(errs[0]).replace('% Invalid AS number', '% Invalid remote AS');
+        return errs;
+      }
+      const asn = parsedAs.asn;
       if (!dev.config.bgp) return ['% BGP is not enabled' + NEEDS.bgp];
       const list = dev.config.bgp.neighbors;
       let n = null;

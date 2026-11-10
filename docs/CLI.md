@@ -1197,6 +1197,37 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A slot that takes a number takes a number
+
+Sweeping every numeric placeholder on the config pages with junk (`abc`, `-1`, `1e3`), an
+out-of-range value and a boundary value found two slots that answered in the affirmative anyway:
+
+```
+R1(config)#router bgp 1e3            BGP enabled, local AS 1
+R1(config)#router bgp 65001abc       BGP enabled, local AS 65001
+R1(config)#ip route 10.0.0.0 255.0.255.0 10.0.0.9
+                                     Route added: 10.0.0.0/8 via 10.0.0.9
+```
+
+Both were `parseInt` (or `prefixOf`, which counts leading ones and stops at the first zero) doing the
+reading while the answer claimed the number had been understood. The first invents a process —
+`router bgp 1.10` would have joined `router bgp 1` by accident — and the second **widens a route** to
+a /8, claiming reachability for addresses nobody named.
+
+`router ospf` had the strict check already and `ip address` already refused a non-contiguous mask, so
+in both cases the defect was one verb being the odd one out. The AS slot now reads asplain
+(`65001`) and asdot (`1.10` = 65546) — the two spellings IOS accepts — and says which number went in
+when the words did not spell it out, because the answer is the only place the operator can see the
+interpretation. Everything else is refused with the range in the message:
+
+```
+R1(config)#router bgp 1.10
+BGP enabled, local AS 65546 ("1.10" is asdot for 65546)
+R1(config)#ip route 10.0.0.0 255.0.255.0 10.0.0.9
+% "255.0.255.0" is not a contiguous mask - the ones must all be on the left
+% Read as /8 it would cover every address that prefix matches - wider than the words typed
+```
+
 ### Every verb the page prints has a way back
 
 A sweep of the config page typed each row with its placeholders filled, then typed the same words
@@ -3054,7 +3085,20 @@ Fa0/2  root       forwarding                    20000
 - `spanning-tree vlan <id> root primary|secondary` answers with the priority it chose (`24576` /
   `28672`, lowered when the current root is already at or below it), rather than storing a wish.
 - `no spanning-tree vlan <id>` restores the default and reports what it replaced. A bare
-  `no spanning-tree` says it cannot turn the protocol off, because it cannot.
+  `no spanning-tree` says it cannot turn the protocol off, because it cannot. The three removal forms
+  are not interchangeable, and the difference only shows up once a priority has been set — measured on
+  a switch holding `priority 4096`:
+
+  | Typed | Answer |
+  |---|---|
+  | `no spanning-tree vlan 10` | `Spanning tree bridge priority reset to the default (32768) on SW1 (was 4096)` |
+  | `no spanning-tree vlan 10 priority 4096` | the same reset — the form the redirect below tells you to use |
+  | `no spanning-tree vlan 10 priority` | `% Incomplete command: no spanning-tree vlan <id> priority <n>` — naming `priority` obliges you to name the value |
+  | `no spanning-tree vlan 10 root primary` | `% The priority here was set explicitly (4096), not by root primary` / `% Remove it with "no spanning-tree vlan 10 priority 4096"` |
+
+  With nothing set, that last form is not an error at all — it answers `Spanning tree bridge priority on
+  SW1 is already the default (32768)`. So the same words mean "already done" or "wrong tool", depending
+  on what the switch is holding.
 - `spanning-tree cost <n>` per port is what the tree charges — **on the port the BPDU arrives on**,
   which is the port an operator configures. The election used the *sending* port's cost while the
   root-port choice used the receiving port's, so the two disagreed and a cost set on the port you
@@ -3971,9 +4015,47 @@ forgets it is worse than no dump, because it looks complete.
 
 ## Event log
 
-Every protocol in this lab writes events — 25 separate drop sites, forwards, ARP and LLDP, STP
-blocks, VLAN drops, PoE denials, DHCP exchanges, OSPF and BGP state changes, SCION hops, SLAAC
-refusals. Until `show logging` existed, **nothing read them**: the console could tell you a ping
+Every protocol in this lab writes events — 28 sites that emit a bare `drop`, plus forwards, ARP and
+LLDP, STP blocks, VLAN drops, PoE denials, DHCP exchanges, OSPF and BGP state changes, SCION hops,
+SLAAC refusals. The whole vocabulary is **80 event types across 148 emit sites**, and `show logging
+<type>` filters on exactly those names, so here it is grouped — the names in code font are the literal
+strings to pass the filter:
+
+| group | types (13 of them hold 78 names; `acl-deny` and `lldp` are the other two) |
+| --- | --- |
+| frames and forwarding | `frame`, `switch`, `forward`, `ethernet`, `media`, `link-local`, `up`, `split`, `antenna`, `limit` |
+| ARP and neighbour discovery | `arp-request`, `arp-reply`, `arp-cache`, `arp-static-hold`, `garp`, `nd-request`, `nd-advert`, `nd-cache`, `na`, `ns` |
+| ICMP and ping | `icmp-echo`, `icmp-reply`, `icmp-received`, `icmp6-echo`, `icmp6-reply`, `icmp6-received`, `ping`, `ping6` |
+| layer 2 policy | `vlan-drop`, `stp-block`, `lag`, `port-security-learn`, `port-security-age`, `port-security-drop` |
+| addresses and routes | `connected`, `static`, `static6`, `default`, `default6`, `route`, `route6`, `svi`, `subinterface`, `set` |
+| DHCP, DNS and NAT | `dhcp`, `dns`, `nat-outbound`, `nat-inbound`, `nat-drop`, `pat` |
+| address autoconfiguration | `ra`, `ra-send`, `ra-recv`, `rs`, `rs-send`, `rs-recv`, `slaac-address`, `slaac-refused` |
+| routing protocols | `ospf`, `bgp`, `bgp-session`, `ebgp`, `vrrp` |
+| power | `poe-admin-off`, `poe-budget`, `poe-deny` |
+| SCION | `scion-path`, `scion-hop`, `scion-delivered`, `scion-drop` |
+| transport flows | `flow-open`, `flow-data`, `flow-close`, `flow-reset`, `flow-refused` |
+| capture | `tap`, `tap-inject-refused` |
+| unnamed drops | `drop` — the type whose reason string carries the explanation |
+
+Recount any of it in one line, because the vocabulary grows with the model:
+
+```sh
+grep -oh "type: '[a-z0-9-]*'" engine/*.js | sort -u | wc -l     # 80 types
+grep -oh "type: '[a-z0-9-]*'" engine/*.js | wc -l               # 148 emit sites
+grep -c "type: 'drop'" engine/simulator.js                      # 28 bare-drop sites
+```
+
+Every one of those names is a working filter argument — measured by passing 36 of them (at least one
+from every group, plus the awkward ones: `tap-inject-refused`, `poe-admin-off`, `arp-static-hold`,
+`scion-delivered`, `flow-refused`) through `show logging <type> last 2`, all accepted. The answer says
+how much it found and how much it skipped, so an empty result is still informative:
+
+```text
+P1#show logging icmp-echo last 2
+Event log (1 icmp-echo events, from 16 in the lab):
+  #   Step  Type       Device  Detail
+  13  5     icmp-echo  R1      on Gi0/0, from 10.0.0.10, seq 0, vlan 1
+``` Until `show logging` existed, **nothing read them**: the console could tell you a ping
 failed and never why, and the answer was in the event stream the whole time, reachable only from a
 test.
 
@@ -5830,6 +5912,37 @@ arithmetic is exact:
 64 + 64 + 402 = 530. A byte counter nobody can reproduce is a byte counter nobody can trust, so the
 frame sizes are stated rather than round numbers.
 
+That identity is worth checking rather than believing, and it holds to the byte. Measured on a PC and
+its router — the first command, then a second one, so the difference between the two steps is visible:
+
+```text
+PC1>ping 10.0.1.1 count 3
+!!!            Success rate is 100 percent (3/3)
+
+PC1>show interfaces counters
+Port  Rx packets  Rx bytes  Tx packets  Tx bytes  Drops
+eth0  5           530       5           530       0
+
+PC1>ping 10.0.1.1 count 4
+!!!!           Success rate is 100 percent (4/4)
+
+PC1>show interfaces counters
+Port  Rx packets  Rx bytes  Tx packets  Tx bytes  Drops
+eth0  10          1130      10          1130      0
+```
+
+The first step is the documented sum: LLDP 64 + ARP 64 + 3 × 134 = **530**. The second step is
+`1130 − 530 = 600`, which is LLDP 64 + 4 × 134 and **no ARP term at all** — the entry learned by the
+first command was still there.
+
+Two things follow, and both were measured rather than assumed. The ARP entry **persists** — it is device
+state, not run state: it is still there after a second command, and still there on a brand-new
+`Simulator` built over the same topology. The **counters do not**: they belong to the run, so a new
+`Simulator` starts them at zero (`(no port has carried a frame since this lab started)`) even though the
+ARP entry survived. A `ping` count and a counter total that differ by exactly 64 per command is the LLDP
+advertisement, not a leak — and "counters are cumulative from the lab's start" means since *this* run
+began, however many commands one session types into it.
+
 **Drops are counted with their reasons — but only frames count.** Which events may charge a port is a
 named list, not a guess about English:
 
@@ -5843,6 +5956,30 @@ named list, not a guess about English:
 | `poe-deny` | yes | a **frame** refused because the device had no power |
 | `poe-budget` | **no** | the PSE deciding who gets funded — no frame exists at that moment |
 | `drop` with no port | **no** | it died before an egress was chosen (`no route`, `TTL expired`); no port can honestly own it, and `show logging` is where it is read |
+
+The rule is literally a set membership in the engine — `FRAME_DROP_TYPES` holds those six names and
+nothing else — so the table above cannot drift away from the code without the code changing. Three of
+the rows, measured on labs built to hit them:
+
+```text
+SW1#show logging
+  1   0     vlan-drop    SW1         VLAN 1 not allowed on egress, on Fa0/1, vlan 1
+ 24   8     drop         SW1         no egress ports in VLAN 10, on Fa0/1, vlan 10
+ 25   8     drop         R1          no route to 192.0.2.9
+```
+
+| lab | event | drops charged |
+| --- | --- | --- |
+| trunk allows VLAN 10 only, switch still advertises LLDP in VLAN 1 | `vlan-drop` | **1 on the trunk** (`Fa0/1`: 1 in, 0 out, 1 dropped) — by event #1, before any ping was sent |
+| two access ports in different VLANs, one ping across them | `drop` | **4 on the ingress port**, 0 on the other — one per echo |
+| a ping to a destination the router cannot reach | `drop` with no port | **0 on every port** — the frame died before an egress existed |
+
+Two things fall out of that. The VLAN case a reader will actually build ("no egress ports in VLAN *n*")
+reports as a plain **`drop`** with the port named, not as `vlan-drop`; `vlan-drop` is the narrower
+"this port refuses that VLAN on egress" check, and the easiest way to see one is the trunk above, where
+the switch's own LLDP advertisement in VLAN 1 is dropped because the trunk does not carry VLAN 1. So a
+lab with a mistyped `switchport trunk allowed vlan` shows a drop counter on the trunk before you have
+configured anything else — that is the LLDP, not user traffic.
 
 The distinction between the last three is the difference between a number and a guess. A PoE budget
 denial and a frame refused for want of power are both power problems, and only one of them involves a
