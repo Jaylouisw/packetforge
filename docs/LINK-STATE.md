@@ -195,9 +195,22 @@ and `lineStateReason` — and nothing joined the two facts.
 `Topology.linkState(link)` joins them: the cable's state plus both ports' `enabled` plus both ports'
 `lineUp`, returning `{ up, cause, reason }` where `reason` names the port at fault
 (`SW1/Fa0/1 is administratively down`, `PC1/eth0 is down (the cable is down)`, `SW1/Fa0/99 is gone`)
-and `cause` says which kind of thing it was. `fullState()` attaches `carries` and `stateReason` to
-every link in the payload; `serialize()` does not, because `lineUp` is a fact about the current
-simulation and a saved copy would be read back as one.
+and `cause` says which kind of thing it was — `cable`, `admin`, `line` or `gone`, and `null` when the answer is yes.
+
+**Where that answer reaches a payload is a function in the server, not a method on `Topology`.** This
+page used to say "`fullState()` attaches `carries` and `stateReason`", which reads as
+`topology.fullState()` and is not: there is no such method, and half an hour goes into looking for it.
+`fullState(topo)` lives in `server/index.js`, is called by every HTTP handler that returns a topology
+and by the WebSocket broadcast, and it adds three keys per link on top of `serialize()`:
+
+| key | from | what it answers |
+| --- | --- | --- |
+| `verdict` | `Topology.linkVerdict(link)` — the same rule that let the cable be built | would this cable validate now, and what would it warn about |
+| `carries` | `Topology.linkState(link).up` | do frames actually cross |
+| `stateReason` | `Topology.linkState(link).reason` | if not, which end and why |
+
+`serialize()` carries none of the three, because `lineUp` is a fact about the current simulation and a
+saved copy would be read back as one.
 
 Two answers that look contradictory and are both right:
 
