@@ -32,7 +32,7 @@ catalog to the API and the UI palette.
 | `interfaces` | one of | explicit array; per-port keys below |
 | `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` plus any port key |
 | `description` | no | tooltip — and CI audits it against the ports the spec declares |
-| `sourceUrl` | recommended | the datasheet the numbers came from (1,251 of 1,601 specs carry one). **22 more carry `source` instead** — the older spelling of the same idea, never both — so 1,273 of 1,601 point at a datasheet somewhere |
+| `sourceUrl` | recommended | the datasheet the numbers came from (1,252 of 1,602 specs carry one). **22 more carry `source` instead** — the older spelling of the same idea, never both — so 1,274 of 1,602 point at a datasheet somewhere |
 | `notes` | no | research note kept beside the spec, quoted rather than paraphrased |
 | `poeBudget` | no | PSE budget in watts; research-sourced specs use `poe: {"budgetW": 240}` instead |
 | `passive` | no | `true` for a passive tap or splitter — no capabilities, no software |
@@ -80,7 +80,7 @@ catalogue's other 1,534 files state none at all, and the engine infers from the 
 
 ### Keys the catalogue carries that this table does not gate on
 
-A survey of all 1,601 files finds **fourteen** top-level keys the schema table above never mentions — thirty-two exist in total, eighteen are in that table, and `poe` counts as documented because the `poeBudget` row names it. They matter
+A survey of all 1,602 files finds **fourteen** top-level keys the schema table above never mentions — thirty-two exist in total, eighteen are in that table, and `poe` counts as documented because the `poeBudget` row names it. They matter
 because a contributor copying an existing spec will meet them, and because **whether any code reads a
 key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>" engine/ web/ server/`:
 
@@ -91,7 +91,7 @@ key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>"
 | `splitRatio` | 11 | `engine/validation.js` | **real** — a splitter's fan-out, and its loss |
 | `dualRole` | 2 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
 | `comboPorts` | 15 | nothing in `engine/`, `web/`, `server/` — written by `scripts/apply-research.js` | **annotation**: the pairing itself is expressed by per-port `comboWith`/`comboRole` |
-| `source` | 22 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,251 of 1,601" coverage count above uses, so a spec carrying only `source` counts as uncovered (22 do; none carry both) |
+| `source` | 22 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,252 of 1,602" coverage count above uses, so a spec carrying only `source` counts as uncovered (22 do; none carry both) |
 | `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators) |
 
 The annotation keys all sit on passive hardware under `devices/fs/` and similar: they record what the
@@ -137,12 +137,29 @@ as `category: "firewall"` with an empty capability list, which the engine reads 
 everything" - so inserting a tap into a lab cut the link it was inserted into, and no test
 noticed, because a link carrying nothing looks like a link with nothing to carry.
 
+### What the catalogue cannot represent
+
+Some hardware requests describe something with no interface at all, and those are declined
+rather than padded into the schema:
+
+- **passive RF accessories** - radomes, RF isolator shields, coaxial duplexers and NxN MIMO
+  multiplexers. They have no Ethernet, console, optical or DSL port, no address and no
+  management surface, so a spec would be a name with an empty `interfaces` array. The palette
+  would then offer a lab something that *looks* cabledable and is not - which is worse than the
+  request staying open.
+- **bundles** - a "kit" of router plus mesh points is not a model. Its parts are the models.
+
+The distinction that matters when closing a request: an accessory is **structurally**
+unrepresentable (nothing to simulate), while a device that merely lacks a published figure -
+say a switch whose PoE budget the vendor never quotes - stays **open**, because that is a gap
+in the source, not in the simulator. Never invent the figure to close it.
+
 ## Reading the catalogue in code
 
 `loadCatalog(dir)` walks `dir` recursively and returns an array of spec objects. Two things about it
 are worth knowing before you call it:
 
-- **Give it an absolute path.** `loadCatalog('devices')` returns **1,601 entries and every one of them
+- **Give it an absolute path.** `loadCatalog('devices')` returns **1,602 entries and every one of them
   is an error**: the helper `require()`s `path.join(dir, …)`, and a relative path with no leading `./`
   is read as a *module specifier*, so nothing resolves. The `catch` that exists to survive one
   malformed spec then swallows the whole directory. `path.resolve('devices')` works; `__dirname` from
@@ -366,7 +383,7 @@ touching the real tree.
 
 ## Included catalog
 
-**1,601 models across 246 vendors**, one JSON file each, in 25 distinct `category` values
+**1,602 models across 246 vendors**, one JSON file each, in 25 distinct `category` values
 (24 palette buckets — every AP is filed `wireless`; a single spec still carries the legacy `ap`
 value, `huawei/WiFi Extender AX3000`). The last one has a visible cost worth knowing: the palette's
 type filter is built by walking `CAT_ORDER` in `web/app.js`, so a category outside that list gets no

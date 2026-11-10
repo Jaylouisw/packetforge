@@ -1,0 +1,60 @@
+{
+  "vendor": "ubiquiti",
+  "model": "AFI-INS-R",
+  "label": "AmpliFi Instant Router (AFI-INS-R)",
+  "category": "wireless",
+  "description": "Ubiquiti AmpliFi Instant mesh router - one Gigabit WAN port and one Gigabit LAN port, 802.11ac 2x2 up to 866.7 Mbps on 5 GHz and 802.11n up to 300 Mbps on 2.4 GHz, colour touchscreen, mesh expandable with AmpliFi MeshPoints. 802.11ac; WPA2-PSK.",
+  "capabilities": [
+    "wireless",
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "wan",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "867M"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://www.4gon.co.uk/ubiquiti-amplifi-instant-home-mesh-router-p-7384.html",
+  "notes": "The page says 'one Gigabit Ethernet port, a WAN port', and both halves matter: this is a **two-socket** router - one WAN and exactly one LAN - so a lab that expects a four-port home router is wrong about the hardware, and the second wired device needs a switch. The radio rates are quoted rather than inferred this time: 802.11ac '13 Mbps to 866.7 Mbps (MCS0 - MCS9, VHT 20/40/80)' and 802.11n '6.5 Mbps to 300 Mbps'. No PoE in or out (the ports say `poeIn: 0` explicitly so the engine's access-point heuristic does not invent a draw), and no console - it is managed from the AmpliFi app and the touchscreen, so no `cli` capability."
+}

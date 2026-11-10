@@ -397,5 +397,22 @@ console.log('\nA cellular WAN is not a cable and an IPMI port is not a LAN port 
   ok(v3.ok && v3.speedMbps === 1000, 'UAS-XG: a 10GBase-T port links to a 1G switch port at 1G');
 }
 
+console.log('\nA mesh router with one LAN socket (#281):');
+{
+  const ins = find('AFI-INS-R');
+  const ports = effectiveInterfaces(ins);
+  eq(ports.filter(function (p) { return p.type === 'ethernet'; }).length, 2,
+    'AFI-INS-R: two copper sockets - one WAN and one LAN, not a four-port switch');
+  eq(ports.filter(function (p) { return p.role === 'lan'; }).length, 1,
+    'AFI-INS-R: exactly one LAN port, so a second wired device needs a switch');
+  eq(ports.filter(function (p) { return p.type === 'wireless'; }).map(function (p) { return p.speed; })
+    .join(','), '300M,867M', 'AFI-INS-R: the quoted 802.11n and 802.11ac rates, not an inferred class');
+  ok(!(ins.capabilities || []).includes('cli'),
+    'AFI-INS-R: managed from the app and its touchscreen - no console');
+  ok(ports.filter(function (p) { return p.type === 'ethernet'; })
+    .every(function (p) { return p.poeIn === 0; }),
+    'AFI-INS-R: mains powered, and it says so instead of letting the AP heuristic guess');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
