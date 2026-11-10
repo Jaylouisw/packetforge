@@ -500,8 +500,25 @@ refused in one direction and accepted in the other.
 
 `commonMedia` is the intersection of the two ports' `media[]`, but only after
 `cagesMate` passes — a mating failure produces no media list at all, which is why
-`verdict.media` is empty on a refused link. `preferredMedia` then ranks
-`fiber > dac > copper > console/wireless`, breaking ties on speed, and
+`verdict.media` is empty on a refused link. `preferredMedia` then chooses one id from that intersection,
+in three steps that are worth knowing exactly because the answer can depend on which port you passed
+first:
+
+1. **Drop what the port cannot carry.** When a max rate is supplied, media whose `speedMbps` exceeds it
+   are removed before ranking (`['1000base-t','10gbase-t']` at 1 G → `1000base-t`). If nothing fits, the
+   original list is kept rather than emptied.
+2. **Rank the family** — `fiber: 3`, `dac: 2`, and **`copper`, `console` and `wireless` all at 1**. Copper
+   does *not* outrank a console or a radio medium; they are equal, so the next step decides.
+3. **Break the tie on speed**, higher winning. A complete tie — same family, same speed — keeps whichever
+   came first in the input list, and that list is built from the ports' own media order, so
+   `preferredMedia(['1000base-t','1000base-t-sfp'])` answers `1000base-t` while the reversed list answers
+   `1000base-t-sfp`. The *verdict* for such a pair does not depend on direction; the chosen medium can.
+
+One demotion sits outside that ranking: a `linkOnly` medium is pushed to rank −1 unless **every** candidate
+is link-only. `1000base-bx` exists only because a U module met a D module and no cage offers it as a choice,
+so an ordinary SFP pair is described as `1000base-lx` (`['1000base-bx','1000base-lx']` → `1000base-lx`)
+while the asymmetric pair still gets `1000base-bx` (`['1000base-bx']` → `1000base-bx`).
+
 `negotiateSpeed` takes the maximum shared `speedCaps` entry.
 
 **`speedMbps` from `canMate`/`negotiateSpeed` is the port ceiling, not the cable's
