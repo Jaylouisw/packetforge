@@ -1177,6 +1177,87 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### NAT is configured from the console
+
+`engine/nat.js` modelled NAT end to end — rules, translations, timeouts, rewriting in both
+directions — and the console could not create a single rule:
+
+```
+R1(config)#ip nat inside source static 10.0.0.50 203.0.113.50
+% Unrecognized config command: ip nat inside source static 10.0.0.50 203.0.113.50
+R1(config)#interface Gi0/0
+R1(config-if)#ip nat inside
+% Unrecognized interface command: ip nat inside
+R1#show ip nat translations
+NAT translations on R1:
+  (none - no NAT rules; NAT is configured from the topology)
+```
+
+The model was telling the operator to go and edit the topology instead of the box. Now:
+
+```
+R1(config)#access-list 1 permit 10.0.0.0 0.0.0.255
+R1(config)#interface Gi0/0
+R1(config-if)#ip nat inside
+Interface Gi0/0 is NAT inside
+  (no port is outside yet - translation waits for one)
+R1(config-if)#interface Gi0/1
+R1(config-if)#ip nat outside
+Interface Gi0/1 is NAT outside
+R1(config-if)#ip nat inside source list 1 interface Gi0/1 overload
+NAT rule added on R1: pat list 1 -> Gi0/1 (203.0.113.2) overload
+```
+
+```
+PC1>ping 198.51.100.9 count 1
+Success rate is 100 percent (1/1)
+R1#show ip nat translations
+Pro   Inside global     Inside local    Outside local      Outside global     Type
+icmp  203.0.113.2:1024  10.0.0.50:4096  198.51.100.9:4096  198.51.100.9:4096  pat
+```
+
+**An ICMP echo used to cross a NAT box untranslated.** `_natOutbound` required a transport header,
+and an echo carries `frame.icmp`, so the commonest test of all — ping from inside, watch a
+translation appear — could never show one. The echo's source is now rewritten and its identifier is
+the flow key for PAT, written back to the ICMP header rather than to a fabricated one.
+
+**The roles are enforced, not decoration.** Once any port on the device declares `ip nat inside` or
+`ip nat outside`, a packet is translated only when it leaves by an `outside` port and only when it
+arrives on one — so unmarking the outside port routes traffic without translating it, and marking it
+again brings the translation back. A lab built from the topology marks no roles, and there the
+presence of rules is the whole story, exactly as before.
+
+Every wrong word is refused where it is typed:
+
+```
+R1(config)#ip nat inside source list 99 interface Gi0/1 overload
+% Access list 99 does not exist - the NAT list says which addresses
+% are translated, so it has to be built first
+% Configured lists: 1
+R1(config)#ip nat inside source list 1 interface Gi0/0 overload
+% Gi0/0 is the inside port - "overload" translates onto the outside
+% address, so name the port facing the provider (or mark it with "ip nat outside")
+R1(config)#ip nat inside source static 10.0.0.50
+% Incomplete command: ip nat inside source static <local> <global>
+```
+
+Removal undoes exactly the rule it names, printing it in the words it was typed in:
+
+```
+R1(config)#no ip nat inside source
+% No NAT rule named - the rules on R1:
+  1) ip nat inside source list 1 interface Gi0/1 overload
+  2) ip nat inside source static 10.0.0.50 203.0.113.50
+R1(config)#no ip nat inside source static 10.0.0.50 203.0.113.50
+Removed NAT rule: ip nat inside source static 10.0.0.50 203.0.113.50
+```
+
+`show running-config` carries `ip nat inside` / `ip nat outside` in the interface blocks and the
+rules as the lines that created them, and pastes back into a device of the same shape. That test
+caught a real trap: the rules are printed *after* the interface blocks, so the paste delivers
+`ip nat inside source …` while the session is still inside an interface — and the interface verb
+swallowed it. Rules written from inside an interface block now go to the router's configuration.
+
 ### The link-state database, and one BGP peer in detail
 
 Two shows answered a different question than they named:

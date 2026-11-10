@@ -747,6 +747,10 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'scion') {
       this.device.config.scionAs = null;
       out.push('SCION membership removed');
+    } else if (head === 'ip' && tokens[1] === 'nat') {
+      out.push.apply(out, this._ipNatConfig(tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'nat') {
+      out.push.apply(out, this._noIpNatConfig(tokens.slice(3)));
     } else if (head === 'ip' && tokens[1] === 'access-list') {
       out.push.apply(out, this._ipAccessList(tokens.slice(2)));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'access-list') {
@@ -1089,6 +1093,33 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       out.push(iface.name + ' up');
+    } else if (head === 'ip' && tokens[1] === 'nat') {
+      // `show running-config` prints its rules after the interface blocks, so a paste delivers
+      // `ip nat inside source …` while the session is still inside an interface. That is a global
+      // command, not this port's side, and swallowing it as "ip nat inside takes no more" is how a
+      // paste silently loses every NAT rule on the device.
+      const rest = tokens.slice(2).map(function (x) { return String(x).toLowerCase(); });
+      if (rest[0] === 'inside' && rest[1] === 'source') {
+        out.push.apply(out, this._ipNatConfig(tokens.slice(2)));
+      } else {
+        out.push.apply(out, this._ipNatIface(tokens.slice(2), iface));
+      }
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'nat' &&
+               String(tokens[4] || '').toLowerCase() === 'source') {
+      out.push.apply(out, this._noIpNatConfig(tokens.slice(3)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'nat') {
+      const which = String(tokens[3] || '').toLowerCase();
+      if (!iface.natRole) {
+        out.push('Interface ' + iface.name + ' is not a NAT interface');
+      } else if (which !== 'inside' && which !== 'outside') {
+        out.push('% Incomplete command: no ip nat inside|outside');
+      } else if (which !== iface.natRole) {
+        out.push('Interface ' + iface.name + ' is NAT ' + iface.natRole + ', not ' + which);
+      } else {
+        const was = iface.natRole;
+        delete iface.natRole;
+        out.push('Interface ' + iface.name + ' is no longer NAT ' + was);
+      }
     } else if (head === 'spanning-tree') {
       out.push.apply(out, this._stpIface(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'spanning-tree') {
@@ -2539,6 +2570,243 @@ class CliSession {
       if (real.length) out.push('% Warning: ' + real[0].message);
     }
     return out;
+  }
+
+  // ---------- NAT ----------
+  //
+  // `engine/nat.js` has modelled NAT end to end all along - rules, translations, timeouts, outbound
+  // and inbound rewriting - and the console could not create a single rule:
+  //   R1(config)#ip nat inside source static 192.168.1.10 203.0.113.10
+  //   % Unrecognized config command: ...
+  //   R1#show ip nat statistics
+  //   (no rules - NAT is configured from the topology, not this CLI)
+  // A model whose whole purpose is being driven from a console was telling the operator to go and
+  // edit the topology instead.
+
+  // Which side of the box a port is on. Stored on the interface, dumped with it, and enforced by
+  // the data path as soon as any port on the device declares one.
+  _ipNatIface(tokens, iface) {
+    const dev = this.device;
+    const usage = 'ip nat inside|outside';
+    if (!dev.isL3 || !dev.isL3()) {
+      return ['% ' + (dev.name || dev.id) + ' does not route - NAT rewrites addresses between two',
+        '% routed interfaces, and this device has none'];
+    }
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (!t.length) return ['% Incomplete command: ' + usage];
+    const side = t[0];
+    if (side !== 'inside' && side !== 'outside') {
+      return ['% A NAT interface is inside or outside, not "' + tokens[0] + '"', '% Usage: ' + usage];
+    }
+    if (t.length > 1) {
+      return ['% Unexpected argument "' + tokens[1] + '" - ' + usage + ' takes no more',
+        '% A port cannot be on both sides: pick one.'];
+    }
+    if (iface.natRole === side) {
+      return ['Interface ' + iface.name + ' is already NAT ' + side];
+    }
+    const was = iface.natRole;
+    iface.natRole = side;
+    const out = ['Interface ' + iface.name + ' is NAT ' + side];
+    if (was) out.push('  was ' + was + ' - a port is on one side at a time');
+    // The rules only work if both sides exist, and the operator is told which one is missing
+    // rather than being left to discover it from a packet that is not translated.
+    const sides = Array.from(dev.interfaces.values()).filter(function (i) { return i.natRole; })
+      .map(function (i) { return i.natRole; });
+    if (sides.indexOf('inside') === -1) out.push('  (no port is inside yet - translation waits for one)');
+    if (sides.indexOf('outside') === -1) out.push('  (no port is outside yet - translation waits for one)');
+    return out;
+  }
+
+  // `ip nat inside source static <local> <global>` and
+  // `ip nat inside source list <acl> interface <if> overload`.
+  _ipNatConfig(tokens) {
+    const natLib = require('./nat');
+    const dev = this.device;
+    const out = [];
+    const usage = 'ip nat inside source static <local> <global> | list <acl> interface <if> overload';
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (!t.length) return ['% Incomplete command: ' + usage];
+    if (t[0] !== 'inside') {
+      return ['% This model translates inside source addresses ("ip nat inside source …"),',
+        '% not "' + tokens[0] + '"'];
+    }
+    if (t[1] !== 'source') {
+      return ['% Incomplete command: ip nat inside source static <local> <global>',
+        '%                                   or: ip nat inside source list <acl> interface <if> overload'];
+    }
+    const form = t[2];
+    if (form === undefined) {
+      return ['% Incomplete command: ip nat inside source static <local> <global>',
+        '%                   or: ip nat inside source list <acl> interface <if> overload'];
+    }
+
+    let rule = null;
+    if (form === 'static') {
+      const local = tokens[3];
+      const global = tokens[4];
+      if (local === undefined || global === undefined) {
+        return ['% Incomplete command: ip nat inside source static <local> <global>'];
+      }
+      const extra = this._noExtra(t, 5, 'ip nat inside source static <local> <global>');
+      if (extra) return extra;
+      rule = { type: 'static', insideLocal: local, insideGlobal: global };
+    } else if (form === 'list') {
+      const aclId = tokens[3];
+      if (aclId === undefined) return ['% Incomplete command: ip nat inside source list <acl> interface <if> overload'];
+      const acls = dev.config.acls || {};
+      const list = acls[String(aclId)];
+      if (!list) {
+        return ['% Access list ' + aclId + ' does not exist - the NAT list says which addresses',
+          '% are translated, so it has to be built first',
+          '% Configured lists: ' + (Object.keys(acls).join(', ') || '(none)')];
+      }
+      if (t[4] !== 'interface') {
+        return ['% This model translates onto an interface address: "… interface <if> overload"',
+          '% Got: "' + (tokens[4] === undefined ? '' : tokens[4]) + '"'];
+      }
+      const ifName = tokens[5];
+      if (ifName === undefined) return ['% Incomplete command: ip nat inside source list <acl> interface <if> overload'];
+      const iface = dev.resolveIface(ifName);
+      if (!iface) {
+        return ['% No interface ' + ifName + ' on ' + (dev.name || dev.id),
+          '% Ports here: ' + Array.from(dev.interfaces.values()).map(function (i) { return i.name; }).join(', ')];
+      }
+      if (!iface.ip) {
+        return ['% ' + iface.name + ' has no address - "overload" translates onto that address,',
+          '% so it needs one before the rule can be written'];
+      }
+      const tail = t[6];
+      if (tail !== 'overload') {
+        return ['% Incomplete command: … interface ' + iface.name + ' overload',
+          '% (a list-and-interface rule without "overload" would need a pool, which this model does not have)'];
+      }
+      if (t.length > 7) {
+        return ['% Unexpected argument "' + tokens[7] + '" - the rule ends at "overload"'];
+      }
+      // The ACL's permitted sources become the addresses this rule translates. The library takes
+      // specs (`10.0.0.0/24`, `10.0.0.5`, `a-b`), so a wildcard is turned into a prefix length -
+      // an operator who wrote `permit 10.0.0.0 0.0.0.255` gets a rule that means that subnet.
+      const specs = [];
+      for (const e of list) {
+        if (String(e.action).toLowerCase() !== 'permit') continue;
+        const src = e.source || {};
+        if (src.any) { specs.length = 0; specs.push('any'); break; }
+        if (src.host) { specs.push(String(src.ip)); continue; }
+        if (!src.ip) continue;
+        const wild = String(src.wildcard || '0.0.0.0');
+        const parts = wild.split('.').map(function (x) { return 255 - (Number(x) || 0); });
+        const mask = parts.join('.');
+        const dotted = mask === '255.255.255.255' ? String(src.ip) : (src.ip + '/' + mask);
+        specs.push(dotted);
+      }
+      // The port the rule overloads onto is the *outside* one; a rule pointing at the inside port
+      // would translate onto the address the traffic is coming from, which is not what an operator
+      // means and is not something a later packet would reveal.
+      if (iface.natRole === 'inside') {
+        return ['% ' + iface.name + ' is the inside port - "overload" translates onto the outside',
+          '% address, so name the port facing the provider (or mark it with "ip nat outside")'];
+      }
+      rule = {
+        type: 'pat',
+        insideLocal: 'any',
+        insideGlobal: iface.ip,
+        acl: specs.length ? specs : null,
+        // Kept so the dump and every description can print the line the operator typed rather than
+        // a compiled specification of it.
+        fromList: String(tokens[3]),
+        fromIface: iface.name
+      };
+    } else {
+      return ['% ip nat inside source takes static or list, not "' + tokens[2] + '"', '% Usage: ' + usage];
+    }
+
+    const chk = natLib.validateRule(rule);
+    if (chk && chk.ok === false) {
+      // The library's sentence, not the shape of the error object.
+      const first = (chk.errors || [])[0];
+      return ['% ' + ((first && (first.message || first.code)) || 'invalid NAT rule')];
+    }
+
+    if (!dev.config.nat) dev.config.nat = { rules: [] };
+    if (!Array.isArray(dev.config.nat.rules)) dev.config.nat.rules = [];
+    const same = function (a, b) {
+      return String(a.type) === String(b.type) &&
+        String(a.insideLocal) === String(b.insideLocal) &&
+        String(a.insideGlobal) === String(b.insideGlobal) &&
+        String(a.fromList || '') === String(b.fromList || '') &&
+        String(a.fromIface || '') === String(b.fromIface || '') &&
+        JSON.stringify(a.acl || null) === JSON.stringify(b.acl || null);
+    };
+    if (dev.config.nat.rules.some(function (r) { return same(r, rule); })) {
+      return ['This rule is already configured on ' + (dev.name || dev.id) + ': ' +
+        describeNatRule(rule)];
+    }
+    dev.config.nat.rules.push(rule);
+    // The translation table caches its rules on first use, so a rule written after the first packet
+    // would never be seen. Dropping the cache is part of writing the rule.
+    dev.natTable = null;
+    out.push('NAT rule added on ' + (dev.name || dev.id) + ': ' + describeNatRule(rule));
+    const roles = Array.from(dev.interfaces.values()).filter(function (i) { return i.natRole; });
+    if (!roles.some(function (i) { return i.natRole === 'inside'; }) ||
+        !roles.some(function (i) { return i.natRole === 'outside'; })) {
+      out.push('  (a rule needs one interface inside and one outside - mark them with "ip nat inside"');
+      out.push('   and "ip nat outside", or this rule will match nothing)');
+    }
+    return out;
+
+    function describeNatRule(r) {
+      if (r.type === 'static') return 'static ' + r.insideLocal + ' -> ' + r.insideGlobal;
+      const list = r.fromList ? ('list ' + r.fromList) : 'list any';
+      return 'pat ' + list + ' -> ' + (r.fromIface || r.insideGlobal) + ' (' + r.insideGlobal + ') overload';
+    }
+  }
+
+  // `no ip nat inside source static <local> <global>` / `… list <acl> interface <if> overload`
+  _noIpNatConfig(tokens) {
+    const dev = this.device;
+    const rules = (dev.config.nat && dev.config.nat.rules) || [];
+    if (!rules.length) return ['% No NAT rules on ' + (dev.name || dev.id)];
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    // With no rule named - `no ip nat`, `no ip nat inside`, `no ip nat inside source` - list what
+    // is there: the same courtesy every other `no` form gives, and a reminder of the shape.
+    const named = !(t.length === 0 ||
+      (t.length === 1 && t[0] === 'inside') ||
+      (t.length === 2 && t[0] === 'inside' && t[1] === 'source') ||
+      t[t.length - 1] === 'source' || t[t.length - 1] === 'static' || t[t.length - 1] === 'list');
+    if (!named) {
+      return ['% No NAT rule named - the rules on ' + (dev.name || dev.id) + ':']
+        .concat(rules.map(function (r, i) { return '  ' + (i + 1) + ') ' + describe(r); }));
+    }
+    // `no ip nat inside source static …` - the form the operator typed to create the rule, so the
+    // words are shifted past the optional `inside` rather than being compared against a compiled
+    // shape they never had.
+    const body = (t[0] === 'inside') ? tokens.slice(1) : tokens;
+    let idx = -1;
+    if (body[0] === 'source' && body[1] === 'static' && body[2] !== undefined && body[3] !== undefined) {
+      idx = rules.findIndex(function (r) {
+        return r.type === 'static' && String(r.insideLocal) === String(body[2]) &&
+          String(r.insideGlobal) === String(body[3]);
+      });
+    } else if (body[0] === 'source' && body[1] === 'list' && body[2] !== undefined) {
+      idx = rules.findIndex(function (r) {
+        return r.type !== 'static' && String(r.fromList) === String(body[2]) &&
+          (body[4] === undefined || String(r.fromIface).toLowerCase() === String(body[4]).toLowerCase());
+      });
+    }
+    if (idx === -1) {
+      return ['% No NAT rule matching "' + tokens.join(' ') + '" on ' + (dev.name || dev.id)]
+        .concat(rules.map(function (r, i) { return '  ' + (i + 1) + ') ' + describe(r); }));
+    }
+    const gone = rules.splice(idx, 1)[0];
+    dev.natTable = null;
+    return ['Removed NAT rule: ' + describe(gone)];
+
+    function describe(r) {
+      if (r.type === 'static') return 'ip nat inside source static ' + r.insideLocal + ' ' + r.insideGlobal;
+      return 'ip nat inside source list ' + (r.fromList || 'any') + ' interface ' +
+        (r.fromIface || r.insideGlobal) + ' overload';
+    }
   }
 
   // ---------- access lists ----------
@@ -4402,6 +4670,7 @@ class CliSession {
           }
         }
       }
+      if (i.natRole) out.push('  ip nat ' + i.natRole);
       if (i.stpCost !== undefined) out.push('  spanning-tree cost ' + i.stpCost);
       const lag = dev.lagFor ? dev.lagFor(i.name) : null;
       if (lag) out.push('  channel-group ' + lag.id + ' mode ' + (lag.mode || 'on'));
@@ -4430,6 +4699,22 @@ class CliSession {
         if (g.advertSec !== undefined && g.advertSec !== 1) out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
       }
       if (!i.enabled) out.push('  shutdown');
+    }
+    // NAT rules, after the interfaces that give them their sides and their global address.
+    for (const n of ((dev.config.nat && dev.config.nat.rules) || [])) {
+      if (n.type === 'static') {
+        out.push('ip nat inside source static ' + n.insideLocal + ' ' + n.insideGlobal);
+      } else if (n.type === 'pat') {
+        // The line the operator typed, not a description of the compiled rule: `interface <ip>`
+        // is not something the device would take back.
+        const side = n.fromIface || (function (self, ip) {
+          for (const i of self.interfaces.values()) if (i.ip === ip) return i.name;
+          return null;
+        })(dev, n.insideGlobal);
+        if (side) {
+          out.push('ip nat inside source list ' + (n.fromList || 'any') + ' interface ' + side + ' overload');
+        }
+      }
     }
     for (const r of dev.config.routes) {
       // An interface-only route has no next hop, and `(r.gw || '')` left its slot empty, so the line
@@ -5143,7 +5428,8 @@ class CliSession {
     if (what === 'statistics') {
       if (!rules.length) {
         return ['NAT statistics on ' + dev.name + ':',
-          '  (no rules - NAT is configured from the topology, not this CLI)'];
+          '  (no rules - add one with "ip nat inside source static <local> <global>"',
+          '   or "ip nat inside source list <acl> interface <outside-port> overload")'];
       }
       const byType = {};
       for (const r of rules) {
@@ -5173,10 +5459,15 @@ class CliSession {
 
     const out = ['NAT translations on ' + dev.name + ':'];
     if (!translations.length) {
-      out.push(rules.length
-        ? '  (none yet - ' + rules.length + ' rule' + (rules.length === 1 ? '' : 's') +
-          ' configured, but no traffic has been translated)'
-        : '  (none - no NAT rules; NAT is configured from the topology)');
+      if (rules.length) {
+        out.push('  (none yet - ' + rules.length + ' rule' + (rules.length === 1 ? '' : 's') +
+          ' configured, but no traffic has been translated)');
+      } else {
+        // The old sentence sent the operator to the topology editor. A console that can write the
+        // rule now says how, and what an empty table means when a rule *is* configured.
+        out.push('  (none - no translations yet. A rule comes from "ip nat inside source …",');
+        out.push('   and an entry appears here the first time a packet is translated)');
+      }
       return out;
     }
     // The rows come from nat.js and the layout from table.js, so this table cannot
@@ -6699,6 +6990,8 @@ class CliSession {
       helpLine('interface <parent>.<vlan>', 'creates a tagged subinterface'),
       helpLine('no interface <parent>.<vlan>', 'remove a subinterface'),
       helpLine('vlan <id> [name]', 'declare a VLAN  (no vlan <id>)'),
+      helpLine('ip nat inside source static <local> <global>', 'one-to-one translation'),
+      helpLine('ip nat inside source list <acl> interface <if> overload', 'PAT onto an interface address'),
       helpLine('ip access-list standard|extended <name>', 'build a named access list, entry by entry'),
       helpLine('access-list <n> <permit|deny ...>', 'one line of a numbered list'),
       helpLine('no ip access-list <name>', 'remove a named list and its bindings'),
@@ -6759,6 +7052,7 @@ class CliSession {
       helpLine('vrrp <vrid> ip <addr> [priority <p>] [preempt] [advertise <s>]',
         'join (or create) a VRRP group'),
       helpLine('no vrrp <vrid>', 'remove the group'),
+      helpLine('ip nat inside|outside', 'which side of the NAT box this port is on'),
       helpLine('spanning-tree cost <n>', 'this port\'s path cost  (no spanning-tree cost)'),
       helpLine('interface <name>', 'switch to another port, stay in config-if'),
       helpLine('show <what>', 'any exec show, from here too'),

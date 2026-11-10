@@ -128,7 +128,7 @@ console.log('\nIt works in every mode and through `do`:');
   ok(cfg.length > 0, 'config mode completes its own subtree (' + cfg.join(',') + ')');
   l.run('interface Gi0/0');
   const iface = l.labels(l.run('ip ?'));
-  eq(iface.join(','), 'access-group,address,helper-address,ospf', 'interface mode lists its ip subcommands');
+  eq(iface.join(','), 'access-group,address,helper-address,nat,ospf', 'interface mode lists its ip subcommands');
   const ospf = l.labels(l.run('ip ospf ?'));
   eq(ospf.join(','), 'area,cost,passive', 'and one level deeper still works');
   const meanings = l.run('ip ?').filter((x) => /^ {2}\S/.test(x) && !/Next|Meaning/.test(x));

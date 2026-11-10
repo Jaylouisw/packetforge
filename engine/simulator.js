@@ -3251,7 +3251,7 @@ class Simulator {
       // to the inside local before anyone asks whether the address is ours, which
       // is the order a real NAT box works in -- otherwise the router would
       // swallow its own translation.
-      this._natInbound(dev, frame);
+      this._natInbound(dev, frame, inIface);
       if (dev.ownsIpOn(inIface, frame.ip.dst)) { this._handleLocalIp(dev, frame, inIface); return true; }
       if (dev.isL3()) { this._forwardL3(dev, frame, inIface); return true; }
       this._emit({ type: 'drop', reason: 'packet not for us and not routable', dev: dev.id, iface: inIface });
@@ -4124,6 +4124,20 @@ class Simulator {
     return !!(dev && dev.config && dev.config.natRules && dev.config.natRules.length);
   }
 
+  // Which side of the box a port is on, when the console says so. A lab built from the topology
+  // marks no roles, and there the presence of rules is the whole story (that is how every NAT lab
+  // in the suite is built); the moment an operator writes `ip nat inside`, the roles are honoured,
+  // because otherwise the command would be decoration.
+  _natRolesDeclared(dev) {
+    for (const i of dev.interfaces.values()) if (i.natRole) return true;
+    return false;
+  }
+
+  _natRoleOf(dev, ifaceName) {
+    const i = dev.interfaces.get(ifaceName);
+    return i ? i.natRole || null : null;
+  }
+
   // The table is per device and lives with the device, so translations survive
   // from the SYN to the FIN exactly as they do on real hardware.
   _natTableOf(dev) {
@@ -4137,16 +4151,53 @@ class Simulator {
     return dev.natTable;
   }
 
+  // An ICMP echo has no ports, and NAT used to pass it through untouched because of it: a lab could
+  // ping across a NAT box and watch nothing appear in `show ip nat translations`, because `frame.l4`
+  // was the gate. Real NAT rewrites the echo's source address, and PAT uses the echo identifier as
+  // the flow's key; this gives ICMP the same treatment, without inventing a transport header on the
+  // wire (the write-back goes to `frame.icmp.id`, not to a fabricated `frame.l4`).
+  _natL4Of(frame) {
+    if (frame.l4) return frame.l4;
+    if (frame.icmp) {
+      const id = frame.icmp.id;
+      return { proto: 'icmp', srcPort: id, dstPort: id, synthetic: true };
+    }
+    return null;
+  }
+
+  _natSetPorts(frame, which, value) {
+    if (frame.l4) {
+      frame.l4 = Object.assign({}, frame.l4, which === 'src' ? { srcPort: value } : { dstPort: value });
+      return;
+    }
+    if (frame.icmp) {
+      frame.icmp = Object.assign({}, frame.icmp, { id: value });
+    }
+  }
+
   _natPacket(frame) {
+    const l4 = this._natL4Of(frame);
     return {
       srcIp: frame.ip.src, dstIp: frame.ip.dst,
-      protocol: frame.l4.proto, srcPort: frame.l4.srcPort, dstPort: frame.l4.dstPort
+      protocol: l4.proto, srcPort: l4.srcPort, dstPort: l4.dstPort
     };
   }
 
   // Inside -> outside. Returns 'translate', 'pass' or 'drop'.
   _natOutbound(dev, frame) {
-    if (!frame || !frame.l4 || !this._isNat(dev)) return 'pass';
+    if (!frame || !frame.ip || !this._natL4Of(frame) || !this._isNat(dev)) return 'pass';
+    // A packet leaving by a port that is not marked `outside` is not being translated on its way
+    // out; without this check the role commands would store state and change nothing.
+    if (this._natRolesDeclared(dev)) {
+      // A static route carries no interface - `_forwardL3` resolves the egress from the next hop,
+      // and this check has to resolve it the same way or every route with a next hop looks like
+      // "no outside port" and the translation is silently skipped.
+      const route = dev.routeTo(frame.ip.dst);
+      if (!route) return 'pass';
+      const egress = route.iface ? dev.interfaces.get(route.iface)
+        : (typeof dev.egressFor === 'function' ? dev.egressFor(route.via) : null);
+      if (!egress || this._natRoleOf(dev, egress.name) !== 'outside') return 'pass';
+    }
     const table = this._natTableOf(dev);
     const res = natLib.translateOutbound(table, this._natPacket(frame), this.step);
     if (res.action === 'drop') {
@@ -4158,44 +4209,51 @@ class Simulator {
       return 'drop';
     }
     if (res.action !== 'translate') return 'pass';
+    const l4 = this._natL4Of(frame);
     const localIp = frame.ip.src;
-    const localPort = frame.l4.srcPort;
+    const localPort = l4.srcPort;
     frame.ip = Object.assign({}, frame.ip, { src: res.pkt.srcIp });
-    frame.l4 = Object.assign({}, frame.l4, { srcPort: res.pkt.srcPort });
+    this._natSetPorts(frame, 'src', res.pkt.srcPort);
     frame.nat = {
       dir: 'out', type: res.entry ? res.entry.type : null,
       insideLocal: localIp, insideGlobal: res.pkt.srcIp,
       localPort: localPort, globalPort: res.pkt.srcPort
     };
     this._emit({
-      type: 'nat-outbound', dev: dev.id, proto: frame.l4.proto,
+      type: 'nat-outbound', dev: dev.id, proto: l4.proto,
       insideLocal: localIp, insideGlobal: res.pkt.srcIp,
       localPort: localPort, globalPort: res.pkt.srcPort,
-      dst: frame.ip.dst, dstPort: frame.l4.dstPort, flow: frame.flow || null
+      dst: frame.ip.dst, dstPort: l4.dstPort, flow: frame.flow || null
     });
     return 'translate';
   }
 
   // Outside -> inside. Returns true when the packet was rewritten.
-  _natInbound(dev, frame) {
-    if (!frame || !frame.l4 || !this._isNat(dev)) return false;
+  _natInbound(dev, frame, inIface) {
+    if (!frame || !frame.ip || !this._natL4Of(frame) || !this._isNat(dev)) return false;
+    // ...and `ip nat outside` means the untranslation happens on the way in from that port only.
+    if (this._natRolesDeclared(dev)) {
+      const port = typeof inIface === 'string' ? inIface : (inIface && inIface.name);
+      if (this._natRoleOf(dev, port) !== 'outside') return false;
+    }
     const table = this._natTableOf(dev);
     const res = natLib.translateInbound(table, this._natPacket(frame), this.step);
     if (!res || res.action !== 'translate') return false;
+    const l4 = this._natL4Of(frame);
     const globalIp = frame.ip.dst;
-    const globalPort = frame.l4.dstPort;
+    const globalPort = l4.dstPort;
     frame.ip = Object.assign({}, frame.ip, { dst: res.pkt.dstIp });
-    frame.l4 = Object.assign({}, frame.l4, { dstPort: res.pkt.dstPort });
+    this._natSetPorts(frame, 'dst', res.pkt.dstPort);
     frame.nat = {
       dir: 'in', type: res.entry ? res.entry.type : null,
       insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
       globalPort: globalPort, localPort: res.pkt.dstPort
     };
     this._emit({
-      type: 'nat-inbound', dev: dev.id, proto: frame.l4.proto,
+      type: 'nat-inbound', dev: dev.id, proto: l4.proto,
       insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
       globalPort: globalPort, localPort: res.pkt.dstPort,
-      src: frame.ip.src, srcPort: frame.l4.srcPort, flow: frame.flow || null
+      src: frame.ip.src, srcPort: l4.srcPort, flow: frame.flow || null
     });
     return true;
   }

@@ -49,8 +49,11 @@ console.log('A device with no NAT rules says so, and says where rules come from:
 {
   const lines = show(pc, 'show ip nat translations').join('\n');
   ok(lines.indexOf('NAT translations on PC1:') !== -1, 'the heading names the device');
-  ok(/\(none - no NAT rules/.test(lines), 'an unconfigured device reports no rules');
-  ok(/configured from the topology/.test(lines), 'and points at where NAT is configured');
+  // The old wording said NAT was "configured from the topology, not this CLI", which was true only
+  // because the console had no `ip nat` commands at all. It now names the command instead.
+  ok(/\(none - no translations yet/.test(lines), 'an unconfigured device reports no translations');
+  ok(/A rule comes from "ip nat inside source/.test(lines),
+    'and points at the command that writes one');
 }
 
 // PAT is how a lab out to the internet actually works, so it is the rule under test.
