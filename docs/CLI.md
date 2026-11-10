@@ -2418,13 +2418,30 @@ Extended IP access list 101      <- the same table, for a name that does not exi
 ```
 
 That is worse than having no filter: the operator reads the output as *"yes, that list is here"*.
-It filters now, refuses a name that is not there and lists the ones that are:
+The handler was then taught to filter, refuse a name that is not there and list the ones that are:
 
 ```
 R1#show access-lists NOSUCH
 % No access list NOSUCH on R1
 % The lists here are: 101, VOICE
 ```
+
+> **That second transcript is currently unreachable.** A later rule made the *enable-mode help table* the
+> contract: `_showExtraArgRefusal()` (`engine/cli.js`) refuses any word a help row does not declare, and
+> the enable-mode row for this command reads `show access-lists` with no `[<name>]` — the bracketed form
+> lives only in the ACL config-mode help. So a name is rejected before the handler is consulted, and the
+> operator sees:
+>
+> ```
+> R1#show access-lists NOSUCH
+> % "NOSUCH" is not an argument to "show access-lists"
+> % "show access-lists" takes no argument - type it on its own, or "?" for the commands here
+> ```
+>
+> `test/show-filter.test.js` pins the filtering behaviour, so this is a red suite rather than a silent
+> gap — six of its assertions fail. Read the note as the state of the tree, not as advice: when the help
+> row gains `[<name>]`, the transcript above becomes live again and the six assertions go green without a
+> byte changing in the handler.
 
 The same probe found the ARP table's port filter blind to a hand-written entry. `show arp Gi0/0`
 answered *"(none)"* while `arp 10.10.0.5 00:11:22:33:44:55` sat in Gi0/0's subnet:

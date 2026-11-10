@@ -371,14 +371,28 @@ services, and a job that has to swap makes the whole queue slower.
   and a sample of twelve spread evenly through that list found **ten** still carrying
   `.github/workflows/ci.yml`. So this is not a handful of forgotten branches; most of
   the queue is running workflows that cannot pass.
-- **No suite is red on the current tree.** Measured by running the two that used to be:
-  `test/spec-vs-description.test.js` **3 passed, 0 failed** and `test/canonical-urls.test.js`
-  **43 passed, 0 failed**, with `scripts/check-canonical-urls.js` printing
-  `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That file
+- **Whether any suite is red is a reading, not a fact about the repository — so read it.** The two
+  suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0
+  failed** and `test/canonical-urls.test.js` **43 passed, 0 failed**, with `scripts/check-canonical-urls.js`
+  printing `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That file
   count is the one number in this paragraph that moves on its own — two device specs and a catalogue
   edit took it from 2114 to 2200 without touching a URL — so read it as a snapshot and re-run the script
-  rather than quoting it. As always, quote the runner rather than this paragraph:
-  `node scripts/run-tests.js` prints the reading and `ls test/*.test.js | wc -l` prints the size.
+  rather than quoting it.
+
+  The tree is **not** always green, and when it is not, the failures are worth reading before they are
+  touched. At one measured point during the `show`-argument work this paragraph was written over,
+  `node scripts/run-tests.js` printed **232 suite(s) … 9980 assertions passed, 62 failed**, with fourteen
+  suites red in one family — `absent-commands`, `arg-keyword-abbrev`, `config-do-show`, `config-filters`,
+  `extra-arguments`, `l2`, `link-parts`, `lldp-stale`, `logging-filter`, `ma5801`, `ospf-bgp-detail`,
+  `protocol-views`, `server-console-instant`, `show-keywords`. They share one cause rather than fourteen:
+  `_showExtraArgRefusal()` in `engine/cli.js` reads the **enable-mode help table as the contract**, so any
+  handler that accepts an argument its help row does not declare is refused with
+  `% "<word>" is not an argument to "<command>"` before it ever runs. That is a deliberate rule with an
+  unfortunate blast radius: the handler is right, the row is stale, and the test is the thing telling you.
+
+  So quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
+  `ls test/*.test.js | wc -l` prints the size. If the two disagree with the sentence you are reading,
+  the sentence is what changed.
 
   Both closed the way this page predicted, and it is worth recording *which* way, because only one of
   them was the fix the bullet originally recommended:
