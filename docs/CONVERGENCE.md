@@ -121,6 +121,35 @@ at priority 255 (the address owner, whose skew is zero by the RFC). And
 never reaches the schedule, so an adjacency cannot expire on its own and the readiness number is
 always `hello + exchange + SPF`.
 
+**Reproducing the OSPF row.** It needs two speakers, not one — a lone router with `ospf router-id`
+configured and no peer has nothing to converge toward and `converge` says so. Two `generic-router`
+specs joined on one port each, an `ip address` on both ends of that link plus a second addressed port
+for the route to ride, `ospf router-id` on each and `network <link>/24 area 0` on both, then:
+
+```text
+R1#converge
+Process  Device  Ready     Basis
+ospf     R1      16000 ms  hello 10 s + exchange, then SPF hold
+ospf     R2      16000 ms  hello 10 s + exchange, then SPF hold
+
+Fully converged at 16000 ms.
+```
+
+Both routers appear because the schedule is per speaker, and both read `16000` because they were
+configured identically. Two things about that recipe were measured rather than assumed, and the first
+one is a surprise:
+
+- **A peer is not required.** One router with `ospf router-id` and a `network` line and nothing on the
+  other end of the cable still prints `ospf R1 16000 ms` — the schedule is computed from configuration,
+  not from an adjacency, so `converge` will happily promise a time for a speaker that has nobody to
+  talk to. `show ip ospf neighbor` is the command that answers "is anybody there" — it prints its header and then
+  `(no adjacencies - no neighbour passed the passive, subnet and area checks)`, which names the three
+  checks rather than leaving an empty table to interpret.
+- **`hello` is not a console command.** `ospf hello 5` answers `% Usage: ospf router-id <ip> | ospf
+  area <id>`, so the two rows only separate if the topology JSON gives a device `ospf.helloSec`, which
+  is what `convergence.ospfTimers()` reads (`num(ospf.helloSec, C.ospfHelloSec)`). Write the number into
+  a lab file, not at the prompt.
+
 `engine/convergence.js` is pure: it reads configuration and returns times. No clock, no state, no
 side effects. The simulator decides what to do with the answer.
 
