@@ -82,6 +82,7 @@ const KEY_PRINTS = {
   dhcpPools: { re: /^ip dhcp pool /m, why: 'DHCP pools' },
   dnsZones: { re: /^dns zone /m, why: 'DNS zones' },
   stpPriority: { re: /^spanning-tree priority \d+/m, why: 'the bridge priority that decides the STP root' },
+  nat: { re: /^ip nat inside source /m, why: 'NAT rules and the pools they translate to' },
   dnsServers: { re: /^ip name-server /m, why: 'name servers' },
   acls: { re: /^access-list \d+/m, why: 'access lists' },
   routes: { re: /^ip route /m, why: 'static routes' },

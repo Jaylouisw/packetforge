@@ -444,6 +444,51 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### NAT: configuring it, and reading what it did
+
+```
+ip nat pool WAN 203.0.113.1 203.0.113.1 netmask 255.255.255.0
+ip nat inside source list 192.168.10.0/24 pool WAN overload
+ip nat inside source static 192.168.10.60 203.0.113.1 tcp 443
+```
+
+The engine has translated static, dynamic and PAT since it was written, and until now **no command could
+configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Four spellings
+create a rule:
+
+| command | rule |
+|---|---|
+| `ip nat inside source static <local> <global>` | one-to-one, both directions |
+| `ip nat inside source static <local> <global> tcp <port>` | port forwarding |
+| `ip nat inside source list <spec> pool <name>` | dynamic — the pool's addresses are handed out |
+| `ip nat inside source list <spec> pool <name> overload` | PAT — many inside locals on one address |
+| `ip nat inside source list <spec> interface <if> [overload]` | translate to the interface's address |
+
+Rules are checked by the model's own `validateRule()`, so a rule the console accepts is a rule the data path can
+apply. The refusals are specific:
+
+```
+% PAT overloads one address; pool "TWO" holds more than one. Use a single-address pool for overload,
+  or drop `overload` for a dynamic pool
+% 10 is an ACL number: this model takes the inside local addresses here, e.g. `list 192.168.1.0/24`
+% Gi0/0/3 has no address: there is nothing for NAT to translate to
+% NAT pool "WAN" ends before it starts (203.0.113.9 - 203.0.113.1)
+```
+
+`no ip nat inside source` removes the most recent rule and **names the rule it removed**; `no ip nat pool <name>`
+refuses while a rule still uses the pool, and says how many.
+
+```
+show ip nat rules            # the rules, printed as the commands that would create them
+show ip nat translations     # the live table: proto, inside global, inside local, outside local/global
+show ip nat statistics       # rules by type, pools, active translations
+```
+
+`show ip nat translations` distinguishes *nothing has crossed* (`No translations: no packet needing NAT has
+crossed this device`) from *traffic crossed and nothing needed translating* — the same distinction
+`show interfaces` makes for its counters. The rules survive a save and are printed by `show running-config`,
+pools first, so a restored lab translates the same packets it did before.
+
 ### Reading `show spanning-tree`
 
 ```

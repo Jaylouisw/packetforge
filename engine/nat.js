@@ -798,6 +798,22 @@ function formatTable(table) {
   });
 }
 
+// A normalized rule, printed as the command that would create it. Used by `show ip nat rules`,
+// `show running-config` and the `no` form - one spelling, so a printed rule always replays.
+function formatRuleLine(rule) {
+  const r = normalizeRule(rule);
+  const head = 'ip nat inside source';
+  if (r.type === NAT_TYPES.STATIC) {
+    let line = head + ' static ' + str(rule.insideLocal) + ' ' + str(rule.insideGlobal);
+    if (r.protocol && r.protocol !== 'any' && r.port !== null && r.port !== undefined) {
+      line += ' ' + r.protocol + ' ' + r.port;
+    }
+    return line;
+  }
+  const where = rule.iface ? ('interface ' + rule.iface) : ('pool ' + (rule.pool || str(rule.insideGlobal)));
+  return head + ' list ' + str(rule.insideLocal) + ' ' + where + (r.type === NAT_TYPES.PAT ? ' overload' : '');
+}
+
 module.exports = {
   NAT_TYPES,
   validateRule,
@@ -809,5 +825,6 @@ module.exports = {
   expireTranslations,
   formatTable,
   DEFAULT_TIMEOUTS,
-  TABLE_HEADER
+  TABLE_HEADER,
+  formatRuleLine
 };

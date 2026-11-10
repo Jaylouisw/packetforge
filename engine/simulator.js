@@ -3632,18 +3632,40 @@ class Simulator {
     return dev.natTable;
   }
 
+  // What NAT is allowed to look at. TCP and UDP carry `l4`; ICMP does not - the engine keeps it in
+  // `frame.icmp` - so every ICMP packet used to fall out of `_natOutbound` at the first guard and a ping
+  // crossed a NAT router translated or not, whichever the rules said. That is the one test everybody runs.
   _natPacket(frame) {
-    return {
-      srcIp: frame.ip.src, dstIp: frame.ip.dst,
-      protocol: frame.l4.proto, srcPort: frame.l4.srcPort, dstPort: frame.l4.dstPort
-    };
+    if (!frame || !frame.ip) return null;
+    if (frame.l4) {
+      return {
+        srcIp: frame.ip.src, dstIp: frame.ip.dst,
+        protocol: frame.l4.proto, srcPort: frame.l4.srcPort, dstPort: frame.l4.dstPort
+      };
+    }
+    if (frame.icmp) {
+      // An ICMP echo is identified by its id, not a port; `nat.js` ages it on its own timer and
+      // translates the address, so there is nothing to allocate.
+      return {
+        srcIp: frame.ip.src, dstIp: frame.ip.dst,
+        protocol: 'icmp', srcPort: null, dstPort: null
+      };
+    }
+    return null;
+  }
+
+  _natProto(frame) {
+    if (frame && frame.l4) return frame.l4.proto;
+    if (frame && frame.icmp) return 'icmp';
+    return null;
   }
 
   // Inside -> outside. Returns 'translate', 'pass' or 'drop'.
   _natOutbound(dev, frame) {
-    if (!frame || !frame.l4 || !this._isNat(dev)) return 'pass';
+    const pkt = this._natPacket(frame);
+    if (!pkt || !this._isNat(dev)) return 'pass';
     const table = this._natTableOf(dev);
-    const res = natLib.translateOutbound(table, this._natPacket(frame), this.step);
+    const res = natLib.translateOutbound(table, pkt, this.step);
     if (res.action === 'drop') {
       this._emit({
         type: 'nat-drop', dev: dev.id, code: res.reason || 'E_NAT',
@@ -3654,43 +3676,44 @@ class Simulator {
     }
     if (res.action !== 'translate') return 'pass';
     const localIp = frame.ip.src;
-    const localPort = frame.l4.srcPort;
+    const localPort = frame.l4 ? frame.l4.srcPort : null;
     frame.ip = Object.assign({}, frame.ip, { src: res.pkt.srcIp });
-    frame.l4 = Object.assign({}, frame.l4, { srcPort: res.pkt.srcPort });
+    if (frame.l4) frame.l4 = Object.assign({}, frame.l4, { srcPort: res.pkt.srcPort });
     frame.nat = {
       dir: 'out', type: res.entry ? res.entry.type : null,
       insideLocal: localIp, insideGlobal: res.pkt.srcIp,
       localPort: localPort, globalPort: res.pkt.srcPort
     };
     this._emit({
-      type: 'nat-outbound', dev: dev.id, proto: frame.l4.proto,
+      type: 'nat-outbound', dev: dev.id, proto: this._natProto(frame),
       insideLocal: localIp, insideGlobal: res.pkt.srcIp,
-      localPort: localPort, globalPort: res.pkt.srcPort,
-      dst: frame.ip.dst, dstPort: frame.l4.dstPort, flow: frame.flow || null
+      localPort: localPort, globalPort: res.pkt ? res.pkt.srcPort : null,
+      dst: frame.ip.dst, dstPort: frame.l4 ? frame.l4.dstPort : null, flow: frame.flow || null
     });
     return 'translate';
   }
 
   // Outside -> inside. Returns true when the packet was rewritten.
   _natInbound(dev, frame) {
-    if (!frame || !frame.l4 || !this._isNat(dev)) return false;
+    const pkt = this._natPacket(frame);
+    if (!pkt || !this._isNat(dev)) return false;
     const table = this._natTableOf(dev);
-    const res = natLib.translateInbound(table, this._natPacket(frame), this.step);
+    const res = natLib.translateInbound(table, pkt, this.step);
     if (!res || res.action !== 'translate') return false;
     const globalIp = frame.ip.dst;
-    const globalPort = frame.l4.dstPort;
+    const globalPort = frame.l4 ? frame.l4.dstPort : null;
     frame.ip = Object.assign({}, frame.ip, { dst: res.pkt.dstIp });
-    frame.l4 = Object.assign({}, frame.l4, { dstPort: res.pkt.dstPort });
+    if (frame.l4) frame.l4 = Object.assign({}, frame.l4, { dstPort: res.pkt.dstPort });
     frame.nat = {
       dir: 'in', type: res.entry ? res.entry.type : null,
       insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
       globalPort: globalPort, localPort: res.pkt.dstPort
     };
     this._emit({
-      type: 'nat-inbound', dev: dev.id, proto: frame.l4.proto,
+      type: 'nat-inbound', dev: dev.id, proto: this._natProto(frame),
       insideGlobal: globalIp, insideLocal: res.pkt.dstIp,
-      globalPort: globalPort, localPort: res.pkt.dstPort,
-      src: frame.ip.src, srcPort: frame.l4.srcPort, flow: frame.flow || null
+      globalPort: globalPort, localPort: res.pkt ? res.pkt.dstPort : null,
+      src: frame.ip.src, srcPort: frame.l4 ? frame.l4.srcPort : null, flow: frame.flow || null
     });
     return true;
   }

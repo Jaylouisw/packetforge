@@ -96,6 +96,12 @@ class CliSession {
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat') {
+      // engine/nat.js models static, dynamic and PAT translation, and the flow path translates and emits
+      // `nat-drop` -- but nothing in the product ever wrote `config.nat`, so `_isNat()` was always false and
+      // the whole mechanism was unreachable. This is the way in (#1366).
+      return this._natConfig(tokens.slice(2));
+    }
     if (head === 'spanning-tree') {
       // The engine has read `config.stpPriority` since STP was modelled and nothing ever wrote it, so
       // every box in every lab ran the default and the root was decided by MAC address alone. This is
@@ -146,6 +152,34 @@ class CliSession {
       const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat') {
+      const nat = this.device.config.nat || { rules: [], pools: {} };
+      const rest = tokens.slice(3).map(function (t) { return String(t).toLowerCase(); });
+      if (rest[0] === 'pool') {
+        const name = tokens[4];
+        if (!name || !nat.pools || !nat.pools[name]) {
+          return ['% No NAT pool called "' + (name || '') + '"' +
+            (nat.pools && Object.keys(nat.pools).length ? ' (configured: ' + Object.keys(nat.pools).join(', ') + ')' : '')];
+        }
+        const users = (nat.rules || []).filter(function (r) { return r.pool === name; }).length;
+        if (users) {
+          return ['% NAT pool "' + name + '" is still used by ' + users + ' rule(s): remove those first'];
+        }
+        delete nat.pools[name];
+        this.device.config.nat = nat;
+        this._controlPlaneChanged();
+        return ['NAT pool "' + name + '" removed'];
+      }
+      if (rest[0] === 'inside' && rest[1] === 'source') {
+        const rules = nat.rules || [];
+        if (!rules.length) return ['% No NAT rules configured'];
+        const last = rules[rules.length - 1];
+        rules.pop();
+        this.device.config.nat = nat;
+        this._controlPlaneChanged();
+        return ['NAT rule removed: ' + require('./nat').formatRuleLine(last)];
+      }
+      return ['% Usage: no ip nat pool <name> | no ip nat inside source'];
     } else if (head === 'no' && tokens[1] === 'spanning-tree') {
       const dev = this.device;
       if (!dev.config.stpPriority && dev.config.stpPriority !== 0) {
@@ -1908,6 +1942,146 @@ class CliSession {
   // "Is this port still somewhere a frame can go, and if not why" - the sentence both tables append to a
   // stale row. One helper so `show arp` and `show mac address-table` cannot describe the same port state
   // two different ways.
+  // ---- NAT configuration -------------------------------------------------------------------------
+  // `ip nat ...` reaches the model in engine/nat.js. Every rule is validated by `natLib.validateRule()` and
+  // refused with the library's own sentence, so the console and the data path cannot disagree about what a
+  // rule means. Rules live in `config.nat.rules` with their named pools in `config.nat.pools`, which is the
+  // shape `Simulator._natTableOf()` already reads.
+  _natConfig(args) {
+    const natLib = require('./nat');
+    const nat = this.device.config.nat
+      ? JSON.parse(JSON.stringify(this.device.config.nat))
+      : { rules: [], pools: {} };
+    nat.rules = Array.isArray(nat.rules) ? nat.rules : [];
+    nat.pools = nat.pools && typeof nat.pools === 'object' ? nat.pools : {};
+    const users = function (name) {
+      return nat.rules.filter(function (r) { return r.pool === name; }).length;
+    };
+    const commit = function (self, said) {
+      self.device.config.nat = nat;
+      self._controlPlaneChanged();
+      return [said];
+    };
+    const isIp = function (v) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(v || '')); };
+
+    // ip nat pool <name> <start> <end> netmask <mask>
+    if (String(args[0] || '').toLowerCase() === 'pool') {
+      const name = args[1];
+      const start = args[2];
+      const end = args[3];
+      const maskKw = String(args[4] || '').toLowerCase();
+      const mask = args[5];
+      if (!name || !isIp(start) || !isIp(end) || maskKw !== 'netmask' || !isIp(mask)) {
+        return ['% Usage: ip nat pool <name> <start> <end> netmask <mask>'];
+      }
+      if (nat.pools[name]) {
+        return ['% A NAT pool called "' + name + '" already exists (' + nat.pools[name].start + ' - ' +
+          nat.pools[name].end + '): remove it first with `no ip nat pool ' + name + '`'];
+      }
+      const a = start.split('.').reduce(function (n, o) { return n * 256 + Number(o); }, 0);
+      const b = end.split('.').reduce(function (n, o) { return n * 256 + Number(o); }, 0);
+      if (b < a) return ['% Pool "' + name + '" ends before it starts (' + start + ' - ' + end + ')'];
+      if (b - a + 1 > 1024) {
+        return ['% Pool "' + name + '" covers ' + (b - a + 1) + ' addresses: the model allows 1024 in one pool'];
+      }
+      nat.pools[name] = { start: start, end: end, netmask: mask };
+      return commit(this, 'NAT pool "' + name + '" ' + start + ' - ' + end + ' netmask ' +
+        (b - a === 0 ? '255.255.255.255' : mask));
+    }
+
+    const which = String(args[0] || '').toLowerCase();
+    if (which !== 'inside' || String(args[1] || '').toLowerCase() !== 'source') {
+      return ['% Usage: ip nat pool <name> <start> <end> netmask <mask> | ' +
+        'ip nat inside source (static <local> <global> [tcp|udp <port>] | list <spec> (pool <name>|interface <if>) [overload])'];
+    }
+    const kind = String(args[2] || '').toLowerCase();
+
+    // ip nat inside source static <local> <global> [tcp|udp <port>]
+    if (kind === 'static') {
+      const local = args[3];
+      const global = args[4];
+      const proto = String(args[5] || '').toLowerCase();
+      const port = args[6];
+      if (!isIp(local) || !isIp(global)) {
+        return ['% Usage: ip nat inside source static <inside-local> <inside-global> [tcp|udp <port>]'];
+      }
+      if (proto && proto !== 'tcp' && proto !== 'udp') {
+        return ['% A port forwarding rule needs tcp or udp, not "' + args[5] + '"'];
+      }
+      const rule = { type: 'static', insideLocal: local, insideGlobal: global };
+      if (proto) { rule.protocol = proto; rule.port = Number(port); }
+      const verdict = natLib.validateRule(rule);
+      if (!verdict.ok) {
+        return verdict.errors.map(function (e) { return '% ' + e.message; });
+      }
+      nat.rules.push(natLib.normalizeRule(rule));
+      return commit(this, 'NAT rule added: ' + natLib.formatRuleLine(natLib.normalizeRule(rule)));
+    }
+
+    // ip nat inside source list <spec> (pool <name> | interface <if>) [overload]
+    if (kind === 'list') {
+      const spec = args[3];
+      const via = String(args[4] || '').toLowerCase();
+      const target = args[5];
+      const overload = args.slice(4).some(function (t) { return String(t).toLowerCase() === 'overload'; });
+      if (!spec || (via !== 'pool' && via !== 'interface') || !target) {
+        return ['% Usage: ip nat inside source list <address spec> (pool <name>|interface <if>) [overload]'];
+      }
+      if (/^\d+$/.test(spec) && !spec.includes('.')) {
+        // IOS takes an ACL number here. Dropping it into an address parser would make the rule silently
+        // match nothing, so say what this model wants.
+        return ['% ' + spec + ' is an ACL number: this model takes the inside local addresses here, ' +
+          'e.g. `list 192.168.1.0/24` or `list any`'];
+      }
+      let global;
+      let poolName = null;
+      let ifaceName = null;
+      if (via === 'pool') {
+        const pool = nat.pools[target];
+        if (!pool) {
+          return ['% No NAT pool called "' + target + '"' +
+            (Object.keys(nat.pools).length ? ' (configured: ' + Object.keys(nat.pools).join(', ') + ')' : '')];
+        }
+        const one = pool.start === pool.end;
+        if (overload && !one) {
+          return ['% PAT overloads one address; pool "' + target + '" holds more than one. ' +
+            'Use a single-address pool for overload, or drop `overload` for a dynamic pool'];
+        }
+        global = one ? pool.start : (pool.start + '-' + pool.end);
+        poolName = target;
+      } else {
+        const name = resolvePortName(this.device, args.slice(5).filter(function (t) {
+          return String(t).toLowerCase() !== 'overload';
+        }).join(' '));
+        const iface = name ? this.device.interfaces.get(name) : null;
+        if (!iface) return ['% Interface not found: ' + target];
+        if (!iface.ip) {
+          return ['% ' + iface.name + ' has no address: there is nothing for NAT to translate to'];
+        }
+        global = iface.ip;
+        ifaceName = iface.name;
+      }
+      const rule = {
+        type: overload ? 'pat' : 'dynamic',
+        insideLocal: spec,
+        insideGlobal: global,
+        acl: spec
+      };
+      if (poolName) rule.pool = poolName;
+      if (ifaceName) rule.iface = ifaceName;
+      const verdict = natLib.validateRule(rule);
+      if (!verdict.ok) return verdict.errors.map(function (e) { return '% ' + e.message; });
+      const normalized = natLib.normalizeRule(rule);
+      if (poolName) normalized.pool = poolName;
+      if (ifaceName) normalized.iface = ifaceName;
+      nat.rules.push(normalized);
+      return commit(this, 'NAT rule added: ' + natLib.formatRuleLine(normalized));
+    }
+
+    return ['% Usage: ip nat inside source (static <local> <global> [tcp|udp <port>] | ' +
+      'list <spec> (pool <name>|interface <if>) [overload])'];
+  }
+
   // "The control plane has to run its timers again, from now." One place, so a command added later either calls it
   // or is caught by the test that walks the commands that change the forwarding decision (#1331).
   _controlPlaneChanged() {
@@ -2069,6 +2243,56 @@ class CliSession {
       out.push('Capabilities: ' + dev.capabilities.join(', '));
       out.push('Interfaces : ' + dev.interfaces.size);
       out.push('Simulator  : PacketForge 0.1.0');
+    } else if (what === 'ip' && tokens[1] === 'nat') {
+      // The other half of the reachability problem: a mechanism nobody can configure is invisible, and one
+      // nobody can *inspect* is unverifiable. Both read the engine's own state - the rules it would apply and
+      // the translations it has actually made in the traffic that crossed (#1366).
+      const natLib = require('./nat');
+      const natCfg = this.device.config.nat || { rules: [], pools: {} };
+      const rules = Array.isArray(natCfg.rules) ? natCfg.rules : [];
+      const sub = String(tokens[2] || '').toLowerCase();
+      if (sub === 'rules') {
+        if (!rules.length) {
+          out.push('% No NAT rules configured');
+          const pools = Object.keys(natCfg.pools || {});
+          if (pools.length) {
+            out.push('  % ' + pools.length + ' pool(s) configured but no rule uses them: ' + pools.join(', '));
+          }
+        } else {
+          for (const r of rules) out.push(natLib.formatRuleLine(r));
+        }
+      } else if (sub === 'translations' || sub === 'translation') {
+        // `dev.natTable` is created by the first packet that needed translating, so "no table" and "no
+        // translations" are different answers: the first means nothing has crossed, the second means it has
+        // and nothing needed translating.
+        const table = dev.natTable;
+        if (!table) {
+          out.push('No translations: no packet needing NAT has crossed this device' +
+            (rules.length ? '' : ' (and there are no rules to need one)'));
+        } else {
+          // The library prints the rows; the header belongs with them or the columns are unlabelled.
+          out.push(natLib.TABLE_HEADER);
+          const shown = natLib.formatTable(table);
+          out.push.apply(out, Array.isArray(shown) ? shown : String(shown).split(String.fromCharCode(10)));
+        }
+      } else if (sub === 'statistics' || sub === 'stat') {
+        const pools = natCfg.pools || {};
+        const names = Object.keys(pools);
+        out.push('Inside source rules: ' + rules.length + ' (' +
+          rules.filter(function (r) { return r.type === 'static'; }).length + ' static, ' +
+          rules.filter(function (r) { return r.type === 'dynamic'; }).length + ' dynamic, ' +
+          rules.filter(function (r) { return r.type === 'pat'; }).length + ' PAT overload)');
+        out.push('Address pools: ' + names.length +
+          (names.length ? ' (' + names.map(function (n) {
+            const p = pools[n];
+            return n + ' ' + p.start + (p.start === p.end ? '' : '-' + p.end);
+          }).join(', ') + ')' : ''));
+        const table = dev.natTable;
+        const live = table && Array.isArray(table.translations) ? table.translations.length : 0;
+        out.push('Active translations: ' + live + (table ? '' : ' (nothing has needed translating yet)'));
+      } else {
+        out.push('% Usage: show ip nat (rules | translations | statistics)');
+      }
     } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
       out.push('Interface              IP-Address      OK? Method Status                Protocol');
       for (const i of dev.interfaces.values()) {
@@ -2466,6 +2690,15 @@ class CliSession {
       // interface overrides that require it.
       // The bridge priority decides who is root, and a restore that dropped it would silently move the
       // root to whichever other switch has the lower MAC.
+      if (dev.config.nat && ((dev.config.nat.rules || []).length || Object.keys(dev.config.nat.pools || {}).length)) {
+        const natLib = require('./nat');
+        // Pools first: a rule that names one does not parse before the pool it names exists.
+        for (const name of Object.keys(dev.config.nat.pools || {}).sort()) {
+          const pool = dev.config.nat.pools[name];
+          out.push('ip nat pool ' + name + ' ' + pool.start + ' ' + pool.end + ' netmask ' + pool.netmask);
+        }
+        for (const r of (dev.config.nat.rules || [])) out.push(natLib.formatRuleLine(r));
+      }
       if (dev.config.stpPriority !== null && dev.config.stpPriority !== undefined) {
         out.push('spanning-tree priority ' + dev.config.stpPriority);
       }
