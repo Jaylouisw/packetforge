@@ -80,6 +80,12 @@ const INSTANT_VALUE_KEYWORDS = new Set([
   'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone'
 ]);
 
+// The words a destination-taking command uses for its own arguments. A line that begins with one has
+// no destination, which is a different fact from a destination the resolver cannot find (see
+// `_requireDest` below). Kept as data rather than a regex so a new keyword is one edit and cannot be
+// spelled differently at a second site.
+const DEST_KEYWORDS = new Set(['at', 'count', 'port', 'bytes', 'proto', 'sport']);
+
 // How to satisfy a prerequisite, in one place per feature. Six sites used to answer `% BGP is not
 // enabled` with four different messages and two of them named no command at all - and the ones that
 // did name one were the *configuration* verbs, not the shows, so the command you were refused for was
@@ -1861,7 +1867,30 @@ class CliSession {
   // power-on, which is the only way to watch a lab come up. Real hardware prints a time in
   // milliseconds; this prints the delay the engine computed from the path (propagation +
   // serialisation + store-and-forward), and falls back to the hop count if a link has no length.
+  // The destination is the first token, and it is never one of the command's own keywords. Every
+  // command in this family has keywords of its own (`at`, `count`, `port`, `proto`, `bytes`,
+  // `sport`), and a command that *begins* with one has no destination at all. Passing that word to
+  // the resolver accused DNS of not hosting a zone for it:
+  //
+  //   R1#ping at 5000
+  //   % Unknown host at: no DNS server in this lab hosts a zone for it
+  //
+  // which is a wrong answer to a different question - the operator forgot the address. The reply is
+  // now the same in all three commands and quotes the synopsis help prints, so the placeholder the
+  // operator is missing is the one they were told about. The cost, stated plainly: a host actually
+  // named `at` (or `port`, `count`, ...) cannot be pinged by name - resolve it first with
+  // `nslookup` and use the address.
+  _requireDest(tokens, usage) {
+    const first = tokens[0];
+    if (first === undefined || DEST_KEYWORDS.has(String(first).toLowerCase())) {
+      return { ok: false, message: '% Incomplete command: ' + usage };
+    }
+    return { ok: true, value: first };
+  }
+
   _ping(tokens) {
+    const dest = this._requireDest(tokens, 'ping <dst> [count <n>] [at <ms>|converged]');
+    if (!dest.ok) return [dest.message];
     let count = 4;
     let atMs = null;
     for (let i = 1; i < tokens.length; i++) {
@@ -1889,10 +1918,10 @@ class CliSession {
       count = Number(value);
       if (isKeyword) i++;
     }
-    const target = this._resolveHost(tokens[0], 'ping target');
+    const target = this._resolveHost(dest.value, 'ping target');
     if (!target.ok) return [target.message];
     const ip = target.ip;
-    const out = target.literal ? [] : ['Translating "' + tokens[0] + '"...domain server (' + target.server + ')'];
+    const out = target.literal ? [] : ['Translating "' + dest.value + '"...domain server (' + target.server + ')'];
     if (!this.sim) return ['% Simulator not attached'];
     if (atMs !== null) this.sim.setRunTime(atMs);
     out.push('Type escape sequence to abort.');
@@ -1928,15 +1957,16 @@ class CliSession {
   // uses. The delay column is the one-way propagation + serialisation to reach that
   // hop, which is why it grows down the list instead of jittering.
   _traceroute(tokens) {
-    if (!tokens[0]) return ['% Invalid traceroute target: (none)'];
-    const target = this._resolveHost(tokens[0], 'traceroute target');
+    const dest = this._requireDest(tokens, 'traceroute <dst> [at <ms>|converged]');
+    if (!dest.ok) return [dest.message];
+    const target = this._resolveHost(dest.value, 'traceroute target');
     if (!target.ok) return [target.message];
     const ip = target.ip;
     if (!this.sim) return ['% Simulator not attached'];
     let atMs = null;
     for (let i = 1; i < tokens.length; i++) {
       if (String(tokens[i]).toLowerCase() !== 'at') continue;
-      if (tokens[i + 1] === undefined) return ['% Incomplete command: traceroute <ip> at <ms>|converged'];
+      if (tokens[i + 1] === undefined) return ['% Incomplete command: traceroute <dst> [at <ms>|converged]'];
       const when = parseInstant(tokens[i + 1]);
       if (!when.ok) return ['% Invalid instant: ' + tokens[i + 1]];
       atMs = when.atMs;
@@ -1944,7 +1974,7 @@ class CliSession {
     }
     const latencyLib = require('./latency');
     const res = this.sim.tracePath(this.device.id, ip, atMs === null ? {} : { atMs: atMs });
-    const out = target.literal ? [] : ['Translating "' + tokens[0] + '"...domain server (' + target.server + ')'];
+    const out = target.literal ? [] : ['Translating "' + dest.value + '"...domain server (' + target.server + ')'];
     out.push('Type escape sequence to abort.');
     out.push('Tracing the route to ' + ip + (atMs !== null ? '  (at ' + instantLabel(atMs) + ')' : ''));
     out.push('');
@@ -2311,7 +2341,9 @@ class CliSession {
     const dnsLib = require('./dns');
     const name = args[0];
     const type = String(args[1] || 'A').toUpperCase();
-    if (!name) return ['% Usage: nslookup <name> [type]'];
+    // The same fact as `ping` with no destination: an argument slot is empty, which is not a usage
+    // error in what was typed but a missing value. One wording for the whole family.
+    if (!name) return ['% Incomplete command: nslookup <name> [type]'];
     if (type !== 'ANY' && dnsLib.RECORD_TYPES.indexOf(type) === -1) {
       return ['% Unknown record type "' + type + '" (use ' + dnsLib.RECORD_TYPES.join('/') + ')'];
     }
@@ -3182,14 +3214,15 @@ class CliSession {
     if (!this.sim) return ['% No simulator attached to this session'];
     if (sub === 'close') return this._flowClose(tokens.slice(1));
     if (sub !== 'open') {
-      return ['% Usage: flow open <dst-ip> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>]',
+      return ['% Usage: flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>]',
         '%        flow close <flow-id>',
         '%        show flows   (to read the table)'];
     }
 
     const args = tokens.slice(1);
-    const typedDst = args[0];
-    if (!typedDst) return ['% Incomplete command: flow open <dst-ip> [port <n>] ...'];
+    const dest = this._requireDest(args, 'flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp]');
+    if (!dest.ok) return [dest.message];
+    const typedDst = dest.value;
     const resolved = this._resolveHost(typedDst, 'destination');
     if (!resolved.ok) return [resolved.message];
     const dst = resolved.ip;
@@ -3233,7 +3266,7 @@ class CliSession {
         i += 1;
       } else {
         return ['% Unknown keyword: ' + args[i],
-          '% Usage: flow open <dst-ip> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>]'];
+          '% Usage: flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>]'];
       }
     }
 

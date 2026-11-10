@@ -108,7 +108,10 @@ ok(ospfReady > 0, 'the lab has a non-zero OSPF convergence time (' + ospfReady +
   const bad = trace(env, 'traceroute 10.0.2.20 at soon');
   ok(/% Invalid instant: soon/.test(bad), 'a non-numeric instant is refused');
   const missing = trace(env, 'traceroute 10.0.2.20 at');
-  ok(/% Incomplete command: traceroute <ip> at <ms>/.test(missing), 'a missing instant is refused');
+  // The message quotes the synopsis help prints, with the documented placeholder `<dst>` - it used to
+  // say `<ip>`, and `<ip>` is in no help row.
+  ok(/% Incomplete command: traceroute <dst> \[at <ms>\|converged\]$/.test(missing.trim()),
+    'a missing instant is refused, quoting the documented synopsis');
   const neg = trace(env, 'traceroute 10.0.2.20 at -5');
   ok(/% Invalid instant: -5/.test(neg), 'a negative instant is refused');
 }

@@ -117,7 +117,7 @@ console.log('\nBad input is refused before a flow is attempted:');
     ['flow open 10.0.2.20 sport 0', /^% sport out of range: 0$/],
     ['flow open 10.0.2.20 proto sctp', /^% proto must be tcp or udp \(got sctp\)$/],
     ['flow open 10.0.2.20 wibble 3', /^% Unknown keyword: wibble$/],
-    ['flow open', /^% Incomplete command: flow open <dst-ip> \[port <n>\] \.\.\.$/]
+    ['flow open', /^% Incomplete command: flow open <dst> \[port <n>\] \[bytes <n>\] \[proto tcp\|udp\]$/]
   ];
   for (const [command, pattern] of cases) {
     const lines = do_(command);

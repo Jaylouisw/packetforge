@@ -930,6 +930,41 @@ per-vendor "translators" (e.g. accept Juniper `set interfaces …` or Huawei
 `interface GigabitEthernet0/0/0`) while keeping the single underlying
 configuration model. See `docs/ROADMAP.md`.
 
+### The destination slot — one rule, three commands
+
+`ping`, `traceroute` and `flow open` all take a destination as their **first** argument, and all
+three have keywords of their own after it (`at`, `count`, `port`, `bytes`, `proto`, `sport`). A line
+that begins with one of those keywords has no destination, and the answer says so in the synopsis
+`help` prints:
+
+```
+R1#ping
+% Incomplete command: ping <dst> [count <n>] [at <ms>|converged]
+R1#ping at 5000
+% Incomplete command: ping <dst> [count <n>] [at <ms>|converged]
+R1#flow open port 22
+% Incomplete command: flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp]
+R1#nslookup
+% Incomplete command: nslookup <name> [type]
+```
+
+All four used to say something else, and two of them were wrong answers to a different question:
+
+| Before | Why it was wrong |
+|---|---|
+| `% Invalid ping target: (none)` | `(none)` is a placeholder printed where a value belongs — nothing was ever in the slot |
+| `% Unknown host at: no DNS server in this lab hosts a zone for it` | the keyword was handed to the resolver as a hostname, so a forgotten address came back as an accusation about DNS. An operator learns "this lab has no name server" from a command that never named a host |
+| `% Incomplete command: flow open <dst-ip> [port <n>] …` | `<dst-ip>` appears in no help row; the documented placeholder is `<dst>`, so the message quoted a synopsis that does not exist |
+
+The resolver is only consulted once a destination is actually present, which is the rule the whole
+family now shares (`_requireDest()` in `engine/cli.js`). **One cost, stated plainly:** a host named
+`at`, `port` or `count` cannot be reached by name through these three commands — resolve it with
+`nslookup` and use the address. The keyword list is data (`DEST_KEYWORDS`), not a pattern at each
+call site, so a new keyword cannot be spelled differently in one command and not another.
+`test/dest-arguments.test.js` (38 assertions) types every keyword in the destination slot, requires
+the incomplete message and the absence of any DNS blame, then requires real addresses, real names and
+`traceroute … at <ms>` to keep working.
+
 ### ping — ask at an instant
 
 ```
@@ -968,7 +1003,7 @@ serialisation at each port, store-and-forward at each device) rather than a hop 
 ### traceroute — which way, and how far
 
 ```
-traceroute <ip> [at <ms>|converged]        # tracert is accepted too
+traceroute <dst> [at <ms>|converged]       # tracert is accepted too
 ```
 
 The forwarding path, hop by hop, read from the same `routeTo()` the forwarder uses. Each line
