@@ -1,0 +1,181 @@
+{
+  "vendor": "peplink",
+  "model": "BPL-310X-LTEA-K-T",
+  "label": "Peplink Balance 310X SD-WAN router (CAT-12)",
+  "category": "router",
+  "description": "Peplink Balance 310X - fanless medium-branch SD-WAN router: two 10/100/1000 Ethernet WAN ports, nine 10/100/1000 Ethernet LAN ports, one embedded LTE-A Pro modem with redundant SIM slots, two USB WAN ports, 2.5 Gbps routing throughput and 500 Mbps 256-bit AES PepVPN. 30 W maximum from a 12-30 V DC input, -40 to 65 C.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "600M",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://download.peplink.com/resources/peplink_balance_310x_datasheet.pdf",
+  "notes": "The datasheet's interface block is explicit and unusual: '**2x 10/100/1000M Ethernet**' WAN and '**9x 10/100/1000M Ethernet**' LAN. Nine LAN ports is the number to keep - not eight, and not ten: a lab that rounds it to a typical 8-port switch side will be short by one cable, so the test pins 9. The embedded LTE-A Pro modem has redundant SIM slots again (one modem, one `wwan0`), and the two USB sockets are WAN-capable but are not Ethernet, so they are described here rather than modelled as ports. Router throughput 2.5 Gbps and PepVPN 500 Mbps with 256-bit AES are quoted; power is 30 W max from 12-30 V DC with no PoE in or out, hence `poeIn: 0` on every copper port. Unlike the AP One range, this model does document a **Command Line Interface**, so `cli` is declared."
+}

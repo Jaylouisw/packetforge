@@ -538,5 +538,32 @@ console.log('\nTwo modems, one chassis, and a quote that decides the PoE class (
   ok((apo.capabilities || []).indexOf('802.3at') !== -1, 'APO-AX: the PoE class it needs is declared');
 }
 
+console.log('\nNine LAN ports, four modems, and a PoE footnote that changes the answer (#448, #505, #521):');
+{
+  const b310 = find('BPL-310X-LTEA-K-T');
+  const ether = effectiveInterfaces(b310).filter(function (p) { return p.type === 'ethernet'; });
+  eq(ether.length, 11, 'Balance 310X: two GE WAN and nine GE LAN');
+  eq(ether.filter(function (p) { return p.role === 'lan'; }).length, 9,
+    'Balance 310X: NINE LAN ports - not eight, which is what rounding would give');
+  ok((b310.capabilities || []).indexOf('cli') !== -1,
+    'Balance 310X: this model documents a CLI, unlike the AP One range');
+
+  const hd4 = find('MAX-HD4-LTEA-W-T');
+  const hd4Ports = effectiveInterfaces(hd4);
+  eq(hd4Ports.filter(function (p) { return p.role === 'lan'; }).length, 8, 'MAX HD4: eight GE LAN');
+  eq(hd4Ports.filter(function (p) { return p.role === 'wan'; }).length, 6,
+    'MAX HD4: six WAN paths - two copper plus four cellular, which is what bonding needs');
+  eq(hd4Ports.filter(function (p) { return p.name.indexOf('wwan') === 0; }).length, 4,
+    'MAX HD4: FOUR embedded modems, unlike the BR1 Pro single modem');
+  ok(hd4Ports.every(function (p) { return !p.poeOut; }),
+    'MAX HD4: no poeOut declared - the 802.3at output needs a separately sold kit and no budget is published');
+
+  const lite = find('APO-AX-LITE');
+  const liteEth = effectiveInterfaces(lite).filter(function (p) { return p.type === 'ethernet'; })[0];
+  eq(liteEth.speed, '1G', 'APO-AX-LITE: 1G copper, where the AP One AX has 2.5G');
+  ok((lite.capabilities || []).indexOf('802.3at') !== -1,
+    'APO-AX-LITE: still an 802.3at device even though 14.5 W fits inside 802.3af');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

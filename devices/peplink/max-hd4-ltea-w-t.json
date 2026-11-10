@@ -1,0 +1,180 @@
+{
+  "vendor": "peplink",
+  "model": "MAX-HD4-LTEA-W-T",
+  "label": "Pepwave MAX HD4 quad-LTE mobile router",
+  "category": "router",
+  "description": "Peplink Pepwave MAX HD4 - rugged vehicle router with four embedded LTE modems and four redundant SIM slots for SpeedFusion bandwidth bonding, two 100/1000 Ethernet WAN ports, eight 100/1000 Ethernet LAN ports (802.3at PoE output available via the PoE kit), USB WAN, dual-band Wi-Fi AP and Wi-Fi WAN. 12-56 V DC terminal block, GPS, -40 to 65 C class rugged certification (EN 50155 railway, EN 61373 shock/vibration).",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "http-server",
+    "wireless"
+  ],
+  "interfaces": [
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "wan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "lan8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "role": "lan",
+      "bridgeGroup": "lan",
+      "poeIn": 0
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "speed": "300M"
+    },
+    {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M",
+      "role": "wan"
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "150M",
+      "role": "wan"
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "150M",
+      "role": "wan"
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "150M",
+      "role": "wan"
+    }
+  ],
+  "icon": "router",
+  "color": "#2563eb",
+  "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet.pdf",
+  "notes": "The datasheet labels the copper directly: '**2x 100/1000M Ethernet WAN**' and '**8x 100/1000M Ethernet LAN**', so 2+8 is quoted, not inferred - and note the LAN ports are 100/1000, not 10/100/1000. **Four** embedded modems with four redundant SIM slots is the opposite of the BR1 Pro's single modem: this box really does bond four cellular links, so there are four `wwan` bearers and a lab can demonstrate SpeedFusion bonding with four different carriers. The 8 LAN ports are marked '**802.3at PoE Output #**' with a footnote '#PoE Kit is available Separately', and Peplink publishes **no aggregate PoE budget** - so no `poeOut` is declared. Crediting eight ports at 30 W would invent a 240 W supply the vendor never states; a lab that needs powered ports should treat them as plain copper until the kit is fitted. A WAN activation licence can convert LAN ports 1-3 into WAN ports 3-5, which is a licence, not a different chassis."
+}
