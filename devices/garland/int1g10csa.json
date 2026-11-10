@@ -1,0 +1,136 @@
+{
+  "vendor": "garland",
+  "model": "INT1G10CSA",
+  "label": "Garland High Density Aggregator TAP, 4 copper TAPs (INT1G10CSA)",
+  "category": "tap",
+  "passive": false,
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "description": "Garland INT1G10CSA - 1U half-rack high-density aggregator TAP for OT/ICS networks: four 10/100/1000M copper TAP segments on eight RJ-45 network ports, aggregating copies unidirectionally to one or two 1G SFP monitoring cages (ports 9-10), serial port management, dual internal AC power supplies. Failsafe relay circuitry is built into the four TAPs: if power is lost the relays close and the paired network ports stay connected.",
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.garlandtechnology.com/products/aggregators",
+  "notes": "Garland's own aggregator table publishes the port census in one line, which is what the 4gon page never did: '**Ports 1-8 : 10 / 100 / 1G RJ-45 Copper Ports, Ports 9-10 : 1G SFP, Speed 10/100/1G, Management Serial**'. So eight copper ports and two 1G SFP cages, numbered 1-10 by the vendor, plus a serial management port - modelled as `port1..port8`, `sfp1`, `sfp2` and a console. **It is an aggregator, not a splitter:** copies from the copper side are combined and sent unidirectionally out one or both monitoring SFP cages, so the box is powered, has a CPU and a console, and is `category: tap` with `passive: false` - unlike the pure optical TAPs in this catalogue. 1U half-rack, dual internal AC supplies (the `-DC` parts are separate SKUs). **Failsafe is a property of this part and not its sibling:** 'For INT1G10CSA, failsafe circuitry is built into the 4 Copper TAPs in the unit. Each pair of network ports are connected. If power is lost, the relay circuitry will fail closed providing a connection between network devices.' So the eight copper ports are **four pairs**, and a lab that pulls the power on this aggregator should still see each segment pass traffic - which is exactly what the model cannot simulate yet, so it is recorded here rather than implied."
+}

@@ -1,0 +1,136 @@
+{
+  "vendor": "garland",
+  "model": "INT1G10CSASP",
+  "label": "Garland High Density SPAN Aggregator, 8 copper inputs (INT1G10CSASP)",
+  "category": "tap",
+  "passive": false,
+  "capabilities": [
+    "l2-forward",
+    "cli"
+  ],
+  "description": "Garland INT1G10CSASP - 1U half-rack high-density SPAN aggregator for OT/ICS networks: eight 10/100/1000M copper SPAN inputs on RJ-45 ports, aggregating copies unidirectionally to one or two 1G SFP monitoring cages (ports 9-10), serial port management, dual internal AC power supplies. No failsafe: the network ports are not paired.",
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeIn": 0
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "con",
+      "type": "console"
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.garlandtechnology.com/products/aggregators",
+  "notes": "Garland's own aggregator table publishes the port census in one line, which is what the 4gon page never did: '**Ports 1-8 : 10 / 100 / 1G RJ-45 Copper Ports, Ports 9-10 : 1G SFP, Speed 10/100/1G, Management Serial**'. So eight copper ports and two 1G SFP cages, numbered 1-10 by the vendor, plus a serial management port - modelled as `port1..port8`, `sfp1`, `sfp2` and a console. **It is an aggregator, not a splitter:** copies from the copper side are combined and sent unidirectionally out one or both monitoring SFP cages, so the box is powered, has a CPU and a console, and is `category: tap` with `passive: false` - unlike the pure optical TAPs in this catalogue. 1U half-rack, dual internal AC supplies (the `-DC` parts are separate SKUs). **The important difference from the CSA:** 'INT1G10CSASP does not provide failsafe because the network ports are not paired.' The eight copper ports here are **eight independent SPAN inputs** (from eight switches), not four pass-through segments, so losing power drops every copy - and there is no live link to preserve. Same chassis, same port count, opposite failure behaviour, which is why they are two files."
+}

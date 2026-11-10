@@ -1185,5 +1185,25 @@ console.log('\nA single-mode tap whose ladder runs from fast ethernet to 100g (#
     'OM4501 and OS2501 share the network/monitor port shape');
 }
 
+console.log('\nTwo aggregators that differ by how they fail (#662, #663):');
+{
+  ['INT1G10CSA', 'INT1G10CSASP'].forEach(function (model) {
+    const ports = effectiveInterfaces(find(model));
+    eq(ports.filter(function (p) { return p.connector === 'rj45'; }).length, 8,
+      model + ': eight copper ports 1-8');
+    eq(ports.filter(function (p) { return p.connector === 'sfp'; }).length, 2,
+      model + ': two 1G SFP monitoring cages, ports 9-10');
+    eq(ports.filter(function (p) { return p.type === 'console'; }).length, 1,
+      model + ': a serial management port');
+    ok(find(model).passive !== true,
+      model + ': an aggregator has a CPU and a power supply, so it is not passive');
+  });
+  // Same ports, opposite failure behaviour - the reason they are two files.
+  ok(find('INT1G10CSA').notes.indexOf('failsafe circuitry is built into the 4 Copper TAPs') !== -1,
+    'INT1G10CSA: the four TAP segments are paired and fail closed');
+  ok(find('INT1G10CSASP').notes.indexOf('does not provide failsafe') !== -1,
+    'INT1G10CSASP: eight unpaired SPAN inputs, nothing to fail over');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
