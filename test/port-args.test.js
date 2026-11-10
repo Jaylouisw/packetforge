@@ -294,8 +294,8 @@ console.log('\nThe help says the argument exists:');
   const env = networkLab();
   const help = run(env.sw1, env.t, env.sim, ['help']);
   for (const row of ['show interfaces [<port>]', 'show ip interface brief [<port>]',
-    'show mac address-table [interface <port>]', 'show spanning-tree [<port>]',
-    'show lldp neighbors [<port>]', 'show arp [<port>]', 'show power inline [<port>]']) {
+    'show mac address-table [interface <port>|vlan <id>|dynamic|static|count]', 'show spanning-tree [<port>|summary|root]',
+    'show lldp neighbors [<port>]', 'show arp [<port>|<address>]', 'show power inline [<port>]']) {
     ok(help.indexOf(row) !== -1, 'help documents `' + row + '`');
   }
 }

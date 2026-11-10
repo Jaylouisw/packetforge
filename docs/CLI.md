@@ -1178,6 +1178,94 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A keyword is not a port name
+
+Every `show` verb that takes an optional port argument reads an unrecognised word as a port, which is
+right for a typo'd port name and wrong for a real IOS sub-word:
+
+```
+SW1#show spanning-tree summary
+% No interface named summary on SW1
+SW1#show spanning-tree root
+% No interface named root on SW1
+SW1#show mac address-table count
+% No interface named count on SW1
+SW1#show mac address-table dynamic
+% No interface named dynamic on SW1
+R1#show ip arp 10.0.0.50
+% No interface named 10.0.0.50 on R1
+```
+
+Five commands sent the operator to look for a port that cannot exist. None of them needed new data:
+the spanning-tree election already stores the root, its bridge ID and the root path cost; the MAC
+table already holds every learned entry; the ARP cache is keyed by address.
+
+```
+SW1#show spanning-tree summary
+Spanning tree enabled protocol ieee - summary for SW1
+  Root bridge: priority 32768, 02:00:00:00:00:00 (SW1) - this bridge
+  Root path cost: 0
+  Ports in the tree: 3 (root 0, designated 3, alternate 0)
+  Port states: 3 forwarding
+
+SW3#show spanning-tree summary
+  Root bridge: priority 32768, 02:00:00:00:00:00 (SW1)
+  Root path cost: 20000
+  Ports in the tree: 2 (root 1, designated 0, alternate 1)
+  Port states: 1 forwarding, 1 blocking
+  1 port is blocking: the loop is cut, which is the tree working
+
+SW3#show spanning-tree root
+Root bridge for VLAN 1: priority 32768, 02:00:00:00:00:00 (SW1)
+  Root path cost for SW3: 20000
+  Root port: Fa0/2
+
+SW1#show mac address-table count
+Mac address table count on SW1:
+Vlan  Entries
+1     3
+  Total: 3 dynamic, 0 static, 0 secure
+
+SW1#show mac address-table static
+% No static MAC entries on SW1
+% This model learns every entry from traffic, so all 3 are dynamic - see "show mac address-table count"
+
+R1#show ip arp 10.0.0.50
+Protocol  Address       Age (min)  Hardware Addr     Interface
+Internet  10.0.0.50  -          02:00:00:00:01:00  -
+```
+
+The summary is rendered from the same election that prints the table, so the counts cannot drift from
+the rows: `Port states:` counts exactly the rows `show spanning-tree` prints, and the root port named by
+`show spanning-tree root` is the port the table calls `root`.
+
+A word that is neither a port nor a keyword is now refused **as a keyword**, with the shapes the
+command does take:
+
+```
+SW1#show spanning-tree bogus
+% show spanning-tree takes a port, or summary / root - not "bogus"
+% The ports this device has are in "show ip interface brief"
+R1#show arp bogus
+% show arp takes a port, or an address - not "bogus"
+R1#show ip arp 10.0.0.99
+% No ARP entry for 10.0.0.99 on R1
+% The cache holds 2 addresses - "show arp" lists them, and a ping to 10.0.0.99 would learn it
+```
+
+`show spanning-tree summary` on a router is refused by naming why (`R1 does not bridge, so it runs no
+spanning tree`), and `show mac address-table vlan abc` is refused with the range rather than a filter
+that matches nothing.
+
+The literal word `interface` still means a port, so a word after it is refused as a missing port and
+not as a misused keyword:
+
+```
+SW1#show mac address-table interface 22
+% No interface named 22 on SW1
+% Try "show ip interface brief" for the ports this device has
+```
+
 ### The three settings every operator reaches for first
 
 `mtu`, `speed` and `duplex` are what you type when a link misbehaves, and none of them existed:

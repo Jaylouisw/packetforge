@@ -2661,6 +2661,74 @@ class CliSession {
       ' (the rules are untouched - use "no ip nat inside source …" for those)'];
   }
 
+  // `show spanning-tree summary` (counts) and `show spanning-tree root` (who is root, and what it
+  // costs this bridge to reach it) - both rendered from the election's own result, so neither can
+  // disagree with the table `show spanning-tree` prints.
+  _showStpSummary(dev, wantRoot) {
+    const st = dev.stp || { states: {}, roles: {}, costs: {}, blocked: new Set() };
+    const ports = Object.keys(st.states || {}).sort();
+    const rootName = (function (self) {
+      if (!st.root || !st.root.mac) return null;
+      if (st.isRoot) return self.name || self.id;
+      const sim = this.sim;
+      if (!sim) return null;
+      for (const other of sim.topo.devices.values()) {
+        if (other.stp && String(other.stp.bridgeId || '') === String(st.root.mac)) {
+          return other.name || other.id;
+        }
+      }
+      return null;
+    }).call(this, dev);
+    const rootPort = ports.filter(function (p) { return st.roles[p] === 'root'; })[0] || null;
+    const rootPriority = st.root && st.root.priority !== undefined && st.root.priority !== null
+      ? st.root.priority : require('./stp').STP_DEFAULT_PRIORITY;
+
+    if (wantRoot) {
+      const out = ['Root bridge for VLAN 1: priority ' + rootPriority + ', ' +
+        (st.root && st.root.mac ? st.root.mac : 'unknown') +
+        (rootName ? ' (' + rootName + ')' : '') + (st.isRoot ? ' - this bridge' : '')];
+      if (st.isRoot) {
+        out.push('  This bridge is the root: root path cost 0, every port is designated or blocking');
+      } else {
+        out.push('  Root path cost for ' + (dev.name || dev.id) + ': ' +
+          (st.pathCost === null || st.pathCost === undefined ? '?' : st.pathCost));
+        out.push('  Root port: ' + (rootPort || 'none - no port leads to the root'));
+        if (!rootPort) {
+          out.push('  (a bridge with no root port is not reaching the root: check the link to it)');
+        }
+      }
+      return out;
+    }
+
+    const counts = { forwarding: 0, blocking: 0, listening: 0, learning: 0 };
+    const byRole = {};
+    for (const p of ports) {
+      const state = String(st.states[p] || 'forwarding');
+      counts[state] = (counts[state] || 0) + 1;
+      const role = String(st.roles[p] || '-');
+      byRole[role] = (byRole[role] || 0) + 1;
+    }
+    const out = [];
+    out.push('Spanning tree enabled protocol ieee - summary for ' + (dev.name || dev.id));
+    out.push('  Root bridge: priority ' + rootPriority + ', ' +
+      (st.root && st.root.mac ? st.root.mac : 'unknown') + (rootName ? ' (' + rootName + ')' : '') +
+      (st.isRoot ? ' - this bridge' : ''));
+    out.push('  Root path cost: ' + (st.isRoot ? 0 :
+      (st.pathCost === null || st.pathCost === undefined ? '?' : st.pathCost)));
+    out.push('  Ports in the tree: ' + ports.length +
+      ' (root ' + (byRole.root || 0) + ', designated ' + (byRole.designated || 0) +
+      ', alternate ' + (byRole.alternate || 0) + ')');
+    out.push('  Port states: ' + ['forwarding', 'blocking', 'listening', 'learning']
+      .filter(function (k) { return counts[k]; })
+      .map(function (k) { return counts[k] + ' ' + k; }).join(', ') +
+      (ports.length ? '' : ' (no port is bridged)'));
+    if (counts.blocking) {
+      out.push('  ' + counts.blocking + ' port' + (counts.blocking === 1 ? ' is' : 's are') +
+        ' blocking: the loop is cut, which is the tree working');
+    }
+    return out;
+  }
+
   // ---------- per-port physical settings ----------
   //
   // `mtu`, `speed` and `duplex` are what an operator reaches for first when a link misbehaves, and
@@ -5391,7 +5459,21 @@ class CliSession {
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
     } else if (what === 'spanning-tree') {
-      const pick = this._portArg(tokens.slice(1), dev, 'show spanning-tree');
+      // `show spanning-tree summary` and `show spanning-tree root` are the two questions an operator
+      // asks of a tree that is not converging, and both were answered "No interface named summary on
+      // <device>" - the sub-word was read as a port name. A keyword is not a port.
+      const sub = String(tokens[1] || '').toLowerCase();
+      if (sub === 'summary' || sub === 'root') {
+        if (tokens.length > 2) {
+          return ['% Unexpected argument "' + tokens[2] + '" - show spanning-tree ' + sub + ' takes no more'];
+        }
+        if (!dev.isL2 || !dev.isL2()) {
+          return ['% ' + (dev.name || dev.id) + ' does not bridge, so it runs no spanning tree',
+            '% Routers forward at L3 - a loop between them is a routing problem'];
+        }
+        return this._showStpSummary(dev, sub === 'root');
+      }
+      const pick = this._portArg(tokens.slice(1), dev, 'show spanning-tree', ['summary', 'root']);
       if (!pick.ok) return out.concat(pick.output);
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
       const names = Object.keys(st.states || {}).sort().filter(function (n) {
@@ -5514,7 +5596,36 @@ class CliSession {
         }
         return '-';
       };
-      const pick = this._portArg(tokens.slice(what === 'arp' ? 1 : 2), dev, 'show arp');
+      // `show ip arp 10.0.0.1` is *the* way an operator asks for one address's MAC, and it answered
+      // "No interface named 10.0.0.1 on R1" - an address read as a port. An address filters the
+      // table; a port still filters by port; a word that is neither is refused naming both.
+      // `show arp interface <port>` is the other spelling the help row offers, so the literal word
+      // is stripped before the argument is judged by shape.
+      let arpArgs = tokens.slice(what === 'arp' ? 1 : 2);
+      const saidInterface = String(arpArgs[0] || '').toLowerCase() === 'interface';
+      if (saidInterface) arpArgs = arpArgs.slice(1);
+      if (saidInterface && !arpArgs.length) {
+        return ['% ' + (what === 'arp' ? 'show arp' : 'show ip arp') + ' needs a port after "interface"',
+          '% Usage: show arp [<port>|<address>]'];
+      }
+      if (arpArgs.length === 1 && net.isIp(String(arpArgs[0]))) {
+        const want = String(arpArgs[0]);
+        const mac = dev.arp.get(want);
+        if (!mac) {
+          return ['% No ARP entry for ' + want + ' on ' + (dev.name || dev.id),
+            '% The cache holds ' + plural(dev.arp.size, 'address') +
+            ' - "show arp" lists them, and a ping to ' + want + ' would learn it'];
+        }
+        return ['Protocol  Address       Age (min)  Hardware Addr     Interface',
+          'Internet  ' + want + '  -          ' + mac + '  ' + ifaceFor(want)];
+      }
+      if (arpArgs.length > 1) {
+        return ['% show arp takes one port or one address, not "' + arpArgs.join(' ') + '"',
+          '% e.g. "show ip arp Gi0/0" or "show ip arp 10.0.0.1"'];
+      }
+      // A word after the literal `interface` is unambiguously a port, so that refusal names the
+      // missing port; a bare word could be either shape and is refused with both.
+      const pick = this._portArg(arpArgs, dev, 'show arp', saidInterface ? null : ['an address']);
       if (!pick.ok) return out.concat(pick.output);
       const arpRows = [];
       for (const [ip, mac] of dev.arp.entries()) {
@@ -5530,7 +5641,60 @@ class CliSession {
         out.push('  (none - no cached address resolves to this port)');
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
-      const pick = this._portArg(tokens.slice(2), dev, 'show mac address-table');
+      // `show mac address-table count` and `... dynamic` are the two spellings an operator types
+      // after looking at the table, and both were answered "No interface named count on <device>" -
+      // the sub-word read as a port. `count` totals what is learned; `dynamic` is what this model
+      // learns (everything it has is learned from traffic); `static` is honestly empty.
+      const macSub = String(tokens[2] || '').toLowerCase();
+      if (macSub === 'count' || macSub === 'dynamic' || macSub === 'static' || macSub === 'vlan') {
+        if (macSub === 'vlan' && tokens[3] === undefined) {
+          return ['% Incomplete command: show mac address-table vlan <id>'];
+        }
+        if (macSub !== 'vlan' && tokens[3] !== undefined) {
+          return ['% Unexpected argument "' + tokens[3] + '" - show mac address-table ' + macSub + ' takes no more'];
+        }
+        const all = [];
+        for (const [mac, iface] of dev.macTable.entries()) all.push({ vlan: 1, mac: mac, iface: iface });
+        for (const [vid, table] of (dev.macTables || new Map()).entries()) {
+          for (const [mac, iface] of table.entries()) all.push({ vlan: vid, mac: mac, iface: iface });
+        }
+        if (macSub === 'static') {
+          return ['% No static MAC entries on ' + (dev.name || dev.id),
+            '% This model learns every entry from traffic, so all ' + all.length +
+            ' are dynamic - see "show mac address-table count"'];
+        }
+        let rows = all;
+        if (macSub === 'vlan') {
+          const vid = Number(tokens[3]);
+          if (!/^\d+$/.test(String(tokens[3])) || !(vid >= 1 && vid <= 4094)) {
+            return ['% VLAN id must be a number 1-4094, not "' + tokens[3] + '"'];
+          }
+          rows = all.filter(function (r) { return r.vlan === vid; });
+          out.push('Mac address table for VLAN ' + vid + ' on ' + (dev.name || dev.id) + ':');
+          out.push.apply(out, renderTable(['Vlan', 'Mac Address', 'Type', 'Ports'],
+            rows.map(function (r) { return [r.vlan, r.mac, 'DYNAMIC', r.iface]; })));
+          if (!rows.length) out.push('  (none - nothing has been learned in this VLAN)');
+          return out;
+        }
+        if (macSub === 'dynamic') {
+          out.push.apply(out, renderTable(['Vlan', 'Mac Address', 'Type', 'Ports'],
+            rows.map(function (r) { return [r.vlan, r.mac, 'DYNAMIC', r.iface]; })));
+          if (!rows.length) out.push('  (none - nothing has been learned yet)');
+          return out;
+        }
+        // count
+        const perVlan = new Map();
+        for (const r of rows) perVlan.set(r.vlan, (perVlan.get(r.vlan) || 0) + 1);
+        out.push('Mac address table count on ' + (dev.name || dev.id) + ':');
+        out.push.apply(out, renderTable(['Vlan', 'Entries'],
+          Array.from(perVlan.keys()).sort(function (a, b) { return a - b; })
+            .map(function (v) { return [v, perVlan.get(v)]; })));
+        out.push('  Total: ' + rows.length + ' dynamic, 0 static, 0 secure');
+        if (!rows.length) out.push('  (nothing has been learned yet - move traffic and ask again)');
+        return out;
+      }
+      const pick = this._portArg(tokens.slice(2), dev, 'show mac address-table',
+        ['count', 'dynamic', 'static', 'vlan']);
       if (!pick.ok) return out.concat(pick.output);
       const rows = [];
       for (const [mac, iface] of dev.macTable.entries()) rows.push([1, mac, iface]);
@@ -6649,7 +6813,11 @@ class CliSession {
   // accepts, and an unknown name refused *by name* instead of ignored. Five commands added after the
   // original `show interfaces <port>` fix had the same defect that fix was for - they took the port,
   // dropped it, and printed the whole table, which reads as an answer about one port and is not.
-  _portArg(args, dev, what) {
+  // `keywords` are the sub-words this particular command accepts besides a port (`summary`, `root`,
+  // `count`, `dynamic`). They are only used to word the refusal: an operator who typed a real IOS
+  // keyword and was told "no interface named summary" has been sent to look for a port that cannot
+  // exist, which is worse than a plain "unknown word".
+  _portArg(args, dev, what, keywords) {
     const hadKeyword = (args || []).some(function (a) {
       return String(a).toLowerCase() === 'interface';
     });
@@ -6677,6 +6845,16 @@ class CliSession {
     }
     const port = resolvePortName(dev, rest[0]);
     if (!port) {
+      // A word after the literal `interface` is unambiguously a port, so that refusal names the
+      // missing port; only a bare word can be a keyword in the wrong place.
+      const saidInterface = String(args[0] || '').toLowerCase() === 'interface';
+      if (keywords && keywords.length && !saidInterface) {
+        return {
+          ok: false,
+          output: ['% ' + what + ' takes a port, or ' + keywords.join(' / ') + ' - not "' + rest[0] + '"',
+            '% The ports this device has are in "show ip interface brief"']
+        };
+      }
       return {
         ok: false,
         output: ['% No interface named ' + rest[0] + ' on ' + (dev.name || dev.id),
@@ -7426,10 +7604,12 @@ class CliSession {
       helpLine('show interfaces transceiver [<port>]', 'cage, optic, reach and cable-length verdict'),
       helpLine('show ip route [<dest>|connected|static|ospf|bgp|summary] [at <ms>|converged]',
         'the table, a lookup, a protocol filter, or an instant'),
-      helpLine('show arp [<port>]', 'IP-to-MAC cache (show ip arp too)'),
-      helpLine('show mac address-table [interface <port>]', 'addresses learned per port and VLAN'),
+      helpLine('show arp [<port>|<address>]', 'IP-to-MAC cache, or one address (show ip arp too)'),
+      helpLine('show mac address-table [interface <port>|vlan <id>|dynamic|static|count]',
+        'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
-      helpLine('show spanning-tree [<port>]', 'root bridge, port roles and states'),
+      helpLine('show spanning-tree [<port>|summary|root]',
+        'root bridge, port roles and states; or the counts, or the path to the root'),
       helpLine('show etherchannel', 'LAGs and their members'),
       helpLine('show lldp neighbors [<port>]', 'what announced itself on each port'),
       helpLine('show access-lists', 'entries, and where they are bound'),

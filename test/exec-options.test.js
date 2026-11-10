@@ -122,7 +122,7 @@ console.log('\n`show ip arp` is the same command as `show arp`:');
     'the port filter works through either spelling');
   ok(env.s.run('show ip arp at 5000').output.some(function (l) { return /at t=5000 ms/.test(l); }),
     'and `show ip arp` can be asked about an instant, like `show arp`');
-  eq(env.s.run('show ip arp eth9').output[0], '% No interface named eth9 on PC1',
+  eq(env.s.run('show ip arp eth9').output[0], '% show arp takes a port, or an address - not "eth9"',
     'a port that does not exist is refused rather than ignored');
 }
 
