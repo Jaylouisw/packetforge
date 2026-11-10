@@ -728,6 +728,30 @@ class CliSession {
     const out = [];
     const head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
+    if (head === 'no' && String(tokens[1] || '').toLowerCase() === 'hostname') {
+      // The removal half of `hostname`: back to the model's own name for this device.
+      const had = (this.device.config && this.device.config.hostname) || null;
+      const shown = this.device.name;
+      if (tokens.length > 2) {
+        return ['% Unexpected argument "' + tokens[2] + '" - no hostname takes no more',
+          '% Usage: no hostname   (clears the configured name and restores the default)'];
+      }
+      if (!had) {
+        return ['% No hostname is configured - this device is called ' + shown +
+          ' (that is its label, not a hostname it was given)'];
+      }
+      if (this.device.config) this.device.config.hostname = null;
+      const def = this.device.label + '-' + String(this.device.id).slice(-4);
+      // The name shown right now came from this command when it matches what was configured; in that
+      // case it goes back to the default too, so the two surfaces keep saying the same thing.
+      const restored = shown === had ? def : shown;
+      this.device.name = restored;
+      return ['Hostname cleared: this device is called ' + restored +
+        (shown === had ? ' again (the default name for this model)' : ' (its label - the hostname was ' + had + ')'),
+        // The dump always names the device - IOS prints a default hostname too - so the line does not
+        // vanish; what changes is that it now names the default rather than a name it was given.
+        '  "show running-config" now reads "hostname ' + restored + '", the default for this device'];
+    }
     if (head === 'hostname') {
       // The whole remainder is the name. Taking tokens[1] silently truncated
       // "core switch 1" to "core", which is what the UI's hostname field appeared to do
@@ -950,7 +974,7 @@ class CliSession {
       // a bare `no spanning-tree` would read as "turn spanning tree off", which this model cannot do.
       const stpLib = require('./stp');
       const rest = tokens.slice(2).map(function (x) { return String(x).toLowerCase(); });
-      const usage = 'no spanning-tree vlan <id>';
+      const usage = 'no spanning-tree vlan <id> [priority <n> | root primary|secondary]';
       if (rest[0] !== 'vlan') {
         out.push('% Usage: ' + usage);
         out.push('% (spanning tree itself cannot be turned off in this model; only its priority can)');
@@ -958,14 +982,15 @@ class CliSession {
         out.push('% Incomplete command: ' + usage);
       } else if (!/^\d+$/.test(rest[1]) || !(Number(rest[1]) >= 1 && Number(rest[1]) <= 4094)) {
         out.push('% VLAN id must be a number 1-4094, not "' + rest[1] + '"');
-      } else if (this._noExtra(rest, 2, usage)) {
-        out.push.apply(out, this._noExtra(rest, 2, usage));
+      } else if (this._stpNoExtraWords(rest)) {
+        out.push.apply(out, this._stpNoExtraWords(rest));
       } else if (this.device.config.stpPriority === undefined) {
         out.push('Spanning tree bridge priority on ' + (this.device.name || this.device.id) +
           ' is already the default (' + stpLib.STP_DEFAULT_PRIORITY + ')');
       } else {
         const had = this.device.config.stpPriority;
         delete this.device.config.stpPriority;
+        delete this.device.config.stpRootMode;
         out.push('Spanning tree bridge priority reset to the default (' + stpLib.STP_DEFAULT_PRIORITY +
           ') on ' + (this.device.name || this.device.id) + ' (was ' + had + ')');
       }
@@ -1977,6 +2002,44 @@ class CliSession {
   // `show spanning-tree` did not print a root at all, while the help row for it promised "root
   // bridge, port roles and states". A spanning tree whose root cannot be chosen is a topology the
   // operator cannot build.
+  // The removal of an STP priority takes the words the positive form takes: `no spanning-tree vlan
+  // 10 root primary` is how an operator asks for what `spanning-tree vlan 10 root primary` did to be
+  // undone, and it was refused as "% Unexpected argument \"root primary\"". A word that names a
+  // setting this model does not hold is still refused, and so is a value that disagrees with the one
+  // in force - the removal removes what is there, it does not overwrite it.
+  _stpNoExtraWords(rest) {
+    const stpLib = require('./stp');
+    const cfg = this.device.config;
+    if (rest.length <= 2) return null;
+    const tail = rest.slice(2);
+    if (tail[0] === 'root') {
+      if (tail[1] !== 'primary' && tail[1] !== 'secondary') {
+        return ['% Usage: no spanning-tree vlan <id> root primary|secondary'];
+      }
+      if (tail.length > 2) return ['% Unexpected argument "' + tail[2] + '" - no spanning-tree vlan <id> root ' + tail[1]];
+      if (cfg.stpPriority !== undefined && cfg.stpRootMode !== tail[1]) {
+        return ['% The priority here was set explicitly (' + cfg.stpPriority + '), not by root ' + tail[1],
+          '% Remove it with "no spanning-tree vlan ' + rest[1] + ' priority ' + cfg.stpPriority + '"'];
+      }
+      if (cfg.stpVlan !== undefined && String(cfg.stpVlan) !== String(rest[1])) {
+        return ['% The tree here is set for VLAN ' + cfg.stpVlan + ', not VLAN ' + rest[1],
+          '% One tree covers every VLAN on this device - "no spanning-tree vlan ' + cfg.stpVlan + ' root ' + tail[1] + '"'];
+      }
+      return null;
+    }
+    if (tail[0] === 'priority') {
+      if (tail[1] === undefined) return ['% Incomplete command: no spanning-tree vlan <id> priority <n>'];
+      if (tail.length > 2) return ['% Unexpected argument "' + tail[2] + '" - no spanning-tree vlan <id> priority <n>'];
+      if (cfg.stpPriority !== undefined && String(cfg.stpPriority) !== String(tail[1])) {
+        return ['% The priority here is ' + cfg.stpPriority + ', not ' + tail[1],
+          '% "no spanning-tree vlan ' + (cfg.stpVlan || rest[1]) + '" removes whatever is set'];
+      }
+      return null;
+    }
+    return ['% Unexpected argument "' + tail.join(' ') + '" - no spanning-tree vlan <id> takes no more',
+      '% Usage: no spanning-tree vlan <id> [priority <n> | root primary|secondary]'];
+  }
+
   _stpConfig(tokens) {
     const dev = this.device;
     const stpLib = require('./stp');
@@ -2018,6 +2081,9 @@ class CliSession {
       }
       const was = dev.config.stpPriority;
       dev.config.stpPriority = n;
+      // Typed as a number, so it is an explicit priority and not a root designation - the removal
+      // form has to be told, or `no … root primary` would take this value for its own.
+      delete dev.config.stpRootMode;
       // The VLAN the operator named is kept only so the dump can print the same words back. The
       // priority itself is the device's, which the next line says out loud.
       dev.config.stpVlan = vid;
@@ -2057,6 +2123,10 @@ class CliSession {
       if (which === 'secondary' && bestOther <= target) target = Math.max(0, bestOther + 4096);
       dev.config.stpPriority = target;
       dev.config.stpVlan = vid;
+      // Which form set it. Without this the removal has to guess from the number, and 4096 is both a
+      // value an operator can type and one root primary can pick - so `no … root primary` would
+      // remove a priority somebody set by hand and call it a root designation.
+      dev.config.stpRootMode = which;
       return ['Spanning tree for VLAN ' + vid + ': ' + (dev.name || dev.id) + ' is set to be root ' +
         which + ' (bridge priority ' + target + ')',
         '  One spanning tree covers every VLAN here, so the priority is the device\'s'];
@@ -2204,6 +2274,25 @@ class CliSession {
           ' flag ' + (on ? 'set' : 'cleared')];
       }
       if (sub === 'lifetime') {
+        // The removal half of this verb did not exist: `no ipv6 nd ra lifetime 10` took the same
+        // branch as the positive form and *set* 10 again, answer and all, while `no ipv6 nd ra
+        // lifetime` (no value) answered "Incomplete command". A verb you can set and not unset is
+        // the defect this series keeps finding; here the removal is a reset to the protocol default.
+        if (negated) {
+          // t is ['nd','lifetime',<value>?] - the `no` is already stripped, so a fourth word never
+          // arrives; the value slot itself is what has to be checked, or `no … lifetime abc` reads
+          // as junk-as-value and resets anyway.
+          const had = t[2];
+          if (had !== undefined && !/^\d{1,5}$/.test(had)) {
+            return ['% Unexpected argument "' + had + '" - no ipv6 nd ra lifetime [<seconds>]',
+              '% Usage: no ipv6 nd ra lifetime   (back to the protocol default)'];
+          }
+          const was = c.routerLifetime;
+          delete c.routerLifetime;
+          const def = require('./ra').DEFAULTS.routerLifetime;
+          return ['IPv6 RA router lifetime back to the default ' + def + 's' +
+            (was === undefined ? ' (it was not set)' : ' (was ' + was + 's)')];
+        }
         const val = t[2];
         if (val === undefined) return ['% Incomplete command: ipv6 nd ra lifetime <seconds>'];
         if (!/^\d{1,5}$/.test(val)) return ['% Invalid router lifetime "' + val + '" (0..65535 seconds)'];
@@ -4239,12 +4328,21 @@ class CliSession {
 
   _ipDomainName(args, isNo) {
     const dev = this.device;
-    const usage = isNo ? 'no ip domain-name' : 'ip domain-name <name>';
-    const extra = isNo ? this._noExtra(args, 0, usage) : this._noExtra(args, 1, usage);
+    const usage = isNo ? 'no ip domain-name [<name>]' : 'ip domain-name <name>';
+    // The positive form takes the name, so the removal accepts it too: typing back the words you
+    // configured with is how IOS removals are spoken, and refusing `no ip domain-name lab.local`
+    // made the operator go and look up a shorter spelling of what was on their screen.
+    const extra = this._noExtra(args, 1, usage);
     if (extra) return extra;
     if (isNo) {
       if (!dev.config.domainName) {
         return ['No domain name is set on ' + (dev.name || dev.id) + ' - unqualified names are asked as typed'];
+      }
+      const named = String(args[0] || '').trim().toLowerCase();
+      if (named && named !== String(dev.config.domainName).toLowerCase()) {
+        return ['% "' + args[0] + '" is not the domain name on ' + (dev.name || dev.id) +
+          ' - it is "' + dev.config.domainName + '"',
+          '% "no ip domain-name" alone clears whatever is set'];
       }
       const had = dev.config.domainName;
       dev.config.domainName = null;
@@ -10167,10 +10265,11 @@ class CliSession {
     if (this.mode === MODE_CONFIG) return helpRows([
       'Config-mode commands (exit / end to leave):',
       helpLine('hostname <name>', 'set device hostname (spaces kept)'),
+      helpLine('no hostname', 'back to the default name for this model'),
       helpLine('arp <ip> <mac> [arpa]', 'pin one address to a MAC - never ages out, cannot be overwritten'),
       helpLine('no arp <ip>', 'remove one ARP entry (static or learned)'),
       helpLine('ip domain-name <name>', 'suffix an unqualified name gets before it is looked up'),
-      helpLine('no ip domain-name', 'ask an unqualified name exactly as typed'),
+      helpLine('no ip domain-name [<name>]', 'ask an unqualified name exactly as typed'),
       helpLine('ip domain-lookup', 'resolve names again (on by default)'),
       helpLine('no ip domain-lookup', 'refuse names; an address still works'),
       helpLine('lldp run', 'enable LLDP on this device (it is on by default)'),
@@ -10195,7 +10294,8 @@ class CliSession {
       helpLine('no ip access-list <name>', 'remove a named list and its bindings'),
       helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge'),
       helpLine('spanning-tree vlan <id> root primary|secondary', 'ask to be root, in words'),
-      helpLine('no spanning-tree vlan <id>', 'forget this VLAN\'s priority and go back to the default'),
+      helpLine('no spanning-tree vlan <id> [priority <n> | root primary|secondary]',
+        'forget this VLAN\'s priority and go back to the default'),
       helpLine('ip route <dest> <mask> <gw> [iface]', 'add a static route'),
       helpLine('no ip route <dest> <mask> [gw]', 'remove one, or all with that prefix'),
       helpLine('ip default-gateway <gw>', 'default gateway for hosts'),

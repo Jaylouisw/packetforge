@@ -1197,6 +1197,47 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### Every verb the page prints has a way back
+
+A sweep of the config page typed each row with its placeholders filled, then typed the same words
+behind `no`, and compared the running-config to the baseline. Three rows failed, in two shapes:
+
+```
+R1(config)#no hostname                      % Unrecognized config command: no hostname LAB
+R1(config)#ipv6 nd ra lifetime 10           IPv6 RA router lifetime 10s
+R1(config)#no ipv6 nd ra lifetime 10        IPv6 RA router lifetime 10s     <- set it again, and said so
+SW1(config)#no spanning-tree vlan 10 root primary
+                                            % Unexpected argument "root primary" - no spanning-tree vlan <id>
+```
+
+`hostname` renamed every surface of a device and had no removal at all; `no ipv6 nd ra lifetime` took
+the *positive* branch, so a removal re-applied the value and answered as if it had been asked to;
+`no spanning-tree vlan <id> root primary` refused the words the operator had just been told to type.
+The removals now exist and undo:
+
+```
+R1(config)#no hostname
+Hostname cleared: this device is called Router-d1 again (the default name for this model)
+  "show running-config" now reads "hostname Router-d1", the default for this device
+R1(config)#no ipv6 nd ra lifetime 10
+IPv6 RA router lifetime back to the default 1800s (was 10s)
+SW1(config)#no spanning-tree vlan 10 root primary
+Spanning tree bridge priority reset to the default (32768) on SW1 (was 24576)
+```
+
+Two rules the sweep has to respect, and now states: a removal **removes what is there rather than
+overwriting it** (`no … root primary` on a priority somebody set by hand refuses and names the value
+to remove, instead of silently treating 4096 as a root designation — so the model records *which
+form* set the priority), and a removal **accepts the words the positive form accepts**, because that
+is how an operator speaks it back. `no ip domain-name <name>` was in the same family: it refused the
+name and required the shorter spelling, and now matches what is configured (case-insensitively, since
+the positive lowercases it) and names the configured value when it does not match.
+
+The one case that is *not* a defect: `no vlan 10 name` resets the name to `VLAN0010` and leaves the
+VLAN, because the VLAN and its name are two objects. The sweep reports it as residue if it compares
+against a baseline from before the VLAN existed, which is why the battery lists its cases explicitly
+rather than trusting the diff.
+
 ### A keyword the page lists as a placeholder is not abbreviatable
 
 This console abbreviates keywords to any prefix that identifies exactly one continuation, and the tree
@@ -1204,18 +1245,38 @@ it expands against is built from the **help rows** — one source, so an abbrevi
 command that does not exist. That means a help row written with a placeholder silently opts its values
 out of the rule:
 
-```
-SW1(config-if)#switchport mode acc
-Switchport mode access on Fa0/1                    <- abbreviation works
-SW1(config-if)#switchport port-security violation rest
-% "rest" is not a violation mode                   <- ...but not here
+The first command below always worked, because its help row lists real keywords. The second *used* to
+fail, and the shape of the two outputs is the whole argument — the transcript is marked so nobody runs
+the middle block expecting it to still print that:
+
+```text
+SW1(config-if)#switchport mode acc                 <- row lists access|trunk: expands
+Switchport mode access on Fa0/1
+
+SW1(config-if)#switchport port-security violation rest      <- BEFORE the row was fixed
+% "rest" is not a violation mode
 % Use protect, restrict or shutdown
 ```
 
-The row read `violation <mode>`, so `rest` was an opaque value passed straight to a parser that
-compares exactly. Spelling the modes out (`violation protect|restrict|shutdown`) puts them in the tree,
-and the same operator's `rest`, `prot`, `shut` all work — while `b` and `zz`, which identify nothing,
-are still refused with the mode list.
+That row read `violation <mode>`, so `rest` was an opaque value handed straight to a parser that compares
+exactly: the vocabulary existed, but only inside the parser, where neither abbreviation nor completion
+could see it. Spelling the modes out (`violation protect|restrict|shutdown`) puts them in the tree, and
+the same operator now gets a real answer — measured after the change:
+
+```text
+SW1(config-if)#switchport port-security violation rest
+Violation mode on Fa0/1 set to restrict (was shutdown)
+  a violating frame is dropped and counted, and the port keeps working
+```
+
+`prot` and `shut` expand the same way, while `b` and `zz`, which identify nothing, are still refused with
+the mode list — and the message quotes what was typed rather than what was expected:
+
+```text
+SW1(config-if)#switchport port-security violation b
+% "b" is not a violation mode
+% Use protect, restrict or shutdown
+```
 
 The lesson is the one the docs already state for the help page: **the row is the command surface**. A
 placeholder is right for a value with no vocabulary (`<name>`, `<ip>`); it is wrong for a set of
@@ -1261,9 +1322,10 @@ are the spellings the help advertises.
 
 ### Two views of one peer, and only one of them could see it
 
-One router, OSPF in area 0, one BGP peer. Three commands, three answers that could not all be right:
+One router, OSPF in area 0, one BGP peer. Three commands, three answers that could not all be right —
+this is the state **before** the fix, kept because it is the clearest statement of the rule:
 
-```
+```text
 R1#show ip bgp summary
 10.0.0.2  4  65002  Idle   not yet evaluated     <- the peer is configured
 
@@ -1275,10 +1337,28 @@ R1#show ip bgp neighbors 10.0.0.2
 % Configured: (none)                              <- advice to configure the peer that exists
 ```
 
-The summary reads configuration; the detail views read only the **computed** session rows, so with no
+The summary read configuration; the detail views read only the **computed** session rows, so with no
 simulation run they saw nothing and reported an absence. The rule the summary was already taught is
 the fix: *a peer is configuration, its session state is not* — a configured peer with no evaluation is
-`Idle / not yet evaluated`, not missing.
+`Idle / not yet evaluated`, not missing. Measured on the current tree, the same three commands agree:
+
+```text
+R1#show ip bgp summary
+10.0.0.2  4  65002  Idle   not yet evaluated
+0 of 1 neighbour(s) established
+
+R1#show ip bgp neighbors
+BGP neighbour 10.0.0.2 on R1 (local AS 65001)
+  Remote AS      65002 (eBGP)
+  State          Idle
+  Reason         not yet evaluated
+  Hold time      180 s
+  Prefixes in    0 (no session, so nothing was exchanged)
+
+R1#show ip bgp neighbors 10.0.0.2
+BGP neighbour 10.0.0.2 on R1 (local AS 65001)
+  ...the same block, narrowed to the peer that was named
+```
 
 `show ip protocols` was `% Invalid show command: ip protocols`, for a command whose facts the model
 already holds:
