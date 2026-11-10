@@ -1,0 +1,59 @@
+{
+  "vendor": "garland",
+  "model": "OM4501",
+  "label": "Garland multi-mode passive fibre TAP 1/10/25G (OM4501)",
+  "category": "tap",
+  "passive": true,
+  "capabilities": [],
+  "description": "Garland OM4501 passive multimode fibre TAP - one tap, 50/50 split, 850 nm over OM3/OM4 LC multimode fibre, carrying 1G/10G/25G through unpowered with copies on two monitor ports. Stainless-steel tube package, no power source, no IP or MAC address.",
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.4gon.co.uk/documents/Garland-OM4504-Datasheet(PDF).pdf",
+  "notes": "From the family model table on Garland's multimode passive TAP datasheet: OM4501 is **1/10/25G, one tap, 50/50, 850 nm, OM3/OM4, LC multimode** - the 25G sibling of the OM3501 already in this catalogue, and the reason the speed ladder goes to 25G rather than stopping at 10G. Four LC ports: two network, two monitor. No power is needed and none is accepted, so there is no `poeIn` to declare and nothing to configure: the split is optical, 50/50, with 60/40, 80/20 and 90/10 available to order. Because the split is passive, A and B keep the live link up even if the monitoring tool is off or unplugged."
+}

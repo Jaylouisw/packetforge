@@ -448,5 +448,60 @@ console.log('\nTwo TAPs, one of which has no monitor port on the wire (#661, #66
   ok(copper.ok && copper.speedMbps === 1000, 'P1GCUA_mini: a copper host links to its network port at 1G');
 }
 
+console.log('\nA fibre TAP converts media as it copies (#666, #667):');
+{
+  // Both are the same box with a different fixed optic: multimode on one, single-mode on the other.
+  // The network side is LC ferrule, the monitor side is SFP+ cages - it is not symmetric.
+  ['P10GMSA-5', 'P10GSSA-5'].forEach(function (model) {
+    const t = find(model);
+    eq(t.passive, true, model + ': passive - A and B carry traffic with the TAP unpowered');
+    const ports = effectiveInterfaces(t);
+    eq(ports.filter(function (p) { return p.name.indexOf('net') === 0 && p.connector === 'lc'; }).length, 2,
+      model + ': two LC network ports - fibre terminates in the TAP, there is no cage');
+    eq(ports.filter(function (p) { return p.name.indexOf('mon') === 0 && p.connector === 'sfp+'; }).length, 2,
+      model + ': two SFP+ monitor cages - the monitor side takes optics');
+    ok(ports.every(function (p) { return p.speedCaps.indexOf(1000) !== -1 && p.speedCaps.indexOf(10000) !== -1; }),
+      model + ': every port is 1G/10G, as the model table states');
+  });
+
+  // The consequence: LC fibre talks to LC fibre, and refuses copper outright.
+  const t13 = new Topology();
+  const smf = t13.addDevice(find('P10GSSA-5'));
+  const mmf = t13.addDevice(find('P10GMSA-5'));
+  const fibre = t13.validateLink(smf.id, 'netA', mmf.id, 'netA', {});
+  ok(fibre.ok && fibre.speedMbps === 10000, 'P10GSSA-5: an LC port links to another LC port at 10G');
+  ok((fibre.media || []).indexOf('10gbase-lr') !== -1,
+    'P10GSSA-5: and the medium it negotiates is single-mode 10GBASE-LR, not copper');
+
+  const pc4 = t13.addDevice(find('generic-pc'));
+  const copper = t13.validateLink(smf.id, 'netB', pc4.id, 'eth0', {});
+  ok(!copper.ok, 'P10GSSA-5: an RJ45 host cannot be patched into an LC port (' +
+    ((copper.errors[0] || {}).code || 'no code') + ')');
+}
+
+console.log('\nThe 25G sibling of a TAP already in the catalogue (#659):');
+{
+  const om = find('OM4501');
+  const ports = effectiveInterfaces(om);
+  eq(ports.length, 4, 'OM4501: one tap is four LC ports - two network, two monitor');
+  ok(ports.every(function (p) { return p.connector === 'lc'; }),
+    'OM4501: all four are LC multimode, not cages and not copper');
+  ok(ports.every(function (p) { return p.speedCaps.indexOf(25000) !== -1; }),
+    'OM4501: 25G is on the ladder - that is what distinguishes it from the OM3501');
+  eq(om.passive, true, 'OM4501: no power source, so nothing to configure and no capabilities');
+  // It must sit on the same 25G fibre a 25G NIC uses, and refuse copper.
+  const t14 = new Topology();
+  const omDev = t14.addDevice(om);
+  const pc5 = t14.addDevice(find('generic-pc'));
+  const noCopper = t14.validateLink(omDev.id, 'netA', pc5.id, 'eth0', {});
+  ok(!noCopper.ok, 'OM4501: an RJ45 host cannot be patched into an optical split (' +
+    ((noCopper.errors[0] || {}).code || 'no code') + ')');
+  const t15 = new Topology();
+  const a = t15.addDevice(om);
+  const b = t15.addDevice(find('OM4501'));
+  const fibre = t15.validateLink(a.id, 'netA', b.id, 'netB', {});
+  ok(fibre.ok, 'OM4501: an LC port links to an LC port, so the tap can be placed inline');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

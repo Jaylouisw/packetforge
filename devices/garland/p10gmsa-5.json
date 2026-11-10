@@ -1,0 +1,55 @@
+{
+  "vendor": "garland",
+  "model": "P10GMSA-5",
+  "label": "Garland AggregatorTAP Fiber MMF 1G/10G (P10GMSA-5)",
+  "category": "tap",
+  "passive": true,
+  "capabilities": [],
+  "description": "Garland AggregatorTAP: Fiber P10GMSA-5 - portable passive fibre TAP for multimode: two LC network ports carrying 1G-SX/10G-SR through unpowered, copies delivered on two SFP+ cages at 1G/10G, switch-selectable aggregation, breakout and regeneration/SPAN modes, jumbo frames, four per 1U shelf.",
+  "interfaces": [
+    {
+      "name": "netA",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "netB",
+      "type": "ethernet",
+      "connector": "lc",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monA",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "monB",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "icon": "tap",
+  "color": "#7c3aed",
+  "sourceUrl": "https://www.4gon.co.uk/documents/Garland-P10GMSA-5-Datasheet(PDF).pdf",
+  "notes": " The datasheet's model table is the source of the split: the **network** side is fixed MMF 1G-SX/10G-SR **LC** fibre and the **monitor** side is **two SFP+ cages at 1G/10G** - different connectors on the two sides of one box, which is the whole point of the part (it converts the media as it copies). Modes (aggregation, breakout, regeneration/SPAN) are switches on the back, so this stays a passive TAP with no capabilities and no IP: A and B live ports pass traffic whether or not the TAP has power. Split ratios are 50/50 by default with 60/40, 80/20 and 90/10 available to order, so the spec models the standard even split."
+}
