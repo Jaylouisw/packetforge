@@ -360,13 +360,20 @@ services, and a job that has to swap makes the whole queue slower.
   still carry `.github/workflows/`, so their runs include a CodeQL job and a Docker
   job that cannot pass here — three wasted jobs out of eight, on a queue that is the
   bottleneck. Rebasing removes them. That is the cheapest single thing you can do
-  for the queue's health.
+  for the queue's health. The scale is worth knowing: `main` no longer carries
+  `.github/workflows/` at all (it holds `.github/` templates, labels and dependabot
+  config only), the remote advertises **831** heads — `git ls-remote --heads origin | wc -l` —
+  and a sample of twelve spread evenly through that list found **ten** still carrying
+  `.github/workflows/ci.yml`. So this is not a handful of forgotten branches; most of
+  the queue is running workflows that cannot pass.
 - **No suite is red on the current tree.** Measured by running the two that used to be:
   `test/spec-vs-description.test.js` **3 passed, 0 failed** and `test/canonical-urls.test.js`
   **43 passed, 0 failed**, with `scripts/check-canonical-urls.js` printing
-  `OK — 2114 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. As always,
-  quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
-  `ls test/*.test.js | wc -l` prints the size.
+  `OK — 2156 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That file
+  count is the one number in this paragraph that moves on its own — two device specs and a catalogue
+  edit took it from 2114 to 2156 without touching a URL — so read it as a snapshot and re-run the script
+  rather than quoting it. As always, quote the runner rather than this paragraph:
+  `node scripts/run-tests.js` prints the reading and `ls test/*.test.js | wc -l` prints the size.
 
   Both closed the way this page predicted, and it is worth recording *which* way, because only one of
   them was the fix the bullet originally recommended:
