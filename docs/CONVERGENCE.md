@@ -57,9 +57,36 @@ because "overridable in configuration" would otherwise read as "there is a comma
 | OSPF hello, exchange, SPF hold, dead | Only by writing the device config directly: `ospf.helloSec`, `ospf.exchangeSec`, `ospf.spfDelaySec`, `ospf.deadSec` |
 | DHCP exchange | Only by writing the device config directly: `dhcpExchangeSec` (default 1 s, which is what `leaseAtMs` is computed from) |
 
-There is no `spanning-tree forward-delay`, no `ospf hello` and no `dhcp timeout` command; those keys
-are read from `dev.config`, which is how `test/convergence-timing.test.js` drives fast-convergence
-cases. The defaults are the ones in `engine/convergence.js` — the table is `const C` inside that
+### Where each timer is actually read from
+
+"That key is read from `dev.config`" hides three different shapes, and one of them is a trap. Measured
+by setting each key and reading the timer object back:
+
+| Timer | Path | Measured override → effect |
+|---|---|---|
+| STP forward delay, max age | `dev.config.stpForwardDelaySec`, `dev.config.stpMaxAgeSec` — **flat** | `{4, 11}` → `listenEndMs 4000`, `learnEndMs 8000`, `forwardAtMs 8000`, `maxAgeMs 11000` |
+| OSPF hello, exchange, SPF hold, dead | `dev.config.ospf.helloSec`, `.exchangeSec`, `.spfDelaySec`, `.deadSec` — **nested under `ospf`** | `{helloSec: 2, exchangeSec: 3, spfDelaySec: 9}` → `adjacentAtMs 5000`, `routesAtMs 14000` |
+| DHCP exchange | `dev.config.dhcpExchangeSec` — flat | `7` → `leaseAtMs 7000` |
+| VRRP advertisement | the **group** object, not the device: `advertSec` (CLI) or `advertCs` (centiseconds) | `advertCs: 200` → `advertSec 2`, `masterDownMs 6609.375` |
+
+The trap is the OSPF shape. `dev.config.ospfHelloSec = 2` is **read by nothing** and produces no
+warning — the timers stay at `helloSec 10, deadSec 40, adjacentAtMs 11000, routesAtMs 16000`, which
+looks exactly like a lab that is converging slowly for another reason. The nested
+`dev.config.ospf.helloSec` is the one that lands.
+
+Two more measured details worth having in writing:
+
+- **`advertCs` is centiseconds and is validated.** `validateGroup()` rejects `0`, `-5` and `2.5` with
+  `E_ADVERT_RANGE` (*"advertCs must be a positive integer number of centiseconds"*) and accepts `200`.
+  It exists so a lab can dial advertisements below the 1 s default — `advertCs: 250` gives a 2.5 s
+  interval and `masterDownMs 8109.375`.
+- **When both fields are set, the two modules disagree.** `engine/vrrp.js`'s `advertInterval()` prefers
+  **`advertCs`** (`{advertSec: 3, advertCs: 200}` → `2`), while `convergence.vrrpTimers()` prefers
+  **`advertSec`** (same input → `advertSec 3`, `masterDownMs 9609.375`). Set one field or the other; if
+  you set both, the readiness number a lab shows and the interval its advertisements use will differ.
+- `masterDownInterval(group, skew)` takes the **skew in seconds** as its second argument, not the
+  priority. Passing `100` — the priority — returns `103` seconds, because it dutifully adds
+  `3 × 1 s + 100 s`. The defaults are the ones in `engine/convergence.js` — the table is `const C` inside that
 file, and `module.exports` publishes it as **`DEFAULTS: C`**, so `require('.../engine').convergence.DEFAULTS`
 is the object to read and `C` is the name you will see in a stack trace or a `grep`.
 

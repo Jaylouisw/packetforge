@@ -25,9 +25,12 @@ predates #1059 still carries a `workflows/` directory that this runner cannot sa
 
 ## What a pull request goes through
 
-Five checks, all required before a merge:
+**Three jobs, five check runs** — all required before a merge. The count is worth stating precisely
+because it is easy to misread a matrix: `ci.yml` defines three jobs, and the `test` job's Node matrix
+expands its *one* job into three separate check runs (`Test (Node 18)`, `20`, `22`). A red mark on any
+leg fails the same job, so "three jobs" and "five checks" are both true and neither alone is honest.
 
-| Check | Catches |
+| Check run | Catches |
 |---|---|
 | `Test (Node 18)` | Syntax or API that only works on newer Node. The floor is 18. |
 | `Test (Node 20)` | Nothing Node 18 and 22 together cannot — kept for the middle of the support window |
@@ -43,6 +46,11 @@ then `examples/build-examples.js` (rebuild and self-verify every example lab —
   example passes the job: the files are compared to nothing. `git diff --exit-code examples/` after
   the build would turn that into a real check) and
 `missing-devices.js examples --no-issues` (every model an example names still exists).
+
+The three jobs carry 7 + 1 + 3 steps between them (measured by counting `- name:` under each job in
+`ci.yml`): the test job seven, the smoke job one, the Docker job three — the last of which is the static
+`Dockerfile` check, the CLI install that may fail harmlessly, and the build that runs only if a daemon
+appeared.
 
 ### Running the same checks locally
 
@@ -128,8 +136,19 @@ for (const f of files) {
 let broken = 0;
 for (const f of files) {
   const L = fs.readFileSync(f, 'utf8').split('\n');
+  // Only lines that belong to a real table count. A *prose* line is allowed to start with '|'
+  // (a sentence that wraps after a pipe in a code span), and it renders as text, not a table —
+  // flagging it was a false positive that kept pointing at a paragraph in CLI.md.
+  let inTable = false;
   for (let i = 0; i < L.length; i++) {
-    if (!L[i].startsWith('|')) continue;
+    if (!L[i].startsWith('|')) { inTable = false; continue; }
+    if (!inTable) {
+      const sep = (L[i + 1] || '').trim();
+      if (!/^\|[-:\s|]+\|$/.test(sep)) { inTable = false; continue; }  // '|' line with no separator: prose
+      inTable = true;
+      i++;                       // skip the separator
+      continue;
+    }
     const next = L[i + 1];
     if (next === undefined) break;
     if (next.trim() === '' || next.startsWith('|') || next.startsWith('```')) continue;
@@ -200,6 +219,12 @@ a link into the middle of a different document (`OTHER.md#anchor`) was not, and 
 that breaks on every heading rename. It resolves the target relative to the linking file and demands the
 heading exist there. All six such links in the tree currently resolve; the check was proved to bite by
 pointing one at a heading that does not exist.
+
+The wrapped-row check has one subtlety worth keeping: it only considers lines that belong to a real
+table (a `|` line followed by a separator). Prose is allowed to start with `|` — a sentence that wraps
+just after a pipe inside a code span does exactly that — and flagging it sends you to rewrite a
+paragraph that renders perfectly. The first version of the check did not distinguish the two and spent
+a pass pointing at a sentence in `CLI.md` about `ip ospf cost <n> | area <id> | passive`.
 
 If `npm test` is green locally and CI is red, check the Node version: CI runs 18
 as well as 22, and a newer-than-18 API — `Array.prototype.findLast`,
@@ -284,30 +309,26 @@ services, and a job that has to swap makes the whole queue slower.
   job that cannot pass here — three wasted jobs out of eight, on a queue that is the
   bottleneck. Rebasing removes them. That is the cheapest single thing you can do
   for the queue's health.
-- **Two suites are red on the current tree, so `Test (Node *)` would be red too.** Measured by
-  running the whole set (`node scripts/run-tests.js`): **4 failing assertions, in two files**, out of
-  a green remainder. Deliberately no suite or assertion total here: that count moved three times in
-  three days (131 → 134 → 135) while this paragraph sat unread, so `node scripts/run-tests.js`
-  prints the reading and `ls test/*.test.js | wc -l` prints the size. What is stable, and what this
-  bullet is for, is *which* two files fail and why.
+- **No suite is red on the current tree.** Measured by running the two that used to be:
+  `test/spec-vs-description.test.js` **3 passed, 0 failed** and `test/canonical-urls.test.js`
+  **43 passed, 0 failed**, with `scripts/check-canonical-urls.js` printing
+  `OK — 2114 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. As always,
+  quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
+  `ls test/*.test.js | wc -l` prints the size.
 
-  - `test/spec-vs-description.test.js` — `a device described as PoE-powered does not source power`:
-    four Ubiquiti specs carry `"poeOut": true` (plus `"poeOutClass"`) on `eth0` while their own
-    `description` says the box is **PoE-powered**: `UISP-FIBER-XG` ("Passive PoE-in; 6 W max"),
-    `UA-Hub-Door-Mini` ("802.3bt PoE-in; 19 W max"), `UA-G2-SK-Pro` ("802.3bt PoE-in; 30 W max"),
-    `UA-Hub-Gate` ("802.3bt PoE-in; 22 W max"). The port key is what the engine reads, so the model
-    says these boxes supply watts their prose says they consume. Fixing it is a catalogue edit
-    (drop `poeOut` from that port, or correct the description if the datasheet really does show a
-    passthrough) — not an engine change, and not a rewording of the test: its exemption list exists
-    so a genuine passthrough can be tracked by name instead of by muting the rule.
-  - `test/canonical-urls.test.js` — `no file points at the old repository (1 problems)`, plus the two
-    assertions that depend on a clean tree: the one finding is `DO-NOT-USE.md:12`, a quarantined
-    file whose whole purpose is to record the stale URL. `scripts/check-canonical-urls.js` reports
-    the same single finding, so this is one decision (exempt the file, or delete it now that it has
-    served its purpose) rather than three problems.
+  Both closed the way this page predicted, and it is worth recording *which* way, because only one of
+  them was the fix the bullet originally recommended:
 
-  Neither is caused by the documentation work that produced this page; both are recorded here so a
-  contributor who runs `npm test` on `main` does not spend the evening bisecting their own change.
+  - `test/spec-vs-description.test.js` — the four Ubiquiti specs still carry `"poeOut": true` on `eth0`,
+    and the fix was on the **prose side**: their descriptions now read *"1x PoE++ passthrough"* rather
+    than *"PoE-in"*, so the port key and the description agree instead of contradicting. The rule the
+    test enforces is unchanged — a device described as PoE-powered must not source power — and a real
+    passthrough is still tracked by name in its exemption list rather than by muting the rule.
+  - `test/canonical-urls.test.js` — `DO-NOT-USE.md` was **exempted**, not deleted:
+    `scripts/check-canonical-urls.js` consults `canonical.EXEMPT_FILES` and skips it, on the reasoning
+    that a quarantined file whose entire purpose is to record the stale URL is not a violation. The two
+    assertions that depended on a clean tree followed the exemption.
+
 - **Nothing checks that the generated wiki is current.** `docs/wiki/` is written by
   `scripts/build-wiki.js` from text templates held in that script, and no job runs
   it — `grep -r wiki .forgejo/workflows/` returns nothing. So the pages drift, and

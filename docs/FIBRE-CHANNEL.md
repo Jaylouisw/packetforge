@@ -44,6 +44,48 @@ would inherit 8G/16G and an Ethernet-to-Ethernet link could negotiate a Fibre Ch
 separate cages keep the two ladders apart while still mating physically — `cagesMate('sfp+',
 'fc-sfp')` is `true`, because the hardware does.
 
+### Checking this table against the engine
+
+Every number above came from `engine/media.js`, and the one-liners are worth having because two of
+them look broken if you read the tables as data. `CAGE_SPEEDS` and `CAGE_MEDIA` are **functions, not
+objects** — `CAGE_MEDIA['fc-sfp']` is a function that *returns* the media list, so `JSON.stringify` on
+it prints `undefined` and a reader can conclude the cage is unlisted when it is perfectly well listed:
+
+```js
+const m = require('./engine/media');
+m.CAGE_SPEEDS['fc-sfp'](120000)   // [2125, 4250, 8500, 10519, 14025]
+m.CAGE_MEDIA['fc-sfp']()          // ['2gfc-sw','2gfc-lw','4gfc-sw', … ,'16gfc-sw','16gfc-lw']
+```
+
+The measured ladders and media, one row per cage:
+
+| Cage | `CAGE_SPEEDS[cage](…)` | `CAGE_MEDIA[cage]()` |
+|---|---|---|
+| `fc-sfp` | `[2125, 4250, 8500, 10519, 14025]` — 2/4/8/10/16G | `2gfc-*`, `4gfc-*`, `8gfc-*`, `10gfc-*`, `16gfc-*` |
+| `fc-sfp28` | `[8500, 14025, 28050]` — 8/16/32G | `32gfc-*`, `16gfc-*`, `8gfc-*` |
+| `fc-sfpdd` | `[14025, 28050, 57800]` — 16/32/64G | `64gfc-*`, `32gfc-*`, `16gfc-*` |
+| `fc-qsfp28` | `[28050, 112200]` — 32G/128G | `128gfc-*`, `32gfc-*` |
+
+The media are named `2gfc-sw`, `8gfc-lw`, `128gfc-sw` — *not* `fc-2g` or `fc-8g`. Each exists in an
+`-sw` (short wave) and `-lw` (long wave) flavour, and the speed is the line rate, not the marketing
+number: `8gfc-sw` is `8500`, `16gfc-sw` is `14025`, `32gfc-sw` is `28050`, `64gfc-sw` is `57800`,
+`128gfc-sw` is `112200`.
+
+**The `maxMbps` argument is not honoured by the optical or FC ladders.** Measured, capping at 1000:
+
+| Cage | `(1000)` returns | Honours the cap? |
+|---|---|---|
+| `rj45` | `[10, 100, 1000]` | yes — filters everything above |
+| `wwan` | `[1000]` | yes — the modem's category *is* the rate |
+| `combo` | `[10, 100, 1000]` | partly — drops 10000, and never offers 2500/5000 at all |
+| `sfp` | `[1000, 2500]` | **no** — 2500 is above the cap |
+| `fc-sfp` | `[2125, 4250, 8500, 10519, 14025]` | **no** — the whole ladder, cap ignored |
+
+So a port's declared ceiling does not narrow its FC ladder the way it narrows a copper one. When you
+need the negotiated result rather than the catalogue's ladder, ask `negotiateSpeed()` or read a link's
+`speedMbps` after a run — `CAGE_SPEEDS` answers "what could this socket ever do", and for FC that is
+the whole ladder by design.
+
 ## What is refused, and why
 
 An FC port cabled to an Ethernet port refuses with `E_PROTOCOL_MISMATCH`:

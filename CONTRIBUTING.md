@@ -165,10 +165,10 @@ in it to pass, so do not run it to see what it does.
 | `smoke-http.js` | spawn a server on a free port, drive every route the UI uses, kill it | a temp `PF_DATA` it deletes |
 | `audit-devices.js` | accuracy audit over the whole catalogue (`--json`) | reads only |
 | `audit-port-types.js` | connector/port-type coherence (`--json`, `--out`, `--quiet`) | writes a report |
-| `missing-devices.js` | compare the catalogue with research and issue queue (`--json`, `--strict`, `--skeleton`, `--stubs`, `--no-issues`, `--apply`) | `--apply` writes specs |
+| `missing-devices.js` | compare the catalogue with research and issue queue (`--json`, `--strict`, `--stubs`, `--no-issues`, `--help`) | `--apply` writes specs |
 | `apply-research.js` | validated path for correcting an existing spec (`--dry-run`, `--force`) | writes specs |
 | `apply-port-fixes.js` / `apply-port-layouts.js` | apply researched port corrections / layouts (`--apply`) | write specs |
-| `import-devices.js` | validate and merge swarm-researched specs (`--dry-run`, `--apply`, `--upgrade`, `--json`, `--all`, `--write`) | writes specs |
+| `import-devices.js` | validate and merge swarm-researched specs (`--apply`, `--write`, `--upgrade`, `--json`, `--all`; dry by default) | writes specs |
 | `merge-research.js` | the original one-shot merge of homelab research into the registry | writes specs |
 | `fix-optics.js` / `fix-optics-claims.js` | one-off repairs for #9-class optics defects (`--apply`) | write specs |
 | `request-queue.js` | the triage queue for hardware requests (`--json`, `--skeleton`) | reads the tracker |
@@ -178,6 +178,17 @@ in it to pass, so do not run it to see what it does.
 | `cf-access-bypass.js` | Cloudflare Access bypass for one public path (`--check`, `--apply`) | the Cloudflare zone |
 | `build-wiki.js` | regenerate `docs/wiki/*.md` from the templates inside it | `docs/wiki/` |
 | `publish-wiki.js` | push those pages to the wiki repo (`--dry-run`, `--quiet`) | the wiki repository |
+
+**Almost every one of these scripts ignores a flag it does not know.** Exactly one validates:
+`missing-devices.js`, which holds a `known` set and prints `Unknown flag: --bogus` with the usage line
+before exiting **2** — `grep -rln "Unknown flag" scripts/` returns that file alone. Everything else
+reads `process.argv` with
+`indexOf(...)` and simply do not match, so a typo quietly does the *default* thing — measured:
+`audit-devices.js --bogus`, `audit-port-types.js --bogus` and `check-node-surface.js --bogus` all run
+their normal job and exit **0**,
+and `import-devices.js --stubs` (a flag that belongs to `missing-devices.js`) performs a normal import
+(`Scanned 49 file(s), 670 spec(s)`) instead of writing skeletons. Check the flag against the table
+above before relying on it, and run the catalogue editors with no flags first for exactly this reason.
 
 Two things worth knowing before you reach for one: `sweep-device-requests.js` and
 `request-queue.js` talk to the tracker over the **network** (the sweep hard-codes a LAN API address
@@ -253,10 +264,11 @@ No trailing period, no scope prefixes.
 ## Review process
 
 1. A maintainer reviews the PR.
-2. CI must be green. [docs/CI.md](docs/CI.md) names the **five checks** a pull request has to pass —
-   `Test (Node 18/20/22)`, `Server smoke test`, `Docker build` — and lists the seven **steps** inside
-   the test job (syntax, control bytes, the Node 18 API floor, canonical URLs, the full suite, the
-   example-lab build, and "every lab model exists"), with the local command for each.
+2. CI must be green. [docs/CI.md](docs/CI.md) names the **three jobs** a pull request has to pass —
+   `test` (which the Node matrix expands into three runs: `Test (Node 18)`, `20`, `22`),
+   `Server smoke test` and `Docker build` — and lists the seven **steps** inside the test job (syntax,
+   control bytes, the Node 18 API floor, canonical URLs, the full suite, the example-lab build, and
+   "every lab model exists"), with the local command for each.
 3. For device additions, the maintainer cross-checks the datasheet.
 
 Thank you for contributing!

@@ -32,7 +32,7 @@ catalog to the API and the UI palette.
 | `interfaces` | one of | explicit array; per-port keys below |
 | `portTemplate` | one of | generates N ports: `{prefix,start,count,type,speed}` plus any port key |
 | `description` | no | tooltip — and CI audits it against the ports the spec declares |
-| `sourceUrl` | recommended | the datasheet the numbers came from (1,234 of 1,584 specs carry one) |
+| `sourceUrl` | recommended | the datasheet the numbers came from (1,234 of 1,584 specs carry one). **22 more carry `source` instead** — the older spelling of the same idea, never both — so 1,256 of 1,584 point at a datasheet somewhere |
 | `notes` | no | research note kept beside the spec, quoted rather than paraphrased |
 | `poeBudget` | no | PSE budget in watts; research-sourced specs use `poe: {"budgetW": 240}` instead |
 | `passive` | no | `true` for a passive tap or splitter — no capabilities, no software |
@@ -45,6 +45,27 @@ Per-port keys, all optional except the first three: `name`, `type`, `speed`, `co
 (the cage — see [CONNECTORS.md](CONNECTORS.md) for all 26), `speedCaps` (the rates the cage
 accepts), `poeOut` / `poeOutClass`, `poeIn`, `comboWith` / `comboRole`, `bridgeGroup`, `role`.
 
+### Keys the catalogue carries that this table does not gate on
+
+A survey of all 1,584 files finds thirteen keys the schema table above never mentions. They matter
+because a contributor copying an existing spec will meet them, and because **whether any code reads a
+key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>" engine/ web/ server/`:
+
+| Key | Files | Read by | Effect |
+|---|---|---|---|
+| `insertionLossDb` | 13 | `engine/optical.js` | **real** — the loss a passive part adds to a PON budget |
+| `formFactor` | 7 | `engine/optical.js`, `web/app.js` | **real** — which cage a transceiver fits, and its label |
+| `splitRatio` | 11 | `engine/validation.js` | **real** — a splitter's fan-out, and its loss |
+| `dualRole` | 2 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
+| `comboPorts` | 15 | nothing in `engine/`, `web/`, `server/` — written by `scripts/apply-research.js` | **annotation**: the pairing itself is expressed by per-port `comboWith`/`comboRole` |
+| `source` | 22 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,234 of 1,584" coverage count above uses, so a spec carrying only `source` counts as uncovered (22 do; none carry both) |
+| `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators) |
+
+The annotation keys all sit on passive hardware under `devices/fs/` and similar: they record what the
+part *is* without claiming the model simulates it. Adding one is harmless; expecting it to change a
+simulation is not. The rule for a new spec is the same one this table has always implied — if you want
+a key to matter, it has to be read somewhere, and if it is read, it belongs in the schema table above.
+
 `poeOut` on a port is the strongest statement in the file: it is read before any inference
 (`isPoePse` only fills in a value when the port declares nothing). `poeOutClass` beside it is
 **pure annotation** — `"PoE++"`, `"PoE+"`, `"PoE"` — and `grep -rn poeOutClass engine/ web/
@@ -52,12 +73,15 @@ server/ scripts/` returns nothing: no code parses it, so it documents intent and
 behaviour. Only the `rj45` and `combo` cages carry power at all, so a `poeOut` on a fibre cage is
 ignored rather than honoured.
 
-Because that key overrules the prose, the two can disagree, and four specs currently do: on
-`ubiquiti/UISP-FIBER-XG`, `UA-Hub-Door-Mini`, `UA-G2-SK-Pro` and `UA-Hub-Gate`, `eth0` declares
-`"poeOut": true` while the same file's `description` says the unit is *PoE-powered* ("802.3bt
-PoE-in; 22 W max" and so on). The engine believes the port, so those four models will supply
-power to whatever is plugged into `eth0`. `test/spec-vs-description.test.js` fails on exactly
-those four for that reason — see `docs/CI.md` — and the fix is a catalogue edit, not a rewording.
+Because that key overrules the prose, the two can disagree — and four specs once did: on
+`ubiquiti/UISP-FIBER-XG`, `UA-Hub-Door-Mini`, `UA-G2-SK-Pro` and `UA-Hub-Gate`, `eth0` carried
+`"poeOut": true` while the same file's `description` said the unit was *PoE-powered*. The engine
+believed the port, so those four supplied power their prose said they consumed, and
+`test/spec-vs-description.test.js` failed on exactly them. **The descriptions were the thing that
+changed**: all four now read *"1x PoE++ passthrough"* (measured — the `poeOut` key never moved), so the
+port and the prose agree and the suite is green. That is the shape of the fix to prefer: the port key is
+the model's truth, so either the prose or the port is wrong, and correcting the prose is a one-line
+edit that leaves the simulation unchanged.
 
 ### Taps and passive hardware
 

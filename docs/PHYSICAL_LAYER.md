@@ -96,52 +96,81 @@ an explicit "unknown" is distinguishable from one nobody ever declared:
 ```
 SW1#show power inline
 Power inline on SW1:
-  Budget       : 20 W  (from spec)
-  Used         : 13 W
-  Available    : 7.1 W
-  Port          Powered device        Requested  Status
-  Gi0/1         CAM1                  12.95 W    on
-  Gi0/2         CAM2                  12.95 W    denied (budget exhausted)
+  Budget       : 240 W  (from research)
+  Used         : 15 W
+  Available    : 225 W
+  Port    Admin   Powered device        Requested  Status
+  1       auto    PD1                   7 W        on
+  2       auto    PD2                   8 W        on
+  3       never   PD3                   5 W        off (administratively)
 ```
+
+The **Admin** column is the operator's decision (`power inline auto|never`) and the **Status** column is
+the outcome — a port nobody has refused, a port refused by policy, and a port refused for budget are
+three different words (`on`, `off (administratively)`, `denied (budget exhausted)`). A port with no cable
+is not listed at all, so a table shorter than the port count is normal.
+
+From the powered device's side the same decision reads:
+
+```
+PD1#show power inline
+% PD1 declares poe-pse, passive-poe in its catalogue entry,
+% but no port record on it carries power-out - so there is nothing to switch on or off
+% That is a gap in the device specification, not a state of the device
+  eth0          7 W from SW1 port 1 - powered
+```
+
+That warning is worth understanding rather than skipping: a device can be a powered device **and**
+declare `poe-pse` (an access point that also feeds a camera), and when its spec claims the capability
+without a port record carrying `poeOut`, the console says so instead of inventing a budget.
 
 Two details in that block are worth reading twice, because both have caught people out:
 
-- `Used` is the rounded total while the port column keeps the real figure, so a single 12.95 W port
-  prints `Used : 13 W` above a line that says `12.95 W`. Both are the same decision.
+- `Used` is the total to **one decimal, truncated** — not rounded — while the port column keeps the exact
+  figure. One 12.95 W device prints `Used : 12.9 W` over a row saying `12.95 W`; a 7 W and a 12.95 W
+  device together print `Used : 19.9 W`, not `20.0 W`. `Available` subtracts the printed number
+  (`240 − 19.9 = 220.1`), so the last decimal of the budget is arithmetic, not a second measurement.
 - A `denied` port means the budget was already spent when `computePoe()` ran — which in a lab you
   built normally **cannot happen**, because cabling an over-budget combination is refused at the
   moment you draw the cable:
 
   ```
-  Error: SW1 PoE budget exceeded: 2 powered ports draw 40 W of a 30 W budget (Gi0/1, Gi0/2).
+  Error: UniFi Switch Lite 16 PoE PoE budget exceeded: 2 powered ports draw 60 W of a 45 W budget (port1, port2).
   code: E_POE_BUDGET
   ```
+
+  Note the prefix: the message names the **device specification**, not the hostname you configured, and
+  the ports are named the way that spec names them (`port1`, not `Gi0/1`). It reads oddly in a lab whose
+  switch is `SW1`, but it is the honest identifier — the budget belongs to the model.
 
   The check sums the ports' advertised `poeOut` — not what the powered devices ask for — so two
   20 W ports are refused on a 30 W budget even if the two cameras only want 12.95 W each. The
   `denied` status becomes reachable when the budget is *corrected after* the lab is wired (a
   datasheet figure revised by research), which is exactly when you want to see who lost power.
 
-The same decision is readable from the powered device's side (`12.95 W from SW1 port 1/1/1 -
-powered`, or `- denied (PSE budget exhausted)`), which is usually the faster answer to "why is
-this camera dead". A port with no cable is not listed: nothing is being negotiated on it.
+The powered device's own view is usually the faster answer to "why is this camera dead", and it names
+the port it is plugged into (`12.95 W from SW1 port 1 - powered`, or the refusal), because the port
+spelling belongs to the PSE's spec rather than to the device asking.
 
-### A PSE with no budget answers as if it had no PoE at all
+### A PSE with no budget says why, rather than inventing a figure
 
-The refusal is keyed on a **resolved budget and a port that can source power**, not on the
-`poe-pse` capability. So a device that declares itself a PSE and carries no budget anywhere in its
-spec prints the "not a PoE device" answer, and the access point on the other end of the cable says
-the PSE never replied. This is not a rare corner: **60 of the 102** PSE-capable devices in the
-catalogue are in it (57 MikroTik, 3 Ubiquiti) — routers whose datasheets give a port count and a
-`poe-pse` capability without a wattage.
+The decision is keyed on a **resolved budget and a port that can source power**, not on the
+`poe-pse` capability — so a device can declare itself a PSE and have nothing to switch. This is not a
+rare corner: **85 of the 102** PSE-capable devices in the catalogue are in it (57 MikroTik, 28
+Ubiquiti) — routers whose datasheets give a port count and a `poe-pse` capability without a wattage.
+
+Rather than answer "neither sources nor draws PoE" as if the device were not a PSE at all, the console
+names the gap and says which side of it is missing:
 
 ```
-SW1#show power inline
-% SW1 neither sources nor draws PoE
+R1#show power inline
+% R1 declares poe-pse, 802.3at, 802.3af, passive-poe in its catalogue entry,
+% but no port record on it carries power-out - so there is nothing to switch on or off
+% That is a gap in the device specification, not a state of the device
 
 AP1#show power inline
 Power inline on AP1:
-  eth0          12.9 W requested from SW1 port eth1 - no PSE answers
+  eth0          7 W requested from R1 port eth1 - no PSE answers
 ```
 
 Both lines are correct and neither is helpful on its own: the switch is a PSE by capability and a

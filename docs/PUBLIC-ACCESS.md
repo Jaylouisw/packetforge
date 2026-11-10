@@ -6,6 +6,15 @@ instance is readable at <https://git.jayw.uk>. No account, no passkey, no invite
 Writes are unchanged: opening an issue, pushing a branch, or changing settings still requires a
 Forgejo account with the right permission on the repository. **Forgejo is the gate, not Cloudflare.**
 
+Measured from a shell with no cookie and no token:
+
+| Request | Answer |
+|---|---|
+| `GET https://git.jayw.uk/jaylouisw/packetforge` | `200` |
+| `git ls-remote https://git.jayw.uk/jaylouisw/packetforge refs/heads/main` | the SHA — so anonymous `git clone` works, which is the thing the path-scoped policy broke |
+| `POST …/api/v1/repos/jaylouisw/packetforge/issues` | `401` |
+| `GET …/jaylouisw/packetforge/settings` | `303` → `/user/login` |
+
 ## How it is arranged
 
 The hostname `git.jayw.uk` sits behind Cloudflare Access, and there is a wildcard Access application
@@ -28,8 +37,13 @@ repository browsable but left `git clone` dead, because Forgejo clones through
 ## Why it is not a hole
 
 - Anonymous users get exactly what a logged-out visitor to any public forge gets: read.
-- `POST` to a repository's issue collection without a session is refused; `/settings` redirects to
-  the login form.
+- `POST` to a repository's issue collection without a session is refused — measured **`401`** against
+  `POST /api/v1/repos/jaylouisw/packetforge/issues` with a body and no cookie.
+- The write paths answer **`303` → `/user/login`**: measured on `/user/settings`,
+  `/jaylouisw/packetforge/settings` and `/repo/create`. Note the path that does *not*: a bare
+  `/settings` returns **`404`**, because there is no such route — Forgejo's settings live under a
+  user or a repository, so "the settings page redirects" is only true of the real ones. Nothing about
+  the bypass made that 404; it would be the same on an instance behind a passkey.
 - Access was never the thing protecting writes. Removing it from read paths does not widen the write
   path by a single route.
 
@@ -52,6 +66,23 @@ node scripts/cf-access-bypass.js --check    # only asks the edge: is it public? 
 
 The script verifies the only thing that matters — an anonymous request returning `200` — twice, four
 seconds apart, because an Access change is not instant at every edge location.
+
+Two things about invoking it are worth knowing before you do. It reads **only** `--apply` and
+`--check` (`argv.indexOf(...) !== -1`), so **`--help` is not a flag**: it is ignored, and the script
+runs its check against the live edge and prints a real verdict. And with no flags at all it still
+makes a network request — with the bypass already in place the output is:
+
+```
+$ node scripts/cf-access-bypass.js
+Anonymous access to https://git.jayw.uk/jaylouisw/packetforge
+  HTTP 200
+  PUBLIC — a stranger can read this repository
+
+Nothing to do.
+```
+
+So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you the current posture
+before deciding there is nothing to change.
 
 ## On the Global API Key
 

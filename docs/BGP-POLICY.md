@@ -1,6 +1,17 @@
 # BGP Path-Attribute Policy
 
-**Status:** design specification — not yet implemented.
+**Status:** **two layers, one implemented.** The **session** layer is real: `establishSession()`
+walks RFC 4271's FSM (idle → connect → opensent → openconfirm → established) and refuses with the
+codes listed below, measured present in `engine/bgp.js`/`engine/simulator.js`. The **decision process**
+is real too, and shorter than the RFC: `comparePaths()` implements **8 steps** — weight, local
+preference, locally originated, AS-path length, origin, MED, eBGP-over-iBGP, router-id — with MED
+compared *unconditionally*, which the file header declares as a simplification.
+
+The **policy layer specified below is not implemented**: route-maps, `match`/`set`, communities,
+MED non-transitivity across ASes, `always-compare-med`, `next-hop-self`, and the elimination pipeline
+that would replace the sortable comparator (§4.5 explains why a comparator cannot express the MED
+rule). Everything from §2 onward is therefore a specification to build against, not a description of
+what runs — and the anchors table in §1 is the map from the spec to the code that has to change.
 
 > **The session model this sits on is now a walk, not an assumption.** Until recently
 > `computeBgp()` declared a session established when two routers each had a `neighbor` line
@@ -67,7 +78,30 @@ is the citation that survives a refactor.
 
 | Anchor | Today | This design changes it to |
 |---|---|---|
-| `bgp.js` `DEFAULT_LOCAL_PREF` / `DEFAULT_WEIGHT` / `DEFAULT_MED` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
+### The eight steps, measured
+
+`comparePaths(a, b)` returns a negative number when `a` wins. Run against the current tree — the
+first path in each row wins, and each row isolates one step:
+
+| Row | `a` differs by | Verdict |
+|---|---|---|
+| weight beats local preference | `weight 100 / LP 50` vs `weight 0 / LP 200` | `-1` |
+| local preference beats AS-path length | `LP 200 / AS [1,2,3]` vs `LP 100 / AS [1]` | `-1` |
+| locally originated beats any AS path | `AS [] / igp` vs `AS [65001]` | `-1` |
+| shorter AS path wins | `AS [1]` vs `AS [1,2]` | `-1` |
+| lower origin wins (`igp` < `egp` < `incomplete`) | `igp` vs `incomplete` | `-1` |
+| lower MED wins | `med 10` vs `med 20` | `-1` |
+| **MED across two different ASes** | `AS [65002] / med 10` vs `AS [65003] / med 20` | `-1` — it compares, which real BGP does not |
+| eBGP over iBGP | `type ebgp` vs `type ibgp` | `-1` |
+| lower router ID last | `10.0.0.1` vs `10.0.0.2` | `-1` |
+| two identical paths | all defaults | `0` — deterministic, not arbitrary |
+
+The MED row is the one to read carefully: the same comparison across *different* neighbouring ASes
+returns `-1`, so this simulator prefers the lower MED even when the paths came from different ASes.
+That is the simplification §4.5 exists to remove, and it is why the elimination pipeline cannot be
+expressed as a sortable comparator.
+
+| Anchor | Today | This design changes it to | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
 | `bgp.js` `comparePaths(a, b)` (near the top of the decision section) | 8 steps, MED compared unconditionally (declared simplification in the file header comment) | 9 steps; MED only within a neighbouring AS; optional `opts` third argument; new peer-address step |
 | `bgp.js` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
 | `bgp.js` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |

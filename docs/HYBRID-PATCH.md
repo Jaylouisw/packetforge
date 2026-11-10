@@ -249,7 +249,18 @@ budgeting conventions and the `insertionLossBasis` behind each.
 
 ### 6.2 Three ways to charge it, and what this catalogue does
 
-`insertionLossBasis` on every entry says which of these you are looking at:
+`insertionLossBasis` says which of these you are looking at. It lives on the **parts** catalogue —
+`catalogue/optics/hybrid-patch-cords.json`, 13 assemblies, all 13 carrying the field — not on the
+device specs, and no code reads it yet (`engine/optical.js` mentions it only in a comment about which
+fields older entries predate). The measured split:
+
+| `insertionLossBasis` | Entries | Vendors and the numbers they quote |
+|---|---|---|
+| `per-connector-max` | 11 | FS.com 0.3 dB (three SKUs), L-com 0.3 dB (three), Siemon 0.4 dB (two), Panduit 0.5 dB, Corning 0.25 dB, Eaton Tripp Lite 0.3 dB |
+| `per-connector-typical` | 1 | 3M 0.3 dB |
+| `iec-61755-1-grade-c-max` | 1 | CommScope 0.5 dB (Grade C ceiling) |
+
+Which is what the three bases mean:
 
 - **`per-connector-max`** — a worst case you can budget directly (Corning,
   Siemon, Panduit, L-com).
@@ -267,10 +278,23 @@ Recommended budgeting, in order of preference:
 2. **Basis-aware accounting** (the clean fix, needs an engine change):
    `ponBudget` adds `cord × 2` for `per-connector-*` parts and `cord` for
    `per-assembly` parts, and the caller drops `connectorPairs` by the number of
-   cord ends. The catalogue already carries the field needed to do this.
+   cord ends. The parts catalogue already carries the field needed to do this — but only as data:
+   nothing in `engine/` reads `insertionLossBasis`, so the branch described here is the change that
+   would make it matter.
 3. **Charge the published number as-is** (what `patchCordLossDb: 0.3` does now).
    Defensible as a conservative over-estimate, but it should then be documented
    as "cord plus its two mated pairs", not "the cord".
+
+Measured on the same 1 km / 1:4 / B+ path, so the three conventions can be seen as three numbers
+rather than three opinions:
+
+| Call | `lossDb` | `headroomDb` | `breakdown.connectors` | `breakdown.patchCord` |
+|---|---|---|---|---|
+| no cord declared (two pairs charged) | `8.42` | `19.58` | `pairs 2, 0.6 dB` | `0` |
+| `patchCordLossDb: 0.3` — convention 3 | `8.72` | `19.28` | `pairs 2, 0.6 dB` | `0.3` |
+| `patchCordLossDb: 0.1` — convention 1, charging the delta | `8.52` | `19.48` | `pairs 2, 0.6 dB` | `0.1` |
+| `patchCordLossDb: 0.3, connectorPairs: 0` — convention 2's arithmetic | `8.12` | `19.88` | `pairs 0, 0 dB` | `0.3` |
+| `connectorPairs: 1` (sanity: one pair is 0.3 dB) | `8.12` | `19.88` | `pairs 1, 0.3 dB` | `0` |
 
 Whatever the choice, it should be one of these on purpose, and it should be the
 same in the docs, the tests and the UI.
@@ -330,7 +354,7 @@ them by `partNumber` or `id`, `cordFits()` compares `endA`/`endB`, `cordLossDb()
 reads `insertionLossDb`, and `hybridCord()` answers both argument orders.
 
 **Ordering is user-visible.** `hybridCord()` returns the first match
-(`engine/optical.js:324-327`), and that part number is printed in the
+(`engine/optical.js:377`), and that part number is printed in the
 `E_POLISH_MISMATCH` message. With the file loaded as written, an
 `sc-upc`↔`sc-apc` refusal names `SMSCSX`; add a part above it and the message
 changes. If that instability matters, the loader should prefer an explicit

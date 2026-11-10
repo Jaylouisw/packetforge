@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A number that names something is not a time.** `show vrrp <group>` and `show ip ospf <process-id>`
+  took their number as a convenience *instant*, so `show vrrp 1` on the group-1 master answered "VRRP
+  at t=1 ms" from before the election, and `show ip ospf 99` answered about process 1 at t=99 ms —
+  two different questions, one word apart, with nothing saying the argument had been dropped. The
+  rule now: a trailing number is an instant only where the view has no other use for one. Both forms
+  filter to what they name (`% No VRRP group 9 on R1` / `% No OSPF process 1 on R1` list the ones that
+  do exist), `at <ms>` and `converged` stay instants everywhere, and the help page says
+  `show vrrp [<group>]` / `show ip ospf [<process-id>]`. See [docs/CLI.md](docs/CLI.md).
+- **`show tech-support` answers with the views that exist instead of "invalid command".** A model
+  with no memory image, no register state and no log file cannot produce a support bundle, so the
+  command says so and then names what does answer the same questions — `show version`,
+  `show running-config`, `show interfaces`, `show ip route`/`show ip ospf`/`show ip bgp summary`,
+  `show logging`, `show history`.
+- **`show spanning-tree vlan <id>` asks about one VLAN, and refuses an absent one honestly** —
+  `% No VLAN 20 on SW1 - nothing is configured for it and no port carries it`, followed by the VLANs
+  that do exist. It no longer reports VLAN 1's tree for a VLAN nobody configured.
+- **The `clear` family takes its keywords, and a bare word is read as an address, not a guess.**
+  `clear counters bogus` answers `% No interface named bogus on SW1` with a hint at
+  `show ip interface brief`, and `clear port-security …` refuses on privilege
+  (`needs enable mode - type "enable" first`) before it argues about the interface.
+- **An SVI is an address, not a port.** `no vlan 30` on a VLAN holding the switch's own address now
+  answers `% VLAN 30 is this device's own address: Vlan30` and names the remedy
+  (`Remove the interface first - "no interface vlan 30" - and the VLAN stays empty`) instead of
+  offering `switchport` for something with no cable. `show vlan brief` marks the row `Vlan30 (SVI)`,
+  and the two dependencies — the interface and the VLAN — are reported as two separate steps.
 - **`traceroute` / `tracert`** — walks the path the routing tables select, hop by hop, with each
   hop's address, device and cumulative one-way delay. It deliberately does **not** send
   TTL-limited probes: ICMP errors are still unmodelled (no destination-unreachable, no

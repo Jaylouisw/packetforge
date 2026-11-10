@@ -33,7 +33,7 @@ If you already have the JSON, skip the form and open a PR — see
    maintainer works the first list.
 3. **The device is written** as `devices/<vendor>/<model>.json`. No code changes
    are needed for a new model, ever.
-4. **CI checks it** — `test/hardware-invariants.test.js` runs **22** assertions over the whole
+4. **CI checks it** — `test/hardware-invariants.test.js` runs **25** assertions over the whole
    catalog (not just your file). Among them, it fails if:
    - the description promises optical ports that no interface provides
    - two ports share a name
@@ -74,8 +74,21 @@ ONTs and OLTs, transceivers. If it has a port, a radio, or a cable, it belongs.
 
 ```bash
 node scripts/request-queue.js                  # the queue, grouped by readiness
-node scripts/request-queue.js --json           # machine-readable
 node scripts/request-queue.js --skeleton 12    # JSON stub for request #12
+```
+
+`--skeleton` is the **only** flag this script parses (`argv.indexOf('--skeleton')`). There is no
+`--json` switch despite what an earlier version of this page said — a `--json` on the command line is
+ignored and you get the same grouped text report. If you want the raw queue, read the API directly with
+the `curl` in [TRIAGE.md](TRIAGE.md).
+
+**Every invocation needs `FORGEJO_TOKEN`.** Without it the script stops before parsing anything and
+exits **2**, with a message that is worth reading rather than skimming because it names the mistake
+people make:
+
+```
+Could not read issues from jaylouisw/packetforge.
+FORGEJO_TOKEN is not set - the tracker is not readable without it (this is not the same as "no open requests")
 ```
 
 The skeleton command prints a stub with the vendor, model, category and source
@@ -93,7 +106,30 @@ node scripts/missing-devices.js              # scan examples/, report only
 node scripts/missing-devices.js lab5.json    # one topology, or a whole directory
 node scripts/missing-devices.js --stubs      # write research/incoming/missing-<vendor>.json
 node scripts/missing-devices.js --json       # machine-readable
+node scripts/missing-devices.js --no-issues  # skip the issue scan entirely
+node scripts/missing-devices.js --strict     # also fail when an open request names a model we lack
 ```
+
+There are four flags plus help (`--stubs`, `--json`, `--no-issues`, `--strict`, `-h`/`--help`), and the
+script validates them: an unknown one prints `Unknown flag: --bogus` with the usage line and exits **2**,
+while `--help` exits **0**. Nothing is silently ignored — unlike `request-queue.js` above, whose only
+flag is `--skeleton` and whose extra arguments vanish. Two of the five are worth
+understanding before a CI run surprises you:
+
+- **The default run also scans the tracker**, not just the topologies. That needs `FORGEJO_TOKEN`, and
+  without one it does not fail — it prints its own line and carries on:
+
+  ```
+  Open device-request issues:
+    not scanned: FORGEJO_TOKEN is not set - the tracker is not readable without it (this is not the
+    same as "no open requests") -- the topology scan above is unaffected.
+  CI gate: passed.
+  ```
+
+  `--no-issues` says the same thing without the token lookup. Either way the exit code reflects the
+  **topology** scan only, so a green run does not mean the tracker was read.
+- **`--strict` moves the gate.** Normally the issues section is informational and only a missing model
+  fails the run; with `--strict` an open request for a model the catalogue lacks fails it too.
 
 It exits 1 as soon as a lab references a model that is not in `devices/`, which
 is why CI runs it over `examples/`: a lab cannot merge alongside hardware the
@@ -104,8 +140,17 @@ string names the type outright, `capabilities` is the `["host"]` placeholder and
 `interfaces` is empty with a note saying why. That is deliberate — the port list
 is the field the physical layer trusts, and an invented one creates a device that
 refuses cabling the real hardware accepts. Fill the ports in from a datasheet,
-then run `node scripts/import-devices.js --apply`. Re-running `--stubs` never
-overwrites what you have already filled in.
+then run `node scripts/import-devices.js --apply`. Re-running
+`node scripts/missing-devices.js --stubs` never overwrites what you have already
+filled in: it reads the existing file, compares by model, and appends only the
+models that are not in it (a file it cannot parse is left untouched and reported).
+
+**The two scripts do not share flags, and one of them does not complain.** `--stubs`
+belongs to `missing-devices.js`, which validates its flags. `import-devices.js`
+accepts `--all`, `--apply`, `--write`, `--upgrade` and `--json` and **ignores
+anything else silently** — measured, `node scripts/import-devices.js --stubs` prints
+`Scanned 49 file(s), 670 spec(s)` / `Would add: 0  duplicates: 670` and exits **0**,
+i.e. it performs a normal import and writes no skeleton at all.
 
 To close the loop on a merged request, reference the issue in the commit
 (`closes #12`) so the requester is notified automatically.

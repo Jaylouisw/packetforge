@@ -30,17 +30,21 @@ emits an event so the UI can replay the packet path.
 
 ### Module map
 
-Thirty files, one job each. Every one is pure except `optical.js`, which lazily reads part
+Thirty-two files, one job each. Every one is pure except `optical.js`, which lazily reads part
 numbers out of `catalogue/optics/` — and even `flow.js` and `nat.js` describe themselves as taking
 caller-supplied logical ticks rather than `Date.now()`, so the same lab replays identically. That is
 why the suites can drive these modules directly. The purpose in each row is the file's own header
-line, so it can be checked against the source rather than trusted.
+line, so it can be checked against the source rather than trusted — with three honest exceptions, found
+by comparing every row to `head -3 engine/<file>.js`: `convergence.js` opens its header at the 802.1D
+defaults, `segment.js` at the broadcast-domain tagging rule, and `scion.js` with the acronym before the
+purpose on the next line. Those three rows paraphrase the header's intent; the other twenty-nine are
+the header line itself.
 
 | Module | Job |
 |---|---|
 | `index.js` | public engine API — re-exports the lot |
 | `simulator.js` | event-driven packet simulation: the forwarding path and the event queue |
-| `device.js` | Device + Interface model (vendor-agnostic), `routeTo()`, `CAPABILITIES` |
+| `device.js` | Device + Interface model (vendor-agnostic), `routeTo()`, `CAPABILITIES`. Also hosts `addSvi()` / `hasSvi()` / `bridgedInterfaces()` (a switch's own address on a VLAN — a host function, never a bridge egress; `canTerminate` in the simulator gates termination), `betterRoute()` / `ADMIN_DISTANCE` — the one route-selection rule: longest prefix, then lower administrative distance, used by **both** the IPv4 (`routeTo`) and IPv6 (`route6To`) data paths and by both show tables. It exists because the IPv6 path had a second, hand-written copy that drifted twice — a connected loop with no comparison at all, and a static-versus-connected tie that went to the static route |
 | `topology.js` | container of devices + links, with (de)serialisation |
 | `link.js` | a physical link (cable / optic / DAC) between two interfaces |
 | `media.js` | physical media, transceiver and port-hardware model |
@@ -48,9 +52,9 @@ line, so it can be checked against the source rather than trusted.
 | `validation.js` | cabling-feasibility rules engine |
 | `net.js` | pure IPv4 / MAC / subnet helpers, zero dependencies |
 | `table.js` | the one console table renderer: column widths measured from the data, never typed in |
-| `device.js` — `addSvi()` / `hasSvi()` / `bridgedInterfaces()` (a switch's own address on a VLAN — a host function, never a bridge egress; `canTerminate` in the simulator gates termination), `betterRoute()` / `ADMIN_DISTANCE` | the one route-selection rule: longest prefix, then lower administrative distance, used by **both** the IPv4 (`routeTo`) and IPv6 (`route6To`) data paths and by both show tables. It exists because the IPv6 path had a second, hand-written copy that drifted twice — a connected loop with no comparison at all, and a static-versus-connected tie that went to the static route |
 | `ipv6.js` | pure IPv6 addressing, prefix and neighbour-discovery helpers |
 | `iface-name.js` | one port, many spellings — front-panel vs console names |
+| `abbrev.js` | unambiguous keyword abbreviation — the IOS rule |
 | `flow.js` | transport flows: a conversation, not a probe (TCP state, MSS, UDP headers) |
 | `latency.js` | how long a packet is actually on the wire |
 | `convergence.js` | how long each control-plane process takes to finish |
@@ -68,6 +72,7 @@ line, so it can be checked against the source rather than trusted.
 | `scion.js` | SCION addressing and path selection |
 | `ra.js` | Router Advertisement (ICMPv6 134) / Router Solicitation (133) |
 | `lldp.js` | the protocol that exists to answer "what is plugged into this port" |
+| `portsecurity.js` | the switch's own answer to "which sources may I hear on this port" |
 | `cli.js` | vendor-agnostic management console (Cisco-like, not Cisco-only) |
 
 If you are looking for a protocol and it is not in that list, it is not in the engine — check
@@ -228,6 +233,19 @@ protocol level the connection is minimal RFC 6455: text frames, `close` (0x8) an
 (0x9/0xA). No compression, no fragmentation, no presence list — the server does not tell you who
 else is connected.
 
+Measured with a hand-rolled client, because "no reply" and "a reply you did not expect" look the same
+if you only count bytes:
+
+| Probe | Result |
+|---|---|
+| Upgrade on `/`, `/ws`, `/deep/path`, `/api/topologies` | `101 Switching Protocols` on all four |
+| Handshake with no `Sec-WebSocket-Key` | **zero bytes**, socket closed — not a `400` |
+| **Frames arriving unprompted, right after the handshake** | **2** — so a client must not treat the first frame it reads as the answer to what it just sent |
+| Three junk frames (`{"type":"bogus"}`, `not json`, `{}`) | **0** frames back in 800 ms — discarded, no error frame |
+
+That second row is the one that costs an afternoon: subscribe first, filter by `type`, and never
+assume the socket is quiet because you have not written anything yet.
+
 **The socket is not mounted at a path.** The `upgrade` handler runs before any routing, so `GET /`,
 `/ws`, `/deep/path` and even `/api/topologies` all answer `101 Switching Protocols` — measured on
 all four. The bundled UI uses `/`, and a client can use anything; there is no `/ws` to get wrong.
@@ -245,7 +263,9 @@ Writes go to a temporary file and are renamed into place, so a crash mid-write c
 that the next boot refuses to parse; they are also immediate rather than debounced (a 120 ms
 debounce was removed because on Windows a kill during the window lost the last edits). The saved
 envelope carries `{format, version, savedAt, topology}` — the board is nested under `topology`, not
-at the top level. `data/` is gitignored. All state is JSON-serializable, which is what makes
+at the top level, and the nested object carries its own `{format, version, seq, devices, links, layout}`
+(measured by creating a board, adding one device and reading the file:
+`{"format":"packetforge-topology","version":1,"savedAt":"2026-11-10T18:10:50.587Z","topology":{"format":…,"version":1,"seq":…,"devices":[…],"links":[],"layout":{}}}`). `data/` is gitignored. All state is JSON-serializable, which is what makes
 import/export and the "New" button trivial.
 
 Two consequences worth knowing before you trust the file tree as a record of what exists:
@@ -286,8 +306,18 @@ The board endpoints above are the ones a client needs first, and for a long time
 ones written down — which meant the UI's actual client surface was undocumented. The full set is
 **eleven namespaces under `parts[3]` — `config`, `devices`, `flows`, `interfaces`, `layout`,
 `link-options`, `links`, `load`, `ping`, `reset`, `validate-link` — carrying eighteen call
-signatures** (counted from the dispatcher: `links` alone has four, `devices` and `flows` two each),
-plus the board-level routes above and the three catalogue routes below. Per namespace:
+signatures** in **fifteen dispatcher blocks**, plus the board-level routes above and the three catalogue
+routes below.
+
+Counted from `server/index.js` rather than by eye, because the shape is not what the namespace list
+suggests: `links` carries **four** (`POST` a link, `DELETE` one, the length edit, and `…/:linkId/state`),
+`flows` also carries **four** (`GET` the list, `POST` to open one, `GET` one, `DELETE` one), `devices` two
+(`POST`, `DELETE`), and the remaining eight namespaces one each. The 18-versus-15 gap is entirely three blocks that
+answer more than one method (`links` on `…/:linkId` does three, `flows` does two in each of its blocks);
+counting methods naively gives 19, and counting the length edit's `PATCH` *or* `POST` as one call — which
+is how the table below lists it — gives 18.
+
+Per namespace:
 
 | Call | Answer |
 |---|---|

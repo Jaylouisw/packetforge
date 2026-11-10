@@ -25,11 +25,11 @@ problem it describes. Measured on the current tree before touching anything else
 
 | Claim in §1 | Then | Now |
 |---|---|---|
-| "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **122** ports across the catalogue |
-| "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **138** such ports: **104** on `wwan`, **33** still on `antenna`, **1** on `rj45` |
-| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**432**), `powerline` (**12**) and `usb` (0 in use) are all cages now |
+| "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **155** ports across the catalogue (recounted; this row said 122 and the catalogue has grown since) |
+| "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **138** such ports, and **137 of them now resolve to `wwan`** — the name-first rule in `inferCage()` (P1, #129) claims them before the wireless-type rule can. The single exception is **1** on `rj45`, a port whose name says modem and whose spec says copper. This row read "104 on `wwan`, 33 still on `antenna`, 1 on `rj45`" before that fix landed |
+| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**430**), `powerline` (**12**) and `usb` (0 in use) are all cages now, out of 12 cage kinds carrying ports |
 | `routeTo()` returns one route, so two defaults are not multihoming | true | **still true** — two `ip route 0.0.0.0 0.0.0.0` lines are both stored and `routeTo('8.8.8.8')` answers `{ via: '203.0.113.1', … }`, the first one, with `iface: null` because the next hop is resolved later |
-| a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws** `Cannot mate SC/APC to RJ45 (incompatible connectors)` while `validateLink()` returns it as `E_CONNECTOR_MISMATCH` |
+| a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws**, prefixed with both endpoints — `UFiber OLT 4/gpon1 <-> UniFi Cloud Gateway Fiber/WAN: Cannot mate SC/APC to RJ45 (incompatible connectors).` — while `validateLink()` returns the same fault as `E_CONNECTOR_MISMATCH` without throwing. Anything that matches on the message must allow for that `<device>/<port> <-> <device>/<port>: ` prefix |
 
 So the medium half of this design has largely landed, and the routing half — one default slot, no policy,
 no failover — has not. The sections below are kept as the specification they are, but read §1 as the
@@ -124,7 +124,7 @@ one is wrong even if it makes issue #30 work.
 |---|---|---|
 | C1 | A topology saved before this change loads and reloads identically | `test/topology-roundtrip.test.js`, `test/server-persistence.test.js` |
 | C2 | Every cable that mates today still mates, at the same medium and rate | `test/cable-matrix.test.js` (an explicit cageA×cageB verdict table — the specification, not a snapshot) |
-| C3 | `routeTo()` keeps its signature and single-route return | 8 **call** sites in `simulator.js` today (`grep -n 'routeTo(' engine/simulator.js` lists ten matches — eight calls, one comment, one prose mention; recount rather than trusting this row). The criterion is the signature `routeTo(dstIp)` returning one route or `null`, which the ARP, next-hop and TTL paths all depend on |
+| C3 | `routeTo()` keeps its signature and single-route return | **10 call sites** in `simulator.js` today, measured as `grep '\.routeTo(' engine/simulator.js \| grep -vc '//'` — and note the three counts differ, which is why this row keeps going stale: `grep -c 'routeTo('` returns **13** (it matches prose and comments), `grep -c '\.routeTo('` returns **11**, and only the comment-filtered count is **10**. The criterion is the signature `routeTo(dstIp)` returning one route or `null`, which the ARP, next-hop and TTL paths all depend on |
 | C4 | A device with no upstream configuration behaves exactly as today | new `test/upstream-baseline.test.js` (phase 0) |
 | C5 | No device spec gains a required field; all models load (1,584 today, 878 when this was written) | `test/hardware-invariants.test.js`, and the whole `npm test` chain (61 suites then, 112 now) |
 
@@ -164,10 +164,11 @@ catalogue task (a JSON file), not an engine change.
 
 ### 3.1 Layer 1 — add the cellular family
 
-`media.js:54 MEDIA` has 57 entries and eight families
-(copper, fiber, coax, dsl, powerline, dac, console, wireless).
-(`docs/PHYSICAL_LAYER.md` §2 still says 53 — the catalogue grew and the prose did
-not; the count is 57 at `d399dff`, per the probe.) Add a ninth:
+`media.js:54 MEDIA` holds **89** entries across **nine** families — copper 7, fiber 31,
+fibre-channel 16, coax 6, dsl 3, powerline 4, dac 7, console 6, wireless 9 (counted today; the line
+number is still 54, but the numbers in this paragraph have moved twice since it was written: it said
+57 entries and eight families, and the related note that `docs/PHYSICAL_LAYER.md` §2 still said 53 is
+obsolete — that page now carries 89/9/26). Add a **tenth** family:
 
 ```js
 // ---- cellular: licensed radio, no cable ----

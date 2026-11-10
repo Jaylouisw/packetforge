@@ -22,7 +22,8 @@ That is enough. You do not need to write JSON.
    not describe two identical ports differently.
 3. The spec records the datasheet URL it was built from, so a later reader can check the claim
    rather than trust it. It is **recommended, not enforced**: 1,234 of the 1,584 specs carry a
-   `sourceUrl` today, and the rest are tracked as missing rather than refused.
+   `sourceUrl` today and 22 more carry the older `source` spelling, so 1,256 point at a datasheet
+   somewhere; the remaining 328 are tracked as missing rather than refused.
 
 ## What "accurate" means here
 

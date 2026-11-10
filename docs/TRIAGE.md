@@ -1,10 +1,18 @@
 # Triage: hardware requests
 
-Every open issue in this repository is a device request — **all 126 of them** when this was last
-measured, each carrying both the `device` and `device-request` labels — and a steady fraction ask for
-hardware that is already modelled. Each one costs a human reading it. `scripts/sweep-device-requests.js` answers,
-mechanically, the only question that matters before anyone reads the body: **is this already in the
-catalogue?**
+Nearly every open issue in this repository is a device request — **126 of 127** when this was measured,
+each carrying both the `device` and `device-request` labels — and a steady fraction ask for hardware
+that is already modelled. Each one costs a human reading it.
+`scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before anyone
+reads the body: **is this already in the catalogue?**
+
+The exception is worth knowing by name, because a page that says "every" invites a reader to stop
+checking: **#1335** ("The console over HTTP has its own counters…") carries **no labels at all** and is
+not a device request. The script does not care either way, and that is the more useful fact —
+it counts a device request by the **title prefix** (`[device]` / `[hardware]`, case-insensitive),
+never by label. So an unlabelled `[device]` request is found like any other, and #1335 is scanned only
+as a body to match against the catalogue — which is why the sweep is safe to run over the whole queue
+rather than a filtered one.
 
 The count moves, so re-measure rather than trusting this page. The API is readable without a token:
 
@@ -26,13 +34,22 @@ node scripts/sweep-device-requests.js --close 10       # comment and close 10 ve
 public host answers the same API, so the read-only checks in this page work from anywhere; closing
 issues needs the address the script expects.
 
-The script's own header still says the repository "has ~830 open issues"; it has **126** (measured
-against the tracker while writing this page). Nothing reads that comment, and `--limit 200` still
-covers the whole queue — but do not quote the header as if it were a count.
+The script's own header still says the repository "has ~830 open issues"; it has **127** (measured
+against the tracker: `x-total-count` on the `limit=1` request above). Nothing reads that comment — and
+`--limit 200` still covers the whole queue, as the default does — but do not quote the header as if it
+were a count.
 
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
-200** — with the backlog at 126 that default already covers everything, so the flag is only needed
-once the queue grows past it (`--limit 900` scans a large backlog in one pass). `--close` is a
+200** — with the backlog at 127 that default already covers everything, so the flag is only needed
+once the queue grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps
+a page at **50** regardless: the script paginates, so `--limit 200` is four requests, not one, and the
+`limit=1` count above is the only request whose size you can predict. That is why `LIMIT_PER_PAGE`
+is 50 and not 200: the loop stops when a page comes back short (`batch.length < LIMIT_PER_PAGE`), so a
+page size *above* the server's cap would end the scan after one page and report a quiet fraction of
+the queue. The cap and the constant have to agree, and today they agree *exactly* — measured:
+`limit=51` returns **50** items, `limit=50` returns 50 — so `LIMIT_PER_PAGE = 50` sits on the cap with
+no headroom. If the server's cap ever drops below 50, the sweep keeps working and quietly scans one
+page; if it rises, nothing changes. That asymmetry is the reason this paragraph exists. `--close` is a
 budget, not a switch: `--close 0` (the default) reports, and the report itself prints at most 40
 matches before saying "... and N more".
 
