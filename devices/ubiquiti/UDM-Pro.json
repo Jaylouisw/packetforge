@@ -22,7 +22,8 @@
     {
       "name": "wan2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+"
     },
     {
       "name": "port1",

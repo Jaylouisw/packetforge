@@ -478,5 +478,80 @@ console.log('\nPunctuation cannot smuggle a duplicate into the catalogue:');
 }
 
 
+console.log('\nA spec that says SFP does not get copper sockets:');
+{
+  // The spec's own words say "48x 1/10G SFP+", its portTemplate declares no connector, and 10G is
+  // not in the engine's optical rate list - so every one of those ports derived as an RJ45 socket.
+  // The result is a fibre-only switch you can plug a patch lead into, and every fibre run to it is
+  // refused. Seven specs did this in one go (264 ports, aruba/CX 8320 and cisco/N3K-C3064PQ among
+  // them) while scripts/audit-port-types.js reported it as a paragraph nobody fails on.
+  //
+  // The rule looks at TEMPLATE ports only, which is where the damage was: a template is one line
+  // that stamps N sockets, so one missing connector turns a whole faceplate into copper at once. An
+  // explicit port is a hand-written statement about one socket - and a box like an ONT legitimately
+  // has a single 10GBASE-T copper LAN beside its SFP+ PON module, which is a fact about that one
+  // port rather than a block of hardware going wrong.
+  //
+  // Boxes that also say RJ45/copper/10GBASE-T are skipped: "24x RJ45 + 4x SFP" is a copper switch
+  // with fibre uplinks, and its copper ports are the truth. The audit draws the line in the same
+  // place, so the two do not disagree about which specs to look at.
+  const FIBRE = /\b(sfp|sfp\+|sfp28|sfp56|qsfp|qsfp\+|qsfp28|qsfpdd|xfp)\b/i;
+  const COPPER = /\b(rj45|rj-45|copper|10gbase-t|1000base-t|8p8c)\b/i;
+  function specText(spec) {
+    return [spec.model, spec.label, spec.description].filter(Boolean).join(' ');
+  }
+  function templatePortNames(spec) {
+    const t = spec.portTemplate;
+    if (!t) return new Set();
+    const prefix = t.prefix || 'eth';
+    const start = (t.start === undefined || t.start === null) ? 1 : t.start;
+    const count = (t.count === undefined || t.count === null) ? 1 : t.count;
+    const names = new Set();
+    for (let i = 0; i < count; i++) names.add(prefix + (start + i));
+    return names;
+  }
+  function copperSocketsOfFibreBox(spec, ifaces) {
+    const text = specText(spec);
+    if (!FIBRE.test(text) || COPPER.test(text)) return [];
+    const fromTemplate = templatePortNames(spec);
+    const out = [];
+    for (const i of ifaces) {
+      if (!fromTemplate.has(i.name)) continue;
+      const cage = i.hardware && i.hardware.cage;
+      const speed = Number(i.hardware && i.hardware.maxSpeedMbps) || 0;
+      if (cage === 'rj45' && speed >= 10000) out.push(spec.model + ' ' + i.name + ' (' + speed + ' Mbps on rj45)');
+    }
+    return out;
+  }
+
+  const offenders = [];
+  for (const x of all) offenders.push.apply(offenders, copperSocketsOfFibreBox(x.spec, x.ifaces));
+  ok(offenders.length === 0, 'no spec describing itself as SFP/QSFP models those ports as copper' +
+    (offenders.length ? ' (' + offenders.length + ': ' + offenders.slice(0, 4).join('; ') + ')' : ''));
+
+  // Proof the rule bites, so a clean catalogue cannot make it look like it works: the same check on
+  // a fabricated spec with the shape those seven had must report every port.
+  const badTemplate = { prefix: 'p', start: 1, count: 4, type: 'ethernet', speed: '10G' };
+  const badSpec = { model: 'Fixture 48SFP+', description: '48x 10G SFP+ fabric switch', portTemplate: badTemplate };
+  const badTopo = new Topology();
+  const badDev = badTopo.addDevice({
+    vendor: 'fixture', model: badSpec.model, label: badSpec.model, category: 'switch',
+    description: badSpec.description, portTemplate: badTemplate
+  });
+  const badHits = copperSocketsOfFibreBox(badSpec, [...badDev.interfaces.values()]);
+  ok(badHits.length === 4, 'and the rule reports all four ports of a spec shaped like the ones it caught (' + badHits.length + ')');
+
+  // ... while a copper switch that merely has fibre uplinks is left alone.
+  const mixedTemplate = { prefix: 'p', start: 1, count: 4, type: 'ethernet', speed: '1G' };
+  const mixedSpec = { model: 'Fixture 24G 4SFP', description: '24x RJ45 1G plus 4x SFP+ uplinks', portTemplate: mixedTemplate };
+  const mixedTopo = new Topology();
+  const mixedDev = mixedTopo.addDevice({
+    vendor: 'fixture', model: mixedSpec.model, label: mixedSpec.model, category: 'switch',
+    description: mixedSpec.description, portTemplate: mixedTemplate
+  });
+  ok(copperSocketsOfFibreBox(mixedSpec, [...mixedDev.interfaces.values()]).length === 0,
+    'and a copper switch with fibre uplinks is not accused of anything');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
