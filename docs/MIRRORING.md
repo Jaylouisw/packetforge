@@ -54,16 +54,36 @@ whichever syncs second wins, and on a force-push they can ping-pong indefinitely
 Neither platform mirrors PRs, and there is no setting that makes it happen. A bot does it:
 
 1. Poll GitHub for open PRs (`GET /repos/:owner/:repo/pulls?state=open`).
-2. For each, fetch the head: `git fetch https://github.com/... refs/pull/<n>/head:gh-pr/<n>`.
-   This works for fork PRs on a public repo.
-3. Push `gh-pr/<n>` to Forgejo and open (or update) a PR titled `[gh#<n>] <title>`, body linking the
-   original and crediting the author.
-4. **Forgejo CI runs and is the gate.** Review happens on the Forgejo PR.
-5. On merge, the push mirror updates GitHub, and the bot comments the outcome on the GitHub PR and
-   closes it: `Landed as <forgejo PR url>`.
+2. For each, fetch the head: `git fetch --force https://github.com/<owner>/<repo>.git
+   refs/pull/<n>/head:refs/heads/gh/<n>`. This works for fork PRs on a public repo — `refs/pull/N/head`
+   exists on the *base* repository even when the PR comes from a fork.
+3. Push `gh/<n>` to Forgejo and open (or update) a PR titled `[gh#<n>] <title>`, body linking the
+   original and crediting the author, with a `<!-- gh-pr: N -->` marker in the body.
 
-Keyed on the **head SHA**, so it is idempotent: a contributor pushing twice updates one Forgejo PR
-rather than opening a second. Closing the GitHub PR closes the Forgejo one; a force-push updates it.
+   The branch is **`gh/<n>`**, not `gh-pr/<n>`: an earlier version of this page wrote the second form,
+   and the script has only ever written the first (`const branch = 'gh/' + pr.number`). Anyone
+   scripting against this should read `scripts/gh-bridge.js` rather than this list.
+4. **Forgejo CI runs and is the gate.** Review happens on the Forgejo PR.
+5. On merge, the push mirror updates GitHub, and `--report` comments the outcome on the GitHub PR.
+
+Two mechanisms this list used to describe wrongly, both read off the script:
+
+- **Idempotency is keyed on the marker, not the head SHA.** `indexByMarker(existing, /<!-- gh-pr: (\d+) -->/)`
+  finds the Forgejo PR that already carries this GitHub number, so a contributor pushing twice updates
+  one Forgejo PR rather than opening a second. The head SHA appears only as prose in the PR body —
+  `Branch \`gh/<n>\` carries their commits verbatim (head <sha12>)` — and nothing branches on it.
+- **The comment says what happened, in its own words**, not `Landed as <url>`:
+
+  ```text
+  Merged on the forge as <PUBLIC>/<repo>/pulls/<n> (commit <sha12>). It is already on GitHub main — the mirror pushes automatically.
+  ```
+
+  It is posted once: the report pass first asks GitHub whether any comment already contains
+  `/pulls/<n>` and skips the PR if one does, so re-running `--report` does not stack comments.
+
+The bridge does **not** close anything. It reads closed Forgejo PRs to find merges; the GitHub PR is
+left for a human, because a bot closing PRs on a read-only mirror is a policy decision rather than a
+sync step.
 
 What the GitHub contributor sees: they open a PR the way they always do, a bot replies within a few
 minutes with a link to where the discussion is, and their commits are already there.
@@ -148,7 +168,11 @@ repository if the instance default is private (Settings → Advanced → *This r
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
   three stale links plus two scripts still calling `gh` the first time it ran.
 - `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
-  token is reported as *"cannot look"* and exits 2, never as *"no open requests"*.
+  token is reported as *"the tracker is not readable without it (this is not the same as \"no open
+  requests\")"* and the calling script exits **2** — measured on `request-queue.js`, which prints
+  `Could not read issues from jaylouisw/packetforge.` and then that sentence. Never as *"no open
+  requests"*: an unreadable tracker and an empty one are different answers, and only one of them
+  means you can stop working.
 - `test/canonical-urls.test.js` — proves the checker can fail, so it is not a test that passes
   because it checks nothing.
 
