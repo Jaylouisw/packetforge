@@ -118,9 +118,16 @@ console.log('\nThe page is filtered by what the device can do:');
 {
   const pc = freshLab(model('generic-pc'));
   const pcRows = helpRows(pc.d, ['configure terminal']).join('\n');
+  // Matched at the start of a row, not anywhere in the page: `no interface vlan <id>` is a
+  // different command from `vlan <id>`, and a substring check cannot tell them apart.
+  const startsARow = function (text, synopsis) {
+    return text.split('\n').some(function (line) {
+      return line.replace(/^\s+/, '').indexOf(synopsis) === 0;
+    });
+  };
   for (const forbidden of ['vlan <id>', 'switchport <verb>', 'spanning-tree vlan', 'router ospf',
-    'router bgp', 'ip nat inside source static']) {
-    ok(pcRows.indexOf(forbidden) === -1, 'a PC is not offered "' + forbidden + '"');
+    'router bgp', 'ip nat inside source static', 'no interface vlan <id>']) {
+    ok(!startsARow(pcRows, forbidden), 'a PC is not offered "' + forbidden + '"');
   }
   const sw = freshLab(model('generic-switch'));
   const swRows = helpRows(sw.d, ['configure terminal']).join('\n');

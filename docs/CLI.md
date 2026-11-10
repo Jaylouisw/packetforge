@@ -1196,6 +1196,37 @@ Replies now carry a real millisecond time, computed from the path (propagation i
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
 [CONVERGENCE.md](CONVERGENCE.md).
 
+### A switch's own address could be created and never removed
+
+`interface vlan 20` + `ip address` addresses the switch on that VLAN: it appears in
+`show ip interface brief`, installs a connected route, and answers a ping. Removing it did not work,
+in either spelling:
+
+```
+SW1(config)#no interface vlan 20
+% Interface not found: vlan            <- the two-token spelling read "vlan" as a port name
+
+SW1(config)#no interface Vlan20
+% Vlan20 is a physical interface and cannot be removed    <- true of nothing
+```
+
+Now:
+
+```
+SW1(config)#no interface vlan 20
+Interface Vlan20 removed (its address 10.0.20.1 went with it)
+  VLAN 20 stays: Fa0/1 still carries it (remove with "no vlan 20")
+```
+
+Two objects, two lifetimes: the **interface** is the switch's address, the **VLAN** is a bridge domain
+that other ports may still carry, so removing the address does not remove the domain — and the message
+says which case applies (*"stays, empty - "no vlan 20" removes it"* when nothing carries it). A physical
+port is still refused, now with a reason (*"A port is hardware, not configuration - remove the cable
+instead"*), and an SVI is never described as physical.
+
+The line protocol is honest, which is why the route appears only when it should: an SVI whose VLAN has
+no up member port shows `up/down` in the brief and installs **no** connected route.
+
 ### The `clear` family read every argument as a port
 
 IOS spells these with keywords. This console had only the port spelling, and read anything else as a
@@ -5615,10 +5646,16 @@ strings across `engine/`, which is the only reading that ignores identifiers and
 grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 145
 ```
 
-Of those 145, **47** appear as rows in the tables below and **69** are named anywhere in this
-document — the rest are reachable only through `validateTopology()`, the API, or a surface that prints
-prose instead of the code, which is what the next table is about. So a code missing from the tables is
-not necessarily a code that cannot happen: it is a code you cannot see from this console.
+Of those 145, **47** appear as rows in the tables below and **69** distinct `E_` tokens appear anywhere
+in this document. The rest are reachable only through `validateTopology()`, the API, or a surface that
+prints prose instead of the code, which is what the next table is about — so a code missing from the
+tables is not necessarily a code that cannot happen, it is a code you cannot see from this console.
+
+Count them rather than trusting the numbers, and count **tokens**, not substrings: looking for each
+engine code with `in` finds `E_PORT` inside `E_PORT_PROTOCOL` and inflates the figure by a couple.
+`grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 145;
+`grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 69;
+``grep -c '^| `E_' docs/CLI.md`` is the 47.
 
 | Surface | How the refusal reads |
 |---|---|

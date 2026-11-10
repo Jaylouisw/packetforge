@@ -832,13 +832,51 @@ class CliSession {
         out.push('  ' + port + ': VLAN ' + id + ' removed from the allowed list');
       }
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
-      const typed = tokens[2];
-      const name = resolvePortName(this.device, typed);
+      // `interface vlan 20` creates the switch's own address on a VLAN, and `no interface vlan 20`
+      // is how IOS removes it. Here the two-token spelling read "vlan" as an interface name
+      // ("% Interface not found: vlan"), and the one-token spelling - which resolves fine - answered
+      // "% Vlan20 is a physical interface and cannot be removed", which is true of nothing. An SVI
+      // could be created and never removed, and the refusal described the wrong object.
+      const isSviSpelling = String(tokens[2] || '').toLowerCase() === 'vlan' && tokens[3] !== undefined;
+      const typed = isSviSpelling ? 'vlan ' + tokens[3] : tokens[2];
+      const name = isSviSpelling ? 'Vlan' + String(tokens[3]) : resolvePortName(this.device, typed);
       const vi = name ? this.device.interfaces.get(name) : null;
-      if (!vi) return ['% Interface not found: ' + (typed || '')];
-      if (!vi.parent) return ['% ' + typed + ' is a physical interface and cannot be removed'];
-      this.device.interfaces.delete(name);
-      out.push('Subinterface ' + name + ' removed');
+      if (!vi) {
+        if (isSviSpelling) {
+          return ['% No interface Vlan' + tokens[3] + ' on ' + (this.device.name || this.device.id),
+            '% "show vlan" lists the VLANs, and "show ip interface brief" the interfaces'];
+        }
+        return ['% Interface not found: ' + (typed || '')];
+      }
+      if (vi.svi) {
+        const vid = String(name).replace(/\D/g, '');
+        const hadIp = vi.ip || null;
+        this.device.interfaces.delete(name);
+        out.push('Interface ' + name + ' removed' + (hadIp ? ' (its address ' + hadIp + ' went with it)' : ''));
+        if (Array.isArray(this.device.config.routes)) {
+          this.device.config.routes = this.device.config.routes.filter(function (r) {
+            return String(r.iface || '') !== String(name);
+          });
+        }
+        // The VLAN is separate configuration - `vlan <id>` was typed on its own line - and removing
+        // the address must not remove a bridge domain other ports may still be carrying.
+        const members = [];
+        for (const i of this.device.interfaces.values()) {
+          if (i.svi) continue;
+          if (Number(i.vlan && i.vlan.accessVlan) === Number(vid)) members.push(i.name);
+        }
+        out.push(members.length
+          ? '  VLAN ' + vid + ' stays: ' + members.join(', ') + (members.length === 1
+            ? ' still carries it (remove with "no vlan ' + vid + '")'
+            : ' still carry it (remove with "no vlan ' + vid + '")')
+          : '  VLAN ' + vid + ' stays, empty - "no vlan ' + vid + '" removes it');
+      } else if (!vi.parent) {
+        return ['% ' + name + ' is a physical interface and cannot be removed',
+          '% A port is hardware, not configuration - remove the cable instead'];
+      } else {
+        this.device.interfaces.delete(name);
+        out.push('Subinterface ' + name + ' removed');
+      }
     } else if (head === 'access-list') {
       out.push.apply(out, this._accessList(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'access-list') {
@@ -9721,6 +9759,9 @@ class CliSession {
     // Per-interface verbs follow the interface-mode dispatcher, not the config one: a channel-group
     // bundles switch ports, a PoE verb needs a port that sources power, and the OSPF verbs need a
     // device that runs OSPF at all.
+    if (first === 'no' && second === 'interface' && words[2] === 'vlan') {
+      return this._canDeclareVlan() ? null : 'it is a host: it has no VLANs and no address on one';
+    }
     if (first === 'channel-group' || (first === 'no' && second === 'channel-group')) {
       return l2 ? null : 'it does not switch, so it has no switch ports to bundle';
     }
@@ -9842,6 +9883,7 @@ class CliSession {
       // the command set an operator had to already know. Each row is the form the parser accepts.
       helpLine('no vlan <id>', 'remove a VLAN no port is still in'),
       helpLine('no interface <name> | no interface <parent>.<vlan>', 'remove a subinterface'),
+      helpLine('no interface vlan <id>', 'remove this switch\'s own address on that VLAN (the VLAN stays)'),
       helpLine('ip nat inside source static <local> <global>', 'one-to-one translation'),
       helpLine('ip nat inside source list <acl> interface <if> overload', 'PAT onto an interface address'),
       helpLine('no ip nat inside source static <local> <global>', 'remove one static rule'),
