@@ -1844,12 +1844,54 @@ class CliSession {
     if (head === 'no' && tokens[1] === 'vrrp') {
       const vrid = parseInt(tokens[2], 10);
       const groups = (this.device.config.vrrp || []);
-      const kept = groups.filter(function (g) {
-        return !(g.vrid === vrid && g.interface === this.iface);
-      }, this);
-      if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
-      this.device.config.vrrp = kept;
-      return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+      const mine = groups.filter(function (g) {
+        return g.vrid === vrid && g.interface === this.iface;
+      }, this)[0];
+      if (!mine) {
+        return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface,
+          '% "show vrrp" lists the groups configured on this device'];
+      }
+      // Everything after the id names the part to remove. `no vrrp 1 ip 10.0.0.99` used to remove
+      // the **whole group** whether or not it owned that address: naming a different virtual address
+      // deleted a working gateway and said "VRRP group 1 removed", which is the one answer an
+      // operator would not question. The address is checked, and a full removal is the bare form.
+      const rest = tokens.slice(3).map(function (x) { return String(x).toLowerCase(); });
+      const ips = Array.isArray(mine.ips) ? mine.ips.slice() : [];
+      if (!rest.length) {
+        this.device.config.vrrp = groups.filter(function (g) { return g !== mine; });
+        return ['VRRP group ' + vrid + ' removed from ' + this.iface +
+          (ips.length ? ' (it owned ' + ips.join(', ') + ')' : '')];
+      }
+      if (rest[0] === 'ip') {
+        const addr = tokens[4] === undefined ? null : String(tokens[4]);
+        if (!addr) {
+          if (!ips.length) return ['% Group ' + vrid + ' owns no virtual address on ' + this.iface];
+          mine.ips = [];
+          return ['VRRP group ' + vrid + ' on ' + this.iface + ' no longer owns ' + ips.join(', ') +
+            ' - the group is still configured'];
+        }
+        if (ips.indexOf(addr) === -1) {
+          return ['% Group ' + vrid + ' on ' + this.iface + ' does not own ' + addr,
+            '% It owns: ' + (ips.length ? ips.join(', ') : '(no virtual address)'),
+            '% "no vrrp ' + vrid + '" removes the group itself'];
+        }
+        mine.ips = ips.filter(function (x) { return x !== addr; });
+        return ['VRRP group ' + vrid + ' on ' + this.iface + ' no longer owns ' + addr];
+      }
+      if (rest[0] === 'priority') {
+        const had = mine.priority;
+        mine.priority = 100;
+        return ['VRRP group ' + vrid + ' priority back to the default 100 (was ' + had + ')'];
+      }
+      if (rest[0] === 'preempt') {
+        const had = mine.preempt !== false;
+        mine.preempt = true;
+        return ['VRRP group ' + vrid + ' preempt back to the default (on)' +
+          (had ? ' - it was already on' : '')];
+      }
+      return ['% Unexpected argument "' + tokens[3] + '" for no vrrp ' + vrid,
+        '% Usage: no vrrp <vrid> [ip [<address>] | priority | preempt]',
+        '% "no vrrp ' + vrid + '" removes the group'];
     }
     if (head === 'ip' && tokens[1] === 'address') {
       if (String(tokens[2]).toLowerCase() === 'dhcp') {
@@ -3832,7 +3874,9 @@ class CliSession {
       ov.passive = !negate;
       return ['OSPF ' + (negate ? 'active' : 'passive') + ' on ' + iface.name];
     }
-    return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf passive'];
+    // A usage line that omits a form the device accepts is a lie about the device: `ip ospf network
+    // point-to-point` was accepted while this refusal listed only cost, area and passive.
+    return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf network <type> | ip ospf passive'];
   }
 
   // ---------- switchport / VLAN membership ----------
@@ -6616,7 +6660,46 @@ class CliSession {
       else if (what === 'dns-server') delete pool.dns;
       else if (what === 'range') { delete pool.rangeStart; delete pool.rangeEnd; }
       else if (what === 'lease') delete pool.leaseSec;
-      else if (what === 'excluded-address') pool.excluded = [];
+      else if (what === 'excluded-address') {
+        // Granularity, the same rule the other removals follow: naming one range removes that range,
+        // and the bare form is what empties the list. Before this a named range was refused outright
+        // ("no excluded-address takes no more"), so an operator could only delete every exclusion to
+        // get rid of one - and would then hand out addresses they had deliberately reserved.
+        const named = tokens.slice(2).filter(Boolean);
+        const have = (Array.isArray(pool.excluded) ? pool.excluded : []).map(function (r) {
+          return typeof r === 'string' ? r : (r && r.start ? String(r.start) + '-' + String(r.end) : String(r));
+        });
+        if (!named.length) {
+          const had = have.length;
+          pool.excluded = [];
+          out.push(had ? 'All ' + had + ' excluded range' + (had === 1 ? '' : 's') + ' removed' : 'No exclusions were configured');
+        } else {
+          const keys = [];
+          if (named.length === 2 && !String(named[0]).includes('-') && !String(named[1]).includes('-')) {
+            const low = net.ipToInt(named[0]) <= net.ipToInt(named[1]) ? named[0] : named[1];
+            const high = low === named[0] ? named[1] : named[0];
+            keys.push(low + '-' + high);
+          } else {
+            for (const a of named) {
+              const parts = String(a).split('-').filter(Boolean);
+              if (!parts.every(function (x) { return net.isIp(x); })) {
+                return ['% Invalid excluded address "' + a + '"',
+                  '% Usage: no excluded-address [<address> [<address>]]'];
+              }
+              keys.push(parts.length === 2 ? parts.join('-') : parts[0]);
+            }
+          }
+          const gone = keys.filter(function (k) { return have.indexOf(k) !== -1; });
+          const missing = keys.filter(function (k) { return have.indexOf(k) === -1; });
+          pool.excluded = have.filter(function (k) { return gone.indexOf(k) === -1; });
+          if (gone.length) out.push('Excluded address' + (gone.length > 1 ? 's ' : ' ') + gone.join(', ') + ' removed');
+          if (missing.length) {
+            out.push('% Not an exclusion here: ' + missing.join(', '),
+              '% Excluded: ' + (have.length ? have.join(', ') : '(none)'),
+              '% "no excluded-address" removes them all');
+          }
+        }
+      }
       else if (what === 'pool') {
         this.device.config.dhcpPools = pools.filter(function (p) { return p.name !== this.pool; }, this);
         this.mode = MODE_CONFIG;
@@ -12500,7 +12583,7 @@ class CliSession {
         'add this port to a LAG'),
       helpLine('ip access-group <acl> in|out | no ip access-group [<acl>] [in|out]',
         'bind (or unbind) an ACL to this port'),
-      helpLine('ip ospf cost <n> | ip ospf area <id> | ip ospf passive',
+      helpLine('ip ospf cost <n> | ip ospf area <id> | ip ospf network <type> | ip ospf passive',
         'per-port OSPF cost, area, or make it passive'),
       helpLine('no ip ospf cost | no ip ospf area | no ip ospf passive',
         'forget one of those three'),
@@ -12575,7 +12658,8 @@ class CliSession {
       helpLine('excluded-address <low>-<high>', 'the same range in one token'),
       helpLine('lease <days> [hours] [minutes]', 'lease length'),
       helpLine('host <addr> <mac>', 'static reservation'),
-      helpLine('no default-router|dns-server|range|lease|excluded-address',
+      helpLine('no excluded-address [<low> [<high>]]', 'remove one excluded range, or every exclusion'),
+      helpLine('no default-router|dns-server|range|lease',
         'clear one setting in this pool'),
       helpLine('no pool', 'delete this pool'),
       helpLine('help / ?', 'this list'),

@@ -131,7 +131,9 @@ console.log('\nIt works in every mode and through `do`:');
   const iface = l.labels(l.run('ip ?'));
   eq(iface.join(','), 'access-group,address,helper-address,nat,ospf', 'interface mode lists its ip subcommands');
   const ospf = l.labels(l.run('ip ospf ?'));
-  eq(ospf.join(','), 'area,cost,passive', 'and one level deeper still works');
+  // The list follows the help row, and the help row now lists `network`: the device accepted
+  // `ip ospf network point-to-point` while the refusal and this completion both omitted it.
+  eq(ospf.join(','), 'area,cost,network,passive', 'and one level deeper still works');
   const meanings = l.run('ip ?').filter((x) => /^ {2}\S/.test(x) && !/Next|Meaning/.test(x));
   ok(meanings.every((x) => x.trim().split(/\s{2,}/).length > 1),
     'every interface-mode completion carries a meaning, not a blank column');

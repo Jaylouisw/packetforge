@@ -1624,6 +1624,44 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A removal removes what it names
+
+Two ways a `no` form goes wrong, both leaving a lab that no longer matches what the operator believes:
+
+- **It ignores the value and deletes more than it said.** `no vrrp 1 ip 10.0.0.99` removed the whole
+  working group, whatever address the group actually owned, and answered *"VRRP group 1 removed"* - the
+  one answer nobody double-checks.
+- **It accepts no value at all, so it can only delete everything.** `no excluded-address 10.9.0.30`
+  was refused (`takes no more`), so dropping one reservation meant deleting every exclusion and
+  handing out the addresses that had been deliberately held back.
+
+The rule now holds across both families:
+
+```
+R1(config-if)#no vrrp 1 ip 10.0.0.99
+% Group 1 on Gi0/0 does not own 10.0.0.99
+% It owns: 10.0.0.1, 10.0.0.2
+% "no vrrp 1" removes the group itself
+
+R1(config-if)#no vrrp 1 ip 10.0.0.2
+VRRP group 1 on Gi0/0 no longer owns 10.0.0.2
+
+R1(config-if)#no vrrp 1
+VRRP group 1 removed from Gi0/0 (it owned 10.0.0.1, 10.0.0.2)
+
+R1(config-dhcp)#no excluded-address 10.9.0.30
+Excluded address 10.9.0.30 removed
+```
+
+Priority and preempt are settings rather than objects, so their removal returns them to the protocol
+default and says which default - `priority back to the default 100 (was 150)` - instead of leaving a
+value nobody chose. And the bare form is always the one that clears everything, saying how much it
+cleared.
+
+One more thing of the same kind: a refusal's usage line must list the forms the device takes.
+`ip ospf network point-to-point` was accepted while the `ip ospf` refusal offered only `cost`, `area`
+and `passive`.
+
 ### Removing a zone or a name
 
 A zone could be created and never removed, so the line `show running-config` printed had no `no` form
