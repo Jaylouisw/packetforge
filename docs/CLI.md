@@ -1671,6 +1671,44 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### `no ospf` takes three shapes, and each removes one thing
+
+The handler ignored everything after `no ospf`:
+
+```
+R1(config)#no ospf area -1
+OSPF disabled
+R1(config)#no ospf router-id 9.9.9.9
+OSPF disabled
+```
+
+An area id that cannot exist, and the whole process gone — while the page documents the row as
+*forget the id, or one area*. Every form disabled the process, so a lab in `ospf area 10` could not be
+put back into area 0 without losing its router id and its interfaces.
+
+```
+R1(config)#no ospf area -1
+% "-1" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)
+% Nothing was changed
+R1(config)#no ospf area 99
+% OSPF on R1 is not in area 99
+% It is in area 10 - "no ospf area" puts it back in the default area 0
+R1(config)#no ospf area 10
+OSPF area 10 removed - the process is back in the default area 0
+R1(config)#no ospf router-id 9.9.9.9
+% OSPF on R1 does not use 9.9.9.9
+% It uses 1.1.1.1
+R1(config)#no ospf
+OSPF disabled (it was in area 10, with 2 interfaces in it)
+```
+
+Three things follow from the rules the other removals already use:
+
+- **A value that cannot work is refused for what it is**, before anything is asked about the process.
+- **A removal removes what it names** — the area, or the id, not the process.
+- **A dotted-quad area is the form the RFC prints**, and `no ospf area 0.0.0.1` removes area 1 the way
+  the display names it. The page row now shows the argument as optional, because it is.
+
 ### A row the page shows is a row the parser runs
 
 The capability gate closed the direction *page hides it → parser refuses it*. The mirror is just as

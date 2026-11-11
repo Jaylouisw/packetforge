@@ -1548,9 +1548,10 @@ class CliSession {
       }
       out.push.apply(out, this._ospfConfig(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'ospf') {
-      this.device.config.ospf = null;
-      this.device.ospfRoutes = [];
-      out.push('OSPF disabled');
+      // `no ospf` ignored everything after it: `no ospf area 10`, `no ospf router-id 1.1.1.1` and even
+      // `no ospf area -1` all disabled the whole process, while the page documents this row as "forget
+      // the id, or one area". A value that cannot be an area id is judged before anything is touched.
+      out.push.apply(out, this._noOspf(tokens.slice(2)));
     } else if (head === 'ip' && tokens[1] === 'route') {
       out.push.apply(out, this._ipRoute(tokens));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'route') {
@@ -3956,6 +3957,81 @@ class CliSession {
       return ['OSPF area ' + id];
     }
     return ['% Usage: ospf router-id <ip> | ospf area <id>'];
+  }
+
+  // A removal removes what it names. `no ospf` takes three shapes and each does one thing:
+  //   no ospf                  turn the process off, saying which area and how many interfaces went
+  //   no ospf router-id [<ip>] forget the id (a derived one takes over), or one the router does not use
+  //   no ospf area [<id>]      put the process back in the default area 0, or refuse one it is not in
+  _noOspf(words) {
+    const dev = this.device;
+    const cfg = dev.config.ospf;
+    const name = dev.name || dev.id;
+    const what = String(words[0] || '').toLowerCase();
+    const areaOf = function (c) { return c && c.areaId !== undefined && c.areaId !== null ? c.areaId : 0; };
+
+    if (!what) {
+      if (!cfg) return ['% OSPF is not enabled on ' + name + ' - there is no process to remove'];
+      const n = (cfg.interfaces || []).length;
+      dev.config.ospf = null;
+      dev.ospfRoutes = [];
+      return ['OSPF disabled (it was in area ' + areaOf(cfg) + ', with ' + n + ' interface' +
+        (n === 1 ? '' : 's') + ' in it)'];
+    }
+
+    if (what === 'router-id') {
+      const ip = words[1] === undefined ? null : String(words[1]);
+      if (ip === null) {
+        if (!cfg) return ['% OSPF is not enabled on ' + name + ' - start it with "router ospf <process-id>"'];
+        if (!cfg.routerId) {
+          return ['% No router-id is configured on ' + name + ' - the id in use is derived from the',
+            '% highest interface address, and it changes when that address does'];
+        }
+        const was = cfg.routerId;
+        cfg.routerId = null;
+        return ['Router-id ' + was + ' removed - OSPF derives one from the highest interface address now'];
+      }
+      if (!net.isIp(ip)) {
+        return ['% "' + ip + '" is not an IPv4 address, so it cannot be a router-id'];
+      }
+      if (!cfg || cfg.routerId !== ip) {
+        const using = cfg && cfg.routerId ? cfg.routerId : 'a derived id (no router-id is configured)';
+        return ['% OSPF on ' + name + ' does not use ' + ip, '% It uses ' + using];
+      }
+      cfg.routerId = null;
+      return ['Router-id ' + ip + ' removed - OSPF derives one from the highest interface address now'];
+    }
+
+    if (what === 'area') {
+      const raw = words[1];
+      if (raw === undefined) {
+        if (!cfg) return ['% OSPF is not enabled on ' + name + ' - start it with "router ospf <process-id>"'];
+        const cur = areaOf(cfg);
+        if (cur === 0) {
+          return ['OSPF on ' + name + ' is already in area 0 - that is the default, so there is nothing',
+            'to remove'];
+        }
+        cfg.areaId = 0;
+        return ['OSPF area reset to 0 (was ' + cur + '), which is the default'];
+      }
+      const id = require('./ospf').parseAreaId(raw);
+      if (id === null) {
+        return ['% "' + raw + '" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)',
+          '% Nothing was changed'];
+      }
+      if (!cfg) {
+        return ['% OSPF is not enabled on ' + name + ' - start it with "router ospf <process-id>"'];
+      }
+      const cur = areaOf(cfg);
+      if (cur !== id) {
+        return ['% OSPF on ' + name + ' is not in area ' + id,
+          '% It is in area ' + cur + ' - "no ospf area" puts it back in the default area 0'];
+      }
+      cfg.areaId = 0;
+      return ['OSPF area ' + id + ' removed - the process is back in the default area 0'];
+    }
+
+    return ['% Usage: no ospf | no ospf router-id [<ip>] | no ospf area [<id>]'];
   }
 
   _ipOspf(tokens, iface) {
@@ -12835,7 +12911,7 @@ class CliSession {
       helpLine('no router ospf', 'remove the OSPF process and its routes'),
       helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF'),
       helpLine('no ospf', 'turn OSPF off'),
-      helpLine('no ospf router-id | no ospf area <id>', 'forget the id, or one area'),
+      helpLine('no ospf router-id [<ip>] | no ospf area [<id>]', 'forget the id, or the area it is in'),
       helpLine('no dns zone <name>', 'remove a zone, and report the records it takes with it'),
       helpLine('no dns add <name> [type]', 'remove one name\'s records, or only one type\'s'),
       helpLine('dns zone <name> | dns add <name> <type> <value>',
