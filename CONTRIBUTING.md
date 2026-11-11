@@ -246,17 +246,38 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
   ended up quoting 1,584 while the catalogue held 1,628.
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
+- **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
+  `fix/sfp-plus-connectors`, which at the time of the last reading was 382 commits ahead of
+  `origin/main` and 361 behind it — so none of them is a statement about `main`. Six documentation pages
+  exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
+  `FORGE_TROUBLESHOOTING.md`, `MAINTAINING.md`, `RESOLUTIONS.md`), and `docs/CLI.md` differs by nearly
+  10,000 lines in the other direction. Check before you quote a page or a number anywhere:
 
-**Pass `loadCatalog()` an absolute path.** Hand it the relative string `'devices'` and it returns 1,661
-entries that are all `{ vendor: 'error', model: '<file>', error: … }` — not one real spec, and no
-exception to warn you. The cause is line 19 of `devices/registry.js`: it `require()`s `path.join(dir,
-…)`, and a path with no leading `./` is read as a **module specifier**, so every file fails to resolve
-and becomes an error entry by design (the `catch` that exists to survive one broken spec swallows the
-whole directory). `path.resolve('devices')` — or `__dirname` from inside the module — is the fix, and
-it is why every call site in `engine/` and `scripts/` passes an absolute path. Filter `d => !d.error`
-anyway: with a correct path there are none on this tree, but an import that lands a malformed spec will
-produce one, and that is the difference between a count of 1,661 and a count that quietly includes a
-`{ "vendor": "error" }` row.
+  ```bash
+  git branch --show-current                              # fix/sfp-plus-connectors, not main
+  git rev-list --left-right --count HEAD...origin/main    # 382  361
+  git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
+  ```
+
+**`loadCatalog()` resolves the directory it is handed** — `dir = path.resolve(dir || __dirname)` at
+`devices/registry.js:15` — so what you pass decides whether you get specs or an exception. All three
+measured on this tree:
+
+| call | result |
+|---|---|
+| `loadCatalog()` | `__dirname`, so **1,661 specs, 0 errors** from any directory |
+| `loadCatalog('devices')` from the repository root | the repo's `devices/`, **1,661 specs, 0 errors** |
+| `loadCatalog('devices')` from anywhere else | **throws** `ENOENT … scandir '<cwd>/devices'` — loudly, which is the point |
+
+Before that line existed, the third case was silent rather than fatal: the loader `require()`d
+`path.join(dir, …)`, a bare `devices/…` was read as a **module specifier**, every file failed to resolve,
+and the `catch` that exists to survive one broken spec swallowed the whole directory — 1,584
+plausible-looking `{ vendor: 'error' }` rows and no exception to warn you. The loader's own comment still
+records that history (`devices/registry.js:12-14`), which is why this page used to tell you to always
+pass an absolute path. You no longer have to; pass nothing or pass an absolute path. Filter
+`d => !d.error` anyway: with a correct path there are none on this tree, but an import that lands a
+malformed spec produces one, and that is the difference between a count of 1,661 and a count that
+quietly includes a `{ "vendor": "error" }` row.
 
 
 **`loadCatalog()` can hand back entries that carry an `error` key instead of a spec** — an unreadable or
