@@ -75,8 +75,8 @@ poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.
 
 `engine/cli.js` accepts either when it decides whether a port can source power, so a contributor may
 use whichever the surrounding file already uses; prefer the flat key in a new spec, because it is the
-form every example in this page shows and the one **55 of the 56** files that state a port PoE rate use
-— the fifty-sixth is the nested file named above. The catalogue's other **1,605** files state no rate at
+form every example in this page shows and the one **61 of the 62** files that state a port PoE rate use
+— the sixty-second is the nested file named above. The catalogue's other **1,599** files state no rate at
 all, and the engine infers one from the device class.
 
 ### Keys the catalogue carries that this table does not gate on
@@ -204,11 +204,23 @@ gap in the source, not in the simulator. Never invent the figure to close it.
 `loadCatalog(dir)` walks `dir` recursively and returns an array of spec objects. Two things about it
 are worth knowing before you call it:
 
-- **Give it an absolute path.** `loadCatalog('devices')` returns **1,638 entries and every one of them
-  is an error**: the helper `require()`s `path.join(dir, …)`, and a relative path with no leading `./`
-  is read as a *module specifier*, so nothing resolves. The `catch` that exists to survive one
-  malformed spec then swallows the whole directory. `path.resolve('devices')` works; `__dirname` from
-  inside the module is what `engine/` and `scripts/` use.
+- **A relative path is resolved against the process's cwd, and a missing one throws.** This bullet used
+  to warn that `loadCatalog('devices')` returned **1,638 entries and every one of them an error**,
+  because the walker `require()`d `path.join(dir, …)` and a bare relative path was read as a *module
+  specifier*, so every file failed and the per-file `catch` turned the whole catalogue into "Broken
+  spec" rows. That was fixed in the loader itself: `loadCatalog()` now starts with
+  `dir = path.resolve(dir || __dirname)` (`devices/registry.js:17`), and the measured behaviour today is
+
+  | call, from the repository root | result |
+  |---|---|
+  | `loadCatalog()` | **1,661** specs, **0** error rows — it defaults to `__dirname` |
+  | `loadCatalog('devices')` | **1,661** specs, **0** error rows |
+  | `loadCatalog('devices')` from any other cwd | **throws** `ENOENT: … scandir '<cwd>/devices'` |
+  | `loadCatalog('no-such-dir')` | **throws** `ENOENT` — the directory is not swallowed into rows |
+
+  So the failure mode is now loud rather than silent, and the only thing left to remember is that a
+  relative path means "relative to wherever the process was started": pass `path.resolve('devices')` or
+  `__dirname`, which is what `engine/` and `scripts/` do.
 - **A file it cannot parse becomes a row, not an exception.** The shape is
   `{ vendor: 'error', model: '<filename>', label: 'Broken spec', error: '<message>' }`, so a caller
   that counts entries without filtering `d => !d.error` will report a model total one higher than the
@@ -484,8 +496,9 @@ recursing the tree with `node --check` and no dependencies.
 ## Included catalog
 
 **1,661 models across 247 vendors**, one JSON file each, in 25 distinct `category` values
-(24 palette buckets — every AP is filed `wireless`; a single spec still carries the legacy `ap`
-value, `huawei/WiFi Extender AX3000`). The last one has a visible cost worth knowing: the palette's
+(24 palette buckets — most APs are filed `wireless`; **eleven** specs still carry the legacy `ap`
+value: five `fs` access points, four `ruckus`, `peplink/APO-AC-MINI` and `huawei/WiFi Extender AX3000`).
+That is not one stray file but a small family, and it has a visible cost worth knowing: the palette's
 type filter is built by walking `CAT_ORDER` in `web/app.js`, so a category outside that list gets no
 entry in the dropdown and the device is reachable only through palette **search**. Count them
 yourself:
