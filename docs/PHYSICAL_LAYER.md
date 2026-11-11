@@ -276,7 +276,7 @@ the cage-by-cage table. Selected highlights:
 | DAC | `dac-10g`, `dac-10g-active`, `aoc-10g` | 10G | SFP | 7 / 15 / 20 m |
 | DAC | `dac-40g`, `dac-100g` | 40G / 100G | QSFP | 5 / 3 m |
 | console | `console-rs232`, `usb-console` | 115.2 kbps | RJ45 / USB | 15 m |
-| wireless | `wireless-2.4`, `wireless-5`, `wireless-60` | radio | antenna | — |
+| wireless | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7`, `wireless-60` (a declared band, not a rate) | radio | antenna | — |
 
 The full list is served at **`GET /api/media`**.
 

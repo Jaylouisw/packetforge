@@ -57,7 +57,7 @@ therefore not a bug and not a contradiction of this table — `sfp+` does supply
 | `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 1000 |
 | `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 |
 | `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-25g`, `dac-10g`, `dac-1g` | 10000, 25000 |
-| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
+| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus all eight of `1000base-sx`, `-lx`, `-ex`, `-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
 | `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
 | `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56`, `fc-qsfp28` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
 | `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+`, `qsfp56` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
@@ -65,19 +65,19 @@ therefore not a bug and not a contradiction of this table — `sfp+` does supply
 | `qsfp56` | QSFP56 | optical | `qsfp56`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000 |
 | `xfp` | XFP | optical | `xfp` only | `10gbase-sr`, `10gbase-lr`, `10gbase-er` | 10000 |
 | `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 1244, 2488, 9953 |
-| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc` | 1244, 2488, 9953 (filtered by rating) |
+| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc`, and two Ethernet optics the UPC polish allows: `100base-fx` always, `1000base-lx` from a 1G rating | 100, 1000, 1244, 2488, 9953 (filtered by rating) |
 | `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
 | `lc-apc` | LC/APC | optical | `lc-apc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
 | `fc-sfp` | SFP+ (FC) | fibre-channel | `fc-sfp`, `sfp+`, `sfp28`, `fc-sfp28`, `fc-sfpdd` | `2gfc-sw`, `2gfc-lw`, `4gfc-sw`, `4gfc-lw`, `8gfc-sw`, `8gfc-lw`, `10gfc-sw`, `10gfc-lw`, `16gfc-sw`, `16gfc-lw` | 2125, 4250, 8500, 10519, 14025 |
 | `fc-sfp28` | SFP28 (FC) | fibre-channel | `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+`, `fc-sfpdd` | `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw`, `8gfc-sw`, `8gfc-lw` | 8500, 14025, 28050 |
 | `fc-sfpdd` | SFP-DD (FC) | fibre-channel | `fc-sfpdd`, `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+` | `64gfc-sw`, `64gfc-lw`, `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw` | 14025, 28050, 57800 |
 | `fc-qsfp28` | QSFP28 (FC) | fibre-channel | `fc-qsfp28`, `qsfp28` | `128gfc-sw`, `128gfc-lw`, `32gfc-sw`, `32gfc-lw` | 28050, 112200 |
-| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-31` | 175, 1000, and 2500 / 5000 / 10000 gated by rating |
+| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-30-us`, `docsis-31`, `docsis-31-us` — both directions of each DOCSIS generation, because a CMTS return-path port is its own rate | 175, 200, 1000, and 2500 / 5000 / 10000 gated by rating |
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
 | `console` | Console | management | `console` only | `console-rs232` (115200) plus the fixed-baud variants `console-rs232-9600`, `-19200`, `-38400`, `-57600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (9600 – 115200 baud) |
 | `usb` | USB | management | `usb` | `usb-console` | 12 |
-| `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
+| `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` by the port's generation, from `wireless-2.4` alone at 600 Mbps up to all four above 2500; `wireless-60` only when the port declares `band: "60"` (see 4.6) | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
 That is **26 cages**. `CAGES` is the authority; if you add one, this table and
@@ -123,11 +123,20 @@ node -e "const m=require('./engine/media');console.log(m.CAGE_MEDIA['sfp+'](1000
 The Media column above names what matters for a cabling decision; the commands give the computed
 sets, and where they disagree the engine wins.
 
-One disagreement is open on purpose — it needs a decision, not a silent edit: `xgspon-sc-apc`,
-`xgspon-sc-upc` and `xgspon-lc-upc` exist in `MEDIA` and are named in the rows above, but
-`CAGE_MEDIA` returns only the `gpon-*` entries for the `sc-*` and `lc-*` cages. If a PON port cannot
-be given an XGS-PON optic, that is an engine gap; if it can, the table is right and `CAGE_MEDIA` is
-the thing to fix.
+The XGS-PON media are **gated by rating, like everything else here**, which once read as a
+disagreement: `xgspon-sc-apc`, `xgspon-sc-upc` and `xgspon-lc-upc` seemed to be missing from
+`CAGE_MEDIA` for the `sc-*` and `lc-*` cages. They are not — they appear once the port is rated for
+them, and the threshold is a 10G-class rating:
+
+| rating asked | `sc-apc` | `sc-upc` | `lc-upc` |
+|---|---|---|---|
+| `1000` | `gpon-sc-apc` | `gpon-sc-upc`, `100base-fx`, `1000base-lx` | `gpon-lc-upc`, `1000base-lx` |
+| `9953` or `10000` | + `xgspon-sc-apc` | + `xgspon-sc-upc` | + `xgspon-lc-upc`, `100gbase-lr4` |
+
+Asking at a 1G rating is what produced the "engine gap": a 2.5G PON port legitimately cannot carry an
+XGS-PON optic. `gpon-sc-hybrid` and `xgspon-sc-hybrid` are the two media **no cage returns at any
+rating** — they belong to a hybrid patch cord rather than a socket, which is why they appear in
+`optical.hybridCord()` and in the assemblies table instead of here.
 
 The four `fc-*` cages are the Fibre Channel ones: same shell widths as their Ethernet
 counterparts, different protocol, and they intermate with the Ethernet cages of the same width so a
@@ -466,19 +475,27 @@ exactly one side is `antenna`, the answer is `E_WIRELESS_TO_WIRED`. An AP's
 `radio0` cannot be cabled to a switch port, a router port or a PON port.
 
 Antenna-to-antenna is legal — that is how a point-to-point radio link is drawn —
-but the two radios must also agree on a band, because `derivePortHardware`
-narrows an antenna port to a single medium:
+but the two radios must also share a medium, and which media a radio gets is decided
+two ways.
 
-```
-rated >= 5000 Mbps -> wireless-60
-rated >= 1000 Mbps -> wireless-5
-otherwise          -> wireless-2.4
-```
+**By generation, from the rated speed** — the ladder returns the bands that generation
+uses, so it is a list, not one band:
 
-and `speedCaps` for a radio is `[maxMbps]`, i.e. exactly the declared rate. So a
-5 GHz radio against a 2.4 GHz radio mates and then fails with
-`E_NO_COMMON_MEDIA: No shared medium between Antenna and Antenna.` — which sounds
-odd until you remember both ends are simply "Antenna".
+| rated | generation | media |
+|---|---|---|
+| ≤ 600 Mbps | 802.11n | `wireless-2.4` |
+| ≤ 1000 Mbps | 802.11ac | `wireless-2.4`, `wireless-5` |
+| ≤ 2500 Mbps | 802.11ax | `wireless-2.4`, `wireless-5`, `wireless-6` |
+| above | 802.11be | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` |
+
+**By a declared band**, which narrows the port to exactly one medium and beats the ladder:
+`band: "2.4"`, `"5"`, `"6"` or `"60"` gives `wireless-2.4`, `-5`, `-6` or `-60`. This is the only
+way to reach `wireless-60` — a 60 GHz radio is a *band*, not a fast 5 GHz, and the rating ladder
+used to hand a Wi-Fi 7 phone a millimetre-wave medium for exactly that reason.
+
+`speedCaps` for a radio is `[maxMbps]`, i.e. exactly the declared rate. So a radio pinned to 5 GHz
+against a 600 Mbps 2.4 GHz radio mates — both are simply "Antenna" — and then fails with
+`E_NO_COMMON_MEDIA: No shared medium between Antenna and Antenna.`
 
 ### 4.7 Console and USB
 
