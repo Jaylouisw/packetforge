@@ -226,6 +226,41 @@ would have worked. Note the field names differ between the two surfaces: `valida
 `errors[]`/`warnings[]`, while a refused `POST /links` reports `issues[]`. Same engine codes, two
 envelopes.
 
+### Response headers and methods
+
+Measured with a raw socket against a live server, because none of this is visible from the UI:
+
+| Request | Status | Headers that matter |
+| --- | --- | --- |
+| `GET /api/version` | `200` | `Content-Type: application/json; charset=utf-8`, `Access-Control-Allow-Origin: *`, `Cache-Control: no-store` |
+| `GET /` | `200` | `text/html; charset=utf-8`, `Cache-Control: no-store` |
+| `GET /app.js`, `/style.css` | `200` | correct `Content-Type` per extension, `Cache-Control: no-store` |
+| `GET /nope.js` | **`200`** | `text/html` — the shell, not a 404. Any path that is not under `/api/` falls back to the UI |
+| `GET /api/nope` | `404` | JSON `{error}`, `Access-Control-Allow-Origin: *`, `no-store` |
+| `OPTIONS /api/version` | `204` | `Access-Control-Allow-Methods: GET,POST,DELETE,OPTIONS`, `Access-Control-Allow-Headers: Content-Type` |
+| `HEAD /api/version` | **`404`** | API routes do not answer `HEAD` — `GET` is `200` in the same second |
+| `HEAD /` | `200` | the static branch does handle it |
+
+Four consequences worth knowing:
+
+- **`no-store` everywhere, deliberately.** There is no build step, so `web/app.js` on disk is the
+  code the browser runs; a cacheable asset would survive a pull and the UI would be stale with no
+  hint. Nothing is cached, so a reload is always the current tree.
+- **An unknown path is not an error outside `/api/`.** `/nope.js` answers `200` with the HTML shell,
+  so a mistyped `<script src>` fails at parse time in the console rather than as a visible 404.
+- **`curl -I` lies about API liveness.** `HEAD /api/version` is `404` while `GET /api/version` is
+  `200`, so a monitor built on `curl -I` reports a healthy server as down. Use `curl -s -o /dev/null -w '%{http_code}'`
+  with `GET`, which is what the README's liveness line does.
+- **CORS allows four methods, and the API needs five.** The dispatcher accepts `PATCH` on
+  `…/links/:id/state` (`POST` and `PATCH` share a branch), but the preflight advertises only
+  `GET,POST,DELETE,OPTIONS` — and it answers the same fixed list whatever
+  `Access-Control-Request-Method` asked for. A same-origin UI never notices; a browser client on
+  another origin cannot send that `PATCH`, even though the server would accept it. `PUT` is not in
+  the list because the API has none.
+
+No response carries `Content-Length`: bodies are chunked, and the `204` preflight carries no body at
+all.
+
 ### Live sync (WebSocket)
 
 The socket carries **one** application message type, and it is the whole protocol:
