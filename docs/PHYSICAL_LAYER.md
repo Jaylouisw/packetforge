@@ -474,38 +474,52 @@ LAG collapsing) and is run before every ping. Blocked ports **drop both ingress 
 egress traffic** (`stp-block` events), which is what turns a physical loop into a
 working topology instead of a broadcast storm.
 
-Check it from the console. Two switches wired twice — a loop someone built by accident — settle
-into one forwarding path and one blocked port:
+Check it from the console. Two Catalyst 2960s wired twice — `Fa0/1`↔`Fa0/1` and `Fa0/2`↔`Fa0/2`, a
+loop someone built by accident — settle into one forwarding path and one blocked port. Measured on a
+freshly created board, with nothing run on it yet:
 
 ```
-switch# show spanning-tree
+Catalyst 2960-d1>show spanning-tree
 Spanning tree enabled protocol ieee
-Port   Role        State
-Fa0/1  designated  forwarding
-Fa0/2  designated  forwarding
-Fa0/3  designated  forwarding
+  Root bridge: priority 32768, 02:00:00:00:00:00 (Catalyst 2960-d1)
+  This bridge: Catalyst 2960-d1 priority 32768, 02:00:00:00:00:00   (this bridge is the root)
+Port   Role        State       Cost
+Fa0/1  designated  forwarding  200000
+Fa0/2  designated  forwarding  200000
 
-switch2# show spanning-tree
+Catalyst 2960-d2>show spanning-tree
 Spanning tree enabled protocol ieee
-Port   Role        State
-Fa0/1  root        forwarding
-Fa0/2  alternate   blocking   (traffic dropped)
-Fa0/3  designated  forwarding
+  Root bridge: priority 32768, 02:00:00:00:00:00 (Catalyst 2960-d1)
+  This bridge: Catalyst 2960-d2 priority 32768, 02:00:00:00:01:00   root path cost 200000
+Port   Role       State                         Cost
+Fa0/1  root       forwarding                    200000
+Fa0/2  alternate  blocking   (traffic dropped)  200000
+  Fa0/2 is alternate: Catalyst 2960-d1 reaches the root for 0, this bridge for 200000
 ```
 
 The switch that is not the root blocks the second path — `alternate`/`blocking`, with
-`(traffic dropped)` spelled out, because a reader should not have to know what `BLK` implies. The root
-keeps both of its ports `designated`/`forwarding`; the loop is broken on one side, which is all STP
-needs.
+`(traffic dropped)` spelled out, because a reader should not have to know what `BLK` implies, and a
+closing line saying *why* the port lost: what the root's path to itself costs against this bridge's.
+The root keeps both of its ports `designated`/`forwarding`; the loop is broken on one side, which is
+all STP needs. Both tables carry the root bridge's priority and MAC, this bridge's own bridge id and
+either `(this bridge is the root)` or the root path cost, and a `Cost` column.
 
-**STP state is computed on a run, so there is nothing to show before one.** In a freshly opened lab,
-even with the loop cabled, the command answers `No bridged ports: this device is not part of any L2
-loop.` — the same wiring, described honestly as not-yet-computed. Run anything (`ping`, a flow,
-`converge`) and the table appears:
+**The table is computed when you ask for it, not when something runs.** Running a `show` refreshes the
+control planes first (`engine/cli.js:9283-9297`), so a freshly created board answers in full — the
+transcript above was taken before any ping. Two answers that are *not* a table, and both are about
+wiring rather than timing:
 
 ```
-switch# show etherchannel summary
-switch# show vlan brief
+Catalyst 2960-d1>show spanning-tree          # an L2 switch with nothing bridged
+Spanning tree enabled protocol ieee
+  Root bridge: priority 32768, 02:00:00:00:00:00 (Catalyst 2960-d1)
+  This bridge: Catalyst 2960-d1 priority 32768, 02:00:00:00:00:00   (this bridge is the root)
+  No bridged ports: this device is not part of any L2 loop.
+
+PC-d2>show spanning-tree                     # a device that does not bridge
+% PC-d2 does not bridge, so it runs no spanning tree
+% A host sends everything to its default gateway and never forwards
+% The L2 view on a switch is "show spanning-tree"
 ```
 
 ---
