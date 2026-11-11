@@ -47,7 +47,7 @@ Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" 
 | 5 | name contains `console`, `con<N>`, `tty`, `aux` → `console`; `usb` → `usb` | |
 | 6 | name names a fibre connector — `sc/apc`, `scapc`, `sc/upc`, `scupc`, `lc/apc`, `lcapc`, `lc/upc`, `lcupc` (see the spelling trap below) | that cage |
 | 7 | name says PON (`gpon`, `xg-pon`, `xgs-pon`, `pon<N>`) | `sc-apc` — the ISP convention, because a PON port's connector is a vendor choice; an explicit `connector` on the spec always wins |
-| 8 | name matches `sfp`/`qsfp`/`xfp`/`cfp`/`xe-`/`et-`/`fc<N>`, **or** speed is 25G/40G/100G | optical, by rule 9 |
+| 8 | name matches `sfp`/`qsfp`/`xfp`/`cfp`/`xe-`/`et-`/`fc<N>`, **or** `speed` is the string `25G`/`40G`/`100G` (a number does not count — see below) | optical, by rule 9 |
 | 9 | optical: name says `qsfpdd` → `qsfpdd`; `qsfp56` → `qsfp56`; otherwise by max rate — ≥200G `qsfpdd`, ≥100G `qsfp28`, ≥40G `qsfp+`, ≥25G `sfp28`, ≥10G `sfp+`, else `sfp` | |
 | 10 | nothing matched | `rj45` |
 
@@ -72,6 +72,25 @@ One more thing the signature hides: the rate ladder in rules 8–9 reads the **s
 port's max rate in Mbps — not `spec.speed`. `speed` only feeds the "is this optical at all" test, so
 `inferCage({ name: 'et-0/0/0', speed: '100G' })` answers `sfp`, and the same call with `100000` answers
 `qsfp28`. Pass the rate or the port gets the slowest optical cage that matches its name.
+
+And the `speed` half of that test is a **string** test, unit included. Measured on a port named `port7`,
+which matches no name pattern:
+
+| `spec.speed` | `inferCage(spec)` | why |
+|---|---|---|
+| `'25G'`, `'25 G'`, `'25g'` | `sfp` | the regex looks for `25`/`40`/`100` followed by `g` |
+| `25000` (a number) | `rj45` | `String(25000)` is `"25000"` — no `g`, so the optical test never fires |
+| `'125G'`, `'140G'` | `rj45` | the digit before `25`/`40` has to be a non-digit, so a longer number does not match by accident |
+| `'10G'`, `'50G'`, `'200G'`, `'400G'` | `rj45` | only those three rates are in the test |
+
+So a hand-written spec with `"speed": 25000` is copper by inference, however fast the number says the port
+is. Write `"speed": "25G"`, or better, pass the rate as the second argument — the second argument is what
+the ladder reads, and a bare `speed` only gets the port to plain `sfp`.
+
+None of that mis-cages a catalogue spec: the loader calls `inferCage(spec, maxMbps)` with the rate it parsed
+from the same `speed` field, so `25000` and `"25G"` both reach the ladder. The table above is about calling
+`inferCage()` yourself, with one argument — which is what these pages do in their examples, and what a test
+fixture is most likely to do.
 
 A port named for its cage beats its rate: `qsfpdd1/1` carrying 200G is a QSFP-DD cage, not a
 QSFP28 that happens to be fast. QSFP56 has to be named for the same reason — a bare 200G rate
