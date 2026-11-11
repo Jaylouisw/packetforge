@@ -334,10 +334,11 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # the guards (syntax, control bytes, Node floor, canonical URLs) and the
 │                    # research/import/audit tools — 25 of them
-├── tmp/             # tracked scratch: 126 probe scripts, 100 logs and 3 saved messages from past
-│                    #   measurements, so a reading can be re-run; they hard-code absolute paths,
-│                    #   so only the machine that wrote them can run them, and they are safe to
-│                    #   delete in bulk
+├── tmp/             # scratch from past measurements, kept so a reading can be re-run: 123 probe
+│                    #   scripts (109 tracked, 14 not), 99 logs (none tracked — `*.log` is
+│                    #   ignored), 3 saved messages and one command list. They hard-code absolute
+│                    #   paths, so only the machine that wrote them can run them, and they are
+│                    #   safe to delete in bulk
 ├── .github/         # issue/PR templates, labels, dependabot (no workflows — see docs/CI.md)
 ├── .forgejo/        # the real CI: ci.yml + auto-rebase.yml
 └── docs/            # eighteen documents — indexed under "Documentation" above —
