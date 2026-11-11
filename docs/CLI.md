@@ -9215,9 +9215,9 @@ grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 148
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from the table rows themselves — and **121** distinct `E_` codes appear anywhere
-in this document (123 tokens if you count the bare `E_` this sentence needs and the
-`E_DHCP_` fragment in the prefix pattern below, neither of which is a code). That second number is the least stable figure on the page, and only partly because the
+Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (the first cell holds 49; the other five sit in a later column of their row) — and **121** distinct `E_` codes appear anywhere
+in this document (126 tokens if you count the bare `E_` this sentence needs, the
+`E_DHCP_` fragment in the prefix pattern below, and the `E_DRAW`/`E_DROP_TYPES`/`E_KEYWORDS` strings the drawing and drop-type tables use, none of which is a refusal code). That second number is the least stable figure on the page, and only partly because the
 engine grows: every code this page *documents* also joins the count, so the code inventory further down
 added fifteen by itself. It has read 70, then 103, then 117, then 121 — each revision of the tables above moved it,
 and recounting is one line:
@@ -9343,7 +9343,7 @@ going wrong — it is the measurement working, and it is why the number in this 
 `ipv6.js` that raises ten of them is still a file whose refusals arrive as prose, and the fact that a page
 now quotes the strings does not put them in front of an operator.
 
-The other **127** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
+The other **27** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
 `PHYSICAL_LAYER.md` carry the optical and validation codes, `ARCHITECTURE.md` the API ones.
 
 Recount both ways; the second number is the one that says whether this table is still true. Note it
