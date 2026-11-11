@@ -37,6 +37,48 @@ Modes and their prompts:
 | `ping <ip> [count]` | ICMP echo from this device |
 | `exit` / `logout` | leave the session |
 
+## A command with words it cannot use refuses them
+
+Every command above is the whole command. Two take a port name — `show interfaces <port>`,
+`show power inline <port>` — and one takes a filter, `show mac address-table interface <port>`. The rest take
+nothing, and **a word they cannot use is refused, with the words quoted and the command named**:
+
+```
+r1#show ip route 192.0.2.0/24
+% show ip route does not take "192.0.2.0/24": the whole table is printed - read the row for the prefix in the table below
+```
+
+That refusal is the point, and it is worth stating why, because the alternative looked helpful. These commands used
+to **ignore** the extra words and print the whole table. On a router whose table held one route, `10.0.0.0/24`,
+asking whether `192.0.2.0/24` was installed printed:
+
+```
+Codes: C - connected, S - static, O - OSPF, B - BGP
+C   10.0.0.0       /24  is directly connected, Gi0
+```
+
+A different prefix, printed as the answer to a question about this one. An operator checking whether a prefix is
+installed is checking exactly the thing a silent drop fabricates: the table came back looking like a yes.
+
+The same for `show arp <address>`, `show vlan <id>`, `show spanning-tree <port>`, `show lldp neighbors <port>`,
+`show ip interface brief <port>`, `show running-config interface <port>`, `show access-lists <n>`,
+`show etherchannel <x>`, `show vrrp <group>` and `show version <x>`. Where a narrower question has an answer, the
+refusal names the command that gives it:
+
+```
+sw1#show ip interface brief Gi1/0/1
+% show ip interface brief does not take "Gi1/0/1": every interface is listed - use `show interfaces Gi1/0/1` for one port
+
+sw1#show running-config interface Gi1/0/1
+% show running-config does not take "interface Gi1/0/1": the whole configuration is printed - use `show interfaces Gi1/0/1` for one port's state
+```
+
+Two kinds of answer are **not** refusals even though they begin with `%`, and the difference matters: a
+device-level fact that holds whatever was typed. `show access-lists` on a device with no lists says
+`% No access lists configured`; `show power inline` on a box that cannot supply power says so about the device, and
+no port name can change that. Nor is `% No interface X on <device>` a refusal of the words — it is the answer to
+them.
+
 ## `show running-config` is a config you can paste back
 
 The output is a restorable backup, and that is a tested invariant rather than an aspiration
