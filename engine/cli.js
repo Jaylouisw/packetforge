@@ -25,6 +25,21 @@ const vlanLib = require('./vlan');
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// A `show` command that does not take an argument says so, and names the command that answers the question asked.
+//
+// The alternative - and what eight of these did - is to drop the words and print the whole table. That is not a
+// refusal, it is a wrong answer: `show ip route 192.0.2.0/24` on a router whose table held only 10.0.0.0/24 printed
+// 10.0.0.0/24, which reads as "yes, that prefix is in the table" (#1403). An operator checking whether a prefix is
+// installed is checking exactly the thing the drop fabricates.
+//
+// `whole` says what the command does print; `instead` names the command that answers the narrower question, when
+// one exists. Refusing is the truthful answer: this console has no `show ip route <prefix>`, and pretending it does
+// is worse than saying so.
+function showNoTail(cmd, tail, whole, instead) {
+  return ['% ' + cmd + ' does not take "' + tail.join(' ') + '": ' + whole +
+    (instead ? ' - ' + instead : '')];
+}
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -2272,10 +2287,13 @@ class CliSession {
     const neighbours = dev.ospfNeighbors || [];
     const evaluated = ifaces.length > 0 || neighbours.length > 0;
 
+    // `unknown` separates "a port that exists but carries no OSPF" from "no such port". Without it the neighbour
+    // report described a port that does not exist as one that is "not carrying OSPF", which is a claim about a
+    // socket the box does not have (#1403).
     const portWanted = function () {
-      if (!rest.length) return { name: null };
+      if (!rest.length) return { name: null, unknown: false };
       const name = resolvePortName(dev, rest.join(' '));
-      return { name: name || rest.join(' ') };
+      return name ? { name: name, unknown: false } : { name: rest.join(' '), unknown: true };
     };
 
     if (sub === '' || sub === 'process') {
@@ -2295,6 +2313,10 @@ class CliSession {
 
     if (sub === 'neighbor' || sub === 'neighbour' || sub === 'neighbors' || sub === 'neighbours') {
       const wanted = portWanted();
+      if (wanted.unknown) {
+        out.push('% No interface ' + wanted.name + ' on ' + dev.name);
+        return out;
+      }
       const rows = wanted.name ? neighbours.filter(function (n) { return n.iface === wanted.name; }) : neighbours;
       out.push(pad('Neighbor ID', 16) + pad('Address', 17) + pad('Interface', 12) + 'State');
       if (!rows.length) {
@@ -2337,7 +2359,8 @@ class CliSession {
         if (wanted.name) {
           const port = dev.interfaces.get(wanted.name);
           if (!port) {
-            out.push('% No interface ' + wanted.name);
+            // Same sentence the rest of the console uses, and the same one this report's sibling prints (#1403).
+            out.push('% No interface ' + wanted.name + ' on ' + dev.name);
           } else if (!port.enabled) {
             out.push('% ' + wanted.name + ' is administratively down: OSPF runs on no shut port with an address');
           } else if (!port.ip || !port.mask) {
@@ -2788,6 +2811,9 @@ class CliSession {
     this._refreshControlPlane();
     const out = [];
     if (what === 'version' || what === 'ver') {
+      if (tokens.length > 1) {
+        return showNoTail('show version', tokens.slice(1), 'the banner is the answer');
+      }
       out.push(this._banner());
       out.push('Vendor     : ' + dev.vendor);
       out.push('Model      : ' + dev.model + ' (' + dev.label + ')');
@@ -2856,6 +2882,11 @@ class CliSession {
         out.push('% Usage: show ip nat (rules | translations | statistics)');
       }
     } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
+      if (tokens.length > 3) {
+        const want = tokens.slice(3).join(' ');
+        return showNoTail('show ip interface brief', tokens.slice(3), 'every interface is listed',
+          'use `show interfaces ' + want + '` for one port');
+      }
       out.push('Interface              IP-Address      OK? Method Status                Protocol');
       for (const i of dev.interfaces.values()) {
         const ip = i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned';
@@ -2866,6 +2897,12 @@ class CliSession {
           pad(link.status, 22) + link.protocol);
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
+      // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
+      // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
+      if (tokens.length > 2) {
+        return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
+          'read the row for the prefix in the table below');
+      }
       // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
       // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
       // guess at (#1234).
@@ -2914,6 +2951,13 @@ class CliSession {
     } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
       out.push.apply(out, this._showPowerInline(tokens.slice(2)));
     } else if (what === 'lldp') {
+      if (tokens.length > 1 && String(tokens[1]).toLowerCase() !== 'neighbors' && String(tokens[1]).toLowerCase() !== 'neighbours') {
+        return showNoTail('show lldp', tokens.slice(1), 'every neighbour on every port is listed');
+      }
+      if (tokens.length > 2) {
+        return showNoTail('show lldp neighbors', tokens.slice(2), 'every neighbour on every port is listed',
+          'the Local port column says which port each one is on');
+      }
       // The table that answers "what is plugged into this port" - and it is honest,
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
@@ -2946,6 +2990,10 @@ class CliSession {
         }
       }
     } else if (what === 'access-lists' || what === 'access-list') {
+      if (tokens.length > 1) {
+        return showNoTail('show access-lists', tokens.slice(1), 'every list is printed',
+          'each list is headed by its number');
+      }
       const aclLib = require('./acl');
       const acls = dev.config.acls || {};
       const ids = Object.keys(acls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
@@ -2985,8 +3033,21 @@ class CliSession {
         }
       }
     } else if (what === 'vrrp') {
+      // `show vrrp <group>` printed every group: the one command that reports which router holds the virtual
+      // address answered a question about one group with all of them (#1403).
+      if (tokens.length > 1) {
+        return showNoTail('show vrrp', tokens.slice(1), 'every group is listed',
+          'each group is headed by its number');
+      }
       out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
+      if (tokens.length > 1 && String(tokens[1]).toLowerCase() !== 'brief') {
+        return showNoTail('show vlan', tokens.slice(1), 'every VLAN is listed',
+          'the Id column is the VLAN number');
+      }
+      if (tokens.length > 2) {
+        return showNoTail('show vlan brief', tokens.slice(2), 'every VLAN is listed');
+      }
       // One table, and one row per VLAN.
       //
       // It printed two: trunks listed under the VLANs they carry, and then an extra pseudo-row called
@@ -3023,6 +3084,10 @@ class CliSession {
         out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + members.join(', '));
       }
     } else if (what === 'spanning-tree') {
+      if (tokens.length > 1) {
+        return showNoTail('show spanning-tree', tokens.slice(1), 'this device\'s tree is reported',
+          'the Port column names the port each row is about');
+      }
       // `dev.stp` is written by whichever Simulator computed it last, and every HTTP request builds its own - so a
       // console asked at instant 25000 could print the tree from an earlier pass at Infinity and call a port that is
       // still listening "forwarding" (#1335). The attached simulator recomputes for the instant it was given.
@@ -3075,6 +3140,15 @@ class CliSession {
         }
       }
     } else if (what === 'etherchannel') {
+      // `show etherchannel <anything>` printed the summary whatever was asked for (#1403).
+      {
+        const known = { summary: 1, brief: 1, detail: 1, load: 1, port: 1, 'port-channel': 1, protocol: 1 };
+        const extra = tokens.slice(1).filter(function (t) { return !known[String(t).toLowerCase()]; });
+        if (extra.length) {
+          return showNoTail('show etherchannel', extra, 'every group is listed',
+            'each group is headed by its number');
+        }
+      }
       const lags = dev.config.lags || {};
       const ids = Object.keys(lags).sort();
       if (!ids.length) {
@@ -3134,6 +3208,12 @@ class CliSession {
         }
       }
     } else if (what === 'arp') {
+      // No `show arp <address>`: the cache is listed whole, and asked for one neighbour it used to answer with all
+      // of them, which reads as "that address is in the cache" (#1403).
+      if (tokens.length > 1) {
+        return showNoTail('show arp', tokens.slice(1), 'the whole cache is listed',
+          'the Address column is the neighbour');
+      }
       // The Interface column used to be a header over nothing - every row stopped at the MAC - so the one
       // table that tells you which port a neighbour is on could not tell you (#1253). It also presented
       // every entry as a live neighbour: an entry learned on a port that has since gone down is a stale
@@ -3297,6 +3377,14 @@ class CliSession {
         out.push('device-wide ' + line);
       }
     } else if (what === 'running-config' || what === 'run') {
+      // `show running-config interface Gi0/1` used to print the entire configuration, so the narrower question got
+      // the wider answer and looked like an answer (#1403).
+      if (tokens.length > 1) {
+        const want = tokens.slice(1).join(' ');
+        return showNoTail('show running-config', tokens.slice(1), 'the whole configuration is printed',
+          /^interface|^int$/i.test(String(tokens[1])) ? 'use `show interfaces ' + tokens.slice(2).join(' ') +
+            '` for one port\'s state' : 'the file is the plain `show running-config`');
+      }
       out.push('! PacketForge running-config');
       out.push('hostname ' + (dev.config.hostname || dev.name));
       // Five features were configurable, stored, and printed nowhere: a config saved from the device came back
