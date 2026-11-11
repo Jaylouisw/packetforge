@@ -56,11 +56,17 @@ function typesIn(out) {
 console.log('\nAn empty log is empty, not a filter that matched nothing:');
 {
   const env = lab(false);
+  // The vocabulary is known now, so an empty log answers two questions differently: a word outside
+  // the set is a typo (true even in a quiet lab) and a word inside it is a type with nothing yet.
+  // What this block still forbids is the old conflation - "a type with no events" for a word that is
+  // not a type at all - and "nothing of any type" for a vocabulary the console does have.
   const out = env.s.run('show logging zzz');
   absent(/No events of type/, out, 'an empty log does not pretend zzz is a type with no events');
   saw(/The log is empty/, out, 'it says the log is empty');
-  saw(/nothing of any type/, out, 'and that no type can be answered from it');
-  saw(/ping <addr>/, out, 'and suggests what fills it');
+  saw(/is not a type this console records/, out, 'and refuses the word as a type it does not have');
+  const real = env.s.run('show logging drop');
+  saw(/No event of type "drop" has happened here yet/, real, 'a real type says it has not happened');
+  saw(/ping <addr>/, real, 'and suggests what fills the log');
 }
 
 console.log('\nA word that matches nothing says so, and lists what does have events:');

@@ -102,6 +102,52 @@ console.log('\nThe vocabulary is a view, not a sentence:');
   ok(/'`-' is a type|a `-` is a type/.test(out), 'a dash is a type, not a typo');
 }
 
+
+console.log('\nAn empty log answers a vocabulary question but not a filter question:');
+{
+  const t = new Topology();
+  const r = t.addDevice(find('generic-router')); r.name = 'R1';
+  const s = new CliSession(r, t, new Simulator(t)); s.run('enable');
+  // Nothing has run: `show logging types` is the command to run *before* anything happens, and it
+  // used to answer "there is nothing of any type" - the vocabulary is a fact about the console.
+  const types = text(s.run('show logging types'));
+  ok(/^Event types this console records \(\d+\)/.test(types), 'the vocabulary answers on an empty log');
+  ok(/The log is empty, so every count is/.test(types), 'and says why every count is a dash');
+  ok(/a fact about the console and not about the lab/.test(types), 'which is the distinction it is making');
+  // A typo is a typo in a quiet lab too.
+  const typo = text(s.run('show logging xyz'));
+  ok(/"xyz" is not a type this console records/.test(typo), 'a typo is refused as a typo on an empty log');
+  ok(/The log is empty - nothing has run in this lab yet/.test(typo), 'with the emptiness as a second fact');
+  // A real type on an empty log is named as real and quiet.
+  const quiet = text(s.run('show logging drop'));
+  ok(/No event of type "drop" has happened here yet/.test(quiet), 'a real type is quiet, not unknown');
+  ok(/it is a type this console records/.test(quiet), 'and says so');
+  // The whole-log view is still honest about being empty.
+  ok(/^No events: the log is empty/.test(text(s.run('show logging'))), 'the log itself still says it is empty');
+}
+
+console.log('\nThe vocabulary and the summary count the same events:');
+{
+  const env = lab();
+  env.ps.run('ping 10.0.0.1');
+  env.ps.run('ping 10.9.9.9');
+  const summary = text(env.ss.run('show logging summary'));
+  const types = text(env.ss.run('show logging types'));
+  const countIn = function (out, word) {
+    const m = new RegExp('^\\s*' + word + '\\s+(\\d+)\\s*$', 'm').exec(out);
+    return m ? Number(m[1]) : 0;
+  };
+  let agreed = 0, disagreed = [];
+  for (const type of Array.from(EVENT_TYPES)) {
+    const a = countIn(summary, type);
+    const b = countIn(types, type);
+    if (a === b) agreed++; else disagreed.push(type + ': summary ' + a + ', types ' + b);
+  }
+  ok(disagreed.length === 0, 'every type is counted the same by both views'
+    + (disagreed.length ? ' - ' + disagreed.join(' | ') : ''));
+  ok(agreed === EVENT_TYPES.size, 'and the check covered all ' + EVENT_TYPES.size + ' types');
+}
+
 console.log('\nThe set is the code: nothing emits a type it does not declare:');
 {
   // Derived from the emission sites, the same way a reader would: the `type:` field of an event

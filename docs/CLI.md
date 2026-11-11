@@ -1724,6 +1724,36 @@ directions: every declared type must be emitted somewhere in `engine/` (a declar
 is a type the console offers and can never show), and every type a scenario actually produces must be
 declared (a new event type added anywhere fails until it is listed).
 
+#### An empty log answers a vocabulary question
+
+The vocabulary is a fact about the console, not about the lab, so `show logging types` answers before
+anything has run — and a typo is a typo in a quiet lab too:
+
+```
+R1#show logging types
+Event types this console records (60), and how many have happened here:
+  Type                 Events
+  acl-deny             -
+  ...
+The log is empty, so every count is `-` - the vocabulary above is what this console
+can record, which is a fact about the console and not about the lab. Send a packet
+(`ping <dst>`) or run `converge`, then ask again.
+
+R1#show logging xyz
+% "xyz" is not a type this console records, so no event of it can ever appear
+% "show logging types" lists the 60 types this console does record
+% The log is empty - nothing has run in this lab yet
+
+R1#show logging drop
+% No event of type "drop" has happened here yet - it is a type this console records
+% The log is empty: nothing has run in this lab yet
+```
+
+The empty-log branch used to answer all three the same way — *"nothing has run in this lab, so there is
+nothing of any type"* — which is true of the log and false of the vocabulary, and made the one command
+an operator runs first refuse to answer. `show logging device <name>` names the devices in the lab when
+the name matches none, so a lab of twenty does not need a second command to spell one.
+
 ### `show vlan summary` counts the table it sits above
 
 `summary` is the word an operator types before deciding whether a VLAN is missing, and it was read as

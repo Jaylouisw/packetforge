@@ -10874,8 +10874,19 @@ class CliSession {
         const wanted = args[++i];
         if (wanted === undefined) return ['% show logging device <name> needs a device name'];
         const found = this._deviceByName(wanted);
-        if (!found) return ['% No device named "' + wanted + '"'];
+        if (!found) {
+          // A name that matches nothing is answered with the names that do, as every other refusal
+          // here is: a lab of twenty devices should not require a second command to spell one.
+          const have = this.topo && this.topo.devices ? Array.from(this.topo.devices.values())
+            .map(function (d) { return d.name; }).sort() : [];
+          return ['% No device named "' + wanted + '"',
+            '% Devices in this lab: ' + (have.length ? have.join(', ') : '(none)')];
+        }
         deviceName = found.name;
+      } else if (a === 'types') {
+        // The vocabulary, not the log: `show logging types` is the command to run *before* anything
+        // has happened, and the empty-log branch below answered it with "nothing of any type".
+        wantTypes = true;
       } else if (a[0] === '-') {
         return ['% Unknown option "' + a + '"'];
       } else if (type === null) {
@@ -10888,17 +10899,27 @@ class CliSession {
         // "% No events of type "zzz"" with "Types seen: (none)" read like a type that exists and
         // is empty, so a typo and a quiet lab were indistinguishable.
         if (!events.length) {
+          // An empty log answers a *filter* question and does not answer a *vocabulary* question: a
+          // typo is still a typo in a lab where nothing has run yet, and the word only has to be
+          // tested against the set. "nothing of any type" was the old answer to both.
+          const known = require('./simulator').EVENT_TYPES || new Set();
+          if (known.size && !known.has(a) &&
+              !Array.from(known).some(function (t) { return t.indexOf(a) === 0; })) {
+            return ['% "' + a + '" is not a type this console records, so no event of it can ever appear',
+              '% "show logging types" lists the ' + known.size + ' types this console does record',
+              '% The log is empty - nothing has run in this lab yet'];
+          }
+          const named = Array.from(known).filter(function (t) { return t.indexOf(a) === 0; });
+          if (named.length === 1) {
+            return ['% No event of type "' + named[0] +
+              '" has happened here yet - it is a type this console records',
+              '% The log is empty: nothing has run in this lab yet',
+              '% Run something ("ping <addr>", a simulation step) and this fills up'];
+          }
           return ['% The log is empty: nothing has run in this lab, so there is nothing of any type',
             '% Run something ("ping <addr>", a simulation step) and this fills up'];
         }
         const knownTypes = require('./simulator').EVENT_TYPES || new Set();
-        // `show logging types` - the vocabulary, and which of it has happened here. A 60-type
-        // vocabulary cannot live inside a refusal sentence, and this is the question the refusal was
-        // trying to answer.
-        if (a === 'types') {
-          wantTypes = true;
-          continue;
-        }
         if (seenTypes.indexOf(a) === -1) {
           // An unambiguous prefix of a type is that type, as keywords are everywhere else in this
           // console: `show logging dro` is `show logging drop`. The candidates are the types that
@@ -10971,6 +10992,12 @@ class CliSession {
         return !events.some(function (e) { return e.type === t; });
       }).length;
       out.push('');
+      if (!events.length) {
+        out.push('The log is empty, so every count is `-` - the vocabulary above is what this console');
+        out.push('can record, which is a fact about the console and not about the lab. Send a packet');
+        out.push('(`ping <dst>`) or run `converge`, then ask again.');
+        return out;
+      }
       out.push(quiet + ' of ' + known.length + ' have not happened in this lab yet - a `-` is a type');
       out.push('this console can record, not a typo. `show logging <type>` filters to one.');
       return out;
