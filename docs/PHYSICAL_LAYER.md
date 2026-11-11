@@ -459,7 +459,9 @@ documented-but-unenforced until something calls the validator.
 
 `engine/lag.js` — modes `lacp-active`, `lacp-passive`, `static`; hash policies
 `l2`, `l3`, `l3l4`. `hashFrame` is a deterministic hash and `selectMember` maps a
-frame onto a member (order-independent, skips disabled members).
+frame onto a member: it drops disabled members and duplicate names, **sorts the survivors by name
+before hashing** — that sort is what makes the choice order-independent — and returns `null` when
+nothing is eligible.
 
 In the simulator a LAG is **one logical port**:
 
@@ -468,8 +470,13 @@ In the simulator a LAG is **one logical port**:
 - A frame that arrived on a member is **never sent back out the same group** —
   that would hairpin the frame and loop.
 
-`validateLag` enforces: ≥ 2 members, identical speed, identical duplex, identical
-VLAN configuration.
+`validateLag(lag, memberPorts)` is reached from `engine/cli.js:4539`, and it enforces more than the
+obvious three. Errors: an unknown `mode` (`E_LAG_BAD_MODE`), fewer than two members (`E_LAG_TOO_FEW`), a
+port listed twice (`E_LAG_DUPLICATE_MEMBER`), differing member speeds (`E_LAG_SPEED_MISMATCH`, which
+names the rates it found in Mbps), differing duplex (`E_LAG_DUPLEX_MISMATCH`) and a member whose
+`vlanCompatible` is false (`E_LAG_VLAN_MISMATCH`). A member that is administratively down is only a
+**warning** — `W_LAG_DISABLED_MEMBER`, "carries no traffic" — so a LAG with one shut member still
+validates, and `selectMember()` simply never picks that member.
 
 ## 7. Spanning tree (802.1D) — enforced in the data path
 
