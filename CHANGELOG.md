@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A `?` under a value slot now names the values the device has.** A slot the console could complete
+  from the device used to print only its own name (`Next: <name>`) with no hint of what was available;
+  now the values are listed, named by what they are. Measured on a lab holding R1 (router), SW1
+  (switch) and PC1 (PC), with VLANs 10/30/44 created on the switch:
+
+  ```
+  R1#show logging device ?
+    Completions for "show logging device" (1):
+      why something happened - drops, forwards, protocol events
+      Next: <name>
+      Devices in this lab: PC1, R1, SW1
+
+  R1#show interfaces counters ?
+    Completions for "show interfaces counters" (1, and this form ends here):
+      one row per port: packets, bytes, drops
+      Next: <port>
+      Ports on this device: Gi0/0, Gi0/1, Gi0/2
+
+  SW1(config)#no vlan ?
+    Completions for "no vlan" (1):
+      remove a VLAN no port is still in
+      Next: <id>
+      VLANs on this device: 1, 10, 30, 44
+  ```
+
+  The slot line (`Next: <name>`) is unchanged, so existing scripts that parse it still work — the
+  value list is an addition after it, not a replacement. `test/value-hints.test.js` holds **24
+  assertions**. See [docs/CLI.md](docs/CLI.md).
+
 - **`show logging types` — the event vocabulary, and a refusal that can tell a typo from a quiet type.**
   `show logging <type>` used to answer a word it did not recognise with "either a type that has not
   happened yet or a typo", which is not something an operator can act on. The console knows all 60 type
