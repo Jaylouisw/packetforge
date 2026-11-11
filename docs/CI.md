@@ -618,14 +618,20 @@ services, and a job that has to swap makes the whole queue slower.
 - **The "cited-but-absent suite" count is a warning, and it should not be zero.** The
   local markdown checker (`md-check`, the script reproduced [above](#running-the-same-checks-locally) —
   it lives outside the repository by design) resolves every `test/*.test.js` a page names against
-  the directory and prints 13 misses on this tree. All 13 are legitimate, in three
-  categories, and the count is stable because the pages are stable:
+  the directory and prints 15 misses on this tree, over **five distinct names**. All 15 are legitimate,
+  and the count is stable because the pages are stable:
 
   | Where | Count | Why it is legitimate |
   |---|---|---|
   | `docs/BGP-POLICY.md` | 2 | `bgp-policy.test.js`, `bgp-policy-wire.test.js` — the page is a **design**, and these are the suites it proposes ("New file:") |
   | `docs/UPSTREAM-DESIGN.md` | 3 | `upstream-baseline.test.js` ×2, `upstream-service.test.js` — phase-0 and phase-2 gates, not yet written |
-  | `docs/SIMULATION.md` | 8 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and one recording a pass that "fixed" it |
+  | `docs/SIMULATION.md` | 9 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and ones recording passes that "fixed" it — plus three for `poe-derived.test.js`, the file nobody ever wrote |
+  | `docs/CI.md` | 1 | this page, two paragraphs below, narrating the `poe-derived.test.js` incident — the page that explains the count is itself part of it |
+
+  None of the five names has ever existed: `git log --all --format=%h -- test/<name>` returns nothing for
+  `bgp-policy`, `bgp-policy-wire`, `poe-derived`, `upstream-baseline` and `upstream-service`. That is the
+  distinction worth keeping — a citation of a suite that was **renamed** is a broken link to fix, while a
+  citation of a suite that was **proposed** is a promise, and only the design pages are allowed to make one.
 
   ```bash
   node md-check.js docs/*.md README.md CONTRIBUTING.md CHANGELOG.md docs/wiki/*.md | grep 'cites test/'
