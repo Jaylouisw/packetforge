@@ -332,9 +332,9 @@ four were run on this tree to write these numbers; all four are green.
 | `test/abbrev.test.js` | 47 | a keyword typed as a prefix is the command it abbreviates — `sh ip int br` is the line people actually type |
 | `test/completion.test.js` | 52 | `?` in any position is a question about what has been typed, never a bad argument |
 | `test/shortest-abbrev.test.js` | 21 | every documented row, in **seven** modes, shortened to its *shortest unique* prefix, is not answered with a typo — an ambiguity passes only when the refusal names two or more candidates that exist on that page |
-| `test/placeholder-rows.test.js` | 11 | every documented row **with a value in it**, in **eight** modes, filled in from a table of values, is a command the console takes |
+| `test/placeholder-rows.test.js` | 14 | every documented row **with a value in it**, in **eight** modes, filled in from a table of values, is a command the console takes |
 
-**131 assertions, and they fail in different directions.** The first two are behavioural: they type lines
+**134 assertions, and they fail in different directions.** The first two are behavioural: they type lines
 and assert on answers. The last two are *derived* — they read the help rows and type what those rows
 promise — so they can go red with no behaviour change at all, which is exactly what a doc row edit
 produces. That is the mechanical reason a `cli.js` help change and a `CLI.md` edit belong in one commit:
@@ -512,12 +512,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **361 ahead and 448 behind**; either way not one of the commits above is an ancestor of
+  now reads **361 ahead and 449 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 361  448
+  git rev-list --left-right --count HEAD...origin/main    # 361  449
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
