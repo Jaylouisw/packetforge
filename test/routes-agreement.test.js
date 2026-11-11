@@ -188,9 +188,13 @@ console.log('The two surfaces describe the same rows:');
     }
     // Two rows can share a prefix: a configured gateway (254) and a static default (1) are both 0.0.0.0/0.
     // So rows are compared as a multiset keyed by code, prefix, distance and note, not looked up by prefix.
+    // The trailing words, in the order both surfaces print them: the fault note first, then the sentence that
+    // says a healthy row is not the route chosen (#1407). They are separate fields so that a shadowed route is
+    // not styled as a fault - the check below tests exactly that - but the words have to match.
+    const tail = function (r) { return [r.note, r.shadow].filter(Boolean).join('  '); };
     const pSigs = p.map(function (r) {
       const d = /\[(\d+)\/0\]/.exec(r.via);
-      return r.code + '|' + r.network + '|' + (d ? d[1] : 'connected') + '|' + (r.note || '');
+      return r.code + '|' + r.network + '|' + (d ? d[1] : 'connected') + '|' + tail(r);
     }).sort();
     const cSigs = c.map(function (r) {
       return r.code + '|' + r.network + '|' + (r.distance === null ? 'connected' : r.distance) + '|' + (r.note || '');

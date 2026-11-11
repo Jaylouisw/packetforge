@@ -1012,7 +1012,49 @@ class Device {
     for (const row of rows) {
       row.displayCode = row.type === 'default' ? 'S*' : row.code;
       row.distance = Device.routeDistance(row);
+    }
+
+    // One prefix, one installed route (#1407).
+    //
+    // The table used to print every candidate it held, so a BGP route for a subnet the box is *directly
+    // connected to* appeared beside the connected route as an equal:
+    //
+    //     C   10.0.12.0      /24  is directly connected, Gi0
+    //     B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0
+    //
+    // Two rows for one destination, and only one of them can be installed. `routeTo()` - the thing that
+    // actually forwards - has always chosen by longest prefix then lowest distance, so the engine knew the
+    // answer and the report did not say it. A received route is not deleted from the table (dropping it would
+    // hide what the peer sent); it is marked, with the row that beat it named.
+    const groups = new Map();
+    for (const row of rows) {
+      const key = row.dest + '/' + row.mask;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(row);
+    }
+    for (const group of groups.values()) {
+      let best = group[0];
+      for (const row of group) {
+        // Strictly lower wins; a tie keeps the earlier row, which is the order routeTo() tries them in
+        // (connected, static, BGP, OSPF). Nothing here invents a preference the data plane does not have.
+        if (row.distance < best.distance) best = row;
+      }
+      for (const row of group) {
+        row.installed = row === best;
+        if (row !== best) row.shadowedBy = { code: best.displayCode, distance: best.distance, iface: best.iface };
+      }
+    }
+
+    for (const row of rows) {
       const verdict = this.routeNote(row, topo);
+      // Two different facts, kept apart on purpose. `note` means "this row cannot carry a packet" and drives
+      // the fault styling; `shadow` means "this row is fine, but another route for the same prefix wins". Folding
+      // them into one string made a perfectly healthy candidate default read as a fault, which is what
+      // `test/routes-agreement.test.js` caught.
+      row.shadow = (row.installed === false && row.shadowedBy)
+        ? '(not installed: the ' + row.shadowedBy.code + ' route for this prefix has distance ' +
+          row.shadowedBy.distance + ')'
+        : '';
       row.note = verdict.note;
       row.unusable = verdict.unusable;
       row.checked = !!topo;
