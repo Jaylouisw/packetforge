@@ -75,8 +75,8 @@ poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.
 
 `engine/cli.js` accepts either when it decides whether a port can source power, so a contributor may
 use whichever the surrounding file already uses; prefer the flat key in a new spec, because it is the
-form every example in this page shows and the one **61 of the 62** files that state a port PoE rate use
-— the sixty-second is the nested file named above. The catalogue's other **1,599** files state no rate at
+form every example in this page shows and the one **55 of the 62** files that state a port PoE rate use
+— the other seven split into six that set it on `portTemplate` instead of per-port and the one nested file named above. The catalogue's other **1,599** files state no rate at
 all, and the engine infers one from the device class.
 
 ### Keys the catalogue carries that this table does not gate on
