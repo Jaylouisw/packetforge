@@ -499,6 +499,26 @@ end, and an insertion loss. Concretely:
 7. Keep the array flat and the key order consistent; the loader is an append, and
    diffs stay readable.
 
+### 7.4 Which parts the engine can actually hand back, measured
+
+`hybridCord()` is a filtered `[0]` (`engine/optical.js:377-388`): it keeps the catalogue entries whose
+two ends are the requested pair and returns the **first**, so a part later in the file is never
+selected while an earlier one fits. Asked for every entry's own pair, the catalogue answers:
+
+| what | result |
+|---|---|
+| of the **10** `polishBridge: true` parts | every one is indexed, but only **two** part numbers can come back: `SMSCSX` for any SC/UPC↔SC/APC pair (**6** entries map to it) and `SMLCSX` for any LC/UPC↔LC/APC pair (**4**) |
+| of the **3** `polishBridge: false` parts | **all three return `null`**, as `hybridCord()` requires `fa.shape === fb.shape` — so `FCA-SALU-DPS2P-02`, `F225801G1Z20007M` and `N366-02M-AP` are catalogued, correct, and unreachable |
+
+So "the catalogue has thirteen assemblies" and "the engine can put thirteen on a link" are different
+statements: eight of the ten bridges are shadowed by file order, and the three shape hybrids need the
+adapter that open question 4 asks about. Nothing is wrong with the data — this is the picker path, not
+the data path, and `test/hybrid-cord.test.js` covers it in **54** assertions across six groups: the
+parts are catalogue entries rather than a flag, the feeder link from the issue before and after the
+cord, the rule not being loosened (ordinary fibre is still refused), a cord being a specific part
+rather than a free pass, the cord's insertion loss reaching the optical budget, and the link record
+carrying the part with plain fibre as the default.
+
 ---
 
 ## 8. Open questions for the maintainers
