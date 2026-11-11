@@ -567,6 +567,21 @@ services, and a job that has to swap makes the whole queue slower.
   shows up as `(no summary line)` instead. Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
 
+  **The runner ignores flags it does not know, and that is the expensive kind of silence.** Measured
+  here, each command run as written:
+
+  | command | what happens |
+  |---|---|
+  | `node scripts/run-tests.js --list` | lists the suites; the last line reads `270 suite(s)` |
+  | `node scripts/run-tests.js --filter=bgp` | `7 suite(s)`, then `OK — every suite passed.` |
+  | `node scripts/run-tests.js --nosuchflag --list` | still lists, silently — the unknown flag is dropped |
+  | `node scripts/run-tests.js --filet=bgp --list` | still lists: a **mistyped `--filter`** is dropped too |
+  | `node scripts/run-tests.js --filter` (no value) | no error; the filter is empty, so the **whole** suite runs |
+
+  So a typo does not fail loudly: it quietly turns a filtered run into the full one — and a bare
+  `--filter` does the same. If a supposedly filtered run keeps going for minutes instead of finishing
+  the handful of suites you asked for, suspect the spelling before you suspect the machine.
+
   So quote the runner rather than this paragraph: `node scripts/run-tests.js` prints the reading and
   `ls test/*.test.js | wc -l` prints the size. If the two disagree with the sentence you are reading,
   the sentence is what changed.
