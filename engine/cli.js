@@ -1420,6 +1420,10 @@ class CliSession {
       out.push.apply(out, this._bgp(tokens.slice(1)));
     } else if (head === 'dns') {
       out.push.apply(out, this._dns(tokens.slice(1)));
+    } else if (head === 'no' && tokens[1] === 'dns') {
+      // A zone can be created with `dns zone <name>` and could never be removed: the line
+      // `show running-config` prints had no `no` form, so a saved copy could only ever grow.
+      out.push.apply(out, this._noDns(tokens.slice(2)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
       // Every word after the keyword is an address: `ip name-server 8.8.8.8 8.8.4.4` configures two,
       // and `ip name-server 8.8.8.8 zzzz` used to configure one and drop the other on the floor -
@@ -1453,8 +1457,27 @@ class CliSession {
         return ['% Unexpected argument "' + badNs + '" - no ip name-server takes an address, or nothing',
           '% Usage: no ip name-server [<address> ...]'];
       }
-      this.device.config.dnsServers = [];
-      out.push('Name servers cleared');
+      // A removal that names one address removes that address. This branch cleared **every**
+      // configured server whatever was named, so `no ip name-server 8.8.4.4` also dropped 8.8.8.8 -
+      // the same defect `no ipv6 gateway <addr>` had. A bare `no ip name-server` still clears all,
+      // and says so, because that is the arithmetic it does.
+      const named = tokens.slice(3);
+      if (!named.length) {
+        const had = (this.device.config.dnsServers || []).length;
+        this.device.config.dnsServers = [];
+        out.push(had ? 'Name servers cleared (' + had + ')' : 'No name servers were configured');
+        return out;
+      }
+      const before = this.device.config.dnsServers || [];
+      const kept = before.filter(function (s) { return named.indexOf(s) === -1; });
+      const gone = before.filter(function (s) { return named.indexOf(s) !== -1; });
+      const missing = named.filter(function (s) { return before.indexOf(s) === -1; });
+      this.device.config.dnsServers = kept;
+      if (gone.length) out.push('Name server' + (gone.length > 1 ? 's ' : ' ') + gone.join(', ') + ' removed');
+      if (missing.length) {
+        out.push('% Not a configured name server: ' + missing.join(', '),
+          '% Configured: ' + (before.length ? before.join(', ') : '(none)'));
+      }
     } else if (head === 'ospf') {
       // `ospf router-id 1.1.1.1` answered "OSPF enabled, router-id 1.1.1.1 area 0" on a **PC** and on
       // a **switch** - the same defect `router ospf 1` had, in the other spelling. The gate belongs on
@@ -3383,6 +3406,80 @@ class CliSession {
     }
 
     return ['% Usage: dns zone <name> | dns add <name> <type> <value>'];
+  }
+
+  // The removal half of the DNS server's own configuration: a zone, or one name's records.
+  _noDns(tokens) {
+    const dnsLib = require('./dns');
+    const dev = this.device;
+    const t = tokens.map(function (x) { return String(x); });
+    const zones = dev.config.dnsZones || [];
+
+    if (t[0] === 'zone') {
+      const apex = t[1];
+      if (!apex) {
+        return ['% Incomplete command: no dns zone <name>',
+          zones.length ? '% Zones here: ' + zones.map(function (z) { return z.name; }).join(', ')
+            : '% This device serves no zone'];
+      }
+      const key = dnsLib.normalizeName(apex);
+      const idx = zones.findIndex(function (x) { return dnsLib.normalizeName(x.name) === key; });
+      if (idx === -1) {
+        return ['% No zone named ' + key + ' on ' + (dev.name || dev.id),
+          zones.length ? '% Zones here: ' + zones.map(function (z) { return z.name; }).join(', ')
+            : '% This device serves no zone - nothing to remove'];
+      }
+      const gone = zones[idx];
+      zones.splice(idx, 1);
+      if (this._dnsZone === gone.name) this._dnsZone = null;
+      const n = (gone.records || []).length;
+      return ['Zone ' + gone.name + ' removed' + (n ? ' with its ' + n + ' record' + (n === 1 ? '' : 's')
+        : ' (it held no records)'),
+        // The fact the operator cannot see: a resolver that pointed at this server has lost its
+        // answers, and nothing on the server says so.
+        n ? 'Any resolver that pointed at this device for that name now has no answer for it' : null
+      ].filter(Boolean);
+    }
+
+    if (t[0] === 'add') {
+      const name = t[1];
+      const type = t[2] ? String(t[2]).toUpperCase() : null;
+      if (!name) return ['% Incomplete command: no dns add <name> [<type>]'];
+      if (type && dnsLib.RECORD_TYPES.indexOf(type) === -1) {
+        return ['% Unknown record type "' + type + '" (use ' + dnsLib.RECORD_TYPES.join('/') + ')'];
+      }
+      const key = dnsLib.normalizeName(name);
+      const removed = [];
+      for (const z of zones) {
+        const keep = [];
+        for (const r of (z.records || [])) {
+          const sameName = dnsLib.normalizeName(r.name) === key;
+          const sameType = !type || String(r.type || 'A').toUpperCase() === type;
+          if (sameName && sameType) removed.push({ zone: z.name, rec: r });
+          else keep.push(r);
+        }
+        z.records = keep;
+      }
+      if (!removed.length) {
+        const held = [];
+        for (const z of zones) {
+          for (const r of (z.records || [])) {
+            if (dnsLib.normalizeName(r.name) === key) held.push(z.name + ': ' + r.name + ' ' + r.type + ' ' + r.value);
+          }
+        }
+        return ['% ' + name + ' has no ' + (type || 'record') + ' here',
+          held.length ? '% That name holds: ' + held.join('; ')
+            : '% No zone on this device holds a record for ' + key];
+      }
+      const out = ['Removed ' + removed.length + ' record' + (removed.length === 1 ? '' : 's') +
+        ' for ' + name + (type ? ' (' + type + ')' : '')];
+      for (const r of removed) {
+        out.push('  ' + r.zone + ': ' + r.rec.name + ' ' + r.rec.type + ' ' + r.rec.value);
+      }
+      return out;
+    }
+
+    return ['% Usage: no dns zone <name> | no dns add <name> [<type>]'];
   }
 
   // ---------- OSPF ----------
@@ -7855,11 +7952,45 @@ class CliSession {
   // authoritatively, and `dns.js` already formats that answer. Only if no local
   // zone knows the name does it fall back to the lab's resolvers, the same path
   // `ping <name>` uses.
+  // The reverse name an address is asked as. A reverse lookup is not a different kind of question to
+  // the DNS protocol, it is a different *name* (RFC 1035): `10.0.0.53` is asked as
+  // `53.0.0.10.in-addr.arpa`, and an IPv6 address as its 32 nibbles under `ip6.arpa`. This console
+  // asked the literal string `10.0.0.53` as if it were a hostname, so a PTR record could be
+  // configured in a zone and never reachable.
+  _reverseName(addr) {
+    const net = require('net');
+    const v = net.isIP(String(addr));
+    if (v === 4) return String(addr).split('.').reverse().join('.') + '.in-addr.arpa';
+    if (v === 6) {
+      // Expand to eight groups first: `::1` is a valid address and a literal nibble split of it
+      // would name a different space.
+      let text = String(addr).toLowerCase();
+      const halves = text.split('::');
+      let groups;
+      if (halves.length === 2) {
+        const head = halves[0] ? halves[0].split(':') : [];
+        const tail = halves[1] ? halves[1].split(':') : [];
+        const fill = new Array(8 - head.length - tail.length).fill('0');
+        groups = head.concat(fill, tail);
+      } else {
+        groups = text.split(':');
+      }
+      const nibbles = groups.map(function (g) { return g.padStart(4, '0'); }).join('');
+      return nibbles.split('').reverse().join('.') + '.ip6.arpa';
+    }
+    return null;
+  }
+
   _nslookup(args) {
     const dev = this.device;
     const dnsLib = require('./dns');
     const name = args[0];
-    const type = String(args[1] || 'A').toUpperCase();
+    // An address in the argument slot is a reverse question, not a hostname that happens to be
+    // spelled with dots. Asking for it by its literal spelling answered "no server hosts a zone for
+    // 10.0.0.53" while the zone held the PTR record all along.
+    const reverse = this._reverseName(name);
+    const askedName = reverse || name;
+    const type = String(args[1] || (reverse ? 'PTR' : 'A')).toUpperCase();
     // The same fact as `ping` with no destination: an argument slot is empty, which is not a usage
     // error in what was typed but a missing value. One wording for the whole family.
     if (!name) return ['% Incomplete command: nslookup <name> [type]'];
@@ -7868,8 +7999,13 @@ class CliSession {
     }
 
     const out = [];
+    if (reverse) {
+      // The name that was actually asked is shown: a reverse lookup is the one place the console
+      // rewrites what the operator typed, and hiding it makes the answer look like magic.
+      out.push('  (as ' + reverse + ' - a reverse lookup of ' + name + ')');
+    }
     for (const zone of (dev.config.dnsZones || [])) {
-      const res = dnsLib.resolve(zone, name, type);
+      const res = dnsLib.resolve(zone, askedName, type);
       // If the name falls inside a zone this device hosts, that zone's answer is
       // the authoritative one — including an authoritative NXDOMAIN, which is a
       // statement about the name rather than a failure to ask anybody.
@@ -7881,16 +8017,44 @@ class CliSession {
     }
 
     if (this.sim && typeof this.sim.resolveName === 'function') {
-      const res = this.sim.resolveName(dev, name);
+      const res = this.sim.resolveName(dev, askedName, type);
+      // A query typed at the console is a lookup the device made, so it goes in the resolver's own
+      // record exactly as one made by `ping <name>` does - otherwise `show hosts` would omit the
+      // lookups an operator asked for by hand, which are the ones they are most likely to re-read.
+      try {
+        if (typeof this.sim.recordDnsLookup === 'function') {
+          this.sim.recordDnsLookup(dev.id, askedName, {
+            ok: res.ok, ip: res.value || res.address, server: res.server,
+            reason: res.ok ? null : (res.status === 'NODATA' ? 'NODATA (no ' + type + ' record) at ' + (res.server || '(no server)')
+              : res.status === 'NXDOMAIN' ? 'NXDOMAIN from ' + (res.server || '(no server)')
+                : 'no server hosts a zone for ' + askedName)
+          });
+        }
+      } catch (e) { /* a view must not fail because a log entry could not be written */ }
       out.push('Server: ' + (res.server || '(none)'));
+      const shown = reverse ? name : askedName;
       if (res.ok) {
-        out.push('  ' + name + ' -> ' + res.address);
+        // A PTR answer is a name; saying "10.0.0.53 -> host1.lab.example" would invite reading the
+        // arrow as an address. The type is printed with the answer so the two directions differ.
+        out.push('  ' + shown + ' -> ' + (res.value || res.address) +
+          (res.rtype && res.rtype !== 'A' ? ' (' + res.rtype + ')' : ''));
+
       } else if (res.status === 'NODATA') {
-        out.push('  ' + name + ' exists but has no A record (NODATA)');
+        out.push(reverse
+          ? '  ' + askedName + ' is known in that zone but has no ' + type + ' record (NODATA)'
+          : '  ' + askedName + ' exists but has no ' + type + ' record (NODATA)');
       } else if (res.status === 'NXDOMAIN') {
-        out.push("  ** server can't find " + name + ': NXDOMAIN');
+        out.push("  ** server can't find " + askedName + ': NXDOMAIN');
+      } else if (reverse) {
+        // No zone serves this reverse space at all, which is a configuration fact with an exact fix.
+        const space = String(askedName).toLowerCase().endsWith('.ip6.arpa')
+          ? 'under ip6.arpa' : String(askedName).split('.').slice(1).join('.');
+        out.push('  ** server failure: no zone for the reverse space ' + space);
+        out.push('  A reverse lookup needs a zone of its own - "dns zone ' +
+          (String(askedName).toLowerCase().endsWith('.ip6.arpa') ? 'ip6.arpa' : space) +
+          '" on the server, with a PTR record for each address');
       } else {
-        out.push('  ** server failure: no DNS server in this lab hosts a zone for ' + name);
+        out.push('  ** server failure: no DNS server in this lab hosts a zone for ' + askedName);
       }
       return out;
     }
@@ -12254,6 +12418,8 @@ class CliSession {
       helpLine('ospf router-id <ip> | ospf area <id>', 'enable OSPF'),
       helpLine('no ospf', 'turn OSPF off'),
       helpLine('no ospf router-id | no ospf area <id>', 'forget the id, or one area'),
+      helpLine('no dns zone <name>', 'remove a zone, and report the records it takes with it'),
+      helpLine('no dns add <name> [type]', 'remove one name\'s records, or only one type\'s'),
       helpLine('dns zone <name> | dns add <name> <type> <value>',
         'serve a zone, or add a record to one'),
       helpLine('scion <isd-as>', 'join a SCION ISD-AS'),
@@ -12433,6 +12599,7 @@ class CliSession {
       helpLine('renew dhcp [<port>]', 'ask the server for a lease now (DHCP client ports)'),
       helpLine('release dhcp [<port>]', 'give the lease back; the port stays unaddressed until renewed'),
       helpLine('nslookup <name> [type]', 'resolve a name (own zones first, then the lab)'),
+      helpLine('nslookup <address> [type]', 'reverse lookup: the address asked as d.d.c.b.in-addr.arpa, PTR by default'),
       helpLine('converge [<ms>|converged]', 'when each control plane finishes'),
       helpLine('link up|down <id> [at <ms>]', 'pull or replace a cable, re-converge from there'),
       helpLine('link state <id>', 'one cable: endpoints, state, since when'),

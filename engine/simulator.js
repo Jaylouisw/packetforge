@@ -263,7 +263,11 @@ class Simulator {
   // A device answers for zones it hosts (config.dnsZones); a client asks the
   // servers in config.dnsServers, or any server in the lab when it lists none
   // (small labs would otherwise need explicit resolver configuration).
-  resolveName(src, qname) {
+  // `type` is the record asked for: A by default, because that is what a name resolution through
+  // this resolver is for, and PTR when `nslookup <address>` asks what a name is. Before this the
+  // query type was hardcoded, so a reverse lookup could not be expressed at all.
+  resolveName(src, qname, type) {
+    const wantType = String(type || 'A').toUpperCase();
     const client = src || null;
     const wanted = (client && client.config && client.config.dnsServers) || [];
     const candidates = [];
@@ -280,15 +284,27 @@ class Simulator {
 
     for (const c of candidates) {
       for (const zone of c.zones) {
-        const res = dnsLib.resolve(zone, qname, 'A');
+        const res = dnsLib.resolve(zone, qname, wantType);
         const answers = (res && res.answers) || [];
         if (!answers.length) continue;
         const a = answers.filter(function (x) {
-          return String(x.type || '').toUpperCase() === 'A';
-        })[0] || answers[0];
-        const addr = a && (a.value || a.address || a.data);
-        if (addr) {
-          return { ok: true, address: addr, status: 'OK', server: c.dev.name, rcode: res.rcode, answers: answers };
+          return String(x.type || '').toUpperCase() === wantType;
+        })[0] || (wantType === 'ANY' ? answers[0] : null);
+        const val = a && (a.value || a.address || a.data);
+        if (val) {
+          return {
+            ok: true,
+            // `address` keeps meaning "the address of this name" for A, which every other caller
+            // reads. A PTR answer is a name, so it is reported as `value` and `rtype` and the
+            // address field is left empty rather than holding a hostname.
+            address: wantType === 'A' || wantType === 'AAAA' ? val : null,
+            value: val,
+            // With ANY the answer's own type is the useful one; printing "ANY" beside an answer
+            // tells the reader nothing about what came back.
+            rtype: wantType === 'ANY' ? String((a && a.type) || 'ANY').toUpperCase() : wantType,
+            status: 'OK', server: c.dev.name,
+            rcode: res.rcode, answers: answers
+          };
         }
       }
     }
@@ -303,7 +319,7 @@ class Simulator {
 
     for (const c of candidates) {
       for (const zone of c.zones) {
-        const res = dnsLib.resolve(zone, qname, 'A');
+        const res = dnsLib.resolve(zone, qname, wantType);
         if (!res) continue;
         // Only an *authoritative* answer says anything about this name. A zone asked
         // about a name it does not own replies NXDOMAIN-without-authority, and counting

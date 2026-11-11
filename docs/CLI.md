@@ -88,6 +88,9 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show dns` | zones, records and configured name servers ([DNS](#dns)) |
 | `show hosts` | default domain, name servers, and the names this device has resolved ([resolver](#show-hosts---what-the-resolver-will-ask-and-what-it-has-answered)) |
 | `nslookup <name> [type]` | ask this device's zones, then the lab's resolvers ([DNS](#dns)) |
+| `nslookup <address>` | a reverse lookup: the address asked as `d.d.c.b.in-addr.arpa`, PTR by default ([reverse](#nslookup-address-is-a-reverse-lookup)) |
+| `no dns zone <name>` | remove a zone and the records it holds ([removals](#removing-a-zone-or-a-name)) |
+| `no dns add <name> [type]` | remove one name's records, or only one type's ([removals](#removing-a-zone-or-a-name)) |
 | `show scion` | membership, segments, peers and reachability ([SCION](#scion)) |
 | `show scion paths [<isd-as>]` | composed paths, and the one `pingScion()` would carry |
 | `show flows [<id> \| counters]` | conversations in the lab, one in full, or per-device counters ([Flows](#flows)) |
@@ -1587,6 +1590,58 @@ Two consequences worth stating: a malformed address (`ping 999.1.1.1`) is **not*
 recorded, because it was never asked of a name server; and a rewind of the run (which every `ping`
 performs) no longer deletes the lookup that sent the packet - a resolution is a fact about the device,
 like its counters, and `clear logging` is how the log is emptied.
+
+### `nslookup <address>` is a reverse lookup
+
+An address in the argument slot was asked as if it were a hostname spelled with dots:
+
+```
+R1#nslookup 10.0.0.53
+Server: SRV1
+  ** server failure: no DNS server in this lab hosts a zone for 10.0.0.53
+```
+
+A PTR record could be configured in a reverse zone and never reachable. A reverse lookup is not a
+different kind of question to the protocol, it is a different *name* (RFC 1035): `10.0.0.53` is asked
+as `53.0.0.10.in-addr.arpa`, and an IPv6 address as its 32 nibbles reversed under `ip6.arpa`. Both are
+built from the address, and the console prints the name it actually asked, because this is the one
+place it rewrites what was typed:
+
+```
+R1#nslookup 10.0.0.53
+  (as 53.0.0.10.in-addr.arpa - a reverse lookup of 10.0.0.53)
+Server: SRV1
+  10.0.0.53 -> host1.lab.example (PTR)
+```
+
+The answer is tagged with its type, because a PTR answer is a *name* and reading the arrow as an
+address would be exactly backwards. The three failures stay distinct, and each names its own fix:
+
+| What came back | What it means | What to do |
+|---|---|---|
+| `-> host1.lab.example (PTR)` | the reverse zone holds the address | nothing |
+| `is known in that zone but has no PTR record (NODATA)` | the name exists with another record type | add the PTR |
+| `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
+| "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
+
+### Removing a zone or a name
+
+A zone could be created and never removed, so the line `show running-config` printed had no `no` form
+and a saved copy could only grow:
+
+```
+SRV1(config)#no dns zone 0.0.10.in-addr.arpa
+Zone 0.0.10.in-addr.arpa removed with its 12 records
+Any resolver that pointed at this device for that name now has no answer for it
+```
+
+The second line is the part an operator cannot see from the server: the answers other devices were
+relying on are gone. `no dns add <name> [<type>]` removes one name's records, or one type's, and names
+what went; an absent name or type is refused with what *is* held for that name rather than a bare no.
+
+`no ip name-server <address>` had the opposite defect to a missing command — it existed and did too
+much: every configured server was cleared whatever was named. It removes the address it names now, and
+a bare `no ip name-server` still clears the list, saying how many it dropped.
 
 ### `show hosts` - what the resolver will ask, and what it has answered
 

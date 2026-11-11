@@ -900,6 +900,46 @@ the cage name allows, the cage is usually what is wrong, not the speed.
 Ports whose `media` array is empty are skipped here on purpose: a port with no medium can be cabled to
 nothing at any rate, and that question is owned by `test/wired-port-has-media.test.js`.
 
+### 8.5 The transceiver catalogue, and the second copy it forces
+
+An optic is a different kind of addition from a connector family: it does not touch `MEDIA`, `CAGES` or
+`FERRULE` at all. It is one object in `catalogue/optics/transceivers.json` — **58 of them today**, and a
+part is only buildable when it appears in **two** places.
+
+| Field | Meaning | Seen in this catalogue |
+|---|---|---|
+| `partNumber` | the orderable string, recorded exactly as a vendor writes it | all 58 |
+| `vendor` | lowercase vendor token | all 58 |
+| `formFactor` | the cage family the module fits | `sfp` 8, `sfp+` 21, `sfp28` 4, `qsfp+` 7, `qsfp28` 13, `qsfp-dd` 3, `qsfp56` 2 |
+| `connector` | the cage at the fibre end | `lc` on the optical parts, `rj45` on the copper ones |
+| `polish` | `upc` / `apc`, or **`null`** where there is no ferrule to polish | `upc` 42, `apc` 2, `null` 14 |
+| `wavelengthNm` | transmit wavelength | all optical parts |
+| `reachM` | rated reach in metres | all 58 |
+| `fiber` | `smf`, `mmf` or `copper` | all 58 |
+| `speedMbps` | line rate, the number the speed ladder compares | all 58 |
+| `biDi` + `pairWavelengthNm` | one strand, two directions — the partner's wavelength goes here | 9 parts, e.g. `SFP-10G-BXU-I` at 1270 nm pairs with 1330 nm |
+| `cwdmChannel` | the CWDM grid slot, as a string | 7 parts, e.g. `CWDM-SFP10G-40L` is `"1470nm"` |
+| `standard` | the IEEE/MSA name, which is what a reader recognises | all 58 |
+| `sourceUrl` | the datasheet the row was transcribed from | **all 58** — no part is recorded from memory |
+| `note` | the caveat that does not fit a column | **57** — `SFP-10G-LR` is the one without |
+
+Two rules follow from the shape of the file rather than its contents:
+
+1. **`polish: null` is not an omission.** The 14 parts with `null` are copper (`GLC-TE` is `rj45` on
+   `copper`), so there is no ferrule and an `E_POLISH_MISMATCH` on them would be a lie. Writing `upc`
+   there would make a copper module claim a polish it does not have.
+2. **The browser cannot read this directory**, so `web/app.js` keeps `PART_ROWS` and the picker is
+   whatever that array says — see "The UI's part picker is a snapshot of the catalogue" above, which
+   records the current gap (`34 of 58`). Adding a part to the catalogue and stopping there produces an
+   optic the engine accepts and the UI cannot offer.
+
+```bash
+node -e "const a=require('./catalogue/optics/transceivers.json');
+  const ff={}; a.forEach(p=>ff[p.formFactor]=(ff[p.formFactor]||0)+1);
+  console.log(a.length,'parts',JSON.stringify(ff))"
+node test/link-parts.test.js | grep 'carries every catalogue part'
+```
+
 ## 9. Model limits worth knowing
 
 Stated so nobody debugs a limitation as a bug:
