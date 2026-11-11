@@ -56,10 +56,13 @@ If you only want to know whether it is alive, `/api/version` is the cheapest che
 
 ```bash
 curl -s http://localhost:8000/api/version
-# {"name":"packetforge","version":"0.1.0","commit":null,"node":"v24.11.0","platform":"win32/x64","devices":1661}
+# {"name":"packetforge","version":"0.1.0","commit":null,"node":"v26.12.1","platform":"win32/x64","devices":1661}
 ```
 
-`devices` is the loaded catalogue count, so it also tells you the server found its specs.
+`devices` is the loaded catalogue count, so it also tells you the server found its specs. Of the six
+fields, only `node` and `platform` are yours — `node` is whatever interpreter is running the server
+(the line above was taken on `v26.12.1`), so do not read a mismatch there as a problem; `name`,
+`version`, `commit` and `devices` are the ones that should match this page.
 
 ### With Docker
 
@@ -331,7 +334,7 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # the guards (syntax, control bytes, Node floor, canonical URLs) and the
 │                    # research/import/audit tools — 25 of them
-├── tmp/             # tracked scratch: 109 probe scripts and 3 saved messages from past
+├── tmp/             # tracked scratch: 126 probe scripts, 100 logs and 3 saved messages from past
 │                    #   measurements, so a reading can be re-run; they hard-code absolute paths,
 │                    #   so only the machine that wrote them can run them, and they are safe to
 │                    #   delete in bulk
