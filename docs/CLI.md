@@ -52,7 +52,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
 | `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port whose subnet contains the address, whether the owner is directly cabled or reachable through a switch — a port is only withheld when the address is on no subnet here — and prints `(self)` for the device's own address |
-| `show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]` | MAC table (switches): one port, one VLAN or one address narrows it |
+| `show mac address-table [interface <port> \| vlan <id> \| address <mac> \| dynamic \| static \| count]` | MAC table (switches): one port, one VLAN or one address narrows it |
 | `show port-security` | secured ports: address limit, addresses held, violations, violation mode, and any port err-disabled by a violation |
 | `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source, and the three aging settings ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
 | `show port-security address` | which station is pinned to which port: `SecureConfigured`, `SecureSticky` or `SecureDynamic` |
@@ -63,7 +63,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show interfaces counters [<port>]` | one row per port: packets, bytes and drops; `show interfaces <port> counters` is the same row ([Interface counters](#interface-counters)) |
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
-| `show vlan [<id>|brief|summary|count]` | VLAN table with trunk ports marked `(t)`, one VLAN, or the counts ([VLANs](#vlans)) |
+| `show vlan [<id> \| brief \| summary \| count]` | VLAN table with trunk ports marked `(t)`, one VLAN, or the counts ([VLANs](#vlans)) |
 | `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLANs](#vlans)) |
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
