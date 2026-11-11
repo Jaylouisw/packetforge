@@ -890,9 +890,22 @@ async function handleApi(req, res, urlPath) {
       const iface = dev.interfaces.get(ifaceName);
       if (!iface) return sendJSON(res, 404, { error: 'interface not found' });
       const body = await readBody(req);
+      // Every field of the body is checked **before** any of it is written.
+      //
+      // This handler used to write as it went - the address first, then `enabled`, then `description`, then `role` -
+      // so a body carrying a good address and a role the hardware cannot take stored the address and answered `400`.
+      // The caller was told the change failed while half of it had happened, which is the one thing a configuration
+      // door must never do: after that, the board and the sentence about the board disagree and neither can be
+      // trusted (#1425). It also asked `!!body.enabled` where a boolean was meant, so `{"enabled": "false"}` disabled
+      // nothing and answered `200`.
+      const refused = [];
+      let nextIp = iface.ip;
+      let nextMask = iface.mask;
+      let ipChanged = false;
       if (body.ip !== undefined) {
-        if (body.ip === null || body.ip === '') { iface.ip = null; iface.mask = null; }
-        else {
+        if (body.ip === null || body.ip === '') {
+          nextIp = null; nextMask = null; ipChanged = true;
+        } else {
           // This endpoint is a configuration door, and it answered different questions from the console (#1413).
           //
           // `maskToInt()` accepts any dotted quad - it is a parser, not a rule - so `255.0.255.0` was stored on the
@@ -904,44 +917,56 @@ async function handleApi(req, res, urlPath) {
           // Now: the address is asked of the address predicate, the mask of the mask rule, and a prefix length is
           // rewritten to the one spelling state uses. Each refusal carries a code, so a client can act on it.
           const netLib = require('../engine/net');
+          const maskText = body.mask === undefined || body.mask === null ? '' : String(body.mask).trim();
           if (!netLib.isIp(String(body.ip))) {
-            return sendJSON(res, 400, {
-              code: 'E_BAD_ADDRESS',
-              error: 'ip "' + body.ip + '" is not an IPv4 address'
-            });
-          }
-          if (!body.mask) {
-            return sendJSON(res, 400, { code: 'E_BAD_MASK', error: 'mask required with ip' });
-          }
-          const maskText = String(body.mask).trim();
-          if (!netLib.isContiguousMask(maskText)) {
-            return sendJSON(res, 400, {
-              code: 'E_BAD_MASK',
+            refused.push({ code: 'E_BAD_ADDRESS', error: 'ip "' + body.ip + '" is not an IPv4 address' });
+          } else if (!maskText) {
+            refused.push({ code: 'E_BAD_MASK', error: 'mask required with ip' });
+          } else if (!netLib.isContiguousMask(maskText)) {
+            refused.push({ code: 'E_BAD_MASK',
               error: 'mask "' + maskText + '" is not a netmask: a netmask is a run of ones then zeros ' +
-                '(255.255.255.0, or 24)'
-            });
+                '(255.255.255.0, or 24)' });
+          } else {
+            nextIp = String(body.ip);
+            nextMask = /^\d{1,2}$/.test(maskText) ? netLib.maskFromPrefix(Number(maskText)) : maskText;
+            ipChanged = true;
           }
-          iface.ip = String(body.ip);
-          iface.mask = /^\d{1,2}$/.test(maskText)
-            ? netLib.maskFromPrefix(Number(maskText))
-            : maskText;
         }
       }
-      if (body.enabled !== undefined) iface.enabled = !!body.enabled;
-      if (body.description !== undefined) iface.description = body.description || '';
-      // A dual-purpose cage (WAN or LAN) can be switched, but only to a role the
-      // hardware actually offers. Refusing anything else keeps "impossible" out of
-      // the model while letting the complex-but-possible case through.
+      // `enabled` is a boolean. `!!"false"` is `true`, so a client that sent the string got the opposite of what it
+      // asked for and an `ok` to go with it.
+      if (body.enabled !== undefined && typeof body.enabled !== 'boolean') {
+        refused.push({ code: 'E_BAD_ENABLED',
+          error: 'enabled must be true or false, not ' + JSON.stringify(body.enabled) });
+      }
+      if (body.description !== undefined && body.description !== null && typeof body.description !== 'string') {
+        refused.push({ code: 'E_BAD_DESCRIPTION',
+          error: 'description must be a string, not ' + JSON.stringify(body.description) });
+      }
+      // A dual-purpose cage (WAN or LAN) can be switched, but only to a role the hardware actually offers. Refusing
+      // anything else keeps "impossible" out of the model while letting the complex-but-possible case through.
       if (body.role !== undefined) {
         const allowed = iface.dualRole || (iface.role ? [iface.role] : null);
         if (!allowed || allowed.indexOf(body.role) === -1) {
-          return sendJSON(res, 400, {
-            error: iface.name + ' cannot be ' + body.role +
-              (allowed ? '; it is fixed to ' + allowed.join('/') : '; it has no configurable role')
-          });
+          refused.push({ code: 'E_BAD_ROLE',
+            // "1 cannot be bogus" reads as a count; it is a port name.
+            error: 'port ' + iface.name + ' cannot be ' + body.role +
+              (allowed ? '; it is fixed to ' + allowed.join('/') : '; it has no configurable role') });
         }
-        iface.role = body.role;
       }
+      if (refused.length) {
+        // Nothing has been written at this point, so the board is exactly as it was. Every refusal is reported, not
+        // just the first: a client that sent three bad fields should learn about three.
+        return sendJSON(res, 400, {
+          code: refused[0].code,
+          error: refused.map(function (r) { return r.error; }).join('; '),
+          problems: refused
+        });
+      }
+      if (ipChanged) { iface.ip = nextIp; iface.mask = nextMask; }
+      if (body.enabled !== undefined) iface.enabled = body.enabled;
+      if (body.description !== undefined) iface.description = body.description || '';
+      if (body.role !== undefined) iface.role = body.role;
       broadcast(topoId);
       return sendJSON(res, 200, noteChange(topo, body, { device: dev.serialize(), state: fullState(topo) }));
     }

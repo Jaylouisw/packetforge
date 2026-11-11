@@ -416,6 +416,40 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### A door refuses all of a body, or applies all of it
+
+`POST /api/topologies/:name/interfaces/:device/:port` writes four things — the
+address, `enabled`, `description` and the cage's role. It used to write them as it
+went, in that order, and answer `400` the moment one was refused:
+
+```
+{"ip":"10.9.9.9","mask":"255.255.255.0","role":"bogus"}   ->  400, and the address is stored
+```
+
+The caller is told the change failed while half of it happened. After that the board and
+the sentence about the board disagree, and a person who reads "refused", reloads, and
+finds a configured port has no way to know which of the two to believe. #1413 promised
+this door "changes nothing on refusal"; that held only when the refused field happened to
+come first.
+
+Now every field is checked before any is written, and a refusal reports **every** problem
+in one response (`{ code, error, problems: [{code, error}, ...] }`), so a client that sent
+three bad fields learns about three. The address and its mask are one field: an address
+that is not an address is refused before the mask is asked about.
+
+Two doors in the same handler were asking the wrong question:
+
+- `!!body.enabled` meant `{"enabled": "false"}` — a string JSON clients really do send —
+  set the port **enabled** and answered `200`, the opposite of the request with an `ok`.
+  It is a boolean or a refusal now, and the refusal quotes what it was given.
+- `description` accepted any type; it is a string or a refusal.
+- and a role refusal said `1 cannot be bogus`, which reads as a count. It says
+  `port 1 cannot be bogus`.
+
+`test/interface-door-atomicity.test.js` pins it: nine refused bodies, each compared
+against a byte-identical snapshot of the port's configuration, plus five accepted bodies
+that must actually change it — because a door that refuses everything would pass the first
+half.
 ### A position is a place, not just a number
 
 Two doors set a device's position: `POST /api/topologies/:name/layout` (the drag, and
