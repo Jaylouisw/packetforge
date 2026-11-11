@@ -1624,6 +1624,42 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A `/` between placeholders is part of the value
+
+The help grammar reads a `/` as "or" - `configure terminal / conf t` documents two spellings - which is
+right for a separated `/` and wrong inside a value. `<prefix>/<len>` was lexed as a choice, so one row
+became two:
+
+```
+R1(config)#ipv6 nd prefix ?
+  Next: <prefix>        <- two slots offered ...
+R1(config)#ipv6 nd prefix ?
+  Next: <len>           <- ... for a command that takes one value
+```
+
+Nothing was refused for it, which is why it survived: the page quietly offered a choice the command does
+not have. `ipv6 address <addr>/<len>` duplicated the same way. A `/` joining two placeholders is now one
+slot, `<prefix/len>`, and the row count went down by the phantoms (`ipv6 nd prefix` has four optional-group
+spellings, not eight).
+
+The same sweep found a row whose first token was a value:
+
+```
+  clear ip dhcp binding * | <address>      ->  a row that was nothing but <address>
+```
+
+Written as a synopsis with a bar between a wildcard and a value, the parser made a second "command" out of
+`<address>` alone - a page offering a value where a verb goes, which nothing could complete or abbreviate.
+It is two rows now. The other row of that shape, `<any config-mode command>` on the interface page, is not
+a command either: the fact it stood for (any global configuration command typed in a block is applied
+globally and the block is kept) is a prose line under the rows.
+
+**The guard:** `test/placeholder-rows.test.js` fills every documented row's placeholders from a table of
+values - two tables, since `ipv6 address <addr>` is not `ip address <addr>` - and types the result in
+eight modes: 388 rows, none refused as `% Unrecognized`, `% Invalid` or `% Incomplete`. It also forbids a
+row whose first token is a value, and requires every value slot to have a value in the table, so a new
+command with a new kind of argument shows up as a gap rather than passing silently.
+
 ### A word the `?` page offers is taken at its shortest spelling
 
 The console abbreviates every keyword by prefix, and the words it completes come from the help rows. So
@@ -6384,28 +6420,36 @@ which is the worst possible reply to a question — and it got worse when abbrev
 
 ```
 R1#sh ?
-Completions for "sh" (19):
+Completions for "sh" (20):
   Next            Meaning
-  access-lists    entries, and where they are bound
-  arp             IP-to-MAC cache
+  access-lists    entries, where they are bound, and the match counters
+  arp             IP-to-MAC cache, or one address (show ip arp too)
   clock           the instant this lab is being asked about
   dns             zones, records and resolvers
-  etherchannel    LAGs and their members
   flows           conversations in this lab, and per-device counters
+  history         the commands typed into this session, last 10
+  hosts           default domain, name servers, and the names this device has resolved
   interfaces      more options
   ip              more options
   ipv6            more options
-  lldp            what announced itself on each port
+  lldp            more options
   logging         why something happened - drops, forwards, protocol events
-  mac             addresses learned per port and VLAN
   power           PoE budget and which ports are powered
   running-config  the whole configuration, pasteable
   scion           more options
-  spanning-tree   root bridge, port roles and states
+  startup-config  the saved copy, then what the running config changed
+  terminal        console length and width for this session, and that there is no pager
   version         model, vendor and software
-  vlan            VLANs and their members
-  vrrp            groups, priorities and current state
+  vlan            more options
+  vrrp            groups, priorities and current state - one group if named
 ```
+
+That page is the **router's**, and it is the one that changes most: a switch offers 24 words, because the
+switching views are real there and not here. `mac` is on neither — `show mac` answers
+`% Invalid show command: mac`, since the addresses live on `show interfaces` and `show lldp` — and
+`etherchannel` and `spanning-tree` do exist on a router (`% R1 does not switch, so it has no link
+aggregation`), they are just not offered where nothing can be configured with them. A page that lists
+every command a *model* has instead of every command the *page* answers is a page that promises refusals.
 
 Three things in that table are decisions rather than formatting:
 
@@ -6423,14 +6467,17 @@ Each level narrows, as it should:
 
 ```
 R1#show ip ?
-Completions for "show ip" (6):
-  Next       Meaning
-  bgp        peers and installed prefixes
-  dhcp       more options
-  interface  more options
-  nat        more options
-  ospf       process, interfaces, adjacencies
-  route      more options
+Completions for "show ip" (9):
+  Next          Meaning
+  access-lists  the same table under the spelling IOS documents
+  bgp           more options
+  dhcp          more options
+  interface     more options
+  nat           more options
+  ospf          more options
+  protocols     the routing processes running here, and their distances
+  route         the table, a lookup, a protocol filter, or an instant
+  traffic       per-port totals: packets, bytes and drops with their reasons
 ```
 
 When every completion belongs to one command, its description appears once and the endings are listed
@@ -6464,6 +6511,7 @@ about a console with no line editor. A question with no answer says so and names
 R1#sh nosuch ?
 % No completions for "sh nosuch"
 % Type ? on its own for every command this mode accepts
+% To write a literal "?" instead of asking, end the line with \?
 ```
 
 ### The `?` goes against the word
@@ -6484,18 +6532,32 @@ Completions for "show ip" (2, completing "ip"):
   ipv6  more options
 
 R1(config)#no ip rou?
-Completions for "no ip rou" (1, completing "rou"):
-  Word   Meaning
-  route  remove one, or all with that prefix
+Completions for "no ip rou" (2, completing "rou"):
+  Word     Meaning
+  route    more options
+  routing  forward between this device's interfaces, or stop forwarding
 
-  Then: <dest>
-  A name in angle brackets is a value: type one, then ask ? again for what follows it.
+Names in angle brackets are values: type one, then ask ? again for what follows it.
 ```
 
 The stem is read as an **abbreviation**, so `sh st?` works and `conf t?` offers both `terminal` and the
 alias's own `t`. `show ip?` offering `ipv6` as well is not noise: `ip` is a prefix of `ipv6`, and this
 console accepts prefixes everywhere, so both readings really are open. When everything that fits agrees
-on what comes after the completed word, `Then:` says so and saves the next keystroke.
+on what comes after the completed word, `Then:` says so and saves the next keystroke — and how easily
+that agreement is lost is worth knowing, because it was lost twice while this page was being written.
+`no ip rou?` used to answer `(1, completing "rou")` with `Then: <dest>`; `no ip routing` then joined the
+page, and the same keystrokes now list both readings and promise nothing:
+
+```
+R1(config)#no ip rou?
+Completions for "no ip rou" (2, completing "rou"):
+  Word     Meaning
+  route    more options
+  routing  forward between this device's interfaces, or stop forwarding
+```
+
+`Then:` still fires where the next word really is shared — `ip nat inside?` ends its answer with
+`Then: source`, because every command that continues from `inside` continues the same way.
 
 Both forms used to be refused — `show ip?` answered `% Invalid show command: ip?`, as if the `?` were
 part of the word. The spaced form at a word that ends the command now says so instead of printing an
