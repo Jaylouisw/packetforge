@@ -511,10 +511,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   % "no vrrp 1" removes the group itself
   ```
 
-  The bare form is not the same command: `no vrrp 1 ip` clears the addresses and says the group survived
-  (`VRRP group 1 on Gi0/0 no longer owns 10.0.0.254 - the group is still configured`), while `no vrrp 1`
-  is what removes it. One cosmetic wart left in place: `no vrrp 1 priority` answers `priority back to the
-  default 100 (was 100)` even when the value never moved.
+  The bare form clears the addresses rather than naming one, and since the group is a virtual address it
+  now goes with the last one (see the entry below); `no vrrp 1` remains the direct way to remove it. One
+  cosmetic wart left in place: `no vrrp 1 priority` answers `priority back to the default 100 (was 100)`
+  even when the value never moved.
+
+- **A VRRP group is a virtual address, so the last address takes the group with it.** A group that owns
+  no virtual address is not a state a router can be in, and this console could produce one: `no vrrp 1 ip`
+  answered `VRRP group 1 on Gi0/0 no longer owns 10.0.0.254 - the group is still configured` and left a
+  `Backup` group in `show vrrp` that no election could ever elect — with no configuration line that
+  reproduced it. Removing the **last** address now removes the group and says why; removing one of several
+  keeps it:
+
+  ```
+  Router-d1(config-if)#no vrrp 1 ip 10.0.0.253
+  VRRP group 1 on Gi0/0 no longer owns 10.0.0.253
+  Router-d1(config-if)#no vrrp 1 ip 10.0.0.254
+  VRRP group 1 on Gi0/0 removed - 10.0.0.254 was its only virtual address
+  Router-d1(config-if)#no vrrp 2 ip
+  VRRP group 2 on Gi0/0 removed - it owned 10.0.0.100 and a group with no virtual address has nothing to be master of
+  ```
+
+  With the last group gone, the view says so instead of printing a header over nothing: `% VRRP is not
+  configured - "vrrp <id> ip <addr>" inside an interface block adds a group`. Naming a group that does
+  not exist is refused the same way for both forms (`% No VRRP group 2 on Gi0/0`, then `% "show vrrp"
+  lists the groups configured on this device`). The refusal for an address the group does not own is
+  unchanged and still hands back the state it was checked against.
+
+- **`no vrrp 1 preempt` is configuration, not a reset.** Preempt is **on** by default, so the removal is
+  how it is turned off — but it was read as "back to the default", which switched it back on, and because
+  the dump only writes non-defaults nothing was written at all: a configured `preempt off` was lost on
+  every save and reload. It now turns preempt off and says so in both directions:
+
+  ```
+  Router-d1(config-if)#no vrrp 1 preempt
+  VRRP group 1 preempt off - a higher-priority router will not take the virtual address back
+  Router-d1(config-if)#no vrrp 1 preempt
+  VRRP group 1 preempt was already off
+  ```
+
+  and `show running-config | include vrrp` carries `no vrrp 1 preempt` afterwards. The rule the VRRP block
+  follows: a default is not configuration, and a removal that changes a setting is.
 
 - **A DHCP pool's exclusions are removable one at a time.** `no excluded-address` could only clear the
   lot, so dropping one reservation meant deleting every exclusion and retyping them. It now takes
