@@ -54,13 +54,13 @@ therefore not a bug and not a contradiction of this table — `sfp+` does supply
 | Cage | Name | Family | Mates with | Media it can carry | Speed classes (Mbps) |
 |------|------|--------|-----------|--------------------|----------------------|
 | `rj45` | RJ45 | copper | `rj45`, `combo` | `10base-t`, `100base-tx`, `1000base-t`, plus `2.5gbase-t`, `5gbase-t`, `10gbase-t` when the port is rated that high | 10, 100, 1000 (all filtered by the port rating), plus 2500 / 5000 / 10000 when rated that high |
-| `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-t-sfp`, `dac-1g` | 1000 |
-| `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 |
-| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `dac-25g`, `dac-10g` | 10000, 25000 |
+| `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 1000 |
+| `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 |
+| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-25g`, `dac-10g`, `dac-1g` | 10000, 25000 |
 | `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
-| `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
-| `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
-| `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
+| `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
+| `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56`, `fc-qsfp28` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
+| `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+`, `qsfp56` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
 | `sfp56` | SFP56 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo` | `50gbase-sr`, `50gbase-lr`, `25gbase-sr`, `25gbase-lr`, `dac-25g` | 25000, 50000 |
 | `qsfp56` | QSFP56 | optical | `qsfp56`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000 |
 | `xfp` | XFP | optical | `xfp` only | `10gbase-sr`, `10gbase-lr`, `10gbase-er` | 10000 |
@@ -76,12 +76,29 @@ therefore not a bug and not a contradiction of this table — `sfp+` does supply
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
 | `console` | Console | management | `console` only | `console-rs232` (115200) plus the fixed-baud variants `console-rs232-9600`, `-19200`, `-38400`, `-57600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (9600 – 115200 baud) |
-| `usb` | USB | management | `usb`, `console` | `usb-console` | 12 |
+| `usb` | USB | management | `usb` | `usb-console` | 12 |
 | `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
 That is **26 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
+
+The **Mates with** column is `CAGE_MATE[cage]` verbatim, and `cagesMate(a, b)` is the function that answers
+the same question for a pair — so it is checkable to the letter, and it was wrong in seven rows until it was
+checked: the `sfp`, `sfp+` and `sfp28` rows left out `sfp56` and the three Fibre Channel cages they accept
+(`fc-sfp`, `fc-sfp28`, `fc-sfpdd`), the `qsfp+`, `qsfp28` and `qsfpdd` rows left out `qsfp56`, `qsfp28` also
+accepts `fc-qsfp28`, and the `usb` row claimed it mates with `console` when `cagesMate('usb', 'console')`
+answers **false** — a USB port takes `usb-console` media, not a console cage directly.
+
+```bash
+node -e '
+const m = require("./engine/media");
+for (const c of Object.keys(m.CAGES)) console.log(c, ":", (m.CAGE_MATE[c] || []).join(", "));
+console.log("usb takes a console cage?", m.cagesMate("usb", "console"));'
+```
+
+A fibre-channel cage in a copper list is not a typo in the other direction either: `cagesMate('sfp', 'fc-sfp28')`
+is `true`, because a 32G FC SFP28 optic fits the same slot as a 25G Ethernet one.
 
 ### Checking this table against the engine
 
