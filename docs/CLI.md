@@ -52,7 +52,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
 | `show ip route` | connected (`C`), static (`S`), OSPF (`O`) and BGP (`B`) routes |
 | `show arp [<port>]` | ARP cache (`show ip arp` is the same command, and the spelling IOS's own help prints); the Interface column is derived from the topology, because the cache itself holds only address → MAC. It names the port whose subnet contains the address, whether the owner is directly cabled or reachable through a switch — a port is only withheld when the address is on no subnet here — and prints `(self)` for the device's own address |
-| `show mac address-table [interface <port>]` | MAC table (switches); one port narrows it |
+| `show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]` | MAC table (switches): one port, one VLAN or one address narrows it |
 | `show port-security` | secured ports: address limit, addresses held, violations, violation mode, and any port err-disabled by a violation |
 | `show port-security interface <port>` | one port in detail: `Secure-up` / `Secure-shutdown`, mode, counts, last source, and the three aging settings ([Port security](#port-security-a-bridge-that-finally-has-an-opinion)) |
 | `show port-security address` | which station is pinned to which port: `SecureConfigured`, `SecureSticky` or `SecureDynamic` |
@@ -60,7 +60,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `clear port-security dynamic [interface <port>]` | forget learned secure addresses, keeping configured and sticky ones |
 | `clear port-security sticky [interface <port>]` | unpin the sticky addresses, so the next station to arrive may be a different one |
 | `show interfaces [<port>]` | per-interface detail incl. MAC, peer and counters; name a port and it answers for that port only ([Port names](#port-names)) |
-| `show interfaces counters [<port>]` | one row per port: packets, bytes and drops ([Interface counters](#interface-counters)) |
+| `show interfaces counters [<port>]` | one row per port: packets, bytes and drops; `show interfaces <port> counters` is the same row ([Interface counters](#interface-counters)) |
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
 | `show vlan [<id>]` | VLAN table with trunk ports marked `(t)`, or one VLAN ([VLANs](#vlans)) |
@@ -1670,6 +1670,58 @@ run BGP`, `% R1 does not bridge - spanning tree runs on switches` - and preempti
 generic sentence would be a worse answer, so they are left alone. So is `ip route`: a host here carries
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
+
+### A MAC address is how you find the port, and a number after a keyword is its value
+
+`show mac address-table address <mac>` is the one question a MAC table exists for — *which port is this
+hardware address behind* — and the family that takes keywords was told it takes only ports:
+
+```
+SW1#show mac address-table address 0011.2233.4455
+% show mac address-table takes one port, not "address 0011.2233.4455"
+```
+
+It answers now, in all three spellings (dotted, colon-hex, bare), and the answer names the port and the
+VLAN rather than leaving the operator to read a table:
+
+```
+SW1#show mac address-table address 0011.2233.4455
+Mac address table on SW1 for 00:11:22:33:44:55:
+Vlan  Mac Address        Type     Ports
+1     00:11:22:33:44:55  DYNAMIC  Fa0/2
+
+  00:11:22:33:44:55 is behind Fa0/2 in VLAN 1 - traffic for it is forwarded out that port
+```
+
+An address the bridge has not learned says so, and says when it would:
+
+```
+SW1#show mac address-table address deadbeef0000
+% deadbeef0000 is not in the table on SW1
+% 1 entry is learned, and a MAC entry appears only once traffic has been seen from it
+%   show mac address-table            everything learned, with its port
+```
+
+Behind it was the sharper defect. An all-digit token is a time instant in this console — `show mac
+address-table at 50` asks about t=50 ms — so the bare spelling of an address was swallowed as one:
+
+```
+SW1#show mac address-table address 001122334455
+ARP at t=1122334455 ms        (the address never reached the handler)
+```
+
+**A trailing number is the value of the word before it when that word takes a value, and only an instant
+otherwise.** The set of value-taking words is data (`INSTANT_VALUE_KEYWORDS`), and the same predicate
+decides both whether an instant is present and how the line is split, so the two cannot disagree.
+
+Two more spellings came with it:
+
+- **`show interfaces <port> counters`** — IOS's form for the per-port half of a table this console had
+  only as a device-wide view. It is one renderer, so a port's own counters and its row in the device
+  table cannot disagree (checked in the suite).
+- **`show interfaces accounting` / `... usage`** — real IOS views this model does not keep. Both were
+  answered *"No interface named accounting"*, which is true and sends the operator looking for a port by
+  that name. Each now says what it is and what is counted instead, in the family form and per port.
 
 ### A word past the last argument is refused, and a refusal changes nothing
 

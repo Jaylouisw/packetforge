@@ -43,6 +43,18 @@ function diffLines(before, after) {
 
 // "3 lines added, 1 removed" - with the singular spelled out, because "1 lines" is the kind of detail
 // that makes a reader distrust the count.
+// Two words of the `show interfaces` family that are views this model does not keep. `accounting` is
+// a real IOS view (nothing here bills or classifies traffic) and `usage` is a percentage nobody
+// samples - both used to be answered "No interface named accounting", which is true and sends the
+// operator looking for a port by that name.
+const INTERFACE_VIEWS_NOT_KEPT = {
+  accounting: ['% No traffic accounting is kept per port: nothing here bills or classifies',
+    '% What is counted is packets, bytes and drops - "show interfaces counters"'],
+  usage: ['% No utilisation percentage is computed: this model counts bytes, it does not',
+    '% sample a line rate. Divide a port\'s bytes by the lab\'s uptime, or:',
+    '%   show interfaces counters            packets, bytes and drops per port']
+};
+
 function describeDelta(d) {
   const parts = [];
   if (d.added.length) parts.push(plural(d.added.length, 'line') + ' added');
@@ -78,8 +90,13 @@ const natLib = require('./nat');
 // control planes stale. Everything else - configuration, enable/exit, ping, flow, clear, write - may.
 const READER_HEADS = new Set(['show', 'help', '?', 'sh', 'do', 'exit', 'end']);
 
+// The words whose next token is a value, not a question about a moment. `show mac address-table
+// address 001122334455` was answering a table rebuilt at t=1122334455 ms and dropping the address,
+// because a trailing all-digit token was read as an instant - the value of `address` is a number.
 const INSTANT_VALUE_KEYWORDS = new Set([
-  'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone'
+  'interface', 'int', 'last', 'device', 'port', 'vlan', 'proto', 'id', 'neighbor', 'type', 'zone',
+  'address', 'addr', 'mac', 'group', 'acl', 'list', 'sequence', 'seq', 'binding', 'entry', 'pool',
+  'as', 'vrid', 'pid', 'priority', 'cost', 'mtu', 'speed', 'size'
 ]);
 
 // The words a destination-taking command uses for its own arguments. A line that begins with one has
@@ -4707,6 +4724,28 @@ class CliSession {
   // `show interfaces <port> switchport` - the L2 view of one port. It was silently ignored: the
   // plain detail view was printed and the word `switchport` dropped, so an operator checking a trunk
   // was shown the counters of one and told nothing about it.
+  // The counters table, for the family form and for `show interfaces <port> counters` - one renderer,
+  // so a port's own counters and its row in the device table cannot disagree.
+  _showCounters(dev, port) {
+    if (!this.sim) return ['% No simulation is running, so nothing has been counted'];
+    let rows = this.sim.portStats(dev.id);
+    if (port) rows = rows.filter(function (r) { return r.iface === port; });
+    const out = ['Interface counters on ' + dev.name + (port ? ' for ' + port : '') + ':'];
+    if (!rows.length) {
+      return out.concat(['  (no port has carried a frame since this lab started)',
+        '  Counters are cumulative from the lab\'s start: ask again after a ping, or move traffic.']);
+    }
+    out.push.apply(out, renderTable(['Port', 'Rx packets', 'Rx bytes', 'Tx packets', 'Tx bytes', 'Drops'],
+      rows.map(function (r) { return [r.iface, r.rx, r.rxBytes, r.tx, r.txBytes, r.drops]; }), 0));
+    const totals = rows.reduce(function (a, r) {
+      a.rx += r.rx; a.tx += r.tx; a.drops += r.drops; return a;
+    }, { rx: 0, tx: 0, drops: 0 });
+    out.push('');
+    out.push(plural(rows.length, 'port') + ' counted: ' + totals.rx + ' in, ' + totals.tx +
+      ' out, ' + totals.drops + ' dropped');
+    return out;
+  }
+
   _showPortSwitchport(dev, iface) {
     const v = iface.vlan || { mode: 'access', accessVlan: 1 };
     const mode = String(v.mode || 'access').toLowerCase();
@@ -10111,6 +10150,54 @@ class CliSession {
       // the sub-word read as a port. `count` totals what is learned; `dynamic` is what this model
       // learns (everything it has is learned from traffic); `static` is honestly empty.
       const macSub = String(tokens[2] || '').toLowerCase();
+      if (macSub === 'address') {
+        // `show mac address-table address <mac>` is how an operator answers "which port is this
+        // hardware address behind": the one question a MAC table exists for, and it was refused as
+        // "takes one port, not address 0011.2233.4455" - a family that does take keywords, told it
+        // takes only ports.
+        // Three spellings, one address: dotted, colon-hex and bare. `net.normalizeMac` throws on a
+        // word that is not a MAC, so the shape is tested before it is called.
+        const macArg = String(tokens[3] === undefined ? '' : tokens[3]);
+        const looksMac = /^[0-9a-f]{12}$/i.test(macArg.replace(/[.:-]/g, ''));
+        const want = looksMac ? net.normalizeMac(macArg) : null;
+        if (!want) {
+          return ['% show mac address-table address needs a MAC address, in any of the three spellings',
+            '%   show mac address-table address 0011.2233.4455',
+            '%   show mac address-table address 00:11:22:33:44:55',
+            '%   show mac address-table address 001122334455'];
+        }
+        if (tokens[4] !== undefined) {
+          return ['% Unexpected argument "' + tokens[4] + '" - show mac address-table address <mac> takes one address'];
+        }
+        const all = [];
+        for (const [mac, iface] of dev.macTable.entries()) all.push({ vlan: 1, mac: mac, iface: iface });
+        for (const [vid, table] of (dev.macTables || new Map()).entries()) {
+          for (const [mac, iface] of table.entries()) all.push({ vlan: vid, mac: mac, iface: iface });
+        }
+        const hits = all.filter(function (r) {
+          return /^[0-9a-f]{12}$/i.test(String(r.mac).replace(/[.:-]/g, '')) &&
+            net.normalizeMac(r.mac) === want;
+        });
+        if (!hits.length) {
+          return ['% ' + tokens[3] + ' is not in the table on ' + (dev.name || dev.id),
+            '% ' + plural(all.length, 'entry is', 'entries are') + ' learned, and a MAC entry appears only'
+              + ' once traffic has been seen from it',
+            '%   show mac address-table            everything learned, with its port'];
+        }
+        out.push('Mac address table on ' + (dev.name || dev.id) + ' for ' + want + ':');
+        out.push.apply(out, renderTable(['Vlan', 'Mac Address', 'Type', 'Ports'],
+          hits.map(function (r) { return [r.vlan, r.mac, 'DYNAMIC', r.iface]; })));
+        if (hits.length === 1) {
+          out.push('');
+          out.push('  ' + want + ' is behind ' + hits[0].iface + ' in VLAN ' + hits[0].vlan
+            + ' - traffic for it is forwarded out that port');
+        } else {
+          out.push('');
+          out.push('  ' + want + ' is learned in ' + plural(hits.length, 'VLAN') +
+            ' - a bridge domain per VLAN, one port each');
+        }
+        return out;
+      }
       if (macSub === 'count' || macSub === 'dynamic' || macSub === 'static' || macSub === 'vlan') {
         if (macSub === 'vlan' && tokens[3] === undefined) {
           return ['% Incomplete command: show mac address-table vlan <id>'];
@@ -10274,23 +10361,7 @@ class CliSession {
         // command now, and the pointer is gone because it is no longer needed.
         const pick = this._portArg(tokens.slice(2), dev, 'show interfaces counters');
         if (!pick.ok) return out.concat(pick.output);
-        if (!this.sim) return ['% No simulation is running, so nothing has been counted'];
-        let rows = this.sim.portStats(dev.id);
-        if (pick.port) rows = rows.filter(function (r) { return r.iface === pick.port; });
-        out.push('Interface counters on ' + dev.name + (pick.port ? ' for ' + pick.port : '') + ':');
-        if (!rows.length) {
-          return out.concat(['  (no port has carried a frame since this lab started)',
-            '  Counters are cumulative from the lab\'s start: ask again after a ping, or move traffic.']);
-        }
-        out.push.apply(out, renderTable(['Port', 'Rx packets', 'Rx bytes', 'Tx packets', 'Tx bytes', 'Drops'],
-          rows.map(function (r) { return [r.iface, r.rx, r.rxBytes, r.tx, r.txBytes, r.drops]; }), 0));
-        const totals = rows.reduce(function (a, r) {
-          a.rx += r.rx; a.tx += r.tx; a.drops += r.drops; return a;
-        }, { rx: 0, tx: 0, drops: 0 });
-        out.push('');
-        out.push(plural(rows.length, 'port') + ' counted: ' + totals.rx + ' in, ' + totals.tx +
-          ' out, ' + totals.drops + ' dropped');
-        return out;
+        return out.concat(this._showCounters(dev, pick.port));
       }
       if (tokens[1] !== undefined) {
         // `show interfaces vlan 20` is how an SVI is asked about on a real switch; the model names the
@@ -10344,6 +10415,9 @@ class CliSession {
           // sends the operator looking for a port by that name.
           // `switchport` is handled above (it is a keyword with its own view); the rest are words
           // this family does not have, and saying so beats "No interface named counters".
+          if (INTERFACE_VIEWS_NOT_KEPT[String(tokens[1]).toLowerCase()]) {
+            return INTERFACE_VIEWS_NOT_KEPT[String(tokens[1]).toLowerCase()];
+          }
           const KNOWN_SUB = ['counters', 'status', 'summary', 'brief', 'description'];
           if (KNOWN_SUB.indexOf(String(tokens[1]).toLowerCase()) !== -1) {
             // One sentence for every word of this family, and it names the three tables that do
@@ -10360,6 +10434,16 @@ class CliSession {
           return ['% No interface named ' + tokens[1] + ' on ' + (dev.name || dev.id),
             '% Try "show ip interface brief" for the ports this device has'];
         }
+      }
+      // `show interfaces <port> counters` is IOS's spelling for the same table narrowed to one port.
+      // It was refused as an unknown argument while the family form answered the question.
+      if (only && INTERFACE_VIEWS_NOT_KEPT[String(tokens[2] || '').toLowerCase()]) {
+        return INTERFACE_VIEWS_NOT_KEPT[String(tokens[2] || '').toLowerCase()].slice();
+      }
+      if (only && String(tokens[2] || '').toLowerCase() === 'counters') {
+        const extra = this._noExtra(tokens, 3, 'show interfaces <port> counters');
+        if (extra) return out.concat(extra);
+        return out.concat(this._showCounters(dev, only));
       }
       // `switchport` narrows the detail view to the L2 half of one port.
       if (only && String(tokens[2] || '').toLowerCase() === 'switchport') {
@@ -13275,7 +13359,7 @@ class CliSession {
       helpLine('show ip route [<dest>|connected|static|ospf|bgp|summary] [at <ms>|converged]',
         'the table, a lookup, a protocol filter, or an instant'),
       helpLine('show arp [<port>|<address>]', 'IP-to-MAC cache, or one address (show ip arp too)'),
-      helpLine('show mac address-table [interface <port>|vlan <id>|dynamic|static|count]',
+      helpLine('show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]',
         'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
       helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
