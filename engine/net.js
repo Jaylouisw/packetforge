@@ -84,8 +84,19 @@ function broadcastOf(ip, mask) { return (networkOf(ip, mask) | (~maskToInt(mask)
 function sameSubnet(a, b, mask) { return networkOf(a, mask) === networkOf(b, mask); }
 function ipInSubnet(ip, net, mask) { return networkOf(ip, mask) === networkOf(net, mask); }
 
+// Is this an IPv4 address? Not "does it look like one" (#1411).
+//
+// This was a shape check - four dotted groups of one to three digits - so `300.1.1.1`, `10.0.0.999` and
+// `1.2.3.9999` were addresses as far as every caller was concerned. `ipToInt()` has always asked the real
+// question (it throws on an octet above 255), and the console's `ping` learned this the hard way in #1379 and
+// brought its own private strict helper rather than fix the predicate. Eight doors then accepted an address that
+// cannot exist and stored it: `ip name-server`, `ip route` (destination and next hop), `ip default-gateway`, the
+// DHCP pool's `dns-server`/`default-router`/`network`, the NAT pool ranges, a BGP neighbour and an OSPF router-id.
+//
+// One predicate, asked properly.
 function isIp(s) {
-  return /^(\d{1,3}\.){3}\d{1,3}$/.test(String(s).trim());
+  if (typeof s !== 'string' && typeof s !== 'number') return false;
+  try { ipToInt(String(s).trim()); return true; } catch (e) { return false; }
 }
 
 function macToInt(mac) {

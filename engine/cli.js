@@ -523,8 +523,8 @@ class CliSession {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
       const ip = tokens[2];
-      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip || '')) {
-        out.push('% Invalid name server "' + (ip || '') + '"');
+      if (!net.isIp(ip || '')) {
+        out.push('% Invalid name server "' + (ip || '') + '": not an IPv4 address');
       } else {
         if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
         if (this.device.config.dnsServers.indexOf(ip) === -1) this.device.config.dnsServers.push(ip);
@@ -547,8 +547,14 @@ class CliSession {
       let gw = tokens[4] || null;
       let iface = tokens[5] || null;
       if (!dest || !mask) return ['% Incomplete command: ip route <dest> <mask> <gateway|interface>'];
-      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(dest)) return ['% Invalid destination "' + dest + '"'];
-      net.maskToInt(mask); // validate: the one mask rule
+      if (!net.isIp(dest)) return ['% Invalid destination "' + dest + '": not an IPv4 address'];
+      // The mask was "validated" by a call whose result was thrown away, and `maskToInt()` does not refuse a
+      // non-contiguous mask - it turns 255.0.255.0 into an integer and `prefixOf()` then reports 8, so
+      // `ip route 192.0.2.0 255.0.255.0 10.1.1.9` answered "Route added: 192.0.2.0/8" and installed a prefix
+      // nobody asked for. `ip address` has refused this mask, with this sentence, all along (#1411).
+      if (!net.isContiguousMask(mask)) {
+        return ['% Invalid mask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
+      }
       // A port name used to be stored in the *gateway* field: `ip route 10.9.0.0 255.255.0.0 Gi0` kept
       // gw:"Gi0", and the route then tried to ARP for an address called "Gi0" - a route that is listed,
       // installed, printed, and cannot carry a packet, with nothing anywhere saying why. The directly
@@ -560,7 +566,7 @@ class CliSession {
             ' is an interface, so it cannot also be followed by ' + iface];
           gw = null;
           iface = asPort;
-        } else if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(gw)) {
+        } else if (!net.isIp(gw)) {
           return ['% ' + dest + '/' + net.prefixOf(mask) + ': "' + gw + '" is neither a next-hop address ' +
             'nor an interface on ' + this.device.name];
         }
@@ -569,6 +575,12 @@ class CliSession {
         const named = resolvePortName(this.device, iface);
         if (!named) return ['% ' + dest + '/' + net.prefixOf(mask) + ': no interface called "' + iface + '"'];
         iface = named;
+      }
+      // With neither a next hop nor an interface there is nothing to send a packet to and no segment to ARP on,
+      // and the route was still installed and reported as "on-link" - a route the table then describes with
+      // "no next hop: ARP for the destination on that segment", naming a segment the command never mentioned.
+      if (!gw && !iface) {
+        return ['% Incomplete command: ip route ' + dest + ' ' + mask + ' needs a next hop or an interface'];
       }
       this.device.config.routes.push({ dest: dest, mask: mask, gw: gw || null, iface: iface });
       out.push('Route added: ' + dest + '/' + net.prefixOf(mask) +
@@ -588,8 +600,14 @@ class CliSession {
       });
       out.push(before > this.device.config.routes.length ? 'Route removed' : '% Route not found');
     } else if (head === 'ip' && tokens[1] === 'default-gateway') {
-      this.device.config.defaultGateway = tokens[2] || null;
-      out.push('Default gateway: ' + (tokens[2] || '(none)'));
+      const gw = tokens[2];
+      // Accepted anything, including an address that cannot exist: the box then had a gateway no packet could
+      // ever be sent to, and said "Default gateway: 300.1.1.1" (#1411).
+      if (gw !== undefined && !net.isIp(gw)) {
+        return ['% Invalid default gateway "' + gw + '": not an IPv4 address'];
+      }
+      this.device.config.defaultGateway = gw || null;
+      out.push('Default gateway: ' + (gw || '(none)'));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'default-gateway') {
       this.device.config.defaultGateway = null;
       out.push('Default gateway cleared');
@@ -1023,7 +1041,7 @@ class CliSession {
   _bgp(tokens) {
     const dev = this.device;
     const t = tokens.map(function (x) { return String(x); });
-    const isIp = function (s) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(s || '')); };
+    const isIp = function (s) { return net.isIp(String(s || '')); };
 
     function ensure(asn) {
       if (!dev.config.bgp) dev.config.bgp = { as: null, routerId: null, neighbors: [] };
@@ -1048,6 +1066,11 @@ class CliSession {
       return ['BGP router-id ' + t[1]];
     }
 
+    // `neighbor 300.1.1.1 remote-as 65002` fell through to the generic usage line, because this form is guarded by
+    // isIp(): the refusal named the whole syntax instead of the address that is not one (#1411).
+    if (!isIp(t[0]) && /^[0-9.]+$/.test(String(t[0] || '')) && String(t[1] || '').toLowerCase() === 'remote-as') {
+      return ['% Invalid neighbor address "' + t[0] + '": not an IPv4 address'];
+    }
     // neighbor <ip> remote-as <as>
     if (isIp(t[0]) && String(t[1] || '').toLowerCase() === 'remote-as') {
       const asn = parseInt(t[2], 10);
@@ -1117,7 +1140,7 @@ class CliSession {
       const cannotRoute = this._capabilityRefusal('l3-forward', 'run OSPF');
       if (cannotRoute) return [cannotRoute];
       const ip = t[1] || '';
-      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return ['% Invalid router-id "' + ip + '"'];
+      if (!net.isIp(ip)) return ['% Invalid router-id "' + ip + '": not an IPv4 address'];
       cfg.routerId = ip;
       dev.config.ospf = cfg;
       return ['OSPF enabled, router-id ' + ip + ' area ' + (cfg.areaId || 0)];
@@ -1487,7 +1510,12 @@ class CliSession {
     const kind = aclLib.aclKind(num);
     if (!kind) return ['% Invalid access list number: ' + tokens[0]];
     const entry = aclLib.parseEntry(tokens.slice(1).join(' '), num);
-    if (!entry || entry.error) return ['% ' + ((entry && entry.error) || 'invalid entry')];
+    // `parseEntry` reports a refusal as `{ code, message }`, and this printed the object: `access-list 10 permit
+    // 300.1.1.0 0.0.0.255` answered `% [object Object]` (#1411). The message is the part to print.
+    if (!entry || entry.error) {
+      const why = entry && entry.error;
+      return ['% ' + (why && why.message ? why.message : (typeof why === 'string' ? why : 'invalid entry'))];
+    }
     const dev = this.device;
     if (!dev.config.acls) dev.config.acls = {};
     const key = String(num);
@@ -1792,7 +1820,7 @@ class CliSession {
       // refusal three commands later that blames the pool.
       if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac> | host <mac> <address>');
       const isMacShaped = function (x) { return /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/i.test(String(x)); };
-      const isAddrShaped = function (x) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(x)); };
+      const isAddrShaped = function (x) { return net.isIp(String(x)); };
       let address = null, mac = null;
       if (isAddrShaped(tokens[1]) && isMacShaped(tokens[2])) { address = tokens[1]; mac = tokens[2]; }
       else if (isMacShaped(tokens[1]) && isAddrShaped(tokens[2])) { address = tokens[2]; mac = tokens[1]; }
@@ -2589,7 +2617,7 @@ class CliSession {
       self._controlPlaneChanged();
       return [said];
     };
-    const isIp = function (v) { return /^\d{1,3}(\.\d{1,3}){3}$/.test(String(v || '')); };
+    const isIp = function (v) { return net.isIp(String(v || '')); };
 
     // ip nat pool <name> <start> <end> netmask <mask>
     if (String(args[0] || '').toLowerCase() === 'pool') {
@@ -2598,8 +2626,19 @@ class CliSession {
       const end = args[3];
       const maskKw = String(args[4] || '').toLowerCase();
       const mask = args[5];
+      if (name) {
+        // A pool address that cannot exist is a typo with one obvious answer; a usage line leaves the operator
+        // reading the whole syntax to find it (#1411).
+        const badPool = [start, end].filter(function (x) { return x !== undefined && !isIp(x); })[0];
+        if (badPool !== undefined) return ['% Invalid pool address "' + badPool + '": not an IPv4 address'];
+      }
       if (!name || !isIp(start) || !isIp(end) || maskKw !== 'netmask' || !isIp(mask)) {
         return ['% Usage: ip nat pool <name> <start> <end> netmask <mask>'];
+      }
+      // A pool's netmask is a netmask: 255.0.255.0 is a legal dotted quad and not a mask, and every prefix rule
+      // read from it would describe something the pool does not do.
+      if (!net.isContiguousMask(mask)) {
+        return ['% Invalid netmask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
       }
       if (nat.pools[name]) {
         return ['% A NAT pool called "' + name + '" already exists (' + nat.pools[name].start + ' - ' +
@@ -2629,6 +2668,10 @@ class CliSession {
       const global = args[4];
       const proto = String(args[5] || '').toLowerCase();
       const port = args[6];
+      const badStatic = [local, global].filter(function (x) { return x !== undefined && !isIp(x); })[0];
+      if (badStatic !== undefined) {
+        return ['% Invalid address "' + badStatic + '" in a static NAT rule: not an IPv4 address'];
+      }
       if (!isIp(local) || !isIp(global)) {
         return ['% Usage: ip nat inside source static <inside-local> <inside-global> [tcp|udp <port>]'];
       }

@@ -68,7 +68,7 @@ function isObject(v) {
 function isDottedQuad(v) {
   if (typeof v !== 'string' && typeof v !== 'number') return false;
   const s = String(v).trim();
-  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(s)) return false;
+  if (!net.isIp(s)) return false;
   try {
     net.ipToInt(s);
     return true;
@@ -371,7 +371,7 @@ function routerIdInt(v) {
   }
   if (typeof v !== 'string') return null;
   const s = v.trim();
-  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(s)) return null;
+  if (!net.isIp(s)) return null;
   try {
     return net.ipToInt(s);
   } catch (err) {
