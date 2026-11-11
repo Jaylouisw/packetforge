@@ -166,13 +166,27 @@ repository if the instance default is private (Settings → Advanced → *This r
 - `scripts/canonical.js` — the single definition of where the project lives. Change it there.
 - `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
-  three stale links plus two scripts still calling `gh` the first time it ran.
+  three stale links plus two scripts still calling `gh` the first time it ran. Measured on this tree it
+  prints `OK — 2266 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
+  exits `0`, and `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
+  and require the checker to refuse it: a GitHub URL, a `gh` instruction, and a README that cannot be
+  cloned from. That is what makes it a test rather than a pass.
 - `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
   token is reported as *"the tracker is not readable without it (this is not the same as \"no open
   requests\")"* and the calling script exits **2** — measured on `request-queue.js`, which prints
   `Could not read issues from jaylouisw/packetforge.` and then that sentence. Never as *"no open
   requests"*: an unreadable tracker and an empty one are different answers, and only one of them
   means you can stop working.
+
+  Measured with the token unset, the whole exchange is two lines and a status:
+
+  ```
+  $ node scripts/request-queue.js
+  Could not read issues from jaylouisw/packetforge.
+  FORGEJO_TOKEN is not set - the tracker is not readable without it (this is not the same as "no open requests")
+  $ echo $?
+  2
+  ```
 - `test/canonical-urls.test.js` — proves the checker can fail, so it is not a test that passes
   because it checks nothing.
 
