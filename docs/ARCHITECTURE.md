@@ -416,6 +416,40 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### A conversation cannot outlive its path
+
+The flow table belongs to the topology, and nothing told it when the topology changed. With
+`r1 -- sw -- h1` and one established TCP conversation:
+
+```
+DELETE /links/l1      ->  200, and flow-1 is still `established` across a board with no cable
+DELETE /devices/sw    ->  200, and flow-1 is still `established` on a two-device board with no links
+create a new `sw`     ->  the brand-new switch reports packetsIn 5, packetsOut 5, ports {1: 6/5, 2: 5/6}
+```
+
+The first two are a board and a description of the board that disagree — a state no packet
+could produce, which nothing would ever correct. The third is worse than stale: a new device
+inheriting a dead device's tally, so "is this switch passing traffic?" answers yes for a box
+created a second ago.
+
+What makes this checkable is that a flow already knows the answer. Every established flow
+records `rec.hops` — the devices its own handshake crossed, read out of the events the
+timeline already shows a person, collapsed from the there-and-back trail to the path and
+with both endpoints on it. So removal asks a fact rather than guessing:
+
+- a hop that is gone → `reset`, reason naming the device;
+- two consecutive hops that are no longer cabled → `reset`, reason naming the pair and the cable;
+- a flow whose path is untouched → **left strictly alone**, state, bytes and tally, because a
+  lab that healed should not lose its conversation.
+
+`DELETE /devices/:id` and `DELETE /links/:id` both report what they ended
+(`resetFlows: [{id, reason}]`), and a device that is deleted takes its counters with it
+(`flow.forgetDevice`), which is why a re-created id starts uncounted. A flow that is already
+reset is never swept twice: one failure, reported once.
+
+`test/flows-follow-the-board.test.js` pins all of it, 21 checks — including the two that keep
+the rule from being over-eager: an unrelated device removal ends nothing, and a reset flow is
+not reported again.
 ### A door refuses all of a body, or applies all of it
 
 `POST /api/topologies/:name/interfaces/:device/:port` writes four things — the
