@@ -41,9 +41,11 @@ this page had slid by 30 to 120 lines when this note was added; the symbols had 
       (`engine/stp.js`, `test/stp.test.js`). RSTP fast convergence is not modelled.
 - [x] **OSPF** adjacency + SPF, hello/SPF hold accounted for (`engine/ospf.js`,
       `test/ospf.test.js`, `test/ospf-wire.test.js`). **RIP** is still absent.
-- [x] **NAT** — all three types (`NAT_TYPES` = `static`, `dynamic`, `pat`), each translated in the
+- [x] **NAT** — all three types (each translated in the
       data path: a dynamic rule hands out a pool address and a PAT rule rewrites the port
-      (`engine/nat.js`, `test/nat.test.js`). Static and PAT rules are configurable from the console —
+      (`engine/nat.js`, `test/nat.test.js`). The three spellings are `NAT_TYPES` — an object of three
+      constants, `{ STATIC: 'static', DYNAMIC: 'dynamic', PAT: 'pat' }`, at `engine/nat.js:37-41` — with the
+      array `TYPES` at `:43`; there is no `NAT_TYPES` list to grep for. Static and PAT rules are configurable from the console —
       `ip nat inside source static <local> <global>` and `ip nat inside source list <acl> interface <if>
       overload` — and **pool-based dynamic rules are not**: `ip nat pool …` is refused with
       `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`, so a dynamic
