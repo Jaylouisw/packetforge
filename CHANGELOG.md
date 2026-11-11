@@ -496,6 +496,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no ospf` takes three shapes, and each removes only what it names.** The handler ignored everything
+  after `no ospf`, so an area id that cannot exist, a router id it never had, and one area all answered
+  the same way: the whole process went away. Measured in a single session on a router with
+  `ospf router-id 1.1.1.1` and `ospf area 10`, before and after `50383420`:
+
+  | command | before | now |
+  |---|---|---|
+  | `no ospf area -1` | `OSPF disabled` | `% "-1" is not an area id (0-4294967295, or a dotted quad like 0.0.0.1)` + `% Nothing was changed` |
+  | `no ospf router-id 9.9.9.9` | `% Unexpected argument "9.9.9.9" - no ospf router-id takes no more` | `% OSPF on R1 does not use 9.9.9.9` + `% It uses 1.1.1.1` |
+  | `no ospf area 10` | `OSPF disabled` | `OSPF area 10 removed - the process is back in the default area 0` |
+
+  The old behaviour made an ordinary lab step destructive: a router in `ospf area 10` could not be put
+  back into area 0 without losing its router id and its interfaces. A dotted-quad area is the form the
+  RFC prints and is accepted the way the display names it — in area 1, `no ospf area 0.0.0.1` answers
+  `OSPF area 1 removed - the process is back in the default area 0`. A removal that names the current
+  area on a process that is *not* in it refuses and hands back the state
+  (`% OSPF on R1 is not in area 99` / `% It is in area 10`), and bare `no ospf` still disables the
+  process, now saying what it took with it: `OSPF disabled (it was in area 10, with 2 interfaces in it)`
+  — the count is interfaces actually participating, which means an address alone is not enough; they
+  need `ip ospf 1 area 10`. `test/ospf-removals.test.js` holds **40 assertions**. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **A row the page shows is a row the parser runs — the mirror of the capability gate.** The gate had only
   ever been tested one way: a row the page *hides* must be refused by the parser. The other direction was
   never checked, and on a device that cannot route it was broken in both halves. Measured on
