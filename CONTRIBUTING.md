@@ -70,6 +70,20 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 
     That is exactly how the pages reach the wiki when the script misbehaves; `git log` on the wiki
     repository is the check that they did.
+  - **Ask the wiki whether it is in sync, not the dry run.** Because of the line-ending noise above,
+    `--dry-run` cannot answer that question — compare the **stored** pages to the working tree instead,
+    where `git show` emits the blob as stored and `.gitattributes` keeps `docs/wiki/*.md` at LF:
+
+    ```bash
+    tmp=$(mktemp -d) && git clone -q https://git.jayw.uk/jaylouisw/packetforge.wiki.git "$tmp" && \
+      for f in docs/wiki/*.md; do p=$(basename "$f"); \
+        if git -C "$tmp" show "HEAD:$p" 2>/dev/null | cmp -s - "$f"; then echo "same    $p"; \
+        else echo "DIFFERS $p"; fi; done; rm -rf "$tmp"
+    ```
+
+    `git -C`/`cmp` make it work on Windows too, where the checkout is CRLF and the blob is not.
+    `docs/CI.md` keeps the readings this command has produced — which pages are behind, and what fact
+    inside each one moved.
 - **Report a bug or request a device** via an issue.
 
 ## Ground rules
