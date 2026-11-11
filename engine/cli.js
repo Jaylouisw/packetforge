@@ -10211,7 +10211,27 @@ class CliSession {
       }
       const absent = this._absentShow(tokens);
       if (absent) return out.concat(absent);
-      out.push('% Invalid show command: ' + (tokens.join(' ') || '(empty)'));
+      // `show` with nothing after it is a truncated command, not an invalid one - and it certainly is
+      // not "% Invalid show command: (empty)", which printed the model's own empty-string artifact at
+      // an operator who had typed a real word. IOS calls this an incomplete command and lists what
+      // can follow; the completion list is exactly that list.
+      if (!tokens.length) {
+        // The words `show` takes, read from the same page `show ?` reads - so the answer and the
+        // question can never disagree about the list.
+        const after = [];
+        for (const row of this._helpForms(MODE_ENABLE)) {
+          const t = row.tokens || row;
+          if (String(t[0] || '').toLowerCase() !== 'show') continue;
+          if (typeof t[1] === 'string' && after.indexOf(t[1]) === -1) after.push(t[1]);
+        }
+        out.push('% Incomplete command.');
+        out.push('% "show" needs a word after it' +
+          (after.length ? ' - it takes ' + after.slice(0, 8).join(', ') +
+            (after.length > 8 ? ' and ' + (after.length - 8) + ' more' : '') : '') +
+          ' ("show ?" lists them all)');
+        return out;
+      }
+      out.push('% Invalid show command: ' + tokens.join(' '));
     }
     return out;
   }
@@ -11687,6 +11707,21 @@ class CliSession {
     // `switchport` and read them against the exec page, where neither exists.
     {
       const w0 = String(tokens[0] || '').toLowerCase();
+      // `sh` inside a block is *two* words: `show` from the exec page and `shutdown` from this one.
+      // The deferral above read it as `show` alone and answered "% Invalid show command: (empty)" -
+      // an ambiguity reported as a broken command. Deferral is for a word that stands for `show` and
+      // nothing else here; when this page has its own word with that prefix, the answer is ambiguous.
+      if (w0 !== 'show' && w0.length >= 1 && w0.length < 4 && 'show'.indexOf(w0) === 0) {
+        const own = [];
+        const ownForms = this._helpForms(this.mode);
+        for (const f of ownForms) {
+          const first = String(f[0] || '').toLowerCase();
+          if (first && first !== 'show' && first.indexOf(w0) === 0 && own.indexOf(first) === -1) own.push(first);
+        }
+        if (own.length) {
+          return { ambiguous: w0, candidates: own.concat(['show']) };
+        }
+      }
       if (w0 === 'show' || (w0.length >= 2 && w0.length < 4 && 'show'.indexOf(w0) === 0)) {
         forms = this._helpForms(MODE_ENABLE);
       }
@@ -11706,7 +11741,13 @@ class CliSession {
         // un-respelled (`switchport PORT-SECURITY`).
         const respelt = abbrev.canonical(tokens, forms) ||
           abbrev.canonical(tokens, this._helpForms(MODE_CONFIG));
-        return respelt ? { tokens: respelt } : null;
+        // When neither page can spell the line back, the veto does not apply: the words only *look*
+        // like a configuration command because `readsAs` matches by prefix. `sw p` and `l r` read as
+        // configuration lines that way and are, in fact, this block's own commands abbreviated
+        // (`switchport port-security`, `lldp receive`) - vetted here returned null, and the block
+        // refused a spelling its `?` had just offered. `router ospf 1` in router mode is unaffected:
+        // it *does* canonicalise against the config page, so it returns above.
+        if (respelt) return { tokens: respelt };
       }
     }
     // Before expanding: a line already spelled as one of the forms is respelled to match it exactly.
@@ -11717,7 +11758,29 @@ class CliSession {
     // respell what expansion left behind. `expand` rewrites only the words it had to expand, so
     // `SHOW LOGGING SUMMARY` came back as ['show','logging','SUMMARY'] and the handler read
     // `SUMMARY` as an event type.
-    const res = abbrev.expand(tokens, forms);
+    let res = abbrev.expand(tokens, forms);
+    // An ambiguity is the answer, and it comes back before any respelling: `li` is a prefix of both
+    // `link` and `links`, and `canonical` below matched it against a row and returned it unchanged -
+    // so the ambiguity was erased and the dispatcher answered "% Unrecognized command: li".
+    if (res && res.ambiguous) return res;
+    // The page this device shows is filtered by capability, so a word this device cannot use is
+    // missing from it - and an abbreviation of a command the handler *answers* (with a refusal naming
+    // the capability) stalled: `no ip nat inside` on a switch reached the handler as
+    // `no ip n i`, because `nat` was not on that switch's page to expand against. The unfiltered
+    // page is consulted as a second reading, and the reading that spells out more of the line wins.
+    {
+      const allForms = this._helpFormRowsAll(this.mode).map(function (r) { return r.tokens || r; });
+      const wide = abbrev.expand(tokens, allForms);
+      const spelled = function (r) {
+        if (!r || !r.tokens) return -1;
+        let n = 0;
+        for (let i = 0; i < tokens.length; i++) {
+          if (String(r.tokens[i]).toLowerCase() !== String(tokens[i]).toLowerCase()) n += 1;
+        }
+        return n;
+      };
+      if (wide && wide.tokens && spelled(wide) > spelled(res)) res = wide;
+    }
     const arrived = res && res.tokens ? res.tokens : tokens;
     // The unfiltered page is consulted too: a verb the handler answers but this device's page filters
     // out (a switch has no NAT, yet `no ip nat inside` is answered with the reason) still has a
@@ -12639,7 +12702,9 @@ class CliSession {
       helpLine('no ip nat inside source list <acl> interface <if> overload', 'remove one PAT rule'),
       helpLine('no ip nat inside source', 'list the rules this device has'),
       helpLine('ip access-list standard|extended <name>', 'build a named access list, entry by entry'),
-      helpLine('access-list <n> <permit|deny ...>', 'one line of a numbered list'),
+      // `<permit|deny ...>` put a literal `...` in a keyword position, so `?` offered a word that is
+      // not a word. The part that varies is a value, and values are spelled as placeholders.
+      helpLine('access-list <n> permit|deny <entry>', 'one line of a numbered list'),
       helpLine('no ip access-list <name>', 'remove a named list and its bindings'),
       helpLine('spanning-tree vlan <id> priority <n>', 'choose the root bridge'),
       helpLine('spanning-tree vlan <id> root primary|secondary', 'ask to be root, in words'),
@@ -12686,9 +12751,14 @@ class CliSession {
         'a prefix to advertise (SLAAC)'),
       helpLine('ipv6 nd suppress-ra', 'stop advertising on this port'),
       helpLine('no ipv6 nd suppress-ra', 'start advertising again'),
-      helpLine('access-list <1-2699> permit|deny ...', 'add an entry'),
+      helpLine('access-list <1-2699> permit|deny <entry>', 'add an entry'),
       helpLine('no access-list <1-2699> [<entry>]', 'remove one entry, or the whole list'),
-      helpLine('vrrp <vrid> ...', 'per-interface - enter an interface first'),
+      // One row per form, so every word of the command is documented and completable here too - the
+      // rows exist to say *where* the command lives, not to change its syntax. A single `vrrp
+      // <vrid> ...` row covered both but put a literal `...` in a keyword position, which `?` then
+      // offered as if it were a word.
+      helpLine('vrrp <vrid> ip <addr>', 'per-interface - enter an interface first'),
+      helpLine('vrrp <vrid> preempt', 'per-interface - enter an interface first'),
       helpLine('show <what> | do show <what>', 'any exec show, without leaving config mode'),
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'back to exec mode')
@@ -12759,6 +12829,10 @@ class CliSession {
       helpLine('no ipv6 nd prefix <prefix>/<len>', 'stop advertising one prefix'),
       helpLine('vrrp <vrid> ip <addr> [priority <p>] [preempt] [advertise <s>]',
         'join (or create) a VRRP group'),
+      // `preempt` is a setting the group has on its own, and `no vrrp <vrid> preempt` is how it is
+      // turned off - so both halves stand as commands, not only as flags after `ip <addr>`.
+      helpLine('vrrp <vrid> preempt', 'take the virtual address back when this router has the best priority'),
+      helpLine('no vrrp <vrid> preempt', 'stay Backup even with the best priority'),
       helpLine('no vrrp <vrid>', 'remove the group'),
       helpLine('ip nat inside|outside', 'which side of the NAT box this port is on'),
       helpLine('spanning-tree cost <n>', 'this port\'s path cost'),
@@ -12768,8 +12842,16 @@ class CliSession {
       helpLine('no ip nat inside|outside', 'this port is on neither side'),
       helpLine('no spanning-tree cost', 'back to the cost from the cable speed'),
       helpLine('no ip access-group [<acl>] [in|out]', 'unbind an access list from this port'),
-      helpLine('no switchport mode | no switchport access vlan | no switchport trunk ... | no switchport voice vlan',
-        'undo one switchport setting, not the whole port'),
+      // One row per removal, as real commands. The row used to read
+      //   `no switchport mode | no switchport access vlan | no switchport trunk ... | no switchport voice vlan`
+      // a single line with `|` between whole commands and a literal `...` where the trunk forms go - so
+      // the console offered a word ("...") that is not a word, and `no switchport trunk ?` had nothing
+      // to complete to.
+      helpLine('no switchport mode', 'back to an access port (the default)'),
+      helpLine('no switchport access vlan', 'back to VLAN 1 for untagged frames'),
+      helpLine('no switchport trunk native vlan', 'untagged frames in VLAN 1 again'),
+      helpLine('no switchport trunk allowed vlan [<list>]', 'every VLAN may cross again, or drop some'),
+      helpLine('no switchport voice vlan', 'no phone VLAN on this port'),
       helpLine('no channel-group', 'take this port out of its LAG'),
       helpLine('no encapsulation dot1q', 'remove the tag from this subinterface'),
       helpLine('no description', 'clear the description'),

@@ -1624,6 +1624,60 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A word the `?` page offers is taken at its shortest spelling
+
+The console abbreviates every keyword by prefix, and the words it completes come from the help rows. So
+the two can disagree, and this is the shape of that disagreement:
+
+```
+SW1(config-if)#switchport p?
+  port-security  more options        <- "p" is enough, says the console
+SW1(config-if)#sw p
+% Unrecognized interface command: sw p
+```
+
+Three causes, all of them now closed:
+
+- **The global-config veto was too broad.** It exists so `router ospf 1` typed inside router mode is not
+  re-read as `router-id ospf 1`. It also fires on a line that merely *looks* like a config command by
+  prefix (`sw p`, `l r`), and when neither page could spell the line back it returned "no expansion" -
+  so the block refused a spelling its own `?` had just offered. When neither page can spell it back,
+  the veto no longer applies.
+- **An ambiguity was erased.** `li` is a prefix of both `link` and `links`; the respelling step matched
+  it against a row and handed it back unchanged, so the dispatcher answered `% Unrecognized command:
+  li`. An ambiguity now comes back before any respelling, and is reported as IOS reports it:
+
+```
+R1#li
+% Ambiguous command: "li"
+% Candidates: link, links
+
+SW1(config-if)#sh
+% Ambiguous command: "sh"
+% Candidates: shutdown, show
+```
+
+- **A word missing from the device's filtered page stalled the expansion.** `no ip nat inside` on a
+  switch is answered (with a refusal naming what NAT needs), but `nat` is not on that switch's page, so
+  the abbreviation stopped at `no ip n i` and the handler called it unrecognized. The unfiltered page is
+  consulted as a second reading, and the reading that spells out more of the line wins.
+
+Two smaller ones from the same sweep:
+
+- **`show` with nothing after it** answered `% Invalid show command: (empty)` - the model's own
+  empty-string artifact, at an operator who typed a real word. It is now `% Incomplete command.` with a
+  line naming what can follow, read from the same page `show ?` reads.
+- **A help row offered a word that is not a word.** One row read
+  `no switchport mode | no switchport access vlan | no switchport trunk ... | no switchport voice vlan`:
+  whole commands separated by `|`, and a literal `...` where the trunk forms go. It is five rows now, one
+  per removal. The numbered-list and per-interface VRRP rows had the same defect; the part that varies
+  is a value, and values are spelled as placeholders, not as three dots.
+
+**The guard:** `test/shortest-abbrev.test.js` takes every documented row in seven modes (exec, config,
+interface, OSPF, BGP, ACL, DHCP pool), shortens each keyword to its shortest unique prefix, types it, and
+requires the answer not to be `% Unrecognized`, `% Invalid` or `% Incomplete`. An ambiguity is accepted
+only when the refusal names two or more candidates and every candidate exists on that page.
+
 ### A drop reason names the thing that failed
 
 The reason on a drop is the only diagnostic an operator has, and two different failures shared one
@@ -3606,7 +3660,7 @@ what makes a dump without `exit` pasteable. `router bgp` on a layer 2 switch is 
 | Symptom | Cause | Now |
 | --- | --- | --- |
 | `ipv6 route …` appeared twice after pasting a dump twice | the IPv4 table had been made idempotent, the IPv6 table had not | the same identity rule; a re-add says *"already configured: via …"* with the `no` form that removes it |
-| `vrrp 1 preempt` was set, was in the group record, and was **not** in the dump | the dump printed only `ip`, `priority`, `advertise` | `preempt` and `no preempt` are both dumped, because *not default* is not the same as *not configured* |
+| VRRP `preempt` was set, was in the group record, and was **not** in the dump | the dump printed only `ip`, `priority`, `advertise` | `preempt` and `no preempt` are both dumped, because *not default* is not the same as *not configured* |
 | `spanning-tree vlan <id> root primary` | the dump printed the priority against VLAN 1 whatever VLAN was named, so a switch set up for VLAN 10 pasted back as VLAN 1 - one bridge priority is kept per device, and the dump no longer invents a VLAN | the VLAN the operator named is kept for the dump, and both the confirmation and the `root` form say that one spanning tree covers every VLAN here |
 | `show ip bgp summary` read `0 of 0 neighbour(s)` with a peer configured one command earlier | the table was built from the simulator's evaluation, so configuration was invisible until a packet moved | every configured peer is listed, with state `Idle`, reason `not yet evaluated` |
 | `mikrotik/RB960PGS` declared `poe-pse, 802.3at, 802.3af`, and `show power inline` said *"neither sources nor draws PoE"* while `power inline never` was refused on every port | per-port power comes only from explicit port records, so a capability list that claims a standard and no port that carries it left the console describing the *device* | the disagreement is reported as what it is: **"% POE1 declares poe-pse, 802.3at, 802.3af, passive-poe in its catalogue entry, but no port record on it carries power-out"** … *"That is a gap in the device specification, not a state of the device"*, and `power inline never` gives the same reason instead of "does not source PoE". The first fix derived a per-port wattage from the declared standard; three catalogue-wide guards refused it and were right - a port's wattage is a datasheet fact, not something to infer from a capability tag |
