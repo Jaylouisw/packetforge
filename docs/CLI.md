@@ -8495,23 +8495,24 @@ path is the one `pingScion()` would carry.
 
 ## Refusal codes: the ones you will actually meet
 
-The engine defines **147** distinct `E_*` codes, and **whether the console shows you one depends on
+The engine defines **148** distinct `E_*` codes, and **whether the console shows you one depends on
 the family** — measured, not assumed. Count them yourself; the number is the distinct quoted `E_`
 strings across `engine/`, which is the only reading that ignores identifiers and comments:
 
 ```
-grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 147
+grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 148
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 147, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from the table rows themselves — and **117** distinct `E_` tokens appear anywhere
-in this document. That second number is the least stable figure on the page, and only partly because the
+Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from the table rows themselves — and **121** distinct `E_` codes appear anywhere
+in this document (123 tokens if you count the bare `E_` this sentence needs and the
+`E_DHCP_` fragment in the prefix pattern below, neither of which is a code). That second number is the least stable figure on the page, and only partly because the
 engine grows: every code this page *documents* also joins the count, so the code inventory further down
-added fifteen by itself. It has read 70, then 103, then 117 — each revision of the tables above moved it,
+added fifteen by itself. It has read 70, then 103, then 117, then 121 — each revision of the tables above moved it,
 and recounting is one line:
 
 ```bash
-grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 117
+grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 121 real codes (123 tokens: +1 for the `E_` ruler, +1 for `E_DHCP_`)
 ```
 
 **117, not 116, and the difference is this fence.** The pattern contains the two characters it is
@@ -8645,7 +8646,7 @@ grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
   | grep -v '^[EW]_$' \
   | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 17 today: this table names 14 of the 31
 ```
-`grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 147;
+`grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 148;
 `grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 88;
 ``grep -c '^| `E_' docs/CLI.md`` is the 47.
 
