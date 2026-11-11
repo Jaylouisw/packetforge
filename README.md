@@ -298,14 +298,15 @@ All eighteen documents in [docs/](docs/), in the order you are likely to want th
 
 ```
 packetforge/
-├── engine/          # pure-JS simulation engine (zero deps)
-│   ├── net.js       #   IPv4 / MAC / subnet helpers
-│   ├── device.js    #   Device + Interface model
-│   ├── link.js      #   Link model
-│   ├── topology.js  #   Topology container + (de)serialization
+├── engine/          # pure-JS simulation engine (zero deps) — 32 modules: a file per protocol,
+│                    #   plus the models (device, link, topology), the helpers and the CLI
 │   ├── simulator.js #   event-driven L2/L3/ARP/ICMP engine
-│   ├── cli.js       #   vendor-agnostic management console
-│   └── index.js     #   public API
+│   ├── cli.js       #   vendor-agnostic management console (12,895 lines: every verb)
+│   ├── topology.js  #   Topology container + (de)serialization
+│   ├── net.js       #   IPv4 / MAC / subnet helpers; device.js and link.js are the models
+│   ├── validation.js#   the refusal engine behind every cable, VLAN and transceiver check
+│   └── …            #   vlan, lag, stp, lldp, portsecurity, dhcp, nat, acl, vrrp, ospf, bgp,
+│                    #   dns, ipv6, ra, scion, flow, convergence, latency, optical, media, …
 ├── devices/         # hardware catalog — JSON only
 │   ├── registry.js  #   loads + groups device specs
 │   └── <vendor>/*.json
@@ -320,6 +321,9 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # the guards (syntax, control bytes, Node floor, canonical URLs) and the
 │                    # research/import/audit tools — 25 of them
+├── tmp/             # tracked scratch: 112 probe scripts from past measurements, so a reading can
+│                    #   be re-run; they hard-code absolute paths, so only the machine that wrote them
+│                    #   can run them, and they are safe to delete in bulk
 ├── .github/         # issue/PR templates, labels, dependabot (no workflows — see docs/CI.md)
 ├── .forgejo/        # the real CI: ci.yml + auto-rebase.yml
 └── docs/            # eighteen documents — indexed under "Documentation" above
