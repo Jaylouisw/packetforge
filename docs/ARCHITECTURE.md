@@ -416,6 +416,25 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### One state read shows both halves of one fact
+
+`GET /api/topologies/:id` carries the board and each device's runtime tables. Two
+runtime facts were missing from it:
+
+- the **DHCP leases** — a client could read the board and see `a` holding `10.91.0.10`
+  but not `r1`'s binding for the same address. The two halves of one lease, only one
+  published. `/flows` had the flow table; `show ip dhcp binding` had the leases; the
+  board payload had neither (#1433).
+- the **flow table** — a flow opened and then a state read said nothing about it.
+
+Now the payload carries `flows` (every conversation, with its `hops`) and
+`runtime[id].dhcpLeases` (the same rows `show ip dhcp binding` prints, from the same
+call). Because the lease state and the flow state live on the **topology**, not on a
+request (#1427, #1429), two clients reading the same board read the same facts — and a
+removal is visible in the same payload: delete the switch a flow crossed and the state
+read shows the flow `reset`, with the reason, exactly as the delete's own answer did.
+
+`test/state-payload-complete.test.js` pins it, 16 checks, against a real server.
 ### The reason a ping failed is the earliest cause, not the last
 
 `ping` reports why nothing came back by reading the run's discard events **from the
