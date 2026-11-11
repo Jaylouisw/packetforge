@@ -724,9 +724,13 @@ failed. Four details worth knowing, all visible above:
 
 - **The prompt carries the device id until you name it.** A device with no hostname prompts as
   `Router-d1>`, where `d1` is its id on the canvas; `hostname R1` changes it for every later prompt.
-- **`exit` from config lands at `>`, not at `#`.** IOS returns to privileged exec; this engine
-  returns to plain exec. Nothing is enforced by that difference — `show ip route` works from `>` —
-  so the prompt is a label, not a permission boundary. `enable` gets `#` back.
+- **`exit` from config returns to the mode you came from.** `R1#configure terminal … exit` lands back at
+  `#` — that is the last prompt in the transcript above — and only a session that never ran `enable`
+  comes back to `>`. The prompt is a label with a thin rule behind it rather than a permission boundary:
+  every `show` answers from `>`, and `clear` does not. `clear logging` in exec mode says
+  `% clear logging needs enable mode - type "enable" first`, and the same command after `enable` answers
+  `Event log cleared (0 events dropped)`. So privilege is worth understanding for the `clear` verbs even
+  though no `show` will ask you for it.
 - **A command that changes state says so.** `ip address` prints `IP address set on Gi0/0:
   10.0.1.1/24` and `no shutdown` prints `Gi0/0 up`; a transcript without those lines is not one the
   engine produced.
