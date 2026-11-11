@@ -1624,6 +1624,37 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A VRRP group is a virtual address
+
+A group owns one or more virtual addresses; a group that owns none is not a state a router can be in,
+and this console could produce one:
+
+```
+R1(config-if)#no vrrp 1 ip
+VRRP group 1 on Gi0/0 no longer owns 10.0.0.254 - the group is still configured
+R1#show vrrp
+Gi0/0  1  100  Backup  -  (blank)  -
+```
+
+A `Backup` state for an election that can never happen, and no configuration line that reproduces it.
+Removing the last address now removes the group and says why; removing one of several keeps it.
+
+The same probe found a setting that was lost rather than created. `no vrrp 1 preempt` is how preempt
+is turned **off** (preempt is on by default, so the removal is the configuration). It was read as
+"reset to the default", which switched it back on, and because dumping only wrote non-defaults,
+nothing was written at all — so `no vrrp 1 preempt` survived in the running configuration only until
+the next save and reload:
+
+```
+R1#show running-config | include vrrp
+  vrrp 1 ip 10.0.0.254
+  vrrp 1 priority 150
+  no vrrp 1 preempt
+```
+
+The rule the whole block follows now: **a default is not configuration, and a removal that changes a
+setting is**. `vrrp 1 priority 100` writes nothing; `no vrrp 1 preempt` writes a line.
+
 ### A removal removes what it names
 
 Two ways a `no` form goes wrong, both leaving a lab that no longer matches what the operator believes:
@@ -8404,7 +8435,7 @@ misses all of them.
 | `W_DUPLEX_MISMATCH` | `validation.js:122` | one end half duplex, the other full |
 | `W_DISTANCE` | `validation.js:118` (catalogue), `:769` (the check), `cli.js:11275` (the transceiver view runs the same check) | **cable length beyond the medium's reach**, not a route metric: a 250 m run of `1000base-t` answers `250 m exceeds the 100 m reach of 1000BASE-T between Router/Gi0/0 and PC/eth0.` and rides alongside `W_COPPER_LONGRUN` (`exceeds the 90 m horizontal-run limit`). A warning, not a refusal, so a lab can hold a link that will never work. There is no administrative-distance warning to confuse it with — a per-route distance is refused outright (`ip route … 250` answers *"The fourth word is an interface, not a distance"*), so a code named `W_DISTANCE` is never about routing |
 
-### The 31 codes no page names
+### The 31 codes no page named — and the 97 only this page does
 
 Of the 159 distinct quoted `[EW]_` strings in `engine/`, **one** is a bare prefix literal (`'W_'`, used to
 test whether a code starts with the prefix — there is no `'E_'` one) and the other **158 are real codes**;
@@ -8412,9 +8443,37 @@ of those, **31 were named by no page at all** until this list named them. They a
 every one is a parse-level guard whose message reaches you as prose (a malformed line, a
 `% [object Object]`, a topology-validation error drawn in the UI) rather than as a code to grep. The
 concentration is worth knowing, because it tells you where the console is least likely to hand you one.
-Expect the count to read **17** on this tree now, and that is the list working: fourteen of the
-thirty-one appear in the table below, so they are documented the moment it exists. Read the number as
-"codes no page but this one names", and watch it fall. The table is the report that matters:
+At the time the table below was written the count read **17**; it now reads **97**, and both movements
+are the list working. Fourteen of those seventeen were written into the tables further down this
+appendix, so a code stops being unnamed the moment its row exists — but the appendix also grew tables for
+DHCP, VRRP, VLAN, LAG and NAT, and each row it added became the only page naming that code. The four
+readings, because they are four different numbers and only one of them is a defect:
+
+| Reading | Today | What it means |
+|---|---|---|
+| named by **no page at all** | **0** | this paragraph names the last five, so the moment it exists nobody does — the reading eats itself |
+| named by **no page but this one** | **97** | 92 code-specific names plus the five below |
+| of those, **generic names it would be wrong to document** | **5** | `E_ACL`, `E_ADDRESS`, `E_NAT`, `E_TYPE`, `E_UNKNOWN` — one literal raised in several modules (`'E_TYPE'` in `dhcp.js`, `ipv6.js`, `nat.js`, `ra.js` and `simulator.js`), so a page documenting one of them would have to name a module and be wrong about the rest |
+| named **only by this page**, warnings included | **4** | `W_ACCESS_ON_TRUNK`, `W_DUP_VLAN_IN_LIST`, `W_LAG_DISABLED_MEMBER`, `W_VLAN1_AS_NATIVE` — the other seven warnings are named by `PHYSICAL_LAYER.md` |
+
+The first row is the one that keeps changing, and it is why this paragraph is a moving target: it read
+**5** until the sentence above named them, and it reads **0** now. Measure them by choosing whether this
+page is in the list — the script below skips it deliberately, which is what makes the second row the
+number to watch:
+
+```bash
+# codes the engine quotes that no OTHER page names — skip docs/CLI.md on purpose
+node -e "const fs=require('fs'),path=require('path');
+  const g=p=>fs.readdirSync(p,{withFileTypes:true}).flatMap(e=>e.isDirectory()?g(path.join(p,e.name)):[path.join(p,e.name)]);
+  const real=new Set(); for(const f of g('engine').filter(f=>f.endsWith('.js')))
+    for(const m of fs.readFileSync(f,'utf8').matchAll(/'([EW]_[A-Z0-9_]*)'/g)) real.add(m[1]);
+  real.delete('E_'); real.delete('W_');
+  const named=new Set(); for(const f of g('docs').filter(f=>f.endsWith('.md')&&!f.endsWith('CLI.md')).concat(['README.md','CONTRIBUTING.md','CHANGELOG.md']))
+    for(const m of fs.readFileSync(f,'utf8').matchAll(/\b([EW]_[A-Z0-9_]+)\b/g)) named.add(m[1]);
+  console.log([...real].filter(c=>!named.has(c)).sort().join(' '))"
+```
+
+The table below is the report that matters:
 
 | File | Undocumented | Which |
 |---|---|---|
