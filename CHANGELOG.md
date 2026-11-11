@@ -496,6 +496,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The output filter has a help page, and its names abbreviate like every other keyword.** `?` inside a
+  filter used to be treated as the text to search for, so asking for help got you a filter applied to a
+  question mark. Measured on one switch, before and after `1337bf89`:
+
+  | typed at the prompt | before | now |
+  |---|---|---|
+  | `show running-config \| include ?` | `(nothing in this answer matches "\| include ?" - the command printed 10 lines)` | the five-filter help page: `\| include <text>`, `\| exclude <text>`, `\| begin <text>`, `\| section <text>`, `\| count`, plus the note that `<text>` is plain text, case-insensitive, not a regular expression |
+  | `show running-config \| i vlan` | `% There is no "\| i" here - this console filters with include, exclude, begin, section and count` | `vlan 10 VLAN0010` — `\| i` abbreviates to `\| include` |
+  | `show running-config \| c` | `% There is no "\| c" here …` | `11 lines` — `\| c` abbreviates to `\| count` |
+
+  The refusal was honest but useless: it named the five filters while refusing a spelling of one of them.
+  Chaining is unchanged — `show running-config | include interface | count` answers `8 lines` before and
+  after — so what this commit adds is the help page and the abbreviations, not the pipeline.
+  `test/pipe-help.test.js` holds **30 assertions**. See [docs/CLI.md](docs/CLI.md).
+
 - **A view asked at a moment says which moment.** The dispatcher prints the instant line *before* the
   handler runs, so a handler that returns its own array instead of appending to the one it was given
   drops the line on the floor — and the answer then reads as if no instant had been asked for. Measured
