@@ -9884,7 +9884,11 @@ class CliSession {
           return ['% ' + (dev.name || dev.id) + ' does not bridge, so it runs no spanning tree',
             '% Routers forward at L3 - a loop between them is a routing problem'];
         }
-        return this._showStpSummary(dev, sub2 === 'root', wantVlan);
+        // `out` already carries the instant line when the operator asked at a moment
+        // (`STP at t=50 ms (control planes rebuilt for this answer)`). Returning a fresh array
+        // dropped it, so `show spanning-tree summary at 50` answered as if the instant had not been
+        // typed - the one silent acceptance in a sweep of 38 views.
+        return out.concat(this._showStpSummary(dev, sub2 === 'root', wantVlan));
       }
       const pick = this._portArg(tail, dev, 'show spanning-tree', ['summary', 'root']);
       if (!pick.ok) return out.concat(pick.output);

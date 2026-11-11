@@ -1671,6 +1671,33 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A view asked at a moment says which moment
+
+`show spanning-tree at 50` labels its answer with the instant; the summary did not:
+
+```
+SW1#show spanning-tree at 50
+STP at t=50 ms (control planes rebuilt for this answer)
+Spanning tree enabled protocol ieee
+
+SW1#show spanning-tree summary at 50
+Spanning tree enabled protocol ieee - summary for SW1
+```
+
+The dispatcher prints the instant line *before* the handler runs, so a handler that returns its own
+array instead of appending to the one it was given silently drops it — and the answer then reads as if
+the operator had not asked at a moment at all. The summary and `root` forms append now:
+
+```
+SW1#show spanning-tree summary at 50
+STP at t=50 ms (control planes rebuilt for this answer)
+Spanning tree enabled protocol ieee - summary for SW1
+```
+
+Two shapes of one rule, and the sweep enforces both: **a view that accepts `at <ms>` / `converged`
+labels the answer with the instant it was asked at**, and **a view that cannot answer at an instant
+refuses the instant by name** — it never quietly answers the question it would have asked without it.
+
 ### A MAC address is how you find the port, and a number after a keyword is its value
 
 `show mac address-table address <mac>` is the one question a MAC table exists for — *which port is this
