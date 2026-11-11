@@ -405,6 +405,22 @@ Two of the board endpoints behave in a way a client author will not guess:
   only finds out from the next call — `POST …/flows` answers
   `400 { error: 'destination device has no IP address', code: 'E_NO_ADDRESS' }`, which names the
   symptom rather than the call that caused it.
+- **An id is taken verbatim, and an id the URL cannot carry makes an orphan board.** Nothing validates
+  the `id`: `..`, `../escape`, `a/b`, `has space`, `.hidden`, `CON`, eighty characters and non-ASCII all
+  answer `201`. Then the dispatcher splits the path and **does not percent-decode the segment**, so a
+  board whose id needs encoding can never be opened again — `GET /api/topologies/has%20space` answers
+  `404 { error: 'topology not found' }` while `GET /api/topologies` cheerfully lists `"has space"` in
+  `ids`. An id of `..` cannot even be attempted: the URL normalises to `/api/devices` and the server
+  answers `404 unknown endpoint`. If you let a user name boards, encode the id yourself and keep it to
+  characters that survive a path segment.
+- **Creating a board is idempotent, and never `409`.** `POST /api/topologies` with an id that already
+  exists answers `201` and returns the board as it stands: devices, links and `seq` untouched, no
+  write, no wipe. Re-creating `b1` after adding a device left `devices = 1`, `seq = 2` in memory, in the
+  `201` body and in `data/topologies/b1.json` — measured all three.
+- **Two ids that "work" write awkward files.** `.hidden` creates `.hidden.json` (a dot-file that
+  `ls *.json` and most globs skip) and `CON` creates `CON.json`, a Windows reserved device name that
+  happens to succeed here; both were reachable and writable when measured, so this is a footgun
+  rather than a refusal.
 - **`name` is not a field.** Posting `{ "name": "lab2" }` returns `201` with an id of
   `topo-mw9ltb2h` and creates a board you did not name. Measured against a live server, because the
   body is not validated and the mistake is silent.
