@@ -381,8 +381,20 @@ A fourth kind of line appears when the port discarded something, and only then:
 ```
   4 packets input, 200 bytes
   2 packets output, 124 bytes
-  2 drops (ACL 101 denied (in) x2)
+  2 drops ("ACL 101 denied (in)" x2)
 ```
+
+A reason that brings its own brackets is quoted, because printed inside the summary's own brackets it
+nested — `2 drops (ACL 101 denied (in) x2)` — which closes the list early for anyone reading it as a list
+and reads as two lists for anyone else. The summary is now one level deep whatever the reason says, so
+`reasons xN, reasons xN` can be read back into exactly what was counted.
+
+The console's per-port numbers and the payload's are the same numbers: `runtime.<device>.counters.ports` is
+the tally `show interfaces` prints, published by `fullState()`, and `test/counters-agreement.test.js` runs
+both across a crossing frame, a flooded one, a refused one, a shut port and a reset — then across every
+switch in the catalogue — and requires them to agree port by port, reason by reason. A port that has counted
+nothing is absent from the payload (there is no row to disagree about) and `counted` says whether the device
+has carried anything at all.
 
 The reason is the engine's own, so it names the thing you have to edit — the ACL and its direction, the VLAN
 that had no path, the address nobody answered for. Counted in one place, where every discard passes:

@@ -84,7 +84,9 @@ console.log('An ACL deny is counted, on the port it arrived on:');
 
   const out = block(env);
   ok(out.drops.length === 1, 'and one line reports them', out.drops.join(' | '));
-  ok(/2 drops \(ACL 101 denied \(in\) x2\)/.test(out.drops[0] || ''), 'with the count and the reason',
+  // A reason that brings its own brackets is quoted inside the summary (#1417), so the reason may appear either
+  // bare or in quotes; what this asserts is that the count and the reason are both there.
+  ok(/2 drops \("?ACL 101 denied \(in\)"? x2\)/.test(out.drops[0] || ''), 'with the count and the reason',
     out.drops[0]);
 
   // The other ports on this device carried nothing and discarded nothing.
@@ -142,7 +144,7 @@ console.log('A packet whose next hop never answered is a counted discard, not si
     JSON.stringify(res.replies.map(function (x) { return x.reason; })));
 
   const out = block(env);
-  const expected = 'drops (peer port shut (pc eth0) x' + shut.total + ')';
+  const expected = 'drops ("peer port shut (pc eth0)" x' + shut.total + ')';
   ok(out.lines.join(' | ').indexOf(expected) !== -1,
     'and it lands on the port that asked', out.lines.join(' | '));
   ok(/peer shut down/.test(out.lines.join(' ')),
