@@ -30,6 +30,14 @@ function switchLab() {
   return { t: t, sw: sw, s: s };
 }
 
+function routerLab() {
+  const t = new Topology();
+  const r = t.addDevice(find('generic-router')); r.name = 'R1';
+  const s = new CliSession(r, t, new Simulator(t));
+  s.run('enable');
+  return { t: t, r: r, s: s };
+}
+
 console.log('\nEvery violation mode is accepted, and so is any prefix that identifies one:');
 {
   const env = switchLab();
@@ -57,7 +65,12 @@ console.log('\nThe alternatives a page prints for a keyword argument are words t
     { enter: ['configure terminal', 'interface Fa0/1'], rows: null, label: 'interface' }
   ];
   for (const m of modes) {
-    const env = switchLab();
+    // The device has to be one whose page carries rows with alternation. A switch's configuration page
+    // used to hold the `ipv6 nd ra enable|disable|...` family by accident - a family it cannot use, now
+    // filtered - and with it gone the sweep had nothing to type. A router is the device that really
+    // offers those rows (`ip routing | no ip routing`, `ipv6 unicast-routing | no ipv6 unicast-routing`,
+    // `ipv6 nd ra enable|disable|managed|other-config`), so the sweep runs there.
+    const env = m.label === 'config' ? routerLab() : switchLab();
     (Array.isArray(m.enter) ? m.enter : [m.enter]).forEach(function (l) { env.s.run(l); });
     const page = env.s.run('?');
     const rows = text(page).split('\n')

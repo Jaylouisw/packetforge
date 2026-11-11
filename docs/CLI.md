@@ -1671,6 +1671,39 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A row the page shows is a row the parser runs
+
+The capability gate closed the direction *page hides it → parser refuses it*. The mirror is just as
+testable, and it had holes: the page offered, on a camera, an ONT and an optical shelf, nineteen rows
+they cannot use —
+
+```
+PC1(config)#ipv6 unicast-routing
+% PC1 does not route - PC1 forwards no IPv6
+PC1(config)#ipv6 nd ra enable
+% PC1 cannot advertise: it has no l3-forward capability
+PC1(config)#no ipv6 unicast-routing
+IPv6 unicast routing disabled on PC1 - this device now forwards no IPv6 packet
+```
+
+The first two are the page making a promise the parser breaks on the next line; the third is worse —
+the *removal* was accepted and reported a change, so a device that forwards nothing was told its
+forwarding was now off.
+
+- **The IPv6 routing and advertisement verbs follow the capability**, in both halves and on both the
+  page and the parser: `ipv6 unicast-routing`, `ipv6 nd …`, `ipv6 router …`, and their `no` forms.
+  `ipv6 address` and `ipv6 route` are deliberately not in that list — a host has addresses, and it
+  carries its way out as a route, exactly as IPv4 does.
+- **The NAT role removal follows its positive form**, so `no ip nat inside` is no longer offered on a
+  device that can never be a NAT interface. Typing it anyway still gets the answer.
+
+**The guard, both ways.** The catalogue sweep in `capability-gate.test.js` now asks two questions of the
+same 10,000 rows: a row the page *hides* must be refused by the parser (2,906 rows, 0 accepted), and a
+configuration row the page *shows* must not come back in the vocabulary of a capability the device lacks
+(3,564 rows, 0 broken promises). Exec views are exempt from the second question on purpose: `show vlan`
+on a router is offered and answered with a sentence explaining what the device keeps, and there an
+explanation *is* the answer.
+
 ### The gate covers the interface block too, and the NAT table needs a device that translates
 
 The capability gate from the previous pass was wired into the configuration dispatcher only, so the

@@ -259,8 +259,11 @@ console.log('\nThe page and the parser agree across the catalogue:');
     const kind = cat.category || cat.kind || 'other';
     if (!byKind[kind]) byKind[kind] = cat;
   }
-  let oracleRefused = 0, disagreements = 0;
-  const found = [];
+  let oracleRefused = 0, disagreements = 0, shownRows = 0, brokenPromises = 0;
+  const found = [], promises = [];
+  // The words a capability refusal uses. A row the page shows coming back in these means the page
+  // promised a verb the parser will not run.
+  const CAPABILITY = /does not (bridge|route|switch|translate|serve|source|forward|hold|run|advertise)|is not a (router|switch|DHCP|NAT|layer)|no port on it|it has no |it neither|not a DHCP|runs no |has no bridged|cannot advertise/i;
   for (const kind of Object.keys(byKind)) {
     const cat = byKind[kind];
     const t = new Topology();
@@ -290,22 +293,44 @@ console.log('\nThe page and the parser agree across the catalogue:');
         // so typing one would test the next mode rather than this row.
         if (/^(exit|end|do|help)\b/.test(line)) continue;
         const why = probe._helpRefusal(line);
-        if (!why) continue;
-        oracleRefused++;
         const s = new CliSession(d, t, new Simulator(t));
         s.run('enable'); pair[1].forEach(function (l) { s.run(l); });
         const ans = text(s.run(line));
-        // Not an exemption, ordinary control flow: a `%` line is how every refusal in this console is
-        // written, so this is the question the sweep asks, not a way around it.
-        if (/^\s*%/.test(ans) || /\n\s*%/.test(ans)) continue;
-        disagreements++;
-        if (found.length < 6) found.push(kind + ' [' + pair[0] + "]: '" + line + "' -> " + (ans.split('\n')[0] || '(silence)'));
+        const refused = /^\s*%/.test(ans) || /\n\s*%/.test(ans);
+        if (why) {
+          // The page does not offer it, so the parser must not run it.
+          oracleRefused++;
+          // Not an exemption, ordinary control flow: a `%` line is how every refusal in this console is
+          // written, so this is the question the sweep asks, not a way around it.
+          if (refused) continue;
+          disagreements++;
+          if (found.length < 6) {
+            found.push(kind + ' [' + pair[0] + "]: '" + line + "' -> " + (ans.split('\n')[0] || '(silence)'));
+          }
+          continue;
+        }
+        // The other direction: the page *does* offer it, so the parser must not answer in the vocabulary
+        // of a capability the device lacks. (Exec views are exempt on purpose: `show vlan` on a router is
+        // offered and answered with a sentence explaining what the device keeps - an explanation is the
+        // answer there, not a refusal. A configuration verb has no such reading.)
+        if (pair[0] === 'exec') continue;
+        shownRows++;
+        // Not an exemption, ordinary control flow: this is the question the sweep asks of a shown row -
+        // whether the answer uses the vocabulary of a capability the device lacks.
+        if (!CAPABILITY.test(ans)) continue;
+        brokenPromises++;
+        if (promises.length < 6) {
+          promises.push(kind + ' [' + pair[0] + "]: '" + line + "' -> " + (ans.split('\n')[0] || '(silence)'));
+        }
       }
     }
   }
   ok(oracleRefused > 400, 'the sweep found rows the capability oracle refuses (' + oracleRefused + ')');
   ok(disagreements === 0, 'and the parser refuses every one of them'
     + (disagreements ? ' - ' + found.join(' | ') : ''));
+  ok(shownRows > 3000, 'and typed the configuration rows it does show (' + shownRows + ')');
+  ok(brokenPromises === 0, 'none of which comes back as a missing capability'
+    + (brokenPromises ? ' - ' + promises.join(' | ') : ''));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

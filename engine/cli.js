@@ -973,7 +973,16 @@ class CliSession {
     // translate took the role anyway (an L3 switch, which routes and so passed the routing test), and
     // then reported itself as a NAT interface in a lab where nothing could translate on it. The
     // removal half is left alone: `no ip nat inside` answers "is not a NAT interface", which is true.
-    const gated = (removal && families.indexOf(family) !== -1) || isDhcp;
+    // The same two IPv6 families the page filters: turning forwarding on (`ipv6 unicast-routing`) or
+    // advertising a prefix (`ipv6 nd …`) needs the capability, in both directions - the removal promised
+    // "IPv6 unicast routing disabled" on a camera that forwards nothing.
+    // Only the removal half is gated: the positive forms already refuse in the handler's own words
+    // ("% PC1 does not route - PC1 forwards no IPv6", "% SW1 cannot advertise: it has no l3-forward
+    // capability"), and those name the device and the row. What nothing judged was `no ipv6
+    // unicast-routing`, which reported "forwarding disabled" on a camera that forwards nothing.
+    const isIpv6Forward = first === 'no' && second === 'ipv6' &&
+      ['unicast-routing', 'nd', 'router'].indexOf(words[2]) !== -1;
+    const gated = (removal && families.indexOf(family) !== -1) || isDhcp || isIpv6Forward;
     if (!gated) return null;
     const why = this._helpRefusal(words.slice(0, 4).join(' '));
     if (!why) return null;
@@ -12672,6 +12681,17 @@ class CliSession {
     // the documented answer (nat-show), because a rule may come from the topology and this is where an
     // operator looks for it. The NAT *role* is a different question, and the handler asks the
     // capability itself, right after it has refused a device that does not route.
+    // IPv6 routing and router advertisement need a device that forwards IPv6. Nineteen rows - `ipv6
+    // unicast-routing` and every `ipv6 nd ra …` form - were offered on a camera, an ONT and an optical
+    // shelf, each refused on the next line. `ipv6 address` is not one of them: a host has addresses.
+    // `ipv6 route` is deliberately not in this list: a host here carries its way out as a route
+    // (`ip route 0.0.0.0 0.0.0.0 <gw>`, and the IPv6 equivalent), the same decision IPv4 keeps.
+    if ((first === 'ipv6' && ['unicast-routing', 'nd', 'router'].indexOf(second) !== -1) ||
+        (first === 'no' && second === 'ipv6' &&
+          ['unicast-routing', 'nd', 'router'].indexOf(words[2]) !== -1)) {
+      const forwards = typeof dev.hasCap === 'function' ? dev.hasCap('l3-forward') : false;
+      return forwards ? null : 'it does not forward IPv6, so it can neither route it nor advertise a prefix';
+    }
     if (first === 'ip' && second === 'nat' && words[2] !== undefined &&
         words[2] !== 'translations' && words[2] !== 'statistics') {
       return has('nat') ? null : 'it does not translate addresses';
@@ -12682,7 +12702,8 @@ class CliSession {
     // The removal of a NAT *rule* is not: `no ip nat inside source …` was shown on a switch and a PC
     // while the positive form was hidden - the same "removal of a setting the device cannot have" that
     // `no ip dhcp pool` had.
-    if (first === 'no' && second === 'ip' && words[2] === 'nat' && words[4] === 'source') {
+    if (first === 'no' && second === 'ip' && words[2] === 'nat' &&
+        (words[4] === 'source' || words[3] === 'inside' || words[3] === 'outside')) {
       return has('nat') ? null : 'it does not translate addresses';
     }
 
