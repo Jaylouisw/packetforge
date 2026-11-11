@@ -501,6 +501,24 @@ services, and a job that has to swap makes the whole queue slower.
   taken — and the run time wanders between 308 and 357 s with nothing to explain it, which is itself worth
   knowing before you read a slow run as a regression.
 
+  **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
+  branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
+  (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 commits ahead and 361 behind**,
+  and not one of the four commits above is an ancestor of `origin/main`. Check any of them before you
+  quote it:
+
+  ```bash
+  git branch --show-current                              # fix/sfp-plus-connectors, not main
+  git rev-list --left-right --count HEAD...origin/main    # 382  361
+  git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
+  ```
+
+  This does not make the readings wrong — they are measurements of a tree that exists and has a commit
+  id — but a red run here is not a red `main`, and a green one would not be either. The same caveat
+  applies to every count on every page in this repository: the catalogue, the CLI transcripts and the
+  capability matrix were all measured on this branch. If you need to know about `main`, run the suite on
+  `main`.
+
   **The headline and the list count different things**, which is why "3 failed" sits above two `✗` lines.
   `run-tests.js` sums each suite's own `<n> passed, <m> failed` tally, so the headline is failed
   **assertions**; the `Failed:` block lists failing **suites**. Re-measured on the second reading:
