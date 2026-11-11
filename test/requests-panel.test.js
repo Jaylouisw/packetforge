@@ -138,7 +138,12 @@ pf.setOpenRequests(requests);
 console.log('\nWiring:');
 ok(/api\('GET', '\/requests'\)/.test(appjs), 'the app asks the server for the request list');
 ok(/openRequests = \(r && r\.requests\) \|\| \[\]/.test(appjs), 'and keeps the rows it got');
-ok(/\.catch\(function \(\) \{ openRequests = \[\]; \}\)/.test(appjs), 'a failed call leaves the palette alone rather than breaking it');
+// A slow or unreachable forge must not *empty* the markers the palette already had - that is not "leaving it alone",
+// it is losing them, and #1423 was about exactly that shape of silence.
+ok(!/\.catch\(function \(\) \{ openRequests = \[\]; \}\)/.test(appjs),
+  'a failed call does not blank the request list');
+ok(/api\('GET', '\/requests'\)[\s\S]{0,300}\.catch\(/.test(appjs),
+  'and the enrichment call is still guarded, so a failure cannot break the palette');
 ok(/if \(q\) \{\s*\n\s*const asked = renderRequestedSection/.test(appjs), 'the section only renders while searching');
 ok(/\.requested-group/.test(css) && /\.requested-item/.test(css), 'both are styled');
 ok(/\.requested-item:focus-visible/.test(css), 'and the rows are reachable by keyboard');

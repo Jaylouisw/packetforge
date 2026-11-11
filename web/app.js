@@ -238,6 +238,7 @@
     } catch (e) {
       // The server not answering is itself worth reporting; say so rather than
       // dropping the field, and still open the form.
+      /* silent-ok: the failure is written into the bug report itself, as the version field, and the form still opens */
       env.version = 'unknown (GET /api/version failed: ' + e.message + ')';
     }
     // Built once: the window that is opened and the link that is reported when the
@@ -1106,10 +1107,22 @@
   // The canvas owns the state; this only owns the sentence the user reads.
   PFCanvas.on.connectCancel = function () { setStatus('Ready'); };
 
+  // A drag is a save, and a save that failed used to be discarded here (`catch (e) {}`). The box stayed where it was
+  // dropped, the server kept the old position, and the next reload - or another tab's next broadcast - snapped it back
+  // with no explanation. Reported, and put back: a canvas that shows a position the server does not have is showing a
+  // lab that will not be there tomorrow (#1423).
   PFCanvas.on.move = async function (id, x, y) {
     if (!topo.layout) topo.layout = {};
+    const before = topo.layout[id] ? { x: topo.layout[id].x, y: topo.layout[id].y } : null;
     topo.layout[id] = { x: x, y: y };
-    try { await api('POST', '/topologies/' + TOPO + '/layout', { positions: { [id]: { x: x, y: y } } }); } catch (e) {}
+    try {
+      await api('POST', '/topologies/' + TOPO + '/layout', { positions: { [id]: { x: x, y: y } } });
+    } catch (e) {
+      if (before) topo.layout[id] = before; else delete topo.layout[id];
+      PFCanvas.setTopology(topo);
+      toast('Position not saved: ' + e.message);
+      setStatus('Position not saved - ' + e.message);
+    }
   };
 
   // Modal that lets the user choose the physical medium for a new cable.
@@ -1330,7 +1343,7 @@
       });
       verdict = v.verdict;
       options = v.mediaOptions || [];
-    } catch (e) { /* fall through; the server will decide */ }
+    } catch (e) { /* silent-ok: the dry run is an optimisation; the server decides below and its refusal is shown by name */ }
 
     // A refusal that names a part is a refusal you can act on (issue #92). Before this,
     // the engine explained that an SC/UPC port and an SC/APC port are joined by a hybrid
@@ -1352,7 +1365,7 @@
             patchCord: patchCord
           });
           options = (verdict && verdict.mediaOptions) || options;
-        } catch (e) { /* fall through to the refusal below */ }
+        } catch (e) { /* silent-ok: a re-validation that fails falls through to the refusal path below, which reports */ }
       }
     }
 
@@ -2969,11 +2982,13 @@
       const cat = await api('GET', '/catalog');
       catalog = cat;
       renderPalette();
-      // Enrichment, not a dependency: if this never arrives the palette is unchanged.
+      // Enrichment, not a dependency: if this never arrives the palette is unchanged. It used to be *emptied* on
+      // failure (`openRequests = []`), which is not "unchanged" - a palette that had request markers would lose them
+      // because the forge was slow. `api()` has already recorded the reason for the bug report.
       api('GET', '/requests').then(function (r) {
         openRequests = (r && r.requests) || [];
         if (openRequests.length) renderPalette();
-      }).catch(function () { openRequests = []; });
+      }).catch(function () { /* silent-ok: enrichment - api() records the failure and the palette keeps the markers it already had */ });
       bindPaletteKeyboard();
       await syncTopology('boot');
       PFCanvas.fitView();
