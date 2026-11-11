@@ -42,7 +42,32 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 
   - **On Windows the dry run always claims every page is out of date.** The script compares the
     clone to `docs/wiki/` as raw strings, and with `core.autocrlf=true` the checkout is CRLF while
-    the repository stores LF. Check after normalising line endings, or from Linux.
+    the repository stores LF. Check after normalising line endings, or from Linux — and do not read
+    the six `updated` lines as six stale pages. Measured on this host: the dry run said all six, while
+    the normalised comparison said **three**, with the wiki commit then standing at `e09ef1e`:
+
+    | page | published | repository |
+    |---|---|---|
+    | `Home.md` | 1,708 chars | 1,886 |
+    | `Requesting-Hardware.md` | 2,216 | 2,775 |
+    | `Simulation-Fidelity.md` | 1,658 | 2,956 |
+    | `Contributing.md`, `Getting-Started.md`, `_Sidebar.md` | — | in sync |
+
+    The comparison that answers the question, because the script will not:
+
+    ```bash
+    W=$LOCALAPPDATA/Temp/wiki-cmp && rm -rf "$W" &&
+      GIT_SSH_COMMAND='ssh -o BatchMode=yes' \
+        git clone --depth 1 ssh://forgejo/jaylouisw/packetforge.wiki.git "$W" &&
+      for f in docs/wiki/*.md; do
+        if diff -q <(tr -d '\r' < "$f") <(tr -d '\r' < "$W/$(basename "$f")") >/dev/null
+        then echo "in sync  $(basename "$f")"; else echo "DIFFERS  $(basename "$f")"; fi
+      done
+    ```
+
+    Publishing through the SSH URL (below) took the wiki to `b152d4b`, after which all six pages
+    compare clean — so the drift is real when it is real, and the only way to tell is this
+    normalised comparison.
   - **Use the SSH URL if there is no tty.** The default HTTPS URL prompts for a username and fails
     with `could not read Username for 'https://git.jayw.uk'` in a script or an automated run:
 
