@@ -132,10 +132,26 @@ different:
 | `comboWith`, `comboRole` | 84 | a combo cage stopped knowing it was one cage, so two cables went into one physical position |
 | `hardware.maxSpeedMbps` | 1,028 | a 115.2 kbps console reloaded as a 1 Gbps port, inventing a speed-downgrade warning |
 | `hardware.poeOutDeclared` | 1,499 | a port that declared its own PoE reloaded looking like the engine had guessed |
+| `speedMbps` | any port with `speed <mbps>` | the forced line rate, added later and missed (#1405) |
 
 The reader now passes the whole port document through. Physical facts are not re-derived: `derivePortHardware()`
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
+
+**A sweep over virgin labs cannot see a setting.** The first version of that test round-tripped a lab straight out of
+the catalogue, so every field sat at its default and the comparison was default-in, default-out: it agreed with
+itself about a file that carried nothing. `speedMbps` walked through that gap — `speed 100` was stored, printed by
+`show interfaces` as `100Mb/s (forced)`, written to `show running-config`, and the port document never carried it,
+so a saved lab came back at the hardware rate **and the command had gone from the config too**, which is what made
+it permanent: nothing would put it back. The sweep now **configures** the port first (forcing the lowest supported
+rate on one port of every model in the catalogue) and only then compares, which is the version of the claim the
+section title makes.
+
+Two conventions keep the document honest, and both are asserted: a field that is not set is **not written**
+(`speedMbps`, like `natRole` and the combo fields, appears only when an operator set it — a board must not grow a
+null line on every port in the catalogue), and a *cache* the file legitimately drops (`pvid`, which `classifyEgress`
+derives on demand) is excluded from the comparison only because it is checked by behaviour instead: the reloaded
+port has to classify into the same VLAN.
 
 ### A `show` describes an instant, not a cache
 

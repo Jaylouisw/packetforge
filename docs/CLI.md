@@ -472,6 +472,11 @@ the port cannot do is refused, naming the port, the rate and what it *does* supp
 connector rules were written, but nothing could set duplex, so the warning was unreachable. Force one end to
 half against a full-duplex peer and it fires, naming both ends.
 
+Both halves of this setting survive a save: `duplex` always did, and `speed` did not — a lab saved with
+`speed 100` came back negotiating, with the command gone from `show running-config` too, so nothing put it back
+(#1405). The forced rate is written to the port document only when it is set, so a port that negotiates its own
+rate still writes no `speedMbps` line at all.
+
 Two ends forced to rates with nothing in common do **not** silently work: the link has no line rate to run
 at, it comes down, `show interfaces` says `link: down (no common rate with the peer)`, and frames across it
 are counted as dropped with that reason.
