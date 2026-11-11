@@ -109,5 +109,52 @@ console.log('\nThe view is per device, not per lab:');
     'it reports its own state');
 }
 
+
+console.log('\nA failed lookup names its reason, and the log line is a sentence:');
+{
+  const env = lab();
+  env.R.run('configure terminal', 'ip domain-name lab.example', 'ip name-server 10.0.0.53', 'exit', 'end');
+  env.R.run('ping nosuch.lab.example');
+  const hosts = text(env.R.run('show hosts'));
+  ok(/nosuch\.lab\.example did not resolve - NXDOMAIN from SRV1/.test(hosts),
+    'the reason is on the failed name (NXDOMAIN, and which server said so)');
+  ok(/show logging/.test(hosts), 'and the log is named for the full record');
+  const log = text(env.R.run('show logging'));
+  ok(/nosuch\.lab\.example -> NXDOMAIN from SRV1/.test(log), 'the log line reads as one fact');
+  ok(!/clientName /.test(log), "the model's own field names are not printed");
+  ok(!/ok false/.test(log), 'and neither is a bare false');
+}
+
+console.log('\nA resolved name logs its answer and who gave it:');
+{
+  const env = lab();
+  env.R.run('configure terminal', 'ip domain-name lab.example', 'ip name-server 10.0.0.53', 'exit', 'end');
+  env.R.run('ping host1.lab.example');
+  const log = text(env.R.run('show logging'));
+  ok(/host1\.lab\.example -> 10\.0\.0\.53 \(answered by SRV1\)/.test(log),
+    'the address and the answering server are on the line');
+}
+
+console.log('\nA name the zone holds without an address says so:');
+{
+  const env = lab();
+  env.S.run('configure terminal', 'dns add host2.lab.example AAAA ::1', 'end');
+  env.R.run('configure terminal', 'ip domain-name lab.example', 'ip name-server 10.0.0.53', 'exit', 'end');
+  env.R.run('ping host2.lab.example');
+  const hosts = text(env.R.run('show hosts'));
+  ok(/host2\.lab\.example did not resolve - NODATA/.test(hosts),
+    'NODATA is distinguished from NXDOMAIN (a different fix)');
+}
+
+console.log('\nA typo is not a lookup:');
+{
+  const env = lab();
+  env.R.run('ping 999.1.1.1');
+  ok(!/999\.1\.1\.1/.test(text(env.R.run('show hosts'))),
+    'a malformed address never enters the resolver history');
+  env.R.run('ping host1.lab.example');
+  ok(!/999\.1\.1\.1/.test(text(env.R.run('show logging'))), 'and it is not in the log either');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

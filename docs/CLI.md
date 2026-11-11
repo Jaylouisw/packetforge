@@ -1558,6 +1558,36 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A logged lookup is a sentence, not a field dump
+
+`show logging` prints one line per event, in the vocabulary of the thing that happened. The resolver
+had no line of its own, so a name lookup fell through to the generic renderer and printed the record's
+own field names:
+
+```
+dns  R1  clientName "R1", qname "nosuch.lab.example", ok false, address null, server null, ...
+```
+
+An operator reading that learns that something was `false`, not why. The line is now the fact:
+
+```
+nosuch.lab.example -> NXDOMAIN from SRV1
+host1.lab.example  -> 10.0.0.53 (answered by SRV1)
+```
+
+and the three failures a lab actually produces read differently, because they are different fixes:
+
+| Log line | What it means | What to change |
+|---|---|---|
+| `-> NXDOMAIN from SRV1` | the zone exists, the name does not | add the record, or fix the name |
+| `-> NODATA (the name exists but has no A record) at SRV1` | the name exists with another record type | add the A record |
+| `-> no server hosts a zone for it` | nobody was asked, because nobody serves it | point `ip name-server` at a device with the zone |
+
+Two consequences worth stating: a malformed address (`ping 999.1.1.1`) is **not** a lookup and is not
+recorded, because it was never asked of a name server; and a rewind of the run (which every `ping`
+performs) no longer deletes the lookup that sent the packet - a resolution is a fact about the device,
+like its counters, and `clear logging` is how the log is emptied.
+
 ### `show hosts` - what the resolver will ask, and what it has answered
 
 A router that resolves names had no view of its own resolver: `ip domain-name` and `ip name-server`

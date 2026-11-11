@@ -149,7 +149,10 @@ class Simulator {
   get counters() { return this.flowState.counters; }
 
   reset() {
-    this.events = [];
+    // A name resolution is not part of the run being rewound: it happened because someone typed
+    // `ping <name>`, and the ping this reset belongs to would otherwise delete the very lookup that
+    // sent the packet. `clear logging` is how an operator empties the log, as with counters below.
+    this.events = (this.events || []).filter(function (e) { return e && e.type === 'dns'; });
     // Per-port counters are NOT cleared here, for the reason DHCP leases are not: a console session
     // starts every command with a reset, so clearing them would make `show interfaces counters` always
     // report zero - the counters would be reset by the act of asking. They are cumulative from the
@@ -1332,6 +1335,9 @@ class Simulator {
       type: 'dns', dev: devId, clientName: dev ? dev.name : null, qname: String(qname),
       ok: !!(result && result.ok), address: (result && result.ip) || null,
       server: (result && result.server) || null,
+      // Why it failed, in the resolver's own words, so the log line answers the question instead of
+      // reporting that some field was false.
+      reason: (result && result.reason) || null,
       // NOERROR is 0, so `|| null` turned a successful rcode into "no rcode at all".
       rcode: (result && result.rcode !== undefined && result.rcode !== null) ? result.rcode : null,
       status: result && result.message ? 'refused' : null,

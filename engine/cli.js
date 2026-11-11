@@ -114,6 +114,20 @@ const MODE_OSPF = 'ospf';
 // whatever identifying keys the event has. `reason` first is deliberate: a drop's whole value is why
 // it was dropped.
 function describeEvent(ev) {
+  // A name resolution is one line, and it is the line an operator is sent to when a lookup fails:
+  //   dns  R1  nosuch.lab.example -> NXDOMAIN from SRV1
+  // The generic renderer printed the model's own field names in quotes instead
+  // (`clientName "R1", qname "nosuch.lab.example", ok false, ...`), which is a dump of the record,
+  // not an answer about the lookup.
+  if (ev && ev.type === 'dns') {
+    const name = ev.qname || '(no name)';
+    if (ev.ok) {
+      return name + ' -> ' + (ev.address || '(no address)') +
+        (ev.server ? ' (answered by ' + ev.server + ')' : '');
+    }
+    const why = ev.reason || (ev.status ? String(ev.status) : 'no answer');
+    return name + ' -> ' + why;
+  }
   const parts = [];
   if (ev.reason) parts.push(String(ev.reason));
   if (ev.iface) parts.push('on ' + ev.iface);
@@ -6534,8 +6548,12 @@ class CliSession {
   // answer in the ping's output, and then forgot it.
   _resolveHost(text, label) {
     const res = this._resolveHostOnce(text, label);
+    // A malformed address (`999.1.1.1`) was never asked of a name server, so it is not a lookup and
+    // does not belong in the resolver's history - recording it would make `show hosts` list typos as
+    // names that failed to resolve.
+    const wasLookup = !(res && res.literal) && !/^% Invalid /.test(String((res && res.message) || ''));
     try {
-      if (this.sim && typeof this.sim.recordDnsLookup === 'function') {
+      if (wasLookup && this.sim && typeof this.sim.recordDnsLookup === 'function') {
         this.sim.recordDnsLookup(this.device.id, String(res && res.asked ? res.asked : text), res || {});
       }
     } catch (e) { /* a view must not fail because a log entry could not be written */ }
@@ -6579,7 +6597,8 @@ class CliSession {
         ok: false,
         message: '% Cannot resolve ' + raw + ': name lookup is disabled on ' + (dev.name || dev.id) +
           ' (no ip domain-lookup)',
-        hint: '% Use the address, or put resolution back with "ip domain-lookup"'
+        hint: '% Use the address, or put resolution back with "ip domain-lookup"',
+        reason: 'lookup disabled on ' + (dev.name || dev.id)
       };
     }
     // An unqualified name gets this device's domain appended, which is what makes `ping www` an
@@ -6620,15 +6639,32 @@ class CliSession {
         return { ok: true, ip: res.address, asked: asked, suffixed: suffixed, server: res.server };
       }
       if (res.status === 'NXDOMAIN') {
-        return { ok: false, message: '% Unknown host ' + asked + ': NXDOMAIN from ' + (res.server || '(no server)') };
+        return {
+          ok: false,
+          message: '% Unknown host ' + asked + ': NXDOMAIN from ' + (res.server || '(no server)'),
+          reason: 'NXDOMAIN from ' + (res.server || '(no server)'), asked: asked, suffixed: suffixed
+        };
       }
       if (res.status === 'NODATA') {
-        return { ok: false, message: '% Unknown host ' + asked + ': the name exists at ' +
-          (res.server || '(no server)') + ' but has no A record' };
+        return {
+          ok: false,
+          message: '% Unknown host ' + asked + ': the name exists at ' +
+            (res.server || '(no server)') + ' but has no A record',
+          reason: 'NODATA (the name exists but has no A record) at ' + (res.server || '(no server)'),
+          asked: asked, suffixed: suffixed
+        };
       }
-      return { ok: false, message: '% Unknown host ' + asked + ': no DNS server in this lab hosts a zone for it' };
+      return {
+        ok: false,
+        message: '% Unknown host ' + asked + ': no DNS server in this lab hosts a zone for it',
+        reason: 'no server hosts a zone for it', asked: asked, suffixed: suffixed
+      };
     }
-    return { ok: false, message: '% Unknown host ' + raw + ': no DNS server and no local zone contains it' };
+    return {
+      ok: false,
+      message: '% Unknown host ' + raw + ': no DNS server and no local zone contains it',
+      reason: 'no server on the lab responds and no local zone holds it', asked: raw
+    };
   }
 
   // ---------- ping ----------
@@ -10574,11 +10610,20 @@ class CliSession {
       rows.push([name, e.ok ? (e.address || '-') : 'unresolved', e.ok ? 'dynamic' : 'failed', ageText]);
     }
     out.push.apply(out, renderTable(['Host', 'Address', 'Type', 'Age'], rows));
-    const failed = rows.filter(function (r) { return r[2] === 'failed'; }).length;
-    if (failed) {
+    const failedRows = [];
+    for (const name of names) {
+      const e = newest.get(name);
+      if (!e.ok) failedRows.push([name, e]);
+    }
+    if (failedRows.length) {
       out.push('');
-      out.push('% ' + failed + ' name' + (failed === 1 ? ' did' : 's did') + ' not resolve - the reason is in',
-        '% "show logging" (the resolver event) and the zone is on the server that answered');
+      // The reason belongs on the row that failed, not one table away: "unresolved" says a lookup
+      // failed, not whether the name is missing (NXDOMAIN), present with no address (NODATA), or
+      // never asked of anyone (no server hosts the zone). Those are three different fixes.
+      for (const pair of failedRows) {
+        out.push('% ' + pair[0] + ' did not resolve - ' + (pair[1].reason || 'no answer recorded'));
+      }
+      out.push('% The full record of each lookup is in "show logging" (type dns)');
     }
     return out;
   }
