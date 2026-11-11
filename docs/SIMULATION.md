@@ -436,6 +436,8 @@ HSRP and GLBP do not exist.
 | **Modelled** | Cost is per interface: `ip ospf cost <n>` overrides, otherwise it is derived from the port's speed against a **10 Gbps** reference — 100M → 100, 1G → 10, 2.5G → 4, 5G → 2, 10G and faster → 1. A link's cost is the **sum of both ends**, so downgrading one end is enough to move traffic off it. | `_ospfCost()` in `engine/simulator.js`; the comment above it says "100 Mbps reference" and its own table is 10 Gbps-referenced |
 | **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no DR/BDR election, no adjacency FSM. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9` |
 | **Approximate** | The `cost: 10` on each entry of the simulator's link list is a **last-resort fallback**, used only when an end contributes no interface cost — not the metric in the normal case. | `buildGraph()` in `engine/ospf.js`; the `links.push({ … cost: 10 })` call in `computeOspf()` |
+| **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
+| **Modelled** | Adjacency comes from the **segment walk**, not from direct links: two OSPF speakers that share a segment through a switch become neighbours. A tagged walk (`segmentOf(…, { vid })`) is used for subinterfaces, and a tag crosses only switch ports whose trunk permits it. Measured: `R1 -- SW1 -- R2` answers `FULL 10.0.0.2 … Gi0/0`; `segmentOf(R1, Gi0/0)` returns `SW1:Fa0/1, R2:Gi0/0`; the same call with `{ vid: 10 }` on an untagged port returns nothing. | `segmentOf()` and `portCarriesTag()` in `engine/segment.js` |
 
 **One asymmetry worth knowing before you tune a stub.** A *transit* interface's `ip ospf cost` reaches other
 routers' routing tables; a *stub* interface's does not, even though `show ip ospf interface` reports it.
@@ -484,8 +486,6 @@ One end downgraded to 100M is enough to push the prefix onto the detour, which i
 rule doing something visible. `ip ospf cost 50` on one end only moves it the same way (60 against 40),
 and on both ends it reads 100 — so configuring the knob on a single router half-works, which is the kind
 of half that costs an afternoon.
-| **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
-| **Modelled** | Adjacency comes from the **segment walk**, not from direct links: two OSPF speakers that share a segment through a switch become neighbours. A tagged walk (`segmentOf(…, { vid })`) is used for subinterfaces, and a tag crosses only switch ports whose trunk permits it. Measured: `R1 -- SW1 -- R2` answers `FULL 10.0.0.2 … Gi0/0`; `segmentOf(R1, Gi0/0)` returns `SW1:Fa0/1, R2:Gi0/0`; the same call with `{ vid: 10 }` on an untagged port returns nothing. | `segmentOf()` and `portCarriesTag()` in `engine/segment.js` |
 
 Known defects that change what a lab will show, and are now fixed - kept visible because a lab
 built on the old behaviour would look wrong today: [#42, #43, #44](#10-fixed-defects-kept-visible).

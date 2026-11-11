@@ -111,6 +111,8 @@ The `Ready` column is arithmetic, not a lookup, and every formula below was chec
 |---|---|---|
 | STP | `listing = forward delay`, then a second forward delay to learn, so `2 × 15 s` | `30000 ms  listening + learning (15 s forward-delay each)` |
 | OSPF | `hello + exchange` to form the adjacency, `+ SPF hold` for the first route | `16000 ms  hello 10 s + exchange, then SPF hold` (10 + 1 + 5) |
+| VRRP | `3 × advertisement + skew`, where `skew = (256 − priority) / 256` s and priority 255 skips it | `3609.375 ms  3 x advertise 1 s + skew` at priority 100 (3 + 156/256) |
+| DHCP | the exchange itself, with no queueing behind it | `1000 ms  DISCOVER/OFFER/REQUEST/ACK` |
 
 `converge` answers with **one row per device per process**, not one row for the lab, so the summary
 line is the maximum of everything listed rather than the figure for the device you typed it on.
@@ -132,10 +134,8 @@ and the two switches — which share no cable in that lab — are timed in the s
 island is filtered out for being unrelated to the device the command was typed on. And the total is
 `30000 ms`: the slower process wins the headline even though the OSPF on that router lands at
 `16000 ms`.
-| VRRP | `3 × advertisement + skew`, where `skew = (256 − priority) / 256` s and priority 255 skips it | `3609.375 ms  3 x advertise 1 s + skew` at priority 100 (3 + 156/256) |
-| DHCP | the exchange itself, with no queueing behind it | `1000 ms  DISCOVER/OFFER/REQUEST/ACK` |
 
-Two of these are worth reading twice. **VRRP is the only one whose number is not a round figure** —
+Two of the five formulas are worth reading twice. **VRRP is the only one whose number is not a round figure** —
 `3609.375 ms` at the default priority 100, because the RFC's skew time is a fraction of a second; a
 higher priority shrinks it — measured `3218.75 ms` at priority 200 (3 + 56/256) and a clean `3000 ms`
 at priority 255 (the address owner, whose skew is zero by the RFC). And
