@@ -911,8 +911,8 @@ part is only buildable when it appears in **two** places.
 | `partNumber` | the orderable string, recorded exactly as a vendor writes it | all 58 |
 | `vendor` | lowercase vendor token | all 58 |
 | `formFactor` | the cage family the module fits | `sfp` 8, `sfp+` 21, `sfp28` 4, `qsfp+` 7, `qsfp28` 13, `qsfp-dd` 3, `qsfp56` 2 |
-| `connector` | the cage at the fibre end | `lc` on the optical parts, `rj45` on the copper ones |
-| `polish` | `upc` / `apc`, or **`null`** where there is no ferrule to polish | `upc` 42, `apc` 2, `null` 14 |
+| `connector` | the cage at the fibre end | `lc` 43, `mpo` 8, `sc-upc` 3, `sc-apc` 1, `rj45` 3 |
+| `polish` | descriptive only — see rule 1 | `upc` 42, `apc` 2, `null` 14 |
 | `wavelengthNm` | transmit wavelength | all optical parts |
 | `reachM` | rated reach in metres | all 58 |
 | `fiber` | `smf`, `mmf` or `copper` | all 58 |
@@ -925,9 +925,14 @@ part is only buildable when it appears in **two** places.
 
 Two rules follow from the shape of the file rather than its contents:
 
-1. **`polish: null` is not an omission.** The 14 parts with `null` are copper (`GLC-TE` is `rj45` on
-   `copper`), so there is no ferrule and an `E_POLISH_MISMATCH` on them would be a lie. Writing `upc`
-   there would make a copper module claim a polish it does not have.
+1. **`polish` is descriptive, and the catalogue is inconsistent about it.** Nothing reads it: the
+   refusal comes from the *cages*, not the part numbers — `polishMismatch(pa.cage, pb.cage)` in
+   `engine/media.js` compares the `FERRULE` entries of the two cages, so a wrong or missing `polish`
+   here cannot produce or suppress an `E_POLISH_MISMATCH`. What the field shows is an intake gap: of the
+   **43** `lc` parts, **33** declare `upc` and **10** declare `null`, and the 14 nulls are three copper
+   modules (where null is correct — `GLC-TE` is `rj45` on `copper` and has no ferrule) plus eleven
+   optical ones (`SFP-25G-SR`, `QSFP28-100G-LR4`, `SFP-10G-iLR`, …) that were transcribed without it.
+   Do not read a null as "this module has no polish"; read it as "nobody filled it in".
 2. **The browser cannot read this directory**, so `web/app.js` keeps `PART_ROWS` and the picker is
    whatever that array says — see "The UI's part picker is a snapshot of the catalogue" above, which
    records the current gap (`34 of 58`). Adding a part to the catalogue and stopping there produces an
