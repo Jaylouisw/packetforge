@@ -94,6 +94,29 @@ first path in each row wins, and each row isolates one step:
 | lower router ID last | `10.0.0.1` vs `10.0.0.2` | `-1` |
 | two identical paths | all defaults | `0` — deterministic, not arbitrary |
 
+**Three of those steps cannot fire in a live lab today.** They are real in `comparePaths()`, and the rows
+above prove it — but every path a running simulator builds carries the same value for each of them, so the
+comparison returns `0` and the walk moves on:
+
+| Step | What a lab actually puts on every path | Where that value is written |
+|---|---|---|
+| 1 `weight` | `0` | `simulator.js` sets `weight: 0` on both the originated and the received path |
+| 2 `LOCAL_PREF` | `100` | `localPreference: bgpLib.DEFAULT_LOCAL_PREF` on the originated path; inherited from `advertise()`, which fills `DEFAULT_LOCAL_PREF` when the route has none |
+| 6 `MED` | `0` | `med: 0` on the originated path; inherited from `advertise()`, which fills `DEFAULT_MED` |
+
+No verb in `engine/cli.js` assigns any of the three — there is no `set local-preference`, `set metric`, or
+`neighbor … weight` — so the only way to reach a non-zero value is to call `comparePaths()` directly, which is
+what two suites do: `test/bgp.test.js` (`med: 20` against `localPreference: 150`) and
+`test/protocol-regression.test.js`, which also pins the leak described in §2 by advertising a route carrying
+`localPreference: 150` and asserting `local preference survives the advertisement`. No other test file
+mentions either attribute. What *does* decide a real lab, in order: locally originated, then AS-path
+length, then `ORIGIN`, then eBGP over iBGP, then router ID, then neighbour address.
+
+```bash
+grep -cE '\b(localPreference|weight|med)[[:space:]]*[:=]' engine/cli.js   # 0 - no verb assigns them
+grep -lE '\b(localPreference|localPref|weight|med)[[:space:]]*[:=]' test/*.js  # the two files, nothing else
+```
+
 The MED row is the one to read carefully: the same comparison across *different* neighbouring ASes
 returns `-1`, so this simulator prefers the lower MED even when the paths came from different ASes.
 That is the simplification §4.5 exists to remove, and it is why the elimination pipeline cannot be
