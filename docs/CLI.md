@@ -41,6 +41,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
 | `show access-lists [<name>]` | the list with its per-line match counters |
+| `show interfaces switchport [<port>]` | the L2 state of every physical port in one answer, or one port: mode, access VLAN or trunking, voice VLAN, port security, description |
 | `show interfaces trunk [<port>]` | trunk ports in three sections: mode, encapsulation, status and native VLAN; the VLANs allowed; the ones that exist; and what the spanning tree forwards. Says which trunks have no link, and which carry no VLAN the tree forwards |
 | `show ip access-lists [<name>]` | the same table under the spelling IOS documents - one handler, one table |
 | `show ip traffic` | per-port totals: packets and bytes each way, drops with their reasons. Says plainly that a per-protocol breakdown is not counted |
@@ -1312,8 +1313,8 @@ Three things that transcript shows honestly:
   actually forwards is marked `*`. The `AD` column is the reason: static is 1, OSPF is 110, so the
   OSPF row is a candidate and not a second live path. Row order is not preference order — the next
   hop that forwards is the one `traceroute` follows. The distances are the same ones `routeTo()`
-  breaks ties with (`Device.ADMIN_DISTANCE`), not a display convention, and `test/route-
-  installed.test.js` checks every starred row against `routeTo()`.
+  breaks ties with (`Device.ADMIN_DISTANCE`), not a display convention, and
+  `test/route-installed.test.js` checks every starred row against `routeTo()`.
 - **The `at` form leaves the table as it computed it**, exactly as `ping … at` re-bases the run.
   The state sticks; `at converged` puts it back to the fully-converged lab.
 
@@ -1555,6 +1556,39 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### The whole switch's L2 state in one answer
+
+```
+SW1#show interfaces switchport
+% "show interfaces switchport" is not a command here
+% A port's L2 state is split across three tables: ...
+```
+
+The per-port block existed (`show interfaces <port> switchport`) and the family form did not, so
+reading a 24-port switch meant twenty-four commands or a script — for a table the console could print in
+one go from records it already had. It prints one block per physical port now, and a port named after it
+narrows to that port:
+
+```
+SW1#show interfaces switchport
+Name: Fa0/1
+  Administrative Mode: static access
+  Operational Mode: static access
+  Access Mode VLAN: 10 (VLAN0010)
+  Voice VLAN: none
+  Port Security: Disabled
+  Description: desk port
+
+Name: Fa0/2
+  Administrative Mode: trunk
+  ...
+```
+
+A named port's block is byte-for-byte the block the per-port spelling prints — the suite checks that,
+because two spellings of one table drifting apart is the failure mode this console keeps having. An SVI
+is named as a logical interface, a router says none of its ports has switchport state, and a second word
+after the port is refused rather than dropped.
 
 ### The trunk table
 
