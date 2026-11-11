@@ -496,6 +496,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The interface block asks the capability question too, and a NAT role needs a device that translates.**
+  The previous pass wired the gate into the configuration dispatcher only, so the same families still
+  answered inside an interface block, and `ip nat inside` was granted on a box that rewrites nothing.
+  Measured before and after `c15a8547`, on `advantech/ICR-3231` (a host, port `eth0`) and
+  `arista/7050SX3` (`l2-forward`, `l3-forward`, `cli` — it translates nothing, port `Et1`):
+
+  ```
+  no spanning-tree cost     was: Spanning tree cost on eth0 is already the speed-derived default
+                            now: % PC1 - it runs no spanning tree, because it has no bridged domain to protect
+  ip nat inside   (on SW1)  was: Interface Et1 is NAT inside
+                            now: % SW1 does not translate addresses, so no port on it can be a NAT inside or
+                                 % outside interface - it routes, but it rewrites nothing
+  no ip nat inside          was: Interface Et1 is no longer NAT inside
+                            now: % Interface Et1 is not a NAT interface - there is no role to remove (and SW1
+                                 % does not translate addresses at all)
+  ```
+
+  A host gets its own wording, because it fails the routing test first: `ip nat inside` answers
+  `% PC1 does not route - NAT rewrites addresses between two routed interfaces, and this device has
+  none`. The refusals that were correct statements without a marker now carry `%`, so a transcript
+  cannot read a refusal as success.
+
+  **The guard for the family.** `test/capability-gate.test.js` now sweeps one device from each of the 25
+  categories in exec, configuration and interface mode, typing every help row — including the rows the
+  device is *not* shown, with placeholders filled — and fails when the capability oracle refuses a line
+  the parser still takes. It reads **150 passed, 1 failed** on `c15a8547`: the sweep refuses 2,966 rows,
+  and the disagreement is the IPv6 routing family on l2-only devices (`ipv6 route …` and
+  `no ipv6 unicast-routing` answered on a `switch` and an `ont`).
+
+  Two gaps stay open, measured, and documented rather than papered over: the NAT **rule** is still
+  accepted on a box that cannot translate (`ip nat inside source static …` on `arista/7050SX3` answers
+  `NAT rule added on SW1: …` and `show ip nat statistics` counts `rules 1 (static 1)`), and the IPv6
+  routing disagreement above. See [docs/CLI.md](docs/CLI.md).
+
 - **A verb family is refused by capability, before the syntax question — and the `no` half is gated too.**
   The `?` page was capability-filtered; the parser was not, so a device that bridges nothing, routes
   nothing and serves no DHCP still answered the removals of those families, and answered four of them

@@ -1631,51 +1631,6 @@ address would be exactly backwards. The three failures stay distinct, and each n
 
 ### A verb family is refused where the device has no such state
 
-### The gate covers the interface block too, and the NAT table needs a device that translates
-
-The capability gate from the previous pass was wired into the configuration dispatcher only, so the
-interface block still answered for families the device does not have:
-
-```
-PC1(config-if)#no spanning-tree cost
-Spanning tree cost on eth0 is already the speed-derived default
-```
-
-A cost on a device with no bridge, "restored". The block now asks the same question, in the block's own
-words (`% PC1 - it runs no spanning tree, because it has no bridged domain to protect`), and a switch
-keeps `spanning-tree cost 20`.
-
-Probing the gate from the other side found the NAT family accepting a role on devices that cannot
-translate:
-
-```
-7050SX3(config-if)#ip nat inside
-Interface Et1 is NAT inside          <- the catalogue says this box translates nothing
-PC1(config)#show ip nat translations
-NAT translations on PC1:             <- an empty table, which reads as "nothing yet"
-```
-
-- **`ip nat inside|outside` needs a device that translates.** An L3 switch passed the routing test and
-  was given a NAT role; the refusal is the page's own (*it does not translate addresses*). The removal
-  half keeps its own sentence, now with the marker every other refusal carries: `% eth0 is not a NAT
-  interface - there is no role to remove (and PC1 does not translate addresses at all)`.
-- **A NAT *rule* removal follows the rule's capability.** `no ip nat inside source …` was offered on a
-  switch and a PC while the positive form was hidden - the same "removal of a setting the device cannot
-  have" that `no ip dhcp pool` had. The NAT *views* and the clear are the opposite case: they answer on
-  every device on purpose, so an empty table plus the command that writes a rule is the honest answer,
-  and the page offers them everywhere they answer.
-- **A refusal carries the `%` marker.** `% eth0 is NAT inside, not outside` and the sentence above were
-  correct statements with no marker, so anything grepping a transcript for failure read them as success.
-
-**The guard for the whole family of defects.** The suite now sweeps the catalogue: for one device in
-each of the 25 categories, in exec, configuration and interface mode, it takes every row - including the
-rows the device is *not* shown - fills the placeholders, and types the line. When the capability oracle
-refuses the line, the parser must refuse it too. **2,601 oracle-refused rows, 0 disagreements**; the
-sweep runs in about six seconds and a family that accepts on an incapable device now fails the suite
-instead of shipping.
-
-
-
 The `?` page is capability-filtered; the parser was not. On a camera, a server and an AP - none of which
 bridges, routes, or serves DHCP:
 
@@ -1715,6 +1670,58 @@ run BGP`, `% R1 does not bridge - spanning tree runs on switches` - and preempti
 generic sentence would be a worse answer, so they are left alone. So is `ip route`: a host here carries
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
+
+### The gate covers the interface block too, and the NAT table needs a device that translates
+
+The capability gate from the previous pass was wired into the configuration dispatcher only, so the
+interface block still answered for families the device does not have:
+
+```
+PC1(config-if)#no spanning-tree cost
+Spanning tree cost on eth0 is already the speed-derived default
+```
+
+A cost on a device with no bridge, "restored". The block now asks the same question, in the block's own
+words (`% PC1 - it runs no spanning tree, because it has no bridged domain to protect`), and a switch
+keeps `spanning-tree cost 20`.
+
+Probing the gate from the other side found the NAT family accepting a role on devices that cannot
+translate:
+
+```
+7050SX3(config-if)#ip nat inside
+Interface Et1 is NAT inside          <- the catalogue says this box translates nothing
+PC1(config)#show ip nat translations
+NAT translations on PC1:             <- an empty table, which reads as "nothing yet"
+```
+
+- **`ip nat inside|outside` needs a device that translates.** An L3 switch passed the routing test and
+  was given a NAT role; the refusal is the page's own (*it does not translate addresses*). The removal
+  half keeps its own sentence, now with the marker every other refusal carries: `% Interface net1 is not
+  a NAT interface - there is no role to remove (and PC1 does not translate addresses at all)`.
+- **The NAT *role* is gated; the NAT *rule* is not, everywhere.** Measured on `arista/7050SX3`
+  (`l2-forward`, `l3-forward`, `cli` - it translates nothing):
+  `ip nat inside source static 10.0.0.5 203.0.113.5` still answers `NAT rule added on SW1: static
+  10.0.0.5 -> 203.0.113.5`, and `show ip nat statistics` counts it (`rules 1 (static 1)`) while
+  `show ip nat translations` says `1 rule configured`. The role on the same box is refused, so the
+  two halves of the family disagree. On a **host** the whole family is absent from its page, which is
+  why `no ip nat inside source …` there answers `% Unrecognized command` rather than a capability
+  sentence - the same line gets two different answers depending on which side of the gate the device
+  falls. The sweep below reports the switch case; it is a defect, not a decision. The NAT *views* and
+  the clear are the opposite case on purpose: they answer on every device, so an empty table plus the
+  command that writes a rule is the honest answer.
+- **A refusal carries the `%` marker.** `% eth0 is NAT inside, not outside` and the sentence above were
+  correct statements with no marker, so anything grepping a transcript for failure read them as success.
+
+**The guard for the whole family of defects.** The suite now sweeps the catalogue: for one device in
+each of the 25 categories, in exec, configuration and interface mode, it takes every row - including the
+rows the device is *not* shown - fills the placeholders, and types the line. When the capability oracle
+refuses the line, the parser must refuse it too. On `c15a8547` the sweep refused **2,966** rows and the
+suite read **150 passed, 1 failed** - the one failure being the IPv6 routing family on l2-only devices
+(`switch`, `ont`: `ipv6 route 2001:db8:9::/64 …` and `no ipv6 unicast-routing` are answered although the
+oracle refuses them), which is exactly the shape of defect the sweep exists to catch. The sweep runs in
+about six seconds, and a family that accepts on an incapable device now fails the suite instead of
+shipping.
 
 ### Every device is shown only rows it takes
 
