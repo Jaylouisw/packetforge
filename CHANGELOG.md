@@ -496,6 +496,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Five families stop dropping a word they do not take.** A word past the last argument used to be
+  ignored silently, so the command answered as if it had not been typed. Measured on `f197e34e^` and
+  again on `f197e34e`:
+
+  | typed at the prompt | before | now |
+  |---|---|---|
+  | `ip dhcp pool lab zzzz` | `Created DHCP pool lab` | `% Unexpected argument "zzzz" - ip dhcp pool <name> takes one name` / `% A pool name has no spaces: "ip dhcp pool lab"` |
+  | `router bgp 65001 zzzz` | `BGP enabled, local AS 65001` | `% Unexpected argument "zzzz" - router bgp <as> takes one AS number` |
+  | `dns zone lab zzzz` | `DNS zone lab ready` | `% Unexpected argument "zzzz" - dns zone <name> takes one name` / `% The zone name is the apex, e.g. "dns zone lab.example"` |
+  | `ipv6 gateway 2001:db8:9::1 zzzz` | gateway set | `% Unexpected argument "zzzz" - ipv6 gateway <addr> takes one address` |
+  | `ip helper-address 10.0.0.1 zzzz` | `Helper address 10.0.0.1 on Gi0/0 …` | `% Unexpected argument "zzzz" - ip helper-address <addr> takes one address` / `% A second server is a second line: repeat "ip helper-address <addr>"` |
+
+  Three slots stay free text and are listed rather than guessed at — `description lab zzzz` answers
+  `Description set on Gi0/0: "lab zzzz"`, `hostname` takes "the whole rest of the line, spaces included",
+  and `vlan 10 name foo bar` answers `VLAN 10 created (name: foo bar)`. A refusal also changes nothing:
+  `no ipv6 gateway zzzz` refuses and `show ipv6 route` still prints `S ::/0 254 2001:db8:9::1`.
+  `test/stray-argument.test.js` types every configuration row on one device from each of the 25
+  catalogue categories with a junk word appended — **26 assertions**, all passing. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **`copy startup-config running-config` no longer says it applied lines it only read.** The two halves
   of the answer could contradict each other, and a count is not a report. Measured on a router whose
   saved copy was already in force, before and after `0cb9bd5d`:
