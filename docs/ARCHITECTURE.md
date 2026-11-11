@@ -416,6 +416,43 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### A position is a place, not just a number
+
+Two doors set a device's position: `POST /api/topologies/:name/layout` (the drag, and
+the tidy-up button) and `Topology.fromJSON()` when a document is loaded. Both asked
+for `{ x, y }` with two **finite** numbers, and the endpoint kept its own copy of that
+sentence inline while the engine asked `isPosition()`.
+
+`1e308` is finite and it is not a place. `fitView()` takes the board's width as the
+largest x minus the smallest; for two such positions that is `Infinity`, zoom clamps to
+its 0.25 floor, `translate()` is handed `-1e308`, and the canvas draws nothing — with
+"Fit to view" computing the same arithmetic, so the board cannot be recovered from the
+UI at all. The lab is not lost; it just cannot be seen, which for a person is the same
+thing.
+
+The rule now lives in one place, `engine/topology.js`:
+
+- `WORLD_LIMIT = 1e6` — pixel positions within a million of the origin. Generous on
+  purpose: a person drags across a canvas, and the biggest lab the catalogue can build
+  spans tens of thousands. It exists so the framing arithmetic stays finite.
+- `isPosition(p)` — two finite numbers inside that world; `positionProblem(p)` — why
+  something is not, in words, so a refusal and the rule cannot disagree.
+- Both doors ask it. A bad entry is refused with `E_BAD_POSITION` and the reason, and
+  **nothing is stored**; on load the entry is dropped and reported as
+  `E_LAYOUT_BAD_ENTRY` ("outside the canvas - x and y are pixel positions within
+  1000000 of the origin"), so the board still opens.
+- `positions` that is not a map is `400` rather than `200 {ok:true}` that changed
+  nothing; an id that is not on the board comes back in `ignored`, because a client a
+  moment behind a delete should not be lied to.
+- `web/canvas.js` `fitView()` checks its own result: if the centre of what it measured
+  does not land inside the viewport, the framing failed and the default view is the
+  honest answer. That covers documents written before the limit existed.
+
+`test/layout-positions.test.js` walks one table of shapes through both doors and
+requires them to answer identically, then loads the real `web/canvas.js` in a stub DOM
+and asserts the property the limit exists for: every position the doors accept is one
+`fitView()` can frame.
+
 ### Port names in URLs
 
 A port name is not one path segment: `1/1/1`, `Fa0/1`, `Gi0/0/2`. `POST /api/topologies/:name/interfaces/:device/:port`

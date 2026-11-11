@@ -8,7 +8,7 @@ const zlib = require('zlib');
 const crypto = require('crypto');
 const { URL } = require('url');
 
-const { Topology, Simulator, CliSession, flow } = require('../engine');
+const { Topology, Simulator, CliSession, flow, isPosition, positionProblem, WORLD_LIMIT } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
 const { validateTopology } = require('../engine/validation');
 const media = require('../engine/media');
@@ -1101,30 +1101,39 @@ async function handleApi(req, res, urlPath) {
     // /layout
     if (parts[3] === 'layout' && parts.length === 4 && method === 'POST') {
       const body = await readBody(req);
-      if (body.positions && typeof body.positions === 'object' && !Array.isArray(body.positions)) {
-        // Every position is checked before any is stored, so a bad entry cannot half-apply a layout. The canvas
-        // draws `pos.x` directly: a string put the box at NaN and nothing said why (#1325).
-        const bad = [];
-        for (const id of Object.keys(body.positions)) {
-          const p = body.positions[id];
-          if (!topo.devices.has(id)) continue;
-          if (!p || typeof p !== 'object' || typeof p.x !== 'number' || !isFinite(p.x) ||
-              typeof p.y !== 'number' || !isFinite(p.y)) {
-            bad.push(id + ': ' + JSON.stringify(p));
-          }
-        }
-        if (bad.length) {
-          return sendJSON(res, 400, {
-            code: 'E_BAD_REQUEST',
-            error: 'a position must be { x, y } with two numbers - ' + bad.slice(0, 3).join('; ')
-          });
-        }
-        for (const id of Object.keys(body.positions)) {
-          if (topo.devices.has(id)) topo.layout[id] = { x: body.positions[id].x, y: body.positions[id].y };
-        }
+      const positions = body && body.positions;
+      // This door kept its own copy of the rule - not `{ x, y }`, two *finite* numbers - while the engine asked
+      // `isPosition()`, so the two could answer differently and did: `1e308` passed both, and a board holding it
+      // opened blank with `translate(-Infinity)` and could not be framed back (#1421). It now asks the engine.
+      if (!positions || typeof positions !== 'object' || Array.isArray(positions)) {
+        return sendJSON(res, 400, {
+          code: 'E_BAD_REQUEST',
+          error: 'positions must be a map of device id to { x, y } - got ' +
+            (positions === undefined ? 'nothing' : Array.isArray(positions) ? 'an array' : typeof positions)
+        });
+      }
+      // Every position is checked before any is stored, so a bad entry cannot half-apply a layout. The canvas
+      // draws `pos.x` directly: a string put the box at NaN and nothing said why (#1325).
+      const bad = [];
+      const ignored = [];
+      for (const id of Object.keys(positions)) {
+        if (!topo.devices.has(id)) { ignored.push(id); continue; }
+        if (!isPosition(positions[id])) bad.push(id + ': ' + JSON.stringify(positions[id]) + ' is ' + positionProblem(positions[id]));
+      }
+      if (bad.length) {
+        return sendJSON(res, 400, {
+          code: 'E_BAD_POSITION',
+          error: 'a position must be { x, y } with two numbers within ' + WORLD_LIMIT + ' of the origin - ' +
+            bad.slice(0, 3).join('; ')
+        });
+      }
+      for (const id of Object.keys(positions)) {
+        if (topo.devices.has(id)) topo.layout[id] = { x: positions[id].x, y: positions[id].y };
       }
       broadcast(topoId);
-      return sendJSON(res, 200, { ok: true });
+      // An id that is not on the board is not an error - a client may be a moment behind a delete - but it is the
+      // sort of thing a person would want to know, so it is reported instead of dropped in silence.
+      return sendJSON(res, 200, { ok: true, ignored: ignored });
     }
 
     // /load  (import a full topology document)

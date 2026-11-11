@@ -627,6 +627,7 @@
       return;
     }
 
+
     const bw = Math.max(1, maxX - minX);
     const bh = Math.max(1, maxY - minY);
     const availW = Math.max(50, vw - pad * 2);
@@ -640,6 +641,23 @@
     view.zoom = zoom;
     view.panX = pad + (availW - bw * zoom) / 2 - minX * zoom;
     view.panY = pad + (availH - bh * zoom) / 2 - minY * zoom;
+
+    // Framing the board has to show the board.
+    //
+    // A position that is a number and not a place (#1421) - `1e308`, from a document written before positions were
+    // bounded, or hand-edited - makes the pan land ~1e308 away or divide a width of `Infinity` down to nothing, and
+    // the canvas then draws an empty rectangle. That looks exactly like an empty board, and the one button meant to
+    // recover it computes the same arithmetic. So the view is checked against the thing it was computed for: if the
+    // centre of what was measured does not land inside the viewport, the framing failed and the default view is the
+    // honest answer - the devices are still in the palette and the inspector, and the wireframe is theirs to fix.
+    const centreX = (minX + maxX) / 2;
+    const centreY = (minY + maxY) / 2;
+    const onScreenX = view.panX + centreX * view.zoom;
+    const onScreenY = view.panY + centreY * view.zoom;
+    if (!isFinite(onScreenX) || !isFinite(onScreenY) ||
+        onScreenX < 0 || onScreenX > vw || onScreenY < 0 || onScreenY > vh) {
+      view.zoom = 1; view.panX = 60; view.panY = 40;
+    }
     applyView();
   }
   function zoomBy(f) {
