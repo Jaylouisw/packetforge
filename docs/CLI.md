@@ -86,6 +86,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show ipv6 interface [<port>] [at <ms>\|converged]` | which ports hold a v6 address, and where each came from |
 | `show ipv6 route [<dest>] [at <ms>\|converged]` | the IPv6 table, or the longest match for one destination |
 | `show dns` | zones, records and configured name servers ([DNS](#dns)) |
+| `show hosts` | default domain, name servers, and the names this device has resolved ([resolver](#show-hosts---what-the-resolver-will-ask-and-what-it-has-answered)) |
 | `nslookup <name> [type]` | ask this device's zones, then the lab's resolvers ([DNS](#dns)) |
 | `show scion` | membership, segments, peers and reachability ([SCION](#scion)) |
 | `show scion paths [<isd-as>]` | composed paths, and the one `pingScion()` would carry |
@@ -1556,6 +1557,36 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### `show hosts` - what the resolver will ask, and what it has answered
+
+A router that resolves names had no view of its own resolver: `ip domain-name` and `ip name-server`
+were accepted, `ping <name>` translated, and `show hosts` answered `% Invalid show command: hosts`.
+The one place an operator checks "did that name resolve, and to what" did not exist.
+
+```
+R1#show hosts
+Default domain is lab.example
+Name lookup is enabled
+Name servers are 10.0.0.53
+
+Host               Address    Type     Age
+host1.lab.example  10.0.0.53  dynamic  now
+nosuch.lab.example unresolved failed   now
+
+% 1 name did not resolve - the reason is in
+% "show logging" (the resolver event) and the zone is on the server that answered
+```
+
+With nothing resolved yet it says so and names the command that would fill the table, rather than
+printing an empty header. A disabled lookup is stated with the command that turns it back on, and a
+lookup refused because of it is still recorded as a fact: the box tried, and what it did is history.
+
+The table is **per device**: it lists what this box asked, not what the lab asked. That is why each
+lookup is recorded against the device that made it - a name resolution is a property of the resolver,
+not of the network around it. The records live beside the event log rather than inside it, because a
+command is free to rebuild the log while it runs (a ping does), and a view that read lookups out of
+the log showed nothing after the very ping that filled it.
 
 ### Every carrier declares the VLAN it names
 

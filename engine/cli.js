@@ -6528,7 +6528,21 @@ class CliSession {
   // `ping www.lab.test` and `nslookup www.lab.test` cannot disagree. This existed nowhere:
   // `ping <name>` was refused outright while docs/CLI.md described the resolver path as
   // "the same one `ping <name>` uses".
+  // Every name this console resolves is recorded on the device's own timeline, wherever the answer
+  // came from - a zone served by another device, the simulator's resolver, or `no ip domain-lookup`.
+  // Without this `show hosts` had nothing to show: the console resolved names and reported the
+  // answer in the ping's output, and then forgot it.
   _resolveHost(text, label) {
+    const res = this._resolveHostOnce(text, label);
+    try {
+      if (this.sim && typeof this.sim.recordDnsLookup === 'function') {
+        this.sim.recordDnsLookup(this.device.id, String(res && res.asked ? res.asked : text), res || {});
+      }
+    } catch (e) { /* a view must not fail because a log entry could not be written */ }
+    return res;
+  }
+
+  _resolveHostOnce(text, label) {
     const dev = this.device;
     const dnsLib = require('./dns');
     const what = label || 'target';
@@ -8727,6 +8741,8 @@ class CliSession {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'ospf') {
       out.push.apply(out, this._showOspf(tokens.slice(2)));
+    } else if (what === 'hosts') {
+      out.push.apply(out, this._showHosts());
     } else if (what === 'dns' || (what === 'ip' && tokens[1] === 'dns')) {
       out.push.apply(out, this._showDns());
     } else if (what === 'ip' && tokens[1] === 'nat') {
@@ -10511,6 +10527,58 @@ class CliSession {
       out.push('% ' + empty.map(function (i) { return i.name; }).join(', ') +
         ' carr' + (empty.length === 1 ? 'ies' : 'y') + ' no VLAN the spanning tree forwards:');
       out.push('% "show vlan" lists the VLANs that exist, and "show running-config" the allowed list');
+    }
+    return out;
+  }
+
+  // `show hosts` is the resolver's own view: the default domain, the servers it will ask, and the
+  // names it has answered for. This console had `ip domain-name` and `ip name-server` accepted and
+  // resolved names on `ping`, but the command answered `% Invalid show command: hosts` - so the one
+  // place an operator checks "did that name resolve, and to what" did not exist.
+  _showHosts() {
+    const dev = this.device;
+    const out = [];
+    const cfg = dev.config || {};
+    const domain = cfg.domainName || cfg.domain || null;
+    const servers = (cfg.dnsServers || cfg.nameServers || []).slice();
+    // The durable list, not the event log: a command may rebuild the log while it runs.
+    const store = this.sim && Array.isArray(this.sim.dnsLookups) ? this.sim.dnsLookups
+      : (this.sim && Array.isArray(this.sim.events) ? this.sim.events : []);
+    const lookups = store.filter(function (e) {
+      return e && e.type === 'dns' && e.dev === dev.id;
+    });
+    const newest = new Map();
+    for (const e of lookups) {
+      const prev = newest.get(e.qname);
+      if (!prev || (e.step || 0) >= (prev.step || 0)) newest.set(e.qname, e);
+    }
+    out.push('Default domain is ' + (domain || '(none - an unqualified name is asked as typed)'));
+    out.push('Name lookup is ' + (cfg.domainLookup === false ? 'disabled' : 'enabled') +
+      (cfg.domainLookup === false ? ' ("ip domain-lookup" turns it back on)' : ''));
+    out.push('Name servers are ' + (servers.length ? servers.join(', ')
+      : '(none - "ip name-server <address>" names one)'));
+    if (!newest.size) {
+      out.push('');
+      out.push('No name has been resolved here since this lab started');
+      out.push('A "ping <name>" asks the servers above and records the answer here');
+      return out;
+    }
+    out.push('');
+    const now = this.sim && typeof this.sim.step === 'number' ? this.sim.step : 0;
+    const rows = [];
+    const names = Array.from(newest.keys()).sort();
+    for (const name of names) {
+      const e = newest.get(name);
+      const age = Math.max(0, now - (e.step || 0));
+      const ageText = age === 0 ? 'now' : (age < 60 ? age + 's' : Math.round(age / 60) + 'm');
+      rows.push([name, e.ok ? (e.address || '-') : 'unresolved', e.ok ? 'dynamic' : 'failed', ageText]);
+    }
+    out.push.apply(out, renderTable(['Host', 'Address', 'Type', 'Age'], rows));
+    const failed = rows.filter(function (r) { return r[2] === 'failed'; }).length;
+    if (failed) {
+      out.push('');
+      out.push('% ' + failed + ' name' + (failed === 1 ? ' did' : 's did') + ' not resolve - the reason is in',
+        '% "show logging" (the resolver event) and the zone is on the server that answered');
     }
     return out;
   }
@@ -12392,6 +12460,7 @@ class CliSession {
       helpLine('show ip nat translations', 'NAT entries the data path wrote'),
       helpLine('show ip nat statistics', 'rules, entries and hits'),
       helpLine('show dns', 'zones, records and resolvers'),
+      helpLine('show hosts', 'default domain, name servers, and the names this device has resolved'),
       helpLine('show scion', 'membership, segments and reachability'),
       helpLine('show scion paths [<isd-as>]', 'composed paths, and the best of them'),
       helpLine('show ipv6 nd', 'what this device would advertise'),

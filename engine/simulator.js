@@ -744,11 +744,11 @@ class Simulator {
     let dnsResult = null;
     if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(String(dstIp))) {
       dnsResult = this.resolveName(src, String(dstIp));
-      this._emit({
-        type: 'dns', qname: String(dstIp), ok: !!dnsResult.ok,
-        address: dnsResult.address || null, server: dnsResult.server || null,
-        rcode: dnsResult.rcode, status: dnsResult.status || null
-      });
+      // The same entry point the console's own resolution uses, so a lookup made by traffic and a
+      // lookup made by `ping <name>` are the same fact recorded once.
+      this.recordDnsLookup(srcId, String(dstIp), Object.assign({}, dnsResult, {
+        ok: !!dnsResult.ok, ip: dnsResult.address || null
+      }));
       if (!dnsResult.ok) {
         return {
           events: this.events,
@@ -1319,6 +1319,32 @@ class Simulator {
       if (state.byIp && state.byIp.get(lease.ip) === mac) state.byIp.delete(lease.ip);
     }
     return cleared;
+  }
+
+  // One name resolution, recorded against the device that asked. The CLI resolves names in more
+  // than one place (a zone on any device, the resolver here, a disabled lookup), so this is the one
+  // entry point every answer goes through, and `show hosts` reads the timeline rather than keeping a
+  // second copy of the same facts.
+  recordDnsLookup(devId, qname, result) {
+    if (!devId || !qname) return null;
+    const dev = this.topo.getDevice(devId);
+    const e = {
+      type: 'dns', dev: devId, clientName: dev ? dev.name : null, qname: String(qname),
+      ok: !!(result && result.ok), address: (result && result.ip) || null,
+      server: (result && result.server) || null,
+      // NOERROR is 0, so `|| null` turned a successful rcode into "no rcode at all".
+      rcode: (result && result.rcode !== undefined && result.rcode !== null) ? result.rcode : null,
+      status: result && result.message ? 'refused' : null,
+      step: this.step
+    };
+    // Kept beside the event log rather than inside it: a command is free to rebuild `events` while
+    // it runs (a ping does), so a view that read lookups out of the log showed nothing after the very
+    // ping that filled it. What a name resolved to is a fact about the device, not about the last
+    // command's timeline.
+    if (!Array.isArray(this.dnsLookups)) this.dnsLookups = [];
+    this.dnsLookups.push(e);
+    this._emit(Object.assign({}, e));
+    return e;
   }
 
   dhcpBindings(devId) {
