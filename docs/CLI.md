@@ -1624,6 +1624,51 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### The address you point at has to be one that can answer
+
+A next hop is one neighbour's address. Four classes are not that, and three commands each accepted
+them separately:
+
+| Address | What it is | Why it cannot be a peer |
+|---|---|---|
+| `0.0.0.0` | the zero address | "this host on this network" names no wire |
+| `255.255.255.255` | limited broadcast | every host on the wire, so no one neighbour |
+| `224.0.0.0/4` | multicast group | a group does not answer, it listens |
+| `127.0.0.0/8` | loopback | this host, always, never the network |
+| `240.0.0.0/4` | reserved | no host may hold it |
+
+```
+R1(config)#ip route 10.9.0.0 255.255.255.0 127.0.0.1
+Route added: 10.9.0.0/24 via 127.0.0.1
+R1#show ip route
+  *  S 10.9.0.0/24  1  127.0.0.1  -        <- "this row forwards"
+R1#ping 10.9.0.9
+Success rate is 0 percent (0/4)
+```
+
+`ip route`, `ip helper-address` and `ip default-gateway` now share one classifier, so the same four
+classes are refused in the same words whichever command names them.
+
+Two more, of the same family and not the same shape:
+
+- **A link-local IPv6 next hop names a wire that was not named.** `ipv6 route 2001:db8:9::/64 fe80::1`
+  was installed; `fe80::1` is a different neighbour on every wire, so the route was unroutable by
+  construction. It is refused with the form that supplies the egress port.
+- **A route that cannot resolve is said out loud.** `*` means *installed by distance*, which an
+  operator reads as "the way out" — so an installed route whose next hop is neither on a connected
+  subnet nor covered by another route is reported under the table:
+
+```
+% 1 installed route has a next hop this router cannot reach:
+%   10.8.0.0/24 via 192.168.99.1 - not on a connected subnet, and no route covers it
+```
+
+A next hop that another route *does* cover is recursive and legitimate, and is not reported - the
+distinction the model's own lookup already makes.
+
+And `vlan 1` no longer answers *"VLAN 1 created"*: VLAN 1 exists before anything is configured, is
+never written to a saved copy, and cannot be removed. The command says that instead.
+
 ### A value that cannot work is refused for what it is
 
 Sweeping the values a command takes, rather than the commands themselves, found four addresses and a

@@ -1015,6 +1015,13 @@ class CliSession {
       }
       const id = parseInt(typed, 10);
       if (!(id >= 1 && id <= 4094)) return ['% VLAN ' + typed + ' is outside 1-4094'];
+      // VLAN 1 exists before anything is configured - it is the default VLAN, never written to a
+      // saved copy, and `no vlan 1` is refused. Reporting "VLAN 1 created" claimed an act the
+      // configuration does not record.
+      if (id === 1) {
+        return ['VLAN 1 is the default VLAN - every port starts in it and it cannot be created or removed',
+          'A VLAN you create gets its own id: "vlan 10 name users"'];
+      }
       if (!this.device.config.vlans) this.device.config.vlans = {};
       const existing = this.device.config.vlans[id];
       // Two spellings, one meaning. This console takes `vlan <id> [name]` on one line, but an
@@ -3179,6 +3186,15 @@ class CliSession {
       }
     } else if (net.isIp(target)) {
       gw = target;
+      // A next hop is the address of one neighbour. These four cannot be one, so the route was a row
+      // that claimed to forward (marked `*` in `show ip route`) with nothing that could ever answer
+      // its ARP: measured 0/4 replies while the same prefix via a real neighbour answered 4/4.
+      const kind = this._addressClass(gw);
+      if (kind) {
+        return ['% ' + gw + ' is ' + kind + ', so no neighbour can answer for it',
+          '% A static route forwards to one next-hop address: a host on a connected subnet',
+          '% Usage: ' + USAGE];
+      }
     } else if (this._ifaceNamed(target)) {
       // `ip route 192.168.2.0 255.255.255.0 Gi0/0` - the interface-only form IOS accepts on a
       // point-to-point link. Here it installs a route that forwards nothing: the lookup resolves the
@@ -3257,6 +3273,12 @@ class CliSession {
       return ['% "' + ip + '" is not an IPv4 address, so it cannot be a default gateway',
         '% Usage: ' + USAGE];
     }
+    const kind = this._addressClass(ip);
+    if (kind) {
+      return ['% ' + ip + ' is ' + kind + ', so it cannot be a default gateway',
+        '% A gateway is one unicast host on a directly connected subnet',
+        '% Usage: ' + USAGE];
+    }
     this.device.config.defaultGateway = ip;
     return ['Default gateway: ' + ip];
   }
@@ -3273,6 +3295,15 @@ class CliSession {
         '% e.g. "ipv6 route 2001:db8:1::/64 2001:db8::1"'];
     }
     if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + nh + '"'];
+    // A link-local next hop names no subnet: `fe80::1` on every wire is a different neighbour on each.
+    // IOS requires the egress interface with one, and without it the route is a row that cannot be
+    // resolved - accepted here as `2001:db8:9::/64 via fe80::1` with no port named anywhere.
+    if (/^fe[89ab][0-9a-f]:/i.test(String(nh))) {
+      return ['% ' + nh + ' is a link-local address, so it names a neighbour on one wire and not ' +
+        'which wire',
+        '% Give the route its egress interface: "ipv6 route ' + dest + ' ' + nh + ' <port>"',
+        '% Or use the neighbour\'s global address, which is unambiguous'];
+    }
     // A third word was dropped in silence: `ipv6 route 2001:db8:7::/64 2001:db8:1::2 250` answered
     // "IPv6 route ... via 2001:db8:1::2" and threw `250` away, so the operator who typed a distance
     // or an interface has no way to learn it was ignored.
@@ -9070,6 +9101,44 @@ class CliSession {
           return [(r.installed ? '*' : ''), r.code + ' ' + r.dest + '/' + net.prefixOf(r.mask),
             String(r.ad === undefined ? '-' : r.ad), r.gw, r.iface];
         }), 2));
+      // The caveat comes after the rows it qualifies: a reader scans the table first, and a warning
+      // printed above the header reads as part of the legend.
+      const strandedLines = [];
+      // An installed row whose next hop this router cannot reach is a route that will not forward,
+      // and nothing in the table said so: `*` means "installed by distance", which an operator reads
+      // as "this is the way out". Only gateways that are neither on a connected subnet nor covered by
+      // any other route are reported - a recursive next hop that *is* covered is legitimate.
+      const stranded = [];
+      for (const r of rows) {
+        if (!r.installed || !r.gw || r.gw === '-') continue;
+        const onWire = Array.from(dev.interfaces.values()).some(function (i) {
+          return i.enabled !== false && i.ip && i.mask &&
+            net.ipToInt(i.ip) !== null &&
+            (net.ipToInt(r.gw) & net.ipToInt(i.mask)) >>> 0 === (net.ipToInt(i.ip) & net.ipToInt(i.mask)) >>> 0;
+        });
+        if (onWire) continue;
+        const covered = rows.some(function (o) {
+          if (o === r) return false;
+          try {
+            const m = net.ipToInt(o.mask);
+            return ((net.ipToInt(r.gw) & m) >>> 0) === ((net.ipToInt(o.dest) & m) >>> 0);
+          } catch (e) { return false; }
+        });
+        if (!covered) stranded.push(r);
+      }
+      if (stranded.length) {
+        strandedLines.push('% ' + stranded.length + ' installed route' + (stranded.length === 1 ? '' : 's') +
+          ' ha' + (stranded.length === 1 ? 's' : 've') + ' a next hop this router cannot reach:');
+        for (const r of stranded.slice(0, 4)) {
+          strandedLines.push('%   ' + r.dest + '/' + net.prefixOf(r.mask) + ' via ' + r.gw +
+            ' - not on a connected subnet, and no route covers it');
+        }
+        if (stranded.length > 4) strandedLines.push('%   and ' + (stranded.length - 4) + ' more');
+      }
+      if (strandedLines.length) {
+        out.push('');
+        out.push.apply(out, strandedLines);
+      }
     } else if (what === 'ip' && tokens[1] === 'protocols') {
       out.push.apply(out, this._showIpProtocols(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'bgp') {
@@ -11151,6 +11220,22 @@ class CliSession {
   // A DISCOVER is a broadcast, so it dies at the first router; a relay agent turns it into a unicast
   // to a server elsewhere, stamping the port's own address into giaddr so the server knows which
   // subnet to allocate from. This is the config half; `Simulator.computeDhcp()` does the relaying.
+  // What an address *is*, when it is not a host address a wire could hold. One classifier for every
+  // command that takes a peer address, so `ip route`, `ip helper-address` and `ip default-gateway`
+  // refuse the same four classes in the same words - four commands used to accept them separately,
+  // each promise ("Route added", "requests will be relayed to it", "Default gateway") impossible.
+  _addressClass(addr) {
+    const net = require('./net');
+    let aInt = null;
+    try { aInt = net.ipToInt(String(addr)); } catch (e) { return null; }
+    if (aInt === 0) return 'the zero address (this host on this network)';
+    if (aInt === 0xffffffff) return 'the limited broadcast address (every host on this wire)';
+    if (aInt >= 0xe0000000 && aInt < 0xf0000000) return 'a multicast group address (class D)';
+    if (aInt >= 0xf0000000) return 'a reserved address (class E)';
+    if ((aInt >>> 24) === 127) return 'a loopback address (this host, always)';
+    return null;
+  }
+
   _helperAddress(args, iface) {
     const addr = args[0];
     if (addr === undefined) return ['% Incomplete command: ip helper-address <addr>'];
@@ -11160,12 +11245,7 @@ class CliSession {
     // this wire), 224.0.0.0/4 (a multicast group) and 127.0.0.0/8 (this host, always) - four
     // addresses that cannot answer, each of which would have been a relay that silently relayed
     // nothing. The class is named, because the fix differs: point it at a server address.
-    const aInt = require('./net').ipToInt(addr);
-    const kind = aInt === 0 ? 'the zero address (this host on this network)'
-      : aInt === 0xffffffff ? 'the limited broadcast address (every host on this wire)'
-        : aInt >= 0xe0000000 && aInt < 0xf0000000 ? 'a multicast group address (class D)'
-          : (aInt >>> 24) === 127 ? 'a loopback address (this host, always)'
-            : null;
+    const kind = this._addressClass(addr);
     if (kind) {
       return ['% ' + addr + ' is ' + kind + ', so nothing can answer a relayed request sent to it',
         '% A helper target is one unicast address: the server that will answer'];
