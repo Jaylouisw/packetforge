@@ -416,6 +416,41 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### One question, one answer: a lease is a fact about the lab
+
+A DHCP lease used to be stored as a property of a *run*: `this._dhcpStates` was rebuilt
+for every `Simulator`, and the server builds a fresh `Simulator` for every request. So the
+client and its server were always in different requests. Measured against a live server,
+with `r1 -- sw -- a/b` and both PCs on `ip address dhcp`:
+
+```
+request 1 (a pings)          -> a holds 10.91.0.10
+request 2 (the board is read) -> a eth0 ip: 10.91.0.10     <- the client's half says yes
+request 3 (r1 is asked)      -> "% no leases: nothing has asked this server for an address yet"
+                                "In use: 0 of 41 address(es)"   <- the server's half says no
+```
+
+Two answers to one question, in one payload. And because every request started with an
+empty allocator, the next client was handed the address the first already held — a conflict
+the lab created and could not report. Inside one run the allocator also never honoured an
+existing lease, so the clients traded addresses on every exchange (`.10 -> .12 -> .11`
+across three runs) and no run could hold still.
+
+So: lease state lives on the **topology** (`topo.dhcpStates`), exactly like the flow table.
+
+- `show ip dhcp binding` in a later request sees the leases the earlier ones granted;
+- `handleDiscover()` offers a client **the address it already holds** before the next free
+  one, so a renewal keeps the address and two clients never trade;
+- `/reset` clears the leases *and* the addresses they produced, together — clearing one
+  without the other is the original contradiction. A typed address is configuration and
+  stays; a DHCP-assigned one is runtime and goes;
+- a deleted server device forgets its lease table (`Simulator.forgetDhcpState`), so a
+  re-created id does not inherit the dead one's bindings;
+- `leaseTable()` rows always carry their `pool`, and `show ip dhcp pool` counts a lease by
+  membership in the pool, so `In use:` is a fact and not `0 of 41` while two leases stand —
+  and never prints `undefined` for a pool that cannot serve yet.
+
+`test/dhcp-lease-one-answer.test.js` pins all of it, 23 checks, against a real server.
 ### A conversation cannot outlive its path
 
 The flow table belongs to the topology, and nothing told it when the topology changed. With

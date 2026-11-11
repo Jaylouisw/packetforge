@@ -627,6 +627,17 @@ function handleDiscover(pool, state, req) {
     return offerMessage(p, net.intToIp(want));
   }
 
+  // A client that already holds a lease is offered **the address it holds** (#1429).
+  //
+  // Without this the allocator answered every DISCOVER with the next free address, so a client that came back - a
+  // renewal, a second ping in the same lab, any run at all - was moved to a different address, and two clients ended
+  // up trading addresses on every request (.10 -> .12 -> .11 between runs). Nothing was broken in any single exchange;
+  // the lab simply could not hold still, and every expectation written against an address was wrong a run later.
+  const held = s.leases.get(mac);
+  if (held && ipInPool(p, held.ip) && isAllocatable(p, s, parseIp(held.ip), mac)) {
+    return offerMessage(p, held.ip);
+  }
+
   const free = nextFreeIp(p, s);
   if (free === null) return null;
   return offerMessage(p, free);
@@ -751,6 +762,10 @@ function leaseTable(state, step) {
     const lease = s.leases.get(mac);
     if (!lease) continue;
     const row = { mac: mac, ip: lease.ip, expiresStep: lease.expiresStep };
+    // The row's pool is the one the lease was granted from (#1429). It used to be undefined whenever the caller did
+    // not pass `step`, so `show ip dhcp pool` printed "-" in the Pool column and counted 0 leases for a pool that was
+    // holding them - the address and its pool are one fact, and it was being dropped half the time.
+    if (row.pool === undefined) row.pool = lease.pool === undefined ? null : lease.pool;
     if (now !== null) {
       const expiresStep = Number(lease.expiresStep);
       row.pool = lease.pool === undefined ? null : lease.pool;

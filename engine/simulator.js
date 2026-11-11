@@ -156,10 +156,21 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
-    // Lease state per server device, rebuilt each run: a lease is a property of a run, not of the
-    // topology, and a stale one would make the second ping in a lab answer with an address nobody
-    // was offered.
-    this._dhcpStates = new Map();
+    // Lease state per server device, held on the **topology**, not on this run (#1429).
+    //
+    // It used to be rebuilt for every run, on the reasoning that a lease is a property of a run. Two things were wrong
+    // with that. The server builds a fresh simulator for every request, and a client and its server are always in
+    // different requests, so `show ip dhcp binding` could never show a lease: the board said client `h1` held
+    // 10.90.0.10 from `r1` while `r1` said "nothing has asked this server for an address yet" - two answers to one
+    // question, in one payload. And because every request started with an empty allocator, a second client served in a
+    // later request was handed the address the first one already holds - a conflict the lab created and could not
+    // report.
+    //
+    // A lease is a fact about the lab, like the address the client is holding: it belongs with the topology, it survives
+    // the request, and `/reset` clears it together with the addresses it produced.
+    this._dhcpStates = this.topo
+      ? (this.topo.dhcpStates || (this.topo.dhcpStates = new Map()))
+      : new Map();
     this.dhcpLeases = [];
     // reset() rewinds a run, not the connection table: a ping must not tear down
     // somebody's TCP session.
@@ -977,6 +988,15 @@ class Simulator {
   // One conversion, in one place, so a lease granted at t=5000 ms is not stamped as if it were granted at 0.
   _dhcpNowSec() {
     return Number.isFinite(this.runAtMs) ? Math.floor(this.runAtMs / 1000) : null;
+  }
+
+  // A deleted server takes its lease table with it, the same way a deleted device takes its counters (#1427, #1429):
+  // otherwise a device created later with the same id inherits the dead one's bindings.
+  static forgetDhcpState(topo, devId) {
+    if (!topo || !topo.dhcpStates) return false;
+    if (!topo.dhcpStates.has(devId)) return false;
+    topo.dhcpStates.delete(devId);
+    return true;
   }
 
   // The server's own binding table, as a plain sorted array. The exchange has always recorded leases and nothing

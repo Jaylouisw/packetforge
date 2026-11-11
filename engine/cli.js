@@ -2315,11 +2315,20 @@ class CliSession {
           ? resKeys.map(function (m) { return res[m] + ' (' + m + ')'; }).join(', ')
           : 'none'));
         if (!check.ok) {
-          out.push('  In use:         no - ' + check.error);
+          // A pool that is not serving yet says why. It used to print `undefined`, because the verdict carries an
+          // `errors` array and this read `check.error` (#1429).
+          const why = (check.errors && check.errors[0] && check.errors[0].message) || check.error ||
+            'this pool is not serving yet';
+          out.push('  In use:         no - ' + why);
         } else if (bindings === null) {
           out.push('  In use:         not measured (no simulation has run)');
         } else {
-          const mine = bindings.filter(function (r) { return r.pool === p.name && r.state !== 'expired'; });
+          // Counted by membership, not by the recorded name: a lease row's pool is the pool it was granted from, and a
+          // row without one still has an address that is inside this pool (#1429).
+          const mine = bindings.filter(function (r) {
+            if (r.state === 'expired') return false;
+            return r.pool === p.name || dhcpLib.ipInPool(p, r.ip);
+          });
           const cap = dhcpLib.poolCapacity ? dhcpLib.poolCapacity(p) : null;
           out.push('  In use:         ' + mine.length + (cap === null ? ' lease(s)' : ' of ' + cap + ' address(es)'));
           if (mine.length) {
