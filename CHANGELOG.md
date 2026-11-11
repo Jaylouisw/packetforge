@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A reverse lookup, and the way back out of every DNS setting.** `nslookup <name>` resolved forward;
+  given an address it now asks the **reverse** name and says so before answering, so the transcript does
+  not look like a lookup of something nobody typed:
+
+  ```
+  Router-d2#nslookup 10.0.0.53
+    (as 53.0.0.10.in-addr.arpa - a reverse lookup of 10.0.0.53)
+  Server: Router-d1
+    10.0.0.53 -> web1.lab.example (PTR)
+  ```
+
+  The answer is printed against the address that was typed, not the `in-addr.arpa` name the resolver
+  actually asked. And every DNS setting now has a removal, which several of them did not: `no dns zone
+  <name>`, `no dns add <name> [<type>]`, `no ip name-server [<address>]`, `no ip domain-name` and
+  `no ip domain-lookup`. Each one reports what it did rather than answering silently —
+  `Zone 0.0.10.in-addr.arpa removed (it held no records)`, `Removed 1 record for
+  53.0.0.10.in-addr.arpa (PTR)`, `Name server 10.0.0.53 removed` — and the bare form is a different
+  operation from the addressed one: `no ip name-server` with two servers configured answers
+  `Name servers cleared (2)`, while naming one leaves the other in the list. A removal that has nothing
+  to remove says why in two lines instead of one: `% No zone named lab.example on Router-d1` followed by
+  `% This device serves no zone - nothing to remove`.
+
+  Two details that cost a lab an hour if you assume otherwise: turning lookup **off** does not forget
+  what was learned — `show hosts` keeps the resolved rows (`53.0.0.10.in-addr.arpa web1.lab.example
+  dynamic now`) while reporting `Name lookup is disabled ("ip domain-lookup" turns it back on)` — and
+  `show dns` takes **no** argument, so `show dns zones` is refused (`% "show dns" takes no argument
+  here - type it on its own, or "?" for the commands`). See [docs/CLI.md](docs/CLI.md).
+
 - **`show hosts` — the resolver view, including the names that failed.** The only way to see what a
   device would ask, and what it had learned, was to read the config back and guess. The view prints the
   default domain, whether lookup is on, and the servers it will ask, then either says plainly that
