@@ -1678,10 +1678,31 @@ class CliSession {
     }
     // Both spellings of a port resolve here: the panel name from the spec and
     // the vendor-console name the operator may have typed (issue #27).
-    let name = resolvePortName(this.device, tokens[0]);
+    // `interface GigabitEthernet 0/1` is one port name in two words, which is how a transcript writes
+    // it. The type word alone is not a port, so it answered "% Interface not found: GigabitEthernet".
+    let portWord = tokens[0];
+    let consumed = 1;
+    const indexed = tokens[1] !== undefined && /^\d+(?:\/\d+)*$/.test(String(tokens[1]));
+    if (!resolvePortName(this.device, portWord) && indexed &&
+        resolvePortName(this.device, String(portWord) + String(tokens[1]))) {
+      portWord = String(portWord) + String(tokens[1]);
+      consumed = 2;
+    }
+    let name = resolvePortName(this.device, portWord);
+    // A word after the port is refused, not dropped: `interface Fa0/1 zzz` entered the block in
+    // silence and the next lines configured a port the operator had not named - the same defect the
+    // `show` family and the configuration blocks had, in the one command that moves the prompt.
+    if (name && tokens.length > consumed) {
+      return {
+        lines: ['% Unexpected argument "' + tokens[consumed] + '" - interface <port> takes one port',
+          '% A subinterface is "interface ' + name + '.10", and the device\'s own VLAN address is ' +
+          '"interface vlan <id>"'],
+        name: null
+      };
+    }
     if (!name) {
       // 'interface Gi0/0.10' creates a router subinterface on Gi0/0.
-      const m = /^(.+)\.(\d+)$/.exec(tokens[0]);
+      const m = /^(.+)\.(\d+)$/.exec(portWord);
       const parent = m ? resolvePortName(this.device, m[1]) : null;
       if (m && parent) {
         const vid = parseInt(m[2], 10);
@@ -1734,7 +1755,10 @@ class CliSession {
           return { lines: [], name: created.name };
         }
       }
-      return { lines: ['% Interface not found: ' + tokens[0]], name: null };
+      // Quote the spelling that was typed: a two-word port name that does not exist reported only the
+      // type word, so "% Interface not found: GigabitEthernet" read as if the word were wrong.
+      return { lines: ['% Interface not found: ' + (indexed ? portWord + ' ' + tokens[1] : portWord)],
+        name: null };
     }
     this.iface = name;
     this.mode = MODE_IFACE;
@@ -6558,13 +6582,23 @@ class CliSession {
   //
   // A group belongs to an interface: the vrid plus the interface is the key, which is why the same
   // vrid can exist on two interfaces of one router without them being the same group.
+  // A number a console takes is decimal digits. `parseInt` reads "1e3" as 1, "0x10" as 16 and "12abc" as
+  // 12, so a command configured a value nobody typed - the same defect `ospf area 255.255.255.255` had,
+  // one layer down. Returns null when the word is not a number at all.
+  _decimal(raw) {
+    const s = String(raw === undefined || raw === null ? '' : raw).trim();
+    if (!/^\d+$/.test(s)) return null;
+    const n = Number(s);
+    return Number.isSafeInteger(n) ? n : null;
+  }
+
   _vrrpIfaceCommand(tokens) {
     const vrrpLib = require('./vrrp');
     const out = [];
     const dev = this.device;
     if (!this.iface) return ['% vrrp must be configured inside an interface'];
-    const vrid = parseInt(tokens[1], 10);
-    if (!Number.isInteger(vrid) || vrid < 1 || vrid > 255) {
+    const vrid = this._decimal(tokens[1]);
+    if (vrid === null || vrid < 1 || vrid > 255) {
       return ['% Invalid virtual router id: ' + (tokens[1] || '(none)') + ' (1-255)'];
     }
     if (!Array.isArray(dev.config.vrrp)) dev.config.vrrp = [];
@@ -6594,18 +6628,60 @@ class CliSession {
           '% e.g. "vrrp 1 ip 10.0.0.254"'];
       }
       if (!net.isIp(ip)) return ['% Invalid address: ' + ip];
+      // The row is documented as `vrrp <vrid> ip <addr> [priority <p>] [preempt] [advertise <s>]` and the
+      // tail was ignored: `priority 1e3`, `priority 0x10` and `advertise 1.5` all answered "owns ..." and
+      // configured nothing. Each setting is read here with the same validation its own form uses - and
+      // the whole tail is judged *before* the group is created, so a refused line leaves nothing behind.
+      const set = [];
+      const tail = {};
+      let i = 4;
+      const bad = function (word) {
+        return ['% Unexpected argument "' + word + '" - vrrp <vrid> ip <addr> [priority <p>] [preempt] ' +
+          '[advertise <s>]', '% Nothing was changed'];
+      };
+      while (i < tokens.length) {
+        const kw = String(tokens[i]).toLowerCase();
+        if (kw === 'priority') {
+          const p = this._decimal(tokens[i + 1]);
+          if (p === null || p < 1 || p > 255) {
+            return ['% Invalid priority: ' + (tokens[i + 1] || '(none)') + ' (1-255)', '% Nothing was changed'];
+          }
+          tail.priority = p;
+          set.push('priority ' + p);
+          i += 2;
+        } else if (kw === 'preempt') {
+          tail.preempt = true;
+          set.push('preempt on');
+          i += 1;
+        } else if (kw === 'advertise') {
+          const a = this._decimal(tokens[i + 1]);
+          if (a === null || a < 1 || a > 255) {
+            return ['% Invalid advertisement interval: ' + (tokens[i + 1] || '(none)') +
+              ' (whole seconds, 1-255)', '% Nothing was changed'];
+          }
+          tail.advertSec = a;
+          set.push('advertise ' + a + ' s');
+          i += 2;
+        } else {
+          return bad(tokens[i]);
+        }
+      }
       if (!group) {
         group = { vrid: vrid, interface: this.iface, ips: [], priority: 100, preempt: true, advertSec: 1 };
         dev.config.vrrp.push(group);
       }
       if (group.ips.indexOf(ip) === -1) group.ips.push(ip);
-      out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip);
+      if (tail.priority !== undefined) group.priority = tail.priority;
+      if (tail.preempt !== undefined) group.preempt = tail.preempt;
+      if (tail.advertSec !== undefined) group.advertSec = tail.advertSec;
+      out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip +
+        (set.length ? ' (' + set.join(', ') + ')' : ''));
     } else if (what === 'priority') {
       // The value is judged before the group is looked for: `vrrp 1 priority 256` answered "no group 1
       // on Gi0/0", which reads as "create the group first" and then refuses the number anyway. The
       // number is wrong whatever else is missing, so that is what the refusal is about.
-      const p = parseInt(tokens[3], 10);
-      if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
+      const p = this._decimal(tokens[3]);
+      if (p === null || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
       if (tokens[4] !== undefined) {
         return ['% Unexpected argument "' + tokens[4] + '" - vrrp <vrid> priority <p> takes no more'];
       }

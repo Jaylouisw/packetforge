@@ -13,7 +13,16 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
   -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 24
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=50" \
   | grep -o '"title":"\[[^]]*\]' | sort | uniq -c      # 24 "title":"[Device] - one line, nothing else
+curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&type=issues&limit=50" \
+  | grep -o '"name":"device[a-z-]*"' | sort | uniq -c   # 24 "name":"device" then 24 "name":"device-request"
 ```
+
+The third line is the one that measures the label half of the sentence above, which the first two cannot:
+a count of 24 and 24 `[Device]` titles say nothing about labels, and "each carrying both" is a claim
+about all 24 at once. Measured with it: **24** open, **24 of 24** with `device`, **24 of 24** with
+`device-request`, **24 of 24** titles beginning `[Device]`. Pass `type=issues` there for the reason the
+API sorts on — Forgejo shares one number space with pull requests, so without it a PR's labels land in
+the same tally.
 
 `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before anyone
 reads the body: **is this already in the catalogue?**

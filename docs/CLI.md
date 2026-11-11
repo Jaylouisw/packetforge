@@ -1671,6 +1671,53 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A number is decimal digits, and a word after a port is not dropped
+
+`parseInt` reads `1e3` as 1, `0x10` as 16 and `12abc` as 12, so a command could configure a value nobody
+typed and report success:
+
+```
+R1(config-if)#vrrp 1e3 ip 10.0.0.1
+VRRP group 1 on Gi0/0 owns 10.0.0.1          <- group 1, from a word that is not 1
+R1(config-if)#vrrp 1 priority 1e3
+VRRP group 1 priority 1                       <- priority 1, from a word that is not 1
+R1(config-if)#vrrp 1 ip 10.0.0.1 priority 0x10
+VRRP group 1 on Gi0/0 owns 10.0.0.1           <- and the documented tail was ignored entirely
+```
+
+One helper (`_decimal`) now decides whether a word is a number, and the documented tail —
+`[priority <p>] [preempt] [advertise <s>]` — is read and applied rather than dropped:
+
+```
+R1(config-if)#vrrp 1 ip 10.0.0.254 priority 150 preempt advertise 2
+VRRP group 1 on Gi0/0 owns 10.0.0.254 (priority 150, preempt on, advertise 2 s)
+R1(config-if)#vrrp 1 ip 10.0.0.254 priority 0x10
+% Invalid priority: 0x10 (1-255)
+% Nothing was changed
+```
+
+The whole tail is judged **before** the group is created, so a refused line leaves nothing behind — the
+same rule the handler already stated for a refused id. `1.5` is the one place a dot is legal: it is
+asdot for a 32-bit AS (`router bgp 1.5` is 65541, and the answer says so).
+
+The second half of the same rule, in the one command that moves the prompt:
+
+```
+SW1(config)#interface Fa0/1 zzz
+(block entered, word dropped)                <- and the next lines configure Fa0/1
+SW1(config)#interface Fa0/1 zzz
+% Unexpected argument "zzz" - interface <port> takes one port
+SW1(config)#interface GigabitEthernet 0/1
+% Interface not found: GigabitEthernet 0/1    <- quoted in full, not just the type word
+```
+
+`interface GigabitEthernet 0/0` in two words is one port name and resolves; a two-word name that does
+not exist is quoted as typed, because *"Interface not found: GigabitEthernet"* reads as if the word
+were wrong rather than the port.
+
+**The guard:** every numeric placeholder in every row, filled with `1e3`, `0x10`, `12abc`, `1.5` and
+`+5` on a router, a switch and a PC — 200+ typed, none accepted except the asdot form.
+
 ### `no ospf` takes three shapes, and each removes one thing
 
 The handler ignored everything after `no ospf`:
