@@ -104,7 +104,7 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
 `_deliver()` (`simulator.js:1595`) checks `iface.enabled` and `iface.peer`; it
-never asks whether the *link* is up. `web/app.js:921` prints a State field in the
+never asks whether the *link* is up. `web/app.js:1613` prints a State field in the
 link inspector that the engine ignores.
 
 ### 1.2 Asymmetry is already data, and dead
@@ -260,7 +260,7 @@ New device, `devices/generic/generic-transit.json`:
 `generic-cloud` **stays exactly as it is**, so every saved topology keeps loading
 (C1) and the palette keeps its familiar entry. `generic-transit` is additive:
 registers in `devices/registry.js:7` (`CATEGORY_ORDER` push `'upstream'`),
-`web/app.js:49` (label), `device.js:85 CAPABILITIES` (add `'transit'`).
+`web/app.js:116` (`CAT_LABELS`, with the order beside it at `:127`), `device.js:89 CAPABILITIES` (add `'transit'`).
 
 Three intentional omissions:
 
@@ -471,7 +471,7 @@ cellular (there is no cable), and a router whose WAN has no default route gets a
 
 | Field | Where | Shape | Notes |
 |---|---|---|---|
-| `category: "upstream"` | device | string | new value; `registry.js:7` and `web/app.js:49` must learn it |
+| `category: "upstream"` | device | string | new value; `registry.js:7` and `web/app.js:116`+`:127` must learn it |
 | `capabilities: [..., "transit"]` | device | string | new token in `device.js:85 CAPABILITIES` |
 | `"type": "cellular"` | interface | string | replaces the 53 mislabelled `wwan*` ports |
 | `"class": "xgspon"` | interface | string | optional hint for the link picker's default service |
@@ -662,8 +662,8 @@ and its own recount one-liners.
 | 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
 | 32 | `cli.js:267 ip route` | `[iface]` only | `[distance]` |
 | 33 | `cli.js:899 show ip route` | `code dest/len via gw iface` | AD/metric/WAN columns; new `show wan` |
-| 34 | `web/app.js:351` picker, `:892-925` inspector, `:921` State | no service UI | Service block, WAN panel, failover button |
-| 35 | `devices/registry.js:7`, `web/app.js:49,54,60` | 10 categories | add `upstream` |
+| 34 | `web/app.js:115-130` palette labels, `:973` inspector open, `:1613` its State row | no service UI | Service block, WAN panel, failover button |
+| 35 | `devices/registry.js:7`, `web/app.js:116` (labels) and `:127` (order) | 10 categories | add `upstream` |
 
 ---
 
