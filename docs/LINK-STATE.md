@@ -252,8 +252,8 @@ per-port override — the same precedence as real gear:
 That last row is the one worth reading twice. `SPEED_COST` holds **six** keys and every other rate falls
 back to the 1G cost — measured through `runStp()` on a port at each rate: 2.5G → `20000`, 25G → `20000`,
 50G → `20000`, 400G → `20000`, unknown → `20000`, and 100G → `200`. So a topology built to make 25G and
-50G compete is really a race between two 1G links, and a 400G link is the cheapest thing in the lab that
-is *not* a 100G link. This page used to print a smooth ladder (40G 400, 25G 800, "100G and faster" 200),
+50G compete is really a race between two 1G links, and a 400G link is *more expensive* than the 10G link
+beside it — 20000 against 2000 — because it is priced as 1G. This page used to print a smooth ladder (40G 400, 25G 800, "100G and faster" 200),
 none of which the engine computes.
 
 The values it *does* compute are IEEE's long-method costs, so a lab whose rates are in the table agrees
