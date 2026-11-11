@@ -8089,7 +8089,7 @@ misses all of them.
 | `W_OPTICAL_HEADROOM` | `validation.js:712` | within budget, but with less margin than the part is specified for |
 | `W_POE_DRAW` | `validation.js:130` | the load fits, but close to the PSE's limit |
 | `W_DUPLEX_MISMATCH` | `validation.js:122` | one end half duplex, the other full |
-| `W_DISTANCE` | `cli.js:9659` | an administrative distance outside the range the engine expects — a warning, not a refusal, so a lab can hold a route that will never be used |
+| `W_DISTANCE` | `validation.js:118` (catalogue), `:769` (the check), `cli.js:11275` (the transceiver view runs the same check) | **cable length beyond the medium's reach**, not a route metric: a 250 m run of `1000base-t` answers `250 m exceeds the 100 m reach of 1000BASE-T between Router/Gi0/0 and PC/eth0.` and rides alongside `W_COPPER_LONGRUN` (`exceeds the 90 m horizontal-run limit`). A warning, not a refusal, so a lab can hold a link that will never work. There is no administrative-distance warning to confuse it with — a per-route distance is refused outright (`ip route … 250` answers *"The fourth word is an interface, not a distance"*), so a code named `W_DISTANCE` is never about routing |
 
 ### The 31 codes no page names
 
