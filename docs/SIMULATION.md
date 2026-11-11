@@ -103,7 +103,7 @@ first.
   real box does. But nothing ages it: no MAC ageing timer, no ARP timeout, no ND
   reachable-time. DHCP leases *do* age (see [§5.1](#51-dhcp--in-the-data-path-since-1051)), but only when a question is asked at an
 instant — nothing runs a clock between questions. A table learned in run 1 is still there
-  in run 1 000 with the same entries (`engine/device.js:331`).
+  in run 1 000 with the same entries (`engine/device.js:489`).
 - The capability list at `engine/device.js:85-98` is partly decorative, and **where each part is
   read differs**. The forwarding path consults only `l2-forward`, `l3-forward` and `host`. `poe-pse`
   and `poe-pd` are read when port hardware is derived (`isPoePse()` / `isPoePd()` in
@@ -128,11 +128,11 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:1734`, `engine/device.js:331` |
-| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:1895-2020` |
-| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:1955-1970` |
+| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3434`, `engine/device.js:489` |
+| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3618-3692` |
+| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3634-3660` |
 | **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded — the event reads `loop: egress equals ingress`. | `engine/simulator.js:3541` |
-| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:1734` vs `1792` |
+| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3434` (learning) vs `3437` (ACL) and `3614+` (STP-aware egress) |
 | **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3455-3457` |
 | **Absent** | MAC ageing, MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
 
@@ -143,8 +143,8 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | Per-port config: `mode: access\|trunk`, `accessVlan`, `nativeVlan`, `allowedVlans`. | `engine/vlan.js:6-14` |
 | **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:303` |
 | **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:285`, `engine/vlan.js:303` |
-| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `classifyEgress()` lives in `engine/vlan.js:292` and is *called* from `_emitFrame()` in `engine/simulator.js:3174`; this row cited `engine/simulator.js:1666-1680`, which is neither — that range is in the link-exclusion code |
-| **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. | `engine/device.js:331-337`, `engine/simulator.js:1895` |
+| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `classifyEgress()` lives in `engine/vlan.js:292` and is *called* from `_emitFrame()` in `engine/simulator.js:3174`; this row cited `engine/simulator.js:3271-3377`, which is neither — that range is in the link-exclusion code |
+| **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. | `engine/device.js:488-495`, `engine/simulator.js:3618` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-26` |
 | **Modelled** | **SVI**: `interface vlan <id>` creates the switch's own address on that VLAN (`Vlan<id>`), which terminates ARP and echo traffic from any access port in the VLAN and answers with one MAC regardless of which port asked. It is a *host* function, not a routing one: a switch with two SVIs still forwards nothing between the VLANs (`canTerminate` gates termination; `isL3()` gates forwarding). Never a bridge egress (`bridgedInterfaces()`), never an STP port, never a module bay. | `engine/device.js` (`addSvi`, `hasSvi`, `bridgedInterfaces`), `engine/cli.js` (`_enterInterface`), `engine/simulator.js` (`canTerminate`, `_forwardL2`) |
 | **Approximate** | A switch's answer for its own SVI is **bridged**, not unicast: it goes through `_sendFromOwnIp()`'s L2 path, which floods the frame into the VLAN. That is what a management stack on the switch chip does, and it costs one extra copy on a one-host VLAN. | `engine/simulator.js` `_sendFromOwnIp()` |
@@ -164,7 +164,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | A LAG is one logical port: frames are hashed onto exactly one member, the event log records which. | `engine/simulator.js:2024-2045`, `engine/lag.js:157` |
 | **Modelled** | Hash policies `l2`, `l3`, `l3l4`, deterministic FNV-1a — the same frame always lands on the same member. | `engine/lag.js:128` |
 | **Modelled** | Spanning tree sees one edge per bundle, so it does not block members against each other. The bundle is one `ports` entry per LAG group, with the cost divided by the member count. | `computeStp()` in `engine/simulator.js` (line 823 today; the group loop below it) — the cited `315-334` had drifted into DNS code |
-| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:1970` |
+| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:3645-3660` |
 | **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored, and then has **no effect on behaviour** — only the hash policy is consulted at forwarding time. | `engine/lag.js:217-225` (the validation) vs `lagLib.selectMember(members, frame, cfg.hashPolicy …)` at `engine/simulator.js:3584`, which is the only place the mode is *not* read |
 | **Approximate** | `minLinks` is normalised and validated but never read at runtime: a bundle keeps forwarding at one member, it never shuts down. | `engine/lag.js:55-59` |
 | **Absent** | LACPDUs, negotiation, per-member failure detection beyond `iface.enabled`, load-based member selection, L3/L4 hash entropy from anything but the fields present. | — |
@@ -174,19 +174,19 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:119`, `engine/simulator.js:306` |
-| **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:1758`, `engine/simulator.js:1959-1963` |
+| **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:3653-3655`, `engine/simulator.js:3653-3655` |
 | **Modelled** | Path cost derived from the negotiated link rate, and divided by member count for an aggregate. | `engine/simulator.js:81-89`, `engine/simulator.js:326-327` |
 | **Approximate** | Only the **converged result** is computed: no BPDUs, no hello/max-age/forward-delay timers, no listening or learning states, no topology-change notifications. The tree is correct, the convergence is instantaneous and free. | `engine/stp.js:1-17` |
-| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` exists, `no spanning-tree` does not. | `engine/simulator.js:309` |
+| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` exists, `no spanning-tree` does not. | `engine/simulator.js:3614-3661` |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |
 
 ### 2.5 Passive devices: taps and splitters
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:1798-1821`, `engine/device.js:323` |
-| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:1824-1834`, `engine/device.js:317` |
-| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:1734` |
+| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:1637-1662`, `engine/device.js:323` |
+| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:3505-3543`, `engine/device.js:317` |
+| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:3434` |
 | **Approximate** | SFP-based taps (the active/aggregating kind) are treated as passive if the spec says so; there is no aggregation port, no timestamping, no oversubscription. | — |
 
 ### 2.6 Bridge groups
@@ -195,7 +195,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 |---|---|---|
 | **Modelled** | Ports in the same `bridgeGroup` (e.g. `lan`) are treated as one L3 surface: an address configured on any member answers ARP/ICMP arriving on any other member, and the reply leaves by the port that asked. | `engine/device.js:261-298`, `engine/simulator.js:2036`, `engine/simulator.js:2064` |
 | **Approximate** | A router's LAN sockets also enforce role separation: a LAN address is not reachable from the WAN port. | `engine/device.js:274` |
-| **Absent** | **Bridging between bridge-group members.** A frame not addressed to the device is dropped (`not addressed to this device`) — it is not switched to another port in the group. Two PCs on a router's `lan2` and `lan3` cannot talk to each other unless the router routes between subnets, or the device also has `l2-forward`. This surprises people; it is the single most common misreading of the feature. | `engine/simulator.js:1916-1920` |
+| **Absent** | **Bridging between bridge-group members.** A frame not addressed to the device is dropped (`not addressed to this device`) — it is not switched to another port in the group. Two PCs on a router's `lan2` and `lan3` cannot talk to each other unless the router routes between subnets, or the device also has `l2-forward`. This surprises people; it is the single most common misreading of the feature. | `engine/simulator.js:3772-3831` |
 
 ---
 
@@ -276,9 +276,9 @@ a `/25` connected route regardless of list order.
 |---|---|---|
 | **Modelled** | Host sends RS to `ff02::2`; router answers with an RA to `ff02::1`; host splices an EUI-64 identifier onto the advertised prefix. | `Simulator.announceRa()` at `engine/simulator.js:2136`, `deriveAddress()` at `engine/ra.js:353` |
 | **Modelled** | The messages are encoded and decoded as real ICMPv6 octets (RFC 4861 §4.2/§4.6), so a layout mistake cannot hide behind a shared object. | `engine/ra.js:160-260` |
-| **Modelled** | The M (managed) flag makes the host **refuse** to autoconfigure and say why (addresses come from DHCPv6). A manually configured address is never overwritten. | `engine/simulator.js:1018-1044` |
+| **Modelled** | The M (managed) flag makes the host **refuse** to autoconfigure and say why (addresses come from DHCPv6). A manually configured address is never overwritten. | `engine/simulator.js:2509-2543` |
 | **Modelled** | A router advertises a prefix only on a link where it holds an address inside that prefix. | `engine/simulator.js:957-964` |
-| **Approximate** | One global address per interface: the first autonomous prefix wins, the rest are ignored. Real hosts keep one per prefix. | `engine/simulator.js:1049-1052` |
+| **Approximate** | One global address per interface: the first autonomous prefix wins, the rest are ignored. Real hosts keep one per prefix. | `engine/simulator.js:2530` |
 | **Approximate** | Valid/preferred lifetimes are carried and displayed, never aged. An address never becomes deprecated. | `engine/cli.js:3035-3073` (the `ipv6 nd prefix` parser), displayed by `_showIpv6Nd()` at `engine/cli.js:12331` and printed at `:12359-12363` |
 | **Absent** | DHCPv6, DHCPv6-PD, privacy/temporary addresses, stable-privacy IIDs, RDNSS/DNSSL, RA guard. | — |
 
@@ -286,7 +286,7 @@ a `/25` connected route regardless of list order.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Hop limit starts at 64, decrements per router, expiry drops the packet. | `engine/simulator.js:761`, `engine/simulator.js:1045-1049` |
+| **Modelled** | Hop limit starts at 64, decrements per router, expiry drops the packet. | `engine/simulator.js:761`, `engine/simulator.js:3712` |
 | **Modelled** | Static IPv6 routes and an IPv6 default gateway, longest prefix wins, ties broken by administrative distance through the **same** `Device.betterRoute()` the IPv4 path uses. A connected prefix (0) beats a static route (1) for the same prefix; a default gateway is distance 254, so it only answers what nothing else covers. | `engine/device.js` (`betterRoute`, `route6To`), `engine/cli.js` (`_showIpv6Route`) |
 | **Approximate** | The IPv6 table has only `C` and `S` rows, because only connected prefixes and static routes exist for IPv6 here — there is no OSPFv3 and no MP-BGP for v6 to rank. The IPv4 distances for those two protocols are unused on this side, and `show ipv6 route` says so by never printing an `O` or `B` legend entry. | `engine/device.js` (`routes6Table`) |
 | **Absent** | ICMPv6 errors (time exceeded, destination unreachable, packet too big), fragmentation, OSPFv3, MP-BGP for IPv6, IPv6 ACLs (see [§5.3](#53-acls)), IPv6 NAT. | — |
@@ -374,7 +374,7 @@ exactly.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Static one-to-one, dynamic pool, and PAT/overload, in both directions, with ageing in simulated steps. | `translateOutbound()` at `engine/nat.js:683`, `translateInbound()` at `:717`, with the three inside forms at `translatePat()` `:576` and `translateDynamic()` `:640` |
-| **Modelled** | Wired into the forwarding path: inbound rewrite **before** the local-address test, outbound rewrite **before** the routing decision — the order a real box works in. | `engine/simulator.js:1882`, `engine/simulator.js:1978` |
+| **Modelled** | Wired into the forwarding path: inbound rewrite **before** the local-address test, outbound rewrite **before** the routing decision — the order a real box works in. | `engine/simulator.js:3604-3709`, `engine/simulator.js:3604-3709` |
 | **Modelled** | Port forwarding on a static rule. | `engine/nat.js:26-27` |
 | **Approximate** | Translation keys on the 5-tuple and a caller-supplied step; there are no real timers, so translations age only if the caller advances `step`. | `engine/nat.js:54` |
 | **Absent — important** | **Only frames carrying an L4 header are translated.** `_natOutbound`/`_natInbound` return early when `frame.l4` is absent, and an ICMP echo has no `l4` — it is recognised by `frame.icmp` instead. Measured consequence: with a PAT rule configured and a ping from the inside host to an outside host, **the ping succeeds 4/4, `show ip nat translations` stays empty, and no `nat-*` event is emitted at all** — not even a `nat-drop`. The NAT box behaves as a plain router for ICMP, and the ping is answered at the real addresses on both sides (it still answered in a run where the outside host had no default gateway, because the reply is modelled on the request's path). So ping cannot demonstrate NAT in either direction: a NAT lab has to open a flow (`openFlow()`) and then read the table. | `engine/simulator.js` `_natOutbound()` / `_natInbound()` |
@@ -387,9 +387,9 @@ exactly.
 |---|---|---|
 | **Modelled** | Standard (1–99, 1300–1999) and extended (100–199, 2000–2699) lists, wildcard masks, `host`/`any`, `eq`/`gt`/`lt`, service names. | `engine/acl.js:11-26` |
 | **Modelled** | First match wins; falling off the end is the **implicit deny**, marked `implicit: true` so a tool can say why. | `engine/acl.js:342-350` |
-| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:2179`, `engine/simulator.js:1792`, `engine/simulator.js:1688-1697` |
-| **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:1487` |
-| **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:1477` |
+| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:2179`, `engine/simulator.js:3050-3063`, `engine/simulator.js:3049-3063` |
+| **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:3056-3058` |
+| **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:3052` |
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
 | **Absent** | The `firewall` capability does nothing. **60** models are catalogued under `category: "firewall"` and **596** specs declare the `firewall` capability (this row said 575; recounted), yet the engine never reads the string — the only two mentions outside the catalogue are the capability vocabulary in `engine/device.js` and the palette's `CAT_ORDER`, and nothing gates on it. Count both with `loadCatalog()` rather than trusting these figures, which move with the catalogue. A firewall is a router with ACLs you configure by hand. | `engine/device.js` (`CAPABILITIES`, the vocabulary, not a reader); counts from `loadCatalog()` |
 
@@ -499,10 +499,10 @@ built on the old behaviour would look wrong today: [#42, #43, #44](#10-fixed-def
 | **Modelled** | Split horizon: a route is never advertised back to the peer it was learned from. | `engine/simulator.js:609` |
 | **Modelled** | Best path: weight, local-preference, locally originated, shortest AS path, lowest origin, lowest MED, eBGP over iBGP, lowest router ID — in that order. | `engine/bgp.js:408-436` |
 | **Modelled** | AS-path loop prevention including AS_SET members; 4-byte ASNs; eBGP prepend, iBGP no-prepend. | `engine/bgp.js:308`, `engine/bgp.js:503` |
-| **Modelled** | Administrative distance 20 for eBGP, 200 for iBGP, installed into the routing table. | `engine/simulator.js:1956` — `ad: adj.type === 'ebgp' ? 20 : 200` |
+| **Modelled** | Administrative distance 20 for eBGP, 200 for iBGP, installed into the routing table. | `engine/simulator.js:2159-2197` — `ad: adj.type === 'ebgp' ? 20 : 200` |
 | **Approximate** | MED is compared unconditionally. Real BGP compares MED only between paths from the same neighbour AS. Declared in the module header. | `engine/bgp.js:18-19` |
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
-| **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:1949` — `nextHop = adj.type === 'ebgp' ? adj.localIp : (e.nextHop \|\| adj.localIp)` |
+| **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:2152` — `nextHop = adj.type === 'ebgp' ? adj.localIp : (e.nextHop \|\| adj.localIp)` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
 | **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1372` |
 
@@ -517,7 +517,7 @@ layer exists in `engine/bgp.js` today.
 |---|---|---|
 | **Modelled** | Authoritative zones with A, AAAA, CNAME, MX, NS, PTR, SOA, TXT, SRV; relative/absolute name rules; CNAME chains to depth 8; NXDOMAIN distinguished from empty-NOERROR. | `engine/dns.js:47-50`, `engine/dns.js:342` |
 | **Modelled** | `ping <hostname>` and `openFlow()` resolve through the lab's DNS servers before a packet is sent. The failure is named for what actually happened: `dns-nxdomain` (the name is not in the zone), `dns-nodata` (the name exists, the type does not — NOERROR with an empty answer), `dns-servfail` (no device in the lab hosts a zone). | `engine/simulator.js:137`, `engine/simulator.js:228-260` |
-| **Approximate** | Server selection is a shortcut: the client's configured `dnsServers`, or — when it lists none — **any** device in the lab that hosts a matching zone. There is no recursive walk from root to TLD, no delegation, no forwarder. | `engine/simulator.js:137-156` |
+| **Approximate** | Server selection is a shortcut: the client's configured `dnsServers`, or — when it lists none — **any** device in the lab that hosts a matching zone. There is no recursive walk from root to TLD, no delegation, no forwarder. | `engine/simulator.js:282-290` |
 | **Absent** | Recursion to a real resolver, DNSSEC, zone transfers, EDNS(0), negative caching, DNS over TCP. A resolver is only a listener on port 53 for flow purposes (`engine/flow.js:316`). | — |
 
 ### 5.8 SCION
@@ -527,15 +527,15 @@ layer exists in `engine/bgp.js` today.
 | **Modelled** | ISD-AS identifiers, core-AS rule (hex id ending `:0`), UP/CORE/DOWN path segments, beaconing from core ASes over real adjacencies, path composition enforced by allowed shapes, selection by hop count or by latency. | `engine/scion.js:777`, `engine/scion.js:563`, `engine/scion.js:654` |
 | **Modelled** | Deterministic: no clocks, no randomness, every list sorted, so the same topology always selects the same path. | `engine/scion.js:24-28` |
 | **Approximate** | Path latency is the sum of per-segment `latencyMs`, defaulting to **1 ms per hop** when a segment states nothing. It is not measured from the links. | `engine/scion.js:55`, `engine/scion.js:415`, `engine/scion.js:534` |
-| **Absent — important** | `pingScion()` walks the AS list and emits `scion-hop` events; **it does not put IP frames on the wire**, does not consult the routing table, and does not model the SCION header on real hardware. It answers "is there a beaconed path, and which one wins", not "does a packet traverse it". | `engine/simulator.js:1392-1471`, `engine/scion.js:5-18` |
+| **Absent — important** | `pingScion()` walks the AS list and emits `scion-hop` events; **it does not put IP frames on the wire**, does not consult the routing table, and does not model the SCION header on real hardware. It answers "is there a beaconed path, and which one wins", not "does a packet traverse it". | `engine/simulator.js:2967-3025`, `engine/scion.js:5-18` |
 | **Absent** | Trust roots and certificates, DRKey, beacon service/store persistence, path revocation, peering vs. provider/customer policy, hidden paths. | — |
 
 ### 5.9 LLDP
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | One LLDPDU per cabled port at the start of each run; the receiver stores a neighbour record keyed by port. | `engine/simulator.js:1196-1209`, `engine/lldp.js:18` |
-| **Modelled** | Terminated at the nearest bridge and **never flooded**, so the simulator cannot invent neighbours two switches away. | `engine/simulator.js:1766-1776`, `engine/lldp.js:10-12` |
+| **Modelled** | One LLDPDU per cabled port at the start of each run; the receiver stores a neighbour record keyed by port. | `engine/simulator.js:461-475`, `engine/lldp.js:18` |
+| **Modelled** | Terminated at the nearest bridge and **never flooded**, so the simulator cannot invent neighbours two switches away. | `engine/simulator.js:707`, `engine/lldp.js:10-12` |
 | **Approximate** | No transmit timer: one announcement per run, not every 30 s. TTL is carried as 120 and never counted down, so a neighbour never ages out. | `engine/lldp.js:15` |
 | **Absent** | LLDP-MED, DCBX, CDP, per-TLV config, shutdown-on-neighbour. | — |
 
@@ -571,9 +571,9 @@ layer exists in `engine/bgp.js` today.
 |---|---|---|
 | **Modelled** | Per-port PSE/PD wattage, derived from the spec or inferred (802.3af 15.4 W out / 12.95 W in defaults). | `engine/media.js:628-638` |
 | **Modelled** | Device-level budget, read from the spec or parsed out of the model string (`"… PoE+ 370W"`). | `engine/media.js:806-812` |
-| **Modelled** | Budget is allocated before the run; a port that cannot be funded marks its peer `poeUnpowered`, and that device then neither transmits nor receives (`poe-deny` events both ways). | `engine/simulator.js:1211-1259`, `engine/simulator.js:1534-1540`, `engine/simulator.js:1783-1789` |
+| **Modelled** | Budget is allocated before the run; a port that cannot be funded marks its peer `poeUnpowered`, and that device then neither transmits nor receives (`poe-deny` events both ways). | `engine/simulator.js:2770-2829`, `engine/simulator.js:2817-2821`, `engine/simulator.js:2819-2821` |
 | **Modelled** | Cable-time check: `E_POE_BUDGET` refuses a link that would over-subscribe the PSE; `W_POE_DRAW` warns about a powered device on a port that cannot supply power. | `engine/validation.js:815-829` |
-| **Approximate** | Allocation order is **alphabetical by port name**, not by LLDP power priority or by class: which device goes dark when the budget runs out is decided by `ports.sort()`. | `engine/simulator.js:1221-1226` |
+| **Approximate** | Allocation order is **alphabetical by port name**, not by LLDP power priority or by class: which device goes dark when the budget runs out is decided by `ports.sort()`. | `engine/simulator.js:2779-2783` |
 | **Absent** | PoE class negotiation and classification, 802.3bt Type 3/4 class levels, power priority/critical ports, per-port current limits, power budgeting over time, inrush. | — |
 
 ### 6.4 Optical budget and PON splitters
@@ -675,11 +675,11 @@ actually true.
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |
 | "There are real timers." | None. No scheduling, no concurrency, no ageing, no expiry. See [§8](#8-time-what-rtt-means-and-what-it-does-not). | `engine/latency.js:32` |
-| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:1477`, `engine/acl.js:342` |
+| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:3052`, `engine/acl.js:342` |
 | "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:577-588`, `engine/simulator.js:406-419` |
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
-| "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:1477`, `engine/device.js:484` |
+| "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:3052`, `engine/device.js:484` |
 | "HA exists." | VRRP is in the data path (#1052), so a virtual gateway fails over. Still absent: HSRP/GLBP, BFD, LACP failure detection, graceful restart, and detection of a master that goes quiet rather than down. | `engine/simulator.js` `computeVrrp()` |
 | "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:3455-3457` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
@@ -1257,7 +1257,7 @@ number cannot be checked by reading, and a grep for the symbol can.
 | Ran the README quick start end to end on this tree instead of trusting it: `node server/index.js` on a spare port, then `GET /api/version` (`200`, `devices: 1661`), `GET /api/catalog` (1,661 specs, 25 categories) and `GET /` (`200`, HTML). All true — and one thing the page never said: `server.listen(PORT)` passes **no host**, so it binds every interface, and `GET http://<lan-ip>:8000/api/version` answered `200` exactly as localhost did, with no authentication anywhere | Documented both in `README.md` beside the quick start (with the `/api/version` payload as the cheapest liveness check) and in `ARCHITECTURE.md` under startup errors: the socket is open to the network and the process does not authenticate, so a firewall or proxy is the only gate | "Run this and open localhost" is a claim about one machine; `listen(PORT)` is a claim about every interface the machine has, and the difference is the whole security posture of a lab tool |
 | Verified the documented persistence claims with a live server on a scratch `PF_DATA`: a new board writes **no file** until something changes, the first edit lands at `$PF_DATA/topologies/docprobe.json` with envelope `format,version,savedAt,topology` and a nested `format,version,seq,devices,links,layout` — all as written. What was not written: how to add a *named* device through the API | `POST …/devices` with `{"kind":"pc","name":"PC1"}` answers `{"error":"unknown device model: undefined/undefined"}` — no 400, no field list; with `vendor`+`model` the device comes back as `PC-d1` because `name` is dropped; and renaming needs config mode, so `{"commands":["configure terminal","hostname PC1"]}` works while `{"commands":["hostname PC1"]}` answers `% Unrecognized command` and changes nothing. `config/<id>` for an absent device is `404`. All three added to `docs/ARCHITECTURE.md` | The API's silent-drop habits are consistent (a dropped `name`, a body it does not validate) and each one costs a client an afternoon — write the refusal text, not the intent |
 | Verified the checks the pages point at: `npm run smoke` passes on this tree and emits exactly the **18** checks `docs/CI.md` claims, and every number baked into `scripts/build-wiki.js` matches `loadCatalog()` today (1,661 / 247 / 1,313 `sourceUrl` / 1,333 with `source` / 328 neither). What no page covered was the repository's ignore rules | Read `.gitignore` and wrote the table into `CONTRIBUTING.md`: `/data/` is ignored on purpose (boards are the user's work), `node_modules/` and editor debris likewise — and **`tmp/` is not ignored at all**, so the probe scripts sitting in `git status` right now (`tmp/p148a.js`, `p148b.js`, `p148c.js`) are untracked rather than invisible. Noted that `docs/wiki/*.md` is tracked despite being generated | A contributor's first confusion is a file git cannot see or refuses to forget; one table costs less than one `git status` argument |
-| Checked whether this page's own `file.js:NNN` citations still point at what they claim, by reading the cited lines instead of trusting them. 240 citations exist; six were wrong: `ethFrame()` cited at `simulator.js:31` (now line 52 — 31 is `compareAdvId`), `_run()` at 1718 (now 3205), the LAG-bundle claim at `simulator.js:315-334` (now `computeStp()` at 823 — 315 is DNS code), `portPvid()` at 72-78 (now 104) plus a stale `cli.js:187-199` that is an interface-alias helper, `voiceVlan` parsing at `vlan.js:423` (now 267 — 423 is `E_TRUNK_NO_VLANS`), and `classifyEgress` pointed at `simulator.js:1666-1680` although it lives in `vlan.js:292` and is called from `simulator.js:3174` | Repointed all six at the symbol **and** the line, naming what the old line now holds, so the next reader can tell rot from a typo. Also completed the frame shape: `ethFrame()` returns `vid`, `wireTagged`, `wireVid` as well, which are the keys the wire actually carries and the ones a `vlan-drop` event reports | Line citations rot silently and a wrong **file** is worse than a wrong line, because the reader's grep succeeds in the wrong place. Cite the symbol, keep the line as a hint, and say what moved |
+| Checked whether this page's own `file.js:NNN` citations still point at what they claim, by reading the cited lines instead of trusting them. 240 citations exist; six were wrong: `ethFrame()` cited at `simulator.js:31` (now line 52 — 31 is `compareAdvId`), `_run()` at 1718 (now 3205), the LAG-bundle claim at `simulator.js:315-334` (now `computeStp()` at 823 — 315 is DNS code), `portPvid()` at 72-78 (now 104) plus a stale `cli.js:187-199` that is an interface-alias helper, `voiceVlan` parsing at `vlan.js:423` (now 267 — 423 is `E_TRUNK_NO_VLANS`), and `classifyEgress` pointed at `simulator.js:3271-3377` although it lives in `vlan.js:292` and is called from `simulator.js:3174` | Repointed all six at the symbol **and** the line, naming what the old line now holds, so the next reader can tell rot from a typo. Also completed the frame shape: `ethFrame()` returns `vid`, `wireTagged`, `wireVid` as well, which are the keys the wire actually carries and the ones a `vlan-drop` event reports | Line citations rot silently and a wrong **file** is worse than a wrong line, because the reader's grep succeeds in the wrong place. Cite the symbol, keep the line as a hint, and say what moved |
 | Continued the citation audit with the suspects the first pass flagged: four more were wrong — the capability gates cited 1856/1923 (both BGP code; they are 2310/2368/3463), the `loop` drop cited 1957 (BGP reachability; it is 3541 and the event text is `loop: egress equals ingress`), the LAG hash-policy pointer cited `simulator.js:2039` (it is `lagLib.selectMember(…)` at 3584), and the traceroute row cited `net.js:81-82`, which is hex conversion (`_traceroute()` is at `cli.js:6593`). One suspect was a false alarm — the recompute-order citation 438-452 is exactly right | Repointed all four. Then wrote a standing **citation convention** at the top of the page: the symbol is the citation, the line is a hint, here is the grep that re-finds it — and had to correct that sentence twice in ten minutes, first because `grep "function computeStp"` matches nothing for a class method, then because the line moved 823 → 827 while I was writing it | This page has now been fixed for citation rot three times. The durable fix is not another pass, it is teaching the reader how to re-find a symbol |
 | `docs/CLI.md` still told the reader **"an adjacency needs a direct cable between two routers — routers that share a subnet through a switch never peer"**, months after this page's own §11 row recorded the opposite measurement. The correction had been made here and never carried across | Re-measured `R1 -- SW1 -- R2` as the only path, both in `10.0.0.0/24`: `show ip ospf neighbor` answers `2.2.2.2  1  FULL  10.0.0.2  Gi0/0`, routes cross both ways (`10.0.2.0/24` via `10.0.0.2`, `10.0.1.0/24` via `10.0.0.1`). Rewrote the CLI paragraph to the measurement and said which page to believe if they disagree again. Also fixed its empty-table transcript, which still printed `passive and subnet checks` — the engine has said `passive, subnet and area checks` since the area check landed | When a correction lands on one page, grep the **sentence**, not the topic: the wrong half stays grammatical and confident, and it is the half a reader in a hurry finds |
 | Swept every page for **the same noun carrying two numbers**, and for corrections recorded here that never reached the page they were about. `docs/ARCHITECTURE.md` said the API had "four board endpoints (plus two catalogue/build ones)" — the two being `/api/version` and `/api/media`, with `/api/catalog` left out of its own count; `server/index.js` has three. `docs/PHYSICAL_LAYER.md` said "no port in the 1650 models" while the catalogue holds 1,661 | Corrected both, named the three routes, and re-measured the 1,650 sentence's actual claim rather than only its number: **zero** ports across 1,661 models are named `rj45`, `sfp`, `lc`, `sc`, `mpo`, `bnc`, `db9`, `usb` or `rj11`, so the sentence is true and its count was nine models behind. The other collisions the sweep found — 8 families, 19 cages, 24 categories, 584 models — are all inside quoted history | A count is the cheapest thing to leave stale and the only stale thing a reader can catch without running anything, so it is also the one worth a periodic sweep. Sweep nouns across pages, not pages for typos |
