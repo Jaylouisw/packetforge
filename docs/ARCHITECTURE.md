@@ -470,9 +470,27 @@ Per namespace:
 | `GET …/flows/:flowId` | `{ flow }`, or `404 { error: 'flow not found' }` — also for an id the client only ever saw in a **refusal**: a refused flow is reported in the `POST` body and never stored, so fetching it afterwards 404s |
 | `DELETE …/flows/:flowId` | `{ ok: true, flow, already, events, step, counters, runtime }` with `flow.state` now `closed`. Deleting twice is a `200` with `already: true`; a made-up id is `404 { error: 'no such flow: <id>', code: 'E_NO_FLOW' }`, so "already closed" and "never existed" are different answers |
 | `POST …/layout` | `{ ok }`; accepts `{ positions: { <devId>: {x,y} } }` and ignores ids that are gone |
-| `POST …/load` | `Topology.fromJSON(body)` replaces the board wholesale and clears its sessions |
+| `POST …/load` | `Topology.fromJSON(body)` replaces the board wholesale and clears its sessions — **with no validation at all**, see the measured table below the API surface |
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
+
+**`POST …/load` validates nothing, and a bad body is a successful wipe.** Measured against a live
+board holding two devices:
+
+| Body | Answer |
+| --- | --- |
+| `{}`, `{"topology":null}`, a bare state object, or `{"topology":{…}}` | `200 {ok:true}` — the board is **replaced with an empty topology**, and that empty state is written to `data/topologies/<id>.json`, so the lab you had is gone from disk as well as from memory. All four shapes are accepted |
+| `{"format":"not-a-topology", …}` | `200` — `format` is never checked |
+| `{"version":99, …}` | `200` — `version` is never checked |
+| `{"devices":{}}` | `400 {"error":"devices is not iterable"}` — the **only** refusal, and it names an internal operation rather than the mistake |
+| a device whose `vendor`/`model` are not in the catalogue | `200`, and the device exists: `label: "nope"`, `name: "nope-d1"`, and `show version` answers `PacketForge nope (nope nope)` with an empty capability list. A later `ping` from it answers `404 {"error":"source device not found"}` |
+| a link whose `b` names a device that is not on the board | `200`, and the link is **dropped silently** — an import can lose cables and still report `ok: true` |
+
+So the status code tells you the request ran, not that the topology survived. To know an import worked,
+read `state` out of the response and compare it with what you sent: count devices, count links, and
+check every `vendor`/`model` against `GET /api/catalog` first. If you want a payload you can trust,
+generate it from the engine the way `examples/build-examples.js` builds its four labs, rather than
+hand-writing JSON.
 
 > **The 25th category has no filter.** `/api/catalog` groups all **25** `category` values, but the type filter in
 > the palette is built from `CAT_ORDER` in `web/app.js`, which lists **24** — `ap` is the one missing, and it is not
