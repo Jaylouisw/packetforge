@@ -20,6 +20,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   because "printed twelve lines, none matched" and "printed nothing" look identical on a blank screen. See
   [docs/CLI.md](docs/CLI.md).
 
+- **The `show ip …` spellings an operator actually types, and one honest refusal.** `show ip
+  access-lists` was an unknown command even though `show access-lists` answered a full table, so the
+  IOS-shaped spelling now returns the same table. `show ip dhcp snooping` is the opposite case: the
+  feature is **not modelled**, and the command says so instead of borrowing a nearby answer — it
+  explains that a switch here forwards DHCP as an ordinary broadcast, that nothing inspects, filters or
+  rate-limits DHCP messages per port, that there is no trust state or binding table to show, and which
+  two commands do answer something real (`show mac address-table` for the port a client is on, and
+  `show ip dhcp binding`, which exists only on a device that is a DHCP server). A refusal that points
+  at the wrong device's table was the older behaviour; this one names the gap. See
+  [docs/CLI.md](docs/CLI.md).
+
+- **`show interfaces switchport [<port>]` — the whole switch's L2 state in one answer.** The only way
+  to ask a port what it was configured to be was `show interfaces <port>`, whose summary column said
+  `switchport` and stopped there. The new view prints one block per port, or one block for the port you
+  name (and refuses a second port: *"show interfaces switchport [<port>] takes one port at most"*), with
+  `Administrative Mode`, `Operational Mode`, `Access Mode VLAN`, `Voice VLAN`, `Port Security` and
+  `Description`. A trunk swaps the access lines for the ones that matter on a trunk —
+  `Trunking Native Mode VLAN: 10`, `Trunking VLANs Enabled: ALL`, `Administrative private-vlan: none` — so
+  an access port and a trunk port do not answer with the same six rows. See [docs/CLI.md](docs/CLI.md).
+
+- **`show ip traffic` — and the same answer says what it does not count.** IOS prints a per-protocol
+  breakdown (ICMP/TCP/UDP/ARP totals); this model counts **frames per port**, so the command reports
+  per-port totals (`Received`, `Sent`, `Dropped`) and then says so in its own words: *"a per-protocol
+  breakdown … is not counted. This model counts frames per port, so `show interfaces counters` is the
+  same numbers with the ports kept apart."* A command that invents a protocol split it does not have
+  would be worse than the missing command, so the gap is printed rather than filled. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **`?` at a value slot completes from the device.** `interface Fa?` answered *"Nothing after `interface`
   starts with `Fa`"* while the device held eight such ports: the placeholder was completed from the help
   table, which holds the word `interface` and no device's ports. It now completes from the device, with a
@@ -416,7 +444,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
+- **A VLAN a port names now exists, and `show vlan` no longer invents one.** Three commands could name
+  a VLAN that was never created — `switchport access vlan 10`, `switchport voice vlan 20`,
+  `switchport trunk native vlan 10` — and the result was two views of the same switch disagreeing:
+  `show vlan` listed a bridge domain with a port in it while `show running-config` had no such VLAN, so
+  a saved lab lost the membership it was displaying. IOS creates the VLAN at that moment and says so,
+  and here that message is the only place an operator learns a VLAN now exists:
+  `Access VLAN 10 on Fa0/1 (VLAN 10 did not exist and was created - "no vlan 10" removes it)` and
+  `Voice VLAN 20 on Fa0/1 (tagged; the untagged traffic on this port stays in VLAN 10) - VLAN 20 did not
+  exist and was created`. The other half is the read side: membership is not existence, so a VLAN that
+  is **allowed on a trunk and nothing else** no longer appears as an active VLAN. `show vlan` now has
+  three states instead of two — carried by a port (an access port, a native VLAN, a voice VLAN shown as
+  `Fa0/1(v)`, or an SVI), declared and empty, or merely allowed — and it names the third out loud
+  rather than dropping it silently:
+
+  ```
+  % 77 is allowed on a trunk but not configured, so it is not a VLAN on this device:
+  %   vlan <id>                               creates it
+  %   switchport trunk allowed vlan remove <id>  drops it from the allowed list
+  ```
+
+  See [docs/CLI.md](docs/CLI.md).
+, rather than guarding
   only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
   omitted them and no check noticed.
 
