@@ -509,10 +509,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Checked against the tree as it stands, so that the list does not outlive the defects. Where a defect no
 longer reproduces, the measurement is recorded beside it and the entry is kept for the record.
 
-**As of this pass, none of the five reproduces.** #42, #43 and #54 were re-spot-checked against the code
-(`flowKeyOf()` still keys on `insideLocal` *and* `insideGlobal`), #41 was re-measured end to end, and #44 —
-the one entry that used to read *not exercised* — was given the lab it asked for and closed with numbers.
-None of the five is now a claim about today; the entries stay as the record of what was filed.
+**As of this pass, none of the five reproduces**, and each rests on a measurement rather than a reading of
+the code: #41 (three routers, iBGP split horizon), #42 and #43 (two OSPF speakers, `show ip route`
+on both sides), #44 (three neighbours on one segment, costs flipped) and #54 (`flowKeyOf()` keys on both
+`insideLocal` *and* `insideGlobal`, and two hosts behind one overload pool get `:1024` and `:1025`). Nothing
+here is a claim about today; the entries stay as the record of what was filed.
+
+Re-measured end to end on the current tree, since the DHCP work has since touched both `cli.js` and
+`simulator.js` — the two transcripts worth keeping, because they are the ones that could quietly invert:
+
+```
+Router-d1#show ip route                      (R1, an OSPF speaker, 10.0.0.1/30 + 10.1.0.1/24)
+  *  C 10.0.0.0/30  0    -         Gi0/0
+  *  C 10.1.0.0/24  0    -         Gi0/1
+  *  O 10.2.0.0/24  110  10.0.0.2  Gi0/0     <- only the neighbour's network, as `O`
+
+Router-d1#show ip ospf                        (after `ip ospf passive` on the LAN port)
+    Gi0/0      10    0     active
+    Gi0/1      10    0     passive
+
+Router-d2#show ip route 172.16.1.0            (a second two-router lab, R1's LAN now passive)
+  Matched      172.16.1.0/24  (OSPF, AD 110)  <- a passive interface is still advertised
+```
+
 
 - #41 BGP re-advertises an iBGP-learned route to another iBGP peer; next hop becomes the relayer.
   **No longer reproduces** — re-measured on the current tree with the same three routers in AS 65001 and
