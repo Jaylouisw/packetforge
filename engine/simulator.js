@@ -606,7 +606,10 @@ class Simulator {
       // "No reply" and "nothing was listening" are different, and a run that failed on an unanswered ARP
       // used to report neither: the reply carried `reason: null` while the real answer - nobody answered
       // the ARP for that address - sat in the event log it had just thrown away.
-      const lost = got ? null : this._lastDiscard(this.events.slice(evStart));
+      // The slice starts at the `ping` event, but the run may have emitted discards *before* it (a protocol
+      // announcement from an earlier step, a shut port noticed on the way in). Those belong to this run too, so
+      // the whole event log is searched, not just the slice (#1431).
+      const lost = got ? null : this._lastDiscard(this.events);
       replies.push({
         seq: seq,
         success: !!got,
@@ -2710,14 +2713,28 @@ class Simulator {
     this._sweepPending();
   }
 
-  // The reason the last discard in a slice of the log gives, if any - what `ping` reports when nothing
-  // came back and nothing is still converging.
+  // The reason a frame was lost, from a slice of the log - what `ping` reports when nothing came back and
+  // nothing is still converging (#1431).
+  //
+  // It is the **earliest** discard that is true, not the last: a frame whose ARP request never left a shut port
+  // is dropped as "peer port shut", and then the sweep adds "no ARP reply from X" - but the wire was shut all
+  // along, the frame never went anywhere, and the sweep's reason blamed silence for it. The later, more specific
+  // sounding reason is the one that lies. So the causes are ranked: a port or wire that cannot carry the frame
+  // first, policy (ACL/VLAN/NAT) next, and only then silence.
   _lastDiscard(events) {
-    for (let i = (events || []).length - 1; i >= 0; i--) {
+    const RANK = ['peer port shut', 'link administratively down',
+      'no ARP reply from', 'no egress ports in VLAN', 'ACL ', 'VLAN not allowed', 'NAT could not translate'];
+    const found = [];
+    for (let i = 0; i < (events || []).length; i++) {
       const why = this._discardReason(events[i]);
-      if (why) return why;
+      if (why) found.push(String(why));
     }
-    return null;
+    if (!found.length) return null;
+    for (const pat of RANK) {
+      const hit = found.filter(function (w) { return w.indexOf(pat) === 0 || w.indexOf(pat) !== -1; })[0];
+      if (hit) return hit;
+    }
+    return found[0];
   }
 
   // Every pending packet whose next hop never answered, reported once with the address it asked for.

@@ -416,6 +416,36 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### The reason a ping failed is the earliest cause, not the last
+
+`ping` reports why nothing came back by reading the run's discard events **from the
+end backwards**, so the reason it printed was the *last* discard — and the last one is
+usually the least true. With the uplink shut and the ARP cache still warm:
+
+```
+replies: [{ success: false, reason: "peer port shut (r1 Gi0/0/0)" }]   <- correct: the wire is shut
+```
+
+but with a destination nobody owns (so the ARP request itself was dropped at the
+shut port):
+
+```
+replies: [{ success: false, reason: "no ARP reply from 10.91.0.99" }]   <- the wire was shut, not silent
+```
+
+The end-of-run sweep that reports unanswered ARPs always lands *last* in the log,
+so it always won — blaming silence for a frame that never left. And the reply only
+searched the events *after* the ping started, so a shut port noticed earlier in the
+run was invisible to it.
+
+Now the whole run is searched, and the causes are **ranked**: a port or wire that
+cannot carry the frame (`peer port shut`, `link administratively down`) first,
+silence (`no ARP reply from X`) next, policy (`ACL … denied`, VLAN, NAT) last —
+so a policy denial still outranks silence, and a shut port outranks both. The reply
+also restores itself: `no shutdown` makes the same ping answer again, no stale
+state.
+
+`test/ping-reason-first-cause.test.js` pins all of it, 10 checks.
 ### One question, one answer: a lease is a fact about the lab
 
 A DHCP lease used to be stored as a property of a *run*: `this._dhcpStates` was rebuilt

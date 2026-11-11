@@ -121,7 +121,7 @@ console.log('A shut port is not a flood target, and a frame aimed at it is still
   // must still be counted, or the fix would have hidden a genuine loss.
   const reason = r.replies[0] && r.replies[0].reason;
   ok(!!reason, 'and the failure carries a reason', String(reason));
-  ok(/link administratively down|no ARP reply/.test(reason),
+  ok(/link administratively down|peer port shut|no ARP reply/.test(reason),
     'naming the shut link or the unanswered ARP', String(reason));
 }
 
