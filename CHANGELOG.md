@@ -496,6 +496,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A view asked at a moment says which moment.** The dispatcher prints the instant line *before* the
+  handler runs, so a handler that returns its own array instead of appending to the one it was given
+  drops the line on the floor — and the answer then reads as if no instant had been asked for. Measured
+  on one switch, before and after `d334df94`:
+
+  | typed at the prompt | before | now |
+  |---|---|---|
+  | `show spanning-tree at 50` | `STP at t=50 ms (control planes rebuilt for this answer)` | unchanged — it already appended |
+  | `show spanning-tree summary at 50` | `Spanning tree enabled protocol ieee - summary for SW1` — no instant line | `STP at t=50 ms (control planes rebuilt for this answer)` then the summary |
+  | `show spanning-tree root at 50` | `Root bridge for every VLAN (one tree): …` — no instant line | the instant line, then the root answer |
+  | `show spanning-tree summary converged` | (same omission) | `STP at converged (control planes rebuilt for this answer)` |
+
+  The other half of the rule was already true and still is: a view that cannot answer at an instant
+  refuses it by name — `show vlan at 50` answers `% "vlan at 50" does not take an instant` and lists the
+  families that do (`show ip route|ospf|bgp|arp|dhcp …`, `show mac address-table`, `show spanning-tree`,
+  `show vrrp`, `show lldp`). So the pair is now symmetric: label it if you took it, refuse it if you did
+  not, never answer the question you would have asked without it. `test/instant-label.test.js` holds
+  **16 assertions**. See [docs/CLI.md](docs/CLI.md).
+
 - **A MAC address finds the port, in all three spellings.** `show mac address-table address <mac>` is the
   one question a MAC table exists for, and the family answered it as a stray argument. Measured on a
   two-host switch, before and after `9480a8e3`:
