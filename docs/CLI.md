@@ -711,11 +711,11 @@ R1#ping 10.0.1.10
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 ....
-Success rate is 0 percent (0/4)
 Request timed out (seq 0)
 Request timed out (seq 1)
 Request timed out (seq 2)
 Request timed out (seq 3)
+Success rate is 0 percent (0/4)
 ```
 
 That is the honest output for this lab: a router with two configured subnets and **nothing cabled to
@@ -1346,19 +1346,20 @@ So a router answers for its far-side address only from that far side. The route 
 table says `up up`, and the ping still times out — which reads like a broken lab rather than a
 modelling choice. `show ip route` is not the thing to check here; the ingress interface is.
 
-A ping that does work, between two cabled hosts, prints the success line and then one line per
-reply with a real millisecond time computed from the path:
+A ping that does work, between two cabled hosts, prints one line per reply with a real millisecond time
+computed from the path, and the summary **last** — the summary is the last thing any `ping` on this
+console prints, whether it succeeded or not:
 
 ```
 PC1# ping 10.0.1.11
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.1.11, timeout is 2 seconds:
 !!!!
-Success rate is 100 percent (4/4)
 Reply from 10.0.1.11: bytes=100 time=0.103 ms
 Reply from 10.0.1.11: bytes=100 time=0.103 ms
 Reply from 10.0.1.11: bytes=100 time=0.103 ms
 Reply from 10.0.1.11: bytes=100 time=0.103 ms
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.103/0.103/0.103 ms
 ```
 
 ## Note on vendor syntax
@@ -5006,9 +5007,12 @@ a wire:
 
 ```
 R1#ping 10.0.0.1 count 2
+Type escape sequence to abort.
+Sending 2, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
 !!
-Success rate is 100 percent (2/2)
 Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Success rate is 100 percent (2/2), round-trip min/avg/max = 0.000/0.000/0.000 ms
 ```
 
 Nothing is counted as traffic (`show interfaces counters` stays at "no port has carried a frame"),
@@ -5135,19 +5139,22 @@ R1#ping 2001:db8:23::1 count 2
 Type escape sequence to abort.
 Sending 2, 100-byte ICMP Echos to 2001:db8:23::1, timeout is 2 seconds:
 !!
-Success rate is 100 percent (2/2)
 Reply from 2001:db8:23::1: bytes=100 time=0.103 ms
+Reply from 2001:db8:23::1: bytes=100 time=0.103 ms
+Success rate is 100 percent (2/2), round-trip min/avg/max = 0.103/0.103/0.103 ms
 ```
 
 When nothing answers, the answer says **why**, from the drops the run recorded:
 
 ```
 R1#ping 2001:db8:23::1 count 2
+Type escape sequence to abort.
+Sending 2, 100-byte ICMP Echos to 2001:db8:23::1, timeout is 2 seconds:
 ..
-Success rate is 0 percent (0/2)
 Request timed out (seq 0)
 Request timed out (seq 1)
 % IPv6 unicast routing is disabled on M
+Success rate is 0 percent (0/2)
 ```
 
 `traceroute` does not follow an IPv6 path in this model, and now says so instead of calling the
@@ -6043,8 +6050,8 @@ PC1#ping 10.0.9.9 count 1
 Type escape sequence to abort.
 Sending 1, 100-byte ICMP Echos to 10.0.9.9, timeout is 2 seconds:
 .
-Success rate is 0 percent (0/1)
 Request timed out (seq 0)
+Success rate is 0 percent (0/1)
 PC1#show logging acl-deny
 Event log (1 acl-deny events, from 13 in the lab):
   #   Step  Type      Device  Detail
@@ -7337,8 +7344,8 @@ PC10#ping 10.20.0.20
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.20.0.20, timeout is 2 seconds:
 !!!!
-Success rate is 100 percent (4/4)
 Reply from 10.20.0.20: bytes=100 time=0.307 ms
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.307/0.307/0.307 ms
 ```
 
 The router's own view is the check that the tagging landed: the subinterfaces appear in `show ip
@@ -7509,8 +7516,8 @@ PC1#ping 10.0.2.20
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.2.20, timeout is 2 seconds:
 ....
-Success rate is 0 percent (0/4)
 Request timed out (seq 0)
+Success rate is 0 percent (0/4)
 ```
 
 A flow names the list, its number, the direction and the port it was bound to. A **ping says none of
@@ -8201,10 +8208,10 @@ Interface  IP-Address    OK?  Method  Status  Protocol
 Vlan10     10.10.0.1/24  YES  manual  up      up
 
 H1#ping 10.10.0.1 count 2
-!!!!!
-Success rate is 100 percent (2/2)
+!!
 Reply from 10.10.0.1: bytes=100 time=0.002 ms
 Reply from 10.10.0.1: bytes=100 time=0.002 ms
+Success rate is 100 percent (2/2), round-trip min/avg/max = 0.002/0.002/0.002 ms
 
 SW1#ping 10.10.0.10 count 1
 Success rate is 100 percent (1/1)
