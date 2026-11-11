@@ -117,6 +117,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`show ip dhcp pool` / `show ip dhcp binding`** — pool summary with addresses actually in use,
   and the lease as seen from the server *and* from the client (`docs/CLI.md`, "DHCP server").
 
+- **`excluded-address` inside a DHCP pool, and two arguments are one range.** In `config-dhcp`,
+  `excluded-address 10.0.0.100 10.0.0.110` used to read as two addresses the way a `network` line
+  reads, so a client could still be handed an address from the middle of a range the operator had
+  excluded. It is one range now: `show ip dhcp pool` prints `Excluded : 10.0.0.100-10.0.0.110` and the
+  usable count drops from 253 to 242. Separate lines stay separate — adding `10.0.0.200` and
+  `10.0.0.201` one at a time prints `10.0.0.100-10.0.0.110, 10.0.0.200, 10.0.0.201` and counts 240 —
+  because concatenating two adjacent singles into a range would silently widen it when a hole between
+  them was meant to stay.
+
+- **`clear ip dhcp binding [*|<address>]`** — the binding table can be emptied, and says so when there
+  is nothing to empty: `% R1 holds no DHCP bindings`. A device that is not a DHCP server refuses with
+  its own line rather than reporting an empty table, which would read as "a server that has heard
+  nothing".
+
+- **`show ip dhcp server statistics`** — pools, automatic and manual bindings, leases given, renewed
+  and expired, and failed requests. The footer states the unit, because it is not the obvious one:
+  **one event per completed exchange**, not per DHCPDISCOVER/DHCPOFFER/REQUEST, so the numbers count
+  exchanges and will never match a packet capture.
+
 - **`show ip route` names every code it prints.** The legend is built from the table, so `O` (OSPF)
   and `B` (BGP) appear when - and only when - a row uses them, instead of rows the header never
   explained.
