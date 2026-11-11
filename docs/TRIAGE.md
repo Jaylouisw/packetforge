@@ -1,6 +1,6 @@
 # Triage: hardware requests
 
-Every open issue in this repository but one is a device request — **24 of 25** when this was last measured,
+Every open issue in this repository is a device request — **24 of 24** when this was last measured,
 each carrying both the `device` and `device-request` labels — and a steady fraction ask for hardware
 that is already modelled. Each one costs a human reading it.
 
@@ -19,8 +19,8 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
 a count of 24 and 24 `[Device]` titles say nothing about labels, and "each carrying both" is a claim
-about all 24 device requests at once. Measured with it: **25** open, **24 of 25** with `device`, **24 of 25** with
-`device-request`, **24 of 25** titles beginning `[Device]` (the exception is a runtime-facts request, not a device request). The `type=issues` is not decoration: the
+about all 24 device requests at once. Measured with it: **24** open, **24 of 24** with `device`, **24 of 24** with
+`device-request`, **24 of 24** titles beginning `[Device]`. The `type=issues` is not decoration: the
 issues endpoint serves pull requests too, from the same number space, so without it an open PR's labels
 land in the same tally.
 
@@ -76,7 +76,7 @@ out of two runs. The sweep did not scan anything, but it also did not say so in 
 not treat a 127 (or a 401 in the output) as an empty queue. Point `PF_API` at another instance if you
 are sweeping one.
 
-The script's own header still says the repository "has ~830 open issues"; it has **25** (measured
+The script's own header still says the repository "has ~830 open issues"; it has **24** (measured
 against the tracker: `x-total-count` on the `limit=1` request above, which is the number this page
 should be re-measured rather than re-quoted — it has fallen from 127 to 24 while this page sat here).
 Nothing reads that comment, and `--limit 200` still covers the whole queue, as the default does — but do
