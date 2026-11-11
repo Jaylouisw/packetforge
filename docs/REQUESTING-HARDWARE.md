@@ -37,9 +37,9 @@ Two things about the form are worth stating because neither is visible from the 
 
 Closed issues in this tracker carry no labels at all (measured: a sample of 50 of the closed ones has
 **none** — 50 fetched, 0 labelled), so label counts describe the *open* queue only — which is the queue
-the sweep reads. The closed count is a moving figure and quoting it is a losing game: it read `1,409`
-items with pull requests included and `915` issues on their own when this paragraph was last measured,
-against `1,407` and `914`, `1,405` and `913`, `1,403` and `912`, `1,399` and `910`, `1,397` and `909`, and `1,395` and `908` before those. Both halves climb
+the sweep reads. The closed count is a moving figure and quoting it is a losing game: it read `1,411`
+items with pull requests included and `916` issues on their own when this paragraph was last measured,
+against `1,409` and `915`, `1,407` and `914`, `1,405` and `913`, `1,403` and `912`, `1,399` and `910`, `1,397` and `909`, and `1,395` and `908` before those. Both halves climb
 together every time — the gap ran 487, 488, 489, then 491 — so the drift is merged work arriving, not
 one side pulling ahead; the last step is two because two pull requests merged between measurements. So
 measure both halves rather than remembering either:
