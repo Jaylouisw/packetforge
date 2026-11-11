@@ -123,9 +123,11 @@ PC1#flow open 10.0.0.11 port 80 at 11000
 % try again after that, or ask at an instant with "at <ms>" (and "at converged" to go back)
 ```
 
-`E_STP` is the honest code — the tree really is blocking — but a reader who saw `E_CONVERGING`
-elsewhere and expects it here will not find it. Both messages name the same switches and the same
-ready time, so the diagnosis is identical whichever one you get.
+`E_STP` is the honest code — the tree really is blocking. There is no `E_CONVERGING` code in this
+engine at all: it has never appeared in `engine/` in any commit, and the ping's prose above is the only
+place the idea is named, so a flow refused inside the window answers `E_STP` and nothing else. Both
+messages name the same switches and the same ready time, so the diagnosis is identical whichever one
+you get.
 
 `converge` shows the same thing as data:
 
