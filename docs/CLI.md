@@ -504,6 +504,40 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### A VLAN id is a number
+
+Wherever a VLAN is named — `vlan <id>`, `no vlan <id>`, `switchport access vlan`, `switchport trunk native vlan`,
+`switchport voice vlan` — the argument is a whole number from 1 to 4094. A word is refused, and the refusal quotes
+it:
+
+```
+sw1(config)#vlan WORD
+% Invalid VLAN id "WORD": a VLAN id is a whole number from 1 to 4094
+sw1(config)#vlan 1.5
+% Invalid VLAN id "1.5": a VLAN id is a whole number from 1 to 4094
+sw1(config)#vlan 4095
+% VLAN id 4095 is outside 1-4094
+sw1(config)#vlan 1002
+% VLAN id 1002 is reserved by IEEE 802.1Q (1002-1005)
+sw1(config-if)#switchport access vlan WORD
+% Invalid VLAN id "WORD": an access VLAN is a whole number from 1 to 4094
+sw1(config-if)#switchport voice vlan banana
+% Invalid VLAN id "banana": a voice VLAN is a whole number from 1 to 4094 or "none"
+```
+
+These five doors used to accept the word. `vlan WORD` answered **`VLAN NaN created (name: VLAN0NaN)`** and wrote
+`vlan NaN VLAN0NaN` into `show running-config` — a line that is not a VLAN and cannot be typed back — while
+`show vlan` did not list it at all, and the save file wrote the id as `null` and lost it. `switchport access vlan
+WORD` answered `Access VLAN NaN on 1`, and `show interfaces` then said `switchport: access VLAN 1`, because it
+read the same port through the normaliser that had turned the unreadable value into VLAN 1.
+
+The cause was ordering, not a missing check: `normalizePortConfig()` exists to hand the engine a usable port, so it
+replaces a value it cannot read with VLAN 1 — and `validatePortConfig()` was being handed that normalised copy. The
+integer rule it has always had (`must be a whole number`) could never fire, because the only values that reached it
+were the ones the normaliser had already made integral. The validator now receives the value the caller passed, so
+every door shares one rule again, and the console checks the *shape* of the argument (a token, not a value) so its
+answer can quote what was typed instead of the field name the validator uses internally.
+
 ### Pinging a name, and reading DNS
 
 `ping <address|name> [<count 1-50>] [at <ms>]` — an address or a name, how many echoes, and optionally the instant to

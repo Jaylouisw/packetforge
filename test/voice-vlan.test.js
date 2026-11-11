@@ -60,8 +60,10 @@ console.log('The command, and what it says:');
   ok(port(env).vlan.voiceVlan === null, 'and clears it', String(port(env).vlan.voiceVlan));
   ok(/has no voice VLAN/.test(env.cfg('no switchport voice vlan')), 'removing it twice refuses');
 
-  ok(/Usage: switchport voice vlan/.test(env.cfg('switchport voice vlan banana')),
-    'a non-number gets the usage line');
+  // The refusal quotes the word and still names the whole syntax, so the `|none` affordance is not lost by
+  // giving a better answer (#1409).
+  ok(/Invalid VLAN id "banana".*or "none"/.test(env.cfg('switchport voice vlan banana')),
+    'a non-number is refused, quoting it and naming the alternative', env.cfg('switchport voice vlan banana'));
   const outOfRange = env.cfg('switchport voice vlan 5000');
   ok(/%/.test(outOfRange) && /4094|range|invalid/i.test(outOfRange), 'an out-of-range VLAN is refused',
     outOfRange.slice(0, 90));
