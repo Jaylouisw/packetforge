@@ -204,12 +204,25 @@ The shape check matters more than it sounds: a `|` inside a backticked command �
 `` `show flows [<id> | counters]` `` — silently adds a column, and the table still *renders*, just with
 a cell pushed off the end. Escape it as `\|` inside the cell. The anchor check catches a link to a
 heading that was renamed, which is the usual casualty of rewording a section title. The suite check
-catches a document citing a `test/*.test.js` that does not exist — and it reports **thirteen** today, not
-five: the two suites `BGP-POLICY.md` proposes, the three `UPSTREAM-DESIGN.md` proposes, and eight §11 rows
-in `SIMULATION.md` that narrate those same names. That is why the check prints rather than fails — a
-design page naming a file it wants written is legitimate — and the only way to keep the distinction
-honest is to look at the list: recount with `node md-check.js … | grep 'cites test/'` before quoting a
-number from this paragraph, because this one was wrong for exactly that reason. The fourth check is the one this page learned the hard way:
+catches a document citing a `test/*.test.js` that does not exist — and it reports **fifteen** today, not
+five: five distinct absent names, cited across ten pages-and-rows —
+
+```
+4  upstream-baseline       3  bgp-policy
+4  poe-derived            2  bgp-policy-wire
+                          2  upstream-service
+```
+
+(each name without its `test/` prefix and `.test.js` suffix, so that this paragraph does not count itself
+— spell them out in full here and the check below reports five more than the number beside it)"
+
+Four of those names are suites a design page proposes (`BGP-POLICY.md` two, `UPSTREAM-DESIGN.md` two);
+the fifth, `poe-derived`, has never existed in `git log --all` and is named only by §11 rows whose
+subject *is* that absence (written without its prefix and suffix here, for the same reason as the block
+above). That is why the check prints rather than fails — a design page naming a
+file it wants written is legitimate — and the only way to keep the distinction honest is to look at the
+list: recount with `node md-check.js … | grep 'cites test/'` before quoting a number from this paragraph,
+because this one has been wrong in three successive directions for exactly that reason. The fourth check is the one this page learned the hard way:
 a **table row wrapped onto a second line** keeps its cell count, so the shape check passes, but GitHub
 renders the wrapped text as a paragraph and the table silently loses its last row on screen. Every
 table must be followed by a blank line — including the one above.
@@ -235,16 +248,19 @@ for (const d of docs){ const L=fs.readFileSync(d,"utf8").split("\n");
 console.log(bad?bad+" missing file citation(s)":"every cited file exists");'
 ```
 
-On this tree it prints **14** missing, and every one is deliberate. Do not quote that number as a
-target: the narrower suite-only version of the same question (the one `cat > /tmp/md-check.js` builds)
-read **13** an hour before this paragraph was written and **15** an hour after, because an audit row
-that *describes* an absent suite adds an absent suite. Run the one-liner, read the list, and check each
-entry against the three groups below. The fourteen
-break down as: **9** citations of the four proposed design suites counted above
-(`bgp-policy.test.js` ×2, `bgp-policy-wire.test.js` ×2, `upstream-baseline.test.js` ×3,
-`upstream-service.test.js` ×2); **2** citing `test/poe-derived.test.js`, which has never existed in
-`git log --all` and appears only in §11 rows whose subject *is* that absence; and **3** citing
-`web/link-parts.js`, which was deleted and is named only by the rows that record its removal. So the
+On this tree it prints **18** missing, and every one is deliberate. Do not quote that number as a
+target: an audit row that *describes* an absent file adds an absent file, and every pass that records a
+removal adds one more citation of the thing removed. Run the one-liner, read the list, and check each
+entry against the three groups below. The eighteen break down as: **9** citations of the four proposed
+design suites (`upstream-baseline.test.js` ×3, `bgp-policy.test.js` ×2, `bgp-policy-wire.test.js` ×2,
+`upstream-service.test.js` ×2); **4** citing `test/poe-derived.test.js`, which has never existed in
+`git log --all` and appears only in §11 rows whose subject *is* that absence; and **5** citing
+`web/link-parts.js`, which was deleted and is named only by the rows that record its removal
+(`SIMULATION.md` three times, this page twice). By page: `SIMULATION.md` 10, `CI.md` 3,
+`UPSTREAM-DESIGN.md` 3, `BGP-POLICY.md` 2. Those per-file counts do not match the suite-check block
+above — `upstream-baseline.test.js` is 3 here and 4 there — because the two checks count different
+things: `md-check` counts **rows**, and this one counts **citations**, so a single row naming four files
+is one row and four citations. Neither number is wrong; quoting one against the other is. So the
 number grows whenever history grows, which is why this paragraph carries the breakdown and not just a
 count. Anything that does not fall into one of those three groups is a renamed file and a broken page.
 
