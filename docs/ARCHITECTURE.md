@@ -442,13 +442,33 @@ ones written down — which meant the UI's actual client surface was undocumente
 signatures** in **fifteen dispatcher blocks**, plus the board-level routes above and the three catalogue
 routes below.
 
-Counted from `server/index.js` rather than by eye, because the shape is not what the namespace list
-suggests: `links` carries **four** (`POST` a link, `DELETE` one, the length edit, and `…/:linkId/state`),
-`flows` also carries **four** (`GET` the list, `POST` to open one, `GET` one, `DELETE` one), `devices` two
-(`POST`, `DELETE`), and the remaining eight namespaces one each. The 18-versus-15 gap is entirely three blocks that
-answer more than one method (`links` on `…/:linkId` does three, `flows` does two in each of its blocks);
-counting methods naively gives 19, and counting the length edit's `PATCH` *or* `POST` as one call — which
-is how the table below lists it — gives 18.
+Counted from the dispatch block in `server/index.js` rather than by eye, because the shape is not what
+the namespace list suggests. **25 callable method-path pairs over 15 namespaces**, and the three blocks
+that carry more than one method account for the whole gap:
+
+| Namespace | Pairs | Which |
+|---|---|---|
+| `links` | 4 | `POST` a link, `DELETE …/:linkId`, the length edit (`PATCH` **or** `POST`), `…/:linkId/state` |
+| `flows` | 4 | `GET` the list, `POST` to open one, `GET …/:flowId`, `DELETE …/:flowId` |
+| `topologies` | 4 | `GET` the id list and `POST` to create one; `GET …/:id` and `DELETE …/:id` |
+| `devices` | 2 | `POST`, `DELETE …/:devId` |
+| the other eleven | 1 each | `catalog`, `version`, `media`, `validate-link`, `link-options`, `config`, `interfaces`, `ping`, `layout`, `load`, `reset` |
+
+Counting methods naively gives **26**, not 25: the length edit accepts `PATCH` *or* `POST` on the same
+path, and the table below lists it once. Three facts this arithmetic hides and the dispatch block makes
+obvious:
+
+- **The method is not part of the route, so a wrong method is not a `405`.** `PUT /api/version`,
+  `POST /api/catalog` and `DELETE /api/version` all answer `404 {"error":"unknown endpoint"}`. The one
+  exception is `…/links/:linkId/state`, which answers `405 {"error":"use POST"}` for any other method —
+  it is the only `405` in the dispatcher, and the table below says so.
+- **A nested path of the wrong depth is a `404` that echoes itself**: `…/links/l1/extra` answers
+  `{"error":"unknown endpoint: /api/topologies/t/links/l1/extra"}`, while the top-level `/api/nope`
+  answers the bare `{"error":"unknown endpoint"}`. Two different 404 bodies from one dispatcher.
+- **`/api` without the trailing slash is not an API path at all.** The dispatcher tests
+  `urlPath.indexOf('/api/') === 0`, so `GET /api` falls through to the static handler and returns the
+  **UI, `200` with HTML**, while `GET /api/` returns `404 unknown endpoint`. A health check pointed at
+  `/api` is checking the wrong thing and passing.
 
 Per namespace:
 
