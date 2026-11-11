@@ -100,6 +100,7 @@ is the object to read and `C` is the name you will see in a stack trace or a `gr
 | OSPF SPF delay | 5 s | the hold before the first route lands |
 | VRRP advertisement | 1 s | RFC 5798 §6.1 |
 | DHCP exchange | 1 s | DISCOVER/OFFER/REQUEST/ACK |
+| STP hello | *(none)* | `engine/convergence.js` carries `stpHelloSec: 2` in its constant table and **nothing reads it** — a BPDU's hello pacing is not modelled, so no timer expires on a missed hello. STP state expires on max age (20 s) instead. The constant is a leftover, and its presence in the code is not evidence that hellos are simulated. |
 
 ### How each readiness number is computed
 
@@ -110,6 +111,27 @@ The `Ready` column is arithmetic, not a lookup, and every formula below was chec
 |---|---|---|
 | STP | `listing = forward delay`, then a second forward delay to learn, so `2 × 15 s` | `30000 ms  listening + learning (15 s forward-delay each)` |
 | OSPF | `hello + exchange` to form the adjacency, `+ SPF hold` for the first route | `16000 ms  hello 10 s + exchange, then SPF hold` (10 + 1 + 5) |
+
+`converge` answers with **one row per device per process**, not one row for the lab, so the summary
+line is the maximum of everything listed rather than the figure for the device you typed it on.
+Measured on a four-device lab (two switches cabled to each other, two routers cabled to each other):
+
+```
+Router-d6#converge
+Process  Device          Ready     Basis
+ospf     Router-d6       16000 ms  hello 10 s + exchange, then SPF hold
+ospf     Router-d7       16000 ms  hello 10 s + exchange, then SPF hold
+stp      Switch (L2)-d1  30000 ms  listening + learning (15 s forward-delay each)
+stp      Switch (L2)-d2  30000 ms  listening + learning (15 s forward-delay each)
+
+Fully converged at 30000 ms.
+```
+
+Two details that transcript settles: the rows cover **every device on the board**, so the two routers
+and the two switches — which share no cable in that lab — are timed in the same answer, and neither
+island is filtered out for being unrelated to the device the command was typed on. And the total is
+`30000 ms`: the slower process wins the headline even though the OSPF on that router lands at
+`16000 ms`.
 | VRRP | `3 × advertisement + skew`, where `skew = (256 − priority) / 256` s and priority 255 skips it | `3609.375 ms  3 x advertise 1 s + skew` at priority 100 (3 + 156/256) |
 | DHCP | the exchange itself, with no queueing behind it | `1000 ms  DISCOVER/OFFER/REQUEST/ACK` |
 
