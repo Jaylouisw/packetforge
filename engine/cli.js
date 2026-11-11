@@ -9401,6 +9401,12 @@ class CliSession {
       out.push.apply(out, renderTable(['Vlan', 'Mac Address', 'Type', 'Ports'],
         rows.map(function (r) { return [r[0], r[1], 'DYNAMIC', r[2]]; })));
     } else if ((what === 'interfaces' || what === 'interface') &&
+               (tokens[1] === 'trunk' || tokens[1] === 'trunks')) {
+      // `show interfaces trunk` read "trunk" as a port name and answered "No interface named trunk".
+      // It is the first view an operator opens on a switch that is not passing tagged traffic, and
+      // every fact in it - mode, native VLAN, allowed and active lists - was already in the model.
+      out.push.apply(out, this._showInterfacesTrunk(tokens[2]));
+    } else if ((what === 'interfaces' || what === 'interface') &&
                (tokens[1] === 'transceiver' || tokens[1] === 'transceivers')) {
       out.push.apply(out, this._showTransceiver(tokens[2]));
     } else if (what === 'interfaces' || what === 'interface') {
@@ -10259,6 +10265,126 @@ class CliSession {
     out.push('');
     out.push('What is not counted: a per-protocol breakdown (ICMP/TCP/UDP/ARP totals). This model counts');
     out.push('frames per port, so "show interfaces counters" is the same numbers with the ports kept apart.');
+    return out;
+  }
+
+  // The trunk table, in the order IOS prints it: the port facts first, then what is allowed on the
+  // trunk, then what is allowed *and* active (a VLAN somebody allowed but never created is not
+  // active), then what the spanning tree is forwarding. Each section is derived from the same
+  // records the rest of the model reads, so the answer cannot disagree with `show vlan` or with the
+  // running configuration.
+  _showInterfacesTrunk(only) {
+    const dev = this.device;
+    const out = [];
+    if (!dev.isL2()) {
+      return ['% ' + dev.name + ' does not switch: it has no trunk ports, and every port is routed',
+        '% A tag on a routed port is a subinterface - "show ip interface brief" lists them'];
+    }
+    let want = null;
+    if (only !== undefined && only !== null && String(only) !== '') {
+      // The port argument goes through the same resolver the config parser uses, so an unknown word
+      // is refused as an unknown *port* rather than reported as "not a trunk port" - which reads as
+      // though the port exists and is simply misconfigured.
+      const pick = this._portArg([String(only)], dev, 'show interfaces trunk');
+      if (!pick.ok) return pick.output;
+      want = pick.port || null;
+      if (!want) {
+        const ports = Array.from(dev.interfaces.values()).filter(function (i) { return !i.svi; })
+          .map(function (i) { return i.name; });
+        return ['% No interface named ' + only + ' on ' + dev.name,
+          '% This device has: ' + ports.join(', ')];
+      }
+    }
+    const ports = Array.from(dev.interfaces.values()).filter(function (i) {
+      if (i.svi) return false;
+      const v = i.vlan || {};
+      return String(v.mode || '').toLowerCase() === 'trunk' && i.enabled !== false;
+    }).filter(function (i) { return !want || i.name === want; })
+      .sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+    if (!ports.length) {
+      return [(want ? '% ' + want + ' is not a trunk port' : '% No trunk ports on ' + dev.name),
+        '% Ports with "switchport mode trunk" are listed here, one row per port, with the VLANs',
+        '% allowed on it and the VLANs the spanning tree is forwarding'];
+    }
+    const declared = function (id) {
+      const v = (dev.config.vlans || {})[id];
+      return v !== undefined && v !== null;
+    };
+    const vlanList = function (i) {
+      const v = i.vlan || {};
+      const all = v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans);
+      if (all) {
+        const ids = Object.keys(dev.config.vlans || {}).map(Number).filter(function (n) { return n > 0; });
+        return { all: true, ids: ids.sort(function (a, b) { return a - b; }) };
+      }
+      return { all: false, ids: v.allowedVlans.slice().sort(function (a, b) { return a - b; }) };
+    };
+    const label = function (l) {
+      const ids = l.ids;
+      if (!ids.length) return 'none';
+      if (l.all && ids.length > 6) return ids[0] + '-' + ids[ids.length - 1] + ' (all declared)';
+      return ids.join(',');
+    };
+    const rows1 = ports.map(function (i) {
+      const v = i.vlan || {};
+      const st = this._ifaceState ? this._ifaceState(i) : { status: 'up' };
+      return [i.name, 'on', '802.1q', st.status === 'up' ? 'trunking' : 'not-trunking',
+        String(Number(v.nativeVlan) || 1)];
+    }, this);
+    out.push.apply(out, renderTable(['Port', 'Mode', 'Encapsulation', 'Status', 'Native vlan'], rows1));
+    out.push('');
+    out.push('Port      Vlans allowed on trunk');
+    const active = function (i) {
+      const l = vlanList(i);
+      const ids = l.ids.filter(declared);
+      const allowed = Array.from(dev.interfaces.values()).map(function (x) {
+        const v = x.vlan || {};
+        const set = [];
+        if (String(v.mode || '').toLowerCase() === 'trunk') {
+          if (v.allowedVlans === 'all' || !Array.isArray(v.allowedVlans)) set.push('ALL');
+          else set.push.apply(set, v.allowedVlans);
+        } else if (Number(v.accessVlan)) set.push(Number(v.accessVlan));
+        return set;
+      });
+      const carried = ids.filter(function (id) {
+        return allowed.some(function (s) { return s === 'ALL' || s.indexOf(id) !== -1; });
+      });
+      return { allowed: ids, carried: carried };
+    };
+    for (const i of ports) {
+      const l = vlanList(i);
+      out.push(pad(i.name, 10) + label(l));
+    }
+    out.push('');
+    out.push('Port      Vlans allowed and active in management domain');
+    for (const i of ports) out.push(pad(i.name, 10) + (active(i).allowed.join(',') || 'none'));
+    out.push('');
+    out.push('Port      Vlans in spanning tree forwarding state and not pruned');
+    for (const i of ports) out.push(pad(i.name, 10) + (active(i).carried.join(',') || 'none'));
+    // A port configured as a trunk with no link would not appear in this table on a real switch, and
+    // its absence reads as "my configuration did not take". It is listed, and the reason it is not
+    // trunking is spelled out rather than left as a word with no explanation.
+    const down = ports.filter(function (i) {
+      const st = this._ifaceState ? this._ifaceState(i) : { status: 'up' };
+      return st.status !== 'up';
+    }, this);
+    if (down.length) {
+      out.push('');
+      out.push('% ' + down.map(function (i) { return i.name; }).join(', ') +
+        ' is configured as a trunk but has no link - it will trunk when a cable arrives');
+    }
+    // A trunk with nothing allowed is a port that will drop every tagged frame, and that is the
+    // usual reason somebody is reading this table.
+    const empty = ports.filter(function (i) {
+      const a = active(i);
+      return !a.allowed.length || !a.carried.length;
+    });
+    if (empty.length) {
+      out.push('');
+      out.push('% ' + empty.map(function (i) { return i.name; }).join(', ') +
+        ' carr' + (empty.length === 1 ? 'ies' : 'y') + ' no VLAN the spanning tree forwards:');
+      out.push('% "show vlan" lists the VLANs that exist, and "show running-config" the allowed list');
+    }
     return out;
   }
 
@@ -12096,6 +12222,7 @@ class CliSession {
       helpLine('show ip interface brief [<port>]', 'address and link state per port'),
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
       helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
+      helpLine('show interfaces trunk [<port>]', 'trunk ports: mode, native VLAN, allowed and active VLANs, what the tree forwards'),
       helpLine('show interfaces <port> switchport', 'one port\'s L2 state: mode, access VLAN or trunking, port security'),
       helpLine('show history', 'the commands typed into this session, last 10'),
       helpLine('show terminal', 'console length and width for this session, and that there is no pager'),

@@ -428,10 +428,10 @@ services, and a job that has to swap makes the whole queue slower.
   documentation problem, and both are worth naming here so the next reader does not investigate the
   wrong six hundred lines.
 
-  The fourteen-suite failure had one cause rather than fourteen: `_showExtraArgRefusal()` in
-  `engine/cli.js` reads the **enable-mode help table as the contract**, so a handler that accepts an
-  argument its row does not declare is refused with `% "<word>" is not an argument to "<command>"`
-  before it runs. The handler was right, the rows were stale, and the tests were the thing saying so.
+  The fourteen-suite failure had one cause rather than fourteen: `_ignoredArgRefusal()` in
+  `engine/cli.js` (`_ignoredArgRefusal(tokens, answer)`, which reads the **enable-mode help table as the
+  contract** through `_helpFormRowsAll(MODE_ENABLE)`) refuses a word its row does not declare with
+  `% "<word>" is not an argument to "<command>"` before the handler's answer is accepted. The handler was right, the rows were stale, and the tests were the thing saying so.
   That is exactly why a sentence of the form "no suite is red" does not belong in a page: it is a
   reading, and readings go stale between two runs of the same command.
 

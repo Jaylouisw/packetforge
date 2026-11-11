@@ -880,7 +880,7 @@ wrote, and they write text:
 
 `Math.max.apply(null, ["10G", "1G"])` is `NaN`, and **every comparison against `NaN` is false**, so the
 `if (fastest > cageSpeed)` branch never ran for any port whose caps were written as strings — which is
-how an EdgePoint S16 carried a 10G claim on a 1G SFP cage. The current code parses the strings before comparing (`parseMbps()` on each cap, dropping the
+how an EdgePoint S16 carried a 10G claim on a 1G SFP cage. The current code parses the strings before comparing (`parseSpeedMbps()` on each cap, dropping the
 unparseable). Two lessons that generalise beyond this file:
 
 - **`NaN` is a silent pass.** Any assertion of the form `if (measured > limit)` is green when `measured`

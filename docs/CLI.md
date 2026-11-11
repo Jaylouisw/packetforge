@@ -41,6 +41,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
 | `show access-lists [<name>]` | the list with its per-line match counters |
+| `show interfaces trunk [<port>]` | trunk ports in three sections: mode, encapsulation, status and native VLAN; the VLANs allowed; the ones that exist; and what the spanning tree forwards. Says which trunks have no link, and which carry no VLAN the tree forwards |
 | `show ip access-lists [<name>]` | the same table under the spelling IOS documents - one handler, one table |
 | `show ip traffic` | per-port totals: packets and bytes each way, drops with their reasons. Says plainly that a per-protocol breakdown is not counted |
 | `show ip dhcp server statistics` | pools, automatic and manual bindings, leases given/renewed/expired and failed requests, with a line saying which counters are not kept (per-message DHCPDISCOVER/OFFER/REQUEST counts) |
@@ -1555,6 +1556,38 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### The trunk table
+
+```
+SW1#show interfaces trunk
+% No interface named trunk on SW1
+```
+
+`show interfaces trunk` is the first view an operator opens on a switch that is not passing tagged
+traffic, and this console read `trunk` as a port name and refused it as a typo. Every fact it carries was
+already in the model — the operator had to reassemble it from `show running-config`, `show vlan` and
+`show interfaces <port> switchport`, three views and no cross-check.
+
+```
+Port   Mode  Encapsulation  Status        Native vlan
+Fa0/2  on    802.1q         trunking      1
+Fa0/3  on    802.1q         not-trunking  1
+
+Port      Vlans allowed on trunk
+Fa0/2     10,20
+Fa0/3     99
+...
+% Fa0/3 is configured as a trunk but has no link - it will trunk when a cable arrives
+```
+
+The fourth section is the one that catches people: a VLAN somebody allowed but never created is not
+active, and a trunk with nothing allowed drops every tagged frame. The table says that in words rather
+than leaving `none` to be interpreted, and the three sections are derived from the same records
+`show vlan` and the running configuration read, so they cannot disagree.
+
+A port configured as a trunk with no cable would not appear in this table on a real switch — and its
+absence reads as "my configuration did not take". It is listed with the reason spelled out.
+
 ### The `show ip` spellings, and a view that says what it does not count
 
 ```
@@ -2902,12 +2935,30 @@ R1#show access-lists NOSUCH
 > **Two caveats the transcript above does not show, both measured.** First, the name match is
 > **case-sensitive**, unlike `show vlan name`: `show access-lists VOICE` filters, `show access-lists voice`
 > answers `% No access list voice on R1` and lists `101, VOICE`. Second, an argument can be refused by the
-> *help-table gate* before the handler sees it — `_showExtraArgRefusal()` treats the enable-mode row as the
-> contract, and the row for this command declares no `[<name>]`, so the same word is sometimes answered by
-> the filter and sometimes with `% "VOICE" is not an argument to "show access-lists"` depending on which
-> form the gate matched. When you are reading a transcript of this command, check which of the two
-> refusals you are looking at: `% No access list …` means the filter ran, `% "…" is not an argument`
-> means it never did.
+> *help-table gate* before the handler sees it — `_ignoredArgRefusal()` treats the enable-mode row as the
+> contract, and the row for this command declares no `[<name>]`, so a word the row does not name can be
+> answered either by the filter or with `% "VOICE" is not an argument to "show access-lists"`. Which one
+> you get is decided by the gate's first rule: **a handler answer that already begins with `%` is the
+> handler's to give**, and the gate stays out of it. Re-measured on this tree with one list named `VOICE`,
+> every form below is answered by the filter, so the second refusal no longer appears for this command:
+>
+> ```
+> R1#show access-lists VOICE      -> Extended IP access list VOICE / 10 permit tcp any any eq 5060
+> R1#show access-lists voice      -> % No access list voice on R1 / % The lists here are: VOICE
+> R1#show access-lists NOSUCH     -> % No access list NOSUCH on R1 / % The lists here are: VOICE
+> R1#show access-lists 101        -> % No access list 101 on R1 / % The lists here are: VOICE
+> ```
+>
+> See the gate by typing too much at a command whose handler still answers — `show version extra` and
+> `show interfaces Fa0/1 extra` both produce `% "extra" is not an argument to "show version"`, while
+> `show running-config extra` gets the handler's own `% No interface named extra`. There are in fact
+> **three** shapes for "you typed too much", and they name different layers: `% Unexpected argument "x" -
+> <usage> takes no more` is `_noExtra()` (the handler's own arity check, e.g. `show vlan brief extra`),
+> `% "x" is not an argument to "<cmd>"` is `_ignoredArgRefusal()`, and anything else is the handler
+> answering a word it decided to read.
+>
+> When you are reading a transcript of this command, the refusal shape still tells you which layer spoke —
+> `% No access list …` means the filter ran, and the gate never overrules a refusal a handler already gave.
 >
 > `test/show-filter.test.js` asserts the case-insensitivity with `ok(/VOICE/.test(output))`, and the
 > *refusal* text ends `% The lists here are: 101, VOICE` — so that assertion passes on a refusal. Four
