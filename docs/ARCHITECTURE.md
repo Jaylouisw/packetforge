@@ -328,6 +328,23 @@ Two of the board endpoints behave in a way a client author will not guess:
   rejected for its shape**. Measured: `{"lines":["show version"]}` answers
   `400 { error: 'CliSession.run expects a string, got undefined' }`, which names the engine's internal
   call rather than the mistake the client made. If you get that message, your key is not `commands`.
+- **A `200` from the config endpoint means the request ran, not that the device accepted it.** The
+  session starts in exec mode, so a bare `interface Gi0/0` is not a command there, and the refusal
+  arrives inside a `200`. Measured on a fresh board:
+
+  ```
+  POST …/config/d1   {"command":"interface Gi0/0"}
+  200 {"output":"Router-d1>interface Gi0/0\n% Unrecognized command: interface Gi0/0",
+       "prompt":"Router-d1>", …}
+  ```
+
+  The status code is the same one a successful call returns; the tells are the `%` line and the prompt
+  the answer ends in (`Router-d1>` is exec, `Router-d1(config-if)#` is the interface). Prefix with
+  `enable` and `configure terminal`, and check the `output` for `IP address set on Gi0/0: …` rather
+  than trusting the code. A client that treats `200` as "applied" builds a lab with no addresses and
+  only finds out from the next call — `POST …/flows` answers
+  `400 { error: 'destination device has no IP address', code: 'E_NO_ADDRESS' }`, which names the
+  symptom rather than the call that caused it.
 - **`name` is not a field.** Posting `{ "name": "lab2" }` returns `201` with an id of
   `topo-mw9ltb2h` and creates a board you did not name. Measured against a live server, because the
   body is not validated and the mistake is silent.
@@ -414,8 +431,8 @@ doors onto one model, not two implementations.
 - `POST /api/topologies/:name/flows` — `{ proto, srcDevice, dstDevice, srcPort, dstPort, bytes }`
   (`src`/`dst` are accepted as aliases for the two device fields). `201` with
   `{ flow, mss, mtu, segments, events, step, counters, runtime }`; `400` with
-  `{ error, code, reason, flow, events, step }` when the flow could not open (`E_NO_ROUTE`,
-  `E_ACL_DENY`, `E_POE`, `E_REFUSED`, `E_UNREACHABLE`, ...). `step` is the simulator's frame
+  `{ error, code, reason, flow, events, step }` when the flow could not open (`E_NO_ADDRESS`,
+  `E_NO_ROUTE`, `E_ACL_DENY`, `E_POE`, `E_REFUSED`, `E_UNREACHABLE`, ...). `step` is the simulator's frame
   counter at the end of the run, which is what you compare against `events`.
 - `GET /api/topologies/:name/flows` — `{ flows, counters }`.
 - `GET /api/topologies/:name/flows/:id` — one flow, or `404` if it is gone.
