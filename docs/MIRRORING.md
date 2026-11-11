@@ -171,8 +171,8 @@ repository if the instance default is private (Settings → Advanced → *This r
   exits `0`. The figure is **not** a file count you can quote: the checker walks the *working tree* for
   seven extensions (`.md .js .json .yml .yaml .html .txt`), skipping `.git`, `node_modules`, `dist`,
   `coverage` and dot-directories other than `.github`/`.forgejo` — which means an untracked probe in
-  `tmp/` counts too. It read `2266` this morning, `2268` an hour later and `2269` a few minutes after
-  that, each time because someone added a file. Re-run it rather than quoting the number. `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
+  `tmp/` counts too. It read `2266` this morning, `2268` an hour later, `2269` a few minutes after
+  that and `2278` now, each time because someone added a file. Re-run it rather than quoting the number. `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
   and require the checker to refuse it: a GitHub URL, a `gh` instruction, and a README that cannot be
   cloned from. That is what makes it a test rather than a pass.
 - `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
