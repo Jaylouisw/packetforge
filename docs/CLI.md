@@ -8052,12 +8052,18 @@ added fifteen by itself. It has read 70, then 103, then 117 — each revision of
 and recounting is one line:
 
 ```bash
-grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 118
+grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 117
 ```
 
-**118, not 117, and the difference is this fence.** The pattern contains the two characters it is
-looking for, so the command counts its own `E_` as a token. The page holds 117 codes and one copy of the
-pattern; subtract the pattern when you want the inventory, or accept 118 as "117 plus the ruler". The rest are reachable only through `validateTopology()`, the API, or a surface that
+**117, not 116, and the difference is this fence.** The pattern contains the two characters it is
+looking for, so the command counts its own `E_` as a token. The page holds 116 codes and one copy of the
+pattern; subtract the pattern when you want the inventory, or accept 117 as "116 plus the ruler". Both
+figures fell by one the day a retired voice warning — a code no engine emits any more — was replaced in the
+VLAN table by the three voice refusals that do fire (`E_VOICE_VLAN_ACCESS`, `E_VOICE_VLAN_NATIVE`,
+`E_VOICE_NOT_ALLOWED`, all three already named by the per-module table): removing a code nothing raises
+shrinks the inventory, adding three that already appear elsewhere does not. The retired name is deliberately
+not written here, because this paragraph is inside the thing it counts — naming it would put it straight back
+in and move the number to 118. The rest are reachable only through `validateTopology()`, the API, or a surface that
 prints prose instead of the code, which is what the next table is about — so a code missing from the
 tables is not necessarily a code that cannot happen, it is a code you cannot see from this console.
 
@@ -8215,7 +8221,9 @@ IPv6, DNS, SCION, BGP — is reachable with `grep -rn "E_" engine/*.js`.
 | `E_VLAN_EMPTY` | the VLAN list is empty |
 | `E_TRUNK_NO_VLANS` | a trunk was given an empty allowed list (use `all` to mean every VLAN) |
 | `E_NATIVE_NOT_ALLOWED` | the native VLAN is not in the allowed list |
-| `E_VOICE_VLAN_UNSUPPORTED` | a voice VLAN was set on an access port; voice traffic is tagged, so it needs a trunk |
+| `E_VOICE_VLAN_ACCESS` | the voice VLAN is the port's **access** VLAN: `% VLAN 10 is the VLAN that leaves Fa0/1 untagged (the access VLAN)` — voice is tagged, so it needs a VLAN of its own |
+| `E_VOICE_VLAN_NATIVE` | the voice VLAN is the trunk's **native** VLAN — the same objection, with `"switchport trunk native vlan <other>"` as the suggested fix |
+| `E_VOICE_NOT_ALLOWED` | the voice VLAN is missing from the trunk's allowed list: `% VLAN 30 is not in the allowed list on Fa0/1 (it allows 20)` |
 | `E_VLAN` | *runtime*, not configuration: a frame was dropped because its VLAN is not allowed on the port |
 
 ### Link aggregation (`engine/lag.js`)
