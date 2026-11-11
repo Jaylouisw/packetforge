@@ -345,7 +345,7 @@ only way to catch this class of bug.
 |---|---|---|---|---|---|
 | 1 | `weight` | higher wins | 0 | — (not in RFC 4271) | Router-local, never on the wire. Kept because `comparePaths()` already implements it and the existing tests depend on it (`test/bgp.test.js:388-396`). |
 | 2 | `LOCAL_PREF` | higher wins | 100 | §9.1.1 + §9.1.2 + §5.1.5 | **First attribute tiebreaker, before AS-path length.** For iBGP this is the Phase-1 degree of preference, not a §9.1.2.2 tie-break (§2.3). |
-| 3 | locally originated | wins | — | §5.1.2(b) (originated routes carry an empty AS_PATH to iBGP) | Vendor convention, implemented via `isLocalPath()` (`bgp.js:343-350`). Strictly it is subsumed by step 4 (length 0), so it can only matter against another zero-length path. |
+| 3 | locally originated | wins | — | §5.1.2(b) (originated routes carry an empty AS_PATH to iBGP) | Vendor convention, implemented via `isLocalPath()` (`bgp.js:345-350`). Strictly it is subsumed by step 4 (length 0), so it can only matter against another zero-length path. |
 | 4 | AS_PATH length | shorter wins | 0 | §9.1.2.2(a) | **An AS_SET counts as 1 hop regardless of size.** |
 | 5 | `ORIGIN` | lower wins | 2 (`INCOMPLETE`) | §9.1.2.2(b) | `IGP(0) < EGP(1) < INCOMPLETE(2)`, `BGP_ORIGIN`. |
 | 6 | `MED` | lower wins | 0 | §9.1.2.2(c) | **Only within one neighbouring AS** unless `always-compare-med`. Absent = 0. |
@@ -356,7 +356,10 @@ only way to catch this class of bug.
 
 After step 9 a **simulator-only** guard breaks what is left: lowest prefix
 string, then insertion order. It is not a BGP rule, it exists so `bestPath()`
-is a pure function of its input set (`bgp.js:469-475`, `comparePrefix`).
+is a pure function of its input set. That guard is `compareForBest()`
+(`bgp.js:469-475`), which runs `comparePaths()`, then the router-id, then
+`comparePrefix()` (`bgp.js:454-467`) — prefix first, then the raw string, so two
+paths to the same prefix still order deterministically.
 
 ### 4.2 Deliberately skipped RFC steps
 
@@ -936,7 +939,7 @@ alignment:
 
 `bgp.js` must export the new helpers so they can be unit-tested without a
 topology, in the same flat style as the current export list
-(`bgp.js:542-558`):
+(`bgp.js:601-619`):
 
 ```
 DEFAULT_LOCAL_PREF, DEFAULT_MED, DEFAULT_WEIGHT,
