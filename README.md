@@ -348,6 +348,13 @@ node examples/build-examples.js   # regenerates + self-verifies the example labs
 npm run syntax                    # syntax-check every JS file
 ```
 
+A full run is **not** green today, and the two reds are known rather than new:
+**`link-parts`** — the UI's hard-coded `PART_ROWS` table has fallen behind the part numbers in
+`catalogue/optics/transceivers.json`, and the failure names each missing one — and
+**`ma5801`**, a `TypeError` crash that never prints a tally, so the runner counts it as a single
+failure. Anything else red is yours. Both are explained in
+[CI.md § Known gaps](docs/CI.md#known-gaps), with the readings they were measured from.
+
 ---
 
 ## Why not just use Packet Tracer / GNS3 / EVE-NG?
