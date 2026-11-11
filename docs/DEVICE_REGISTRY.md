@@ -508,6 +508,27 @@ node scripts/audit-devices.js          # models, vendors, ports, cablability, op
 node scripts/missing-devices.js        # what the catalogue is still missing
 ```
 
+Neither of those counts the `ap` family or the buckets, so measure them directly — the two numbers that
+decide whether the paragraph above is still true, both computed from the tree rather than typed in:
+
+```bash
+node -e '
+const fs=require("fs"),p=require("path");const ap=[],cats=new Set();
+const walk=d=>fs.readdirSync(d,{withFileTypes:true}).forEach(e=>{const f=p.join(d,e.name);
+  if(e.isDirectory())walk(f);else if(f.endsWith(".json")){const s=JSON.parse(fs.readFileSync(f,"utf8"));
+    if(s.category==="ap")ap.push(f);if(s.category)cats.add(s.category);}});
+walk("devices");
+const buckets=new Set(fs.readFileSync("web/app.js","utf8").match(/CAT_ORDER\s*=\s*\[([^\]]*)\]/)[1]
+  .split(",").map(s=>s.trim().replace(/["\x27]/g,"")).filter(Boolean));
+console.log(ap.length+" specs still filed ap, reachable only by search");
+console.log(cats.size+" category values in use, "+buckets.size+" palette buckets");'
+# 11 specs still filed ap, reachable only by search
+# 25 category values in use, 24 palette buckets
+```
+
+The gap between those last two numbers is the whole cost: one `category` value that the dropdown does not
+carry, and every model filed under it can only be found by typing its name.
+
 `audit-devices.js` prints **four** counts and a verdict, not three. On this tree, in order:
 
 ```
