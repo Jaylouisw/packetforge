@@ -170,6 +170,40 @@ class CliSession {
     return ['Interface ' + iface.name + ' is no longer the ' + role + ' interface for NAT'];
   }
 
+  // A VLAN id arrives as one token, and a word is not one (#1409). `parseInt` answered NaN for it, every gate that
+  // normalises before it validates turned that NaN into VLAN 1, and the console then printed the NaN it was still
+  // holding - so `switchport access vlan WORD` reported "Access VLAN NaN on 1" and `vlan WORD` created a VLAN
+  // numbered NaN, while `show interfaces`, `show vlan` and the saved file all said VLAN 1.
+  //
+  // The shape of the argument is a console concern (tokens, not values), so it is checked here; the range and the
+  // reserved block stay with `validatePortConfig`, which every door shares.
+  _vlanIdRefusal(token, what, alternative) {
+    const lib = require('./vlan');
+    const text = String(token === undefined || token === null ? '' : token).trim();
+    const hint = alternative ? ' or "' + alternative + '"' : '';
+    if (!text) {
+      return '% Incomplete command: give a VLAN id (' + lib.VLAN_MIN + '-' + lib.VLAN_MAX + ')' + hint;
+    }
+    if (!/^[0-9]+$/.test(text)) {
+      return '% Invalid VLAN id "' + text + '": ' + what + ' is a whole number from ' + lib.VLAN_MIN +
+        ' to ' + lib.VLAN_MAX + hint;
+    }
+    const id = parseInt(text, 10);
+    if (id < lib.VLAN_MIN || id > lib.VLAN_MAX) {
+      return '% VLAN id ' + id + ' is outside ' + lib.VLAN_MIN + '-' + lib.VLAN_MAX;
+    }
+    return null;
+  }
+
+  // What is left for the shared validator to say is about the number, not the caller's word for it: the messages
+  // are written for whoever validated a port object ("accessVlan 1002 is reserved..."), and the operator typed
+  // `switchport access vlan 1002`. Only the field name is swapped; the reason is the validator's.
+  _vlanRefusal(chk, what) {
+    const first = chk && chk.errors && chk.errors[0];
+    if (!first) return '% Invalid VLAN';
+    return '% ' + String(first.message).replace(/^(accessVlan|nativeVlan|pvid|voiceVlan)\b/, what);
+  }
+
   _capabilityRefusal(cap, consequence) {
     const dev = this.device;
     if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
@@ -235,9 +269,11 @@ class CliSession {
       // set from the same text, so they cannot disagree.
       if (name) this.device.name = name;
     } else if (head === 'vlan') {
+      const bad = this._vlanIdRefusal(tokens[1], 'a VLAN id');
+      if (bad) return [bad];
       const id = parseInt(tokens[1], 10);
       const chk = require('./vlan').validatePortConfig({ accessVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      if (!chk.ok) return [this._vlanRefusal(chk, 'VLAN id')];
       if (!this.device.config.vlans) this.device.config.vlans = {};
       const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
@@ -302,6 +338,8 @@ class CliSession {
       this.device.nameBeforeHostname = null;
       out.push('Hostname cleared (device is now ' + this.device.name + ')');
     } else if (head === 'no' && tokens[1] === 'vlan') {
+      const bad = this._vlanIdRefusal(tokens[2], 'a VLAN id');
+      if (bad) return [bad];
       const id = parseInt(tokens[2], 10);
       const have = this.device.config.vlans && this.device.config.vlans[id];
       // It used to print "VLAN 42 removed" whether or not there was one - the same sentence for work done and
@@ -1309,9 +1347,11 @@ class CliSession {
     }
 
     if (t[0] === 'access' && t[1] === 'vlan') {
+      const bad = this._vlanIdRefusal(tokens[2], 'an access VLAN');
+      if (bad) return [bad];
       const id = parseInt(t[2], 10);
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      if (!chk.ok) return [this._vlanRefusal(chk, 'access VLAN')];
       const note = modeNote(this, iface, 'access');
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: id }));
       this.device.flushMacsOnPort(iface.name);
@@ -1328,22 +1368,25 @@ class CliSession {
         this.device.flushMacsOnPort(iface.name);
         return ['Voice VLAN ' + was + ' removed from ' + iface.name];
       }
+      const bad = this._vlanIdRefusal(tokens[2], 'a voice VLAN', 'none');
+      if (bad) return [bad];
       const id = parseInt(arg, 10);
-      if (!Number.isInteger(id)) return ['% Usage: switchport voice vlan <1-4094>|none'];
       // Validate the field this command writes, not the whole port: a port whose native VLAN is not in its own
       // allowed list (legal to build, reported by `show interfaces`) must still accept a voice VLAN, and the
       // refusal has to be about the number the operator just typed.
       const chk = vlanLib.validatePortConfig({ voiceVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      if (!chk.ok) return [this._vlanRefusal(chk, 'voice VLAN')];
       const note = modeNote(this, iface, 'trunk');
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { voiceVlan: id }));
       this.device.flushMacsOnPort(iface.name);
       return ['Voice VLAN ' + id + ' on ' + iface.name + note];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
+      const bad = this._vlanIdRefusal(tokens[3], 'a trunk native VLAN');
+      if (bad) return [bad];
       const id = parseInt(t[3], 10);
       const chk = vlanLib.validatePortConfig({ nativeVlan: id });
-      if (!chk.ok) return ['% ' + chk.errors[0].message];
+      if (!chk.ok) return [this._vlanRefusal(chk, 'trunk native VLAN')];
       const note = modeNote(this, iface, 'trunk');
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { nativeVlan: id }));
       this.device.flushMacsOnPort(iface.name);

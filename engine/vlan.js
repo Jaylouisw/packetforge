@@ -394,6 +394,16 @@ function classifyIngress(portConfig, frame) {
 // everything else is a warning. Note E_VOICE_VLAN_UNSUPPORTED keeps its
 // historical E_ code but is reported as a warning.
 
+// How a refused value is named back to the caller: a NaN or an object would otherwise read as "got NaN" or
+// "got [object Object]" and tell the operator nothing about what they typed.
+function describe(value) {
+  if (typeof value === 'number' && Number.isNaN(value)) return 'NaN';
+  if (typeof value === 'string') return '"' + value + '"';
+  if (value === null) return 'null';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
 function validatePortConfig(cfg, ctx) {
   const context = (ctx && typeof ctx === 'object') ? ctx : {};
   const prefix = context.portName ? (String(context.portName) + ': ') : '';
@@ -405,26 +415,55 @@ function validatePortConfig(cfg, ctx) {
   const err = function (code, message) { pushUnique(errors, { code: code, message: prefix + message }); };
   const warn = function (code, message) { pushUnique(warnings, { code: code, message: prefix + message }); };
 
+  // Validate what the caller passed, not what the normaliser made of it (#1409).
+  //
+  // `normalizePortConfig` exists to hand the engine a usable port, so it replaces a value it cannot read with
+  // VLAN 1. Feeding the *normalised* copy to the validator therefore meant every unusable value arrived as a
+  // safe 1 and passed: `{ accessVlan: NaN }`, `{ accessVlan: 1.5 }` and `{ accessVlan: 'WORD' }` all came back
+  // ok, and the integer rule below - written for exactly those values - could never fire, because the only
+  // numbers that reached it were the ones the normaliser had already turned into integers.
+  //
+  // The console then used its own `parseInt` result rather than the normalised one, so `vlan WORD` created a
+  // VLAN numbered NaN and `switchport access vlan WORD` answered "Access VLAN NaN on 1", while `show
+  // interfaces`, `show vlan` and the saved file all reported VLAN 1 - four reports of one port, two of them
+  // about a number that does not exist.
+  const valueOf = function (field) {
+    const rawValue = raw[field];
+    if (rawValue === undefined || rawValue === null) return norm[field];
+    // A voice VLAN of 0 has always meant "none" in this file, and the normaliser turns it into null.
+    if (field === 'voiceVlan' && rawValue === 0) return null;
+    return rawValue;
+  };
+
+  // An all-digit string is a VLAN id the caller may legitimately hold ("20" out of a config file or a form),
+  // and the normaliser accepts it; anything else is refused with the value that was given.
+  const asWholeNumber = function (value) {
+    if (typeof value === 'number') return Number.isInteger(value) ? value : null;
+    if (typeof value === 'string' && /^[0-9]+$/.test(value.trim())) return parseInt(value.trim(), 10);
+    return null;
+  };
+
   const checkField = function (value, field) {
     if (value === null || value === undefined) return;
-    if (!Number.isInteger(value)) {
-      err('E_VLAN_RANGE', field + ' must be an integer VLAN id, got ' + String(value));
+    const id = asWholeNumber(value);
+    if (id === null) {
+      err('E_VLAN_RANGE', field + ' must be a whole-number VLAN id, got ' + describe(value));
       return;
     }
-    if (value < VLAN_MIN || value > VLAN_MAX) {
-      err('E_VLAN_RANGE', field + ' ' + value + ' is outside ' + VLAN_MIN + '-' + VLAN_MAX);
+    if (id < VLAN_MIN || id > VLAN_MAX) {
+      err('E_VLAN_RANGE', field + ' ' + id + ' is outside ' + VLAN_MIN + '-' + VLAN_MAX);
       return;
     }
-    if (isReservedVlan(value)) {
-      err('E_VLAN_RESERVED', field + ' ' + value + ' is reserved by IEEE 802.1Q (' +
+    if (isReservedVlan(id)) {
+      err('E_VLAN_RESERVED', field + ' ' + id + ' is reserved by IEEE 802.1Q (' +
         VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
     }
   };
 
-  checkField(norm.accessVlan, 'accessVlan');
-  checkField(norm.nativeVlan, 'nativeVlan');
-  checkField(norm.pvid, 'pvid');
-  checkField(norm.voiceVlan, 'voiceVlan');
+  checkField(valueOf('accessVlan'), 'accessVlan');
+  checkField(valueOf('nativeVlan'), 'nativeVlan');
+  checkField(valueOf('pvid'), 'pvid');
+  checkField(valueOf('voiceVlan'), 'voiceVlan');
 
   // ---- trunk membership ----
   let allowedIsAll = (norm.allowedVlans === 'all');
