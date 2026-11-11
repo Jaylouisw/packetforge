@@ -54,8 +54,18 @@ halves. Measured against `scripts/forgejo-api.js`, which the sweep imports:
 
 So the read-only sweep works from anywhere, and so does closing: set the token and go. Without one the
 script says *"the tracker is not readable without it (this is not the same as \"no open requests\")"*
-and exits **2** before parsing anything — the public API answers anonymous reads, but a write does not.
-Point `PF_API` at another instance if you are sweeping one.
+and exits **1** before parsing anything — the public API answers anonymous reads, but a write does not.
+Measured, and worth knowing before you wire it into a script that reads exit codes: the failure is an
+uncaught `Error:` with a stack trace rather than a tidy message, so the difference between "not
+configured" and "found nothing" is the non-zero code and the word `Error:`, nothing else.
+
+A **bad** token is a third case, and it does not fail cleanly either. `PF_TOKEN=bogus` (or a real
+variable with a revoked token) prints
+`error: 401 {"message":"user does not exist [uid: 0, name: ]", …}` and then the process dies on a Node
+assertion — `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`, exit **127** on this host, twice
+out of two runs. The sweep did not scan anything, but it also did not say so in a parseable way, so do
+not treat a 127 (or a 401 in the output) as an empty queue. Point `PF_API` at another instance if you
+are sweeping one.
 
 The script's own header still says the repository "has ~830 open issues"; it has **24** (measured
 against the tracker: `x-total-count` on the `limit=1` request above, which is the number this page
