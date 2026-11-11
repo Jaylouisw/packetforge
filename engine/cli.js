@@ -2583,8 +2583,13 @@ class CliSession {
     const pairs = Object.keys(drops.byReason || {})
       .map(function (why) { return [why, drops.byReason[why]]; })
       .sort(function (a, b) { return (b[1] - a[1]) || a[0].localeCompare(b[0]); });
+    // A reason is prose and some of it has brackets of its own - `ACL 101 denied (in)` - which printed inside the
+    // summary's own brackets produced `2 drops (ACL 101 denied (in) x2)`: the list closes early for any reader who
+    // parses it, and nests for the one who does not. A reason that brings its own brackets is quoted instead, so
+    // the bracketed list stays one level deep whether it is read by a person or split by a script (#1417).
     const shown = pairs.slice(0, max).map(function (p) {
-      return p[0] + (p[1] > 1 ? ' x' + p[1] : '');
+      const why = /[()"]/.test(p[0]) ? '"' + p[0].replace(/"/g, "'") + '"' : p[0];
+      return why + (p[1] > 1 ? ' x' + p[1] : '');
     });
     const rest = pairs.length - shown.length;
     return drops.total + (drops.total === 1 ? ' drop' : ' drops') +

@@ -90,7 +90,7 @@ console.log('A denied flow names the rule that denied it:');
   // read together when someone asks "why is this not getting through".
   const iface = ((new CliSession(env.r, env.t, env.sim).run('show interfaces ' + env.port).output) || [])
     .map(String).join('\n');
-  ok(/5 drops \(ACL 101 denied \(in\) x5\)/.test(iface),
+  ok(/5 drops \("?ACL 101 denied \(in\)"? x5\)/.test(iface),
     'and show interfaces reports the same five, over the same ACL', iface);
 
   const again = env.sim.ping('pc', '10.0.0.1', { count: 2 });
