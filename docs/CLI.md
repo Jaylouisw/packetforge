@@ -6568,7 +6568,7 @@ forgets it is worse than no dump, because it looks complete.
 
 Every protocol in this lab writes events — 28 sites that emit a bare `drop`, plus forwards, ARP and
 LLDP, STP blocks, VLAN drops, PoE denials, DHCP exchanges, OSPF and BGP state changes, SCION hops,
-SLAAC refusals. The whole vocabulary is **80 event types across 148 emit sites**, and `show logging
+SLAAC refusals. The whole vocabulary is **80 event types across 149 emit sites**, and `show logging
 <type>` filters on exactly those names, so here it is grouped — the names in code font are the literal
 strings to pass the filter:
 
@@ -6592,7 +6592,7 @@ Recount any of it in one line, because the vocabulary grows with the model:
 
 ```sh
 grep -oh "type: '[a-z0-9-]*'" engine/*.js | sort -u | wc -l     # 80 types
-grep -oh "type: '[a-z0-9-]*'" engine/*.js | wc -l               # 148 emit sites
+grep -oh "type: '[a-z0-9-]*'" engine/*.js | wc -l               # 149 emit sites
 grep -c "type: 'drop'" engine/simulator.js                      # 28 bare-drop sites
 ```
 
@@ -9215,15 +9215,15 @@ grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 148
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (the first cell holds 49; the other five sit in a later column of their row) — and **121** distinct `E_` codes appear anywhere
-in this document (126 tokens if you count the bare `E_` this sentence needs, the
-`E_DHCP_` fragment in the prefix pattern below, and the `E_DRAW`/`E_DROP_TYPES`/`E_KEYWORDS` strings the drawing and drop-type tables use, none of which is a refusal code). That second number is the least stable figure on the page, and only partly because the
+Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (the first cell holds 49; the other five sit in a later column of their row) — and **125** distinct `E_` codes appear anywhere
+in this document (126 distinct `E_…` tokens once the bare `E_` this sentence needs is counted; the
+greedy `E_[A-Z0-9_]*` match folds prefix fragments like `E_DHCP_` into the longer codes that follow them). That second number is the least stable figure on the page, and only partly because the
 engine grows: every code this page *documents* also joins the count, so the code inventory further down
-added fifteen by itself. It has read 70, then 103, then 117, then 121 — each revision of the tables above moved it,
+added fifteen by itself. It has read 70, then 103, then 117, then 121, then 125 — each revision of the tables above moved it,
 and recounting is one line:
 
 ```bash
-grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 121 real codes (123 tokens: +1 for the `E_` ruler, +1 for `E_DHCP_`)
+grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 126 tokens, of which 125 are real codes (the 126th is the bare `E_` ruler)
 ```
 
 **117, not 116, and the difference is this fence.** The pattern contains the two characters it is
