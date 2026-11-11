@@ -172,8 +172,16 @@ console.log('\nA trunk is a different dependency from an access port, and is tre
   ok(pruned.some(function (x) { return /Fa0\/8: VLAN 30 removed from the allowed list/.test(x); }),
     'and the trunk says its allowed list shrank');
   m.c.run('end');
-  const trunkRow = m.c.run('show vlan 10').output.filter(function (r) { return /Fa0\/8/.test(r); })[0] || '';
-  ok(/Fa0\/8\(t\)/.test(trunkRow), 'show vlan still shows the trunk in VLAN 10');
+  // VLAN 10 was never configured here: it is only allowed on Fa0/8. The VLAN table used to print it
+  // as an active VLAN with the trunk in it, which contradicted `show interfaces trunk` (not active,
+  // because it is not configured) and made `show vlan 10` answer for a VLAN the table had invented.
+  // A filter is not a bridge domain, so the table omits it and both views say the same thing.
+  const vlan10 = m.c.run('show vlan 10').output.join('\n');
+  ok(/% No VLAN 10 on SW1/.test(vlan10), 'show vlan 10 refuses the VLAN that was never configured');
+  ok(/allowed on a trunk only: 10 \(Fa0\/8\(t\)\)/.test(vlan10),
+    'and says it is allowed on the trunk, naming the port');
+  const table = m.c.run('show vlan').output.join('\n');
+  ok(/10 is allowed on a trunk but not configured/.test(table), 'the table says where the VLAN went');
   ok(!m.c.run('show vlan').output.some(function (r) { return /^30\s/.test(r); }),
     'and VLAN 30 is gone from the table, so the two views agree');
 }

@@ -3767,8 +3767,19 @@ class CliSession {
       if (got.error) return got.error;
       const extra = this._noExtra(tokens, 3, 'switchport access vlan <id>');
       if (extra) return extra;
+      // A VLAN named by a port but never created was shown by `show vlan` as an active VLAN with the
+      // port in it, while `show running-config` had no such VLAN - the view inventing a bridge domain
+      // the configuration did not contain, and a saved copy that lost it. IOS creates the VLAN here
+      // and says so, and the message is the only place an operator learns a VLAN now exists.
+      const created = got.id !== 1 && (this.device.config.vlans || {})[got.id] === undefined;
+      if (created) {
+        if (!this.device.config.vlans) this.device.config.vlans = {};
+        this.device.config.vlans[got.id] = { name: 'VLAN' + String(got.id).padStart(4, '0') };
+      }
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: got.id }));
-      return ['Access VLAN ' + got.id + ' on ' + iface.name];
+      return ['Access VLAN ' + got.id + ' on ' + iface.name + (created
+        ? ' (VLAN ' + got.id + ' did not exist and was created - "no vlan ' + got.id + '" removes it)'
+        : '')];
     }
     if (t[0] === 'trunk' && t[1] === 'native' && t[2] === 'vlan') {
       const got = vlanId(tokens[3], 'switchport trunk native vlan <id>');
@@ -3820,9 +3831,17 @@ class CliSession {
           '% A voice VLAN the trunk drops is not a voice VLAN: "switchport trunk allowed vlan ' +
           next.join(',') + '"'];
       }
+      // The same creation rule as the access form: a VLAN a port names has to exist in the
+      // configuration, or `show vlan` is describing a bridge domain the saved config does not have.
+      const voiceCreated = got.id !== 1 && (this.device.config.vlans || {})[got.id] === undefined;
+      if (voiceCreated) {
+        if (!this.device.config.vlans) this.device.config.vlans = {};
+        this.device.config.vlans[got.id] = { name: 'VLAN' + String(got.id).padStart(4, '0') };
+      }
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, cur, { voiceVlan: got.id }));
       return ['Voice VLAN ' + got.id + ' on ' + iface.name + ' (tagged; the untagged traffic on ' +
-        'this port stays in VLAN ' + untagged + ')'];
+        'this port stays in VLAN ' + untagged + ')' + (voiceCreated
+        ? ' - VLAN ' + got.id + ' did not exist and was created' : '')];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
       // `switchport trunk allowed vlan add 30` - the spelling IOS uses to widen a list without
@@ -8962,8 +8981,22 @@ class CliSession {
           '% A VLAN is a broadcast domain on something that switches it, or routes between it',
           '% Its own address and gateway are in "show ip interface brief"']);
       }
+      // Membership is not existence. A trunk's allowed list names VLANs that may not exist at all,
+      // and reading the table off membership printed VLAN 77 as an active VLAN carrying a port - a
+      // bridge domain invented by a filter - while `show interfaces trunk` called the same VLAN
+      // inactive, because it is not configured.
+      //
+      // What does make a VLAN real is something actually carrying traffic in it: a declared VLAN, an
+      // access port, a native VLAN, a voice VLAN, or an SVI. The map's labels carry exactly that,
+      // because `(t)` is the only one that means "allowed on a trunk and nothing more".
+      const carriedForReal = function (k) {
+        const labels = byVlan.get(k) || [];
+        return labels.some(function (l) { return !/\(t\)$/.test(String(l)); });
+      };
       let keys = bridged
-        ? Array.from(new Set(Array.from(byVlan.keys()).concat(declaredIds)))
+        ? Array.from(new Set(Array.from(byVlan.keys()).filter(function (k) {
+          return k === 'all' || k === 1 || declaredIds.indexOf(k) !== -1 || carriedForReal(k);
+        }).concat(declaredIds)))
         : Array.from(new Set([1].concat(declaredIds)
           .filter(function (id) { return id === 1 ? declaredIds.indexOf(1) !== -1 : true; })));
       keys = keys.sort(function (a, b) {
@@ -8978,20 +9011,46 @@ class CliSession {
           // lists. Reading it off `keys` made a declared-but-empty VLAN appear in both halves of the
           // sentence at once, so the refusal contradicted itself.
           // Sorted, not in the order the ports happen to be walked: this sentence is read as a list.
+          // Three states, not two. A VLAN can be carried by a port, declared and empty, or merely
+          // allowed on a trunk - and the last one is the trap: it appeared in `show vlan` as an
+          // active VLAN and then in this sentence as "carried", so the refusal contradicted the table
+          // and itself ("no port carries it", followed by a list including it).
+          const realOf = function (k) {
+            const labels = byVlan.get(k) || [];
+            return labels.some(function (l) { return !/\(t\)$/.test(String(l)); });
+          };
           const carried = Array.from(byVlan.keys())
-            .filter(function (k) { return k !== 'all'; })
+            .filter(function (k) { return k !== 'all' && realOf(k); })
+            .sort(function (a, b) { return a - b; });
+          const allowedOnly = Array.from(byVlan.keys())
+            .filter(function (k) { return k !== 'all' && !realOf(k); })
             .sort(function (a, b) { return a - b; });
           // A VLAN that is configured but carries nothing is neither carried nor absent, and an
-          // operator who declared it should not be told it does not exist. Naming the two sets
+          // operator who declared it should not be told it does not exist. Naming the sets
           // separately is the difference between "you have not made it" and "you made it empty".
           const declared = Object.keys(dev.config.vlans || {}).map(Number)
             .filter(function (id) { return carried.indexOf(id) === -1; });
           return out.concat(['% No VLAN ' + (typedVlan === null ? wantVlan : typedVlan) + ' on ' + dev.name +
-            ' - no port carries it and it is not configured',
+            ' - it is not configured and no port carries it',
             '% Carried VLANs: ' + (carried.join(', ') || '(none)') +
-              (declared.length ? '; configured but empty: ' + declared.join(', ') : '')]);
+              (declared.length ? '; configured but empty: ' + declared.join(', ') : '') +
+              (allowedOnly.length ? '; allowed on a trunk only: ' + allowedOnly.map(function (id) {
+                return id + ' (' + (byVlan.get(id) || []).join(', ') + ')';
+              }).join('; ') : '')]);
         }
         keys = [wantVlan];
+      }
+      // ...and the VLANs that were left out are named, because an operator who allowed 77 on a trunk
+      // and cannot find it in this table needs to be told which two commands would make it real or
+      // take it off the list.
+      const phantom = [];
+      if (bridged) {
+        for (const [k, ports] of byVlan.entries()) {
+          if (k === 'all' || k === 1) continue;
+          if (declaredIds.indexOf(Number(k)) !== -1) continue;
+          if (carriedForReal(k)) continue;
+          phantom.push({ id: Number(k), ports: ports });
+        }
       }
       const vlanRows = [];
       for (const id of keys) {
@@ -9015,6 +9074,17 @@ class CliSession {
           '% It can still declare VLAN names for the subinterfaces it routes: "vlan <id> name <name>"']);
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
+      if (phantom.length) {
+        // The rows that were left out are named: `show interfaces trunk` lists these as allowed, and
+        // an operator looking for them here needs to know which two commands make it real or take it
+        // off the list.
+        out.push('');
+        out.push('% ' + phantom.map(function (p) { return p.id; }).join(', ') +
+          (phantom.length === 1 ? ' is' : ' are') + ' allowed on a trunk but not configured, so ' +
+          (phantom.length === 1 ? 'it is' : 'they are') + ' not a VLAN on this device:');
+        out.push('%   vlan <id>                               creates it');
+        out.push('%   switchport trunk allowed vlan remove <id>  drops it from the allowed list');
+      }
     } else if (what === 'spanning-tree') {
       // `show spanning-tree summary` and `show spanning-tree root` are the two questions an operator
       // asks of a tree that is not converging, and both were answered "No interface named summary on

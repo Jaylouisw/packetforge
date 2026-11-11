@@ -1557,6 +1557,47 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A VLAN a port names is a VLAN that exists
+
+```
+SW1(config-if)#switchport access vlan 99
+Access VLAN 99 on Fa0/2
+SW1#show vlan
+VLAN  Name      Status  Ports
+99    VLAN0099  active  Fa0/2
+SW1#show running-config
+interface Fa0/2
+  switchport access vlan 99        <- and no `vlan 99` anywhere
+```
+
+The view described an active VLAN with a port in it while the configuration had no such VLAN: two
+sources of truth for one object, and a saved copy that would have lost it. IOS creates the VLAN when a
+port names it, and says so — the message is the only place the operator learns a VLAN now exists:
+
+```
+SW1(config-if)#switchport access vlan 99
+Access VLAN 99 on Fa0/2 (VLAN 99 did not exist and was created - "no vlan 99" removes it)
+```
+
+`switchport voice vlan <id>` follows the same rule, and the default VLAN 1 never gets a stanza of its
+own. `no vlan 99` then refuses for the honest reason, naming the port that carries it — the two commands
+agree instead of one undoing what the other invented.
+
+The other direction matters as much: **a filter is not a bridge domain**. A trunk's allowed list used to
+conjure the VLANs it named into the table, while `show interfaces trunk` called the same VLANs inactive
+because they are not configured — two views of one device disagreeing. Now an allowed-only VLAN is not a
+row, and the table says where it went:
+
+```
+% 10 is allowed on a trunk but not configured, so it is not a VLAN on this device:
+%   vlan <id>                               creates it
+%   switchport trunk allowed vlan remove <id>  drops it from the allowed list
+```
+
+An access VLAN, a native VLAN, a voice VLAN and an SVI all make a VLAN real, because they carry traffic
+in it. `show vlan 10` for a VLAN in that third state says so in one sentence instead of contradicting the
+table: *"it is not configured and no port carries it … allowed on a trunk only: 10 (Fa0/8(t))"*.
+
 ### The whole switch's L2 state in one answer
 
 ```
