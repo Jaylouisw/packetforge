@@ -146,7 +146,11 @@ console.log('\nThe page is filtered by what the device can do:');
   // The exec page holds the same line: a host has no MAC table, no translations, no secure ports.
   const pcExec = helpRows(pc.d, []).join('\n');
   ok(pcExec.indexOf('clear mac address-table') === -1, 'a PC is not offered "clear mac address-table"');
-  ok(pcExec.indexOf('clear ip nat translation') === -1, 'nor "clear ip nat translation"');
+  // ...except the NAT views and the clear, which answer on every device on purpose: an empty table plus
+  // the command that writes a rule is the documented answer (nat-show), and the clear says the table was
+  // already empty. A page that hid a command the device answers would be the same defect in reverse.
+  ok(pcExec.indexOf('clear ip nat translation') !== -1,
+    'and is offered "clear ip nat translation", which answers "already empty"');
   ok(pcExec.indexOf('clear port-security') === -1, 'nor the port-security counters');
   const swExec = helpRows(sw.d, []).join('\n');
   ok(swExec.indexOf('clear mac address-table') !== -1, 'while a switch is offered all three');

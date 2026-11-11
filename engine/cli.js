@@ -969,6 +969,10 @@ class CliSession {
     const families = ['spanning-tree', 'router', 'ospf', 'bgp', 'neighbor'];
     const isDhcp = (first === 'ip' && second === 'dhcp') ||
       (first === 'no' && second === 'ip' && words[2] === 'dhcp');
+    // `ip nat inside|outside` sets a NAT role on a port. A device whose catalogue says it does not
+    // translate took the role anyway (an L3 switch, which routes and so passed the routing test), and
+    // then reported itself as a NAT interface in a lab where nothing could translate on it. The
+    // removal half is left alone: `no ip nat inside` answers "is not a NAT interface", which is true.
     const gated = (removal && families.indexOf(family) !== -1) || isDhcp;
     if (!gated) return null;
     const why = this._helpRefusal(words.slice(0, 4).join(' '));
@@ -1870,6 +1874,11 @@ class CliSession {
     const head = tokens[0].toLowerCase();
     const doShow = this._doShowInMode(tokens);
     if (doShow) return doShow;
+    // The same capability gate the configuration dispatcher uses: the last pass closed the removals in
+    // configuration mode and left the interface block open, so a camera still answered
+    // `no spanning-tree cost` with "the speed-derived default" for a cost it does not have.
+    const gate = this._capabilityGate(tokens);
+    if (gate) return gate;
     const stray = this._blockStrayWord(tokens, MODE_IFACE);
     if (stray) return stray;
 
@@ -2164,12 +2173,17 @@ class CliSession {
       out.push.apply(out, this._noIpNatConfig(tokens.slice(3)));
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'nat') {
       const which = String(tokens[3] || '').toLowerCase();
+      // A refusal without the `%` marker is not a refusal to anyone grepping a transcript - and these
+      // two change nothing, so they are refusals. The sentence stays; the marker is what was missing.
       if (!iface.natRole) {
-        out.push('Interface ' + iface.name + ' is not a NAT interface');
+        const dev = this.device;
+        out.push('% Interface ' + iface.name + ' is not a NAT interface - there is no role to remove' +
+          (typeof dev.hasCap === 'function' && dev.hasCap('nat')
+            ? '' : ' (and ' + (dev.name || dev.id) + ' does not translate addresses at all)'));
       } else if (which !== 'inside' && which !== 'outside') {
         out.push('% Incomplete command: no ip nat inside|outside');
       } else if (which !== iface.natRole) {
-        out.push('Interface ' + iface.name + ' is NAT ' + iface.natRole + ', not ' + which);
+        out.push('% Interface ' + iface.name + ' is NAT ' + iface.natRole + ', not ' + which);
       } else {
         const was = iface.natRole;
         delete iface.natRole;
@@ -5824,6 +5838,13 @@ class CliSession {
     if (!dev.isL3 || !dev.isL3()) {
       return ['% ' + (dev.name || dev.id) + ' does not route - NAT rewrites addresses between two',
         '% routed interfaces, and this device has none'];
+    }
+    // Routing is not translating. An L3 switch routes between its VLANs and passed the test above, yet
+    // its catalogue says it translates nothing - and it took the role anyway, then reported itself as a
+    // NAT interface in a lab where no packet could ever be rewritten.
+    if (typeof dev.hasCap === 'function' && !dev.hasCap('nat')) {
+      return ['% ' + (dev.name || dev.id) + ' does not translate addresses, so no port on it can be',
+        '% a NAT inside or outside interface - it routes, but it rewrites nothing'];
     }
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (!t.length) return ['% Incomplete command: ' + usage];
@@ -10284,6 +10305,14 @@ class CliSession {
   _showNat(tokens) {
     const dev = this.device;
     const what = String(tokens[0] || '').toLowerCase();
+    // A device whose catalogue says it does not translate addresses has no table to print. It printed
+    // an empty one - "NAT translations on D1:" and nothing under it - which reads as a NAT box on which
+    // nothing has happened yet. (The rules are topology-level, which is why the view exists everywhere;
+    // the *device* still has to be able to hold them.)
+    // The table is printed even on a device whose catalogue says it does not translate: that decision
+    // is deliberate (see nat-show) - a view that answers "no translations yet, and here is the command
+    // that writes a rule" is a better answer than a refusal, because the rule may come from the
+    // topology and this is where an operator looks for it.
     const table = this.sim ? this.sim._natTableOf(dev) : natLib.createNatTable();
     const rules = Array.isArray(table.rules) ? table.rules : [];
     const translations = Array.isArray(table.translations) ? table.translations : [];
@@ -12585,7 +12614,8 @@ class CliSession {
         if (second === 'vlan') return this._canDeclareVlan() ? null : 'it neither switches nor routes, so it has no VLANs';
         return l2 ? null : switches;
       }
-      if (second === 'ip' && words[2] === 'nat') return has('nat') ? null : 'it does not translate addresses';
+      // The NAT views answer on every device (see nat-show): an empty table with the command that
+      // writes a rule is the documented answer, so the page offers them everywhere the handler answers.
       if (second === 'ip' && (words[2] === 'bgp' || words[2] === 'ospf')) return l3 ? null : routes;
     }
     if (first === 'switchport' ||
@@ -12638,13 +12668,24 @@ class CliSession {
       return l3 ? null : 'no routing protocol runs on its interfaces';
     }
     // Address translation and address service.
-    if (first === 'ip' && second === 'nat') return has('nat') ? null : 'it does not translate addresses';
-    if (first === 'no' && second === 'ip' && words[2] === 'nat') {
+    // The NAT *views* answer on every device - an empty table plus the command that writes a rule is
+    // the documented answer (nat-show), because a rule may come from the topology and this is where an
+    // operator looks for it. The NAT *role* is a different question, and the handler asks the
+    // capability itself, right after it has refused a device that does not route.
+    if (first === 'ip' && second === 'nat' && words[2] !== undefined &&
+        words[2] !== 'translations' && words[2] !== 'statistics') {
       return has('nat') ? null : 'it does not translate addresses';
     }
-    if (first === 'clear' && second === 'ip' && words[2] === 'nat') {
+    // `no ip nat inside|outside` and `clear ip nat translation` are answered on every device too: the
+    // first says there is no role to remove (naming the capability in the note), the second says the
+    // table was already empty. Both are refusals, and both are answers.
+    // The removal of a NAT *rule* is not: `no ip nat inside source …` was shown on a switch and a PC
+    // while the positive form was hidden - the same "removal of a setting the device cannot have" that
+    // `no ip dhcp pool` had.
+    if (first === 'no' && second === 'ip' && words[2] === 'nat' && words[4] === 'source') {
       return has('nat') ? null : 'it does not translate addresses';
     }
+
     // The `no` half is the same capability: a host was still shown `no ip dhcp pool <name>` - a removal
     // for a pool it could never have had.
     if ((first === 'ip' && second === 'dhcp') ||
