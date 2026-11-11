@@ -97,7 +97,12 @@ function stop(child) {
 }
 
 // --- a dependency-free WebSocket client, because the project has none -------------------------------------------------
-function wsConnect() {
+// The first frame can be late for reasons that have nothing to do with the payload: this suite runs on a container
+// that is also building images, and on Node 22 it has timed out on the *connect* frame with no explanation in the
+// output at all (#1415). A wait that fails must say what it saw and what the server said, and one retry is enough to
+// tell a cold socket from a server that never answers.
+function wsConnect(opts) {
+  const timeoutHint = (opts && opts.timeoutHint) || null;
   return new Promise(function (resolve, reject) {
     const key = crypto.randomBytes(16).toString('base64');
     const req = http.request({
@@ -146,7 +151,18 @@ function wsConnect() {
             waiters.push(waiter);
             setTimeout(function () {
               const at = waiters.indexOf(waiter);
-              if (at !== -1) { waiters.splice(at, 1); rej2(new Error('no matching frame within ' + (timeoutMs || 5000) + 'ms')); }
+              if (at === -1) return;
+              waiters.splice(at, 1);
+              // What this connection actually received, and what the server said while it was waiting. Without
+              // this the only thing a failing run could report was "nothing arrived", which is exactly the state
+              // of knowledge it left us in.
+              const seen = frames.length
+                ? frames.map(function (m) { return String(m && m.type || m).slice(0, 40); }).join(', ')
+                : 'nothing';
+              const server = timeoutHint ? String(timeoutHint()).trim().split('\n').slice(-6).join(' | ') : 'no log';
+              try { socket.destroy(); } catch (e) { /* already gone */ }
+              rej2(new Error('no matching frame within ' + (timeoutMs || 5000) + 'ms; frames seen: ' + seen +
+                '; server said: ' + server));
             }, timeoutMs || 5000);
           });
         },
@@ -292,8 +308,26 @@ function doc(mediaId) {
     console.log('');
     console.log('Over the WebSocket: the frame the browser lives on carries the same thing:');
     {
-      const ws = await wsConnect();
-      const first = await ws.next(function (m) { return m && m.type === 'topology'; }, 8000);
+      // One retry on the connect frame. A cold socket that misses the first frame is indistinguishable, from here,
+      // from a server that never answers - a second attempt with its own socket tells them apart, and the failure
+      // message carries the frames and the server log either way.
+      let ws = null;
+      let first = null;
+      let lastErr = null;
+      for (let attempt = 0; attempt < 2 && !first; attempt++) {
+        ws = await wsConnect({ timeoutHint: srv.log });
+        try {
+          first = await ws.next(function (m) { return m && m.type === 'topology'; }, 8000);
+        } catch (e) {
+          lastErr = e;
+          ws.close();
+          ws = null;
+        }
+      }
+      if (!first && lastErr) throw lastErr;
+      // A retry that was needed is said out loud. A flake that is quietly absorbed is a flake nobody ever fixes,
+      // and this one is worth knowing about: it is the only reason a Node 22 container went red twice.
+      if (lastErr) console.log('  note: the connect frame needed a second socket (' + lastErr.message.split(';')[0] + ')');
       ok(first && first.state, 'the server sends a topology frame on connect');
       ok(stateProblems(first.state, 'ws-connect').length === 0, 'and it is a complete state',
         JSON.stringify(stateProblems(first.state || {}, 'ws-connect')));
