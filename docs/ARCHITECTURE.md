@@ -463,7 +463,7 @@ Per namespace:
 | …and it shares the board's counters | the console runs on the topology's flow table **and** its per-port counter map, so the traffic it generates is visible from `/flows`; it used to build its own `Simulator`, one board with two accountings and no way to tell which one you were reading (issue #1335). The two views are fed by one model but print different numbers — see the row below before reading either as a total |
 | …and the two views it feeds print different numbers | One model, two counters, and they do not agree. Measured on `lab2`, three console `ping 10.0.2.20` runs that each answer `4/4`: `show interfaces` on **d1** climbs `6 packets, 664 bytes` → `11 / 1264` → `16 / 1864` (6 on the first run, **5 per run after it**), while `runtime.d1.counters` climbs `4 / 4` → `8 / 8` → `12 / 12` — **four packets per run and no bytes at all**: `bytesIn` and `bytesOut` stay `0` because only `/flows` feeds them. So read `show interfaces` for what crossed the wire and `runtime[id].counters` for what the flow layer opened and refused; do not expect one to explain the other, and do not read a `0` byte count there as "nothing was sent" |
 | …and it remembers the mode | The session is kept per `topology:device`, so two calls do **not** start fresh: send `configure terminal` in one and the next begins at `(config)#`, where `enable` is refused as unrecognised. Send `exit` (or the whole sequence at once) rather than assuming a new prompt |
-| `POST …/interfaces/:devId/:iface` | direct property edit — `ip` (with `mask`), `enabled`, `description`, `role`. A role the hardware does not offer is refused with the reason rather than stored |
+| `POST …/interfaces/:devId/:iface` | direct property edit — `ip` (with `mask`), `enabled`, `description`, `role`. A role the hardware does not offer is refused with the reason rather than stored; **no address-conflict check, IPv4 only** — see the measured table below |
 | `POST …/ping` | `{ events, replies, success, step, runtime }` — a *new* `Simulator`, so a ping never inherits a stale queue |
 | `GET …/flows` | `{ flows: [...], counters }` — every recorded flow and the per-device byte/packet counters. On a board where nothing has been opened this is `{ flows: [], counters: {} }`, an empty object rather than a zeroed table |
 | `POST …/flows` | `{ proto, src, dst, dstPort, bytes }` (or `srcDevice`/`dstDevice`, and `dstIp` to aim at an address). `201 { flow, mtu, mss, segments, events, step, counters, runtime }` — `flow.state` is `established`, `bytesDelivered` totals what arrived, `openedStep` says which step in the run the handshake completed on |
@@ -473,6 +473,34 @@ Per namespace:
 | `POST …/load` | `Topology.fromJSON(body)` replaces the board wholesale and clears its sessions — **with no validation at all**, see the measured table below the API surface |
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
+
+**`POST …/interfaces/:devId/:iface` is a footgun in four small ways, and nothing validates the board
+as a whole.** Measured against a live board with two PCs:
+
+| Body | Answer |
+| --- | --- |
+| `{"ip":"10.0.0.1","mask":"255.255.255.0"}` | `200`, applied |
+| `{"ip":"10.0.0.2"}` | `400 {"error":"mask required with ip"}` |
+| `{"ip":"999.1.1.1","mask":"255.255.255.0"}` | `400 {"error":"Invalid IPv4 address: 999.1.1.1"}` |
+| `{"ip":"10.0.0.3","mask":"255.0.0"}` | `400 {"error":"Invalid IPv4 address: 255.0.0"}` — a bad **mask** reported as an address |
+| `{"mask":"255.255.255.0"}` | `200` and **silently ignored** — the address is unchanged. There is no "set the mask alone" operation |
+| `{"enabled":"false"}` | `200` and the interface stays **enabled**: the value is `!!body.enabled`, and the string `"false"` is truthy. Send a JSON boolean |
+| `{"description":42}` | `200`, stored as the number `42` — nothing coerces it to a string |
+| `{"ip":"","mask":""}` | `200`, address cleared |
+| `{"role":"wan"}` on a fixed-role port | `400 {"error":"eth0 cannot be wan; it has no configurable role"}` |
+
+Two more things this endpoint does **not** do:
+
+- **It is IPv4 only.** There is no `ip6` key; a v6 address is set through the console
+  (`ipv6 address …`), not here.
+- **It does not check for an address already on the board.** Two PCs on the same board were both given
+  `10.0.0.9` and both answered `200`. Nothing objects later either: `validateTopology()` in
+  `engine/validation.js` collects **link** issues (`collectIssues(linkIssueList, …)`) and reports a
+  board of duplicate addresses as `{"ok":true,"errorCount":0,"warningCount":0,"issues":[]}` — measured
+  by calling it directly. And it is not reachable over HTTP in any case: `grep -rn validateTopology
+  server/ web/` is empty, so the eleven namespaces expose per-link checking (`validate-link`) but no
+  "is this board sane" call. Duplicate addressing is invisible until a ping answers from the device you
+  did not mean.
 
 **`POST …/load` validates nothing, and a bad body is a successful wipe.** Measured against a live
 board holding two devices:
