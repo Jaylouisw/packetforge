@@ -564,6 +564,22 @@ on both sides), #44 (three neighbours on one segment, costs flipped) and #54 (`f
 `insideLocal` *and* `insideGlobal`, and two hosts behind one overload pool get `:1024` and `:1025`). Nothing
 here is a claim about today; the entries stay as the record of what was filed.
 
+#54 re-measured on the current tree, because the traffic and VLAN work has since touched both
+`simulator.js` and `cli.js`: two hosts in different subnets behind one
+`ip nat inside source list 1 interface Gi0/2 overload`, one flow each to `203.0.113.9:80`, and
+`show ip nat translations` reports them apart — and this is the interesting part — although **both flows
+were refused** (`400 E_REFUSED`, nothing listening on the far port):
+
+```
+tcp  203.0.113.1:1024  192.168.1.10:49152  203.0.113.9:80  203.0.113.9:80  pat
+tcp  203.0.113.1:1025  192.168.2.10:49152  203.0.113.9:80  203.0.113.9:80  pat
+```
+
+Both inside locals share source port `49152`, which is exactly the case a key on the port alone would
+collapse. A refused flow still leaves no *record* — `GET …/flows` on the board is empty and `GET …/flows/flow-1`
+is `404` — while the translation above survives, which is documented in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 Re-measured end to end on the current tree, since the DHCP work has since touched both `cli.js` and
 `simulator.js` — the two transcripts worth keeping, because they are the ones that could quietly invert:
 

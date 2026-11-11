@@ -479,6 +479,16 @@ Per namespace:
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
 
+**A refused flow leaves no record and still leaves a translation.** Measured on a NAT overload router:
+`POST …/flows` answers `400 {code:'E_REFUSED', reason:'connection refused: nothing listening on
+203.0.113.9:80'}` with `flow.id` in the body, `GET …/flows/<id>` is `404`, and `GET …/flows` is empty —
+the record really is not stored. The router, however, keeps the mapping: `show ip nat translations`
+lists `tcp 203.0.113.1:1024 192.168.1.10:49152 203.0.113.9:80 203.0.113.9:80 pat` afterwards. Two
+consequences: a lab can hold NAT state for conversations that never opened, and the inside-global port
+counter moves on. A second host through the same pool gets `203.0.113.1:1025`, while **repeating the
+same 5-tuple** reuses `:1024` — three refused attempts from one host left exactly one translation.
+
+
 **`link-options` takes device ids, and a port-shaped body fails at `200`.** The overlay in the UI asks
 about a device pair and gets the pairing back, which is why the input is not the shape the other cable
 endpoints take:
