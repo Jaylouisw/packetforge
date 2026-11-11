@@ -1629,6 +1629,48 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A verb family is refused where the device has no such state
+
+The `?` page is capability-filtered; the parser was not. On a camera, a server and an AP - none of which
+bridges, routes, or serves DHCP:
+
+- removing the spanning tree answered *"Spanning tree bridge priority on D1 is already the default
+  (32768)"* - a bridge priority, on a box with no bridge;
+- creating a pool answered *"Created DHCP pool lab"* and the prompt entered the pool - a DHCP pool on a
+  DHCP **client**;
+- `no router bgp 65001` answered *"BGP disabled"*, and `no ospf area 10` answered *"OSPF disabled"* -
+  routing protocols switched off on a device that runs neither;
+- `no router ospf 1` answered *"% Unexpected argument \"1\" - no router ospf takes no more"* - a syntax
+  question, answered first.
+
+The page already held every one of those refusals - `_helpRefusal` is what hides the row - so the parser
+asks it before running the family:
+
+```
+D1(config)#no spanning-tree vlan 10
+% D1 - it runs no spanning tree, because it has no bridged domain to protect
+D1(config)#ip dhcp pool lab
+% D1 - it is not a DHCP server
+D1(config)#ip route 10.9.0.0 255.255.255.0 10.0.0.9
+% D1 - it does not forward between interfaces, so it has no routes or adjacencies
+```
+
+Two rules came out of it:
+
+- **Capability before syntax.** `no router ospf 1` on a host is two questions at once - it cannot run
+  OSPF, and `1` is an extra word for the documented row. The capability is the one being asked, so it is
+  answered first; on a router, where the capability exists, the extra word keeps its own refusal.
+- **The `no` half is the same capability.** A host was still offered `no ip dhcp pool <name>` - a removal
+  for a pool it could never have had - because the filter matched `ip dhcp …` and not `no ip dhcp …`.
+
+The families gated this way are the ones whose *removal* half changed something anyway: `no
+spanning-tree …`, `no router …`, `no ospf …`, `no bgp …`, `no neighbor …`, plus both halves of `ip
+dhcp`. The positive forms already refuse in more specific words - `% SW1 is a layer 2 switch: it cannot
+run BGP`, `% R1 does not bridge - spanning tree runs on switches` - and preempting those with the page's
+generic sentence would be a worse answer, so they are left alone. So is `ip route`: a host here carries
+its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
+that refuses on a host is `ip routing`.
+
 ### Every device is shown only rows it takes
 
 The `?` page is built per device: a row appears only when that device's capabilities make the verb

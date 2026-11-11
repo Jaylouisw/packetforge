@@ -943,9 +943,48 @@ class CliSession {
   }
 
   // ---------- config mode ----------
+  // A verb family that changes device state has to be refused where the device has no such state, and
+  // the page already holds the sentence - `_helpRefusal` is what hides the row. The parser did not ask
+  // it, so on a host, a server and an AP:
+  //
+  //   no spanning-tree vlan 10      -> "Spanning tree bridge priority on D1 is already the default"
+  //   ip dhcp pool lab              -> "Created DHCP pool lab"   (and the session entered the pool)
+  //   no router bgp 65001           -> "BGP disabled"
+  //   no ospf area 10               -> "OSPF disabled"
+  //   ip route 10.9.0.0 ... 10.0.0.9-> "Route added"
+  //
+  // Each promised state the device cannot have. The families below are the ones that changed something
+  // anyway; the rest already refuse in more specific words, and the gate leaves them alone.
+  _capabilityGate(tokens) {
+    const words = tokens.map(function (t) { return String(t).toLowerCase(); });
+    const first = words[0];
+    const second = words[1] || '';
+    const family = first === 'no' ? second : first;
+    // Only the *removal* half, and only where the handler accepted it in silence. The positive forms
+    // already refuse well and in their own words - "% SW1 is a layer 2 switch: it cannot run BGP",
+    // "% R1 does not bridge - spanning tree runs on switches" - and preempting those with the page's
+    // generic sentence would be a worse answer, not a better one. `ip route` is deliberately absent:
+    // a host here carries a default route (`ip route 0.0.0.0 0.0.0.0 <gateway>`) and labs rely on it.
+    const removal = first === 'no';
+    const families = ['spanning-tree', 'router', 'ospf', 'bgp', 'neighbor'];
+    const isDhcp = (first === 'ip' && second === 'dhcp') ||
+      (first === 'no' && second === 'ip' && words[2] === 'dhcp');
+    const gated = (removal && families.indexOf(family) !== -1) || isDhcp;
+    if (!gated) return null;
+    const why = this._helpRefusal(words.slice(0, 4).join(' '));
+    if (!why) return null;
+    return ['% ' + (this.device.name || this.device.id) + ' - ' + why];
+  }
+
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    // Capability before syntax: on a device that cannot run OSPF at all, whether the `1` after `no
+    // router ospf` is an extra word is not the question anyone is asking - yet that is the answer it
+    // got ("% Unexpected argument \"1\" - no router ospf takes no more"), because the stray-word
+    // guard consults the page first and the page's row has no argument.
+    const gate = this._capabilityGate(tokens);
+    if (gate) return gate;
     const stray = this._blockStrayWord(tokens, MODE_CONFIG);
     if (stray) return stray;
     if (head === 'help' || head === '?') return this._help();
@@ -12606,7 +12645,12 @@ class CliSession {
     if (first === 'clear' && second === 'ip' && words[2] === 'nat') {
       return has('nat') ? null : 'it does not translate addresses';
     }
-    if (first === 'ip' && second === 'dhcp') return has('dhcp-server') ? null : 'it is not a DHCP server';
+    // The `no` half is the same capability: a host was still shown `no ip dhcp pool <name>` - a removal
+    // for a pool it could never have had.
+    if ((first === 'ip' && second === 'dhcp') ||
+        (first === 'no' && second === 'ip' && words[2] === 'dhcp')) {
+      return has('dhcp-server') ? null : 'it is not a DHCP server';
+    }
     // ACLs, VRRP and IPv6 are not filtered, deliberately: the parser accepts them on anything that
     // takes a config line - a generic router has no `acl`, `vrrp` or `ipv6` capability tag and does
     // all three - so hiding them would hide working commands. The gate is the parser's, not the
