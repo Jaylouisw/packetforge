@@ -131,7 +131,9 @@ console.log('\nThe page follows the interface it describes:');
 console.log('\nA physical port is unchanged:');
 {
   const env = onPort('Fa0/1');
-  ok(/Speed on Fa0\/1 set to 1G/.test(text(env.s.run('speed 1000'))), 'speed sets');
+  // A speed equal to the port's own is not configuration (1 Gbps here), so setting one has to be a
+  // speed the port is not already running at - otherwise this asserts the message, not the setting.
+  ok(/Speed on Fa0\/1 set to 100M/.test(text(env.s.run('speed 100'))), 'speed sets');
   ok(/Duplex on Fa0\/1 set to full/.test(text(env.s.run('duplex full'))), 'duplex sets');
   ok(/added to channel group 1/.test(text(env.s.run('channel-group 1 mode active'))), 'channel-group joins');
   ok(/no link aggregation groups|Group/.test(text(env.s.run('show etherchannel'))),

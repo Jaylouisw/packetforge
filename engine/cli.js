@@ -1965,6 +1965,21 @@ class CliSession {
         if (addrInt === 0 || addrInt === 0xffffffff) {
           return ['% ' + ip + ' is not a host address, so no interface can hold it'];
         }
+        // A mask of 0.0.0.0 is contiguous by the bit test (no bits set) and was accepted, giving an
+        // interface whose "subnet" is nothing and whose prefix is /0 - the default route worn as a
+        // port. IOS refuses this mask for an interface, and so does this console now.
+        if (maskInt === 0) {
+          return ['% 0.0.0.0 addresses nothing - an interface mask has to have at least a /1',
+            '% The smallest useful ones here: 255.255.255.252 (/30), 255.255.255.255 (/32) on a loopback'];
+        }
+        // Class D (224.0.0.0/4) is multicast and class E (240.0.0.0/4) is reserved: neither is an
+        // address a host can hold, so `ip address 224.0.0.1 255.255.255.0` was an interface in a
+        // multicast group - reachable by nothing and matched by every multicast route.
+        if (addrInt >= 0xe0000000) {
+          return ['% ' + ip + ' is a ' + (addrInt >= 0xf0000000 ? 'reserved (class E)' : 'multicast (class D)') +
+            ' address, so no interface can hold it',
+            '% A router address is a unicast host address in its own subnet'];
+        }
         if (prefix <= 30) {
           const netAddr = (addrInt & maskInt) >>> 0;
           const bcast = (netAddr | ((~maskInt) >>> 0)) >>> 0;
@@ -5615,6 +5630,20 @@ class CliSession {
     if (iface.speedConfigured && iface.speedMbps === mbps) {
       return ['Speed on ' + port + ' is already ' + mbps + ' Mbps'];
     }
+    // A speed equal to what the port already runs at is the port's own default, not configuration:
+    // `speed 1000` on a 1 Gbps port was stored and dumped, so a saved copy grew a line nobody had
+    // changed anything by - the same rule the priority and preempt lines follow.
+    if (!iface.speedConfigured) {
+      const currentMbps = iface.speedMbps || (function (label) {
+        const m = /^(\d+)\s*([GgMm])/.exec(String(label || ''));
+        if (!m) return null;
+        return parseInt(m[1], 10) * (m[2].toLowerCase() === 'g' ? 1000 : 1);
+      })(iface.speed);
+      if (currentMbps === mbps) {
+        return ['Speed on ' + port + ' is already ' + mbps + ' Mbps - that is the port\'s own speed, ' +
+          'so nothing is configured'];
+      }
+    }
     if (!iface.speedNegotiated) {
       iface.speedNegotiated = iface.speed;
       iface.speedNegotiatedMbps = iface.speedMbps;
@@ -6379,12 +6408,15 @@ class CliSession {
       if (group.ips.indexOf(ip) === -1) group.ips.push(ip);
       out.push('VRRP group ' + vrid + ' on ' + this.iface + ' owns ' + ip);
     } else if (what === 'priority') {
-      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + NEEDS.vrrp];
+      // The value is judged before the group is looked for: `vrrp 1 priority 256` answered "no group 1
+      // on Gi0/0", which reads as "create the group first" and then refuses the number anyway. The
+      // number is wrong whatever else is missing, so that is what the refusal is about.
       const p = parseInt(tokens[3], 10);
       if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
       if (tokens[4] !== undefined) {
         return ['% Unexpected argument "' + tokens[4] + '" - vrrp <vrid> priority <p> takes no more'];
       }
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + NEEDS.vrrp];
       group.priority = p;
       out.push('VRRP group ' + vrid + ' priority ' + p);
     } else if (what === 'preempt') {
@@ -6397,12 +6429,18 @@ class CliSession {
       group.preempt = !(tokens[0] === 'no');
       out.push('VRRP group ' + vrid + ' preempt ' + (group.preempt ? 'enabled' : 'disabled'));
     } else if (what === 'advertise' || what === 'advertisement') {
-      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
+      // Whole seconds, 1-255, like the priority - and checked before the group, for the same reason.
+      // `Number()` also accepted 0.5 and 3600, and a sub-second advertisement is not a value this
+      // model's one-second tick can honour.
       const a = Number(tokens[3]);
-      if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)')];
+      const whole = /^\d+$/.test(String(tokens[3] === undefined ? '' : tokens[3]));
+      if (!whole || a < 1 || a > 255) {
+        return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)') + ' (whole seconds, 1-255)'];
+      }
       if (tokens[4] !== undefined) {
         return ['% Unexpected argument "' + tokens[4] + '" - vrrp <vrid> advertise <s> takes no more'];
       }
+      if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
       group.advertSec = a;
       out.push('VRRP group ' + vrid + ' advertises every ' + a + ' s');
     } else if (what === 'authentication') {
@@ -11117,6 +11155,21 @@ class CliSession {
     const addr = args[0];
     if (addr === undefined) return ['% Incomplete command: ip helper-address <addr>'];
     if (!this._isIpv4(addr)) return ['% Invalid helper address "' + addr + '"'];
+    // A relay sends a *unicast* to one server. Every one of these was accepted with "DHCP requests
+    // will be relayed to it": 0.0.0.0 (this host on this network), 255.255.255.255 (every host on
+    // this wire), 224.0.0.0/4 (a multicast group) and 127.0.0.0/8 (this host, always) - four
+    // addresses that cannot answer, each of which would have been a relay that silently relayed
+    // nothing. The class is named, because the fix differs: point it at a server address.
+    const aInt = require('./net').ipToInt(addr);
+    const kind = aInt === 0 ? 'the zero address (this host on this network)'
+      : aInt === 0xffffffff ? 'the limited broadcast address (every host on this wire)'
+        : aInt >= 0xe0000000 && aInt < 0xf0000000 ? 'a multicast group address (class D)'
+          : (aInt >>> 24) === 127 ? 'a loopback address (this host, always)'
+            : null;
+    if (kind) {
+      return ['% ' + addr + ' is ' + kind + ', so nothing can answer a relayed request sent to it',
+        '% A helper target is one unicast address: the server that will answer'];
+    }
     if (!iface.helperAddresses) iface.helperAddresses = [];
     if (iface.helperAddresses.indexOf(addr) !== -1) {
       return ['Helper address ' + addr + ' is already set on ' + iface.name];

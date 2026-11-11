@@ -1624,6 +1624,40 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A value that cannot work is refused for what it is
+
+Sweeping the values a command takes, rather than the commands themselves, found four addresses and a
+number that were accepted where no answer could follow:
+
+```
+R1(config-if)#ip helper-address 0.0.0.0
+Helper address 0.0.0.0 on Gi0/0 (DHCP requests will be relayed to it)
+```
+
+A relay sends a **unicast** to one server. `0.0.0.0`, `255.255.255.255`, a class D multicast group and
+a loopback address are all addresses that cannot answer, and each one was a relay that would silently
+relay nothing. The refusal names the class, because the fix is the same in all four cases but the reason
+is not:
+
+| Address | What it is |
+|---|---|
+| `0.0.0.0` | the zero address - this host on this network |
+| `255.255.255.255` | the limited broadcast - every host on this wire |
+| `224.0.0.0/4` | a multicast group - many hosts, no server |
+| `127.0.0.0/8` | loopback - this host, always, never the network |
+
+Two more of the same shape on `ip address`: a mask of `0.0.0.0` is contiguous by the bit test and was
+accepted, giving a port whose subnet is nothing and whose prefix is `/0` (a default route worn as an
+interface); and a class D or E address made an interface that is reachable by nothing.
+
+A number out of range is judged **before** whatever else is missing. `vrrp 1 priority 256` answered
+*"No VRRP group 1 on Gi0/0"* - which reads as "create the group first", and then refuses the number
+anyway. The number is wrong whatever else is absent, so that is what the refusal is about.
+
+And the default-is-not-configuration rule reaches the last setting that broke it: `speed 1000` on a
+1 Gbps port stored and dumped a line, because only a *previously configured* speed was compared. A
+speed equal to the port's own now says so and configures nothing.
+
 ### A VRRP group is a virtual address
 
 A group owns one or more virtual addresses; a group that owns none is not a state a router can be in,
