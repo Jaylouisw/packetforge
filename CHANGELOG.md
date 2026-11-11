@@ -56,7 +56,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so `show logging dro` works in a lab where nothing has dropped yet. `show logging types` composes with
   the output filter (`show logging types | include acl` answers the single `acl-deny -` row). One
   behaviour to keep in mind: a bare `show logging d` is not read as the type `drop` — it resolves to the
-  `device` keyword and asks for a name. `test/event-types.test.js` holds **37 assertions**. See
+  `device` keyword and asks for a name.
+
+  The unknown-word answer has **two shapes**, and which one you get depends on whether anything has
+  happened yet. Once at least one event has fired, `show logging dropp` prints three lines plus a
+  suggestion — `% "dropp" is not a type this console records, so no event of it can ever appear`,
+  `% "show logging types" lists the 60 types this console does record`,
+  `% Types with events so far: drop, ping`, `% Closest: drop`. In a lab where nothing has run, the third
+  line is instead `% The log is empty - nothing has run in this lab yet` and **no `Closest:` line is
+  printed at all** — not even for `dropp`, which earns one a moment later. The branch that computes the
+  hint is only reached once the log is non-empty, so do not read its absence as "the vocabulary has
+  nothing like this".
+
+  `test/event-types.test.js` holds **37 assertions**. See
   [docs/CLI.md](docs/CLI.md).
 
 - **A reverse lookup, and the way back out of every DNS setting.** `nslookup <name>` resolved forward;
