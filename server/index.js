@@ -307,9 +307,18 @@ function fullState(topo) {
       // Throughput, so a table or a sparkline can be drawn without a second call. The engine's own snapshot: the
       // same shape whether or not the device has carried anything, and a copy, so editing what you were given does
       // not edit the tally (#1329). `counted` separates "nothing has crossed this device" from "zero shown here".
-      counters: flow.counterSnapshot(topo.flowState, d.id)
+      counters: flow.counterSnapshot(topo.flowState, d.id),
+      // The same lease the console prints, from the same place (#1429, #1433). The binding table lived on the
+      // topology but was never in the state payload, so a client reading the board could see a client holding an
+      // address and not see the server's side of the same lease - the two halves of one fact, only one published.
+      dhcpLeases: d.config && Array.isArray(d.config.dhcpPools) && d.config.dhcpPools.length
+        ? simForFlows(topo).dhcpBindings(d.id)
+        : []
     };
   }
+  // The flow table rides along too (#1433): every conversation is runtime state of this board, and a client that
+  // opens a flow and then reads the state should see it there, the same as `show flows` shows it on the console.
+  s.flows = flow.listFlows(flowStateFor(topo)).map(function (f) { return describeFlow(f); });
   s.runtime = runtime;
   // What the engine thinks of every cable, computed once per state read. `validateTopology()` has existed since
   // the physical-layer rules did and nothing at runtime ever called it, so an impossible cable - one loaded from
