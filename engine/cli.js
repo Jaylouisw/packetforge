@@ -10218,6 +10218,47 @@ class CliSession {
     return out;
   }
 
+  // `show ip dhcp server statistics` answers with the counters this model actually keeps, and works
+  // before the first lease exists - a server with no bindings still has pools, reservations and a
+  // history of zero exchanges, and that is a real answer.
+  _showDhcpStatistics(pools) {
+    const dev = this.device;
+    const out = [];
+    // A device that is not a server has nothing to count, and a table of zeros reads as "a server
+    // that has heard nothing" rather than "not a server at all".
+    if (!pools.length && !dev.hasCap('dhcp-server')) {
+      return ['% ' + dev.name + ' is not a DHCP server - it has no pools, no bindings and no ' +
+        'statistics to report'];
+    }
+    const mine = (this.sim && Array.isArray(this.sim.events) ? this.sim.events : []).filter(function (e) {
+      return e && e.type === 'dhcp' && (e.server === dev.id || e.serverName === dev.name);
+    });
+    const count = function (ph) {
+      return mine.filter(function (e) { return e.phase === ph; }).length;
+    };
+    const failed = mine.filter(function (e) { return e.phase === 'failed'; });
+    const why = {};
+    for (const f of failed) why[f.reason || 'other'] = (why[f.reason || 'other'] || 0) + 1;
+    const live = this.sim ? this.sim.dhcpBindings(dev.id) : [];
+    const manual = pools.reduce(function (n, p) { return n + Object.keys(p.reservations || {}).length; }, 0);
+    const row = function (label, value) { out.push('  ' + pad(label, 24) + value); };
+    out.push('DHCP server statistics on ' + dev.name + ':');
+    row('Address pools', pools.length);
+    row('Automatic bindings', live.length);
+    row('Manual bindings', manual);
+    row('Leases given', count('ack'));
+    row('Leases renewed', count('renewed'));
+    row('Leases expired', count('expired'));
+    row('Requests failed', failed.length);
+    for (const k of Object.keys(why).sort()) out.push('    ' + pad(k, 20) + why[k]);
+    out.push('');
+    // One event per completed exchange is what the simulator records. A stat view that printed
+    // zeroed DHCPDISCOVER/DHCPOFFER rows would be answering about messages it never counts.
+    out.push('One event is recorded per completed exchange, not per message: this model does not');
+    out.push('count DHCPDISCOVER/DHCPOFFER/REQUEST individually, so the numbers above are exchanges.');
+    return out;
+  }
+
   _showDhcp(tokens) {
     const dev = this.device;
     const dhcpLib = require('./dhcp');
@@ -10230,6 +10271,10 @@ class CliSession {
       for (const p of pools) if (dhcpLib.ipInPool(p, ip)) return p.name;
       return '-';
     };
+
+    if (what === 'statistics' || (what === 'server' && String(tokens[1] || '') === 'statistics')) {
+      return this._showDhcpStatistics(pools);
+    }
 
     if (what === 'pool' || what === 'pools') {
       if (!pools.length) return ['% ' + dev.name + ' has no DHCP pools'];
@@ -10289,7 +10334,7 @@ class CliSession {
     }
 
     if (what !== 'binding' && what !== 'bindings' && what !== 'lease' && what !== 'leases') {
-      return ['% Usage: show ip dhcp binding | show ip dhcp pool'];
+      return ['% Usage: show ip dhcp binding | show ip dhcp pool | show ip dhcp server statistics'];
     }
 
     const bindings = this.sim ? this.sim.dhcpBindings(dev.id) : [];
@@ -12047,6 +12092,7 @@ class CliSession {
         'the IPv6 table, a longest-match lookup, or an instant'),
       helpLine('show ip dhcp binding', 'leases handed out, or the lease held'),
       helpLine('show ip dhcp pool', 'pool summary and addresses in use'),
+      helpLine('show ip dhcp server statistics', 'pools, bindings and a count of exchanges, with what is not counted'),
       helpLine('show power inline [<port>]', 'PoE budget and which ports are powered'),
       helpLine('show running-config', 'the whole configuration, pasteable'),
       helpLine('show startup-config', 'the saved copy, then what the running config changed'),

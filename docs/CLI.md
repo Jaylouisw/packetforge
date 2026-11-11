@@ -40,6 +40,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
+| `show ip dhcp server statistics` | pools, automatic and manual bindings, leases given/renewed/expired and failed requests, with a line saying which counters are not kept (per-message DHCPDISCOVER/OFFER/REQUEST counts) |
 | `clear ip dhcp binding * \| <address>` | empty the DHCP binding table, or one entry of it. Reports what it removed and says the client keeps its address until it renews; a bare command is incomplete because clearing everything is destructive |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. `clear arp interface <port>` is a third accepted spelling of the same thing — bare port, `interface <port>` and `clear ip arp` all reach one implementation, and `clear arp <address>` is the fourth form, which refuses by name when that host has no entry. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
@@ -1550,6 +1551,37 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### A DHCP server can be asked what it has counted
+
+```
+R1#show ip dhcp server statistics
+% Usage: show ip dhcp binding | show ip dhcp pool
+```
+
+`statistics` is a view on every router that serves DHCP, and it was answered with a usage line naming
+the two views that do exist. The model keeps counters — one event per completed exchange, with its
+failures — so the view answers with them:
+
+```
+DHCP server statistics on R1:
+  Address pools           1
+  Automatic bindings      1
+  Manual bindings         1
+  Leases given            1
+  Leases renewed          1
+  Leases expired          0
+  Requests failed         0
+
+One event is recorded per completed exchange, not per message: this model does not
+count DHCPDISCOVER/DHCPOFFER/REQUEST individually, so the numbers above are exchanges.
+```
+
+The last two lines are the point. A stat view that printed zeroed DHCPDISCOVER/DHCPOFFER rows would be
+answering a question about messages the model never counts — so it prints the numbers it has and says
+which ones it does not. It also answers before the first lease exists (a server with pools and
+reservations but no traffic is a real state), and a device that is not a server refuses the view instead
+of printing a table of zeros, which reads as "a server that has heard nothing".
 
 ### An excluded range is a range, and a binding table can be emptied
 
