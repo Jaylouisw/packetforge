@@ -92,7 +92,7 @@ first.
   and do not reconverge during the run.
 - Layer decisions are gated by `hasCap()`, and the only capabilities the
   forwarding path actually consults are `l2-forward`, `l3-forward` and `host`
-  (`hasCap('l2-forward')` at `engine/simulator.js:2310`, `l3-forward` at `:2368` and `:3463`). The two
+  (`isL2()` = `hasCap('l2-forward')` at `engine/device.js:470`, `isL3()` = `hasCap('l3-forward')` at `:486`; the forwarding path consults them at `engine/simulator.js:3555-3568`). The two
   numbers this sentence used to carry, 1856 and 1923, are BGP code — a stale pair, kept in mind because
   this page has had to correct this class of citation before.
 
@@ -133,7 +133,7 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:1955-1970` |
 | **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded — the event reads `loop: egress equals ingress`. | `engine/simulator.js:3541` |
 | **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:1734` vs `1792` |
-| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:1842` |
+| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3455-3457` |
 | **Absent** | MAC ageing, MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
 
 ### 2.2 VLANs (802.1Q)
@@ -681,7 +681,7 @@ actually true.
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
 | "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:1477`, `engine/device.js:484` |
 | "HA exists." | VRRP is in the data path (#1052), so a virtual gateway fails over. Still absent: HSRP/GLBP, BFD, LACP failure detection, graceful restart, and detection of a master that goes quiet rather than down. | `engine/simulator.js` `computeVrrp()` |
-| "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
+| "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:3455-3457` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
 | **Modelled — the conversation is readable and drivable** | A flow can be started and closed from the console (`flow open <dst> [port…] [bytes…] [proto…] [sport…]`, `flow close <id>`, where `dst` is an address or a name), not only through the UI/API, and it is never only a timeline entry: `show flows` lists every conversation still in the table, `show flows <id>` prints one in full (both ends by device name, state, segmentation, MSS/MTU, egress port), and `show flows counters` prints per-device bytes/packets/opened/refused. The heading separates `recorded` from `opened` because a refused flow is counted and then **deleted** — so `recorded < opened` is the trace of a refusal, not a defect. `Opened` is a logical step, not a time. | `engine/cli.js` (`_flowCommand` 8371, `_showFlows` 8679), `engine/flow.js:400` (`listFlows`) and `:407` (`describe`) |
