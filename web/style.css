@@ -244,6 +244,8 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .route-dead td { color: var(--muted); }
 .route-note { color: var(--red); font-size: 11px; }
 .route-dead .route-note { color: var(--red); }
+/* A route that is fine but not the one in use: a consequence of precedence, not a fault, so it is not red. */
+.route-shadow { color: var(--muted, #8b93a1); font-size: 11px; font-style: italic; }
 .iface-table input[type="text"] {
   width: 96px; background: var(--bg-2); border: 1px solid var(--border-2);
   color: var(--text); border-radius: 4px; padding: 2px 6px; font-family: var(--mono); font-size: 11px;

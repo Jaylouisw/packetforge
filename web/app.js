@@ -1519,7 +1519,11 @@
         code: r.displayCode || r.code,
         network: r.dest + '/' + maskBits(r.mask),
         via: via,
+        // Two facts, kept apart the way the engine keeps them: `note` is why a row cannot carry a packet and
+        // drives the fault styling, `shadow` is why a healthy row is not the one the device uses. Folding them
+        // together made a perfectly healthy candidate default read as a fault (#1407).
         note: r.note || (unchecked ? '(not checked)' : ''),
+        shadow: r.shadow || '',
         unusable: !!r.unusable
       };
     });
@@ -1648,7 +1652,8 @@
       html += '<table class="iface-table"><thead><tr><th>Type</th><th>Network</th><th>Via</th></tr></thead><tbody>';
       for (const r of routeRows) {
         html += '<tr class="' + (r.unusable ? 'route-dead' : '') + '"><td>' + r.code + '</td><td>' + r.network +
-          '</td><td>' + r.via + (r.note ? ' <span class="route-note">' + r.note + '</span>' : '') + '</td></tr>';
+          '</td><td>' + r.via + (r.note ? ' <span class="route-note">' + r.note + '</span>' : '') +
+          (r.shadow ? ' <span class="route-shadow">' + r.shadow + '</span>' : '') + '</td></tr>';
       }
       html += '</tbody></table>';
     } else {

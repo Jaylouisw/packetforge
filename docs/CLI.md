@@ -1247,6 +1247,35 @@ the default packets actually leave by, so a device with both configured shows th
 the configured gateway as `S*` below it — which is exactly the tie the old output hid by printing both as
 `S`.
 
+#### One prefix, one installed route
+
+A prefix can be claimed by more than one source: a connected subnet that a peer also advertises over BGP, an
+OSPF and a BGP route for the same network, a static someone added for a subnet the box is already on. The
+lookup uses **longest prefix, then lowest distance** — connected 0, static 1, eBGP 20, OSPF 110, iBGP 200,
+configured gateway 254 — and it always did. The table did not say so: it printed every candidate as an equal.
+
+```
+r1#show ip route
+C   10.0.12.0      /24  is directly connected, Gi0
+B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0  (not installed: the C route for this prefix has distance 0)
+O   10.3.3.0       /24  [110/0] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
+B  10.3.3.0       /24  [20/0] via 10.0.12.2  Gi0
+```
+
+Two rows, one destination, and now the table says which one a packet follows. A losing row is **not deleted** —
+dropping it would hide what the peer sent and leave you asking where your BGP route went — it is marked, and the
+code and distance that beat it are named. The mark is data on the row (`installed`, `shadowedBy`), computed once
+in `routesTable()`, so the inspector's Routes table and the console cannot disagree about it, and
+`test/route-selection.test.js` checks every mark against `routeTo()` — the lookup that actually forwards — for
+every model in the catalogue.
+
+`show ip bgp summary` counts the same way, because a count of *received* prefixes under the word "installed" was
+the other half of the same lie:
+
+```
+1 prefix(es) installed from BGP (2 more received, not installed: a better route holds the prefix)
+```
+
 ## Note on vendor syntax
 
 This is intentionally a **unified** command set. A future release can add

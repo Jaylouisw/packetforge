@@ -2414,8 +2414,19 @@ class CliSession {
     const up = rows.filter(function (r) { return r.established; }).length;
     out.push('');
     out.push(up + ' of ' + rows.length + ' neighbour(s) established');
+    // "Installed" has to mean installed (#1407). The count was of everything a peer sent, so a prefix BGP
+    // learned but the device already reaches directly - a connected route wins on distance 0 - was counted
+    // here as installed while `show ip route` printed it as "not installed". Two reports, one fact, two
+    // answers; the routing table is the authority because it is the one the forwarding lookup agrees with.
     const learned = (dev.bgpRoutes || []).length;
-    out.push(learned + ' prefix(es) installed from BGP');
+    let installed = learned, shadowed = 0;
+    if (learned && this.topo) {
+      const bgpRows = dev.routesTable(this.topo).filter(function (r) { return r.type === 'bgp'; });
+      installed = bgpRows.filter(function (r) { return r.installed !== false; }).length;
+      shadowed = bgpRows.length - installed;
+    }
+    out.push(installed + ' prefix(es) installed from BGP' +
+      (shadowed ? ' (' + shadowed + ' more received, not installed: a better route holds the prefix)' : ''));
     if (learned) {
       // Which prefixes, from where, with what path. The count alone answered "did BGP do anything" and not
       // "which route did I get and off which peer", which is the next question and the one `show ip route`
@@ -2927,7 +2938,8 @@ class CliSession {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
           // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
-          out.push('C   ' + dest + '  is directly connected, ' + r.iface + (r.note ? '  ' + r.note : ''));
+          out.push('C   ' + dest + '  is directly connected, ' + r.iface +
+            (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
           continue;
         }
         // [administrative distance/metric] - the distance is half of the rule that picks the installed
@@ -2936,7 +2948,7 @@ class CliSession {
         out.push((r.displayCode.length === 1 ? r.displayCode + '  ' : r.displayCode + ' ') + dest +
           '  [' + r.distance + '/0] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
-          (r.note ? '  ' + r.note : ''));
+          (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
       }
     } else if (what === 'ip' && tokens[1] === 'dns') {
       out.push.apply(out, this._showDns(tokens.slice(2)));
