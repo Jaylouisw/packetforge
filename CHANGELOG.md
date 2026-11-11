@@ -496,6 +496,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A verb family is refused by capability, before the syntax question — and the `no` half is gated too.**
+  The `?` page was capability-filtered; the parser was not, so a device that bridges nothing, routes
+  nothing and serves no DHCP still answered the removals of those families, and answered four of them
+  with **nothing at all**. Measured on `apc/AP9641` (`host`, `cli`, `http-server`, `dhcp-client`) at
+  `D1(config)#`, before and after:
+
+  ```
+  no spanning-tree vlan 10   was: Spanning tree bridge priority on D1 is already the default (32768)
+                             now: % D1 - it runs no spanning tree, because it has no bridged domain to protect
+  ip dhcp pool lab           was: Created DHCP pool lab
+                             now: % D1 - it is not a DHCP server
+  no router bgp 65001        was: (no output)
+                             now: % D1 - it does not forward between interfaces, so it has no routes or adjacencies
+  no ospf area 10            was: (no output)
+                             now: % D1 - it is not a router, so no routing protocol can run on it
+  no router ospf 1           was: (no output)
+                             now: % D1 - it does not forward between interfaces, so it has no routes or adjacencies
+  no ip dhcp pool lab        was: (no output)
+                             now: % D1 - it is not a DHCP server
+  ```
+
+  A pool on a DHCP **client** and a bridge priority on a box with no bridge were the two that answered
+  confidently; a silent success on a removal that removes nothing is the one answer a refusal must not
+  give. Two rules came out of it: **the capability is answered before the syntax question** — `no router
+  ospf 1` on a host is two questions at once, and on a router, where the capability exists, the extra
+  word keeps its own refusal — and **the `no` half is the same capability**, because the filter matched
+  `ip dhcp …` and not `no ip dhcp …`.
+
+  Left alone on purpose: the positive forms, which already refuse in more specific words, and `ip route`,
+  which a host uses for its way out (`Route added: 10.9.0.0/24 via 10.0.0.9` — labs configure it); the
+  verb that refuses there is `ip routing`, which answers `% D1 is not a router: it has no interfaces to
+  route between` and then `% A host uses "ip default-gateway <gw>" for the one router it sends everything
+  to`. A new suite, `test/capability-gate.test.js`, holds **166 assertions** and passes. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **A `/` between two placeholders is one value, not a choice.** The help grammar reads `/` as "or" —
   `configure terminal / conf t` is two spellings of one command — which is right between words and wrong
   inside one: `<prefix>/<len>` was lexed as two placeholders, so the page offered a slot the command does
