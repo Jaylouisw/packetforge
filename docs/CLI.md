@@ -5733,6 +5733,21 @@ R1(config-dhcp)#range 10.9.9.50 10.9.9.10
 % The range starts at 10.9.9.50 and ends at 10.9.9.10 - the start must not be above the end
 ```
 
+**A value the pool accepts answers nothing, and `dns-server` takes a list.** The refusals above are
+the only feedback a pool verb gives: `dns-server 10.0.0.53` prints no line at all, and the evidence it
+landed is `do show running-config`, where the pool's body carries `dns-server 10.0.0.53`. `dns-server`
+is the one verb here that takes more than one address — `dns-server 1.1.1.1 8.8.8.8 9.9.9.9` is
+accepted silently and stored as those three, in the order typed, on one line — while `default-router`
+takes exactly one (`% Incomplete command: default-router <address>` when asked for none). A list with a
+bad member is refused by naming the member rather than the line: `dns-server 1.1.1.1 abc` answers
+`% "abc" is not an IPv4 address, so it cannot be a DNS server` and leaves the pool as it was.
+
+The verb's two descriptions disagree about what to call that value. The help page offers `<addr...>` —
+`dns-server ?` prints `Next: <addr...>` — and the bare verb prints
+`% Incomplete command: dns-server <address...>`. Both mean "one or more addresses"; nothing in the
+parser reads the name, so the disagreement is cosmetic and stable, which is the kind of thing that turns
+into a bug report if a reader assumes one of them is the real spelling.
+
 `excluded-address` is checked the same way (each end of an `a-b` range), and the pool's remaining
 complaints at `exit` are sentences: `E_DHCP_*` codes still exist in `engine/dhcp.js` and in the
 validation table below, where they are useful, but they are no longer what the console prints.
