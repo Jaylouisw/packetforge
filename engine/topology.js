@@ -137,6 +137,12 @@ class Topology {
     // network rather than to a query, because the cable that was pulled at t=10 s is still pulled
     // when the next question is asked at t=41 s.
     this.lastChangeAtMs = 0;
+    // The flow table belongs to the board, not to a request or a run (#1427). It is created here so every topology
+    // has one, and `/load` replaces it with the document's own table below.
+    const flowLib = require('./flow');
+    this.flowState = flowLib.createFlowState();
+    // The DHCP lease tables likewise (#1429).
+    this.dhcpStates = new Map();
   }
 
   // Record that something changed at an instant, so every later question can say whether the
@@ -653,7 +659,12 @@ addDevice(spec, id) {
       devices: devices, links: links,
       // A copy, for the same reason link endpoints are copies (#1323): the document that goes out is what the API,
       // the UI and every fixture receives, and adjusting it must not adjust the board (#1325).
-      layout: copyLayout(this.layout)
+      layout: copyLayout(this.layout),
+      // The conversations this board is carrying, so a saved lab reopens with them - and a document carrying a
+      // flow whose endpoints are gone is refused the flow, not the board (#1435).
+      flows: (this.flowState && this.flowState.flows)
+        ? Array.from(this.flowState.flows.values()).map(function (f) { return Object.assign({}, f); })
+        : []
     };
     // `lastChangeAtMs` is deliberately NOT written. It is an instant in a run, and a run ends: a board reopened
     // tomorrow inherited an instant from a session that no longer exists and built its convergence schedule from it
@@ -772,6 +783,38 @@ addDevice(spec, id) {
       if (typeof l.stateSinceMs === 'number' && isFinite(l.stateSinceMs) && l.stateSinceMs > newest) newest = l.stateSinceMs;
     }
     topo.lastChangeAtMs = newest || topo.lastChangeAtMs;
+
+    // Restore the conversations the document carried (#1435). A flow is a promise between two devices on this
+    // board, so a document naming endpoints that are not on the board is not carried over - it is reported, like a
+    // cable that could not be restored, and the board still opens. A flow that is not closed is restored as it
+    // was; its `hops` are whatever the document says, and the sweep on the next removal re-checks them against the
+    // board that actually loaded.
+    const flowLib = require('./flow');
+    for (const raw of (data.flows || [])) {
+      if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string' || !raw.id) {
+        topo.loadIssues.push({ severity: 'warning', code: 'E_FLOW_BAD_RECORD', message: 'a flow record without an id was not restored' });
+        continue;
+      }
+      const srcOk = raw.srcDevice ? topo.devices.has(raw.srcDevice) : true;
+      const dstOk = raw.dstDevice ? topo.devices.has(raw.dstDevice) : true;
+      if (!srcOk || !dstOk) {
+        const missing = [!srcOk && raw.srcDevice, !dstOk && raw.dstDevice].filter(Boolean).join(', ');
+        topo.loadIssues.push({
+          severity: 'warning', code: 'E_FLOW_GHOST_ENDPOINT', flowId: raw.id,
+          message: 'flow ' + raw.id + ' was not restored: endpoint ' + missing + ' is not on this board'
+        });
+        continue;
+      }
+      const rec = flowLib.createFlow(raw);
+      rec.hops = Array.isArray(raw.hops) ? raw.hops.slice() : [];
+      rec.packets = Number(raw.packets) || 0;
+      rec.bytesDelivered = Number(raw.bytesDelivered) || 0;
+      topo.flowState.flows.set(rec.id, rec);
+      if (/^flow-\d+$/.test(rec.id)) {
+        const n = Number(rec.id.slice(5));
+        if (Number.isFinite(n)) topo.flowState.seq = Math.max(topo.flowState.seq, n);
+      }
+    }
     return topo;
   }
 }
