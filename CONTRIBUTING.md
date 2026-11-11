@@ -282,6 +282,33 @@ and `import-devices.js --stubs` (a flag that belongs to `missing-devices.js`) pe
 (`Scanned 49 file(s), 670 spec(s)`) instead of writing skeletons. Check the flag against the table
 above before relying on it, and run the catalogue editors with no flags first for exactly this reason.
 
+That paragraph is checkable, and checking it is worth doing because this table has been wrong before
+(`missing-devices.js` was once credited with `--skeleton` and `--apply`). One pass over every flag a
+page cites:
+
+```bash
+grep -rhoE "scripts/[a-z-]+\.js [^|]*--[a-z-]+" docs/*.md CONTRIBUTING.md README.md | sort -u \
+| while read -r line; do s=$(echo "$line" | awk '{print $1}');
+  for f in $(echo "$line" | grep -oE '\-\-[a-z-]+'); do grep -q -- "$f" "$s" || echo "MISS $s $f"; done; done
+```
+
+Three lines come back today, and there are only **two** real hits — which is the point of writing them
+down, since the next person to run this will be tempted to "fix" them both. The third is this paragraph
+matching itself: the example below is written in the same shape as a citation, so the sweep finds it too,
+one line per quoted transcript. A checker that scans its own documentation always counts its own
+examples; over the whole tree, that self-reference is the reason the number grows every time somebody
+documents it.
+
+```
+MISS scripts/build-wiki.js --quiet
+MISS scripts/import-devices.js --stubs
+```
+
+The first is a false attribution: the citation is a CI snippet, `scripts/build-wiki.js && git diff
+--quiet`, and `--quiet` there belongs to `git diff` — the script takes no flags at all. The second is the
+trap above, quoted deliberately. A sweep like this finds three kinds of hit — a real drift, a quoted
+mistake, and a shell pipeline that names another program's flag — and only the first is a bug.
+
 Two things worth knowing before you reach for one: `sweep-device-requests.js` and
 `request-queue.js` talk to the tracker over the **network** (the sweep hard-codes a LAN API address
 and scrapes a token from the git remote — see [TRIAGE.md](docs/TRIAGE.md)), and the four `apply-*` /
