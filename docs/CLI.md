@@ -4855,11 +4855,50 @@ Tracing the route to 8.8.8.8
   1    10.0.1.99  50.9 us*
   *  *  *  (no reply)
 % next hop 10.0.1.99 is not a device in this lab
+* a link had no cable length or line rate, so the documented default was used
 ```
 
 The first is a host that was never told where to send anything; the second is a host pointed at a
 gateway that does not exist. Collapsing both into "request timed out" would hide which one you
 have.
+
+Note the fourth line of the second transcript, and its absence from the first: the delay legend is
+printed on the **failed** path too whenever a hop was actually reached and used a defaulted delay —
+the reader who gets stars has the least to go on, so they get the explanation. A trace that never
+left the first router has no defaulted hop to explain, so `*  *  *` stands alone there.
+
+### traceroute reports a path, and a path is not an answer
+
+A trace that gets **stars** fails loudly. A trace to an address that **nothing in the lab owns** does
+not, and that is worth knowing before you read the Device column as evidence. Measured on
+`R1 -> R2 -> 10.1.0.0/24`, where `PC1` holds `10.1.0.50` and nothing holds `10.1.0.99`:
+
+```
+R1#traceroute 10.1.0.99
+Tracing the route to 10.1.0.99
+
+  Hop  Address    Cumulative  Device
+  1    10.0.0.2   50.9 us*    R2
+  2    10.1.0.99  51.8 us*      (destination)
+
+Path: R1 -> R2  (2 hops)
+* 2 links had no cable length or line rate, so the documented default was used
+
+R1#ping 10.1.0.99
+!!!! -> ....   (Success rate is 0 percent (0/4))
+```
+
+Both commands are right about their own question and they disagree, because `traceroute` is deciding
+**whether the route exists** and `ping` is asking whether anybody **answers**. The only tell in the
+trace is the empty `Device` cell on the last hop — the hop that a real host would name:
+
+```
+  2    10.1.0.50  51.8 us*    PC1  (destination)
+```
+
+So: a final hop with a name arrived at a device; a final hop with a blank Device cell arrived at an
+address in a subnet the path can reach, which is a route and not a host. `ping` is the command that
+answers the second question.
 
 ### traceroute at an instant
 
