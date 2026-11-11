@@ -239,19 +239,26 @@ nothing crosses is a claim, and nothing is known is not one.
 visible rather than implied. It is derived from the port's speed, with `spanning-tree cost <n>` as the
 per-port override — the same precedence as real gear:
 
-| Port speed | Cost |
-|---|---|
-| 100G and faster | 200 |
-| 40G | 400 |
-| 25G | 800 |
-| 10G | 2000 |
-| 1G | 20000 |
-| 100M and slower | 200000 |
-| speed unknown | 20000 (treated as 1G) |
+| Port speed | Cost | Where it comes from |
+|---|---|---|
+| 100G exactly | 200 | `SPEED_COST[100000]` |
+| 40G | 500 | `SPEED_COST[40000]` — the standard long-method value |
+| 10G | 2000 | `SPEED_COST[10000]` |
+| 1G | 20000 | `SPEED_COST[1000]` |
+| 100M | 200000 | `SPEED_COST[100]` |
+| 10M | 2000000 | `SPEED_COST[10]` |
+| **anything else** | 20000 | the fallback, `DEFAULT_PORT_COST` |
 
-The ladder matches IEEE's long-method values at every rate except 40G, where the engine uses 400 and the
-standard table lists 500. Nothing depends on that being standard — the *relative* order is what picks the
-topology — but a lab built to make 40G and 50G links compete will not agree with a vendor datasheet.
+That last row is the one worth reading twice. `SPEED_COST` holds **six** keys and every other rate falls
+back to the 1G cost — measured through `runStp()` on a port at each rate: 2.5G → `20000`, 25G → `20000`,
+50G → `20000`, 400G → `20000`, unknown → `20000`, and 100G → `200`. So a topology built to make 25G and
+50G compete is really a race between two 1G links, and a 400G link is the cheapest thing in the lab that
+is *not* a 100G link. This page used to print a smooth ladder (40G 400, 25G 800, "100G and faster" 200),
+none of which the engine computes.
+
+The values it *does* compute are IEEE's long-method costs, so a lab whose rates are in the table agrees
+with a vendor datasheet. Nothing depends on that being standard — the *relative* order is what picks the
+topology — but the order only exists between two rates that are both in the table.
 
 Cost is what makes a topology change visible. Three switches in a triangle, `SW1 -- SW2` direct and
 `SW1 -- SW3 -- SW2` as the detour, all 1G:
