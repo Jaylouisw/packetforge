@@ -35,8 +35,10 @@ Two things about the form are worth stating because neither is visible from the 
   with a session sees it, and the checked-in YAML is the only thing under review here. If you change the
   template, open the form once by hand.
 
-Closed issues in this tracker carry no labels at all (a sample of 50 of the 1367 closed ones has none),
-so label counts describe the *open* queue only — which is the queue the sweep reads.
+Closed issues in this tracker carry no labels at all (measured: a sample of 50 of the closed ones has
+**none** — and the closed count is a moving figure, `1,395` items with pull requests included and `908`
+issues on their own, when this page last looked), so label counts describe the *open* queue only — which
+is the queue the sweep reads.
 
 ## What happens next
 
@@ -85,8 +87,9 @@ so label counts describe the *open* queue only — which is the queue the sweep 
 `tablet` · `ap`
 
 That is **25** values, not the 21 this list used to carry — `splitter`, `tap`, `tablet` and `ap` were
-missing, and they are not hypothetical: the catalogue holds 16 splitters, 9 taps, 10 tablets and one
-access point today. A request whose hardware is a PON splitter needs the value that exists, not the
+missing, and they are not hypothetical: measured today the catalogue holds **17 splitters, 18 taps, 10
+tablets and 11 access points**. Those counts move with every device PR, so run the one-liner below
+rather than quoting this line. A request whose hardware is a PON splitter needs the value that exists, not the
 nearest one that used to appear on this list:
 
 ```bash
