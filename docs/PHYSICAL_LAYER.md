@@ -40,16 +40,33 @@ Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" 
 
 | # | Signal | Cage |
 |---|---|---|
-| 1 | name starts `wwan*`, `wan5g`, `modem*`, `lte*`, `nr5g`, `nr*`, `5g*` | `wwan` — a cellular modem is neither copper nor Wi-Fi, and it is checked **before** `type` because specs rewrite these ports as `type: "wireless"` |
+| 1 | name starts `wwan`, `wan5g`, `modem`, `lte`, `nr5g`, `nr`, `5g` — each optionally digit-suffixed, then **end-of-name or one of `. - _ space /`** | `wwan` — a cellular modem is neither copper nor Wi-Fi, and it is checked **before** `type` because specs rewrite these ports as `type: "wireless"`. The separator demand is what splits `nr5g` from `nr5g0`: see below |
 | 2 | `type` is a radio type (`wireless`, `radio`, `wifi`, …) | `antenna` |
 | 3 | `type` is `console` / `usb` / `coax` / `dsl`, `adsl`, `vdsl` / `powerline`, `plc`, `mains` | that family (`console`, `usb`, `coax`, `dsl`, `powerline`) |
-| 4 | name starts `wlan*`, `wifi*`, `wi-fi*`, `radio*`, `wwan*`, `nr5g*` | `antenna` |
+| 4 | name starts `wlan`, `wifi`, `wi-fi`, `radio`, `wwan`, `nr5g`, optionally digit-suffixed | `antenna` — this is where `nr5g0` lands, not rule 1 |
 | 5 | name contains `console`, `con<N>`, `tty`, `aux` → `console`; `usb` → `usb` | |
 | 6 | name names a fibre connector — `sc/apc`, `scapc`, `sc/upc`, `scupc`, `lc/apc`, `lcapc`, `lc/upc`, `lcupc` (see the spelling trap below) | that cage |
 | 7 | name says PON (`gpon`, `xg-pon`, `xgs-pon`, `pon<N>`) | `sc-apc` — the ISP convention, because a PON port's connector is a vendor choice; an explicit `connector` on the spec always wins |
 | 8 | name matches `sfp`/`qsfp`/`xfp`/`cfp`/`xe-`/`et-`/`fc<N>`, **or** `speed` is the string `25G`/`40G`/`100G` (a number does not count — see below) | optical, by rule 9 |
 | 9 | optical: name says `qsfpdd` → `qsfpdd`; `qsfp56` → `qsfp56`; otherwise by max rate — ≥200G `qsfpdd`, ≥100G `qsfp28`, ≥40G `qsfp+`, ≥25G `sfp28`, ≥10G `sfp+`, else `sfp` | |
 | 10 | nothing matched | `rj45` |
+
+**Rules 1 and 4 both mention `nr5g`, and the one that wins depends on what follows it.** Rule 1 tries
+`nr5g` *before* `nr\d*`, and every alternative must be followed by end-of-name or a separator, so the
+spelling with a separator is a modem and the spelling with a bare digit is a radio — and one spelling
+matches neither list:
+
+| name | `inferCage()` | which rule |
+|---|---|---|
+| `nr5g`, `nr5g.1`, `nr5g-1`, `nr5g_1` | `wwan` | 1 — `nr5g` followed by a separator |
+| `nr5g0`, `nr5g1` | `antenna` | 4 — rule 1's separator test fails, so the radio rule claims it (2 claims it earlier still if the spec also says `type: "wireless"`) |
+| `nr0`, `nr5`, `wwan0`, `wwan0.1`, `modem0.1`, `lte-1`, `5g1` | `wwan` | 1 |
+| `nr5gx`, `wan5g0` | `rj45` | 10 — neither rule's suffix test passes, and nothing else matches |
+
+That is inference, not a catalogue defect: no port in the catalogue is named `nr*` at all, and a spec
+that wants a modem cage can say `connector: "wwan"` and skip the rules entirely. The one port whose name
+starts `5G` and is *not* a modem — `huawei/AirEngine5760-51`'s `5GE` — is a LAN port and correctly
+derives `rj45`.
 
 **Rule 6 is narrower than it looks: the separator has to be a slash or nothing, never a hyphen.**
 The regexes are `lc\/?upc`, `sc\/?apc` and so on, so `lc/upc1` and `lcupc1` resolve to `lc-upc`, while
