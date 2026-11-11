@@ -450,6 +450,21 @@ services, and a job that has to swap makes the whole queue slower.
   than implied. Delete the worktree afterwards (`git worktree remove /tmp/pf-head`) — the repository
   keeps a list, and stale entries accumulate silently.
 
+  Measured that way on `eeafda5a` — a full run, not a sample:
+
+  | Tree | Reading | Red suites |
+  |---|---|---|
+  | `eeafda5a`, detached worktree, nothing else running | **251 suites in 308.8 s — 10,445 passed, 3 failed** | 2 — `link-parts` (2 assertions) and `ma5801` (a crash) |
+
+  Both are the same two the table above names, for the reasons it gives, and both were re-read rather
+  than assumed: `link-parts` reports `the UI carries every catalogue part (34 of 58)` and names the
+  missing ones (`QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-SR4`,
+  `QSFP56-200G-FR4`, `QSFP28-100G-SR4`, …), so the catalogue is at **58 parts** and `web/app.js` still
+  carries **34**; `ma5801` throws `TypeError: Cannot read properties of undefined (reading 'hardware')`
+  at `test/ma5801.test.js:96` for `interfaces.get('gpon1/1')`, so the suite indexes a port name the box
+  no longer exposes. Two failures, one message each, and neither is about documentation — which is what
+  a "the tree is red" claim should look like when it is honest about which suites and why.
+
   **How to read the runner's own output**, because two of its habits surprise people:
 
   | What you see | What it means |
