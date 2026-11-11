@@ -512,12 +512,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **361 ahead and 420 behind**; either way not one of the commits above is an ancestor of
+  now reads **361 ahead and 421 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 361  420
+  git rev-list --left-right --count HEAD...origin/main    # 361  421
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -572,7 +572,7 @@ services, and a job that has to swap makes the whole queue slower.
 
   | command | what happens |
   |---|---|
-  | `node scripts/run-tests.js --list` | lists the suites; the last line reads `270 suite(s)` |
+  | `node scripts/run-tests.js --list` | lists the suites; the last line reads `272 suite(s)` |
   | `node scripts/run-tests.js --filter=bgp` | `7 suite(s)`, then `OK — every suite passed.` |
   | `node scripts/run-tests.js --nosuchflag --list` | still lists, silently — the unknown flag is dropped |
   | `node scripts/run-tests.js --filet=bgp --list` | still lists: a **mistyped `--filter`** is dropped too |
