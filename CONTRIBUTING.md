@@ -35,7 +35,14 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 - **Fix a bug** in the engine, CLI, server, or web UI.
 - **Improve documentation** — and if you change a count or a capability claim, run
   `node scripts/build-wiki.js` afterwards: `docs/wiki/` is generated from templates inside that
-  script, and nothing in CI checks it, so it drifts silently when a fact moves. Publishing those
+  script, and nothing in CI checks it, so it drifts silently when a fact moves. **Do not edit
+  `docs/wiki/*.md` by hand** — all six pages are template strings inside that script, and a build
+  rewrites every file from its template, so a hand edit survives only until the next build. Measured:
+  an eight-line addition to `Simulation-Fidelity.md` was reverted by a single
+  `node scripts/build-wiki.js` run, which reported `wrote 6 wiki pages to docs/wiki/` and left that
+  one file modified. Since the published wiki is a *copy* of the generated pages, a hand edit that
+  did get published disappears from the wiki at the next build-then-publish — change the template, or
+  change the page under `docs/` that the template summarises. Publishing those
   pages to the Forgejo wiki is a separate manual step, `npm run wiki:publish`
   (`node scripts/publish-wiki.js --dry-run` prints the pages that differ without writing anything) —
   it clones `packetforge.wiki.git` and pushes. Two things to know before you try it:
