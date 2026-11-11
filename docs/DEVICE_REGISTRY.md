@@ -220,15 +220,25 @@ Fifteen, as enumerated in `engine/device.js` (`CAPABILITIES`):
 `host`, `l2-forward`, `l3-forward`, `cli`, `dhcp-server`, `dhcp-client`, `nat`, `firewall`,
 `wireless`, `http-server`, `poe-pse`, `poe-pd`, `vlan`, `lacp`, `stp`.
 
-**Three gate forwarding, five more are read, and seven are pure labels.** The reads:
+**Three gate forwarding, six more are read, and six are pure labels.** The reads:
 
 | Capabilities | Read by | Effect |
 |---|---|---|
 | `host`, `l2-forward`, `l3-forward` | `Device.isHost()`, `isL2()`, `isL3()` | forwarding: terminate, bridge (MAC learning, VLAN tagging, STP), route |
 | `poe-pse`, `poe-pd` | `isPoePse()` / `isPoePd()` in `engine/media.js` | whether the device is treated as sourcing / drawing power when ports are derived |
 | `cli`, `dhcp-server`, `http-server` | `SERVICE_PORTS` in `engine/flow.js` | which ports a transport flow can terminate on — SSH/Telnet 22/23, DHCP 67, HTTP/HTTPS 80/443 |
+| `dhcp-server` *(again)* | `device.hasCap('dhcp-server')` in the `clear ip dhcp binding` handler and in the binding view | the refusal text — `% PC1 is not a DHCP server - it holds no bindings to clear`, and `% PC1 is not a DHCP server (no pools) and holds no DHCP lease` |
+| `nat` | `has('nat')` in `_helpRefusal()`, which builds the `?` page (`engine/cli.js`) | it hides the `nat` verbs from completion and explains why. On a PC (caps `host`, `cli`, `dhcp-client`) `ip ?` lists no `nat` at all, and `ip nat ?` answers: `% No completions for "ip nat" on PC-d1` / `"ip nat inside source static <local> <global>" is a command here, but not on PC-d1: it does not translate addresses`. On a router (caps `l3-forward`, `cli`, `dhcp-server`, `nat`) the same page says `Completions for "ip nat" (1):` and `Next: inside` |
 
-`nat`, `firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere**.
+A capability read can hide a verb without refusing it, and `nat` is the example worth knowing: the PC above
+answers `ip nat ?` with "not on PC-d1", and then **accepts** `ip nat inside source static 10.0.0.5 203.0.113.5`
+with `NAT rule added on PC-d1: static 10.0.0.5 -> 203.0.113.5`. The capability decides what the help page
+offers, not what the parser takes — so reading a capability is not the same as gating on it.
+
+`firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere** — `nat` was in this
+list until a sweep of every capability read found four `has('nat')` guards in `_helpRefusal()`, which is the
+difference between "nothing consults it" and "nothing *acts* on it": those guards decide whether a command is
+offered, not whether addresses are translated.
 The features they name work from configuration and port hardware instead:
 
 - DHCP server: `ip dhcp pool` in the running config; client: `ip address dhcp`,
