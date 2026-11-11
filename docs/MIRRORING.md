@@ -167,7 +167,7 @@ repository if the instance default is private (Settings → Advanced → *This r
 - `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
   three stale links plus two scripts still calling `gh` the first time it ran. Measured on this tree it
-  prints `OK — 2268 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
+  prints `OK — 2278 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
   exits `0`. The figure is **not** a file count you can quote: the checker walks the *working tree* for
   seven extensions (`.md .js .json .yml .yaml .html .txt`), skipping `.git`, `node_modules`, `dist`,
   `coverage` and dot-directories other than `.github`/`.forgejo` — which means an untracked probe in
