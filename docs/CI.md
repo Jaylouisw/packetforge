@@ -511,13 +511,13 @@ services, and a job that has to swap makes the whole queue slower.
 
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
-  (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 commits ahead and 361 behind**,
-  and not one of the four commits above is an ancestor of `origin/main`. Check any of them before you
-  quote it:
+  (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
+  now reads **361 ahead and 407 behind**; either way not one of the commits above is an ancestor of
+  `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 382  361
+  git rev-list --left-right --count HEAD...origin/main    # 361  407
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
