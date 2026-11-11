@@ -346,6 +346,17 @@ four modes and 173 command synopses from `CLI.md`**. Between them the five suite
 sweep, the `?` surface, the shortest-prefix rule, the value-bearing rows, and the page — no one of them
 subsumes another, so a green run means all five ran.
 
+**The page's own tables are typed by nothing.** The four suites read the *help rows*, and `docs-syntax`
+compares synopses to help forms; none of them types a command **as a page writes it**, in the mode the
+page puts it in. That gap is worth closing by hand occasionally, because it is the reader's view of the
+system: fill each row's placeholders from a table of values and type it in the section's mode. On this
+tree that is **106 rows — 71 `exec`, 27 `config`, 8 `interface` — and every one is accepted**. The three
+that came back refused on the first pass were the harness's fault, not the page's, and all three are the
+same warning: `ip helper-address` is an **interface-mode** command that a keyword classifier filed under
+config, and `vlan-drop` / `vlan.js` are identifiers in a table's first cell rather than commands. Read
+each flag by hand, and take the mode from the section heading rather than from the verb — the tables are
+the mode.
+
 ## Concurrency: what gets cancelled and what does not
 
 ```yaml
