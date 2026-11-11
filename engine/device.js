@@ -1111,6 +1111,12 @@ class Device {
         if (i.natRole) doc.natRole = i.natRole;
         if (i.comboWith) doc.comboWith = i.comboWith;
         if (i.comboRole) doc.comboRole = i.comboRole;
+        // The operator's line rate, when it has been forced with `speed <mbps>`. `duplex` is written above
+        // unconditionally because it is always a value; this one is optional by the same rule as `natRole` - a
+        // port negotiating its own rate should not grow a `speedMbps: null` line - but when it *is* set the save
+        // has to carry it. It did not: a lab saved with `speed 100` came back at the hardware rate, and the
+        // command had gone from running-config as well, so nothing put it back (#1405).
+        if (i.speedMbps) doc.speedMbps = i.speedMbps;
         if (i.hardware.maxRangeM !== null && i.hardware.maxRangeM !== undefined) doc.maxRangeM = i.hardware.maxRangeM;
         return doc;
       }),
@@ -1195,6 +1201,12 @@ class Device {
           iface.autoconfig = !!is.autoconfig;
           iface.description = is.description || '';
           if (is.duplex) iface.duplex = is.duplex;
+          // The other half of the same setting. `speed 100` was stored, printed by `show interfaces` as
+          // "100Mb/s (forced)" and written to running-config - and the port document never carried it, so a saved
+          // lab came back at whatever the hardware negotiates, with the command gone from the config too: nothing
+          // put it back (#1405). `duplex` sat one line above and was saved all along.
+          const forcedMbps = Number(is.speedMbps);
+          if (Number.isFinite(forcedMbps) && forcedMbps > 0) iface.speedMbps = forcedMbps;
           if (is.lagId !== undefined) iface.lagId = is.lagId || null;
           if (is.role !== undefined) iface.role = is.role || null;
           if (is.natRole !== undefined) iface.natRole = (is.natRole === 'inside' || is.natRole === 'outside') ? is.natRole : null;

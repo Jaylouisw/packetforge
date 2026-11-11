@@ -216,5 +216,130 @@ console.log('A board written before any of this still loads:');
 }
 
 console.log('');
+console.log('A configured port survives, not just a virgin one (#1405):');
+{
+  // The sweep above round-trips a lab straight out of the catalogue, so every field is at its default and the
+  // comparison cannot see a setting that was never written to the file: default in, default out. That is exactly
+  // how `speedMbps` fell through - `speed 100` was stored, printed as "100Mb/s (forced)", written to
+  // running-config, and the port document never carried it, so a saved lab came back at the hardware rate with
+  // the command gone from the config too.
+  const { CliSession } = require('../engine/cli');
+  const { Simulator } = require('../engine/simulator');
+  const lost = [];
+  let forcedPorts = 0;
+  for (const spec of specs) {
+    const t = new Topology();
+    const d = t.addDevice(spec, 'd1');
+    let didSet = false;
+    for (const p of d.interfaces.values()) {
+      const caps = (p.hardware && Array.isArray(p.hardware.speedCaps)) ? p.hardware.speedCaps.filter(function (c) { return c > 0; }) : [];
+      // ordinary control flow: this test is about line rate, so a port with a single rate (or none) has nothing
+      // to force and nothing to lose. It is not deciding a port is outside a rule - there is no rate to set.
+      if (p.type !== 'ethernet' || caps.length < 2) continue;
+      const low = Math.min.apply(null, caps);
+      const cli = new CliSession(d, t, new Simulator(t));
+      cli.run('enable'); cli.run('configure terminal'); cli.run('interface ' + p.name);
+      const said = (cli.run('speed ' + Math.round(low / 1000000 >= 1 ? low / 1000000 : low).toString() + (low >= 1000000 ? 'g' : '').toString()).output || []).join(' ');
+      cli.run('end');
+      if (/% /.test(said)) continue;          // refused: nothing to carry
+      didSet = true;
+      forcedPorts++;
+      break;                                  // one port per model is enough to prove the field travels
+    }
+    if (!didSet) continue;
+    const d2 = roundTrip(t).getDevice('d1');
+    const diffs = portDiff(portsOf(d), portsOf(d2));
+    if (diffs.length) lost.push(spec.model + ': ' + diffs.slice(0, 3).join(', '));
+  }
+  ok(forcedPorts > 500, 'a forced line rate was set on this many models', String(forcedPorts));
+  ok(lost.length === 0, 'and every one of them comes back still forced', JSON.stringify(lost.slice(0, 4)));
+}
+
+console.log('');
+console.log('The forced rate is in the file, said by every surface, and used by the link:');
+{
+  const { CliSession } = require('../engine/cli');
+  const { Simulator } = require('../engine/simulator');
+  const spec = specs.filter(function (s) { return s.model === 'C9300-24T'; })[0];
+  ok(!!spec, 'the test has a 1 Gbps switch');
+
+  // A virgin port must not grow a `speedMbps` line: the document carries optional facts only when set.
+  const virgin = new Topology();
+  virgin.addDevice(spec, 'd1');
+  const virginDoc = JSON.parse(JSON.stringify(virgin.serialize()));
+  ok(JSON.stringify(virginDoc).indexOf('speedMbps') === -1,
+    'a port that negotiates its own rate writes no speedMbps at all');
+
+  function configured() {
+    const t = new Topology();
+    const d = t.addDevice(spec, 'd1');
+    const port = Array.from(d.interfaces.keys())[0];
+    const s = new CliSession(d, t, new Simulator(t));
+    s.run('enable'); s.run('configure terminal'); s.run('interface ' + port);
+    const said = (s.run('speed 100').output || []).join(' ');
+    s.run('duplex half');
+    s.run('description core uplink');
+    s.run('end');
+    return { topo: t, dev: d, port: port, said: said };
+  }
+  const c = configured();
+  ok(/100/.test(c.said), 'speed 100 is accepted', c.said);
+
+  const doc = JSON.parse(JSON.stringify(c.topo.serialize()));
+  const portDoc = doc.devices[0].interfaces.filter(function (i) { return i.name === c.port; })[0];
+  ok(portDoc.speedMbps === 100, 'and the saved document carries it', JSON.stringify(portDoc.speedMbps));
+
+  const reloaded = Topology.fromJSON(doc);
+  const rd = reloaded.getDevice('d1');
+  ok(rd.interfaces.get(c.port).speedMbps === 100, 'the reloaded port is still forced to 100',
+    String(rd.interfaces.get(c.port).speedMbps));
+  ok(rd.interfaces.get(c.port).duplex === 'half', 'and the duplex beside it, as it always did',
+    String(rd.interfaces.get(c.port).duplex));
+
+  function show(topo, devId, cmd) {
+    const s = new CliSession(topo.getDevice(devId), topo, new Simulator(topo));
+    s.run('enable');
+    return (s.run(cmd).output || []).join('\n');
+  }
+  const block = show(reloaded, 'd1', 'show interfaces ' + c.port);
+  ok(/speed: 100Mb\/s \(forced\)/.test(block), 'show interfaces says the rate is in force and forced',
+    block.split('\n').filter(function (l) { return /speed:/.test(l); }).join(' '));
+  const cfg = show(reloaded, 'd1', 'show running-config');
+  ok(/speed 100/.test(cfg), 'and running-config still prints the command that set it',
+    cfg.split('\n').filter(function (l) { return /speed/.test(l); }).join(' '));
+
+  // The engine uses it, not just the field: a cable between two 1 Gbps ports runs at 100 when one side is forced.
+  const t2 = new Topology();
+  t2.addDevice(spec, 'a'); t2.addDevice(spec, 'b');
+  const aPort = Array.from(t2.getDevice('a').interfaces.keys())[0];
+  const bPort = Array.from(t2.getDevice('b').interfaces.keys())[1];
+  t2.connect('a', aPort, 'b', bPort, { mediaId: '1000base-t' });
+  const cli = new CliSession(t2.getDevice('a'), t2, new Simulator(t2));
+  cli.run('enable'); cli.run('configure terminal'); cli.run('interface ' + aPort); cli.run('speed 100'); cli.run('end');
+  const linkBefore = Array.from(t2.links.values())[0].speedMbps;
+  const t3 = roundTrip(t2);
+  const linkAfter = Array.from(t3.links.values())[0].speedMbps;
+  ok(linkBefore === 100, 'the cable runs at the forced rate', String(linkBefore));
+  ok(linkAfter === linkBefore, 'and still does after a save and reload', linkBefore + ' -> ' + linkAfter);
+
+  // `speed auto` puts it back, and the file records the absence rather than a stale rate.
+  const t4 = new Topology();
+  const d4 = t4.addDevice(spec, 'd1');
+  const p4 = Array.from(d4.interfaces.keys())[0];
+  const s4 = new CliSession(d4, t4, new Simulator(t4));
+  s4.run('enable'); s4.run('configure terminal'); s4.run('interface ' + p4);
+  s4.run('speed 100'); s4.run('speed auto'); s4.run('end');
+  const d4r = roundTrip(t4).getDevice('d1');
+  ok(!d4r.interfaces.get(p4).speedMbps, 'speed auto clears the forced rate, and the reload agrees',
+    String(d4r.interfaces.get(p4).speedMbps));
+  ok(JSON.stringify(t4.serialize()).indexOf('speedMbps":100') === -1, 'with no stale rate left in the file');
+
+  // A save is idempotent: saving what was loaded gives the same file again.
+  const once = JSON.stringify(JSON.parse(JSON.stringify(c.topo.serialize())));
+  const twice = JSON.stringify(JSON.parse(JSON.stringify(Topology.fromJSON(JSON.parse(once)).serialize())));
+  ok(once === twice, 'and save -> load -> save is byte-identical');
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
