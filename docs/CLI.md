@@ -2742,6 +2742,44 @@ Two rules keep the pipe from lying:
   did print, because "printed twelve lines, none matched" and "printed nothing" look identical on a blank
   screen and are different problems.
 
+#### The filter has a help page, and its names abbreviate
+
+The five names are keywords, so they abbreviate like every other keyword in this console, and `?` inside a
+filter is the help character rather than the text to look for:
+
+```
+SW1#show running-config | i vlan            (| i is | include)
+vlan 10 VLAN0010
+vlan 20 VLAN0020
+
+SW1#show running-config | c                 (| c is | count)
+12 lines
+
+SW1#show running-config | include ?
+Filters for "show running-config":
+  | include <text>   keep the lines containing <text>
+  | exclude <text>   everything except those lines
+  | begin <text>     from the first matching line to the end
+  | section <text>   each matching line and the lines indented under it (a stanza)
+  | count            one line: how many lines the view printed
+
+<text> is matched as plain text, case-insensitively - this console does not take regular
+expressions, and says so rather than pretending to be grep. Filters chain:
+  show running-config | include interface | count
+
+  | include takes the text to look for, e.g. show running-config | include vlan
+```
+
+Before this, `| include ?` **filtered on the question mark** and answered *"nothing in this answer matches
+\"| include ?\""* — a filter applied to the help character, which tells the operator nothing about either.
+`| c` was refused by the sentence that then listed the five full words it abbreviates to, and the command's
+own `?` page said *"nothing follows it"* about a view whose output is filterable. All three came from the
+same place: the pipe was bolted on beside the command tree instead of into it.
+
+A page that says what may follow now includes the pipe — and only where the output can be filtered, so
+`show` with nothing typed still answers `% Incomplete command.` rather than advertising a filter for a
+command that does not exist yet.
+
 ```
 SW1(config)#interface Fa?
 Completions for "interface Fa" (8, completing "Fa" from this device):

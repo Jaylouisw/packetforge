@@ -318,6 +318,10 @@ function helpRows(rows) {
 
 // `show ip route <word>` selectors. Kept beside the class rather than inside it because the
 // mapping is data, and a filter that disagrees with the legend codes would be a bug waiting.
+// The five output filters, in the order the help page lists them. `_applyPipe` resolves an
+// abbreviation against this list, so the page and the parser cannot disagree about the names.
+const PIPE_FILTERS = ['include', 'exclude', 'begin', 'section', 'count'];
+
 const LOAD_ROUTE_FILTERS = {
   connected: ['C'], static: ['S'], ospf: ['O'], bgp: ['B']
 };
@@ -416,6 +420,10 @@ class CliSession {
       // be the most expensive filter in the console.
       if (lines.some(function (l) { return /^\s*%/.test(l); })) {
         return { output: lines, actions: (inner && inner.actions) || [] };
+      }
+      // A `?` anywhere in the filter text is the help character, not the string to look for.
+      if (pipes.some(function (p) { return /(^|\s)\?(\s|$)/.test(p); })) {
+        return { output: this._pipeHelp(main, pipes), actions: [] };
       }
       let shown = lines;
       for (const pipe of pipes) {
@@ -11881,8 +11889,17 @@ class CliSession {
       // table under a header claiming completions is a broken answer; the fact is that the word is
       // already as far as it goes - and the attached form asks about the word itself, which is
       // usually what was meant.
-      return ['"' + typed + '" is as far as this command goes - nothing follows it',
+      const tail = ['"' + typed + '" is as far as this command goes - nothing follows it',
         '% To complete the word you are typing, put the ? against it: "' + typed + '?"'];
+      // ...but a pipe does follow it, and this page is the only place an operator would look for it.
+      // A completion list that says "nothing follows" about a view whose output is filterable is
+      // true about the command and wrong about the line.
+      if (this._pipeable(typed)) {
+        tail.push('');
+        tail.push('The answer can be filtered - a pipe follows it:');
+        tail.push.apply(tail, this._pipeLegend());
+      }
+      return tail;
     }
     out.push('Completions for "' + typed + '" (' + labels.length +
       (openEnded ? ', and this form ends here' : '') + '):');
@@ -12051,18 +12068,69 @@ class CliSession {
 
   // The output filters, and only these: the words IOS has, matched as plain case-insensitive text
   // rather than as a regular expression (this console says so rather than pretending to be grep).
+  _pipeable(typed) {
+    // Which commands print lines a pipe can filter. `show` is nearly all of it; the rest are the few
+    // reads that print a report rather than a line (`ping`, `traceroute`) or a listing (`dir`, `more`).
+    const head = String(typed || '').trim().split(/\s+/)[0].toLowerCase();
+    if (head === 'show' || head === 'do') return true;
+    return ['dir', 'more', 'ping', 'traceroute', 'write'].indexOf(head) !== -1;
+  }
+
+  _pipeLegend() {
+    // The pipe is the filter an operator types on every third command, so the ? page has to answer
+    // for it - and it has to answer the two questions that decide whether a filter is the right tool:
+    // what it keeps, and whether the text is a regular expression (it is not, here).
+    return ['  | include <text>   keep the lines containing <text>',
+      '  | exclude <text>   everything except those lines',
+      '  | begin <text>     from the first matching line to the end',
+      '  | section <text>   each matching line and the lines indented under it (a stanza)',
+      '  | count            one line: how many lines the view printed',
+      '',
+      '<text> is matched as plain text, case-insensitively - this console does not take regular',
+      'expressions, and says so rather than pretending to be grep. Filters chain:',
+      '  ' + '| include interface | count'.replace(/^/, 'show running-config ')];
+  }
+
+  _pipeHelp(main, pipes) {
+    // `show running-config | include ?` asked what the filter's argument is. The ? was read as the
+    // text to look for, so the answer was "nothing in this answer matches \"| include ?\"" - a
+    // filter applied to the help character, which tells the operator nothing about either.
+    const out = ['Filters for "' + String(main).trim() + '":'];
+    out.push.apply(out, this._pipeLegend());
+    const asked = pipes[pipes.length - 1] || '';
+    const verb = String(asked).trim().split(/\s+/)[0].toLowerCase();
+    const name = PIPE_FILTERS.filter(function (w) { return w === verb || w.indexOf(verb) === 0; })[0];
+    if (name === 'count') out.push('', '  | count takes no text - it counts the lines the view printed.');
+    else if (name) {
+      out.push('', '  | ' + name + ' takes the text to look for, e.g. ' + main.trim() + ' | ' + name + ' vlan');
+    }
+    return out;
+  }
+
   _applyPipe(lines, pipe) {
     const m = /^(\w+)\s*(.*)$/.exec(String(pipe || '').trim());
     if (!m) return { error: '% A filter needs a word: "| include <text>", "| exclude <text>", "| begin <text>", "| section <text>" or "| count"' };
-    const verb = m[1].toLowerCase();
+    // A filter name abbreviates like every other keyword in this console: `| c` is `| count` and
+    // `| i route` is `| include route`. The five names were matched with ===, so a legitimate
+    // abbreviation was refused by a sentence that then listed the five full words.
+    let verb = m[1].toLowerCase();
+    if (PIPE_FILTERS.indexOf(verb) === -1) {
+      const fits = PIPE_FILTERS.filter(function (w) { return w.indexOf(verb) === 0; });
+      if (fits.length > 1) {
+        return { error: '% Ambiguous filter "| ' + m[1] + '" - it could be ' + fits.join(' or ') };
+      }
+      if (!fits.length) {
+        return { error: '% There is no "| ' + m[1] + '" here - this console filters with include, exclude, begin, section and count' };
+      }
+      verb = fits[0];
+    }
     const term = m[2].trim();
     const has = function (l) { return String(l).toLowerCase().indexOf(term.toLowerCase()) !== -1; };
     if (verb === 'count') {
       return { lines: [String(lines.length) + ' line' + (lines.length === 1 ? '' : 's')] };
     }
-    if (verb !== 'include' && verb !== 'exclude' && verb !== 'begin' && verb !== 'section') {
-      return { error: '% There is no "| ' + m[1] + '" here - this console filters with include, exclude, begin, section and count' };
-    }
+    // Reaching here means the verb resolved against PIPE_FILTERS: it is one of the four that take
+    // text (`count` returned above), so there is nothing left to reject.
     if (!term) {
       return { error: '% "| ' + verb + '" needs a word to look for' };
     }
