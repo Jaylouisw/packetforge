@@ -330,34 +330,30 @@ rather than left to whoever reads the datasheet last.
 
 ### 7.1 Loader status — read this before expecting the parts to work
 
-The file is **inert today**. `engine/optical.js:245` (`odnParts()`) loads exactly
-one file, `catalogue/optics/odn.json`, and `patchCords()` (`:278`) filters that
-array. `validation.js` resolves declared parts through `optical.patchCord()`, so
-until a follow-up teaches the loader about the second file:
+The file is **loaded**. `ODN_FILES` (`engine/optical.js:267`) is `['odn.json',
+'hybrid-patch-cords.json']`, and `odnParts()` (`:283`) merges them by part number, so this catalogue
+is live and these are the current answers, not a promise:
 
-- `optical.patchCord('ADAEP-ARYL003')` → `null`,
-- `patchCord: 'FCA-S2SR-SCASCU-02M'` on a link → `E_PATCH_CORD_UNKNOWN`,
-- the only parts the engine will accept are the two in `odn.json`: `SMSCSX`
-  (`patch-cord-hybrid-sc-upc-apc`) and `SMLCSX` (`patch-cord-hybrid-lc-upc-apc`).
+- `optical.patchCords()` returns **13** parts from 15 raw records — `SMSCSX` and `SMLCSX` are in both
+  files and merge into one each, the first record winning and the second contributing only what the
+  first left undefined (`odmMerge()`), its `id` kept as an alias;
+- `optical.patchCord('ADAEP-ARYL003')` → the part, `sc-upc` ↔ `sc-apc`;
+- `optical.patchCord('patch-cord-hybrid-sc-upc-apc-fs-smscsx')` → `SMSCSX` (`aliasIds`), so the id
+  published by the earlier record still resolves;
+- `patchCord: 'FCA-S2SR-SCASCU-02M'` on a link is **accepted** — `validation.js:527` resolves the
+  declared part through `optical.patchCord()`, and `cordFits()` answers `sc-upc`/`sc-apc` `true` with a
+  0.3 dB loss from `cordLossDb()`.
 
-That is deliberate for this change (data only, no engine edits). The recommended
-follow-up is a pure append in `odnParts()`:
-
-```js
-// engine/optical.js — follow-up, not part of this change
-_odn = [].concat(Array.isArray(raw) ? raw : [], _loadMany('hybrid-patch-cords.json'));
-```
-
-Because this file is an array of the same shape as `odn.json`, that append needs
-no other change: `patchCords()` picks up `kind: "patch-cord"`, `patchCord()` finds
-them by `partNumber` or `id`, `cordFits()` compares `endA`/`endB`, `cordLossDb()`
-reads `insertionLossDb`, and `hybridCord()` answers both argument orders.
+This section used to say the opposite — that the file was inert data awaiting a follow-up append in
+`odnParts()`, with `patchCord('ADAEP-ARYL003')` answering `null` and only `SMSCSX`/`SMLCSX` accepted.
+The append landed in `c9d2fbb7` (#73), which is also where `hybridCord()` learned to answer for a
+refused polish pair instead of refusing for ever.
 
 **Ordering is user-visible.** `hybridCord()` returns the first match
 (`engine/optical.js:377`), and that part number is printed in the
-`E_POLISH_MISMATCH` message. With the file loaded as written, an
-`sc-upc`↔`sc-apc` refusal names `SMSCSX`; add a part above it and the message
-changes. If that instability matters, the loader should prefer an explicit
+`E_POLISH_MISMATCH` message. Measured today, `sc-upc`↔`sc-apc` and the reversed
+argument order both name `SMSCSX`, and `lc-upc`↔`lc-apc` names `SMLCSX`; add a part
+above either in the file and the message changes. If that instability matters, the loader should prefer an explicit
 `"default": true` entry (or sort by `insertionLossDb`) instead of relying on
 file order.
 
@@ -507,10 +503,12 @@ end, and an insertion loss. Concretely:
 
 ## 8. Open questions for the maintainers
 
-1. **Loader:** fold `hybrid-patch-cords.json` into `odnParts()` (recommended), or
-   merge these entries into `odn.json` and keep one file? One file is simpler;
-   two files keep ODN plant and hybrid assemblies separable. This change assumes
-   two, with a one-line append.
+1. **Loader — answered (two files).** `ODN_FILES` (`engine/optical.js:267`) reads
+   `odn.json` then `hybrid-patch-cords.json`, and `odnParts()` (`:283`) merges them by
+   part number with the first record winning, so ODN plant and hybrid assemblies stay
+   separable and `SMSCSX`/`SMLCSX` are not duplicated. What is still open is only whether
+   to fold the hybrid entries into `odn.json` later and carry one file; nothing in the
+   engine depends on the answer, because a merge changes no part's fields.
 2. **Loss accounting:** adopt the delta convention (§6.2 option 1) as the
    documented meaning of `patchCordLossDb` now, or wait for basis-aware
    accounting (option 2)? The field is already in the catalogue data, so option 2
