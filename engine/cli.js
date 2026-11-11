@@ -10852,6 +10852,7 @@ class CliSession {
     let deviceName = null;
     let lastN = null;
     let summary = false;
+    let wantTypes = false;
     const seenTypes = this._loggingTypes(events);
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
@@ -10890,22 +10891,49 @@ class CliSession {
           return ['% The log is empty: nothing has run in this lab, so there is nothing of any type',
             '% Run something ("ping <addr>", a simulation step) and this fills up'];
         }
+        const knownTypes = require('./simulator').EVENT_TYPES || new Set();
+        // `show logging types` - the vocabulary, and which of it has happened here. A 60-type
+        // vocabulary cannot live inside a refusal sentence, and this is the question the refusal was
+        // trying to answer.
+        if (a === 'types') {
+          wantTypes = true;
+          continue;
+        }
         if (seenTypes.indexOf(a) === -1) {
-          // An unambiguous prefix of a type that has events is that type, as keywords are
-          // everywhere else in this console: `show logging dro` is `show logging drop`.
-          const byPrefix = seenTypes.filter(function (t) { return t.indexOf(a) === 0; });
+          // An unambiguous prefix of a type is that type, as keywords are everywhere else in this
+          // console: `show logging dro` is `show logging drop`. The candidates are the types that
+          // *can* happen as well as the ones that have, because `drop` is a real type in a quiet lab.
+          const pool = seenTypes.concat(Array.from(knownTypes).filter(function (t) {
+            return seenTypes.indexOf(t) === -1;
+          }));
+          const byPrefix = pool.filter(function (t) { return t.indexOf(a) === 0; });
           if (byPrefix.length === 1) {
             type = byPrefix[0];
+            if (seenTypes.indexOf(type) === -1) {
+              return ['% No event of type "' + type + '" has happened here yet - it is a type this console records',
+                '% "show logging types" lists all ' + pool.length + ' of them, with what has happened'];
+            }
             continue;
           }
           if (byPrefix.length > 1) {
-            return ['% Ambiguous event type "' + a + '": ' + byPrefix.join(', '),
-              '% Types with events so far: ' + seenTypes.join(', ')];
+            return ['% Ambiguous event type "' + a + '": ' + byPrefix.slice(0, 8).join(', ') +
+              (byPrefix.length > 8 ? ', and ' + (byPrefix.length - 8) + ' more' : ''),
+              '% "show logging types" lists them all'];
           }
-          return ['% No event of type "' + a + '" has happened here',
-            '% Types with events so far: ' + seenTypes.join(', '),
-            '% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is',
-            '%   either a type that has not happened yet or a typo - "show logging" lists them all'];
+          // The vocabulary is known, so this answer is a fact rather than a shrug: a word outside it
+          // can never happen, and a word inside it has simply not happened yet. The old sentence
+          // said "either a type that has not happened yet or a typo", which told the operator
+          // nothing they could act on.
+          if (!knownTypes.has(a)) {
+            const all = Array.from(knownTypes).sort();
+            const near = all.filter(function (t) { return t.indexOf(a.slice(0, 2)) === 0; }).slice(0, 6);
+            return ['% "' + a + '" is not a type this console records, so no event of it can ever appear',
+              '% "show logging types" lists the ' + all.length + ' types this console does record',
+              '% Types with events so far: ' + (seenTypes.length ? seenTypes.join(', ') : '(none yet)')]
+              .concat(near.length ? ['% Closest: ' + near.join(', ')] : []);
+          }
+          return ['% No event of type "' + a + '" has happened here yet - it is a type this console records',
+            '% "show logging types" lists all ' + knownTypes.size + ' of them, with what has happened'];
         }
         type = a;
       } else {
@@ -10928,6 +10956,25 @@ class CliSession {
     });
     if (type) rows = rows.filter(function (r) { return r.ev.type === type; });
     if (deviceName) rows = rows.filter(function (r) { return r.dev === deviceName; });
+
+    // The vocabulary, and what of it has happened here. A refusal cannot carry sixty type names, and
+    // this is the question it was trying to answer: which words does this console know?
+    if (wantTypes) {
+      const known = Array.from(require('./simulator').EVENT_TYPES || []).sort();
+      if (!known.length) return ['% This console records no event types'];
+      const out = ['Event types this console records (' + known.length + '), and how many have happened here:'];
+      out.push.apply(out, renderTable(['Type', 'Events'], known.map(function (t) {
+        const n = events.filter(function (e) { return e.type === t; }).length;
+        return [t, n ? String(n) : '-'];
+      }), 2));
+      const quiet = known.filter(function (t) {
+        return !events.some(function (e) { return e.type === t; });
+      }).length;
+      out.push('');
+      out.push(quiet + ' of ' + known.length + ' have not happened in this lab yet - a `-` is a type');
+      out.push('this console can record, not a typo. `show logging <type>` filters to one.');
+      return out;
+    }
 
     // `show logging summary last 3` printed "Event summary (67 of 67 events)" - the `last` was parsed
     // and then dropped on this branch. A summary of the last three events is a real question (what has
@@ -13440,7 +13487,7 @@ class CliSession {
       'Show commands:',
       helpLine('show version', 'model, vendor and software'),
       helpLine('show clock', 'the instant this lab is being asked about'),
-      helpLine('show logging [<type>|summary] [last <n>] [device <name>]',
+      helpLine('show logging [<type>|summary|types] [last <n>] [device <name>]',
         'why something happened - drops, forwards, protocol events'),
       helpLine('clear logging', 'truncate the event log'),
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),

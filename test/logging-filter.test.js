@@ -69,13 +69,21 @@ console.log('\nA word that matches nothing says so, and lists what does have eve
   const all = env.s.run('show logging');
   const types = typesIn(all);
   ok(types.length >= 2, 'the log has several types to filter (' + types.join(', ') + ')');
+  // The vocabulary is known now, so the two answers that used to be one are separate and this suite
+  // asserts both: a *recorded* type with no events is quiet, and a word outside the vocabulary is a
+  // typo that can never appear. `zzz` is the typo here; `nat-inbound` is a real type in a lab that
+  // has not translated anything.
   const bogus = env.s.run('show logging zzz');
-  saw(/No event of type "zzz" has happened here/, bogus, 'the word is reported as not having happened');
+  saw(/"zzz" is not a type this console records/, bogus, 'a word outside the vocabulary is a typo');
+  saw(/so no event of it can ever appear/, bogus, 'and that is final, not a matter of waiting');
+  const quiet = env.s.run('show logging nat-inbound');
+  saw(/No event of type "nat-inbound" has happened here yet/, quiet,
+    'a recorded type with no events is quiet, not a typo');
+  saw(/it is a type this console records/, quiet, 'and says so');
   // The message lists them sorted; compare against sorted, and escape nothing but equal signs.
   const sorted = types.slice().sort();
   saw(new RegExp('Types with events so far: ' + sorted.join(', ')), bogus,
     'and the types that have events are listed (' + sorted.join(', ') + ')');
-  saw(/either a type that has not happened yet or a typo/, bogus, 'the ambiguity is stated, not hidden');
   absent(/Types seen: \(none\)/, bogus, 'never "(none)" while the log has events');
 }
 

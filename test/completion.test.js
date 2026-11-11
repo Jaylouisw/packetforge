@@ -106,7 +106,9 @@ console.log('\nEach level narrows:');
     'show ip route offers its selectors, its instant, and the address form');
   ok(route.indexOf('<dest>') === route.length - 1, 'the value form sorts last, after the keywords');
   const logging = l.labels(l.run('show logging ?'));
-  eq(logging.join(','), 'device,last,summary,<type>', 'show logging offers its filters');
+  // `types` joined the filter list when the event vocabulary became a view: a refusal cannot carry
+  // sixty type names, so `show logging types` is where the vocabulary is answered.
+  eq(logging.join(','), 'device,last,summary,types,<type>', 'show logging offers its filters');
 }
 
 console.log('\nA value is shown as a value, and the answer says so:');

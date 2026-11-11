@@ -76,6 +76,24 @@ function ethFrame(dstMac, srcMac, etherType, ip, icmp, arp, opts) {
 //     port counter can honestly own, and `show logging` is where they are read.
 //   - `scion-drop` is a path-policy rejection in the SCION overlay, not a frame on a cable.
 //   - `slaac-refused` and `tap-inject-refused` are configuration and test-instrument refusals.
+// Every type the event log can carry. The log itself knows which types have *happened*; this is the
+// vocabulary of what *can* happen, and the two answer different questions. `show logging <type>` used
+// to answer a word it did not recognise with "either a type that has not happened yet or a typo" -
+// it could not tell, because nothing in the model knew the vocabulary. It does now, so a typo is
+// refused as a typo and a quiet type is told it is quiet.
+// `test/event-types.test.js` derives the same vocabulary from the emission sites in engine/ and from
+// what a broad scenario sweep actually produces, and fails if this list has drifted either way.
+const EVENT_TYPES = new Set([
+  'acl-deny', 'arp-cache', 'arp-reply', 'arp-request', 'arp-static-hold', 'bgp', 'bgp-session',
+  'dhcp', 'dns', 'drop', 'flow-close', 'flow-data', 'flow-open', 'flow-refused', 'flow-reset',
+  'forward', 'frame', 'garp', 'icmp6-echo', 'icmp6-received', 'icmp6-reply', 'icmp-echo',
+  'icmp-received', 'icmp-reply', 'lag', 'limit', 'lldp', 'nat-drop', 'nat-inbound',
+  'nat-outbound', 'nd-advert', 'nd-cache', 'nd-request', 'ping', 'ping6', 'poe-admin-off',
+  'poe-budget', 'poe-deny', 'port-security-age', 'port-security-drop', 'port-security-learn',
+  'ra-recv', 'ra-send', 'route', 'route6', 'rs-recv', 'rs-send', 'scion-delivered',
+  'scion-drop', 'scion-hop', 'scion-path', 'slaac-address', 'slaac-refused', 'split',
+  'stp-block', 'switch', 'tap', 'tap-inject-refused', 'vlan-drop', 'vrrp'
+]);
 const FRAME_DROP_TYPES = new Set(['drop', 'acl-deny', 'vlan-drop', 'stp-block', 'nat-drop', 'poe-deny']);
 
 const ICMP_PAYLOAD_BYTES = 100;
@@ -4638,4 +4656,4 @@ class Simulator {
   }
 }
 
-module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost };
+module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost, EVENT_TYPES };

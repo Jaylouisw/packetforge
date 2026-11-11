@@ -1671,6 +1671,59 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### `show logging types` — the vocabulary behind a drop reason
+
+`show logging <type>` answered a word it did not recognise with a shrug:
+
+```
+R1#show logging dchp
+% No event of type "dchp" has happened here
+% Types with events so far: arp-request, drop, frame, lldp, ping
+% A type is named after what happened (drop, acl-deny, dhcp, stp-block, ...), so this is
+%   either a type that has not happened yet or a typo - "show logging" lists them all
+```
+
+Two sentences, and the console could not tell which was true — nothing in the model knew its own
+vocabulary, so `drop` in a lab with no drops and `dchp` were the same answer. It knows now
+(`EVENT_TYPES` in `engine/simulator.js`, one set, 60 types), which makes the two answers different:
+
+```
+R1#show logging dchp
+% "dchp" is not a type this console records, so no event of it can ever appear
+% "show logging types" lists the 60 types this console does record
+% Types with events so far: frame, icmp-echo, icmp-reply, lldp, ping
+
+R1#show logging drop
+% No event of type "drop" has happened here yet - it is a type this console records
+% "show logging types" lists all 60 of them, with what has happened
+
+R1#show logging types
+Event types this console records (60), and how many have happened here:
+  Type                 Events
+  acl-deny             -
+  arp-cache            -
+  arp-request          4
+  drop                 -
+  frame                12
+  ...
+  vrrp                 -
+
+56 of 60 have not happened in this lab yet - a `-` is a type
+this console can record, not a typo. `show logging <type>` filters to one.
+```
+
+A 60-name vocabulary cannot live inside a refusal sentence, so the refusal points at the view — and the
+view is the question the sentence was trying to answer.
+
+The abbreviation rule reaches here too, which is where it matters most: `show logging dro` resolves
+against **what can happen**, not only against what has. Before, an abbreviation of a quiet type was
+"nothing happened", so in a quiet lab every abbreviation looked like a typo.
+
+The set is not documentation, it is code, and `test/event-types.test.js` keeps it honest in both
+directions: every declared type must be emitted somewhere in `engine/` (a declaration nothing produces
+is a type the console offers and can never show), and every type a scenario actually produces must be
+declared (a new event type added anywhere fails until it is listed).
+
 ### `show vlan summary` counts the table it sits above
 
 `summary` is the word an operator types before deciding whether a VLAN is missing, and it was read as

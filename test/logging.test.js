@@ -131,9 +131,10 @@ console.log('\nFiltering by type, and refusing a type that is not there:');
   ok(body.every((r) => /acl-deny/.test(r)), 'and every row is that type');
   match(/1 acl-deny events/, drops.join('\n'), 'the heading names the filter and the count');
   const bad = l.text(l.t.getDevice('d1'), 'show logging nonsense');
-  // The wording moved: a type is named after what happened, so a word that matches none says it has
-  // not happened here - and lists the types that *do* have events (see test/logging-filter.test.js).
-  match(/% No event of type "nonsense" has happened here/, bad, 'an unknown type is refused');
+  // The wording moved twice. It first said a word that matched nothing had not happened here; now the
+  // vocabulary is known, so a word *outside* it is refused as a type that can never appear, and only a
+  // recorded type with no events is described as not having happened (see test/event-types.test.js).
+  match(/% "nonsense" is not a type this console records/, bad, 'an unknown type is refused');
   match(/% Types with events so far: .*acl-deny/, bad, 'and the refusal lists the types that do exist');
 }
 
@@ -238,7 +239,7 @@ console.log('\nThe commands are discoverable:');
   const l = lab();
   const help = l.text(l.t.getDevice('d1'), '?');
   match(/show clock/, help, 'help lists show clock');
-  match(/show logging \[<type>\|summary\] \[last <n>\] \[device <name>\]/, help,
+  match(/show logging \[<type>\|summary\|types\] \[last <n>\] \[device <name>\]/, help,
     'help lists show logging with its filters');
 }
 
