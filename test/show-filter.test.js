@@ -124,11 +124,17 @@ console.log('\nA pool is only a pool once it can hand out an address:');
   env.s.run('ip dhcp pool HALF');
   env.s.run('network 192.168.60.0 255.255.255.0');
   const exit = env.s.run('exit');
-  saw(/no address range/, exit, 'leaving without a range says why the pool will not exist');
+  ok(!/^%/.test((exit.output || [])[0] || ''), 'a network alone is enough: the subnet is the range');
   const pools = env.d.config.dhcpPools || [];
-  ok(!pools.some(function (p) { return p.name === 'HALF'; }), 'and the half-built pool is not left behind');
-  saw(/no DHCP pools/, env.s.run('show ip dhcp pool'),
-    'so the view agrees with the console - no pool is listed');
+  ok(pools.some(function (p) { return p.name === 'HALF'; }), 'so the pool exists');
+  saw(/Range\s+: 192\.168\.60\.1 - 192\.168\.60\.254/, env.s.run('show ip dhcp pool'),
+    'and the view shows the range the network implies');
+  // The pool that cannot hand anything out is one with neither piece, and the view agrees.
+  env.s.run('ip dhcp pool EMPTY');
+  const emptyExit = env.s.run('exit');
+  saw(/no network and no address range/, emptyExit, 'a pool with neither piece says why it cannot exist');
+  ok(!(env.d.config.dhcpPools || []).some(function (p) { return p.name === 'EMPTY'; }),
+    'and it is not left behind');
   // With a range it is kept, and the view shows it.
   env.s.run('ip dhcp pool FULL');
   env.s.run('network 192.168.60.0 255.255.255.0');

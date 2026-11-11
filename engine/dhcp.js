@@ -175,8 +175,21 @@ function normalizePool(spec) {
     ? net.intToIp((networkInt & maskInt) >>> 0)
     : networkIn;
 
-  const rangeStart = trimStr(s.rangeStart);
-  const rangeEnd = trimStr(s.rangeEnd);
+  let rangeStart = trimStr(s.rangeStart);
+  let rangeEnd = trimStr(s.rangeEnd);
+  // `network <net> <mask>` alone is a working pool on a real router: it hands out addresses from that
+  // subnet, skipping its own ends and the addresses the router holds. Here it was stored in silence and
+  // the pool was thrown away at `exit` for having no `range` - the canonical IOS way to configure DHCP
+  // produced no DHCP server, and the client's answer was "no DHCP server in this broadcast domain".
+  // A missing end is filled from the subnet; an explicit `range` still narrows it.
+  if ((rangeStart === '' || rangeEnd === '') && networkInt !== null && maskInt !== null) {
+    const netInt = (networkInt & maskInt) >>> 0;
+    const size = (~maskInt) >>> 0;            // addresses in the subnet, minus one
+    if (size > 2) {
+      if (rangeStart === '') rangeStart = net.intToIp((netInt + 1) >>> 0);
+      if (rangeEnd === '') rangeEnd = net.intToIp((netInt + size - 1) >>> 0);
+    }
+  }
 
   const gatewayIn = trimStr(s.gateway);
   const gatewayInt = parseIp(gatewayIn);
@@ -255,6 +268,13 @@ function isExcludedInt(p, n) {
   for (const r of excludedInts(p)) {
     if (n >= r.start && n <= r.end) return true;
   }
+  // The pool's own gateway and server addresses are never leaseable. A router does not hand out the
+  // address it is using, and a pool that starts at the lowest address in its subnet would otherwise
+  // offer the default router to the first client that asked.
+  const gw = parseIp(p.gateway);
+  if (gw !== null && gw === n) return true;
+  const srv = parseIp(p.server);
+  if (srv !== null && srv === n) return true;
   return false;
 }
 
@@ -339,7 +359,9 @@ function validatePool(pool) {
   if (p.rangeStart === '' || p.rangeEnd === '') {
     // The console's word is `range`, and its two ends are the start and the end: `rangeStart` and
     // `rangeEnd` are field names from this file, not something the operator ever typed.
-    err('E_DHCP_BAD_RANGE', where + 'no address range was given - "range <start> <end>" is required.');
+    err('E_DHCP_BAD_RANGE',
+      where + 'no network and no address range were given - "network <network> <mask>" makes the ' +
+      'subnet leaseable, and "range <start> <end>" narrows it.');
   } else {
     const startInt = parseIp(p.rangeStart);
     const endInt = parseIp(p.rangeEnd);

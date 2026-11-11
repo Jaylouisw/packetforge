@@ -1546,6 +1546,44 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A DHCP pool is a pool when it has a network
+
+```
+R1(config)#ip dhcp pool LAN
+R1(config-dhcp)#network 10.0.0.0 255.255.255.0
+R1(config-dhcp)#default-router 10.0.0.1
+R1(config-dhcp)#exit
+% DHCP pool LAN: no address range was given - "range <start> <end>" is required.
+% Pool LAN discarded - a pool is kept only once it is valid
+PC1#show ip interface brief
+eth0  unassigned  YES  DHCP  up  up
+```
+
+On a router `network <net> <mask>` **is** the address range — leases come from that subnet, and the
+addresses the router itself holds are never among them. Here the canonical way to configure DHCP was
+accepted in silence and then thrown away at `exit`, so the client's answer was *"no DHCP server in this
+broadcast domain"* while a DHCP server sat on its own wire.
+
+A `network` alone now makes a working pool (`range <start> <end>` still narrows it, and the pool view says
+what the subnet implies). A pool with neither piece is still discarded, and the sentence names both ways to
+complete it. The router's own address and the pool's server address are never leased, and the view says so
+rather than leaving `Range: 10.0.0.1 - 10.0.0.254` to be read as "a client may get .1":
+
+```
+DHCP pools on R1:
+  LAN
+    Network    : 10.0.0.0 / 255.255.255.0
+    Range      : 10.0.0.1 - 10.0.0.254
+    Router     : 10.0.0.1
+    Not leased : 10.0.0.1 (this router)
+    In use     : 1 of 253
+```
+
+A pool could also be created and never removed: `no pool` worked from *inside* the pool, while
+`no ip dhcp pool <name>` — the line `show running-config` prints — was `% Unrecognized config command`. It
+removes the pool now and reports which leases it was serving, because those clients keep their addresses
+until they renew and the renew goes unanswered.
+
 ### A global command typed in a block does not evict the operator
 
 ```

@@ -182,10 +182,20 @@ console.log('\nAn incomplete pool is still allowed, and its complaints are sente
   const s = env.s;
   s.run('ip dhcp pool HALF');
   eq(s.run('network 10.6.0.0 255.255.255.0').output.length, 0,
-    'network before range is a partial pool, not an error');
+    'network is accepted in silence, like the rest of the sub-mode');
+  eq(s.run('exit').output.length, 0,
+    'and a pool with a network is complete on its own - the subnet is the range');
+  eq(env.d.config.dhcpPools.length, 1, 'so it survives');
+}
+{
+  // The pool that really is incomplete is the one with neither piece: no network to take a range
+  // from, and no range given.
+  const env = router();
+  const s = env.s;
+  s.run('ip dhcp pool HALF');
   const exitOut = s.run('exit').output;
-  ok(/no address range was given/.test(exitOut[0]),
-    'leaving an incomplete pool says which piece is missing, in the console\'s words');
+  ok(/no network and no address range/.test(exitOut.join('\n')),
+    'a pool with neither piece says which pieces are missing, in the console\'s words');
   ok(!/E_DHCP/.test(exitOut.join('\n')), 'with no validator code');
   ok(!/rangeStart|rangeEnd/.test(exitOut.join('\n')), 'and no data-model field names');
   eq(env.d.config.dhcpPools.length, 0, 'the invalid pool does not survive');

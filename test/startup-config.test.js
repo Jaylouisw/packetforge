@@ -200,15 +200,16 @@ console.log('\nThe dump can be pasted back onto a bare device and rebuilds the s
 
 console.log('\nA pool that cannot be validated does not become configuration:');
 {
-  // Found by the paste test above: a pool created with `network` but no `range` used to be reported
-  // as an error on `exit` and kept anyway. It then appeared in `show running-config` as a block that
-  // failed its own validation when pasted back - a dump that cannot rebuild the device it came from.
+  // Found by the paste test above: a pool that fails validation must not survive as configuration,
+  // because it then appears in `show running-config` as a block that fails its own validation when
+  // pasted back - a dump that cannot rebuild the device it came from. A pool with a `network` is now
+  // valid on its own (the subnet is the range), so the incomplete one is the pool with neither piece.
   const env = lab();
   const made = env.c1.run('configure terminal', 'ip dhcp pool broken',
-    'network 10.9.9.0 255.255.255.0', 'default-router 10.9.9.1', 'exit', 'exit').join('\n');
+    'default-router 10.9.9.1', 'exit', 'exit').join('\n');
   // The sentence, not the validator's constant: `% E_DHCP_BAD_RANGE: ... both rangeStart and
   // rangeEnd are required.` named a code and two field names the operator never typed.
-  ok(/no address range was given/.test(made), 'the error is still reported');
+  ok(/no network and no address range/.test(made), 'the error is still reported');
   ok(/Pool broken discarded/.test(made), 'and the invalid pool is discarded rather than kept');
   ok(!/ip dhcp pool broken/.test(strip(env.c1.run('show running-config')).join('\n')),
     'so it is not in the running configuration');

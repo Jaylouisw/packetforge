@@ -336,15 +336,20 @@ t('CLI: an incomplete pool waits for exit, a wrong value does not');
 {
   const L = lab(0);
   // One session: a sub-mode only exists inside the session that entered it.
-  // `network` before `range` is the second keystroke, not an error, so a pool that is merely
-  // incomplete is judged once, on the way out. A value that is already wrong is a different case:
-  // nothing typed later can rescue a network that is not an address, so it is refused where it is
-  // typed instead of arriving two commands later in the validator's vocabulary.
+  // A pool that is merely incomplete is judged once, on the way out - and a pool with a `network` is
+  // not incomplete at all: the subnet is the address range, as it is on a router. A value that is
+  // already wrong is a different case: nothing typed later can rescue a network that is not an
+  // address, so it is refused where it is typed instead of arriving two commands later in the
+  // validator's vocabulary.
   const session = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool lan',
     'network 10.0.0.0 255.255.255.0', 'exit']);
   ok(session.some(function (l) { return /Created DHCP pool lan/.test(l); }), 'a pool can be created');
-  const typing = session.filter(function (l) { return /no address range was given/.test(l); });
-  eq(typing.length, 1, 'a half-typed pool is only judged once, on the way out');
+  const kept = L.cli(L.r, ['show ip dhcp pool']);
+  ok(kept.some(function (l) { return /lan/.test(l); }),
+    'a pool with a network but no range is a pool, and survives exit');
+  const judged = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool bare', 'exit'])
+    .filter(function (l) { return /no network and no address range/.test(l); });
+  eq(judged.length, 1, 'a half-typed pool is judged once, on the way out');
   ok(!session.some(function (l) { return /E_DHCP_/.test(l); }),
     'and is judged in the console\'s words, not in validator codes');
 
@@ -377,7 +382,7 @@ t('A saved lab keeps its pools');
   const pools = back.getDevice(L.r.id).config.dhcpPools;
   eq(pools.length, 1, 'and it comes back on load');
   eq(pools[0].name, 'lan', 'with its name');
-  eq(pools[0].leaseSec, '43200', 'and its lease');
+  eq(pools[0].leaseSec, 43200, 'and its lease, as a number of seconds');
   ok(JSON.stringify(back.serialize()) === JSON.stringify(json), 'the round trip is stable');
 }
 

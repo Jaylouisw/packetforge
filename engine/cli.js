@@ -1141,6 +1141,37 @@ class CliSession {
       out.push('SCION membership removed');
     } else if (head === 'ip' && tokens[1] === 'nat') {
       out.push.apply(out, this._ipNatConfig(tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'dhcp' && tokens[3] === 'pool') {
+      // Nothing removed a pool from global config: `ip dhcp pool LAN` created one, `no pool` inside
+      // the pool removed it, and the line `show running-config` printed could not be typed back. A
+      // command whose only undo is a different syntax in a different mode has no undo as far as a
+      // paste is concerned.
+      const name = tokens[4];
+      const pools = this.device.config.dhcpPools || [];
+      if (!name) {
+        return ['% Incomplete command: no ip dhcp pool <name>'].concat(pools.length
+          ? ['% The pools on this device are: ' + pools.map(function (p) { return p.name; }).join(', ')]
+          : ['% This device has no DHCP pools to remove']);
+      }
+      const pool = pools.filter(function (p) { return p.name === name; })[0];
+      if (!pool) {
+        return ['% No DHCP pool named "' + name + '"' + (pools.length
+          ? ' - this device has: ' + pools.map(function (p) { return p.name; }).join(', ')
+          : ' - this device has no DHCP pools')];
+      }
+      this.device.config.dhcpPools = pools.filter(function (p) { return p.name !== name; });
+      out.push('DHCP pool ' + name + ' removed' +
+        (pool.network ? ' (' + pool.network + (pool.mask ? ' / ' + pool.mask : '') + ')' : ''));
+      const dhcpLib = require('./dhcp');
+      const held = this.sim ? this.sim.dhcpBindings(this.device.id).filter(function (b) {
+        return dhcpLib.ipInPool(pool, b.ip);
+      }) : [];
+      if (held.length) {
+        out.push('  ' + held.length + ' lease' + (held.length === 1 ? '' : 's') + ' from it ' +
+          (held.length === 1 ? 'is' : 'are') + ' no longer served: ' +
+          held.map(function (b) { return b.ip + ' to ' + b.mac; }).join(', '));
+        out.push('  Those clients keep their addresses until they renew, and a renew now goes unanswered');
+      }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'nat') {
       out.push.apply(out, this._noIpNatConfig(tokens.slice(3)));
     } else if (head === 'ip' && tokens[1] === 'access-list') {
@@ -6337,6 +6368,8 @@ class CliSession {
       }
       pool.network = tokens[1];
       if (tokens[2]) pool.mask = tokens[2];
+      // Silent, like every other line in this sub-mode: the pool is legitimately incomplete while it
+      // is being typed, and `show ip dhcp pool` is where the resulting range is reported.
     } else if (head === 'default-router') {
       if (!tokens[1]) return incomplete('Incomplete command: default-router <address>');
       if (!net.isIp(tokens[1])) return badAddress(tokens[1], 'the default router');
@@ -6376,7 +6409,9 @@ class CliSession {
       const days = nums[0] || 0, hours = nums[1] || 0, mins = nums[2] || 0;
       const sec = days * 86400 + hours * 3600 + mins * 60;
       if (sec <= 0) return incomplete('A lease must be longer than zero');
-      pool.leaseSec = String(sec);
+      // A number, not a string: the pool's own field is a duration, `show ip dhcp pool` prints
+      // "86400s" from it, and a saved state that round-trips through JSON keeps its type.
+      pool.leaseSec = sec;
     } else if (head === 'host') {
       // host <address> <hardware-address> - a reservation, which is how a printer keeps its address.
       if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac>');
@@ -10157,6 +10192,23 @@ class CliSession {
         out.push('    Network    : ' + p.network + ' / ' + p.mask);
         if (p.rangeStart && p.rangeEnd) out.push('    Range      : ' + p.rangeStart + ' - ' + p.rangeEnd);
         if (p.gateway) out.push('    Router     : ' + p.gateway);
+        // What the range says and what a client can be given are two things: the router's own address
+        // and the server address are inside the range and are never leased. Saying so here keeps
+        // "Range: 10.0.0.1 - 10.0.0.254" from reading as "a client may be given .1".
+        {
+          const withheld = [];
+          // Containment in the *range*, not "could this be leased": the whole point is that these
+          // addresses are inside the range and outside what a client may be given.
+          const inRange = function (addr) {
+            try {
+              const n = net.ipToInt(addr);
+              return n >= net.ipToInt(p.rangeStart) && n <= net.ipToInt(p.rangeEnd);
+            } catch (e) { return false; }
+          };
+          if (p.gateway && inRange(p.gateway)) withheld.push(p.gateway + ' (this router)');
+          if (p.server && p.server !== p.gateway && inRange(p.server)) withheld.push(p.server + ' (the server)');
+          if (withheld.length) out.push('    Not leased : ' + withheld.join(', '));
+        }
         if (p.dns && p.dns.length) out.push('    DNS        : ' + p.dns.join(', '));
         if (Number.isFinite(Number(p.leaseSec)) && p.leaseSec) out.push('    Lease      : ' + p.leaseSec + 's');
         if (p.excluded && p.excluded.length) out.push('    Excluded   : ' + p.excluded.join(', '));
@@ -11665,6 +11717,7 @@ class CliSession {
       helpLine('ip default-gateway <gw>', 'default gateway for hosts'),
       helpLine('no ip default-gateway [<gw>]', 'clear it'),
       helpLine('ip dhcp pool <name>', 'create/enter a DHCP pool'),
+      helpLine('no ip dhcp pool <name>', 'remove the whole pool, and say which leases it was serving'),
       helpLine('ip name-server <ip>', 'DNS resolver for this device'),
       helpLine('no ip name-server [<ip>]', 'forget one resolver, or all of them'),
       helpLine('router bgp <as>', 'enable BGP'),
