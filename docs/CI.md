@@ -493,12 +493,13 @@ services, and a job that has to swap makes the whole queue slower.
   | `ef85c1a9`, detached worktree, nothing else running | **257 suites in 356.6 s — 10,627 passed, 3 failed** | 2 — the same two, the same 2 + 1 |
   | `d4319d27`, detached worktree, nothing else running | **264 suites in 333.4 s — 10,958 passed, 3 failed** | 2 — the same two, and the split is still exactly 2 + 1 |
   | `16d70abe`, detached worktree, nothing else running | **267 suites in 354.5 s — 11,029 passed, 3 failed** | 2 — the same two, still 2 + 1, four readings in |
+  | `a1645088`, detached worktree, nothing else running | **269 suites in 368.8 s — 11,079 passed, 3 failed** | 2 — the same two, five readings in, still 2 + 1 |
 
-  Across the four readings the suite grew by 16 suites and 584 assertions while the red set never moved:
+  Across the five readings the suite grew by 18 suites and 634 assertions while the red set never moved:
   every time, `test/link-parts.test.js` reports `81 passed, 2 failed` and `test/ma5801.test.js` throws
   before printing any tally, so 2 + 1 = 3 assertions across 2 suites. Each row was re-run on its own tree
-  rather than carried over, because four readings that agree about a count are not one reading that was
-  taken — and the run time wanders between 308 and 357 s with nothing to explain it, which is itself worth
+  rather than carried over, because five readings that agree about a count are not one reading that was
+  taken — and the run time wanders between 308 and 369 s with nothing to explain it, which is itself worth
   knowing before you read a slow run as a regression.
 
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
