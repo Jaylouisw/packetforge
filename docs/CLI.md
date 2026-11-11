@@ -40,6 +40,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
+| `clear ip dhcp binding * \| <address>` | empty the DHCP binding table, or one entry of it. Reports what it removed and says the client keeps its address until it renews; a bare command is incomplete because clearing everything is destructive |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. `clear arp interface <port>` is a third accepted spelling of the same thing — bare port, `interface <port>` and `clear ip arp` all reach one implementation, and `clear arp <address>` is the fourth form, which refuses by name when that host has no entry. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
 | `clear mac address-table [interface <port>]` | empty the MAC table on a switch (privileged exec); a router refuses, because it does not bridge |
 | `show ip interface brief [<port>]` | interface IP / status table; the **Method** column says `manual` or `DHCP`; one port narrows it ([Port arguments](#port-arguments--one-port-or-a-refusal)) |
@@ -1545,6 +1546,46 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### An excluded range is a range, and a binding table can be emptied
+
+```
+R1(config-dhcp)#excluded-address 10.9.0.1 10.9.0.5
+R1#show ip dhcp pool
+  LAN
+    Excluded   : [object Object], [object Object], [object Object]
+PC1#show ip interface brief
+eth0       10.9.0.2/24  YES  DHCP    up      up
+```
+
+Two things were wrong with that. `excluded-address <low> <high>` is **one range** on a router and was
+stored as two separate single addresses, so the addresses between them stayed leaseable and a client was
+handed one from the middle of a range the operator had excluded. And the pool view printed the exclusion
+records raw, so `[object Object]` was the only thing an exclusion ever looked like from the console.
+
+Both spellings are one entry now, stored low-to-high, and the view prints it as a range:
+
+```
+    Excluded   : 10.9.0.1-10.9.0.5, 10.9.0.30
+    In use     : 0 of 249
+```
+
+The count is the arithmetic an operator can check: 254 addresses in /24, five excluded. An entry that is
+already there is not added again — loading a saved copy used to double every exclusion, because a paste
+replays the dumped lines into a pool that already has them.
+
+A binding table could also fill and never be emptied. The clear exists in both spellings:
+
+```
+R1#clear ip dhcp binding *
+Cleared 1 binding: 10.9.0.2 (02:00:00:00:02:00)
+  Those clients keep the addresses they hold until they renew - a renew is now answered
+  as a fresh request, so the address may change at that point
+```
+
+A bare `clear ip dhcp binding` is an incomplete command: clearing everything has a spelling, and it is
+destructive. `clear ip dhcp binding 10.9.0.99` names what the server *does* hold instead of failing mute,
+and a device that is not a DHCP server says that rather than "cleared 0".
 
 ### A DHCP pool is a pool when it has a network
 

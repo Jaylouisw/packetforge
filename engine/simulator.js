@@ -1303,6 +1303,24 @@ class Simulator {
     return { ip: held.ip, mac: mac, forgotten: forgotten };
   }
 
+  // Empty the server's binding table, all of it or the one entry an operator named. The lease state
+  // lives here, so the count a `clear` reports has to come from the same place `show ip dhcp binding`
+  // reads - otherwise the table could survive its own clear.
+  clearDhcpBindings(devId, which) {
+    const state = this._dhcpStates ? this._dhcpStates.get(devId) : null;
+    if (!state || !state.leases) return [];
+    const cleared = [];
+    for (const mac of Array.from(state.leases.keys())) {
+      const lease = state.leases.get(mac);
+      if (!lease) continue;
+      if (which && which !== '*' && String(lease.ip) !== String(which)) continue;
+      cleared.push({ mac: mac, ip: lease.ip });
+      state.leases.delete(mac);
+      if (state.byIp && state.byIp.get(lease.ip) === mac) state.byIp.delete(lease.ip);
+    }
+    return cleared;
+  }
+
   dhcpBindings(devId) {
     // Passed the clock the answer is about, so `Expires in` is a countdown rather than the
     // configured lease length restated.

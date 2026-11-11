@@ -561,6 +561,33 @@ class CliSession {
           // traffic crosses the box and only `show ip nat translations` could read it, so an operator
           // could watch translations appear but never start again from a clean table.
           out.push.apply(out, this._clearNat(tokens.slice(3)));
+        } else if (head === 'clear' && tokens[1] === 'ip' && tokens[2] === 'dhcp' && tokens[3] === 'binding') {
+          // IOS: `clear ip dhcp binding *` or `clear ip dhcp binding <address>`. The binding table is
+          // the server's record of who holds what; emptying it does not reach out and take an address
+          // away from a client that is already using it, and saying so is the useful part.
+          const which = tokens[4];
+          const held = this.sim ? this.sim.dhcpBindings(this.device.id) : [];
+          // Every line here goes through `out`: this dispatch returns its answer as lines, and a bare
+          // `return [...]` from one arm reached the caller with no output envelope at all - the
+          // command was accepted and said nothing, which is the one answer a refusal must not give.
+          if (!this.device.hasCap('dhcp-server')) {
+            out.push('% ' + this.device.name + ' is not a DHCP server - it holds no bindings to clear');
+          } else if (!which) {
+            // Clearing everything has a spelling - `*` - and it is destructive, so a bare command
+            // must not be the way to do it.
+            out.push('% Incomplete command: clear ip dhcp binding * | <address>');
+          } else if (!held.length) {
+            out.push('% ' + this.device.name + ' holds no DHCP bindings');
+          } else if (which && which !== '*' && !held.some(function (b) { return b.ip === which; })) {
+            out.push('% No binding for ' + which + ' - this server has: ' +
+              held.map(function (b) { return b.ip; }).join(', '));
+          } else {
+            const cleared = this.sim.clearDhcpBindings(this.device.id, which || '*');
+            out.push('Cleared ' + cleared.length + ' binding' + (cleared.length === 1 ? '' : 's') +
+              (cleared.length ? ': ' + cleared.map(function (b) { return b.ip + ' (' + b.mac + ')'; }).join(', ') : ''));
+            out.push('  Those clients keep the addresses they hold until they renew - a renew is now answered');
+            out.push('  as a fresh request, so the address may change at that point');
+          }
         } else if (head === 'clear' && tokens[1] === 'port-security') {
           out.push.apply(out, this._clearPortSecurity(tokens.slice(2)));
         } else if (head === 'clear' && (tokens[1] === 'arp' ||
@@ -6401,7 +6428,30 @@ class CliSession {
           if (part && !net.isIp(part)) return badAddress(part, 'an excluded address');
         }
       }
-      pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
+      // `excluded-address 10.9.0.10 10.9.0.20` is one range, not two addresses: the two-argument
+      // form is IOS's low/high spelling. Read as two singles, the addresses between them stayed
+      // leaseable and a client was handed one from the middle of a range the operator had excluded.
+      const canonical = function (low, high) {
+        if (!high || low === high) return low;
+        return net.ipToInt(low) <= net.ipToInt(high) ? low + '-' + high : high + '-' + low;
+      };
+      const entries = [];
+      if (addrs.length === 2 && !String(addrs[0]).includes('-') && !String(addrs[1]).includes('-')) {
+        entries.push(canonical(addrs[0], addrs[1]));
+      } else {
+        for (const a of addrs) {
+          const parts = String(a).split('-').filter(Boolean);
+          entries.push(parts.length === 2 ? canonical(parts[0], parts[1]) : a);
+        }
+      }
+      // An entry already present is not added again: `copy startup-config running-config` replays the
+      // dumped lines into a pool that already has them, and concatenating would turn one excluded
+      // range into two identical ones every time a saved copy was loaded.
+      const have = (Array.isArray(pool.excluded) ? pool.excluded : []).map(function (r) {
+        return typeof r === 'string' ? r : (r && r.start ? canonical(r.start, r.end) : String(r));
+      });
+      for (const e of entries) if (have.indexOf(e) === -1) have.push(e);
+      pool.excluded = have;
     } else if (head === 'lease') {
       // Days by default, like IOS: `lease 0 12 0` is 12 hours.
       const nums = tokens.slice(1).filter(function (x) { return /^\d+$/.test(x); }).map(Number);
@@ -10211,7 +10261,15 @@ class CliSession {
         }
         if (p.dns && p.dns.length) out.push('    DNS        : ' + p.dns.join(', '));
         if (Number.isFinite(Number(p.leaseSec)) && p.leaseSec) out.push('    Lease      : ' + p.leaseSec + 's');
-        if (p.excluded && p.excluded.length) out.push('    Excluded   : ' + p.excluded.join(', '));
+        if (p.excluded && p.excluded.length) {
+          // Entries are `low-high` strings from the console and {start,end} from a normalized pool.
+          // Printed raw, the view said "[object Object], [object Object]" - a range nobody could read.
+          out.push('    Excluded   : ' + p.excluded.map(function (r) {
+            if (typeof r === 'string') return r;
+            if (r && r.start && r.end) return r.start === r.end ? r.start : r.start + '-' + r.end;
+            return String(r);
+          }).join(', '));
+        }
         const macs = Object.keys(p.reservations || {});
         for (const mac of macs) out.push('    Reserved   : ' + p.reservations[mac] + ' for ' + mac);
         // How much of the range is actually usable, so "2 in use" means something.
@@ -11883,7 +11941,8 @@ class CliSession {
       helpLine('default-router <addr>', 'gateway handed to clients'),
       helpLine('dns-server <addr...>', 'resolvers handed to clients'),
       helpLine('range <start> <end>', 'leaseable range'),
-      helpLine('excluded-address <addr[-addr]...>', 'addresses not to lease'),
+      helpLine('excluded-address <low> [<high>]', 'addresses not to lease: one address, or a low/high range'),
+      helpLine('excluded-address <low>-<high>', 'the same range in one token'),
       helpLine('lease <days> [hours] [minutes]', 'lease length'),
       helpLine('host <addr> <mac>', 'static reservation'),
       helpLine('no default-router|dns-server|range|lease|excluded-address',
@@ -11926,6 +11985,7 @@ class CliSession {
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),
       helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
       helpLine('clear ip nat translation [*|<inside-local>]', 'empty the translation table, keeping the rules'),
+      helpLine('clear ip dhcp binding * | <address>', 'empty the DHCP binding table, or one entry of it (DHCP servers)'),
       helpLine('clear mac address-table [dynamic | static | vlan <id> | interface <port> | address <mac>]',
         'empty the MAC table, or the part of it that matches (switches)'),
       helpLine('clear arp [interface <port> | <ip>]', 'forget the cache, or one port or one address of it'),
