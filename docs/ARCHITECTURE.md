@@ -483,6 +483,17 @@ obvious:
   **UI, `200` with HTML**, while `GET /api/` returns `404 unknown endpoint`. A health check pointed at
   `/api` is checking the wrong thing and passing.
 
+Four of those traps in one paste, against a server on the default port and the default board — each line
+is the answer measured on this tree, so a run that differs is a change in behaviour rather than a typo:
+
+```bash
+B=http://localhost:8000
+curl -s -o /dev/null -w '%{http_code}\n' -X PUT    $B/api/version        # 404 — wrong method is a 404, not a 405
+curl -s -X PUT $B/api/topologies/default/links/l1/state                  # 405 {"error":"use POST"} — the only 405
+curl -s -o /dev/null -w '%{http_code}\n' $B/api                         # 200, HTML — the UI, not an API path
+curl -s $B/api/topologies/default/links/l1/extra                         # 404 echoing the path back in full
+```
+
 Per namespace:
 
 | Call | Answer |
