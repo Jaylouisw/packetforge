@@ -18,15 +18,15 @@ unticked line that survives here is a real gap.
       HTTP and TLS remain absent.**
 - [x] **DHCP** (DORA exchange) — `engine/dhcp.js` is in the data path, with pools, ranges,
       exclusions and reservations (`test/dhcp.test.js`, `test/dhcp-in-path.test.js`). **Relay is
-      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2085`) makes a router
+      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2119`, handled by `_helperAddress`) makes a router
       forward a client's request with `giaddr` set to that port's address, and the server answers from
       a pool that covers the *relay port's* subnet, not its own (`engine/simulator.js:1134`,
       `_dhcpRelayFor()`); `show ip dhcp binding` on the server then grows a closing line naming each
       relayed lease — `N bindings arrived through a relay: <ip> via giaddr <giaddr>`
-      (`engine/cli.js:11278-11285`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
+      (`engine/cli.js:11448-11455`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
-      pretending — `engine/cli.js:11216-11226`), Option 82's circuit-id/remote-id (only `giaddr` is
+      pretending — `engine/cli.js:11386-11395`), Option 82's circuit-id/remote-id (only `giaddr` is
       carried), and DHCPv6, which appears solely as the reason a router's M flag sends a host there.
 - [x] **DNS** for name resolution — NXDOMAIN / NODATA / SERVFAIL reported as distinct answers
       (`engine/dns.js`, `test/dns.test.js`, `test/dns-wire.test.js`).
