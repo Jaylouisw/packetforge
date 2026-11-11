@@ -50,29 +50,35 @@ should say what it trains at rather than inherit a number. An empty `CAGE_SPEEDS
 therefore not a bug and not a contradiction of this table — `sfp+` does supply a default
 (`[1000, 10000]`), `sfp28` does not.
 
+Two `CAGE_SPEEDS` entries name a class **no medium in that cage carries**, and this table therefore
+leaves them out: `1244` in the four PON cages, and `5000` in `coax`. `grep` for the rate across
+`MEDIA` and 1244 matches nothing at all; 5000 matches `5gbase-t` (copper) and `wireless-60` (a radio),
+neither of which is a coax run. They are fallback caps for a port that declares no rate, so a port can
+report a cap its cage cannot fill — the Speeds column above is the class the cage can actually carry.
+
 
 | Cage | Name | Family | Mates with | Media it can carry | Speed classes (Mbps) |
 |------|------|--------|-----------|--------------------|----------------------|
 | `rj45` | RJ45 | copper | `rj45`, `combo` | `10base-t`, `100base-tx`, `1000base-t`, plus `2.5gbase-t`, `5gbase-t`, `10gbase-t` when the port is rated that high | 10, 100, 1000 (all filtered by the port rating), plus 2500 / 5000 / 10000 when rated that high |
 | `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 1000 |
 | `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 |
-| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-25g`, `dac-10g`, `dac-1g` | 10000, 25000 |
-| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus all eight of `1000base-sx`, `-lx`, `-ex`, `-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
+| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-25g`, `dac-10g`, `dac-1g` | 1000, 10000, 25000 |
+| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus all eight of `1000base-sx`, `-lx`, `-ex`, `-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, plus 2500 / 5000 / 10000 from the copper side when the port is rated that high |
 | `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
 | `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56`, `fc-qsfp28` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
 | `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+`, `qsfp56` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
 | `sfp56` | SFP56 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo` | `50gbase-sr`, `50gbase-lr`, `25gbase-sr`, `25gbase-lr`, `dac-25g` | 25000, 50000 |
 | `qsfp56` | QSFP56 | optical | `qsfp56`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000 |
 | `xfp` | XFP | optical | `xfp` only | `10gbase-sr`, `10gbase-lr`, `10gbase-er` | 10000 |
-| `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 1244, 2488, 9953 |
-| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc`, and two Ethernet optics the UPC polish allows: `100base-fx` always, `1000base-lx` from a 1G rating | 100, 1000, 1244, 2488, 9953 (filtered by rating) |
-| `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
-| `lc-apc` | LC/APC | optical | `lc-apc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
+| `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 2488, 9953 |
+| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc`, and two Ethernet optics the UPC polish allows: `100base-fx` always, `1000base-lx` from a 1G rating | 100, 1000, 2488, 9953 (filtered by rating) |
+| `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 2488, 9953, plus that one Ethernet rate — 1000, 10000, 25000 or 100000 — filtered by rating |
+| `lc-apc` | LC/APC | optical | `lc-apc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 2488, 9953, plus that one Ethernet rate — 1000, 10000, 25000 or 100000 — filtered by rating |
 | `fc-sfp` | SFP+ (FC) | fibre-channel | `fc-sfp`, `sfp+`, `sfp28`, `fc-sfp28`, `fc-sfpdd` | `2gfc-sw`, `2gfc-lw`, `4gfc-sw`, `4gfc-lw`, `8gfc-sw`, `8gfc-lw`, `10gfc-sw`, `10gfc-lw`, `16gfc-sw`, `16gfc-lw` | 2125, 4250, 8500, 10519, 14025 |
 | `fc-sfp28` | SFP28 (FC) | fibre-channel | `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+`, `fc-sfpdd` | `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw`, `8gfc-sw`, `8gfc-lw` | 8500, 14025, 28050 |
 | `fc-sfpdd` | SFP-DD (FC) | fibre-channel | `fc-sfpdd`, `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+` | `64gfc-sw`, `64gfc-lw`, `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw` | 14025, 28050, 57800 |
 | `fc-qsfp28` | QSFP28 (FC) | fibre-channel | `fc-qsfp28`, `qsfp28` | `128gfc-sw`, `128gfc-lw`, `32gfc-sw`, `32gfc-lw` | 28050, 112200 |
-| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-30-us`, `docsis-31`, `docsis-31-us` — both directions of each DOCSIS generation, because a CMTS return-path port is its own rate | 175, 200, 1000, and 2500 / 5000 / 10000 gated by rating |
+| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-30-us`, `docsis-31`, `docsis-31-us` — both directions of each DOCSIS generation, because a CMTS return-path port is its own rate | 175, 200, 1000, 2500, 10000 |
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
 | `console` | Console | management | `console` only | `console-rs232` (115200) plus the fixed-baud variants `console-rs232-9600`, `-19200`, `-38400`, `-57600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (9600 – 115200 baud) |
