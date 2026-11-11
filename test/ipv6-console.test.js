@@ -210,9 +210,13 @@ console.log('\nA refused command does not change the operator\'s mode:');
   ok(/% Unexpected argument "extra"/.test(refused.join('\n')),
     'and the refusal names the word that has no slot');
   eq(s.mode, 'iface', 'and the interface block is kept, not silently left');
-  // A command that really is global still leaves the block - and the note names a form that exists.
+  // A command that really is global is applied at global scope, and the block is KEPT. It used to be
+  // left, which evicted the operator: the next line they typed for the port - `ipv6 address ...` -
+  // was read as a global command and refused, so a dual-stack port configured in three lines came out
+  // with no IPv6 address. A pasted dump is still served, because it re-enters a block with its next
+  // `interface` line and the global line applies either way.
   const global = s.run('ipv6 nd ra enable').output;
-  eq(s.mode, 'config', 'a genuine global command does leave the block');
+  eq(s.mode, 'iface', 'a genuine global command is applied at global scope without leaving the block');
   ok(global.some(function (l) { return /is a global command/.test(l); }),
     'and says so');
   ok(!/ip ipv6/.test(global.join(' ')),

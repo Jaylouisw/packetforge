@@ -1546,6 +1546,48 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### A global command typed in a block does not evict the operator
+
+```
+PC1(config-if)#ip default-gateway 10.9.0.1
+Default gateway: 10.9.0.1
+  note: "ip default-gateway 10.9.0.1" is a global command - applied at global scope and the interface block was left
+PC1(config)#ipv6 address 2001:db8:9::50/64
+% Unrecognized config command: ipv6 address 2001:db8:9::50/64
+```
+
+Applying a global command at global scope is right — a pasted running-config prints no `exit` between its
+last interface stanza and the globals, and it has to run start to finish. **Leaving the block** was the
+mistake: the person who typed three lines for one port had the third read against the wrong mode, so a
+dual-stack port came out with no IPv6 address at all. The prompt had already told them they were somewhere
+else, one line too late to matter.
+
+The block is kept now, and the note says exactly that ("applied at global scope; you are still in this
+interface block"). A paste is still served: the global line applies either way, and the dump's next
+`interface` line re-enters a block.
+
+### The ping report reads top to bottom
+
+```
+R1#ping 10.9.0.50
+!!!!
+Success rate is 100 percent (4/4)
+Reply from 10.9.0.50: bytes=100 time=0.103 ms
+```
+
+The summary sat in the middle of the replies it summarises, and carried no round-trip figures. It is the last
+line now, in the shape IOS prints:
+
+```
+!!!!
+Reply from 10.9.0.50: bytes=100 time=0.103 ms   (x4)
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.103/0.103/0.103 ms
+```
+
+The IPv6 ping has the same shape on purpose. A failed `traceroute` also explains its own marks now: the `*`
+beside a time means the link had no cable length or line rate and the documented default was used, and that
+legend was printed only on a trace that arrived — the case where a reader has least to go on.
+
 ### The console has settings, and it has no pager
 
 `terminal length 0` opens half the pasted transcripts on the internet, and `show terminal` is the question

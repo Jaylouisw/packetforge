@@ -2044,10 +2044,11 @@ class CliSession {
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else {
-      // Nothing in this block claimed the line. Real IOS applies a global command
-      // typed inside an interface block and leaves the block; doing the same is
-      // what lets a pasted `show running-config` run start to finish, since the
-      // dump does not print `exit` between an interface block and the globals.
+      // Nothing in this block claimed the line. A global command typed inside an interface block is
+      // applied at global scope - that is what lets a pasted `show running-config` run start to
+      // finish, since the dump prints no `exit` between an interface stanza and the globals. The
+      // block itself is kept: the dump re-enters one with its next `interface` line, and a person
+      // typing a port's configuration is not made to notice that one of their lines was global.
       const asGlobal = this._configMode(tokens);
       // Any refusal counts, not just the one wording. `ipv6 nd ra suppress extra` fell through,
       // was refused by the global handler with its *own* sentence ("% Unknown IPv6 RA command"),
@@ -2066,7 +2067,13 @@ class CliSession {
           ? ['% Unrecognized interface command: ' + tokens.join(' ')].concat(asGlobal)
           : asGlobal;
       }
-      if (this.mode === MODE_IFACE) this.mode = MODE_CONFIG;
+      // The block is NOT left. It used to be, on the theory that a pasted dump carries no `exit`
+      // between its last interface stanza and the globals - true, and still served, because the
+      // global line applies either way and the dump's next `interface` line re-enters a block. What
+      // the eviction cost was the *person*: `ip default-gateway …` typed inside an interface block
+      // dropped the prompt to (config)#, and the next line they typed for the port - `ipv6 address
+      // 2001:db8:9::50/64` - was read as a global command and refused. A dual-stack port configured
+      // in three lines came out with no IPv6 address at all.
       out.push.apply(out, asGlobal);
       // Say so. `ospf area 0` inside an interface block is the *global* command: it configures the
       // process, not the port, and the block is left behind. Applying it silently is how an operator
@@ -2077,8 +2084,8 @@ class CliSession {
       // was, which for `ipv6 nd suppress-ra` suggested `ip ipv6 ...` - a form that does not exist.
       // A note that invents a command is worse than no note.
       const perPort = this._perPortForm(tokens);
-      out.push('  note: "' + tokens.join(' ') + '" is a global command - applied at global scope and the ' +
-        'interface block was left' +
+      out.push('  note: "' + tokens.join(' ') + '" is a global command - applied at global scope; ' +
+        'you are still in this interface block' +
         (perPort ? ' (the per-port form is "' + perPort + '")' : ''));
     }
     return out;
@@ -6581,7 +6588,16 @@ class CliSession {
     const marks = res.replies.map(function (r) { return r.success ? '!' : '.'; }).join('');
     out.push(marks);
     const ok = res.replies.filter(function (r) { return r.success; }).length;
-    out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
+    // The summary is the last line of the report. It used to be pushed before the per-reply lines, so a
+    // reader met "Success rate is 100 percent" in the middle of the replies it was summarising.
+    const rtts = res.replies.filter(function (r) { return r.success && typeof r.rtt === 'number'; })
+      .map(function (r) { return r.rtt; });
+    const summary = 'Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')' +
+      (rtts.length ? ', round-trip min/avg/max = ' +
+        [Math.min.apply(null, rtts), rtts.reduce(function (a, b) { return a + b; }, 0) / rtts.length,
+          Math.max.apply(null, rtts)].map(function (v) {
+          return (v < 1 ? v.toFixed(3) : v.toFixed(1));
+        }).join('/') + ' ms' : '');
     for (const r of res.replies) {
       if (r.success) {
         const t = (r.rtt === null || r.rtt === undefined)
@@ -6597,6 +6613,7 @@ class CliSession {
         out.push('Request timed out (seq ' + r.seq + ')');
       }
     }
+    out.push(summary);
     return out;
   }
 
@@ -6642,7 +6659,15 @@ class CliSession {
     const res = this.sim.ping6(this.device.id, dst, { count: count });
     out.push(res.replies.map(function (r) { return r.success ? '!' : '.'; }).join(''));
     const ok = res.replies.filter(function (r) { return r.success; }).length;
-    out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
+    // Same report shape as the IPv4 ping: the summary ends the output and carries the round-trip figures.
+    const rtts = res.replies.filter(function (r) { return r.success && typeof r.rtt === 'number'; })
+      .map(function (r) { return r.rtt; });
+    const summary = 'Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')' +
+      (rtts.length ? ', round-trip min/avg/max = ' +
+        [Math.min.apply(null, rtts), rtts.reduce(function (a, b) { return a + b; }, 0) / rtts.length,
+          Math.max.apply(null, rtts)].map(function (v) {
+          return (v < 1 ? v.toFixed(3) : v.toFixed(1));
+        }).join('/') + ' ms' : '');
     for (const r of res.replies) {
       if (!r.success) { out.push('Request timed out (seq ' + r.seq + ')'); continue; }
       const t = (r.rtt === null || r.rtt === undefined)
@@ -6667,6 +6692,7 @@ class CliSession {
       }
       for (const line of seen.slice(0, 4)) out.push(line);
     }
+    out.push(summary);
     return out;
   }
 
@@ -6747,19 +6773,27 @@ class CliSession {
     out.push.apply(out, renderTable(numeric
       ? ['Hop', 'Address', 'Cumulative']
       : ['Hop', 'Address', 'Cumulative', 'Device'], hopRows, 2));
+    // The `*` beside a time means the link had no cable length or line rate and the documented default
+    // was used. It was explained only on a trace that arrived, so a failed trace printed a mark with no
+    // legend - the one case where the reader has least to go on.
+    const starNote = defaulted
+      ? ['* ' + (defaulted === 1 ? 'a link' : defaulted + ' links') +
+        ' had no cable length or line rate, so the documented default was used']
+      : [];
     if (!res.arrived) {
       out.push('  *  *  *  (no reply)');
       out.push('% ' + (res.reason || 'destination unreachable'));
+      if (res.reachedFrom) {
+        out.push('% The last answer came from ' + res.reachedFrom + ' - the trace stops where the path does');
+      }
+      out.push.apply(out, starNote);
       return out;
     }
     out.push('');
     out.push('Path: ' + (numeric ? res.hops.map(function (h, i) { return h.address; }).join(' -> ')
       : chain.join(' -> ')) + '  (' + res.hops.length + ' hop' +
       (res.hops.length === 1 ? '' : 's') + ')');
-    if (defaulted) {
-      out.push('* ' + (defaulted === 1 ? 'a link' : defaulted + ' links') +
-        ' had no cable length or line rate, so the documented default was used');
-    }
+    out.push.apply(out, starNote);
     return out;
   }
 
