@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`show hosts` — the resolver view, including the names that failed.** The only way to see what a
+  device would ask, and what it had learned, was to read the config back and guess. The view prints the
+  default domain, whether lookup is on, and the servers it will ask, then either says plainly that
+  nothing has been resolved yet or shows a table with IOS's `Host / Address / Type / Age` columns. Both
+  halves were measured:
+
+  ```
+  Default domain is lab.example
+  Name lookup is enabled
+  Name servers are 10.0.0.53
+
+  No name has been resolved here since this lab started
+  A "ping <name>" asks the servers above and records the answer here
+  ```
+
+  A **failure** is recorded as a failure rather than dropped, which is the half that matters when a lab
+  cannot reach its name server — the name is listed with `unresolved failed now`, the count pluralises
+  (`% 1 name did not resolve` / `% 2 names did not resolve`), and the answer says where the reason is:
+  *"the reason is in `show logging` (the resolver event) and the zone is on the server that answered"*.
+  Two limits worth knowing before the fingers try them: there are **no static host entries** —
+  `ip host coredb 192.168.1.20` answers `% Unrecognized config command` — and the view exists on every
+  device, so a switch with nothing configured prints the same empty state instead of refusing. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **The output pipe: `| include`, `| exclude`, `| begin`, `| section`, `| count`.** `show running-config |
   include route` was read as a **port name** — `% show running-config takes one port, not "| include route"` —
   so the console blamed the port table for a filter it did not have. Five filters now, matched as plain
