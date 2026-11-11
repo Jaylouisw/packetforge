@@ -34,11 +34,14 @@ Thirty-two files, one job each. Every one is pure except `optical.js`, which laz
 numbers out of `catalogue/optics/` — and even `flow.js` and `nat.js` describe themselves as taking
 caller-supplied logical ticks rather than `Date.now()`, so the same lab replays identically. That is
 why the suites can drive these modules directly. The purpose in each row is the file's own header
-line, so it can be checked against the source rather than trusted — with three honest exceptions, found
-by comparing every row to `head -3 engine/<file>.js`: `convergence.js` opens its header at the 802.1D
-defaults, `segment.js` at the broadcast-domain tagging rule, and `scion.js` with the acronym before the
-purpose on the next line. Those three rows paraphrase the header's intent; the other twenty-nine are
-the header line itself.
+line, so it can be checked against the source rather than trusted — with four honest exceptions, found
+by comparing every row to `head -5 engine/<file>.js`: `convergence.js` opens its header at the 802.1D
+defaults, `segment.js` at the broadcast-domain tagging rule, `scion.js` with the acronym before the
+purpose on the next line, and `nat.js`, whose row lists the three translation flavours from the body of
+its header (`static` / `dynamic` / `pat`, `nat.js:4-8`) instead of repeating its first line. Those four
+rows paraphrase the header's intent; the other twenty-eight are the header line itself, sometimes with a
+gloss after an em dash (`index.js` is the clearest: the header is `public engine API.` and the row adds
+*re-exports the lot*).
 
 | Module | Job |
 |---|---|
