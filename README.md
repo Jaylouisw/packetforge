@@ -21,7 +21,9 @@ and they all run the same simulation engine and the same command set.
 - **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable, right-click-a-cable-to-pull-it,
   per-device console, live packet animation, WebSocket multi-client sync.
 - **Physically accurate.** 89 media types across nine families (Ethernet, Fibre Channel,
-  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages; per-port speed
+  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages — of which **24
+  carry a port** on this tree (`lc-apc` and `usb` have none, so a sweep that counts the cage each
+  port derives prints 24; both numbers are right, they answer different questions); per-port speed
   capabilities and PoE budgets. Impossible cables are
   *refused*, not drawn — an SC/APC patch lead will not go into an SC/UPC socket.
   See [docs/PHYSICAL_LAYER.md](docs/PHYSICAL_LAYER.md) and
@@ -207,7 +209,7 @@ rather than `SW1`.
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP, IPv4, ICMP echo/reply, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static, dynamic pool and PAT — all three translated in the data path, static and PAT configured from the console (`ip nat inside source …`) while a pool rule comes from the topology JSON because `ip nat pool` is refused, and [`show ip nat translations` / `statistics`](docs/CLI.md#nat--static-and-pat-from-the-console-a-pool-from-the-topology) read back what the data path wrote), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
 | Transport flows | A conversation, not a probe: the three-way handshake as three real frames, an MSS derived from the path MTU, cumulative ACKs, four-way close, per-flow state (`engine/flow.js`). Every segment is a frame an ACL can deny, NAT can rewrite or an under-budget PSE can refuse |
-| Physical layer | 89 media types, 26 connector cages, per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
+| Physical layer | 89 media types, 26 connector cages (24 in use — `lc-apc` and `usb` carry no port), per-port speed caps + PoE, live feasibility validation, Fibre Channel as its own protocol ([docs](docs/FIBRE-CHANNEL.md)) |
 | L2 features | 802.1Q VLANs (access/trunk/native), LAG aggregation (`active`/`passive`/`on`/`static` from the CLI, translated to the validator's vocabulary — see [CLI.md](docs/CLI.md#link-aggregation)), 802.1D spanning tree, **port security** (source limits, sticky learning, `protect`/`restrict`/`shutdown` violations, aging, `clear port-security`), LLDP both directions, static ARP entries a lab cannot relearn |
 | CLI | Cisco-like vendor-agnostic console: `show` (incl. `ip ospf` / `ip ospf neighbor`, `dns`, `scion`, `ip bgp`, `vrrp`, `lldp neighbors`, `access-lists`, `spanning-tree`, `ipv6 nd`), `interface`, `ip address`, `ip dhcp pool`, `ip route`, `ipv6 route` / `ipv6 address`, `access-list`, `vlan`, `switchport`, `channel-group`, `vrrp`, `ospf`, `router bgp`, `dns zone`, `scion`, `ping [count] [at <ms>]`, `traceroute`, `nslookup`, `converge`, `link up\|down\|state`, `ip routing`, `mtu`/`speed`/`duplex`, `power inline`, `lldp run` and per-port `lldp transmit`/`receive`, `arp <ip> <mac>`, `ip domain-lookup`/`ip domain-name`, `interface vlan` (an SVI — `Vlan10` shows `up/down` in the brief while no port carries that VLAN, and installs no connected route until one does), the `clear` family, `help`/`?` in any position, and **IOS-style abbreviation** (`sh ip int br`) resolved against the live grammar rather than a word list ([full reference](docs/CLI.md)) |
 | UI | drag-drop canvas, pan/zoom, port cabling, per-device console, packet animation, event log |
