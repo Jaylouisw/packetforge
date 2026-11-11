@@ -259,9 +259,13 @@ Measured with a raw socket against a live server, because none of this is visibl
 
 Four consequences worth knowing:
 
-- **`no-store` everywhere, deliberately.** There is no build step, so `web/app.js` on disk is the
-  code the browser runs; a cacheable asset would survive a pull and the UI would be stale with no
-  hint. Nothing is cached, so a reload is always the current tree.
+- **`no-store` on every file and every API reply — but not on the shell fallback.** There is no build
+  step, so `web/app.js` on disk is the code the browser runs; a cacheable asset would survive a pull
+  and the UI would be stale with no hint. The one reply that leaves without the header is the
+  catch-all shell at an unknown path: `GET /nope.js` above carries `Content-Type: text/html` and no
+  `Cache-Control` at all, because that branch writes its headers by hand while the real-file branch
+  beside it sets `no-store`. `/` and every file that exists are `no-store`, so a reload is the
+  current tree — but a browser may cache the shell at a mistyped URL.
 - **An unknown path is not an error outside `/api/`.** `/nope.js` answers `200` with the HTML shell,
   so a mistyped `<script src>` fails at parse time in the console rather than as a visible 404.
 - **`curl -I` lies about API liveness.** `HEAD /api/version` is `404` while `GET /api/version` is
@@ -292,7 +296,10 @@ Three consequences worth knowing before you write a client:
   parameter, so a client that cares about a named board must send `subscribe` and wait.
 - **A mutation broadcasts to every client**, not to the subscribers of that board — `wss.broadcast()`
   loops over the whole client set. Filter on `topologyId` yourself or you will render somebody
-  else's lab.
+  else's lab. Board *lifecycle* is the exception: `POST /api/topologies` and
+  `DELETE /api/topologies/:id` call no `broadcast()` at all (measured with a decoded-frame client: a
+  connected subscriber sees **zero** frames when a board is created or deleted), so a client that
+  wants to notice a new board has to poll `GET /api/topologies`. The socket carries content edits.
 - **A frame with no `state` must not be adopted.** The bundled UI carries that rule explicitly
   ("a socket frame without a state is not a board"), because adopting one blanks the canvas — that
   was issue #38, and it is the reason `state` is always included rather than being a diff.
