@@ -271,7 +271,7 @@ New device, `devices/generic/generic-transit.json`:
 
 `generic-cloud` **stays exactly as it is**, so every saved topology keeps loading
 (C1) and the palette keeps its familiar entry. `generic-transit` is additive:
-registers in `devices/registry.js:7` (`CATEGORY_ORDER` push `'upstream'`),
+registers in `devices/registry.js:7` (`CATEGORY_ORDER`, which already carries `'upstream'`),
 `web/app.js:116` (`CAT_LABELS`, with the order beside it at `:127`), `device.js:89 CAPABILITIES` (add `'transit'`).
 
 Three intentional omissions:
