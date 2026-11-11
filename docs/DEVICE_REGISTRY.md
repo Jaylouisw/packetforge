@@ -247,6 +247,30 @@ The features they name work from configuration and port hardware instead:
 - PoE: `poeOut` / `poeIn` on the port hardware,
 - VLANs: `switchport` on the interface, LAG: `channel-group`, STP: implied by `isL2()`.
 
+### The catalogue sets nineteen values, not fifteen
+
+The engine's vocabulary is `CAPABILITIES` in `engine/device.js` — fifteen tokens — but the specs on
+disk use **nineteen** distinct strings. Twelve of the fifteen are in use; `vlan`, `lacp` and `stp`
+are defined and set by nothing. The other seven are hardware descriptors the vocabulary never
+names, and `grep -l "'<token>'" engine/ server/ web/` finds **no reader for any of them**:
+
+| Token | Specs | Where it is understood |
+|---|---|---|
+| `passive-poe` | 258 | `scripts/import-devices.js` only — an accepted descriptor |
+| `802.3af` | 143 | same |
+| `802.3at` | 143 | same |
+| `802.3bt` | 25 | same |
+| `bridge` | 18 | same file, as an **alias** for `l2-forward` — so these 18 specs carry a token the importer normalises on the way in, and they predate that map |
+| `poe-injector` | 10 | same file, as an accepted descriptor |
+| `vpn-ipsec` | 7 | nowhere at all — not the engine vocabulary, not the importer's list, so an import would move it to `role` |
+
+The importer's own list is the engine's fifteen minus `vlan`/`lacp`/`stp`, plus `poe-injector`,
+`passive-poe` and the three `802.3*` tokens, and its comment says why: those describe *power*, and
+"they grant no behaviour". A token that is neither in that list nor within two edits of one is
+moved to `role` rather than dropped (`import-devices.js:145-160`), which is the only place in the
+repo that validates a capability string at all — nothing in the engine rejects an unknown one, so a
+spec can carry any word here and the simulator will ignore it.
+
 All fifteen are still worth setting: the device panel shows them as chips (`web/app.js`), several
 suites assert them on specific models, and a reviewer reads them as the spec's intent. Useful
 shapes:
