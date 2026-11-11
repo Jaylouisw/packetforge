@@ -726,6 +726,7 @@ async function handleApi(req, res, urlPath) {
         topo.removeDevice(devId);
         delete topo.layout[devId];
         flow.forgetDevice(flowState, devId);
+        Simulator.forgetDhcpState(topo, devId);
         ended.push.apply(ended, sweepFlows(topo, flowState, 'device ' + devId + ' was deleted'));
         for (const key of Array.from(sessions.keys())) if (key.indexOf(topoId + ':') === 0) sessions.delete(key);
         broadcast(topoId);
@@ -1236,6 +1237,15 @@ async function handleApi(req, res, urlPath) {
     // /reset  (clear runtime forwarding state)
     if (parts[3] === 'reset' && parts.length === 4 && method === 'POST') {
       for (const d of topo.devices.values()) { d.macTable.clear(); d.arp.clear(); d.pending.clear(); }
+      // A reset clears the leases and the addresses they produced **together** (#1429). Clearing one without the other
+      // is the contradiction this started with: a client holding 10.90.0.10 while its server has no binding. An address
+      // that was typed in is configuration and stays; an address that was handed out is runtime and goes.
+      if (topo.dhcpStates) topo.dhcpStates.clear();
+      for (const d of topo.devices.values()) {
+        for (const iface of d.interfaces.values()) {
+          if (iface.dhcp === true) { iface.ip = null; iface.mask = null; }
+        }
+      }
       // A reset clears the conversations too: they are runtime state, and a flow
       // left behind would point at a NAT translation or a socket that no longer
       // exists.
