@@ -397,6 +397,21 @@ Per namespace:
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
 
+> **The 25th category has no filter.** `/api/catalog` groups all **25** `category` values, but the type filter in
+> the palette is built from `CAT_ORDER` in `web/app.js`, which lists **24** — `ap` is the one missing, and it is not
+> an empty category: 11 models carry it (`fs/AP-N506`, `fs/AP-N506H`, `fs/AP-N516`, `fs/AP-N716`, …). Those devices are
+> in the catalogue, in `/api/catalog` and in search results; they simply have no *Access point* entry in the type
+> filter, so `paletteFilter.type` can never equal `'ap'`. Adding `ap` to `CAT_ORDER` and `CAT_LABELS` is a two-line
+> change in the UI's own tables, not a catalogue change. Checked with:
+>
+> ```bash
+> node -e '
+> const {loadCatalog, groupByCategory} = require("./devices/registry");
+> const c = loadCatalog(require("path").resolve("devices"));
+> const g = groupByCategory(c);
+> console.log(Object.keys(g).length, "groups;", (g.ap || []).length, "in ap");'
+> ```
+
 A refused flow is a `400`, and the body is worth reading in full: `{ error, code, reason, flow,
 events, step }`, where `code` is the same `E_NO_ROUTE` / `E_ACL_DENY` / `E_UNREACHABLE` / `E_STP` the
 console prints, `events` is the timeline entry that explains it, and `flow` is either the record that
