@@ -291,13 +291,18 @@ if you only count bytes:
 
 | Probe | Result |
 |---|---|
-| Upgrade on `/`, `/ws`, `/deep/path`, `/api/topologies` | `101 Switching Protocols` on all four |
+| Upgrade on `/`, `/ws`, `/deep/path`, `/api/topologies`, `/api/version` | `101 Switching Protocols` on every path — the upgrade is not routed, so there is no "correct" URL |
 | Handshake with no `Sec-WebSocket-Key` | **zero bytes**, socket closed — not a `400` |
-| **Frames arriving unprompted, right after the handshake** | **2** — so a client must not treat the first frame it reads as the answer to what it just sent |
-| Three junk frames (`{"type":"bogus"}`, `not json`, `{}`) | **0** frames back in 800 ms — discarded, no error frame |
+| Handshake with `Sec-WebSocket-Version: 8` | **`101`** — the version is not checked either, so a client claiming an old draft still upgrades |
+| Frames arriving unprompted, right after the handshake | **1** text frame (`{type:'topology', topologyId:'default', state}`). This was measured as **2** on an earlier tree and is one today — which is the point: a client must not hard-code the count |
+| `{"type":"subscribe","topologyId":"default"}` | **1** frame back, same shape |
+| An HTTP mutation while connected | **1** frame, the broadcast |
+| Three junk frames (`{"type":"bogus"}`, `not json`, `{}`) | **0** frames back in 700 ms — discarded, no error frame |
 
-That second row is the one that costs an afternoon: subscribe first, filter by `type`, and never
-assume the socket is quiet because you have not written anything yet.
+Re-measured with a hand-rolled frame reader that decodes opcodes rather than counting `recv()` calls:
+one text frame (opcode `1`) per event, no control frames, no empty frames. Subscribe first, filter by
+`type`, and never assume the socket is quiet because you have not written anything yet — but also do
+not assume it is noisy.
 
 **The socket is not mounted at a path.** The `upgrade` handler runs before any routing, so `GET /`,
 `/ws`, `/deep/path` and even `/api/topologies` all answer `101 Switching Protocols` — measured on
