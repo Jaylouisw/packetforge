@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`show logging types` — the event vocabulary, and a refusal that can tell a typo from a quiet type.**
+  `show logging <type>` used to answer a word it did not recognise with "either a type that has not
+  happened yet or a typo", which is not something an operator can act on. The console knows all 60 type
+  names it records, so the three cases are now three different answers, measured on one switch after a
+  failed ping:
+
+  | typed | answer |
+  |---|---|
+  | `show logging acl-deny` (a real type, nothing logged yet) | `% No event of type "acl-deny" has happened here yet - it is a type this console records` + `% "show logging types" lists all 60 of them, with what has happened` |
+  | `show logging dropp` (a typo) | `% "dropp" is not a type this console records, so no event of it can ever appear` + the count + `% Types with events so far: drop, frame, lldp, ping` + `% Closest: drop` |
+  | `show logging xyzzy` (a word outside the vocabulary, nothing like it) | the same "can never appear" answer, with **no** `Closest:` line — the hint only appears when some type starts with the same two characters |
+  | `show logging stp` (an unambiguous prefix) | resolves to `stp-block` and answers for *that* type — `no event of type "stp-block" has happened here yet` — not for `stp` |
+  | `show logging types` | `Event types this console records (60), and how many have happened here:` and a two-column table of all 60, `-` where nothing has happened |
+
+  Prefix resolution now draws on the whole vocabulary rather than only the types that have already fired,
+  so `show logging dro` works in a lab where nothing has dropped yet. `show logging types` composes with
+  the output filter (`show logging types | include acl` answers the single `acl-deny -` row). One
+  behaviour to keep in mind: a bare `show logging d` is not read as the type `drop` — it resolves to the
+  `device` keyword and asks for a name. `test/event-types.test.js` holds **27 assertions**. See
+  [docs/CLI.md](docs/CLI.md).
+
 - **A reverse lookup, and the way back out of every DNS setting.** `nslookup <name>` resolved forward;
   given an address it now asks the **reverse** name and says so before answering, so the transcript does
   not look like a lookup of something nobody typed:
