@@ -249,6 +249,20 @@ but it is discarded when nothing on the device can source power: `ES-24-500W` is
 research-sourced figure is kept even when it looks odd — a contradiction there is a data bug for a
 human to see, not something to hide.
 
+The heuristic has its own bounds, and they are **not** the research path's: `parsePoeBudget()`
+(`engine/media.js:1406`) matches `/(\d{2,4})\s*W\b/` in the model string and keeps the figure only
+inside **30–2000 W**, so a model whose budget the datasheet puts outside that window needs
+`poe.budgetW` instead. Measured, because each of these is a way to be surprised:
+
+| model string | budget | why |
+|---|---|---|
+| `GS110TP-100W`, `PoE+ 370W`, `740W` | 100, 370, 740 | digits followed by `W` |
+| `240` | **0** | no `W`, so nothing matches — a bare number is not a budget |
+| `240W` | 240 | the `W` is what makes it one |
+| `2500W` | **0** | above the 2000 W ceiling |
+| `29W` | **0** | below the 30 W floor |
+| `S5720-28X-PWR-SI-AC` | **0** | no wattage in the name at all |
+
 There is no `poe-pse` capability check in the **budget** path: the budget comes from the fields above,
 and a port sources power because it declares `poeOut`. The capability still matters one step
 earlier, for the default: a device with `poe-pse` whose port declares no `poeOut` gets the 802.3af
