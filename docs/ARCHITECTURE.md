@@ -366,6 +366,56 @@ Two rules, both learned the hard way:
   nor `links` is refused rather than emptying the board. `Topology.fromJSON()` stays tolerant — it reads old files
   — but tolerance belongs to reading, not to replacing.
 
+### A mask the console refuses is refused by every door
+
+The console has been taught, one rule at a time, what an address is (#1411) and what a mask is (#1249). The HTTP
+surface edits a port directly — `POST /api/topologies/:name/interfaces/:device/:port` with `{ ip, mask }` — and it was
+asking different questions, because it used the *parsers* (`maskToInt()`, a conversion with no opinion) instead of the
+rules. Two consequences, both reachable from the inspector:
+
+```
+POST {"ip":"10.5.5.1","mask":"255.0.255.0"}  → 200, and the port held a mask that is not a netmask
+sw1#show running-config
+ip address 10.5.5.1 255.0.255.0              ← a line the console itself refuses to type
+sw1#show interfaces Gi0
+  ip: 10.5.5.1/8                             ← and every surface read it as /8
+
+POST {"ip":"10.5.5.1","mask":"24"}          → 200, and the port held the *string* "24"
+                                             while the console stores "255.255.255.0" for the same command
+```
+
+The first is the one that matters: the board contained a configuration that **cannot be replayed from its own
+configuration**. So the endpoint now asks `isIp()` and `isContiguousMask()` before it stores anything, refusing with a
+sentence and a `code` the client can act on:
+
+| the request says | answer |
+|---|---|
+| `ip` is not an IPv4 address | `400 E_BAD_ADDRESS`, `ip "300.1.1.1" is not an IPv4 address` |
+| `mask` is not a run of ones then zeros | `400 E_BAD_MASK`, `mask "255.0.255.0" is not a netmask: a netmask is a run of ones then zeros (255.255.255.0, or 24)` |
+| `ip` given without a mask | `400 E_BAD_MASK` |
+
+A prefix length is accepted and rewritten to the dotted spelling before it is stored, because one intent has one
+spelling in state — the console already did this, and the two doors disagreeing meant the same command produced
+`"24"` through the API and `"255.255.255.0"` through the console. A refused request changes nothing.
+
+### An address is restored or explained
+
+`Device.hydrate()` copies the port document through, which is right — it is the lab that was saved. But the address on
+a port is the one field the engine has rules about, and `POST /load` takes a whole document with no per-field
+validation, so a hand-edited or older file could put a mask into state that no door would accept. Now `fromJSON()`
+applies the same rule a cable gets: restored or explained, with one entry per port in `loadIssues`.
+
+| the document says | what happens | code |
+|---|---|---|
+| `mask: "24"` (the old spelling) | rewritten to `255.255.255.0`; the address is kept | — |
+| `mask` is not a run of ones then zeros | the port keeps no address | `E_IFACE_BAD_MASK` |
+| `ip` is not an IPv4 address | the port keeps no address | `E_IFACE_BAD_ADDRESS` |
+| `ip` with no `mask` | the port keeps no address | `E_IFACE_NO_MASK` |
+
+A document holding one bad address loads — the rest of the lab is intact and the port is fixable in place — rather
+than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
+and the board was never replaced. The message names the port and the value.
+
 ### Port names in URLs
 
 A port name is not one path segment: `1/1/1`, `Fa0/1`, `Gi0/0/2`. `POST /api/topologies/:name/interfaces/:device/:port`

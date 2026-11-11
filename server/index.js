@@ -893,10 +893,38 @@ async function handleApi(req, res, urlPath) {
       if (body.ip !== undefined) {
         if (body.ip === null || body.ip === '') { iface.ip = null; iface.mask = null; }
         else {
-          require('../engine/net').ipToInt(body.ip);
-          if (!body.mask) return sendJSON(res, 400, { error: 'mask required with ip' });
-          require('../engine/net').maskToInt(body.mask);
-          iface.ip = body.ip; iface.mask = body.mask;
+          // This endpoint is a configuration door, and it answered different questions from the console (#1413).
+          //
+          // `maskToInt()` accepts any dotted quad - it is a parser, not a rule - so `255.0.255.0` was stored on the
+          // port, read back by every surface as /8, and printed by `show running-config` as
+          // `ip address 10.5.5.1 255.0.255.0`: a line the console itself refuses to type, so the lab could not be
+          // rebuilt from its own configuration. And a prefix length was stored as the string "24" while the
+          // console stores "255.255.255.0" for the same command, so the same intent had two spellings in state.
+          //
+          // Now: the address is asked of the address predicate, the mask of the mask rule, and a prefix length is
+          // rewritten to the one spelling state uses. Each refusal carries a code, so a client can act on it.
+          const netLib = require('../engine/net');
+          if (!netLib.isIp(String(body.ip))) {
+            return sendJSON(res, 400, {
+              code: 'E_BAD_ADDRESS',
+              error: 'ip "' + body.ip + '" is not an IPv4 address'
+            });
+          }
+          if (!body.mask) {
+            return sendJSON(res, 400, { code: 'E_BAD_MASK', error: 'mask required with ip' });
+          }
+          const maskText = String(body.mask).trim();
+          if (!netLib.isContiguousMask(maskText)) {
+            return sendJSON(res, 400, {
+              code: 'E_BAD_MASK',
+              error: 'mask "' + maskText + '" is not a netmask: a netmask is a run of ones then zeros ' +
+                '(255.255.255.0, or 24)'
+            });
+          }
+          iface.ip = String(body.ip);
+          iface.mask = /^\d{1,2}$/.test(maskText)
+            ? netLib.maskFromPrefix(Number(maskText))
+            : maskText;
         }
       }
       if (body.enabled !== undefined) iface.enabled = !!body.enabled;

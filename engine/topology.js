@@ -670,6 +670,23 @@ addDevice(spec, id) {
       const dev = Device.hydrate(d.id, spec, d);
       topo.devices.set(d.id, dev);
     }
+    // An address a document states is either restored or explained, like a cable (#1413).
+    //
+    // `Device.hydrate` copies the port document through, which is right - it is the lab that was saved - but the
+    // address on a port is the one field the engine has rules about, and a hand-written or older document can carry
+    // a mask the console refuses. Adopting it meant state held a mask no door would accept, and `show
+    // running-config` then printed `ip address 10.5.5.1 255.0.255.0`, a line the console itself refuses to type
+    // back: a lab that cannot be replayed from its own configuration.
+    //
+    // So: a bare number is the old spelling of a prefix length and is rewritten to a dotted mask; anything that is
+    // not a mask at all costs the port its address, and the document is told why.
+    for (const dev of topo.devices.values()) {
+      for (const iface of dev.interfaces.values()) {
+        const issue = restoreAddress(iface);
+        if (issue) topo.loadIssues.push(issue);
+      }
+    }
+
     // recompute MACs so they remain unique regardless of load order
     topo._macBase = 0x020000000000;
     for (const dev of topo.devices.values()) topo._assignMacs(dev);
@@ -733,6 +750,44 @@ addDevice(spec, id) {
     topo.lastChangeAtMs = newest || topo.lastChangeAtMs;
     return topo;
   }
+}
+
+// One port's address, as a document states it. Returns a load issue when the address cannot be used, or null when
+// there was nothing to fix. `net` is required at the top of this file.
+function restoreAddress(iface) {
+  if (!iface || !iface.ip) return null;
+  const where = { severity: 'error', port: iface.name, device: iface.deviceId };
+  if (!net.isIp(String(iface.ip))) {
+    where.code = 'E_IFACE_BAD_ADDRESS';
+    where.message = 'port ' + iface.name + ': "' + iface.ip + '" is not an IPv4 address, so the port has no address';
+    iface.ip = null;
+    iface.mask = null;
+    return where;
+  }
+  const mask = iface.mask;
+  if (mask === null || mask === undefined || mask === '') {
+    where.code = 'E_IFACE_NO_MASK';
+    where.message = 'port ' + iface.name + ': ' + iface.ip + ' has no mask, so the port has no address';
+    iface.ip = null;
+    iface.mask = null;
+    return where;
+  }
+  const text = String(mask).trim();
+  // The old spelling: `ip address 10.5.5.1 24` stored "24" before one spelling was settled on.
+  if (/^\d{1,2}$/.test(text) && Number(text) <= 32) {
+    iface.mask = net.maskFromPrefix(Number(text));
+    return null;
+  }
+  if (!net.isContiguousMask(text)) {
+    where.code = 'E_IFACE_BAD_MASK';
+    where.message = 'port ' + iface.name + ': ' + iface.ip + ' ' + text +
+      ' is not a mask (a netmask is a run of ones then zeros), so the port has no address';
+    iface.ip = null;
+    iface.mask = null;
+    return where;
+  }
+  iface.mask = text;
+  return null;
 }
 
 module.exports = { Topology, expandInterfaces };
