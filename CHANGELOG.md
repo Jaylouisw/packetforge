@@ -496,6 +496,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A MAC address finds the port, in all three spellings.** `show mac address-table address <mac>` is the
+  one question a MAC table exists for, and the family answered it as a stray argument. Measured on a
+  two-host switch, before and after `9480a8e3`:
+
+  | typed at the prompt | before | now |
+  |---|---|---|
+  | `show mac address-table address 02:00:00:00:02:00` | `% show mac address-table takes one port, not "address 02:00:00:00:02:00"` | the row for that address, then `02:00:00:00:02:00 is behind Fa0/3 in VLAN 1 - traffic for it is forwarded out that port` |
+  | `show mac address-table address deadbeef0000` | the same refusal | `% deadbeef0000 is not in the table on SW1` / `% 2 entries are learned, and a MAC entry appears only once traffic has been seen from it` |
+
+  Dotted (`0011.2233.4455`), colon-hex and bare forms all resolve, and `vlan <id>`, `dynamic`, `static` and
+  `count` narrow it too — `show mac address-table count` answers `Total: 2 dynamic, 0 static, 0 secure`.
+  The same commit makes a number after a keyword the keyword's value rather than a stray argument, so
+  `show interfaces Fa0/2 counters` (which used to answer `% "counters" is not an argument to "show
+  interfaces Fa0/2"`) now prints exactly the row `show interfaces counters Fa0/2` prints. Guards:
+  `test/mac-lookup-and-port-counters.test.js` (**29 assertions**) and `test/port-args.test.js`
+  (**85 assertions**). See [docs/CLI.md](docs/CLI.md).
+
 - **Five families stop dropping a word they do not take.** A word past the last argument used to be
   ignored silently, so the command answered as if it had not been typed. Measured on `f197e34e^` and
   again on `f197e34e`:
