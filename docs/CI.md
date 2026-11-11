@@ -322,6 +322,30 @@ as well as 22, and a newer-than-18 API — `Array.prototype.findLast`,
 `structuredClone`, `Object.groupBy` — is the usual culprit. `scripts/check-node-surface.js`
 runs before the matrix precisely so that failure is named instead of mysterious.
 
+### The help-page guards: four tests, one question each
+
+The console's help tree is the source of three separate promises, and four suites keep them apart. All
+four were run on this tree to write these numbers; all four are green.
+
+| Suite | Assertions | The question it asks |
+|---|---|---|
+| `test/abbrev.test.js` | 47 | a keyword typed as a prefix is the command it abbreviates — `sh ip int br` is the line people actually type |
+| `test/completion.test.js` | 52 | `?` in any position is a question about what has been typed, never a bad argument |
+| `test/shortest-abbrev.test.js` | 21 | every documented row, in **seven** modes, shortened to its *shortest unique* prefix, is not answered with a typo — an ambiguity passes only when the refusal names two or more candidates that exist on that page |
+| `test/placeholder-rows.test.js` | 11 | every documented row **with a value in it**, in **eight** modes, filled in from a table of values, is a command the console takes |
+
+**131 assertions, and they fail in different directions.** The first two are behavioural: they type lines
+and assert on answers. The last two are *derived* — they read the help rows and type what those rows
+promise — so they can go red with no behaviour change at all, which is exactly what a doc row edit
+produces. That is the mechanical reason a `cli.js` help change and a `CLI.md` edit belong in one commit:
+the derived suites do not read the page, and the page is not checked by anything here.
+
+The one that *does* read the page is `docs-syntax`, and it is the only member of the set that would
+notice a command documented in `CLI.md` that no help row offers. Today it reads **312 help forms across
+four modes and 173 command synopses from `CLI.md`**. Between them the five suites cover the keyword
+sweep, the `?` surface, the shortest-prefix rule, the value-bearing rows, and the page — no one of them
+subsumes another, so a green run means all five ran.
+
 ## Concurrency: what gets cancelled and what does not
 
 ```yaml
