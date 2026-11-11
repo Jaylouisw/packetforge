@@ -1671,6 +1671,41 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A word past the last argument is refused, and a refusal changes nothing
+
+Five families still dropped a word the command does not take, each answering as if it had not been typed:
+
+```
+R1(config)#ip dhcp pool lab zzzz                  -> Created DHCP pool lab
+R1(config)#router bgp 65001 zzzz                  -> BGP enabled, local AS 65001
+R1(config)#dns zone lab zzzz                      -> DNS zone lab ready
+R1(config)#ipv6 gateway 2001:db8:9::1 zzzz        -> IPv6 default gateway 2001:db8:9::1
+R1(config-if)#ip helper-address 10.0.0.1 zzzz     -> Helper address 10.0.0.1 ...
+```
+
+Each now refuses the word by name, and says what the command takes instead:
+
+```
+R1(config)#ip dhcp pool lab zzzz
+% Unexpected argument "zzzz" - ip dhcp pool <name> takes one name
+% A pool name has no spaces: "ip dhcp pool lab"
+R1(config-if)#ip helper-address 10.0.0.1 zzzz
+% Unexpected argument "zzzz" - ip helper-address <addr> takes one address
+% A second server is a second line: repeat "ip helper-address <addr>"
+```
+
+Two rules come with it:
+
+- **A slot that is free text is not a stray word.** `description lab zzzz` is a description with a space
+  in it, `hostname lab zzzz` says *spaces kept* on its own row, and `vlan <id> [name]` documents the name
+  with brackets. Those are the only three, and the sweep lists them rather than guessing.
+- **A refusal changes nothing.** The refusal and the act must not both happen — the shape
+  `no ipv6 gateway zzzz` had when a refused value cleared every IPv6 route.
+
+**The guard:** every configuration row the device offers, on one device from each of the 25 catalogue
+categories, typed with a junk word appended — a thousand lines, all refused, with the saved
+configuration compared before and after every refusal.
+
 ### A copy that changes nothing does not say it applied lines
 
 `copy startup-config running-config` reported a contradiction beside itself:
@@ -3177,6 +3212,7 @@ Nothing is cleared first, and the answer says so:
 R1#copy startup-config running-config
 Copied startup-config into the running configuration on R1: 6 lines applied
   1 line added (this is a merge: lines the saved copy does not mention are kept)
+    + ip route 10.9.0.0 255.255.255.0 10.0.0.2
 ```
 
 `reload` gets the absent-family treatment rather than a typo message: nothing here boots, so there is
@@ -8281,6 +8317,8 @@ R1(config)#end
 CHANGED#copy startup-config running-config
 Copied startup-config into the running configuration on CHANGED: 4 lines applied
   1 line added, 1 line removed (this is a merge: lines the saved copy does not mention are kept)
+    + hostname EDGE
+    - hostname CHANGED
 CHANGED#show running-config
 ! PacketForge running-config
 hostname EDGE

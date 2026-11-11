@@ -1209,6 +1209,11 @@ class CliSession {
       // can hold several, and a client chooses by the subnet its own interface sits in.
       const name = tokens[3];
       if (!name) return ['% Incomplete command: ip dhcp pool <name>'];
+      // A pool name is one word. `ip dhcp pool lab zzzz` created the pool and dropped the word.
+      if (tokens[4] !== undefined) {
+        return ['% Unexpected argument "' + tokens[4] + '" - ip dhcp pool <name> takes one name',
+          '% A pool name has no spaces: "ip dhcp pool lab"'];
+      }
       if (!/^[A-Za-z0-9_.-]{1,32}$/.test(name)) return ['% Invalid pool name: ' + name];
       if (!this.device.config.dhcpPools) this.device.config.dhcpPools = [];
       let pool = this.device.config.dhcpPools.filter(function (p) { return p.name === name; })[0];
@@ -1325,6 +1330,10 @@ class CliSession {
       out.push.apply(out, this._ipv6UnicastRouting(true, tokens.slice(2)));
     } else if (head === 'ipv6' && tokens[1] === 'gateway') {
       const v6 = require('./ipv6');
+      // One address: `ipv6 gateway 2001:db8:9::1 zzzz` set the gateway and dropped the word.
+      if (tokens[3] !== undefined) {
+        return ['% Unexpected argument "' + tokens[3] + '" - ipv6 gateway <addr> takes one address'];
+      }
       if (!v6.validateAddress6(tokens[2]).ok) out.push('% Invalid IPv6 gateway "' + (tokens[2] || '') + '"');
       else { this.device.config.gateway6 = tokens[2]; out.push('IPv6 default gateway ' + tokens[2]); }
     } else if (head === 'ipv6' && tokens[1] === 'nd') {
@@ -1431,6 +1440,10 @@ class CliSession {
       if (typeof this.device.isL3 === 'function' && !this.device.isL3()) {
         return ['% ' + (this.device.name || this.device.id) + ' is a layer 2 switch: it cannot run BGP',
           '% BGP needs a device that routes - a router, or a layer 3 switch with "ip routing"'];
+      }
+      // One AS, one word: `router bgp 65001 zzzz` enabled BGP and dropped the word.
+      if (tokens[3] !== undefined) {
+        return ['% Unexpected argument "' + tokens[3] + '" - router bgp <as> takes one AS number'];
       }
       const accepted = this._bgp(['as', tokens[2]]);
       out.push.apply(out, accepted);
@@ -3537,6 +3550,11 @@ class CliSession {
     if (t[0] === 'zone') {
       const apex = t[1];
       if (!apex) return ['% Usage: dns zone <name>'];
+      // A zone is one name: `dns zone lab zzzz` created "lab" and dropped the word.
+      if (t[2] !== undefined) {
+        return ['% Unexpected argument "' + t[2] + '" - dns zone <name> takes one name',
+          '% The zone name is the apex, e.g. "dns zone lab.example"'];
+      }
       const key = dnsLib.normalizeName(apex);
       let z = dev.config.dnsZones.filter(function (x) { return dnsLib.normalizeName(x.name) === key; })[0];
       if (!z) {
@@ -11514,6 +11532,11 @@ class CliSession {
   _helperAddress(args, iface) {
     const addr = args[0];
     if (addr === undefined) return ['% Incomplete command: ip helper-address <addr>'];
+    // One address per line: `ip helper-address 10.0.0.1 zzzz` added the relay and dropped the word.
+    if (args[1] !== undefined) {
+      return ['% Unexpected argument "' + args[1] + '" - ip helper-address <addr> takes one address',
+        '% A second server is a second line: repeat "ip helper-address <addr>"'];
+    }
     if (!this._isIpv4(addr)) return ['% Invalid helper address "' + addr + '"'];
     // A relay sends a *unicast* to one server. Every one of these was accepted with "DHCP requests
     // will be relayed to it": 0.0.0.0 (this host on this network), 255.255.255.255 (every host on
