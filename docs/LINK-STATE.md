@@ -225,6 +225,23 @@ is recomputed on **every** payload rather than cached; the comment beside the lo
 about 5 µs per cable (a 211-cable board serialises in 1.24 ms against 0.21 ms without), which is the
 price of not being able to show a verdict about hardware that has since changed.
 
+`fullState()` is not an engine method — it lives in `server/index.js`, where the payload is actually
+served, so `sim.fullState()` throws `TypeError: sim.fullState is not a function` and the engine's own
+answer stops at `Topology.serialize()`. Ask the server (any route that returns a state envelope) or
+call the function in that file; there is nothing to import from `engine`.
+
+Measured again on a differently shaped board — 212 cables, each between its own switch and PC, so 424
+devices rather than a handful of switches — the same constant shows up and the absolutes do not:
+
+| board | `serialize()` alone | with verdicts on every link | delta per cable |
+|---|---|---|---|
+| 211 cables on a few switches (the comment's board) | 0.21 ms | 1.24 ms | ~5 µs |
+| 212 cables, one switch + one PC each (424 devices) | 0.69 ms | 1.78 ms | **5.12 µs** |
+
+The per-cable constant is the part that holds across boards; the totals track device count, because
+every device also gets a `runtime` entry. Two readings that disagree about milliseconds can still agree
+about the price of a cable.
+
 Two answers that look contradictory and are both right:
 
 | question | answered by | a port whose far peer is shut |
