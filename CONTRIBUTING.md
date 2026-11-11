@@ -142,6 +142,21 @@ working copy, so a difference between the two is normal mid-task — which is wh
 carries **43** `test:<area>` shortcuts, each of which runs one suite (except `test:ipv6-wire`, which
 runs four). None of them were documented anywhere before this table:
 
+**The shortcuts are a sample, not a map.** They reach **46** of the **266** tracked suites — 17% — and
+the other **220** run only through `node scripts/run-tests.js`, which is what `npm test` and CI call. A
+green `npm run test:<area>` therefore proves one area and says nothing about the tree, which is exactly
+the mistake this table is easy to invite. Both numbers are one command away, and both are computed rather
+than remembered:
+
+```bash
+git ls-files 'test/*.test.js' | wc -l   # 266 suites in the repository
+node -e 'const s=require("./package.json").scripts;
+const f=new Set([].concat(...Object.entries(s).filter(([k])=>k.startsWith("test:")).map(([,v])=>v.match(/test\/[A-Za-z0-9_.-]+\.js/g)||[])));
+const all=require("fs").readdirSync("test").filter(n=>n.endsWith(".test.js"));
+console.log(f.size+" of "+all.length+" suites sit behind a test: shortcut");'
+# 46 of 267 suites sit behind a test: shortcut  (267 counts the working copy; use git ls-files for the tracked figure)
+```
+
 | script | runs |
 |---|---|
 | `npm run test:engine` | `test/engine.test.js` |
