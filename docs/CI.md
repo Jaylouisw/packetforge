@@ -491,6 +491,12 @@ services, and a job that has to swap makes the whole queue slower.
   |---|---|---|
   | `eeafda5a`, detached worktree, nothing else running | **251 suites in 308.8 s — 10,445 passed, 3 failed** | 2 — `link-parts` (2 assertions) and `ma5801` (a crash) |
   | `ef85c1a9`, detached worktree, nothing else running | **257 suites in 356.6 s — 10,627 passed, 3 failed** | 2 — the same two, the same 2 + 1 |
+  | `d4319d27`, detached worktree, nothing else running | **264 suites in 333.4 s — 10,958 passed, 3 failed** | 2 — the same two, and the split is still exactly 2 + 1 |
+
+  The third reading is 13 suites and 331 assertions heavier than the first and 20 s faster, and the red
+  set did not move: `test/link-parts.test.js` reports `81 passed, 2 failed` and `test/ma5801.test.js`
+  throws before printing any tally, so 2 + 1 = 3 assertions across 2 suites — re-run on that tree rather
+  than carried over, because three readings that agree about a count are not one reading that was taken.
 
   **The headline and the list count different things**, which is why "3 failed" sits above two `✗` lines.
   `run-tests.js` sums each suite's own `<n> passed, <m> failed` tally, so the headline is failed
