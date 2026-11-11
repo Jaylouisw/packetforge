@@ -496,6 +496,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A keyword the `?` page offers is taken at its shortest spelling.** The console completes a keyword
+  from the help rows, and the parser accepted only longer spellings of the same word, so its own page
+  contradicted it: `switchport p?` answers `port-security  more options`, and then `sw p` was refused.
+  All three causes are closed — the global-config veto that protects `router ospf 1` in router mode was
+  also firing on lines that merely looked like a config command, and returned "no expansion" when
+  neither page could spell the line back; an ambiguity was erased by the respelling step and came out as
+  a typo; and a word missing from the device's filtered page stalled the expansion half-way through a
+  line. An ambiguity now answers the way IOS does, naming the candidates rather than pretending the
+  input was wrong:
+
+  ```
+  Router-d1#li
+  % Ambiguous command: "li"
+  % Candidates: link, links
+
+  SW1(config-if)#sh
+  % Ambiguous command: "sh"
+  % Candidates: shutdown, show
+  ```
+
+  Two smaller ones from the same sweep. `show` with nothing after it used to print the model's own
+  empty-string artifact, `% Invalid show command: (empty)`; it is now the IOS answer with the words that
+  can follow, counted from the same page `show ?` reads — `% Incomplete command.` and
+  `% "show" needs a word after it - it takes version, clock, logging, ip, interfaces, history,
+  terminal, arp and 12 more` (8 named, 20 in total). And one help row offered a word that is not a
+  word: `no switchport mode | no switchport access vlan | no switchport trunk ...` was whole commands
+  separated by `|` with a literal `...` where the trunk forms go, so the page completed to something
+  untypeable. It is five rows now, one per removal, and the VRRP and numbered-list rows got the same
+  treatment.
+
+  The proof is `test/shortest-abbrev.test.js`: every documented row in seven modes is abbreviated to its
+  shortest unique prefix and typed, and the answer must not be `% Unrecognized`, `% Invalid` or
+  `% Incomplete` — an ambiguity passes only when the refusal names two or more candidates that exist on
+  that page. Measured on this tree: `sw p` answers `Port security enabled on Fa0/1`, `l r` answers
+  `LLDP receive on Fa0/1 is already on`, and `router-i 1.1.1.1` inside `router ospf 1` still sets the
+  router id rather than being read as a global command — the veto still does its job, it just no longer
+  does it to abbreviations. See [docs/CLI.md](docs/CLI.md).
+
 - **A `no` that names a part no longer removes the whole thing.** `no vrrp 1 ip 10.0.0.99` deleted the
   **group** — including a working virtual gateway — and answered `VRRP group 1 removed`, so a typo in an
   address took the gateway down and the transcript agreed it had been asked for. The id is now read
