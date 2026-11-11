@@ -3086,12 +3086,21 @@ class Simulator {
       return;
     }
     const egress = route.iface ? src.interfaces.get(route.iface) : src.egressFor(route.via);
-    if (!egress || !egress.enabled) {
+    // "No port found" and "the port is down" are different worlds: the first means the next hop is
+    // not on any subnet this router is attached to (nothing to send it to), the second means a cable
+    // or an `shutdown`. Both said "egress interface down", so a route via an address that cannot be
+    // resolved sent the operator looking for a cable that was never there.
+    if (!egress) {
+      this._emit({
+        type: 'drop', reason: 'next hop ' + (route.via || dstIp) + ' is not on any connected subnet',
+        dev: src.id
+      });
+      return;
+    }
+    if (!egress.enabled) {
       // `iface` when the port is known: the reason already names it, and an operator reading that
-      // port's counters should see the discards it accumulated. With no egress at all there is no
-      // port to charge, and the drop is device-level.
-      this._emit({ type: 'drop', reason: 'egress interface down', dev: src.id,
-        iface: egress ? egress.name : undefined });
+      // port's counters should see the discards it accumulated.
+      this._emit({ type: 'drop', reason: 'egress interface down', dev: src.id, iface: egress.name });
       return;
     }
     if (!egress.ip) {
@@ -3968,6 +3977,14 @@ class Simulator {
         hops: last ? 0 : 1
       });
       const hopDev = this.ownerOfIp(route.via);
+      // The hop is recorded only if something at that address could answer. Pushing it first meant
+      // `traceroute` printed a stranded next hop as hop 1 with a timing - an address that was never
+      // reached, presented as a router that replied in 50 us.
+      if (!last && (!hopDev || hopDev.id === dev.id)) {
+        out.reason = 'next hop ' + route.via + ' is not a device in this lab';
+        out.unreachable = route.via;
+        break;
+      }
       out.hops.push({
         address: route.via,
         device: hopDev ? (hopDev.name || hopDev.id) : null,
@@ -3978,10 +3995,6 @@ class Simulator {
         last: last
       });
       if (last) { out.ok = true; out.arrived = true; break; }
-      if (!hopDev || hopDev.id === dev.id) {
-        out.reason = 'next hop ' + route.via + ' is not a device in this lab';
-        break;
-      }
       dev = hopDev;
     }
     if (guard >= 32) out.reason = 'path did not end within 32 hops';
@@ -4096,7 +4109,11 @@ class Simulator {
     const route = src.routeTo(dstIp);
     if (!route) return this._refuse('E_NO_ROUTE', 'no route to ' + dstIp, info);
     const egress = route.iface ? src.interfaces.get(route.iface) : src.egressFor(route.via);
-    if (!egress || !egress.enabled) return this._refuse('E_IFACE_DOWN', 'egress interface down', info);
+    if (!egress) {
+      return this._refuse('E_UNRESOLVED_NEXT_HOP',
+        'next hop ' + (route.via || dstIp) + ' is not on any connected subnet', info);
+    }
+    if (!egress.enabled) return this._refuse('E_IFACE_DOWN', 'egress interface down', info);
     if (!egress.ip) return this._refuse('E_NO_SOURCE_IP', 'no source IP on ' + egress.name, info);
     info.srcIp = egress.ip;
 

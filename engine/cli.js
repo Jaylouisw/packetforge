@@ -2526,6 +2526,23 @@ class CliSession {
     out.push('  Next hop     ' + (route.type === 'connected' ? '- (directly connected)'
       : (route.via || '-')));
     out.push('  Interface    ' + (route.iface || '-'));
+    // A matched route whose next hop no port can reach is the answer to "why does this drop", and
+    // the lookup said nothing about it: `Interface -` is a dash, and the reason lived in the log.
+    if (!route.iface && route.via) {
+      const noWire = Array.from(dev.interfaces.values()).every(function (i) {
+        if (i.enabled === false || !i.ip || !i.mask) return true;
+        try {
+          const m = net.ipToInt(i.mask);
+          return ((net.ipToInt(route.via) & m) >>> 0) !== ((net.ipToInt(i.ip) & m) >>> 0);
+        } catch (e) { return true; }
+      });
+      if (noWire) {
+        out.push('  Reachability ' + route.via + ' is not on any connected subnet of this device' +
+          ', and no route covers it');
+        out.push('               so a packet matched here is dropped before it leaves: the drop ' +
+          'reason is on "show logging"');
+      }
+    }
     const shadowed = rowsFor(prefix).filter(function (r) { return !r.installed; });
     for (const r of shadowed) {
       out.push('  Shadowed     ' + r.code + ' ' + r.dest + '/' + net.prefixOf(r.mask) +

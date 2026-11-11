@@ -1624,6 +1624,42 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### A drop reason names the thing that failed
+
+The reason on a drop is the only diagnostic an operator has, and two different failures shared one
+sentence:
+
+```
+R1(config)#ip route 10.8.0.0 255.255.255.0 192.168.99.1
+R1#ping 10.8.0.9
+.... Request timed out
+R1#show logging
+  drop  R1  egress interface down          <- nothing was down
+```
+
+`Gi0/0` was up with an address. The next hop was simply not on any subnet the router is attached to.
+"Port down" and "next hop unreachable" are now separate facts - and a withdrawn connected route is a
+third, saying what it is:
+
+| Situation | Reason |
+|---|---|
+| the next hop is on no connected subnet, and no route covers it | `next hop 192.168.99.1 is not on any connected subnet` |
+| the port that would carry it is shut or has no peer | `egress interface down` |
+| the prefix is not in the table at all | `no route to 10.0.0.2` |
+
+The same reason reaches the flow API as its own code (`E_UNRESOLVED_NEXT_HOP`), so a program can tell
+it from a dead port without parsing English.
+
+Two more of that shape, found in the same probe:
+
+- **`traceroute` printed a hop it never reached.** A stranded next hop appeared as `Hop 1
+  192.168.99.1  50 us` - an address that was never contacted, presented as a router that answered. The
+  hop is now recorded only after something at that address can answer, so the report is `* * *` with
+  the reason below it.
+- **The per-destination route lookup said `Interface -` and stopped.** `show ip route 10.8.0.9` now adds
+  the reachability line - that the next hop is on no connected subnet and no route covers it - and
+  points at the log for the drop reason.
+
 ### The address you point at has to be one that can answer
 
 A next hop is one neighbour's address. Four classes are not that, and three commands each accepted
