@@ -36,9 +36,21 @@ Two things about the form are worth stating because neither is visible from the 
   template, open the form once by hand.
 
 Closed issues in this tracker carry no labels at all (measured: a sample of 50 of the closed ones has
-**none** — and the closed count is a moving figure, `1,395` items with pull requests included and `908`
-issues on their own, when this page last looked), so label counts describe the *open* queue only — which
-is the queue the sweep reads.
+**none** — 50 fetched, 0 labelled), so label counts describe the *open* queue only — which is the queue
+the sweep reads. The closed count is a moving figure and quoting it is a losing game: it read `1,397`
+items with pull requests included and `909` issues on their own when this paragraph was last measured,
+against `1,395` and `908` the time before. So measure both halves rather than remembering either:
+
+```bash
+H='https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues'
+curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1397, PRs included
+curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 909 issues on their own
+curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 24 open
+```
+
+The gap between the first two numbers is the pull requests: Forgejo serves them through the issues
+endpoint from a shared number space, so `type=issues` is what separates a request someone made from a
+change someone proposed.
 
 ## What happens next
 
