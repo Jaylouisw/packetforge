@@ -819,9 +819,10 @@ Device positions look like an exception and are not one. They are saved **server
 drop to `/topologies/<id>/layout`, so the coordinates live in the topology JSON and come back with it; a
 second browser sees the same layout, which a `localStorage` position could never give you. That request is
 allowed to fail silently — the handler is an empty `catch (e) {}` — so a move still applies locally and
-simply will not survive a reload. (The faceplate's own `catch` carries the comment
-`/* a layout failure must not cost you the port list */`; it is about the panel render, not this POST,
-which has no comment at all.)
+simply will not survive a reload. (The inspector's **call into** the faceplate carries the comment
+`/* a layout failure must not cost you the port list */`, at `web/app.js:1032`, where it guards
+`window.PFFaceplate.render()` so a broken panel cannot take the port list down with it. `web/faceplate.js`
+itself contains no `try` and no `catch` at all, and this layout POST has no comment either.)
 
 The legend itself is generated from `CABLE_FAMILIES` in `app.js`, and each swatch carries the **same class**
 the canvas puts on the drawn cable (`link-copper`, `link-pon`, …), so the key and the drawing cannot drift
