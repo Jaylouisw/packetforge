@@ -570,6 +570,35 @@ payload that changes when nothing happened is a payload a client cannot use.
 - `app.js` — state, REST client, palette, inspector (device/config/console/
   simulate), context menus, keyboard shortcuts, WebSocket sync.
 
+### An action that fails says so
+
+`web/app.js` reports nearly every failure: `api()` records the failed call (so it
+reaches a bug report) and rethrows, and the caller puts the reason in a toast, a hint
+or the status bar. One did not:
+
+```js
+PFCanvas.on.move = async function (id, x, y) {
+  topo.layout[id] = { x, y };
+  try { await api('POST', '.../layout', ...) } catch (e) {}   // the drag was a save, and the save was lost
+};
+```
+
+Drag a device while the position is refused (or the server is not there) and the box
+stays where it was dropped: the canvas shows a lab that is not the lab on disk, and the
+next reload - or another tab's next broadcast - moves it back with no explanation.
+
+Now: the position is put back and the reason is shown. And the rule is pinned -
+`test/ui-action-failures.test.js` scans `web/*.js` and requires every `catch` whose try
+block calls `api()` to reach the user (`toast`, `setStatus`, `setLinkHint`,
+`recordError`, writing into the page, or a rethrow), **or** to carry
+`/* silent-ok: <reason> */`, which is a sentence a reviewer has to read. `console.error`
+alone does not count: the person who clicked does not read the console, which was the
+finding of #20.
+
+The same sweep fixed one more silence: the palette's "someone asked for this" markers
+were **emptied** when the forge was slow (`openRequests = []`), which is not "unchanged";
+they are kept now.
+
 ### One source of position
 
 The canvas keeps one table of where each socket is in world coordinates
