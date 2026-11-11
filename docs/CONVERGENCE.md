@@ -79,7 +79,19 @@ Two more measured details worth having in writing:
 - **`advertCs` is centiseconds and is validated.** `validateGroup()` rejects `0`, `-5` and `2.5` with
   `E_ADVERT_RANGE` (*"advertCs must be a positive integer number of centiseconds"*) and accepts `200`.
   It exists so a lab can dial advertisements below the 1 s default — `advertCs: 250` gives a 2.5 s
-  interval and `masterDownMs 8109.375`.
+  interval and `masterDownMs 8109.375`. Note *how* it rejects: `validateGroup()` never throws, it
+  returns `{ ok, errors }` with one `{ code, message }` per fault, so `try { validateGroup(g) } catch`
+  catches nothing at all and every value looks accepted:
+
+  ```js
+  validateGroup({ vrid: 1, ips: ['10.0.0.1'], advertCs: 0 }).errors[0]
+  // { code: 'E_ADVERT_RANGE',
+  //   message: 'advertCs must be a positive integer number of centiseconds, got 0' }
+  validateGroup({ vrid: 1, ips: ['10.0.0.1'], advertCs: 200 })   // { ok: true, errors: [] }
+  ```
+
+  The `message` quotes the value as parsed, which is why the string `'2.5'` reports `got 2.5` — the
+  number, not the spelling you typed.
 - **When both fields are set, the two modules disagree.** `engine/vrrp.js`'s `advertInterval()` prefers
   **`advertCs`** (`{advertSec: 3, advertCs: 200}` → `2`), while `convergence.vrrpTimers()` prefers
   **`advertSec`** (same input → `advertSec 3`, `masterDownMs 9609.375`). Set one field or the other; if
