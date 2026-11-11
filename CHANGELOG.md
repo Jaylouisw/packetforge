@@ -496,6 +496,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A row the page shows is a row the parser runs — the mirror of the capability gate.** The gate had only
+  ever been tested one way: a row the page *hides* must be refused by the parser. The other direction was
+  never checked, and on a device that cannot route it was broken in both halves. Measured on
+  `apc/NetBotz NBRK0750` (`host`, `cli`, `http-server`, `dhcp-client`), where `ipv6 ?` used to offer four
+  completions:
+
+  ```
+  ipv6 ?          was: Completions for "ipv6" (4): gateway, nd, route, unicast-routing
+                  now: Completions for "ipv6" (2): gateway, route
+  ipv6 unicast-routing   -> % PC1 does not route - … forwards no IPv6          (refused either way)
+  ipv6 nd ra enable      -> % PC1 cannot advertise: it has no l3-forward capability …   (refused either way)
+  no ipv6 unicast-routing
+                  was: IPv6 unicast routing disabled on PC1 - this device now forwards no IPv6 packet
+                       (its own addresses still answer)
+                  now: % PC1 - it does not forward IPv6, so it can neither route it nor advertise a prefix
+  ```
+
+  Two rows the page promised and the parser refused are gone from the page; the third case is the worse
+  one — the **removal** was accepted and reported a change, so a device that forwards nothing was told its
+  forwarding was now off. The IPv6 routing and advertisement families follow the capability in both
+  halves and on both sides (`ipv6 unicast-routing`, `ipv6 nd …`, `ipv6 router …` and their `no` forms),
+  while `ipv6 address` and `ipv6 route` deliberately stay: a host has addresses and carries its way out
+  as a route, exactly as it does for IPv4. The same pass gated the NAT *role* removal, so
+  `no ip nat inside` is no longer offered where `ip nat inside` never was.
+
+  **The guard now asks both questions of the same catalogue sweep** — a row the page hides must be
+  refused (2,906 rows, 0 accepted) and a configuration row the page shows must not speak in a capability
+  the device lacks (3,564 rows, 0 broken promises) — with exec views exempt on purpose, because `show
+  vlan` on a router is offered and answered with a sentence explaining what the device keeps. The suite
+  reads **153 passed, 0 failed**. See [docs/CLI.md](docs/CLI.md).
+
 - **The interface block asks the capability question too, and a NAT role needs a device that translates.**
   The previous pass wired the gate into the configuration dispatcher only, so the same families still
   answered inside an interface block, and `ip nat inside` was granted on a box that rewrites nothing.
