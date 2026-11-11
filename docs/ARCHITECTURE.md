@@ -479,6 +479,52 @@ surfaces on the same box, the frame counted once rather than once per blocked ca
 the payload filing it under the same sentence as the console, a genuine VLAN refusal
 still saying VLAN, the hairpin naming the bundle, and the ranking unchanged.
 
+### A route nobody could use read as installed
+
+`routeNote()` asked which port a route leaves by, and when the answer was *none* it
+returned no note at all — so the row was reported as healthy. On a router holding only
+`10.0.0.1/24`:
+
+```
+r1(config)# ip route 192.168.50.0 255.255.255.0 172.16.9.1
+r1> show ip route
+S  192.168.50.0   /24  [1/0] via 172.16.9.1              <- no caveat: reads as an installed route
+r1> ping 192.168.50.5
+"no usable egress interface"                             <- the data plane could not use it at all
+```
+
+The table already knew how to say a row cannot carry anything — `(not installed: …)`,
+`(administratively down (shut down))`, `(gone)` — but the one case where there is
+**nowhere to send the packet** said nothing. And `Gateway of last resort is 172.16.9.1`
+named a gateway no packet could reach.
+
+The row is still printed, because it *is* configuration and `routeTo()` still finds it —
+exactly like a connected route on a shut port — but it now carries the reason:
+
+```
+S  192.168.50.0   /24  [1/0] via 172.16.9.1  (no interface on the subnet of next hop 172.16.9.1)
+S  192.168.50.0   /24  [1/0] via 10.0.0.99   (next hop 10.0.0.99 would leave by Gi0/0, which cannot carry: administratively down (shut down))
+```
+
+The two shapes are kept apart on purpose: a next hop no interface is on the subnet of is a
+**routing** problem, a next hop whose port is shut is a **port** problem, and they send a
+reader to different fixes. `egressCandidateFor()` answers the second question — which port
+would carry this next hop if it could — because `egressFor()` only looks at ports that are
+up, so a shut port's subnet used to read as "no interface at all".
+
+The data plane's drop says the same thing, and names the destination it was routing to
+(`no interface on the subnet of next hop 172.16.9.1 (route to 192.168.50.5)`), instead of
+the sentence that named neither. `Gateway of last resort` no longer names an unusable
+default; when a reachable one sits beside it, that is the one named.
+
+`test/route-next-hop-unreachable.test.js` pins it, 27 checks: the row's note on both
+surfaces, the counters filing the loss under the same sentence once, the gateway line
+choosing the reachable default, a reachable next hop staying plainly healthy (and failing
+as ARP silence, not as a routing problem), the shut-port and missing-port shapes, and the
+ranking — an unreachable next hop now outranks silence and outranks a policy denial on a
+device the packet never reached, because the frame never left this box.
+
+
 ### One state read shows both halves of one fact
 
 `GET /api/topologies/:id` carries the board and each device's runtime tables. Two

@@ -3026,8 +3026,14 @@ class CliSession {
       // "Gateway of last resort" names the default that is actually installed - the one routeTo() would pick
       // among the candidates: lowest distance. A configured gateway (254) loses to a static default (1), and
       // printing the losing one would send the reader after a next hop no packet ever uses.
+      //
+      // "Installed" is not enough on its own: a default whose next hop no interface is on the subnet of is a
+      // gateway no packet can reach, so the line must not name it either (#1439). `shadow` does not disqualify a
+      // row - when the group's winner is unusable, the reachable candidate is the only gateway worth naming, and
+      // it is the one `routeTo()` would fall through to once the unusable row cannot be used.
       const fallback = rows
         .filter(function (r) { return r.mask === '0.0.0.0' && r.gw && r.gw !== '-'; })
+        .filter(function (r) { return !r.unusable; })
         .sort(function (a, b) { return a.distance - b.distance; })[0];
       if (fallback) out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
 
