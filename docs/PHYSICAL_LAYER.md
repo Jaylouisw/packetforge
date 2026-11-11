@@ -214,8 +214,16 @@ spelling belongs to the PSE's spec rather than to the device asking.
 
 The decision is keyed on a **resolved budget and a port that can source power**, not on the
 `poe-pse` capability — so a device can declare itself a PSE and have nothing to switch. This is not a
-rare corner: **85 of the 102** PSE-capable devices in the catalogue are in it (57 MikroTik, 28
-Ubiquiti) — routers whose datasheets give a port count and a `poe-pse` capability without a wattage.
+rare corner: **86 of the 110** PSE-capable devices in the catalogue are in it — 57 MikroTik, 26
+Ubiquiti, and one each from Peplink (`MAX-BR1-ENT`), Netonix (`WS-26-400-AC`) and FS (`AC-1004`), every
+one of them with `budgetSource: 'name'` — routers whose datasheets give a port count and a `poe-pse`
+capability without a wattage.
+
+Measure it by building each spec through `Topology.addDevice()`. Constructing a `Device` straight from a
+raw spec answers differently: **all 110** read 0 W, because the model-name guess is discarded when no
+port record sources power, and a spec whose ports come from a `portTemplate` has not had them expanded
+yet at construction time. The same trap hides research budgets — `aruba/2530-8-PoE+ (J9780A)` reads 0 W
+straight from the constructor and 67 W through the topology.
 
 Rather than answer "neither sources nor draws PoE" as if the device were not a PSE at all, the console
 names the gap and says which side of it is missing:
