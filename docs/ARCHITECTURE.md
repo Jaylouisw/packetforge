@@ -226,6 +226,19 @@ would have worked. Note the field names differ between the two surfaces: `valida
 `errors[]`/`warnings[]`, while a refused `POST /links` reports `issues[]`. Same engine codes, two
 envelopes.
 
+**It wants port objects, and a body of bare device ids is accepted with a green verdict.** Measured on
+a 250 m `1000base-t` run between `d1/Gi0/0` and `d2/eth0`:
+
+| Body | Answer |
+|---|---|
+| `{a:{deviceId:'d1',iface:'Gi0/0'}, b:{deviceId:'d2',iface:'eth0'}, lengthM:250}` | `200`, `warnings: [{code:'W_DISTANCE', message:'250 m exceeds the 100 m reach of 1000BASE-T between Router/Gi0/0 and PC/eth0.'}, {code:'W_COPPER_LONGRUN', …}]` |
+| `{a:'d1', b:'d2', lengthM:250}` | `200`, `verdict.ok: false` with two `E_NO_PORT` errors and **`warnings: []`** |
+
+That is the mirror of `link-options`, which takes the plain ids and answers with objects: the same two
+strings are the right shape on one endpoint and the wrong one on the other, and neither refuses. A client
+that passes ids here learns nothing about an over-long cable, because the warnings are computed from a
+port it never resolved.
+
 ### Response headers and methods
 
 Measured with a raw socket against a live server, because none of this is visible from the UI:
