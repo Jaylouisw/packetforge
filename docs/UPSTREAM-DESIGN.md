@@ -27,11 +27,14 @@ problem it describes. Measured on the current tree before touching anything else
 |---|---|---|
 | "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **141** ports across the catalogue (recounted by deriving every port's cage; this row has said 122 and then 155 as the catalogue grew) |
 | "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **157** such ports, and **123 of them now resolve to `wwan`** — the name-first rule in `inferCage()` (P1, #129) claims them before the wireless-type rule can. **33** still land on `antenna` and **1** on `rj45`, a port whose name says modem and whose spec says copper. This row read "104 on `wwan`, 33 still on `antenna`, 1 on `rj45`" before that fix landed |
-| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**437**), `powerline` (**12**) and `usb` (0 in use) are all cages now, out of **24** cage kinds carrying ports |
+| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**437**), `powerline` (**12**) and `usb` (0 in use) are all cages now, out of **24** cage kinds carrying ports (of **26** defined — `lc-apc` and `usb` have none on this tree) |
 | `routeTo()` returns one route, so two defaults are not multihoming | true | **still true** — two `ip route 0.0.0.0 0.0.0.0` lines are both stored and `routeTo('8.8.8.8')` answers `{ via: '203.0.113.1', … }`, the first one, with `iface: null` because the next hop is resolved later |
 | ^ the cage counts above | | every port's cage comes from `derivePortHardware(port, spec)` over `effectiveInterfaces(spec)`, **not** from the raw `connector` field — **10,289 of 17,030** ports declare neither `connector` nor `cage`, so a raw count answers `?` for 60% of the catalogue and none of these figures |
 
-Recount all four numbers with one script; it prints 17,030 ports and 24 cages on this tree:
+Recount all four numbers with one script; it prints 17,030 ports and **24 cages** on this tree — and that
+24 is a different number from the **26** cages the rest of the docs quote, because the script asks which
+cage kind a port *derives* rather than which kinds exist. `CAGES` defines 26; the two with no port are
+`lc-apc` and `usb`, so `t.size` is 24. Both statements are true of this tree and neither is a typo:
 
 ```bash
 node -e '

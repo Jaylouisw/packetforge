@@ -83,6 +83,11 @@ therefore not a bug and not a contradiction of this table — `sfp+` does supply
 That is **26 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
 
+Two of those 26 carry **no port on this tree** — `lc-apc` and `usb` — so a sweep that counts the cage each
+port *derives* gets **24**, and `docs/UPSTREAM-DESIGN.md` quotes that 24. Both are right: 26 kinds exist,
+24 are in use, and a page that says "24 cages" without saying which question it asked is quoting a
+measurement rather than the model.
+
 The **Mates with** column is `CAGE_MATE[cage]` verbatim, and `cagesMate(a, b)` is the function that answers
 the same question for a pair — so it is checkable to the letter, and it was wrong in seven rows until it was
 checked: the `sfp`, `sfp+` and `sfp28` rows left out `sfp56` and the three Fibre Channel cages they accept
