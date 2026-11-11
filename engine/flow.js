@@ -570,6 +570,51 @@ function listFlows(state) {
   return Array.from(state.flows.values());
 }
 
+// A flow is a conversation on *this* board, and the board can change under it (#1427).
+//
+// The flow state outlives the devices and cables it was counted on. Nothing told it when the topology changed, so a
+// deleted device left its conversation `established` on a board with no cables at all, and its counters stayed behind
+// for whichever device was created next with the same id - a brand-new switch that reported five packets in and five
+// out having never been cabled. Both are the same mistake: the flow layer is a picture of the topology, and a picture
+// of a topology that no longer exists is a lie about the lab.
+function flowsForDevice(state, devId) {
+  if (!state || !state.flows) return [];
+  const out = [];
+  for (const f of state.flows.values()) {
+    if (f.srcDevice === devId || f.dstDevice === devId) out.push(f);
+  }
+  return out;
+}
+
+function isOpen(flowRec) {
+  return !!flowRec && flowRec.state !== STATE.CLOSED;
+}
+
+// A conversation that can still carry packets: not closed, and not already failed. `isOpen` answers "is this record
+// finished", which is a different question - a reset flow is still a record, but sweeping it again would report the
+// same failure twice (#1427).
+function isLive(flowRec) {
+  return isOpen(flowRec) && flowRec.state !== STATE.RESET;
+}
+
+// End a conversation the network can no longer carry. A reset rather than a close, because that is what a path dying
+// looks like to the endpoints: the connection does not finish, it fails. The reason rides along so a person reading
+// the flow table learns why, instead of finding a transfer that simply stopped.
+function resetFlow(flowRec, why) {
+  if (!isOpen(flowRec)) return false;
+  setState(flowRec, STATE.RESET);
+  flowRec.reason = String(why || 'the path was removed');
+  return true;
+}
+
+// A device that is gone takes its tally with it. Without this, the next device created with the same id inherits it.
+function forgetDevice(state, devId) {
+  if (!state || !state.counters) return false;
+  if (!Object.prototype.hasOwnProperty.call(state.counters, devId)) return false;
+  delete state.counters[devId];
+  return true;
+}
+
 // A one-line description for the timeline and for `show flows`.
 function describe(flowRec) {
   if (!flowRec) return '';
@@ -595,6 +640,11 @@ module.exports = {
   segmentCount,
   segmentSizes,
   createFlow,
+  flowsForDevice,
+  isOpen,
+  isLive,
+  resetFlow,
+  forgetDevice,
   initialSeq,
   tcpPacket,
   udpPacket,

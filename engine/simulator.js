@@ -3331,6 +3331,30 @@ class Simulator {
     return { code: 'E_UNREACHABLE', reason: 'no response from ' + rec.dstIp + ':' + rec.dstPort };
   }
 
+  // The devices a flow's own packets crossed, in the order the timeline shows them (#1427).
+  //
+  // A flow is a promise that two endpoints can exchange packets, and the promise is only good while the path
+  // underneath it exists. Nothing recorded that path, so when a device or a cable in the middle was deleted the lab
+  // still listed the conversation as `established` - a state no packet could produce. These are the hops the
+  // handshake actually took, read out of the same events the timeline shows a person, not a second guess at routing.
+  _flowHops(from, srcId, dstId) {
+    // The trail runs out and back - a reply crosses the same switches in reverse - so it is collapsed to the first
+    // time each device appears, which is the path. The endpoints are then guaranteed to be on it: a device that only
+    // answered an ARP and never forwarded is still part of the promise the flow makes.
+    const hops = [];
+    for (let i = from || 0; i < this.events.length; i++) {
+      const e = this.events[i];
+      if (!e || !e.dev) continue;
+      if (e.type !== 'forward' && e.type !== 'switch' && e.type !== 'arp-request' &&
+          e.type !== 'arp-reply' && e.type !== 'flow-open') continue;
+      if (!this.topo.getDevice(e.dev)) continue;
+      if (hops.indexOf(e.dev) === -1) hops.push(e.dev);
+    }
+    if (srcId && hops[0] !== srcId) hops.unshift(srcId);
+    if (dstId && hops[hops.length - 1] !== dstId) hops.push(dstId);
+    return hops;
+  }
+
   // Open a transport flow. Returns { ok, flow, events, step, code?, reason? }.
   //
   // The handshake is not computed by a formula: the SYN, the SYN-ACK and the final
@@ -3468,6 +3492,7 @@ class Simulator {
           events: this.events, step: this.step
         };
       }
+      rec.hops = this._flowHops(startedAt, src.id, rec.dstDevice);
       return { ok: true, flow: rec, events: this.events, step: this.step, mtu: mtu, mss: mss, segments: 0 };
     }
 
@@ -3509,6 +3534,10 @@ class Simulator {
       flowLib.ackPacket(rec.srcPort, rec.dstPort, clientIsn + 1, rec.serverIsn + 1), { flow: rec.id });
     this._run();
     flowLib.setState(rec, flowLib.STATE.ESTABLISHED);
+    // The conversation now has a path, and the path is a fact about the lab (#1427): the devices the handshake
+    // actually crossed, in the order the timeline shows them. If any of them, or any cable between two of them, is
+    // removed, the promise is gone and the flow layer can say so instead of listing a conversation nothing can carry.
+    rec.hops = this._flowHops(startedAt, src.id, rec.dstDevice);
 
     // 6. The body, in segments that fit the path.
     let seq = clientIsn + 1;

@@ -197,6 +197,39 @@ function describeFlow(rec) {
   return out;
 }
 
+// After a device or a cable is removed, every open flow is asked whether the path it crossed still exists (#1427).
+//
+// A flow records the hops it actually took (`rec.hops`, captured from its own handshake), so this is a fact about the
+// lab and not a guess: a hop that is gone, or two consecutive hops that are no longer cabled, means nothing can carry
+// the conversation any more. A flow whose path is untouched is left strictly alone - its state, its bytes and its
+// tally. Before this, deleting the switch a conversation crossed left that conversation listed as `established` on a
+// board with no cables at all, and nothing ever corrected it.
+function sweepFlows(topo, flowState, why) {
+  const ended = [];
+  for (const rec of flow.listFlows(flowState)) {
+    if (!flow.isLive(rec)) continue;
+    let reason = null;
+    for (const hop of rec.hops || []) {
+      if (!topo.getDevice(hop)) {
+        // The caller knows which device it just removed, so say that rather than narrating it twice.
+        reason = why || ('device ' + hop + ' was removed');
+        break;
+      }
+    }
+    if (!reason && Array.isArray(rec.hops)) {
+      for (let i = 0; i + 1 < rec.hops.length; i++) {
+        const a = rec.hops[i], b = rec.hops[i + 1];
+        if (!topo.linksFor(a).some(function (l) { return l.touches(b); })) {
+          reason = a + ' and ' + b + ' are no longer cabled' + (why ? ' (' + why + ')' : '');
+          break;
+        }
+      }
+    }
+    if (reason && flow.resetFlow(rec, reason)) ended.push({ id: rec.id, reason: rec.reason });
+  }
+  return ended;
+}
+
 // The flow table belongs to the topology, not to a request. The server builds a
 // fresh Simulator for every call, but the conversations it opened have to still be
 // there when the UI asks for them a moment later -- and they have to die with the
@@ -681,11 +714,22 @@ async function handleApi(req, res, urlPath) {
     if (parts[3] === 'devices' && parts.length === 5) {
       const devId = parts[4];
       if (method === 'DELETE') {
+        // A conversation on a device that is about to stop existing is not a conversation (#1427). The flow layer is a
+        // picture of the topology and nothing used to tell it the topology had changed, so a flow stayed `established`
+        // over a board with no cables, and the deleted device's counters waited for the next device created with the
+        // same id. Both are answered here, in the same place the device goes.
+        const flowState = flowStateFor(topo);
+        const ended = [];
+        for (const rec of flow.flowsForDevice(flowState, devId)) {
+          if (flow.resetFlow(rec, 'device ' + devId + ' was deleted')) ended.push({ id: rec.id, reason: rec.reason });
+        }
         topo.removeDevice(devId);
         delete topo.layout[devId];
+        flow.forgetDevice(flowState, devId);
+        ended.push.apply(ended, sweepFlows(topo, flowState, 'device ' + devId + ' was deleted'));
         for (const key of Array.from(sessions.keys())) if (key.indexOf(topoId + ':') === 0) sessions.delete(key);
         broadcast(topoId);
-        return sendJSON(res, 200, noteChange(topo, null, { ok: true, state: fullState(topo) }));
+        return sendJSON(res, 200, noteChange(topo, null, { ok: true, resetFlows: ended, state: fullState(topo) }));
       }
     }
 
@@ -797,9 +841,15 @@ async function handleApi(req, res, urlPath) {
     // /links/:linkId
     if (parts[3] === 'links' && parts.length === 5) {
       if (method === 'DELETE') {
-        topo.disconnect(parts[4]);
+        const linkId = parts[4];
+        topo.disconnect(linkId);
+        // A cable carries conversations. Removing one used to leave a flow `established` across a path that no longer
+        // existed; every open flow is now asked whether the hops it actually crossed are still there and still cabled
+        // (#1427). A flow with a path through the rest of the lab is left strictly alone - the lab healed, and the
+        // conversation with it.
+        const ended = sweepFlows(topo, flowStateFor(topo), 'cable ' + linkId + ' was deleted');
         broadcast(topoId);
-        return sendJSON(res, 200, noteChange(topo, null, { ok: true, state: fullState(topo) }));
+        return sendJSON(res, 200, noteChange(topo, null, { ok: true, resetFlows: ended, state: fullState(topo) }));
       }
       if (method === 'PATCH' || method === 'POST') {
         const body = await readBody(req);
