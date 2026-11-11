@@ -202,7 +202,7 @@ rather than `SW1`.
 | Area | What's implemented |
 |------|--------------------|
 | Devices | router, L2 switch, L3 switch, PC, server, firewall, access point, PTP radio, cloud |
-| Vendors | **1,661 models across 247 vendors**, in **25** `category` values, of which the palette's type filter offers **24** — router, switch, L3 switch, firewall, wireless, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, IoT, tap, splitter, cloud, host. The missing one is `ap`: `CAT_ORDER` and `CAT_LABELS` in `web/app.js` stop at 24 entries, so the 11 access-point models (`fs/AP-N506` and its family) carry `category: "ap"` in the catalogue and appear in `/api/catalog`'s 25 groups, but there is no *Access point* option in the type filter — they are reachable by name or vendor search only, plus the generic models. The 25th category is `ap`, and it has exactly one member — `huawei/WiFi Extender AX3000`. It has no bucket in `CAT_ORDER` and no entry in `BADGE_LABELS`, so it is **not offered in the type filter** and its card shows the raw string `ap` where every other device shows a label; it is still findable by search, and it renders with the wireless icon. Adding a model is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
+| Vendors | **1,661 models across 247 vendors**, in **25** `category` values, of which the palette's type filter offers **24** — router, switch, L3 switch, firewall, wireless, PTP radio, OLT, ONT, modem, powerline, NAS, server, desktop, laptop, tablet, phone, printer, camera, NVR, IoT, tap, splitter, cloud, host. The missing one is `ap`: `CAT_ORDER`, `CAT_LABELS` and `BADGE_LABELS` in `web/app.js` stop at 24 entries, so the 11 access-point models — five from `fs` (`AP-N506`, `AP-N506H`, `AP-N516`, `AP-N716`, `AP-T566D`), four from `ruckus` (`R750`, `T310C`, `T350C`, `R320`), plus `huawei/WiFi Extender AX3000` and `peplink APO-AC-MINI` — carry `category: "ap"` in the catalogue and appear in `/api/catalog`'s 25 groups, but there is no *Access point* option in the type filter: they are reachable by name or vendor search only, plus the generic models. A card in that bucket shows the raw string `ap` where every other device shows a label; it is still findable by search, and it renders with the wireless icon. Adding a model is a single JSON file ([registry](docs/DEVICE_REGISTRY.md)) |
 | L2 | MAC address table, learning, unknown-unicast/broadcast flooding |
 | L3 | IPv4 addressing, connected + static routes, default gateway, longest-prefix match |
 | Protocols | ARP, IPv4, ICMP echo/reply, **DHCP client + server** (pools, ranges, exclusions, reservations — in the data path), DNS (NXDOMAIN/NODATA/SERVFAIL), NAT (static, dynamic pool and PAT — all three translated in the data path, static and PAT configured from the console (`ip nat inside source …`) while a pool rule comes from the topology JSON because `ip nat pool` is refused, and [`show ip nat translations` / `statistics`](docs/CLI.md#nat--static-and-pat-from-the-console-a-pool-from-the-topology) read back what the data path wrote), extended ACLs, OSPF, BGP, SCION, **VRRP** (election, virtual MAC, gratuitous ARP on takeover), IPv6 with SLAAC/RA, LLDP, 802.1D STP, 802.1Q VLANs, LACP |
@@ -248,6 +248,10 @@ Each of these is a tracked issue rather than a surprise.
 ## Documentation
 
 All eighteen documents in [docs/](docs/), in the order you are likely to want them.
+
+Five of those topics are also mirrored to the [Forgejo wiki](https://git.jayw.uk/jaylouisw/packetforge/wiki).
+The page sources live in [docs/wiki/](docs/wiki/) so a wiki edit goes through review like any other
+documentation change: `npm run wiki:build` regenerates them, `npm run wiki:publish` pushes them.
 
 **Start here**
 
@@ -301,7 +305,7 @@ packetforge/
 ├── engine/          # pure-JS simulation engine (zero deps) — 32 modules: a file per protocol,
 │                    #   plus the models (device, link, topology), the helpers and the CLI
 │   ├── simulator.js #   event-driven L2/L3/ARP/ICMP engine
-│   ├── cli.js       #   vendor-agnostic management console (12,895 lines: every verb)
+│   ├── cli.js       #   vendor-agnostic management console (12,975 lines: every verb)
 │   ├── topology.js  #   Topology container + (de)serialization
 │   ├── net.js       #   IPv4 / MAC / subnet helpers; device.js and link.js are the models
 │   ├── validation.js#   the refusal engine behind every cable, VLAN and transceiver check
@@ -321,12 +325,15 @@ packetforge/
 ├── test/            # engine + CLI tests
 ├── scripts/         # the guards (syntax, control bytes, Node floor, canonical URLs) and the
 │                    # research/import/audit tools — 25 of them
-├── tmp/             # tracked scratch: 112 probe scripts from past measurements, so a reading can
-│                    #   be re-run; they hard-code absolute paths, so only the machine that wrote them
-│                    #   can run them, and they are safe to delete in bulk
+├── tmp/             # tracked scratch: 109 probe scripts and 3 saved messages from past
+│                    #   measurements, so a reading can be re-run; they hard-code absolute paths,
+│                    #   so only the machine that wrote them can run them, and they are safe to
+│                    #   delete in bulk
 ├── .github/         # issue/PR templates, labels, dependabot (no workflows — see docs/CI.md)
 ├── .forgejo/        # the real CI: ci.yml + auto-rebase.yml
-└── docs/            # eighteen documents — indexed under "Documentation" above
+└── docs/            # eighteen documents — indexed under "Documentation" above —
+                     #   and wiki/, the five pages + sidebar that scripts/publish-wiki.js
+                     #   pushes to the Forgejo wiki
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
