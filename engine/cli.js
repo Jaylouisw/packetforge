@@ -1866,9 +1866,9 @@ class CliSession {
         const addr = tokens[4] === undefined ? null : String(tokens[4]);
         if (!addr) {
           if (!ips.length) return ['% Group ' + vrid + ' owns no virtual address on ' + this.iface];
-          mine.ips = [];
-          return ['VRRP group ' + vrid + ' on ' + this.iface + ' no longer owns ' + ips.join(', ') +
-            ' - the group is still configured'];
+          this.device.config.vrrp = groups.filter(function (g) { return g !== mine; });
+          return ['VRRP group ' + vrid + ' on ' + this.iface + ' removed - it owned ' +
+            ips.join(', ') + ' and a group with no virtual address has nothing to be master of'];
         }
         if (ips.indexOf(addr) === -1) {
           return ['% Group ' + vrid + ' on ' + this.iface + ' does not own ' + addr,
@@ -1876,6 +1876,13 @@ class CliSession {
             '% "no vrrp ' + vrid + '" removes the group itself'];
         }
         mine.ips = ips.filter(function (x) { return x !== addr; });
+        if (!mine.ips.length) {
+          // The last address went with it: a group that owns no virtual address is not a gateway, and
+          // this console has no state for one - IOS's VRRP group exists while it owns an address.
+          this.device.config.vrrp = groups.filter(function (g) { return g !== mine; });
+          return ['VRRP group ' + vrid + ' on ' + this.iface + ' removed - ' + addr +
+            ' was its only virtual address'];
+        }
         return ['VRRP group ' + vrid + ' on ' + this.iface + ' no longer owns ' + addr];
       }
       if (rest[0] === 'priority') {
@@ -1884,10 +1891,15 @@ class CliSession {
         return ['VRRP group ' + vrid + ' priority back to the default 100 (was ' + had + ')'];
       }
       if (rest[0] === 'preempt') {
+        // `no vrrp <id> preempt` is not "reset to the default": preempt *is* on by default, and the
+        // removal is how it is turned off (IOS). Reading it as a reset forced preempt back on and
+        // then dumped nothing, so a configured "preempt off" was lost on every save and reload.
         const had = mine.preempt !== false;
-        mine.preempt = true;
-        return ['VRRP group ' + vrid + ' preempt back to the default (on)' +
-          (had ? ' - it was already on' : '')];
+        mine.preempt = false;
+        return [had
+          ? 'VRRP group ' + vrid + ' preempt off - a higher-priority router will not take the ' +
+            'virtual address back'
+          : 'VRRP group ' + vrid + ' preempt was already off'];
       }
       return ['% Unexpected argument "' + tokens[3] + '" for no vrrp ' + vrid,
         '% Usage: no vrrp <vrid> [ip [<address>] | priority | preempt]',
@@ -8598,8 +8610,10 @@ class CliSession {
         // paste silently dropped the one setting that decides whether this router takes the group
         // back when it returns. Both directions are printed, because "not default" is not the same
         // as "not configured".
-        if (g.preempt === true) out.push('  vrrp ' + g.vrid + ' preempt');
-        else if (g.preempt === false) out.push('  no vrrp ' + g.vrid + ' preempt');
+        // Preempt is on by default, so only turning it *off* is configuration. The block above uses
+        // the same test for priority and advertise (`!== default`); this line was the one place that
+        // dumped a default value, which made a saved copy grow a line nobody typed.
+        if (g.preempt === false) out.push('  no vrrp ' + g.vrid + ' preempt');
       }
       if (!i.enabled) out.push('  shutdown');
     }

@@ -8389,7 +8389,7 @@ grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 147
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 147, **47** appear as rows in the tables below and **117** distinct `E_` tokens appear anywhere
+Of those 147, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from the table rows themselves — and **117** distinct `E_` tokens appear anywhere
 in this document. That second number is the least stable figure on the page, and only partly because the
 engine grows: every code this page *documents* also joins the count, so the code inventory further down
 added fifteen by itself. It has read 70, then 103, then 117 — each revision of the tables above moved it,

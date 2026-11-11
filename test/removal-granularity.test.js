@@ -70,9 +70,14 @@ console.log('\nPriority and preempt go back to their defaults, not to nothing:')
   const p = text(env.R.run('configure terminal', 'interface Gi0/0', 'no vrrp 1 priority', 'exit'));
   ok(/priority back to the default 100 \(was 150\)/.test(p), 'and the removal says the default it returns to');
   ok(groups(env)[0].priority === 100, 'the value is the default');
+  // `no vrrp 1 preempt` turns preempt **off**: preempt is on by default, and the removal is how it
+  // is disabled. Reading it as "reset to the default" switched it back on, and the configured
+  // setting was then lost on save and reload.
   const pre = text(env.R.run('configure terminal', 'interface Gi0/0', 'no vrrp 1 preempt', 'exit'));
-  ok(/preempt back to the default \(on\)/.test(pre), 'preempt returns to on');
-  ok(groups(env)[0].preempt === true, 'and the group says so');
+  // This suite turned preempt off in its setup above, so the second removal reports that it was
+  // already off - both answers are the same fact stated honestly.
+  ok(/preempt (off|was already off)/.test(pre), 'the removal turns preempt off and says what that costs');
+  ok(groups(env)[0].preempt === false, 'and the group says so');
 }
 
 console.log('\nA word the removal does not take is refused with the forms it has:');
