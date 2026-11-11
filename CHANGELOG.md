@@ -517,6 +517,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Three views that were hidden or misfiled now answer as the device they are on.** Measured on
+  `generic-switch` (SW1) and `generic-router` (R1) at `480eaaf8`:
+
+  | typed | answer |
+  |---|---|
+  | `show ip route ?` on SW1 | the row's own completions — `at, bgp, connected, converged, ospf, static, summary, <dest>` — instead of *"is a command here, but not on SW1: it does not forward between interfaces, so it has no routes or adjacencies"* |
+  | `show ip route` on SW1 | the table, with its `Codes: C - connected, S - static` header (empty with no `ip default-gateway`; a host answers an empty table) |
+  | `show ip bgp` on SW1 | `% SW1 is a layer 2 switch: no BGP process can run here` / *no neighbours and no BGP table* / `"show ip route" is the table this device does have` |
+  | `show ip bgp` on R1 (no `router bgp`) | still the enablement advice — `% BGP is not enabled - "router bgp <as>" in config mode turns BGP on` — because on a router it works |
+  | `show interfaces switchport` on SW1 | the per-port list, where the family form used to refuse a device whose ports all switch |
+
+  The gate was reading the wrong word: a row was treated as a BGP verb when the word `bgp` appeared
+  anywhere in it, which hid `show ip route [<dest>|connected|static|ospf|bgp|summary]` — a row that
+  offers `bgp` as one of seven filters and is on the page above as eight completions. A row is a BGP
+  verb when BGP is the verb. `test/view-capability.test.js` holds **48 assertions** and sweeps one
+  device from each catalogue category, typing every `show` row its page hides: a hidden row that
+  answers is a view an operator would never find. See [docs/CLI.md](docs/CLI.md).
+
 - **The output filter has a help page, and its names abbreviate like every other keyword.** `?` inside a
   filter used to be treated as the text to search for, so asking for help got you a filter applied to a
   question mark. Measured on one switch, before and after `1337bf89`:
