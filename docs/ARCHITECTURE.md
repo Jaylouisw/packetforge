@@ -451,7 +451,7 @@ Per namespace:
 |---|---|
 | `POST …/devices` | `{ device, state }`; `404` for an unknown `vendor`/`model`, **`409`** when a client-supplied `id` is already taken (with the existing device named, so the UI can say which) |
 | `DELETE …/devices/:devId` | `{ ok, state }` — also drops that device's console sessions |
-| `POST …/links` | `{ link, state }`; refusals carry the validation code (`E_LINK`, and `E_PORT_IN_USE` for a port that is already patched) |
+| `POST …/links` | `201 { link, state }`; **every** refusal is `409` — `E_LINK` for a port already patched, an unknown interface or an unknown device id, `E_SELF_LINK` for both ends on one device. `E_PORT_IN_USE` is not one of them: that code belongs to `validate-link`, see the measured table below |
 | `DELETE …/links/:linkId` | `topo.disconnect()` — `{ ok, state }` |
 | `PATCH` (or `POST`) `…/links/:linkId` | `{ ok, link, warnings, state }` — sets `lengthM`, `422` with the code when the length does not suit the medium |
 | `POST …/links/:linkId/state` | pull a cable or put it back — see [LINK-STATE.md](LINK-STATE.md), including the duplicate-`state` wart |
@@ -473,6 +473,30 @@ Per namespace:
 | `POST …/load` | `Topology.fromJSON(body)` replaces the board wholesale and clears its sessions — **with no validation at all**, see the measured table below the API surface |
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
+
+**Cabling: one counter, `409` for everything, and the warnings only exist on the other endpoint.**
+Measured on a fresh board:
+
+- **Device and link ids share a single sequence.** Three devices are `d1`, `d2`, `d3`; the first cable
+  then becomes **`l4`**, the next device `d5`, the next cable `l6`, the one after that `l7`. A client
+  that assumes `l1` for the first link, or counts links separately, is wrong — and the ids are not
+  re-used, they just keep climbing.
+- **The link object is bigger than `{a, b}`.** `201` returns
+  `{ id, a, b, type, mediaId, speedMbps, duplex, lengthM, lagId, patchCord, state }`; on copper with no
+  optics chosen the server picks `mediaId: "1000base-t"`, `speedMbps: 1000`, `state: "up"` itself.
+- **Every refusal is `409`, including ids that cannot exist.** `E_SELF_LINK` for both ends on one
+  device (`Switch (L2) cannot be cabled to itself (Fa0/2 to Fa0/2).`), but also `409 E_LINK` for
+  `Unknown device: zz` and `Unknown interface Fa9/9 on d1` — never `404`, and the `issues` array that
+  accompanies `E_SELF_LINK` is empty for `E_LINK`.
+- **`validate-link` and `POST /links` do not agree, and the difference is a whole class of cable.** A
+  250 m run of `1000base-t` gets `ok: true` from `validate-link` with two **warnings**
+  (`W_DISTANCE`: *250 m exceeds the 100 m reach of 1000BASE-T*; `W_COPPER_LONGRUN`: *exceeds the 90 m
+  horizontal-run limit*). `POST /links` then creates it as `state: "up"` and the response carries
+  nothing but `{link, state}` — no warnings, no issue list. The same asymmetry shows on a patched port:
+  `validate-link` reports `ok: false` with `E_PORT_IN_USE`
+  (`Switch (L2)/Fa0/1 is already connected to d2/eth0.`), while `POST /links` answers
+  `409 { code: 'E_LINK', error: 'd1/Fa0/1 is already connected' }`. If you want the diagnostics, call
+  `validate-link` **first**; the connect call will not pass them back.
 
 **`POST …/interfaces/:devId/:iface` is a footgun in four small ways, and nothing validates the board
 as a whole.** Measured against a live board with two PCs:
