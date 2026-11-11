@@ -249,9 +249,13 @@ with `NAT rule added on PC-d1: static 10.0.0.5 -> 203.0.113.5`. The capability d
 offers, not what the parser takes — so reading a capability is not the same as gating on it.
 
 `firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere** — `nat` was in this
-list until a sweep of every capability read found four `has('nat')` guards in `_helpRefusal()`, which is the
-difference between "nothing consults it" and "nothing *acts* on it": those guards decide whether a command is
-offered, not whether addresses are translated.
+list until a sweep of every capability read found `has('nat')` guards in `_helpRefusal()`. There are **two**
+of them today, both returning the same string: `engine/cli.js:13288` for the `ip nat …` positive forms and
+`:13298` for the `no ip nat inside|outside|source` removals. The NAT *views* — `show ip nat translations`,
+`show ip nat statistics`, `clear ip nat translation` — are deliberately **not** gated and answer on every
+device with an empty table, because a rule can arrive from the topology. Which is the difference between
+"nothing consults it" and "nothing *acts* on it": those guards decide whether a command is offered, not
+whether addresses are translated.
 The features they name work from configuration and port hardware instead:
 
 - DHCP server: `ip dhcp pool` in the running config; client: `ip address dhcp`,
