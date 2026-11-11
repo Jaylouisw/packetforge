@@ -496,6 +496,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`copy startup-config running-config` no longer says it applied lines it only read.** The two halves
+  of the answer could contradict each other, and a count is not a report. Measured on a router whose
+  saved copy was already in force, before and after `0cb9bd5d`:
+
+  | | answer |
+  |---|---|
+  | before | `Copied … on R1: 5 lines applied` / `the running configuration did not change - the saved copy was already in force` |
+  | now | `Copied … on R1: 5 lines read` / `none of them changed anything - the saved copy was already in force` |
+
+  When the copy does change something it names the lines instead of printing a count — after saving with
+  `hostname R1` and then renaming to `R9`, the copy back answers
+  `Copied … on R9: 5 lines applied` / `1 line added, 1 line removed (this is a merge: lines the saved copy
+  does not mention are kept)` / `+ hostname R1` / `- hostname R9`. The merge semantics are unchanged;
+  what changed is that the sentence can no longer disagree with itself, and the diff is shown rather than
+  counted. `test/modes-and-roundtrip.test.js` holds **14 assertions**. See [docs/CLI.md](docs/CLI.md).
+
 - **A number is decimal digits, and a word after a port is no longer dropped.** `parseInt` reads `1e3`
   as `1`, `0x10` as `16` and `12abc` as `12`, so a line could configure a value nobody typed and answer
   as if it had worked. Measured in one session, before and after `6367b8bb`:
