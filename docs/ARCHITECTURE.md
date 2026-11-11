@@ -196,7 +196,7 @@ The table below was taken from a live server, one request per row:
 | `400` | *(none)* | the body is not JSON | `{ error: 'invalid JSON body' }` |
 | `400` | `E_BAD_REQUEST` | `POST …/link-options` without both device ids — **not** `POST …/links` | `{ code, reason: 'expected {a, b} device ids' }`, and note there is no `error` key at all |
 | `404` | *(none)* | unknown endpoint, unknown device model | `{ error: 'unknown endpoint' }` |
-| `404` | `E_NO_LINK` | `POST\|PATCH …/links/:id/state` for a link that does not exist | `{ error: 'no such link', code: 'E_NO_LINK' }` |
+| `404` | `E_NO_LINK` | `POST\|PATCH …/links/:id/state` for a link that does not exist | `{ error: 'no such link', code: 'E_NO_LINK' }`. **Not the only status for this code**: `PATCH …/links/:id` answers the same code as a `422` (see below) |
 | `405` | *(none)* | any method but `POST`/`PATCH` on `…/links/:id/state` — the only 405 in the dispatcher | `{ error: 'use POST' }` |
 | `422` | `E_BAD_STATE` | a link state that is not `up` or `down` | `{ error: 'state must be up or down', code }` |
 | `422` | `E_BAD_LENGTH` | `PATCH …/links/:id` with a length that is not a positive number | `{ error: 'A cable length must be a positive number of metres.', code }` |
@@ -456,7 +456,7 @@ Per namespace:
 | `PATCH` (or `POST`) `…/links/:linkId` | `{ ok, link, warnings, state }` — sets `lengthM`, `422` with the code when the length does not suit the medium |
 | `POST …/links/:linkId/state` | pull a cable or put it back — see [LINK-STATE.md](LINK-STATE.md), including the duplicate-`state` wart |
 | `POST …/validate-link` | the mating verdict for a candidate pair (`200` even when nothing fits, so the UI keeps the explanation) |
-| `POST …/link-options` | which media could join two ports, optionally at a given `lengthM` |
+| `POST …/link-options` | which media could join two **devices** — `{a, b}` are plain device-id strings, not `{deviceId, iface}` objects, and the answer carries the port `pairs` it would use. `lengthM` changes the `warnings` inside each option. See the measured block below |
 | `POST …/config/:devId` | runs console commands: `{ commands: [...] }` or a single `command`, plus optional `atMs`; answer is `{ output, lines, prompt, runAtMs, convergence, device, state }`. The `state` half exists because returning only output once left the UI's `topo = r.state` undefined and blanked the board (issue #38) |
 | …and it answers at an instant | `atMs: <ms>` asks every command in the request at that instant, `"converged"`/`null`/absent means settled. `runAtMs` echoes it back (`null` = settled) and `convergence` is the same schedule the cable endpoint returns, so a caller can see *what* has not finished. Applied on every request rather than when the session is created: a cached session that pinned the instant of whoever created it answered the next caller about a moment they never asked for (issue #1335) |
 | …and a bad instant is refused by name | `atMs: -5`, `atMs: "later"` and `atMs: "5s"` all answer **400** with `{ "error": "atMs must be a non-negative number of milliseconds, \"converged\", or absent", "code": "E_BAD_INSTANT" }` — `instantFrom()` accepts a non-negative number, `converged`/`infinity`/`inf` in any case and surrounding whitespace, or nothing at all. `"converged"` is a 200. This is the one refusal code in the API that the CLI appendix does not carry, because no console command can raise it |
@@ -473,6 +473,40 @@ Per namespace:
 | `POST …/load` | `Topology.fromJSON(body)` replaces the board wholesale and clears its sessions — **with no validation at all**, see the measured table below the API surface |
 | `POST …/reset` | `{ ok }`; clears MAC tables, ARP caches, pending queues **and** flow state, because a conversation pointing at a NAT translation that no longer exists is worse than no conversation |
 | `GET /api/catalog` | `{ specs, categories }` — the device catalogue the palette and inspector read, plus the same specs pre-grouped by `category` (`{ router: [...], switch: [...] }`, **25** keys today). The grouping is not the top ten only: `loadCatalog()` sorts by `CATEGORY_ORDER` (router, switch, l3-switch, firewall, ont, host, server, wireless, ptp, cloud) and gives anything unlisted order 99, so the grouped object comes out in that order with the remaining fifteen categories — `camera`, `laptop`, `olt`, `iot`, `nas`, `nvr`, `tap`, `splitter`, the legacy `ap` and the rest — trailing, alphabetical by `vendor/label` |
+
+**`link-options` takes device ids, and a port-shaped body fails at `200`.** The overlay in the UI asks
+about a device pair and gets the pairing back, which is why the input is not the shape the other cable
+endpoints take:
+
+| Body | Answer |
+| --- | --- |
+| `{"a":"d1","b":"d2"}` | `200 {ok:true, a:{id,name,model,vendor}, b:{…}, options:[…], refusals:{}}` |
+| `{"a":{"deviceId":"d1","iface":"Fa0/1"}, "b":{"deviceId":"d2","iface":"eth0"}}` | **`200 {ok:false, code:'E_NO_DEVICE', reason:'no device [object Object]'}`** — not a `400`, and the object is stringified into the message |
+| `{"a":"d1"}` | `400 {code:'E_BAD_REQUEST', reason:'expected {a, b} device ids'}` — note the **missing `error` key**, which is the tell this is the shape check and not a refusal |
+| `{"a":"zz","b":"d2"}` | `200 {ok:false, code:'E_NO_DEVICE', reason:'no device zz', options:[], refusals:{}}` — unknown ids are a `200`-level failure too |
+| `{"a":"d1","b":"d2","ifaceA":"Fa0/1"}` | extra keys are ignored; there is no way to ask about **one port pair**, only a device pair |
+
+Each entry in `options` is
+`{id, key, media, mediaId, mediaName, family, speedMbps, maxRangeM, warnings, pairs, ports}`, and `pairs`
+is the port-level answer: `[{a:{iface,cage,label}, b:{…}}]`. Passing `lengthM` does not change how many
+options come back — it changes their `warnings`, so the same device pair at 5 m and at 250 m differs in
+content rather than in length.
+
+`PATCH …/links/:id` changes the **length** of an existing cable, and it is the one place where the same
+code wears two statuses. Measured on a live link:
+
+| Call | Answer |
+| --- | --- |
+| `PATCH …/links/:id` `{"lengthM":300}` | `200`, the cable is now 300 m |
+| `{"lengthM":0}`, `{"lengthM":-5}`, `{"lengthM":"abc"}` | `422 {error:'A cable length must be a positive number of metres.', code:'E_BAD_LENGTH', state:{…}}` — the error carries a **whole topology snapshot** in `state` |
+| `{"lengthM":null}` | `200` and the length is **cleared** back to unset — `null` means "no length", not "bad length" |
+| `{}` | `200`, a no-op |
+| `PATCH …/links/nosuch` | **`422 {error:'No such link: nosuch.', code:'E_NO_LINK', state:{…}}`**, while `POST …/links/nosuch/state` answers **`404`** with the same `E_NO_LINK` |
+
+`POST|PATCH …/links/:id/state` is small and strict: `{"state":"up"}` or `{"state":"down"}` answers
+`200 {ok:true, linkId, state}`, and **anything else** — `{"state":"sideways"}`, `{"up":false}`, an empty
+body — answers `422 {error:'state must be up or down', code:'E_BAD_STATE'}`. `DELETE …/links/:id`
+answers `200 {ok:true, state}` and is idempotent: deleting the same cable twice is a second `200`.
 
 **Cabling: one counter, `409` for everything, and the warnings only exist on the other endpoint.**
 Measured on a fresh board:
