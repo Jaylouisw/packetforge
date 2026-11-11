@@ -7711,8 +7711,10 @@ class CliSession {
     if (!out.length) {
       const isL3 = typeof dev.isL3 === 'function' && dev.isL3();
       if (!isL3) {
+        // A switch is not a host, and both reach other networks the same way - by hand.
+        const kind = dev.isL2 && dev.isL2() ? 'layer 2 switch' : 'host';
         return ['% ' + (dev.name || dev.id) + ' runs no routing protocol',
-          '% It is not a router: a host reaches other networks with "ip default-gateway"'];
+          '% It is a ' + kind + ': its own reachability is "ip default-gateway <gw>", entered by hand'];
       }
       return ['% No routing protocol is running on ' + (dev.name || dev.id),
         '% OSPF: "router ospf <process-id>"   BGP: "router bgp <as>"',
@@ -7734,6 +7736,14 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config && dev.config.bgp;
     const out = [];
+    // A view that offers a way in must offer one this device can take: "% BGP is not enabled -
+    // \"router bgp <as>\" in config mode turns BGP on" was printed by a switch, where that line is
+    // refused. A view with no possible content is refused by name, as the DHCP statistics view is.
+    if (typeof dev.isL3 === 'function' && !dev.isL3()) {
+      return ['% ' + (dev.name || dev.id) + ' is a layer 2 switch: no BGP process can run here',
+        '% There are no neighbours and no BGP table to show - BGP needs a device that routes',
+        '% "show ip route" is the table this device does have'];
+    }
     if (!cfg || !cfg.as) { out.push('% BGP is not enabled' + NEEDS.bgp); return out; }
 
     // `show ip bgp neighbors` printed the summary table - the same rows, twice under two names -
@@ -8179,6 +8189,11 @@ class CliSession {
 
   _showOspf(args) {
     const dev = this.device;
+    if (typeof dev.isL3 === 'function' && !dev.isL3()) {
+      return ['% ' + (dev.name || dev.id) + ' is a layer 2 switch: no OSPF process can run here',
+        '% There are no neighbours and no link-state database to show - OSPF needs a device that routes',
+        '% "show ip route" is the table this device does have'];
+    }
     const cfg = dev.config && dev.config.ospf;
     const out = [];
     // `router ospf 1` creates a process with no router-id yet: IOS elects one from the interface
@@ -10512,6 +10527,15 @@ class CliSession {
         if (!port || port.svi || port.parent) {
           return ['% ' + only + ' is a logical interface: it has no switchport state',
             '% Ask for the physical port it belongs to'];
+        }
+        // The family form refused a non-switch and the per-port form invented a switchport state for
+        // one: `show interfaces eth0 switchport` on a PC printed `Access Mode VLAN: 1` and
+        // `Port Security: Disabled` for a port that switches nothing - the word `switchport` was
+        // dropped and the plain port view answered. Same question, same refusal.
+        if (typeof dev.isL2 === 'function' && !dev.isL2()) {
+          return ['% ' + (dev.name || dev.id) + ' does not switch: its ports are routed, so ' + only,
+            '% has no switchport state. A tag on a routed port is a subinterface - ' +
+              '"show ip interface brief"'];
         }
         return out.concat(this._showPortSwitchport(dev, port));
       }
@@ -13131,7 +13155,19 @@ class CliSession {
     // BGP verbs, and the removals that pair with them: a switch was shown `no bgp neighbor <ip>` and
     // `no neighbor <ip>` while `router bgp` itself was filtered out - the removal of a process it
     // cannot start.
-    if (words.indexOf('bgp') !== -1 || (first === 'no' && second === 'neighbor')) {
+    // The test was `words.indexOf('bgp') !== -1`, which is true of any row that merely *offers* bgp
+    // as one of several words: `show ip route [<dest>|connected|static|ospf|bgp|summary]` on a switch
+    // was hidden with "it cannot run BGP" - the wrong reason, about a verb the operator had not
+    // typed, for a row that starts with `show ip route`. A row is a BGP verb when BGP is the verb.
+    // `show ip route` is never gated: every device in this model keeps a route table, and the view
+    // answers on all of them - a switch prints its `ip default-gateway` route, a host prints an empty
+    // table. Hiding it behind the layer-3 test told an operator the view did not exist while the
+    // parser was answering it one line later.
+    if (first === 'show' && second === 'ip' && words[2] === 'route') return null;
+    const bgpVerb = first === 'bgp' ||
+      (first === 'no' && (second === 'bgp' || second === 'neighbor')) ||
+      (first === 'router' && second === 'bgp');
+    if (bgpVerb) {
       return l3 ? null : 'it is a layer 2 switch, so it cannot run BGP';
     }
     if (first === 'no' && second === 'ip' && words[2] === 'ospf') {

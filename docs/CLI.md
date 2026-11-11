@@ -1671,6 +1671,46 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A view is shown where it can be answered
+
+Three shapes of one gap, found by sweeping a switch's and a host's `?` page against the parser:
+
+```
+SW1#show ip route ?
+"...show ip route [<dest>|connected|static|ospf|bgp|summary]..." is a command here, but not on
+SW1: it does not forward between interfaces, so it has no routes or adjacencies
+
+SW1#show ip route
+  *  S 0.0.0.0/0  254  10.0.0.1  Vlan10          <- and it answers, with the route it really has
+```
+
+* **A view a device can answer is on its page.** `show ip route` is answered by every device in this
+  model — a switch prints its `ip default-gateway` route, a host prints an empty table — so it is not
+  gated. It had been hidden behind the layer-3 test, and the reason given for hiding it ("it does not
+  forward between interfaces") described the view rather than the device.
+* **A view a device cannot have is refused as what the device is.** `show ip bgp` on a switch said
+  *"% BGP is not enabled - `router bgp <as>` in config mode turns BGP on"*, advice this device refuses:
+
+  ```
+  SW1#show ip bgp
+  % SW1 is a layer 2 switch: no BGP process can run here
+  % There are no neighbours and no BGP table to show - BGP needs a device that routes
+  % "show ip route" is the table this device does have
+  ```
+
+  A router without the process still gets the enablement advice, because there it works.
+* **The family form and the per-port form give the same answer.** `show interfaces switchport` refused
+  a non-switch while `show interfaces eth0 switchport` printed `Access Mode VLAN: 1` and
+  `Port Security: Disabled` for a port that switches nothing — the word `switchport` was dropped and
+  the plain port view answered.
+
+The gate also read the wrong word. The test was "does the row contain `bgp` anywhere?", which hid
+`show ip route [<dest>|connected|static|ospf|bgp|summary]` under a BGP refusal — a row that starts with
+`show ip route` and offers `bgp` as one of seven filters. A row is a BGP verb when BGP is the verb.
+
+The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
+and must be refused — a hidden row that answers is a view an operator will never find.
+
 ### `show logging types` — the vocabulary behind a drop reason
 
 `show logging <type>` answered a word it did not recognise with a shrug:
