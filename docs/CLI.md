@@ -63,7 +63,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show interfaces counters [<port>]` | one row per port: packets, bytes and drops; `show interfaces <port> counters` is the same row ([Interface counters](#interface-counters)) |
 | `show interfaces transceiver [<port>]` | cage, negotiated medium, reach vs cable length, and the `W_DISTANCE` verdict |
 | `show running-config` | the full configuration, including routing protocols — see the note below |
-| `show vlan [<id>]` | VLAN table with trunk ports marked `(t)`, or one VLAN ([VLANs](#vlans)) |
+| `show vlan [<id>|brief|summary|count]` | VLAN table with trunk ports marked `(t)`, one VLAN, or the counts ([VLANs](#vlans)) |
 | `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLANs](#vlans)) |
 | `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
@@ -1670,6 +1670,38 @@ run BGP`, `% R1 does not bridge - spanning tree runs on switches` - and preempti
 generic sentence would be a worse answer, so they are left alone. So is `ip route`: a host here carries
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
+
+### `show vlan summary` counts the table it sits above
+
+`summary` is the word an operator types before deciding whether a VLAN is missing, and it was read as
+a VLAN id:
+
+```
+SW1#show vlan summary
+% Invalid VLAN id "summary" - ids are numbers 1-4094
+```
+
+It counts now, and **every number is derived from the rows `show vlan` prints**, so the two cannot
+disagree about how many VLANs exist:
+
+```
+SW1#show vlan summary
+VLAN summary on SW1:
+  Existing VLANs          : 3
+  Declared                : 2 (10, 20)
+  Carried by a port       : 2
+  SVIs                    : 0
+  Allowed on a trunk only : 1 (40 - not configured, so not a VLAN here)
+  Ports in a VLAN         : 8
+```
+
+Three states are counted separately because they need different fixes: **declared** (`vlan <id>`, or
+created by a carrier that names it), **carried by a port**, and **allowed on a trunk only** — a filter,
+not a bridge domain. That last number is the one that would otherwise be invisible: `show interfaces
+trunk` lists VLAN 40 as allowed while it is not a VLAN on the device at all.
+
+`count` is not an IOS word, so it is answered rather than refused — and it says which spelling IOS
+uses. A word after `summary` is refused.
 
 ### A view asked at a moment says which moment
 

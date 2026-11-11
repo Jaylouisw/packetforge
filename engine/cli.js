@@ -9636,6 +9636,7 @@ class CliSession {
       // because it never claimed a port. A VLAN id either narrows the answer or is refused by name;
       // a word that is not an id at all is refused as a word, not silently dropped.
       let wantVlan = null;
+      let wantSummary = null;
       // The synopsis quoted back on a trailing word has to be the form that was used.
       let vlanUsage = null;
       let typedVlan = null;      // what was typed, so a refusal quotes the operator's spelling
@@ -9645,7 +9646,21 @@ class CliSession {
         // `brief` is the synonym the docs already promise (and `show vlan 10 brief` is the same
         // table, narrower), so it is consumed rather than read as a VLAN id. `id <n>` is the IOS
         // spelling; both take one value and nothing else.
-        if (String(rest[i] || '').toLowerCase() === 'id') {
+        // `show vlan summary` is the count view every operator opens before deciding whether a VLAN
+        // is missing: it was read as a VLAN id and refused with `% Invalid VLAN id "summary"`. `count`
+        // is not an IOS spelling, so it is answered by naming the one that is.
+        const firstWord = String(rest[i] || '').toLowerCase();
+        if (firstWord === 'summary' || firstWord === 'count') {
+          wantSummary = firstWord;
+          i += 1;
+          if (rest[i] !== undefined) {
+            return out.concat(['% Unexpected argument "' + rest[i] + '" - show vlan ' + firstWord +
+              ' takes no more',
+              firstWord === 'count'
+                ? '% IOS spells it "show vlan summary"'
+                : '% Usage: show vlan summary']);
+          }
+        } else if (String(rest[i] || '').toLowerCase() === 'id') {
           const value = rest[i + 1];
           if (!/^\d+$/.test(String(value === undefined ? '' : value))) {
             return out.concat(['% Incomplete command: show vlan id <id>',
@@ -9812,6 +9827,38 @@ class CliSession {
       if (!bridged && !vlanRows.length) {
         return out.concat(['% ' + (dev.name || dev.id) + ' does not bridge, so it has no VLAN table',
           '% It can still declare VLAN names for the subinterfaces it routes: "vlan <id> name <name>"']);
+      }
+      if (wantSummary) {
+        // Counted from the rows the table would print, so the summary and the table cannot disagree
+        // about how many VLANs exist - the defect that made `show vlan` describe a VLAN the
+        // configuration did not have, one layer down.
+        const cell = function (r) { return String(r[3]); };
+        const carriedRows = vlanRows.filter(function (r) {
+          return cell(r) !== '-' && cell(r) !== '(no ports)';
+        });
+        const svis = vlanRows.filter(function (r) { return /\(SVI\)/.test(cell(r)); }).length;
+        const ports = new Set();
+        for (const r of vlanRows) {
+          for (const p of cell(r).split(/,\s*/)) {
+            const name = p.replace(/\(.*\)$/, '').trim();
+            if (/^[A-Za-z]+\d/.test(name)) ports.add(name);
+          }
+        }
+        out.push('VLAN summary on ' + (dev.name || dev.id) + ':');
+        out.push('  Existing VLANs          : ' + vlanRows.length);
+        out.push('  Declared                : ' + declaredIds.length +
+          (declaredIds.length ? ' (' + declaredIds.join(', ') + ')' : ' (none - "vlan <id>" declares one)'));
+        out.push('  Carried by a port       : ' + carriedRows.length);
+        out.push('  SVIs                    : ' + svis);
+        out.push('  Allowed on a trunk only : ' + phantom.length +
+          (phantom.length ? ' (' + phantom.map(function (p) { return p.id; }).join(', ') +
+            ' - not configured, so not a VLAN here)' : ''));
+        out.push('  Ports in a VLAN         : ' + ports.size);
+        if (wantSummary === 'count') {
+          out.push('');
+          out.push('% "count" is not an IOS word - the spelling is "show vlan summary"');
+        }
+        return out;
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
       if (allTrunks.length) {
@@ -13365,7 +13412,7 @@ class CliSession {
       helpLine('show arp [<port>|<address>]', 'IP-to-MAC cache, or one address (show ip arp too)'),
       helpLine('show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]',
         'addresses learned per port and VLAN, a filter, or the totals'),
-      helpLine('show vlan [<id>|brief]', 'VLANs and their members, or one VLAN by id'),
+      helpLine('show vlan [<id>|brief|summary|count]', 'VLANs and their members, one VLAN by id, or the counts'),
       helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
       helpLine('show spanning-tree vlan <id> [root|summary]',
         'the same tree, asked for by VLAN - one tree covers every VLAN here, and it says so'),
