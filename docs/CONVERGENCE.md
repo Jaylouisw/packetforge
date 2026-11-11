@@ -16,8 +16,8 @@ SW1#ping 10.0.0.2 1 at 5000
 Type escape sequence to abort.
 Sending 1, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at t=5000 ms)
 .
-Success rate is 0 percent (0/1)
 % Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+Success rate is 0 percent (0/1)
 ```
 
 Note what that last line is not: it is not `Request timed out`. Nothing was lost. The network was

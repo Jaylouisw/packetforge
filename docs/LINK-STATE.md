@@ -103,11 +103,11 @@ PC1#ping 10.0.0.11 at 11000
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.0.11, timeout is 2 seconds:  (at t=11000 ms)
 ....
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
+% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
 Success rate is 0 percent (0/4)
-% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
-% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
-% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
-% Still converging at t=11000 ms: stp on SW1, stp on SW2 (ready at 40000 ms)
 ```
 
 One line per lost echo, each naming the processes that are not done and when they will be. The same

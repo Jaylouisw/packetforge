@@ -1449,9 +1449,13 @@ finished, the reply is not a timeout - the engine names the process that is not 
 
 ```
 SW1#ping 10.0.0.2 1 at 5000
-Success rate is 0 percent (0/1)
 % Still converging at t=5000 ms: stp on SW1 (ready at 30000 ms)
+Success rate is 0 percent (0/1)
 ```
+
+The hint is printed **per lost echo** and the summary stays the last line, so one echo gives one hint and
+four echoes give four identical ones before the total. That ordering is what makes the report readable
+top to bottom: what happened, then what it adds up to.
 
 **The instant sticks.** It belongs to the run the simulator is answering, not to the one command,
 so a later `ping` without `at` still answers at 5000 ms and does not mention it in its header. That
