@@ -416,6 +416,24 @@ A document holding one bad address loads — the rest of the lab is intact and t
 than being refused wholesale, which is what happened before: the load answered `400 Invalid IPv4 address: 300.1.1.1`
 and the board was never replaced. The message names the port and the value.
 
+### A saved lab reopens with its conversations still in it
+
+The flow table lives on the topology — it is runtime state of the board — but
+`serialize()` never wrote it and `fromJSON()` never read it. So a lab with an
+established TCP flow, saved to disk and reopened, came back with an **empty flow
+table**: the reloaded board said nothing was connected while the document said a
+conversation existed. One more surface that had the fact and one that did not (#1435).
+
+Now `serialize()` writes `flows` (id, state, hops, counters) with the board, and
+`fromJSON()` restores them. A document carrying a flow whose endpoints are **not on
+the board** is refused the flow, not the board: it is reported in `loadIssues`
+(`E_FLOW_GHOST_ENDPOINT`, naming the flow and the missing endpoints), exactly like a
+cable that cannot be restored — and the board still opens. The id allocator is advanced
+past any restored `flow-N` so the next flow cannot collide.
+
+`test/flows-survive-save-load.test.js` pins it, 16 checks: the round trip (same id,
+same state, same hops), no id collision, ghost endpoints reported and dropped, and an
+empty board serializing `flows: []` rather than omitting the key.
 ### One state read shows both halves of one fact
 
 `GET /api/topologies/:id` carries the board and each device's runtime tables. Two
