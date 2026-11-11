@@ -445,7 +445,15 @@ before every transmission, so:
   frames on trunk links and untagged frames on access ports.
 - Frames that a port's VLAN rules reject are dropped with a `vlan-drop` event.
 
-VLANs 1–4094 are valid; 1002–1005 are reserved and rejected.
+VLANs 1–4094 are assignable, and anything outside the range is refused by number —
+`% VLAN 4095 is outside 1-4094`, `% VLAN 0 is outside 1-4094`. The IEEE 802.1Q **reserved block
+1002–1005 is not enforced anywhere in the running simulator.** `engine/vlan.js` names it
+(`VLAN_RESERVED_MIN`/`VLAN_RESERVED_MAX`, `isReservedVlan()`) and `validatePortConfig()` would report
+`E_VLAN_RESERVED` for it, but nothing in `engine/`, `server/` or `web/` calls that function — only the
+suites do. So the console creates one on request — `VLAN 1003 created (name: VLAN1003)` — and accepts a
+port assignment to it: `Access VLAN 1003 on Fa0/1 (VLAN 1003 did not exist and was created - "no vlan
+1003" removes it)`, after which 1003 is a live row in `show vlan brief`. Treat 1002–1005 as
+documented-but-unenforced until something calls the validator.
 
 ## 6. Link aggregation (LACP) — enforced in the data path
 
