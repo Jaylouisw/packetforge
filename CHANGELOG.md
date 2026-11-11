@@ -496,6 +496,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A `no` that names a part no longer removes the whole thing.** `no vrrp 1 ip 10.0.0.99` deleted the
+  **group** — including a working virtual gateway — and answered `VRRP group 1 removed`, so a typo in an
+  address took the gateway down and the transcript agreed it had been asked for. The id is now read
+  together with what follows it, and each part has its own removal: `no vrrp <vrid> ip [<address>]`,
+  `no vrrp <vrid> priority`, `no vrrp <vrid> preempt`, and `no vrrp <vrid>` for the group itself. An
+  address the group does not own is refused instead of obeyed, and the refusal hands back the state it
+  was checked against:
+
+  ```
+  Router-d1(config-if)#no vrrp 1 ip 10.0.0.99
+  % Group 1 on Gi0/0 does not own 10.0.0.99
+  % It owns: 10.0.0.254, 10.0.0.253
+  % "no vrrp 1" removes the group itself
+  ```
+
+  The bare form is not the same command: `no vrrp 1 ip` clears the addresses and says the group survived
+  (`VRRP group 1 on Gi0/0 no longer owns 10.0.0.254 - the group is still configured`), while `no vrrp 1`
+  is what removes it. One cosmetic wart left in place: `no vrrp 1 priority` answers `priority back to the
+  default 100 (was 100)` even when the value never moved.
+
+- **A DHCP pool's exclusions are removable one at a time.** `no excluded-address` could only clear the
+  lot, so dropping one reservation meant deleting every exclusion and retyping them. It now takes
+  `[<address> [<address>]]`: naming one removes that one, the bare form still clears everything and says
+  how much (`All 2 excluded ranges removed`), and an address that is not an exclusion is refused with the
+  list and the way out:
+
+  ```
+  Router-d1(config-dhcp)#no excluded-address 10.9.0.105
+  % Not an exclusion here: 10.9.0.105
+  % Excluded: 10.9.0.100-10.9.0.110, 10.9.0.200
+  % "no excluded-address" removes them all
+  ```
+
+  That last transcript is the trap worth reading twice: `10.9.0.105` **is** excluded — it sits inside
+  `10.9.0.100-10.9.0.110` — but the command matches the address that was *stated*, not membership in a
+  range, so removing part of a range means restating the range narrower. The count in `All 2 excluded
+  ranges removed` is ranges, not addresses.
+
 - **A VLAN a port names now exists, and `show vlan` no longer invents one.** Three commands could name
   a VLAN that was never created — `switchport access vlan 10`, `switchport voice vlan 20`,
   `switchport trunk native vlan 10` — and the result was two views of the same switch disagreeing:
