@@ -25,10 +25,25 @@ problem it describes. Measured on the current tree before touching anything else
 
 | Claim in §1 | Then | Now |
 |---|---|---|
-| "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **155** ports across the catalogue (recounted; this row said 122 and the catalogue has grown since) |
-| "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **138** such ports, and **137 of them now resolve to `wwan`** — the name-first rule in `inferCage()` (P1, #129) claims them before the wireless-type rule can. The single exception is **1** on `rj45`, a port whose name says modem and whose spec says copper. This row read "104 on `wwan`, 33 still on `antenna`, 1 on `rj45`" before that fix landed |
-| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**430**), `powerline` (**12**) and `usb` (0 in use) are all cages now, out of 12 cage kinds carrying ports |
+| "there is no cellular medium anywhere in the model" | true | **false** — `wwan` is a cage, with **141** ports across the catalogue (recounted by deriving every port's cage; this row has said 122 and then 155 as the catalogue grew) |
+| "of 54 ports named `wwan*`/`lte*`/`5g*`/`nr*`, 53 resolve to the Wi-Fi antenna cage" | true | **157** such ports, and **123 of them now resolve to `wwan`** — the name-first rule in `inferCage()` (P1, #129) claims them before the wireless-type rule can. **33** still land on `antenna` and **1** on `rj45`, a port whose name says modem and whose spec says copper. This row read "104 on `wwan`, 33 still on `antenna`, 1 on `rj45`" before that fix landed |
+| one RJ45 is the only way to the internet | true | **false** — `coax` (**164** ports), `dsl` (**437**), `powerline` (**12**) and `usb` (0 in use) are all cages now, out of **24** cage kinds carrying ports |
 | `routeTo()` returns one route, so two defaults are not multihoming | true | **still true** — two `ip route 0.0.0.0 0.0.0.0` lines are both stored and `routeTo('8.8.8.8')` answers `{ via: '203.0.113.1', … }`, the first one, with `iface: null` because the next hop is resolved later |
+| ^ the cage counts above | | every port's cage comes from `derivePortHardware(port, spec)` over `effectiveInterfaces(spec)`, **not** from the raw `connector` field — **10,289 of 17,030** ports declare neither `connector` nor `cage`, so a raw count answers `?` for 60% of the catalogue and none of these figures |
+
+Recount all four numbers with one script; it prints 17,030 ports and 24 cages on this tree:
+
+```bash
+node -e '
+const {loadCatalog,effectiveInterfaces}=require("./devices/registry");
+const {derivePortHardware}=require("./engine/media");
+const t=new Map(); let n=0;
+for(const s of loadCatalog(require("path").resolve("devices")))
+  for(const p of effectiveInterfaces(s)||[]){ n++; const h=derivePortHardware(p,s)||{};
+    const c=String(h.cage||"?"); t.set(c,(t.get(c)||0)+1); }
+console.log("ports",n,"cages",t.size,"wwan",t.get("wwan"),"dsl",t.get("dsl"),"coax",t.get("coax"),"powerline",t.get("powerline"));'
+```
+
 | a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws**, prefixed with both endpoints — `UFiber OLT 4/gpon1 <-> UniFi Cloud Gateway Fiber/WAN: Cannot mate SC/APC to RJ45 (incompatible connectors).` — while `validateLink()` returns the same fault as `E_CONNECTOR_MISMATCH` without throwing. Anything that matches on the message must allow for that `<device>/<port> <-> <device>/<port>: ` prefix |
 
 So the medium half of this design has largely landed, and the routing half — one default slot, no policy,
