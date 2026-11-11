@@ -167,8 +167,10 @@ repository if the instance default is private (Settings → Advanced → *This r
 - `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
   three stale links plus two scripts still calling `gh` the first time it ran. Measured on this tree it
-  prints `OK — 2266 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
-  exits `0`, and `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
+  prints `OK — 2268 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
+  exits `0` — the figure is the number of tracked files scanned, so it climbs by one for every file
+  anyone adds — it read `2266` earlier the same day and `2268` now, two files later — so it is worth
+  re-running rather than quoting. `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
   and require the checker to refuse it: a GitHub URL, a `gh` instruction, and a README that cannot be
   cloned from. That is what makes it a test rather than a pass.
 - `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
