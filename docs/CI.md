@@ -492,11 +492,14 @@ services, and a job that has to swap makes the whole queue slower.
   | `eeafda5a`, detached worktree, nothing else running | **251 suites in 308.8 s — 10,445 passed, 3 failed** | 2 — `link-parts` (2 assertions) and `ma5801` (a crash) |
   | `ef85c1a9`, detached worktree, nothing else running | **257 suites in 356.6 s — 10,627 passed, 3 failed** | 2 — the same two, the same 2 + 1 |
   | `d4319d27`, detached worktree, nothing else running | **264 suites in 333.4 s — 10,958 passed, 3 failed** | 2 — the same two, and the split is still exactly 2 + 1 |
+  | `16d70abe`, detached worktree, nothing else running | **267 suites in 354.5 s — 11,029 passed, 3 failed** | 2 — the same two, still 2 + 1, four readings in |
 
-  The third reading is 13 suites and 331 assertions heavier than the first and 20 s faster, and the red
-  set did not move: `test/link-parts.test.js` reports `81 passed, 2 failed` and `test/ma5801.test.js`
-  throws before printing any tally, so 2 + 1 = 3 assertions across 2 suites — re-run on that tree rather
-  than carried over, because three readings that agree about a count are not one reading that was taken.
+  Across the four readings the suite grew by 16 suites and 584 assertions while the red set never moved:
+  every time, `test/link-parts.test.js` reports `81 passed, 2 failed` and `test/ma5801.test.js` throws
+  before printing any tally, so 2 + 1 = 3 assertions across 2 suites. Each row was re-run on its own tree
+  rather than carried over, because four readings that agree about a count are not one reading that was
+  taken — and the run time wanders between 308 and 357 s with nothing to explain it, which is itself worth
+  knowing before you read a slow run as a regression.
 
   **The headline and the list count different things**, which is why "3 failed" sits above two `✗` lines.
   `run-tests.js` sums each suite's own `<n> passed, <m> failed` tally, so the headline is failed
@@ -512,7 +515,10 @@ services, and a job that has to swap makes the whole queue slower.
   `QSFP56-200G-FR4`, `QSFP28-100G-SR4`, …), so the catalogue is at **58 parts** and `web/app.js` still
   carries **34**; `ma5801` throws `TypeError: Cannot read properties of undefined (reading 'hardware')`
   at `test/ma5801.test.js:96` for `interfaces.get('gpon1/1')`, so the suite indexes a port name the box
-  no longer exposes. Two failures, one message each, and neither is about documentation — which is what
+  no longer exposes — the catalogue names the PON ports `pon1` … `pon16` (`devices/huawei/ma5801-gp16.json`),
+  which is the whole difference between the suite and the spec. The suite is not broken from its first
+  line: it prints **10** ✓ lines across two groups and dies in the third, which is why it reads in the
+  transcript as a suite that was working until it wasn't. Two failures, one message each, and neither is about documentation — which is what
   a "the tree is red" claim should look like when it is honest about which suites and why.
 
   **How to read the runner's own output**, because two of its habits surprise people:
