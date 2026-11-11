@@ -473,10 +473,17 @@ services, and a job that has to swap makes the whole queue slower.
     assertions that depended on a clean tree followed the exemption.
 
 - **A red suite can exist in a working copy without existing in the repository — and it can go green while
-  you watch.** `test/block-stray-words.test.js` is **untracked** (`git ls-files` returns nothing for it), so CI,
-  which checks out `HEAD`, never runs it. It reported `15 passed, 4 failed` at one point and `19 passed, 0 failed`
-  twenty minutes later: it was being written alongside an uncommitted change to `engine/cli.js`, and the pair
-  converged. Neither number belonged in this page, and both were true.
+  you watch.** While `test/block-stray-words.test.js` was being written it was **untracked**
+  (`git ls-files` returned nothing for it), so CI, which checks out `HEAD`, never ran it. It reported
+  `15 passed, 4 failed` at one point and `19 passed, 0 failed` twenty minutes later: it was being written
+  alongside an uncommitted change to `engine/cli.js`, and the pair converged. Neither number belonged in
+  this page, and both were true.
+
+  It is tracked now — `git ls-files test/block-stray-words.test.js` returns the path, committed in
+  `ae6e55af` — and it is **green on `HEAD`** (19 passed, 0 failed, sweeping 182 argument-less rows across
+  seven blocks). So this paragraph has already gone stale once in the direction that matters: an untracked
+  file became a tracked one, and the sentence "CI never runs it" stopped being true without changing a word
+  of it. Check `git ls-files` before repeating either half.
 
   The measurement that *does* belong here is the full run, split by where the failure comes from:
 
