@@ -20,9 +20,9 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
 a count of 24 and 24 `[Device]` titles say nothing about labels, and "each carrying both" is a claim
 about all 24 at once. Measured with it: **24** open, **24 of 24** with `device`, **24 of 24** with
-`device-request`, **24 of 24** titles beginning `[Device]`. Pass `type=issues` there for the reason the
-API sorts on — Forgejo shares one number space with pull requests, so without it a PR's labels land in
-the same tally.
+`device-request`, **24 of 24** titles beginning `[Device]`. The `type=issues` is not decoration: the
+issues endpoint serves pull requests too, from the same number space, so without it an open PR's labels
+land in the same tally.
 
 `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before anyone
 reads the body: **is this already in the catalogue?**
