@@ -496,6 +496,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A `/` between two placeholders is one value, not a choice.** The help grammar reads `/` as "or" —
+  `configure terminal / conf t` is two spellings of one command — which is right between words and wrong
+  inside one: `<prefix>/<len>` was lexed as two placeholders, so the page offered a slot the command does
+  not have, and nothing was refused for it. `ipv6 nd prefix ?` answered `<prefix>` and then `<len>`;
+  `ipv6 address <addr>/<len>` duplicated the same way. Both are one value and one slot now:
+
+  ```
+  R1(config)#ipv6 nd prefix ?
+  Completions for "ipv6 nd prefix" (1):
+    a prefix to advertise (SLAAC)
+    Next: <prefix/len>
+
+  R1(config)#ipv6 address ?
+  Completions for "ipv6 address" (2):
+    a static IPv6 address, or one learned from a router
+    Next: autoconfig, <addr/len>
+  ```
+
+  The typed forms still work: `ipv6 address 2001:db8::1/64` answers
+  `IPv6 address 2001:db8::1/64 on Gi0/0`, and `ipv6 nd prefix 2001:db8::/64` advertises with
+  `L=1 A=1, valid 2592000s, preferred 604800s`. The same sweep found a row whose *first* token was a
+  value — `clear ip dhcp binding * | <address>` produced a phantom row that was nothing but
+  `<address>`, so the page offered a value slot where a verb goes and no completion could reach it. It
+  is `*` and `<address>`, two rows, now. `test/placeholder-rows.test.js` pins the whole family: every
+  documented row with a value in it is filled in from a table of values and typed, and must be a command
+  the console takes.
+
 - **A keyword the `?` page offers is taken at its shortest spelling.** The console completes a keyword
   from the help rows, and the parser accepted only longer spellings of the same word, so its own page
   contradicted it: `switchport p?` answers `port-security  more options`, and then `sw p` was refused.
