@@ -163,7 +163,13 @@ is right.
 - **Layer 2**: MAC learning, VLANs (access/trunk/native, voice VLAN), LAG, STP, LLDP,
   port security with its violation modes and aging (\`switchport port-security …\`, \`clear port-security\`).
 - **Layer 3**: IPv4 and IPv6, ARP/ND, ICMP, static routes, longest-prefix match, IPv6 first-hop
-  configuration (\`ipv6 nd prefix\`, \`ipv6 nd ra\`, \`ipv6 nd suppress-ra\`) with SLAAC on the hosts.
+  configuration (\`ipv6 nd ra enable|disable\`, \`ipv6 nd ra managed|other-config\`,
+  \`ipv6 nd ra lifetime <s>\`, \`ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]\`,
+  \`ipv6 nd suppress-ra\`) with SLAAC on the hosts. Those are **global** verbs even when typed inside an
+  interface block, and the prefix form wants the keywords: \`ipv6 nd prefix 2001:db8::/64 3600 1800\` is
+  refused (*expected [valid <seconds>] [preferred <seconds>]*) while the same line works with the
+  intervals left off. A prefix on an interface with no address inside it is never actually sent, and
+  \`show ipv6 nd\` says so in a line of its own.
 - **Services**: DHCP client and server, NAT (static, dynamic pool and PAT — all three translated in
   the data path and visible in \`show ip nat translations\`; static and PAT rules can be written from the
   console with \`ip nat inside source …\`, but a pool-based dynamic rule still comes from the topology
