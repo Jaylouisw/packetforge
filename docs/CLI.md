@@ -363,6 +363,19 @@ uses, so both commands agree about which sockets exist — a name that matches n
 than answered with the whole box, which is what it used to do. With no name, every interface is listed,
 subinterfaces included and placed after their parent.
 
+**The name is the whole rest of the line.** Some devices in the catalogue name their ports with a space in them —
+Ubiquiti's `Port 1`, `SFP+ 1`, `LAN IN` — and this command used to read only the first word, so
+
+```
+sw1#show interfaces Port 1
+% No interface Port on EdgeSwitch 24 PoE (250W)
+```
+
+refused a port that was right there, and named one that does not exist. `interface Port 1` has read the rest of
+the line since it was fixed for exactly this reason; the reporting side was left behind, and now reads the name the
+same way. A name that really does match nothing is refused with **the whole name you typed**:
+`% No interface Port 99 on …`, never truncated to its first word.
+
 Each block carries one switchport line, because the command an operator opens first is the one that has to
 say what the port does with a frame:
 
@@ -915,7 +928,8 @@ ones an operator is usually asking about:
 * an administratively down port supplies nothing, and says why — the engine does not allocate through it, since
   it walks the active ports only;
 * idle ports are summarised rather than printed one per line: a wall of `nothing plugged in` is how the one row
-  that matters gets missed. `show power inline <port>` asks about any of them by name.
+  that matters gets missed. `show power inline <port>` asks about any of them by name — the whole rest of the
+  line, so `show power inline Port 1` asks about `Port 1` rather than about a port called `Port`.
 
 The inspector's **Routes** table is the same table: it reads the rows `Device.routesTable(topo)` annotates,
 so it shows the code the console prints (`S*` for the gateway of last resort), the administrative distance, and
@@ -1048,16 +1062,31 @@ Beyond ~30 entries the table is not the place to look for a neighbour; use the i
 
 ```
 SW1#show mac address-table
-Vlan    Mac Address         Type        Ports
-1       02:00:00:00:01:00   DYNAMIC     Fa0/1
-1       02:00:00:00:02:00   DYNAMIC     Fa0/2 (administratively down)
-20      02:00:00:00:09:00   DYNAMIC     Fa0/1 (vlan mismatch)
+Vlan    Mac Address         Type        Age     Ports
+1       02:00:00:00:01:00   DYNAMIC     0s      Fa0/1
+1       02:00:00:00:02:00   DYNAMIC     140s    Fa0/2 (administratively down)
+20      02:00:00:00:09:00   DYNAMIC     -       Fa0/1 (vlan mismatch)
 ```
 
 * **Ports** is the port the source MAC was heard on, per VLAN.
+* **Age** is the silence: a dynamic entry leaves the table after 300 s without a frame from that address, and the
+  same aged lookup decides forwarding — an entry the table only remembers is not a port a frame may be sent to. `-`
+  is an entry nothing dated (a fixture's, an imported lab's), which is never aged.
 * A port that can no longer carry a frame is named **with its reason**, the same sentence `show arp` uses.
-  The entry is not deleted: a real switch ages entries out, this one does not, so the mark is what tells
-  you the row is stale.
+  The entry is not deleted by the port going down: a real switch holds it until the age runs out, so the mark is
+  what tells you the row is stale.
+* **`interface <name>` filters to one port**, and the name is the rest of the line, as everywhere else:
+
+  ```
+  SW1#show mac address-table interface Port 1
+  Vlan    Mac Address         Type        Age     Ports
+  1       02:00:00:00:01:00   DYNAMIC     0s      Port 1
+  ```
+
+  A filter that matches nothing says so about that port (`(no entry learned on Port 9)`) rather than printing an
+  empty table, which reads as a claim about the whole box. Any other trailing words are **refused** rather than
+  ignored: `% show mac address-table does not take "vlan 1"`. The filter used to be accepted and dropped, so
+  `… interface Port 1` answered with every entry on the switch.
 * `(vlan mismatch)` means the port does not carry that VLAN at all — an entry that cannot be a forwarding
   decision, however healthy the port looks.
 * **A VLAN parameter is not a mode change.** `switchport trunk native vlan`, `switchport trunk allowed vlan`,

@@ -2654,7 +2654,9 @@ class CliSession {
   _showPowerInline(typed) {
     const dev = this.device;
     const out = [];
-    const wanted = typed && typed.length ? String(typed[0]) : null;
+    // The port name is the whole rest of the line, not its first word: "Port 1" is a name on 17 models of the
+    // catalogue, and reading only "Port" answered `% No interface Port` about a port that is right there (#1401).
+    const wanted = (typed && typed.length) ? typed.join(' ') : null;
 
     // The PSE hardware, in port order. A port can supply power whether or not it currently does.
     let pse = [...dev.interfaces.values()].filter(function (i) { return i.poeOut; });
@@ -3164,9 +3166,33 @@ class CliSession {
       // longer than MAC_AGE_MS is gone, and the Age column says how long ago it was heard. Before this the table
       // never aged anything and the row carried a note explaining that it might be stale (#1395).
       const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+      // The rest of the line is a filter, and it used to be dropped on the floor: `show mac address-table
+      // interface Port 1` answered with every entry on the box, which reads as "this port has all of them".
+      // An argument that is accepted and not applied is the same defect as a config command that is accepted
+      // and inert (#1401), so either it filters or it is refused - never ignored.
+      const tail = tokens.slice(2);
+      let only = null;
+      if (tail.length) {
+        const word = String(tail[0]).toLowerCase();
+        if (word !== 'interface' && word !== 'int') {
+          return ['% show mac address-table does not take "' + tail.join(' ') +
+            '": use `show mac address-table interface <port>` for one port'];
+        }
+        const typed = tail.slice(1).join(' ');
+        if (!typed) return ['% interface needs a port: show mac address-table interface <port>'];
+        const name = ifaceName.resolvePortName(dev, typed);
+        if (!name) return ['% No interface ' + typed + ' on ' + (dev.name || 'this device')];
+        only = name;
+      }
       out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + pad('Age', 8) + 'Ports');
       // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
-      const rows = dev.macRows(this.topo, nowMs);
+      let rows = dev.macRows(this.topo, nowMs);
+      if (only) rows = rows.filter(function (r) { return r.port === only; });
+      if (only && !rows.length) {
+        // An empty table for a filter is a fact about that port, and it has to say so: a bare header reads as
+        // "the switch knows nothing", which is a different claim about the whole box.
+        out.push('(no entry learned on ' + only + ')');
+      }
       for (const r of rows) {
         // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A MAC learned
         // before its port was shut or moved says why it cannot be the way to that address (#1255).
@@ -3179,7 +3205,11 @@ class CliSession {
       // the whole switch, and on a 48-port model the socket asked about could be eight screens down. The name
       // is resolved by the same table `interface Fa0/1` uses, so every spelling works, and a name that
       // matches nothing is refused by name rather than answered with a list.
-      const wanted = tokens.length > 1 ? String(tokens[1]) : null;
+      //
+      // The name is the **whole rest of the line**, which is the rule `interface` has used since #1230: Ubiquiti
+      // calls its ports "Port 1" and its cages "SFP+ 1", so taking `tokens[1]` read the name "Port" and answered
+      // `% No interface Port` about a port that exists (#1401). One door was fixed and the other left behind.
+      const wanted = tokens.length > 1 ? tokens.slice(1).join(' ') : null;
       let shown = [...dev.interfaces.values()];
       if (wanted) {
         const name = ifaceName.resolvePortName(dev, wanted);
