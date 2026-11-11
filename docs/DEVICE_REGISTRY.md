@@ -75,8 +75,9 @@ poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.
 
 `engine/cli.js` accepts either when it decides whether a port can source power, so a contributor may
 use whichever the surrounding file already uses; prefer the flat key in a new spec, because it is the
-form every example in this page shows and the one 51 of the 52 files that state a PoE rate use (the
-catalogue's other 1,534 files state none at all, and the engine infers from the device class).
+form every example in this page shows and the one **55 of the 56** files that state a port PoE rate use
+— the fifty-sixth is the nested file named above. The catalogue's other **1,605** files state no rate at
+all, and the engine infers one from the device class.
 
 ### Keys the catalogue carries that this table does not gate on
 
@@ -92,7 +93,7 @@ key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>"
 | `dualRole` | 3 | `engine/device.js`, `web/`, `server/` | **real** — e.g. a WAN/LAN combo port |
 | `comboPorts` | 15 | nothing in `engine/`, `web/`, `server/` — written by `scripts/apply-research.js` | **annotation**: the pairing itself is expressed by per-port `comboWith`/`comboRole` |
 | `source` | 20 | nothing that reads a device spec | annotation: a datasheet **URL** in the older spelling. `sourceUrl` is the key the registry exposes and the one the "1,313 of 1,661" coverage count above uses, so a spec carrying only `source` counts as uncovered (20 do; none carry both) |
-| `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote`, `powerMaxW` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators), plus `powerMaxW` (5 files) — a radio's transmit power, which nothing models |
+| `returnLossDb`, `channelCount`, `channelPlan`, `monitorTapDb`, `insertionLossTypicalDb`, `bypassInsertionLossDb`, `attenuationRangeDb`, `attenuationStepDb`, `isolationDb`, `portSplitNote`, `powerMaxW` | 1–12 each | nothing | annotation: figures a datasheet gives for a passive optical part (CWDM muxes, VOAs, taps, attenuators), plus `powerMaxW` (7 files) — a radio's transmit power, which nothing models |
 
 The annotation keys all sit on passive hardware under `devices/fs/` and similar: they record what the
 part *is* without claiming the model simulates it. Adding one is harmless; expecting it to change a
