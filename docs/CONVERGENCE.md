@@ -147,7 +147,7 @@ island is filtered out for being unrelated to the device the command was typed o
 `30000 ms`: the slower process wins the headline even though the OSPF on that router lands at
 `16000 ms`.
 
-Two of the five formulas are worth reading twice. **VRRP is the only one whose number is not a round figure** —
+Two of the four formulas are worth reading twice. **VRRP is the only one whose number is not a round figure** —
 `3609.375 ms` at the default priority 100, because the RFC's skew time is a fraction of a second; a
 higher priority shrinks it — measured `3218.75 ms` at priority 200 (3 + 56/256) and a clean `3000 ms`
 at priority 255 (the address owner, whose skew is zero by the RFC). And
