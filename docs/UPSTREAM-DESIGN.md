@@ -441,9 +441,27 @@ REST (`server/index.js`, next to `/validate-link` at line 350):
 CLI (`engine/cli.js`):
 
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
-  the interface (`cli.js:267-272`). `% Invalid distance` outside 1..255.
+  the interface (`_ipRoute()` at `cli.js:3127`). `% Invalid distance` outside 1..255.
+
+  **Today that fourth word is refused outright**, so the work is replacing a refusal rather than
+  widening a parse. Measured on a router with three free ports, for `250`, `1` and `256` alike:
+
+  ```
+  Router-d1(config)#ip route 10.9.0.0 255.255.0.0 10.0.0.9 250
+  % "250" is not an interface on Router-d1
+  % The fourth word is an interface, not a distance - this model has no per-route administrative distance (AD is per source: connected 0, static 1, OSPF 110, eBGP 20)
+  % Interfaces: Gi0/0, Gi0/1, Gi0/2
+  ```
+
+  The refusal is deliberate and explains itself: this model keeps one AD per *source*, so a
+  per-route distance has nowhere to live until the routing table grows a per-row field. Adding
+  `[DISTANCE]` therefore touches `device.js` before it touches the parser.
 - `show ip route` gains `[AD/Metric]` and a trailing `WAN` column
-  (`cli.js:899-902`, `device.routesTable()` at `device.js:534`).
+  (`cli.js:9047`, legend at `:9085`, `device.routesTable()` at `device.js:752`).
+
+  The **AD column is already there** — `show ip route` prints `Prefix  AD  Gateway  Interface` and
+  a connected route reads `AD 0` — so what is missing is the per-route metric, the `WAN` column,
+  and a distance worth printing in the column that exists.
 - `show wan summary` — the table a human actually wants:
 
 ```
@@ -660,8 +678,8 @@ and its own recount one-liners.
 | 29 | `simulator.js:2036 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
 | 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
-| 32 | `cli.js:267 ip route` | `[iface]` only | `[distance]` |
-| 33 | `cli.js:899 show ip route` | `code dest/len via gw iface` | AD/metric/WAN columns; new `show wan` |
+| 32 | `cli.js:3127 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
+| 33 | `cli.js:9047 show ip route` | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
 | 34 | `web/app.js:115-130` palette labels, `:973` inspector open, `:1613` its State row | no service UI | Service block, WAN panel, failover button |
 | 35 | `devices/registry.js:7`, `web/app.js:116` (labels) and `:127` (order) | 10 categories | add `upstream` |
 
