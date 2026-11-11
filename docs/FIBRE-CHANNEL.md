@@ -165,7 +165,25 @@ rather than one 20G port.
 ## Adding an FC device
 
 1. Put the ports in an `fc-*` cage and declare `speedCaps` from the ladder — never the marketing
-   name. Brocade's "48 x 64G" is `[57800]`, or `[14025, 28050, 57800]` for a multispeed port.
+   name. Those caps are the rate classes the port actually negotiates, so copy a set that already
+   exists rather than inventing one. Every set in the catalogue today, with the ports that carry it:
+
+   | `speedCaps` | Ports | Where |
+   |---|---|---|
+   | `[8500, 14025, 28050]` | 144 | G610 (24), DS-6630B (96), SN3600B (24) — the 32G ladder |
+   | `[14025, 28050, 57800]` | 56 | G720 — the 64G ladder, no 8G step |
+   | `[2125, 4250, 8500, 14025]` | 48 | MDS 9148S — 16G down to 2G |
+   | `[8500, 14025, 28050, 57800]` | 24 | MDS 9124V — 8G up to 64G |
+   | `[2125, 4250, 8500]` | 20 | SANbox 5800V — 8G down to 2G |
+   | `[28050, 112200]` | 8 | DS-6630B — 128G on a box described as 32G |
+   | `[8500, 10519]` | 4 | SANbox 5800V — 8G and 10G FC on an 8G box |
+
+   Note what is **not** in that table: no port declares `[57800]` on its own. A 64G-only port would,
+   but every 57800 today sits inside a multispeed set, so an example written as "64G is `[57800]`" is
+   describing a port that does not exist here. The last two rows are the ones to look at twice before
+   copying them: 128G on a 32G switch and 10G FC on an 8G switch are both plausible as ISL or uplink
+   ports and both suspicious as transcription, and `10519` is 10G FC's *line* rate (`10.51875` Gbit/s)
+   rather than a round number somebody would type by hand.
 2. Keep the marketing name in `speed` so the UI reads like the datasheet.
 3. Say "Fibre Channel" (or the vendor's SAN branding) in the description. `test/spec-vs-description`
    uses that to know it should read "64G" as 57.8 Gbit/s, and `test/fibre-channel.test.js` uses the
