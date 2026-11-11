@@ -104,6 +104,16 @@ Two details worth keeping:
   about the protocol, not about the shape of the strand.
 - An FC optic in a **1G SFP** cage is refused on the *connector* instead, because it genuinely
   does not seat: `E_CONNECTOR_MISMATCH`, `Cannot mate SFP+ (FC) to SFP (incompatible connectors).`
+  That string is not fixed — it names the **FC optic's own** connector, so grepping a page for it and
+  finding a different one is not a bug. Measured against one 1G SFP cage (`ISR 4331` `Gi0/0/0-sfp`):
+
+  | FC device | its cage | the message |
+  |---|---|---|
+  | `MDS 9148S` | `fc-sfp` | `Cannot mate SFP+ (FC) to SFP (incompatible connectors).` |
+  | `G610`, `DS-6630B` | `fc-sfp28` | `Cannot mate SFP28 (FC) to SFP (incompatible connectors).` |
+  | `G720` | `fc-sfpdd` | `Cannot mate SFP-DD (FC) to SFP (incompatible connectors).` |
+  | `DS-6630B` `icl0` | `fc-qsfp28` | `Cannot mate QSFP28 (FC) to SFP (incompatible connectors).` |
+
   Only SFP+/SFP28/SFP-DD sockets take an FC module. The test suite pins the protocol answer
   against an SFP+ port and deliberately does not pin this one, because a connector refusal would
   prove nothing about the protocol — so the raw `cagesMate('sfp', 'fc-sfp')` matrix says `true`
@@ -115,7 +125,19 @@ Two details worth keeping:
 A 64G port and a 32G port link at 28.05 Gbit/s: the faster port declares the whole ladder it can
 run (`speedCaps`), and negotiation takes the highest rung both ends share, exactly as Ethernet does
 with 1000/10000. Fibre Channel negotiates through 32/16/8, so this falls out of the same rule
-rather than needing a special case.
+rather than needing a special case. Measured over three pairs:
+
+| pair | media offered | chosen | `speedMbps` |
+|---|---|---|---|
+| `MDS 9148S` 16G ↔ `MDS 9148S` 16G | `2g`, `4g`, `8g`, `10g`, `16g` | `16gfc-sw` | **14025** |
+| `MDS 9148S` 16G ↔ `G720` 64G | `16g` only | `16gfc-sw` | **14025** |
+| `G610` 32G ↔ `G720` 64G | `32g`, `16g` | `32gfc-sw` | **28050** |
+
+Two things to read off that table. The offer list narrows to what both ports can actually reach, which is
+why a 16G↔64G pair offers only `16g`: the 64G port's `speedCaps` begin at 14025, so the slower rungs the
+MDS declares are not shared with it. And `speedMbps` is the **negotiated line rate, not the medium's name**:
+16G FC runs at 14.025 Gbit/s and 32G at 28.05, so a link whose `mediaId` says `16gfc-sw` still reports
+`14025`. Reading the medium id as the rate is off by ~12% on every FC rung.
 
 ## Devices
 
