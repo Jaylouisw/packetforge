@@ -483,7 +483,14 @@ services, and a job that has to swap makes the whole queue slower.
 
   That also keeps the run reproducible by a later reader, since the commit it measured is named rather
   than implied. Delete the worktree afterwards (`git worktree remove /tmp/pf-head`) — the repository
-  keeps a list, and stale entries accumulate silently.
+  keeps a list, and stale entries accumulate silently. Measured on this machine while taking the fifth
+  reading, that list had **nine** leftover worktrees in it (`pf-mainsuite`, `pf-combined`, `pf-int`,
+  `pf-main-check`, `pf-mergeall`, `pf-rebase-auto`, `pf-ui`, `tmp/pfwork`, and a second `pf-mainsuite`
+  entry) — every one from a past reading or merge attempt. Note that **`git worktree prune` will not
+  clear them**: prune only forgets entries whose directory has *vanished*, and it reported nothing to do
+  here because all nine directories still exist. Each has to be removed by name,
+  `git worktree remove <path>` (or `--force` when it holds uncommitted work), or they keep consuming
+  disk and keep appearing in `git worktree list` output you may be grepping for your own.
 
   Measured that way on `eeafda5a` — a full run, not a sample:
 
