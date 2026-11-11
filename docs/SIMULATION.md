@@ -698,7 +698,7 @@ i.e. configuring them is decoration:
 - `voiceVlan` (`engine/vlan.js:13`).
 - `iface.dhcp` (`engine/cli.js:1921`).
 - Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:85-98`).
-- RA valid/preferred lifetimes (`engine/cli.js:2259-2289`).
+- RA valid/preferred lifetimes (`engine/cli.js:3035-3073`, printed by `_showIpv6Nd()` at `:12331`).
 
 ---
 

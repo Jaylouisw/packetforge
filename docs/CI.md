@@ -455,6 +455,15 @@ services, and a job that has to swap makes the whole queue slower.
   | Tree | Reading | Red suites |
   |---|---|---|
   | `eeafda5a`, detached worktree, nothing else running | **251 suites in 308.8 s — 10,445 passed, 3 failed** | 2 — `link-parts` (2 assertions) and `ma5801` (a crash) |
+  | `ef85c1a9`, detached worktree, nothing else running | **257 suites in 356.6 s — 10,627 passed, 3 failed** | 2 — the same two, the same 2 + 1 |
+
+  **The headline and the list count different things**, which is why "3 failed" sits above two `✗` lines.
+  `run-tests.js` sums each suite's own `<n> passed, <m> failed` tally, so the headline is failed
+  **assertions**; the `Failed:` block lists failing **suites**. Re-measured on the second reading:
+  `test/link-parts.test.js` says `81 passed, 2 failed`, and `test/ma5801.test.js` throws
+  `TypeError: Cannot read properties of undefined (reading 'hardware')` before printing any tally, so it
+  contributes exactly **1** through `Math.max(failed, 1)` — 2 + 1 = 3 assertions across 2 suites. A
+  crashed suite is therefore always worth **one**, no matter how much of it never ran.
 
   Both are the same two the table above names, for the reasons it gives, and both were re-read rather
   than assumed: `link-parts` reports `the UI carries every catalogue part (34 of 58)` and names the
