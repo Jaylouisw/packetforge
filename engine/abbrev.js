@@ -89,7 +89,26 @@ function lex(text) {
     // rewritten to `all>` - see WORD below.
     if (c === '<') {
       const close = s.indexOf('>', i);
-      if (close !== -1) { out.push(s.slice(i, close + 1)); i = close + 1; continue; }
+      if (close !== -1) {
+        // `<prefix>/<len>` is ONE value on the console - `10.0.0.0/24` is a single word an operator
+        // types - but the `/` rule above turned it into an alternative, so the row
+        // `ipv6 nd prefix <prefix>/<len> [valid <s>]` became *two* rows, one placing `<prefix>` and
+        // one placing `<len>`. Nothing was refused for it: the page quietly offered a choice the
+        // command does not have, and `ipv6 address <addr>/<len>` duplicated the same way.
+        if (s[close + 1] === '/' && s[close + 2] === '<') {
+          const close2 = s.indexOf('>', close + 2);
+          if (close2 !== -1) {
+            // One placeholder, one name: `<prefix/len>`, so `tokenOf` sees a single value slot and
+            // the page says `<prefix/len>` rather than two slots around a literal.
+            out.push('<' + s.slice(i + 1, close) + '/' + s.slice(close + 3, close2) + '>');
+            i = close2 + 1;
+            continue;
+          }
+        }
+        out.push(s.slice(i, close + 1));
+        i = close + 1;
+        continue;
+      }
     }
     if (s.startsWith('…', i)) { out.push('…'); i += 1; continue; }
     WORD.lastIndex = i;

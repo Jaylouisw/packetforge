@@ -12858,9 +12858,16 @@ class CliSession {
       helpLine('no shutdown', 'bring the port back up'),
       helpLine('interface <name>', 'switch to another port, stay in config-if'),
       helpLine('show <what>', 'any exec show, from here too'),
-      helpLine('<any config-mode command>', 'applied globally, then back to config'),
+      // Not a row: `<any config-mode command>` is a value where a verb goes, so the page offered a
+      // placeholder as if it were a command and nothing could complete or abbreviate it. The fact it
+      // stood for is stated once, below the rows, where a reader looking for a verb never trips on it.
       helpLine('help / ?', 'this list'),
-      helpLine('exit / end', 'config / exec')
+      helpLine('exit / end', 'config / exec'),
+      // A prose line, not a row: it starts with `%` and no two-space indent, so the help parser skips
+      // it (it is not a command) and the reader still sees it. Last, where a note belongs - and it is
+      // the one fact this page cannot state as a row, because "any command" is not a command.
+      '% any global configuration command may be typed here: it is applied at global scope, and this ' +
+        'interface block is kept'
     ]);
 
     // Router mode is two processes behind one prompt: `router ospf` and `router bgp` both say
@@ -12946,7 +12953,12 @@ class CliSession {
       helpLine('clear counters [<port>] / clear interface counters', 'zero the per-port counters'),
       helpLine('clear arp [<port>] / clear ip arp', 'empty the ARP cache so learning can be watched again'),
       helpLine('clear ip nat translation [*|<inside-local>]', 'empty the translation table, keeping the rules'),
-      helpLine('clear ip dhcp binding * | <address>', 'empty the DHCP binding table, or one entry of it (DHCP servers)'),
+      // Two rows, not one synopsis with `|` between a wildcard and a value: written as
+      // `... binding * | <address>`, the parser made a second "command" out of `<address>` alone, so
+      // the page carried a row whose first token was a value and nothing could complete or abbreviate
+      // it (`?` offered a placeholder as if it were a verb).
+      helpLine('clear ip dhcp binding *', 'empty the whole DHCP binding table (DHCP servers)'),
+      helpLine('clear ip dhcp binding <address>', 'empty one entry of the DHCP binding table (DHCP servers)'),
       helpLine('clear mac address-table [dynamic | static | vlan <id> | interface <port> | address <mac>]',
         'empty the MAC table, or the part of it that matches (switches)'),
       helpLine('clear arp [interface <port> | <ip>]', 'forget the cache, or one port or one address of it'),
